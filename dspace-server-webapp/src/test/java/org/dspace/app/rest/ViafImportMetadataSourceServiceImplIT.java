@@ -7,12 +7,14 @@
  */
 package org.dspace.app.rest;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.Mockito.when;
 
 import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import org.apache.commons.io.IOUtils;
@@ -102,6 +104,99 @@ public class ViafImportMetadataSourceServiceImplIT extends AbstractLiveImportInt
             ImportRecord importedRecord = viafService.getRecord("9999159477794927990009");
             assertNotNull(importedRecord);
             matchRecord(importedRecord, record2match);
+        } finally {
+            liveImportClientImpl.setHttpClient(originalHttpClient);
+        }
+    }
+
+    @Test
+    public void searchByNameTest() throws Exception {
+        ArrayList<ImportRecord> records = new ArrayList<>();
+        List<MetadatumDTO> metadatums  = new ArrayList<>();
+        MetadatumDTO identifierOther = createMetadatumDTO("dc", "identifier", "other", "8441159477949227990009");
+        MetadatumDTO title = createMetadatumDTO("dc", "title", null, "Hohenlohe-Waldenburg-Schillingsfürst, Carl Albrecht I.");
+        MetadatumDTO gender = createMetadatumDTO("glamperson", "gender", null, "Male");
+        MetadatumDTO birthDate = createMetadatumDTO("person", "birthDate", null, "1719-09-22");
+        MetadatumDTO deathDate = createMetadatumDTO("glamperson", "deathDate", null, "1793-01-25");
+        metadatums.add(identifierOther);
+        metadatums.add(title);
+        metadatums.add(gender);
+        metadatums.add(birthDate);
+        metadatums.add(deathDate);
+        records.add(new ImportRecord(metadatums));
+
+        List<MetadatumDTO> metadatums2  = new ArrayList<>();
+        MetadatumDTO identifierOther2 = createMetadatumDTO("dc", "identifier", "other", "7646174414001308700008");
+        MetadatumDTO title2 = createMetadatumDTO("dc", "title", null, "Farina, Carlo");
+        MetadatumDTO gender2 = createMetadatumDTO("glamperson", "gender", null, "Male");
+        MetadatumDTO deathDate2 = createMetadatumDTO("glamperson", "deathDate", null, "1639");
+        metadatums2.add(identifierOther2);
+        metadatums2.add(title2);
+        metadatums2.add(gender2);
+        metadatums2.add(deathDate2);
+        records.add(new ImportRecord(metadatums2));
+
+        List<MetadatumDTO> metadatums3  = new ArrayList<>();
+        MetadatumDTO identifierOther3 = createMetadatumDTO("dc", "identifier", "other", "7196150325547210090003");
+        MetadatumDTO title3 = createMetadatumDTO("dc", "title", null, "Leo I");
+        MetadatumDTO gender3 = createMetadatumDTO("glamperson", "gender", null, "Male");
+        MetadatumDTO birthDate3 = createMetadatumDTO("person", "birthDate", null, "1806-12-13");
+        MetadatumDTO deathDate3 = createMetadatumDTO("glamperson", "deathDate", null, "1881-04-14");
+        metadatums3.add(identifierOther3);
+        metadatums3.add(title3);
+        metadatums3.add(gender3);
+        metadatums3.add(birthDate3);
+        metadatums3.add(deathDate3);
+        records.add(new ImportRecord(metadatums3));
+
+        context.turnOffAuthorisationSystem();
+        CloseableHttpClient originalHttpClient = liveImportClientImpl.getHttpClient();
+        CloseableHttpClient httpClient = Mockito.mock(CloseableHttpClient.class);
+
+        try (InputStream viafResponceIS = getClass().getResourceAsStream("viaf-searchByName.json");
+             InputStream carlo1IS = getClass().getResourceAsStream("viaf-Carlo-responce1.json");
+             InputStream carlo2IS = getClass().getResourceAsStream("viaf-Carlo-responce2.json");
+             InputStream carlo3IS = getClass().getResourceAsStream("viaf-Carlo-responce3.json")) {
+
+            String viafSearchByNameResp = IOUtils.toString(viafResponceIS, Charset.defaultCharset());
+            String viafEnrico1Resp = IOUtils.toString(carlo1IS, Charset.defaultCharset());
+            String viafEnrico2Resp = IOUtils.toString(carlo2IS, Charset.defaultCharset());
+            String viafEnrico3Resp = IOUtils.toString(carlo3IS, Charset.defaultCharset());
+
+            liveImportClientImpl.setHttpClient(httpClient);
+            CloseableHttpResponse response1 = mockResponse(viafSearchByNameResp, 200, "OK");
+            CloseableHttpResponse response2 = mockResponse(viafEnrico1Resp, 200, "OK");
+            CloseableHttpResponse response3 = mockResponse(viafEnrico2Resp, 200, "OK");
+            CloseableHttpResponse response4 = mockResponse(viafEnrico3Resp, 200, "OK");
+
+            when(httpClient.execute(ArgumentMatchers.any())).thenReturn(response1, response2, response3, response4);
+
+            context.restoreAuthSystemState();
+            Collection<ImportRecord> importedRecords = viafService.getRecords("Carlo", 1, 3);
+            assertEquals(3, importedRecords.size());
+            matchRecords(new ArrayList<>(importedRecords), records);
+        } finally {
+            liveImportClientImpl.setHttpClient(originalHttpClient);
+        }
+    }
+
+    @Test
+    public void viafGetRecordsCount() throws Exception {
+        context.turnOffAuthorisationSystem();
+        CloseableHttpClient originalHttpClient = liveImportClientImpl.getHttpClient();
+        CloseableHttpClient httpClient = Mockito.mock(CloseableHttpClient.class);
+
+        try (InputStream viafResponceIS = getClass().getResourceAsStream("viaf-searchByName.json")) {
+
+            String viafSearchByNameResp = IOUtils.toString(viafResponceIS, Charset.defaultCharset());
+            CloseableHttpResponse response1 = mockResponse(viafSearchByNameResp, 200, "OK");
+
+            liveImportClientImpl.setHttpClient(httpClient);
+            when(httpClient.execute(ArgumentMatchers.any())).thenReturn(response1);
+
+            context.restoreAuthSystemState();
+            int numberOfRecords = viafService.getRecordsCount("Carlo");
+            assertEquals(634, numberOfRecords);
         } finally {
             liveImportClientImpl.setHttpClient(originalHttpClient);
         }

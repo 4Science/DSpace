@@ -1,0 +1,759 @@
+{
+  "ns1:VIAFCluster": {
+    "ns1:viafID": 8441159477949227990009,
+    "ns1:creationtime": "2025-08-02T07:34:01.269390+00:00",
+    "ns1:nationalityOfEntity": {
+      "ns1:data": {
+        "ns1:sources": {
+          "ns1:s": "DNB"
+        },
+        "ns1:text": "DE"
+      }
+    },
+    "ns1:nameType": "Personal",
+    "ns1:x400s": {
+      "ns1:x400": [
+        {
+          "ns1:sources": {
+            "ns1:s": "WKP",
+            "ns1:sid": "WKP|Q60710922"
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": {
+              "code": "a",
+              "content": "Carlo Alberto I di Hohenlohe-Waldenburg-Schillingsfürst"
+            },
+            "ind1": 0,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "carlo alberto i di hohenlohe waldenburg schillingsfurst"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "WKP",
+            "ns1:sid": "WKP|Q60710922"
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": [
+              {
+                "code": "a",
+                "content": "Charles Albert I, Prince of Hohenlohe-Waldenburg-Schillingsfürst"
+              },
+              {
+                "code": "c",
+                "content": "second prince of Hohenlohe-Waldenburg-Schillingsfürst"
+              }
+            ],
+            "ind1": 1,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "charles albert i prince of hohenlohe waldenburg schillingsfurst second prince of hohenlohe waldenburg schillingsfurst"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "WKP",
+            "ns1:sid": "WKP|Q60710922"
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": {
+              "code": "a",
+              "content": "Charles-Albert Ier"
+            },
+            "ind1": 0,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "charles albert ier"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "DNB",
+            "ns1:sid": "DNB|116956011"
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": [
+              {
+                "code": "a",
+                "content": "Hohenlohe Waldenburg Schillingsfürst, Carl Albrecht"
+              },
+              {
+                "code": "b",
+                "content": "I."
+              },
+              {
+                "code": "d",
+                "content": "1719-1793"
+              }
+            ],
+            "ind1": 1,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "hohenlohe waldenburg schillingsfurst carl albrecht i 1719 1793"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "DE633",
+            "ns1:sid": [
+              "DE633|pe50036228",
+              "DE633|people50036228"
+            ]
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": {
+              "code": "a",
+              "content": "Hohenlohe Waldenburg Schillingsfürst, Carl Albrecht"
+            },
+            "ind1": 1,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "hohenlohe waldenburg schillingsfurst carl albrecht"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "DNB",
+            "ns1:sid": "DNB|116956011"
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": [
+              {
+                "code": "a",
+                "content": "Hohenlohe-Schillingsfürst, Karl Albrecht zu"
+              },
+              {
+                "code": "d",
+                "content": "1719-1793"
+              }
+            ],
+            "ind1": 1,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "hohenlohe schillingsfurst karl albrecht 1719 1793"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "DE633",
+            "ns1:sid": [
+              "DE633|pe50036228",
+              "DE633|people50036228"
+            ]
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": {
+              "code": "a",
+              "content": "Hohenlohe-Schillingsfürst, Karl Albrecht zu"
+            },
+            "ind1": 1,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "hohenlohe schillingsfurst karl albrecht zu"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "DE633",
+            "ns1:sid": [
+              "DE633|pe50036228",
+              "DE633|people50036228"
+            ]
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": {
+              "code": "a",
+              "content": "Hohenlohe-Waldenburg-Schillingsfürst, Carl Albrecht I."
+            },
+            "ind1": 1,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "hohenlohe waldenburg schillingsfurst carl albrecht i"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "WKP",
+            "ns1:sid": "WKP|Q60710922"
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": {
+              "code": "a",
+              "content": "Karel Albrecht I van Hohenlohe-Waldenburg-Schillingsfürst"
+            },
+            "ind1": 0,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "karel albrecht i van hohenlohe waldenburg schillingsfurst"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "WKP",
+            "ns1:sid": "WKP|Q60710922"
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": {
+              "code": "a",
+              "content": "Karel Albrecht I."
+            },
+            "ind1": 0,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "karel albrecht i"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "WKP",
+            "ns1:sid": "WKP|Q60710922"
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": [
+              {
+                "code": "a",
+                "content": "Karl Albrecht I."
+              },
+              {
+                "code": "c",
+                "content": "2. Fürst der katholischen Linie Waldenburg-Schillingsfürst des Hauses Hohenlohe"
+              }
+            ],
+            "ind1": 0,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "karl albrecht i 2 furst der katholischen linie waldenburg schillingsfurst des hauses hohenlohe"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "DNB",
+            "ns1:sid": "DNB|116956011"
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": [
+              {
+                "code": "a",
+                "content": "Schillingsfürst, Carl Albrecht"
+              },
+              {
+                "code": "b",
+                "content": "I."
+              },
+              {
+                "code": "d",
+                "content": "1719-1793"
+              }
+            ],
+            "ind1": 1,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "schillingsfurst carl albrecht i 1719 1793"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "DE633",
+            "ns1:sid": [
+              "DE633|pe50036228",
+              "DE633|people50036228"
+            ]
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": {
+              "code": "a",
+              "content": "Schillingsfürst, Carl Albrecht"
+            },
+            "ind1": 1,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "schillingsfurst carl albrecht"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "DNB",
+            "ns1:sid": "DNB|116956011"
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": [
+              {
+                "code": "a",
+                "content": "Waldenburg-Schillingsfürst, Carl Albrecht"
+              },
+              {
+                "code": "b",
+                "content": "I."
+              },
+              {
+                "code": "d",
+                "content": "1719-1793"
+              }
+            ],
+            "ind1": 1,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "waldenburg schillingsfurst carl albrecht i 1719 1793"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "DE633",
+            "ns1:sid": [
+              "DE633|pe50036228",
+              "DE633|people50036228"
+            ]
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": {
+              "code": "a",
+              "content": "Waldenburg-Schillingsfürst, Carl Albrecht"
+            },
+            "ind1": 1,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "waldenburg schillingsfurst carl albrecht"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "WKP",
+            "ns1:sid": "WKP|Q60710922"
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": [
+              {
+                "code": "a",
+                "content": "Карл Албрехт I фон Хоенлое-Валденбург-Шилингсфюрст"
+              },
+              {
+                "code": "c",
+                "content": "княз на Хоенлое-Валденбург в Шилингсфюрст"
+              }
+            ],
+            "ind1": 0,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "карл албрехт i фон хоенлое валденбург шилингсфюрст княз на хоенлое валденбург в шилингсфюрст"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "WKP",
+            "ns1:sid": "WKP|Q60710922"
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": {
+              "code": "a",
+              "content": "Карл Альберт I Гогенлоэ-Вальденбург-Шиллингсфюрст"
+            },
+            "ind1": 0,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "карл альберт i гогенлоэ вальденбург шиллингсфюрст"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "WKP",
+            "ns1:sid": "WKP|Q60710922"
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": {
+              "code": "a",
+              "content": "卡爾·阿爾布雷希特一世"
+            },
+            "ind1": 0,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "卡尒 啊尒佈雷希特一世"
+          }
+        }
+      ]
+    },
+    "ns1:x500s": {
+      "ns1:x500": [
+        {
+          "ns1:sources": {
+            "ns1:s": "DE633",
+            "ns1:sid": [
+              "DE633|pe50036228",
+              "DE633|people50036228"
+            ]
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": {
+              "code": "a",
+              "content": "Schillingsfürst"
+            },
+            "ind1": " ",
+            "dtype": "MARC21",
+            "tag": 551,
+            "ns1:normalized": "schillingsfurst"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "DE633",
+            "ns1:sid": [
+              "DE633|pe50036228",
+              "DE633|people50036228"
+            ]
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": {
+              "code": "a",
+              "content": "Wien"
+            },
+            "ind1": " ",
+            "dtype": "MARC21",
+            "tag": 551,
+            "ns1:normalized": "wien"
+          }
+        }
+      ]
+    },
+    "ns1:length": 90,
+    "ns1:deathDate": "1793-01-25",
+    "ns1:dateType": "lived",
+    "xmlns:rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+    "ns1:mainHeadings": {
+      "ns1:data": [
+        {
+          "ns1:sources": {
+            "ns1:s": "DE633",
+            "ns1:sid": [
+              "DE633|pe50036228",
+              "DE633|people50036228"
+            ]
+          },
+          "ns1:text": "Hohenlohe-Waldenburg-Schillingsfürst, Karl Albrecht I. Fürst von 1719-1793"
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "WKP",
+            "ns1:sid": "WKP|Q60710922"
+          },
+          "ns1:text": "Karl Albrecht I Friedrich Ignatius Franz von Hohenlohe-Waldenburg-Schillingsfürst"
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "DNB",
+            "ns1:sid": "DNB|116956011"
+          },
+          "ns1:text": "Hohenlohe-Waldenburg-Schillingsfürst, Carl Albrecht I. 1719-1793"
+        }
+      ],
+      "ns1:mainHeadingEl": [
+        {
+          "ns1:sources": {
+            "ns1:s": "DNB",
+            "ns1:sid": "DNB|116956011"
+          },
+          "ns1:links": {
+            "ns1:link": [
+              {
+                "ns1:match": {
+                  "type": "suggested"
+                },
+                "content": "DE633|pe50036228"
+              },
+              {
+                "ns1:match": {
+                  "type": "suggested"
+                },
+                "content": "WKP|Q60710922"
+              },
+              {
+                "ns1:match": {
+                  "type": "suggested"
+                },
+                "content": "DE633|people50036228"
+              }
+            ]
+          },
+          "ns1:id": "DNB|116956011",
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": [
+              {
+                "code": "a",
+                "content": "Hohenlohe-Waldenburg-Schillingsfürst, Carl Albrecht"
+              },
+              {
+                "code": "b",
+                "content": "I."
+              },
+              {
+                "code": "d",
+                "content": "1719-1793"
+              }
+            ],
+            "ind1": 1,
+            "dtype": "MARC21",
+            "tag": 100
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "DE633",
+            "ns1:sid": "DE633|people50036228"
+          },
+          "ns1:links": {
+            "ns1:link": [
+              {
+                "ns1:match": {
+                  "type": "suggested"
+                },
+                "content": "DNB|116956011"
+              },
+              {
+                "ns1:match": {
+                  "type": "suggested"
+                },
+                "content": "WKP|Q60710922"
+              },
+              {
+                "ns1:match": {
+                  "type": "duplicate record"
+                },
+                "content": "DE633|pe50036228"
+              }
+            ]
+          },
+          "ns1:id": "DE633|people50036228",
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": [
+              {
+                "code": "a",
+                "content": "Hohenlohe-Waldenburg-Schillingsfürst, Karl Albrecht I. Fürst von"
+              },
+              {
+                "code": "d",
+                "content": "1719-1793"
+              }
+            ],
+            "ind1": 1,
+            "dtype": "MARC21",
+            "tag": 100
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "DE633",
+            "ns1:sid": "DE633|pe50036228"
+          },
+          "ns1:links": {
+            "ns1:link": [
+              {
+                "ns1:match": {
+                  "type": "suggested"
+                },
+                "content": "DNB|116956011"
+              },
+              {
+                "ns1:match": {
+                  "type": "suggested"
+                },
+                "content": "WKP|Q60710922"
+              },
+              {
+                "ns1:match": {
+                  "type": "duplicate record"
+                },
+                "content": "DE633|people50036228"
+              }
+            ]
+          },
+          "ns1:id": "DE633|pe50036228",
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": [
+              {
+                "code": "a",
+                "content": "Hohenlohe-Waldenburg-Schillingsfürst, Karl Albrecht I. Fürst von"
+              },
+              {
+                "code": "d",
+                "content": "1719-1793"
+              }
+            ],
+            "ind1": 1,
+            "dtype": "MARC21",
+            "tag": 100
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "WKP",
+            "ns1:sid": "WKP|Q60710922"
+          },
+          "ns1:links": {
+            "ns1:link": [
+              {
+                "ns1:match": {
+                  "type": "suggested"
+                },
+                "content": "DNB|116956011"
+              },
+              {
+                "ns1:match": {
+                  "type": "suggested"
+                },
+                "content": "DE633|pe50036228"
+              },
+              {
+                "ns1:match": {
+                  "type": "suggested"
+                },
+                "content": "DE633|people50036228"
+              }
+            ]
+          },
+          "ns1:id": "WKP|Q60710922",
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": {
+              "code": "a",
+              "content": "Karl Albrecht I Friedrich Ignatius Franz von Hohenlohe-Waldenburg-Schillingsfürst"
+            },
+            "ind1": 0,
+            "dtype": "MARC21",
+            "tag": 100
+          }
+        }
+      ]
+    },
+    "ns1:fixed": {
+      "ns1:gender": "b"
+    },
+    "xmlns:void": "http://rdfs.org/ns/void#",
+    "ns1:Document": {
+      "ns1:inDataset": {
+        "resource": "http://viaf.org/viaf/data"
+      },
+      "ns1:primaryTopic": {
+        "resource": "http://viaf.org/viaf/8441159477949227990009"
+      },
+      "about": "http://viaf.org/viaf/8441159477949227990009/"
+    },
+    "xmlns": "http://viaf.org/viaf/terms#",
+    "xmlns:ns1": "http://viaf.org/viaf/terms#",
+    "ns1:sources": {
+      "ns1:source": [
+        {
+          "nsid": "people/50036228",
+          "content": "DE633|people50036228"
+        },
+        {
+          "nsid": "http://d-nb.info/gnd/116956011",
+          "content": "DNB|116956011"
+        },
+        {
+          "nsid": "Q60710922",
+          "content": "WKP|Q60710922"
+        },
+        {
+          "nsid": "pe50036228",
+          "content": "DE633|pe50036228"
+        }
+      ]
+    },
+    "ns1:titles": "",
+    "xmlns:foaf": "http://xmlns.com/foaf/0.1/",
+    "ns1:history": {
+      "ns1:ht": [
+        {
+          "time": "2020-07-14T17:18:12.861498+00:00",
+          "type": "add",
+          "recid": "DNB|116956011"
+        },
+        {
+          "time": "2020-12-20T04:42:24.005570+00:00",
+          "type": "delete",
+          "recid": "WKP|Q94865653"
+        },
+        {
+          "time": "2020-12-20T05:44:49.703498+00:00",
+          "type": "add",
+          "recid": "WKP|Q60710922"
+        },
+        {
+          "time": "2023-07-04T05:14:04.456549+00:00",
+          "type": "add",
+          "recid": "DE633|pe50036228"
+        },
+        {
+          "time": "2023-07-31T03:09:54.681287+00:00",
+          "type": "delete",
+          "recid": "DE663|pe50036228"
+        },
+        {
+          "time": "2025-08-02T07:34:01.255454+00:00",
+          "type": "add",
+          "recid": "DE633|people50036228"
+        }
+      ]
+    },
+    "ns1:xLinks": {
+      "ns1:xLink": [
+        {
+          "ns1:sources": {
+            "ns1:s": "WKP",
+            "ns1:sid": "WKP|Q60710922"
+          },
+          "type": "Wikipedia",
+          "content": "https://bg.wikipedia.org/wiki/Карл_Албрехт_I_фон_Хоенлое-Валденбург-Шилингсфюрст"
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "WKP",
+            "ns1:sid": "WKP|Q60710922"
+          },
+          "type": "Wikipedia",
+          "content": "https://de.wikipedia.org/wiki/Karl_Albrecht_I._(Hohenlohe-Waldenburg-Schillingsfürst)"
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "WKP",
+            "ns1:sid": "WKP|Q60710922"
+          },
+          "type": "Wikipedia",
+          "content": "https://it.wikipedia.org/wiki/Carlo_Alberto_I_di_Hohenlohe-Waldenburg-Schillingsfürst"
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "WKP",
+            "ns1:sid": "WKP|Q60710922"
+          },
+          "type": "Wikipedia",
+          "content": "https://zh.wikipedia.org/wiki/卡爾·阿爾布雷希特一世"
+        }
+      ]
+    },
+    "ns1:birthDate": "1719-09-22",
+    "xmlns:owl": "http://www.w3.org/2002/07/owl#"
+  }
+}
