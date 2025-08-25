@@ -114,7 +114,8 @@ public class ViafImportMetadataSourceServiceImplIT extends AbstractLiveImportInt
         ArrayList<ImportRecord> records = new ArrayList<>();
         List<MetadatumDTO> metadatums  = new ArrayList<>();
         MetadatumDTO identifierOther = createMetadatumDTO("dc", "identifier", "other", "8441159477949227990009");
-        MetadatumDTO title = createMetadatumDTO("dc", "title", null, "Hohenlohe-Waldenburg-Schillingsfürst, Carl Albrecht I.");
+        MetadatumDTO title = createMetadatumDTO("dc", "title", null,
+                                          "Hohenlohe-Waldenburg-Schillingsfürst, Carl Albrecht I.");
         MetadatumDTO gender = createMetadatumDTO("glamperson", "gender", null, "Male");
         MetadatumDTO birthDate = createMetadatumDTO("person", "birthDate", null, "1719-09-22");
         MetadatumDTO deathDate = createMetadatumDTO("glamperson", "deathDate", null, "1793-01-25");
