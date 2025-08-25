@@ -8543,4 +8543,96 @@ public class DiscoveryRestControllerIT extends AbstractControllerIntegrationTest
 
     }
 
+
+    @Test
+    public void discoverSearchObjectsWithNegativeDate() throws Exception {
+        //We turn off the authorization system in order to create the structure as defined below
+        context.turnOffAuthorisationSystem();
+
+        //** GIVEN **
+        //1. A community-collection structure with one parent community with sub-community and two collections.
+        parentCommunity = CommunityBuilder.createCommunity(context)
+                                          .withName("Parent Community")
+                                          .build();
+        Community child1 = CommunityBuilder.createSubCommunity(context, parentCommunity)
+                                           .withName("Sub Community")
+                                           .build();
+        Collection col1 = CollectionBuilder.createCollection(context, child1).withName("Collection 1").build();
+        Collection col2 = CollectionBuilder.createCollection(context, child1).withName("Collection 2").build();
+        //2. Three public items that are readable by Anonymous with different subjects
+
+        Item publicItem3 = ItemBuilder.createItem(context, col2)
+                                      .withTitle("Public item 2")
+                                      .withIssueDate("-2010-02-13")
+                                      .build();
+
+        context.restoreAuthSystemState();
+
+
+        getClient().perform(get("/api/discover/search/objects")
+                                .param("f.dateIssued", "[-2009 TO 0],equals")
+                   )
+                   //** THEN **
+                   //The status has to be 200 OK
+                   .andExpect(status().isOk())
+                   //The type has to be 'discover'
+                   .andExpect(jsonPath("$.type", is("discover")))
+                   //The page object needs to look like this
+                   .andExpect(jsonPath("$._embedded.searchResult.page", is(
+                       PageMatcher.pageEntry(0, 20)
+                   )))
+                   //The search results have to contain the items that match the searchFilter
+                   .andExpect(jsonPath("$._embedded.searchResult._embedded.objects", Matchers.hasItem(
+                       SearchResultMatcher.matchOnItemName("item", "items", "Public item 2")
+                   )))
+        ;
+
+    }
+
+
+    @Test
+    public void discoverSearchObjectsWithNegativeDateWithZeros() throws Exception {
+        //We turn off the authorization system in order to create the structure as defined below
+        context.turnOffAuthorisationSystem();
+
+        //** GIVEN **
+        //1. A community-collection structure with one parent community with sub-community and two collections.
+        parentCommunity = CommunityBuilder.createCommunity(context)
+                                          .withName("Parent Community")
+                                          .build();
+        Community child1 = CommunityBuilder.createSubCommunity(context, parentCommunity)
+                                           .withName("Sub Community")
+                                           .build();
+        Collection col1 = CollectionBuilder.createCollection(context, child1).withName("Collection 1").build();
+        Collection col2 = CollectionBuilder.createCollection(context, child1).withName("Collection 2").build();
+        //2. Three public items that are readable by Anonymous with different subjects
+
+        Item publicItem3 = ItemBuilder.createItem(context, col2)
+                                      .withTitle("Public item 2")
+                                      .withIssueDate("-0010-02-13")
+                                      .build();
+
+        context.restoreAuthSystemState();
+
+
+        getClient().perform(get("/api/discover/search/objects")
+                                .param("f.dateIssued", "[-9 TO 0],equals")
+                   )
+                   //** THEN **
+                   //The status has to be 200 OK
+                   .andExpect(status().isOk())
+                   //The type has to be 'discover'
+                   .andExpect(jsonPath("$.type", is("discover")))
+                   //The page object needs to look like this
+                   .andExpect(jsonPath("$._embedded.searchResult.page", is(
+                       PageMatcher.pageEntry(0, 20)
+                   )))
+                   //The search results have to contain the items that match the searchFilter
+                   .andExpect(jsonPath("$._embedded.searchResult._embedded.objects", Matchers.hasItem(
+                       SearchResultMatcher.matchOnItemName("item", "items", "Public item 2")
+                   )))
+        ;
+
+    }
+
 }

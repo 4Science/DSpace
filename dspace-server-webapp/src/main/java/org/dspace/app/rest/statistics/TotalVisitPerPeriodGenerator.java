@@ -173,7 +173,8 @@ public class TotalVisitPerPeriodGenerator extends AbstractUsageReportGenerator {
     }
 
     private long calculatePeriodFromToday(String date) {
-        Date startDate = MultiFormatDateParser.parse(date);
+        LocalDate startLocalDate = MultiFormatDateParser.parse(date);
+        Date startDate = Date.from(startLocalDate.atStartOfDay(ZoneId.of("UTC")).toInstant());
         Date endDate = new Date();
         return calculatePeriodBetweenDates(startDate, endDate);
     }
@@ -253,7 +254,8 @@ public class TotalVisitPerPeriodGenerator extends AbstractUsageReportGenerator {
     }
 
     public void setDefaultStartDate(String date) {
-        Date parsedDate = MultiFormatDateParser.parse(date);
+        LocalDate startLocalDate = MultiFormatDateParser.parse(date);
+        Date parsedDate = Date.from(startLocalDate.atStartOfDay(ZoneId.of("UTC")).toInstant());
         if (parsedDate == null) {
             throw new IllegalStateException("Unsupported date " + date + " provided to TotalVisitPerPeriodGenerator");
         }
@@ -305,7 +307,7 @@ public class TotalVisitPerPeriodGenerator extends AbstractUsageReportGenerator {
     }
 
     private boolean isAfterToday(String date) {
-        return MultiFormatDateParser.parse(date).after(new Date());
+        return MultiFormatDateParser.parse(date).isAfter(LocalDate.now());
     }
 
     private String formatDate(Date date) {

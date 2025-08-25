@@ -11,8 +11,10 @@ import static org.dspace.discovery.SolrServiceImpl.SOLR_FIELD_SUFFIX_FACET_PREFI
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.time.LocalDate;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -438,7 +440,7 @@ public class ItemIndexFactoryImpl extends DSpaceObjectIndexFactoryImpl<Indexable
                     }
 
                     for (DiscoverySearchFilter searchFilter : searchFilterConfigs) {
-                        Date date = null;
+                        LocalDate date = null;
                         String separator = DSpaceServicesFactory.getInstance().getConfigurationService()
                                 .getProperty("discovery.solr.facets.split.char");
                         // GEOPOINT fields are configured using the additionalPlugin
@@ -454,7 +456,7 @@ public class ItemIndexFactoryImpl extends DSpaceObjectIndexFactoryImpl<Indexable
                             date = MultiFormatDateParser.parse(value);
                             if (date != null) {
                                 //TODO: make this date format configurable !
-                                value = DateFormatUtils.formatUTC(date, "yyyy-MM-dd");
+                                value = DateTimeFormatter.ISO_LOCAL_DATE.format(date);
                             }
                         }
                         doc.addField(searchFilter.getIndexFieldName(), value);
@@ -531,7 +533,7 @@ public class ItemIndexFactoryImpl extends DSpaceObjectIndexFactoryImpl<Indexable
                             } else if (searchFilter.getType().equals(DiscoveryConfigurationParameters.TYPE_DATE)) {
                                 if (date != null) {
                                     String indexField = searchFilter.getIndexFieldName() + ".year";
-                                    String yearUTC = DateFormatUtils.formatUTC(date, "yyyy");
+                                    String yearUTC = String.valueOf(date.getYear());
                                     doc.addField(searchFilter.getIndexFieldName() + "_keyword", yearUTC);
                                     // add the year to the autocomplete index
                                     doc.addField(searchFilter.getIndexFieldName() + "_ac", yearUTC);
@@ -607,9 +609,9 @@ public class ItemIndexFactoryImpl extends DSpaceObjectIndexFactoryImpl<Indexable
                                 }
                                 String facetValue = value;
                                 if (graphFacet.isDate()) {
-                                    Date parsedValue = MultiFormatDateParser.parse(value);
+                                    LocalDate parsedValue = MultiFormatDateParser.parse(value);
                                     if (parsedValue != null) {
-                                        facetValue = DateFormatUtils.formatUTC(parsedValue, "yyyy");
+                                        facetValue = String.valueOf(parsedValue.getYear());
                                     }
                                 } else if (StringUtils.isNotBlank(graphFacet.getSplitter())) {
                                     String[] split = value.split(graphFacet.getSplitter());
@@ -655,9 +657,11 @@ public class ItemIndexFactoryImpl extends DSpaceObjectIndexFactoryImpl<Indexable
                     }
 
                     if (type.equals(DiscoveryConfigurationParameters.TYPE_DATE)) {
-                        Date date = MultiFormatDateParser.parse(value);
+                        LocalDate date = MultiFormatDateParser.parse(value);
                         if (date != null) {
-                            String stringDate = SolrUtils.getDateFormatter().format(date);
+                            String stringDate = SolrUtils
+                                .getDateTimeFormatter()
+                                .format(date.atStartOfDay().atOffset(ZoneOffset.UTC));
                             doc.addField(field + "_dt", stringDate);
                         } else {
                             log.warn("Error while indexing sort date field, item: " + item
@@ -855,7 +859,7 @@ public class ItemIndexFactoryImpl extends DSpaceObjectIndexFactoryImpl<Indexable
      * @param separator the separator being used to separate lowercase and regular case
      */
     private void indexIfFilterTypeFacet(SolrInputDocument doc, DiscoverySearchFilter searchFilter, String value,
-                                   Date date, String authority, String preferedLabel, String separator) {
+                                   LocalDate date, String authority, String preferedLabel, String separator) {
         if (searchFilter.getType().equals(DiscoveryConfigurationParameters.TYPE_TEXT)) {
             //Add a special filter
             //We use a separator to split up the lowercase and regular case, this is needed to
@@ -875,7 +879,7 @@ public class ItemIndexFactoryImpl extends DSpaceObjectIndexFactoryImpl<Indexable
         } else if (searchFilter.getType().equals(DiscoveryConfigurationParameters.TYPE_DATE)) {
             if (date != null) {
                 String indexField = searchFilter.getIndexFieldName() + ".year";
-                String yearUTC = DateFormatUtils.formatUTC(date, "yyyy");
+                String yearUTC = String.valueOf(date.getYear());
                 doc.addField(searchFilter.getIndexFieldName() + "_keyword", yearUTC);
                 // add the year to the autocomplete index
                 doc.addField(searchFilter.getIndexFieldName() + "_ac", yearUTC);
@@ -978,4 +982,39 @@ public class ItemIndexFactoryImpl extends DSpaceObjectIndexFactoryImpl<Indexable
             }
         }
     }
+
+
+//    private String convertToSolrDate(String value) {
+//        // Example inputs: "-0009-06-17", "17-06-0009 B.C."
+//        // Return Solr compatible date string like "-0009-06-17T00:00:00Z"
+//
+//        if (value == null) {
+//            return null;
+//        }
+//
+//        // Basic detection of BC in string (customize per your input format)
+//        boolean isBC = value.startsWith("-");
+//
+//        if (isBC) {
+//            // Parse day, month, year from the value depending on format
+//            int year = extractYearFromBCFormat(value); // Implement this
+//            int adjustedYear = -(year - 1); // Solr uses year 0 = 1 BC
+//
+//            // Parse month and day, or default to 01-01 if missing
+//            int month = extractMonth(value);
+//            int day = extractDay(value);
+//
+//            // Format ISO date string with adjusted negative year and UTC time
+//            return String.format("%+05d-%02d-%02dT00:00:00Z", adjustedYear, month, day);
+//        } else {
+//            // Non-BC value, parse with current method and format as usual
+//            LocalDate date = MultiFormatDateParser.parse(value);
+//            if (date != null) {
+//                return DateFormatUtils.formatUTC(date, "yyyy-MM-dd'T'HH:mm:ss'Z'");
+//            }
+//        }
+//        return null;
+//    }
+
+
 }

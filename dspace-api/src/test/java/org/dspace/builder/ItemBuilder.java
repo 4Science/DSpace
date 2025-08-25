@@ -101,7 +101,7 @@ public class ItemBuilder extends AbstractDSpaceObjectBuilder<Item> {
 
     public ItemBuilder withIssueDate(final String issueDate) {
         return addMetadataValue(item, MetadataSchemaEnum.DC.getName(),
-                "date", "issued", new DCDate(issueDate).toString());
+                "date", "issued", issueDate);
     }
 
     public ItemBuilder withDateAvailable(final String dateAvailable) {

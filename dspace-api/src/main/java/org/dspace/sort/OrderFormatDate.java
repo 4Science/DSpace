@@ -7,7 +7,8 @@
  */
 package org.dspace.sort;
 
-import java.util.Date;
+import java.time.LocalDate;
+import java.time.ZoneId;
 
 import org.dspace.util.MultiFormatDateParser;
 
@@ -21,14 +22,10 @@ import org.dspace.util.MultiFormatDateParser;
 public class OrderFormatDate implements OrderFormatDelegate {
     @Override
     public String makeSortString(String value, String language) {
-        Date result = MultiFormatDateParser.parse(value);
-
-        // If parsing was successful we return the value as an ISO instant,
-        // otherwise we return null so Solr does not index this date value.
-        if (result != null) {
-            return result.toInstant().toString();
-        } else {
+        LocalDate localDate = MultiFormatDateParser.parse(value);
+        if (localDate == null) {
             return null;
         }
+        return localDate.atStartOfDay(ZoneId.of("UTC")).toInstant().toString();
     }
 }

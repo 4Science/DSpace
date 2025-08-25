@@ -11,6 +11,8 @@ import static org.dspace.util.MultiFormatDateParser.parse;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.Date;
 
 import org.dspace.authorize.ResourcePolicy;
@@ -103,8 +105,12 @@ public class ResourcePolicyMatcher extends TypeSafeMatcher<ResourcePolicy> {
 
     public static ResourcePolicyMatcher matches(int actionId, Group group, String rpName, String rpType,
         String startDate, String endDate, String description) {
-        return matches(actionId, group, rpName, rpType, startDate != null ? parse(startDate) : null,
-            endDate != null ? parse(endDate) : null, description);
+        LocalDate startLocalDate = parse(startDate);
+        Date start = Date.from(startLocalDate.atStartOfDay(ZoneId.of("UTC")).toInstant());
+        LocalDate endLocalDate = parse(endDate);
+        Date end = Date.from(endLocalDate.atStartOfDay(ZoneId.of("UTC")).toInstant());
+        return matches(actionId, group, rpName, rpType, startDate != null ? start : null,
+            endDate != null ? end : null, description);
     }
 
     @Override

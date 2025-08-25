@@ -3325,7 +3325,7 @@ public class StatisticsRestRepositoryIT extends AbstractControllerIntegrationTes
     }
 
     private List<UsageReportPointRest> getListOfVisitsPerMonthsPoints(int viewsLastMonth, String monthsBack) {
-        LocalDate startDate = toLocalDate(MultiFormatDateParser.parse(monthsBack)).with(ChronoField.DAY_OF_MONTH, 1L);
+        LocalDate startDate = MultiFormatDateParser.parse(monthsBack).with(ChronoField.DAY_OF_MONTH, 1L);
         LocalDate endDate = LocalDate.now().with(ChronoField.DAY_OF_MONTH, 1L);
         int nrOfMonthsBack = (int) ChronoUnit.MONTHS.between(startDate, endDate);
         return getListOfVisitsPerMonthsPoints(viewsLastMonth, nrOfMonthsBack);

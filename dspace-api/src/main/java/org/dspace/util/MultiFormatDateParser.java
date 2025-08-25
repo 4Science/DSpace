@@ -13,6 +13,10 @@ import java.io.InputStreamReader;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -63,33 +67,6 @@ public class MultiFormatDateParser {
         };
     }
 
-    @Inject
-    public void setPatterns(Map<String, String> patterns) {
-        for (Entry<String, String> rule : patterns.entrySet()) {
-            Pattern pattern;
-            try {
-                pattern = Pattern.compile(rule.getKey(), Pattern.CASE_INSENSITIVE);
-            } catch (PatternSyntaxException ex) {
-                log.error("Skipping format with unparseable pattern '{}'",
-                        rule::getKey);
-                continue;
-            }
-
-            SimpleDateFormat format;
-            try {
-                format = new SimpleDateFormat(rule.getValue());
-            } catch (IllegalArgumentException ex) {
-                log.error("Skipping uninterpretable date format '{}'",
-                        rule::getValue);
-                continue;
-            }
-            format.setCalendar(Calendar.getInstance(UTC_ZONE));
-            format.setLenient(false);
-
-            rules.add(new Rule(pattern, format));
-        }
-    }
-
     /**
      * Compare a string to each injected regular expression in entry order, and
      * when it matches, attempt to parse it using the associated format.
@@ -97,25 +74,90 @@ public class MultiFormatDateParser {
      * @param dateString the supposed date to be parsed.
      * @return the result of the first successful parse, or {@code null} if none.
      */
-    static public Date parse(String dateString) {
-        for (Rule candidate : rules) {
-            if (candidate.pattern.matcher(dateString).matches()) {
-                Date result;
-                try {
-                    synchronized (candidate.format) {
-                        result = candidate.format.parse(dateString);
-                    }
-                } catch (ParseException ex) {
-                    log.info("Date string '{}' matched pattern '{}' but did not parse:  {}",
-                        () -> dateString, candidate.format::toPattern, ex::getMessage);
-                    continue;
-                }
-                return result;
-            }
+    // imports to add
+    static public LocalDate parse(String dateString) {
+        if (dateString == null) {
+            return null;
         }
 
+        // 1) Fast path for BCE/proleptic years (leading '-')
+        if (dateString.startsWith("-")) {
+            LocalDate bce = parseBce(dateString);
+            if (bce != null) {
+                return bce;
+            }
+            // fall through to legacy loop if we couldn't parse
+        }
+
+        // 2) Existing behavior for CE dates (or BCE we didn't recognize)
+        for (Rule candidate : rules) {
+            if (candidate.pattern.matcher(dateString).matches()) {
+                try {
+                    synchronized (candidate.format) {
+                        Date parsedDate = candidate.format.parse(dateString);
+                        Instant instant = parsedDate.toInstant();
+                        LocalDate localDate = instant.atZone(ZoneId.of("UTC")).toLocalDate();
+                        return localDate;
+                    }
+                } catch (ParseException ex) {
+                    log.info("Date string '{}' matched pattern '{}' but did not parse: {}",
+                             () -> dateString, candidate.format::toPattern, ex::getMessage);
+                }
+            }
+        }
         return null;
     }
+
+    /**
+     * Parse BCE/proleptic date strings like -2010, -2010-02, -2010-02-13, -2010-02-13T00:00:00Z
+     */
+    private static LocalDate parseBce(String s) {
+        try {
+            // Full instant with optional T and Z (ignoring time, just parse date part)
+            if (s.matches("^-\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}Z$")) {
+                int year = Integer.parseInt(s.substring(1, 5)); // strip leading '-'
+                int month = Integer.parseInt(s.substring(6, 8));
+                int day = Integer.parseInt(s.substring(9, 11));
+
+                // Convert AD year to proleptic Gregorian negative year for BC dates
+                int prolepticYear = -(year - 1);
+                return LocalDate.of(prolepticYear, month, day);
+            }
+
+            // YYYY-MM-DD
+            if (s.matches("^-\\d{4}-\\d{2}-\\d{2}$")) {
+                int year = Integer.parseInt(s.substring(1, 5));
+                int month = Integer.parseInt(s.substring(6, 8));
+                int day = Integer.parseInt(s.substring(9, 11));
+
+                int prolepticYear = -(year - 1);
+                return LocalDate.of(prolepticYear, month, day);
+            }
+
+            // YYYY-MM
+            if (s.matches("^-\\d{4}-\\d{2}$")) {
+                int year = Integer.parseInt(s.substring(1, 5));
+                int month = Integer.parseInt(s.substring(6, 8));
+                int prolepticYear = -(year - 1);
+                return LocalDate.of(prolepticYear, month, 1);
+            }
+
+            // YYYY
+            if (s.matches("^-\\d{4}$")) {
+                int year = Integer.parseInt(s.substring(1, 5));
+                int prolepticYear = -(year - 1);
+                return LocalDate.of(prolepticYear, 1, 1);
+            }
+
+        } catch (DateTimeParseException | NumberFormatException ex) {
+            // Log or handle parsing exceptions as needed
+            System.out.println("BCE date '" + s + "' did not parse: " + ex.getMessage());
+        }
+        return null;
+    }
+
+
+
 
     public static void main(String[] args)
         throws IOException {
@@ -152,11 +194,38 @@ public class MultiFormatDateParser {
      * @param arg date-time string to be tested.
      */
     private static void testDate(String arg) {
-        Date result = parse(arg);
+        LocalDate result = parse(arg);
         if (null == result) {
             System.out.println("Did not match any pattern.");
         } else {
             System.out.println(formatter.get().format(result));
+        }
+    }
+
+    @Inject
+    public void setPatterns(Map<String, String> patterns) {
+        for (Entry<String, String> rule : patterns.entrySet()) {
+            Pattern pattern;
+            try {
+                pattern = Pattern.compile(rule.getKey(), Pattern.CASE_INSENSITIVE);
+            } catch (PatternSyntaxException ex) {
+                log.error("Skipping format with unparseable pattern '{}'",
+                          rule::getKey);
+                continue;
+            }
+
+            SimpleDateFormat format;
+            try {
+                format = new SimpleDateFormat(rule.getValue());
+            } catch (IllegalArgumentException ex) {
+                log.error("Skipping uninterpretable date format '{}'",
+                          rule::getValue);
+                continue;
+            }
+            format.setCalendar(Calendar.getInstance(UTC_ZONE));
+            format.setLenient(false);
+
+            rules.add(new Rule(pattern, format));
         }
     }
 

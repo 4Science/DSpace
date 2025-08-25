@@ -36,8 +36,10 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.sql.SQLException;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Level;
@@ -882,11 +884,13 @@ public class XlsCollectionCrosswalkIT extends AbstractIntegrationTestWithDatabas
             .withPolicyType(ResourcePolicy.TYPE_CUSTOM)
             .build();
 
+
         ResourcePolicyBuilder.createResourcePolicy(context, null, anonymousGroup)
             .withDspaceObject(bitstream)
             .withAction(Constants.READ)
             .withName("embargo")
-            .withStartDate(parse("2025-03-25"))
+            .withStartDate(Date.from(parse("2025-03-25")
+                                         .atStartOfDay(ZoneId.of("UTC")).toInstant()))
             .withPolicyType(ResourcePolicy.TYPE_CUSTOM)
             .build();
 
@@ -895,7 +899,8 @@ public class XlsCollectionCrosswalkIT extends AbstractIntegrationTestWithDatabas
             .withAction(Constants.READ)
             .withName("lease")
             .withDescription("Test")
-            .withEndDate(parse("2025-03-25"))
+            .withEndDate(Date.from(parse("2025-03-25")
+                            .atStartOfDay(ZoneId.of("UTC")).toInstant()))
             .withPolicyType(ResourcePolicy.TYPE_CUSTOM)
             .build();
 
@@ -1063,7 +1068,8 @@ public class XlsCollectionCrosswalkIT extends AbstractIntegrationTestWithDatabas
                 .withDspaceObject(bitstream)
                 .withAction(Constants.READ)
                 .withName("embargo")
-                .withStartDate(parse("2025-03-25"))
+                .withStartDate(Date.from(parse("2025-03-25")
+                                .atStartOfDay(ZoneId.of("UTC")).toInstant()))
                 .withPolicyType(ResourcePolicy.TYPE_CUSTOM)
                 .build();
 
@@ -1072,7 +1078,8 @@ public class XlsCollectionCrosswalkIT extends AbstractIntegrationTestWithDatabas
                 .withAction(Constants.READ)
                 .withName("lease")
                 .withDescription("Test")
-                .withEndDate(parse("2025-03-25"))
+                .withEndDate(Date.from(parse("2025-03-25")
+                                .atStartOfDay(ZoneId.of("UTC")).toInstant()))
                 .withPolicyType(ResourcePolicy.TYPE_CUSTOM)
                 .build();
 

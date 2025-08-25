@@ -8,6 +8,8 @@
 package org.dspace.util;
 
 import java.io.IOException;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.Date;
 
 import com.fasterxml.jackson.core.JsonParser;
@@ -36,6 +38,10 @@ public class MultiFormatDateDeserializer extends StdDeserializer<Date> {
     public Date deserialize(JsonParser jsonparser, DeserializationContext context)
             throws IOException, JsonProcessingException {
         String date = jsonparser.getText();
-        return MultiFormatDateParser.parse(date);
+        LocalDate localDate = MultiFormatDateParser.parse(date);
+        if (localDate == null) {
+            return null;
+        }
+        return Date.from(localDate.atStartOfDay(ZoneId.of("UTC")).toInstant());
     }
 }

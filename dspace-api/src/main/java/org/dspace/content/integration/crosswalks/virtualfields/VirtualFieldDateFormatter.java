@@ -8,6 +8,8 @@
 package org.dspace.content.integration.crosswalks.virtualfields;
 
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.Date;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -62,12 +64,20 @@ public class VirtualFieldDateFormatter implements VirtualField {
             return Stream.of(new Date());
         }
 
+        // TODO check
         String metadataField = fieldToFormat.replaceAll("-", ".");
         return itemService.getMetadataByMetadataString(item, metadataField).stream()
-            .filter(metadataValue -> metadataValue.getValue() != null)
-            .map(metadataValue -> MultiFormatDateParser.parse(metadataValue.getValue()))
-            .filter(date -> date != null);
+                          .filter(metadataValue -> metadataValue.getValue() != null)
+                          .map(metadataValue -> {
+                              LocalDate localDate = MultiFormatDateParser.parse(metadataValue.getValue());
+                              if (localDate == null) {
+                                  return null;
+                              }
+                              return Date.from(localDate.atStartOfDay(ZoneId.of("UTC")).toInstant());
+                          })
+                          .filter(date -> date != null);
     }
+
 
     private Optional<String> formatDate(Date dateToFormat, String pattern) {
         try {
