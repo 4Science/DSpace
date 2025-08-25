@@ -45,16 +45,8 @@
         <constructor-arg value="dc.title"/>
     </bean>
     <bean id="viafTitleProcessor" class="org.dspace.importer.external.viaf.contributors.ViafTitleProcessor">
-        <property name="preferedSources" ref="titlePreferedSources"/>
-        <property name="separetor" value=" | "/>
+        <property name="separetor" value=" "/>
     </bean>
-
-    <util:list id="titlePreferedSources" value-type="java.lang.String">
-        <!-- ICCU (Italy) -->
-        <value>ICCU</value>
-        <!-- DNB (Germany) -->
-        <value>DNB</value>
-    </util:list>
 
     <bean id="viafGender" class="org.dspace.importer.external.metadatamapping.contributor.SimpleJsonPathMetadataContributor">
         <property name="field" ref="viaf.glamperson.gender"/>

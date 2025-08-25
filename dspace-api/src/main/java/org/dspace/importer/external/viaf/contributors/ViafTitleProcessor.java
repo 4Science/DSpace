@@ -22,6 +22,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.dspace.importer.external.metadatamapping.contributor.JsonPathMetadataProcessor;
+import org.dspace.services.ConfigurationService;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * @author Mykhaylo Boychuk (mykhaylo.boychuk@4science.com)
@@ -42,7 +44,8 @@ public class ViafTitleProcessor implements JsonPathMetadataProcessor {
 
     private String separetor;
 
-    private List<String> preferedSources;
+    @Autowired
+    private ConfigurationService configurationService;
 
     @Override
     public Collection<String> processMetadata(String json) {
@@ -126,12 +129,20 @@ public class ViafTitleProcessor implements JsonPathMetadataProcessor {
     }
 
     private String getNameOfPreferedSource(Set<String> titleAvaibleSources) {
-        for (String preferedSource : preferedSources) {
+        for (String preferedSource : getPreferedSources()) {
             if (titleAvaibleSources.contains(preferedSource)) {
                 return preferedSource;
             }
         }
         return "";
+    }
+
+    private List<String> getPreferedSources() {
+        String [] preferedSources = configurationService.getArrayProperty("viaf.prefer.sources");
+        if (preferedSources == null || preferedSources.length == 0) {
+            return List.of();
+        }
+        return List.of(preferedSources);
     }
 
     private Set<String> getTitleAvaibleSources(JsonNode json) {
@@ -166,14 +177,6 @@ public class ViafTitleProcessor implements JsonPathMetadataProcessor {
             log.error("Unable to process json response.", e);
         }
         return body;
-    }
-
-    public List<String> getPreferedSources() {
-        return preferedSources;
-    }
-
-    public void setPreferedSources(List<String> preferedSources) {
-        this.preferedSources = preferedSources;
     }
 
     public void setSeparetor(String separetor) {
