@@ -29,10 +29,10 @@ public class ViafIdExtractorImpl implements ViafIdExtractor {
 
     /** The VIAF name type value that identifies personal record */
     private static final String VIAF_PERSON_TYPE = "Personal";
-    
+
     /** JsonPath expression template for extracting VIAF ID from the record */
     private static final String VIAF_ID_PATH = "$.recordData['ns%d:VIAFCluster']['ns%d:viafID']";
-    
+
     /** JsonPath expression template for extracting name type from the record */
     private static final String NAME_TYPE_PATH = "$.recordData['ns%d:VIAFCluster']['ns%d:nameType']";
 
