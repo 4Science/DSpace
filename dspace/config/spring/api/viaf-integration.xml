@@ -23,7 +23,6 @@
         <entry key-ref="viaf.id" value-ref="viafIDContrib"/>
         <entry key-ref="viaf.dc.title" value-ref="viafTitle"/>
         <entry key-ref="viaf.glamperson.gender" value-ref="viafGender"/>
-
         <entry key-ref="viaf.person.birthDate" value-ref="viafPersonBirthDate"/>
         <entry key-ref="viaf.glamperson.deathDate" value-ref="viafGlampersonDeathDate"/>
     </util:map>
@@ -50,7 +49,16 @@
 
     <bean id="viafGender" class="org.dspace.importer.external.metadatamapping.contributor.SimpleJsonPathMetadataContributor">
         <property name="field" ref="viaf.glamperson.gender"/>
-        <property name="query" value="/ns1:VIAFCluster/ns1:fixed/ns1:gender"/>
+        <property name="metadataProcessor" ref="viafGenderMetadataProcessor"/>
+    </bean>
+    <bean id="viafGenderMetadataProcessor" class="org.dspace.importer.external.metadatamapping.transform.StringJsonValueMappingMetadataProcessorService">
+        <property name="valueMapConverter" ref="mapConverterViafGenderType"/>
+        <property name="path" value="/ns1:VIAFCluster/ns1:fixed/ns1:gender"/>
+    </bean>
+    <bean name="mapConverterViafGenderType" class="org.dspace.util.SimpleMapConverter" init-method="init">
+        <property name="converterNameFile" value="mapConverter-viaf-gender-type.properties" />
+        <property name="configurationService" ref="org.dspace.services.ConfigurationService" />
+        <property name="defaultValue" value="undefined"/>
     </bean>
     <bean id="viaf.glamperson.gender" class="org.dspace.importer.external.metadatamapping.MetadataFieldConfig">
         <constructor-arg value="glamperson.gender"/>
@@ -58,6 +66,9 @@
 
     <bean id="viafPersonBirthDate" class="org.dspace.importer.external.metadatamapping.contributor.SimpleJsonPathMetadataContributor">
         <property name="field" ref="viaf.person.birthDate"/>
+        <property name="metadataProcessor" ref="viafPersonBirthDateMetadataProcessor"/>
+    </bean>
+    <bean id="viafPersonBirthDateMetadataProcessor" class="org.dspace.importer.external.viaf.contributors.ViafDateProcessor">
         <property name="query" value="/ns1:VIAFCluster/ns1:birthDate"/>
     </bean>
     <bean id="viaf.person.birthDate" class="org.dspace.importer.external.metadatamapping.MetadataFieldConfig">
@@ -66,6 +77,9 @@
 
     <bean id="viafGlampersonDeathDate" class="org.dspace.importer.external.metadatamapping.contributor.SimpleJsonPathMetadataContributor">
         <property name="field" ref="viaf.glamperson.deathDate"/>
+        <property name="metadataProcessor" ref="viafGlampersonDeathDateMetadataProcessor"/>
+    </bean>
+    <bean id="viafGlampersonDeathDateMetadataProcessor" class="org.dspace.importer.external.viaf.contributors.ViafDateProcessor">
         <property name="query" value="/ns1:VIAFCluster/ns1:deathDate"/>
     </bean>
     <bean id="viaf.glamperson.deathDate" class="org.dspace.importer.external.metadatamapping.MetadataFieldConfig">
