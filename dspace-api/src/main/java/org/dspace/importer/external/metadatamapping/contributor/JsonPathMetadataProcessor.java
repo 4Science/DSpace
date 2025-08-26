@@ -14,6 +14,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.dspace.services.ConfigurationService;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * Service interface class for processing json object.
@@ -27,6 +29,9 @@ public abstract class JsonPathMetadataProcessor {
     private final static Logger log = LogManager.getLogger(JsonPathMetadataProcessor.class);
 
     protected String query;
+
+    @Autowired
+    protected ConfigurationService configurationService;
 
     public abstract Collection<String> processMetadata(String json);
 

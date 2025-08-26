@@ -20,8 +20,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.dspace.importer.external.metadatamapping.contributor.JsonPathMetadataProcessor;
-import org.dspace.services.ConfigurationService;
-import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * @author Mykhaylo Boychuk (mykhaylo.boychuk@4science.com)
@@ -41,9 +39,6 @@ public class ViafTitleProcessor extends JsonPathMetadataProcessor {
     private static final String MAIN_HEADING_EL_PATH = "/ns1:VIAFCluster/ns1:mainHeadings/ns1:mainHeadingEl";
 
     private String separetor;
-
-    @Autowired
-    private ConfigurationService configurationService;
 
     @Override
     public Collection<String> processMetadata(String json) {
