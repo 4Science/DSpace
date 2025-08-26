@@ -12,7 +12,6 @@ ARG DSPACE_VERSION=2024_02_x
 # The Docker registry to use for DSpace images. Defaults to "docker.io"
 # NOTE: non-DSpace images are hardcoded to use "docker.io" and are not impacted by this build argument
 ARG DOCKER_REGISTRY=docker.io
-ARG AWS_REGION=eu-west-1
 
 # Step 1 - Run Maven Build
 FROM ${DOCKER_REGISTRY}/4science/dspace-cris-dependencies:${DSPACE_VERSION} AS build

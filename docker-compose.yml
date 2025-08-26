@@ -86,12 +86,10 @@ services:
     container_name: dspacesolr
     image: "${DOCKER_REGISTRY:-docker.io}/${DOCKER_OWNER:-4science}/dspace-cris-solr:${DSPACE_VER:-2024_02_x}"
     build:
-      context: ./dspace/src/main/docker/dspace-solr/
+      context: .
       # Provide path to Solr configs necessary to build Docker image
-      additional_contexts:
-        solrconfigs: ./dspace/solr/
       args:
-        SOLR_VERSION: "${SOLR_VER:-8.11}"
+        SOLR_VERSION: "${SOLR_VER:-8.11.4}"
     networks:
       dspacenet:
     ports:

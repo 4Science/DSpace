@@ -142,7 +142,20 @@ This image can also be rebuilt using the `../docker-compose/docker-compose-shibb
 
 This Dockerfile builds a Solr image with DSpace-CRIS Solr configsets included. It
 can be pulled / built following the [docker compose resources](../docker-compose/README.md)
-documentation. Or, to just build and/or run Solr:
+documentation.
+You can build and push the image using the following commands:
+
+```bash
+docker build -t 4science/dspace-cris-solr:latest -f src/main/docker/dspace-solr/Dockerfile .
+docker push 4science/dspace-cris-solr:latest
+```
+
+You can then run it using the docker-compose file:
+```bash
+docker compose -p c24 up -d dspacesolr
+```
+
+Alternatively, you can use the `docker compose` tool directly to just build and/or run Solr:
 
 ```bash
 docker compose build dspacesolr

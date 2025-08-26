@@ -46,7 +46,7 @@
             <DefaultRolloverStrategy>
                 <Delete basePath='${log.dir}'>
                     <IfFileName glob='dspace.log-*'/>
-                    <IfAccumulatedFileCount exceeds='${logging.server.retention-accumulated-to-keep}'/>
+                    <IfAccumulatedFileCount exceeds='${logging.server.retention-accumulated-to-keep:-1}'/>
                 </Delete>
             </DefaultRolloverStrategy>
         </Appender>
@@ -70,7 +70,7 @@
             <DefaultRolloverStrategy>
                 <Delete basePath='${log.dir}'>
                     <IfFileName glob='solr.log-*'/>
-                    <IfAccumulatedFileCount exceeds='${logging.server.retention-accumulated-to-keep}'/>
+                    <IfAccumulatedFileCount exceeds='${logging.server.retention-accumulated-to-keep:-1}'/>
                 </Delete>
             </DefaultRolloverStrategy>
         </Appender>
@@ -94,7 +94,7 @@
             <DefaultRolloverStrategy>
                 <Delete basePath='${log.dir}'>
                     <IfFileName glob='harvester_details.log-*'/>
-                    <IfAccumulatedFileCount exceeds='${logging.server.retention-accumulated-to-keep}'/>
+                    <IfAccumulatedFileCount exceeds='${logging.server.retention-accumulated-to-keep:-1}'/>
                 </Delete>
             </DefaultRolloverStrategy>
         </Appender>
@@ -118,7 +118,7 @@
             <DefaultRolloverStrategy>
                 <Delete basePath='${log.dir}'>
                     <IfFileName glob='harvester.log-*'/>
-                    <IfAccumulatedFileCount exceeds='${logging.server.retention-accumulated-to-keep}'/>
+                    <IfAccumulatedFileCount exceeds='${logging.server.retention-accumulated-to-keep:-1}'/>
                 </Delete>
             </DefaultRolloverStrategy>
         </Appender>
