@@ -15,25 +15,41 @@ import java.util.Set;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.dspace.importer.external.metadatamapping.contributor.JsonPathMetadataProcessor;
 
 /**
+ * Processor for extracting nationality information from VIAF JSON responses.
+ * Prioritizes sources based on configuration and falls back to first available source.
+ * 
  * @author Mykhaylo Boychuk (mykhaylo.boychuk@4science.com)
  */
 public class ViafNationalityProcessor extends JsonPathMetadataProcessor  {
+
+    private final static Logger log = LogManager.getLogger(ViafNationalityProcessor.class);
 
     private static final String TEXT_PATH = "/ns1:text";
 
     @Override
     public Collection<String> processMetadata(String json) {
-        JsonNode dataNode = convertStringJsonToJsonNode(json).at(query);
-        if (dataNode == null) {
+        try {
+            JsonNode rootNode = convertStringJsonToJsonNode(json);
+            if (rootNode == null) {
+                return List.of();
+            }
+            JsonNode dataNode = rootNode.at(query);
+            if (dataNode == null) {
+                return List.of();
+            }
+            Set<String> nationalityAvaibleSources = getNationalityAvaibleSources(dataNode);
+            String preferedSource = getNameOfPreferedSource(nationalityAvaibleSources);
+            return StringUtils.isBlank(preferedSource) ? getFirstAvaibleNationality(dataNode)
+                                                       : getNationalityBySource(dataNode, preferedSource);
+        } catch (Exception e) {
+            log.warn("Error processing VIAF nationality data", e);
             return List.of();
         }
-        Set<String> nationalityAvaibleSources = getNationalityAvaibleSources(dataNode);
-        String preferedSource = getNameOfPreferedSource(nationalityAvaibleSources);
-        return StringUtils.isBlank(preferedSource) ? getFirstAvaibleNationality(dataNode)
-                                                   : getNationalityBySource(dataNode, preferedSource);
     }
 
     private Collection<String> getFirstAvaibleNationality(JsonNode jsonNode) {
