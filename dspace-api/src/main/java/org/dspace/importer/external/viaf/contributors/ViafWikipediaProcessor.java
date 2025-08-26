@@ -12,25 +12,17 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.dspace.importer.external.metadatamapping.contributor.JsonPathMetadataProcessor;
 
 /**
  * @author Mykhaylo Boychuk (mykhaylo.boychuk@4science.com)
  */
-public class ViafWikipediaProcessor implements JsonPathMetadataProcessor  {
-
-    private final static Logger log = LogManager.getLogger(ViafWikipediaProcessor.class);
+public class ViafWikipediaProcessor extends JsonPathMetadataProcessor  {
 
     private final static String CONTENT_PATH = "/content";
     private final static List<String> ALLOWED_WIKI = List.of("https://en.wikipedia.org", "https://it.wikipedia.org");
-
-    private String query;
 
     @Override
     public Collection<String> processMetadata(String json) {
@@ -66,21 +58,6 @@ public class ViafWikipediaProcessor implements JsonPathMetadataProcessor  {
             }
         }
         return false;
-    }
-
-    private JsonNode convertStringJsonToJsonNode(String json) {
-        ObjectMapper mapper = new ObjectMapper();
-        JsonNode body = null;
-        try {
-            body = mapper.readTree(json);
-        } catch (JsonProcessingException e) {
-            log.error("Unable to process json response.", e);
-        }
-        return body;
-    }
-
-    public void setQuery(String query) {
-        this.query = query;
     }
 
 }
