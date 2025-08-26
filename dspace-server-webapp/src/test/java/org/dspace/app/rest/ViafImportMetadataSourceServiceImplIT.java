@@ -66,6 +66,10 @@ public class ViafImportMetadataSourceServiceImplIT extends AbstractLiveImportInt
         MetadatumDTO birthYear = createMetadatumDTO("glamperson", "birthYear", null, "1728");
         MetadatumDTO deathYear = createMetadatumDTO("glamperson", "deathYear", null, "1804");
         MetadatumDTO link = createMetadatumDTO("glam", "link", "viaf", "http://viaf.org/viaf/24658555");
+        MetadatumDTO wikipedia1 = createMetadatumDTO("glam", "link", "wikipedia",
+                                               "https://en.wikipedia.org/wiki/Francesco_Albergati_Capacelli");
+        MetadatumDTO wikipedia2 = createMetadatumDTO("glam", "link", "wikipedia",
+                                               "https://it.wikipedia.org/wiki/Francesco_Albergati_Capacelli");
         metadatums.add(identifierOther);
         metadatums.add(title);
         metadatums.add(gender);
@@ -74,6 +78,8 @@ public class ViafImportMetadataSourceServiceImplIT extends AbstractLiveImportInt
         metadatums.add(deathDate);
         metadatums.add(deathYear);
         metadatums.add(link);
+        metadatums.add(wikipedia1);
+        metadatums.add(wikipedia2);
         ImportRecord record2match = new ImportRecord(metadatums);
 
         context.turnOffAuthorisationSystem();
@@ -144,6 +150,8 @@ public class ViafImportMetadataSourceServiceImplIT extends AbstractLiveImportInt
         MetadatumDTO birthYear = createMetadatumDTO("glamperson", "birthYear", null, "1719");
         MetadatumDTO deathYear = createMetadatumDTO("glamperson", "deathYear", null, "1793");
         MetadatumDTO link = createMetadatumDTO("glam", "link", "viaf", "http://viaf.org/viaf/8441159477949227990009");
+        MetadatumDTO wikipedia = createMetadatumDTO("glam", "link", "wikipedia",
+                                              "https://it.wikipedia.org/wiki/Carlo_Alberto_I_di_Hohenlohe-Waldenburg-Schillingsfürst");
         metadatums.add(identifierOther);
         metadatums.add(title);
         metadatums.add(gender);
@@ -152,6 +160,7 @@ public class ViafImportMetadataSourceServiceImplIT extends AbstractLiveImportInt
         metadatums.add(deathDate);
         metadatums.add(deathYear);
         metadatums.add(link);
+        metadatums.add(wikipedia);
         records.add(new ImportRecord(metadatums));
 
         List<MetadatumDTO> metadatums2  = new ArrayList<>();
@@ -178,6 +187,10 @@ public class ViafImportMetadataSourceServiceImplIT extends AbstractLiveImportInt
         MetadatumDTO birthYear3 = createMetadatumDTO("glamperson", "birthYear", null, "1806");
         MetadatumDTO deathYear3 = createMetadatumDTO("glamperson", "deathYear", null, "1881");
         MetadatumDTO link3 = createMetadatumDTO("glam", "link", "viaf", "http://viaf.org/viaf/7196150325547210090003");
+        MetadatumDTO wikipedia2 = createMetadatumDTO("glam", "link", "wikipedia",
+                                               "https://en.wikipedia.org/wiki/Charles_Léon");
+        MetadatumDTO wikipedia3 = createMetadatumDTO("glam", "link", "wikipedia",
+                                               "https://it.wikipedia.org/wiki/Carlo_Leone_Denuelle");
         metadatums3.add(identifierOther3);
         metadatums3.add(title3);
         metadatums3.add(gender3);
@@ -186,6 +199,8 @@ public class ViafImportMetadataSourceServiceImplIT extends AbstractLiveImportInt
         metadatums3.add(deathDate3);
         metadatums3.add(deathYear3);
         metadatums3.add(link3);
+        metadatums3.add(wikipedia2);
+        metadatums3.add(wikipedia3);
         records.add(new ImportRecord(metadatums3));
 
         context.turnOffAuthorisationSystem();
