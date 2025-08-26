@@ -314,7 +314,7 @@
     <bean id="viafLiveImportDataProvider" class="org.dspace.external.provider.impl.LiveImportDataProvider">
         <property name="metadataSource" ref="ViafImportService"/>
         <property name="sourceIdentifier" value="viaf"/>
-        <property name="recordIdMetadata" value="dc.identifier.other"/>
+        <property name="recordIdMetadata" value="person.identifier"/>
         <property name="supportedEntityTypes">
             <list>
                 <value>Person</value>
