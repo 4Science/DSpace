@@ -11,12 +11,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 /**
  * This Processor allows to extract all values of a matrix.
@@ -38,9 +34,7 @@ import org.apache.logging.log4j.Logger;
  * 
  * @author Mykhaylo Boychuk (mykhaylo.boychuk@4science.com)
  */
-public class MatrixElementProcessor implements JsonPathMetadataProcessor {
-
-    private final static Logger log = LogManager.getLogger();
+public class MatrixElementProcessor extends JsonPathMetadataProcessor {
 
     private String pathToMatrix;
 
@@ -67,17 +61,6 @@ public class MatrixElementProcessor implements JsonPathMetadataProcessor {
             }
         }
         return values;
-    }
-
-    private JsonNode convertStringJsonToJsonNode(String json) {
-        ObjectMapper mapper = new ObjectMapper();
-        JsonNode body = null;
-        try {
-            body = mapper.readTree(json);
-        } catch (JsonProcessingException e) {
-            log.error("Unable to process json response.", e);
-        }
-        return body;
     }
 
     public void setPathToMatrix(String pathToMatrix) {

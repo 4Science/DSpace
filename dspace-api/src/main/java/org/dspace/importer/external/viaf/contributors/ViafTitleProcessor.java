@@ -13,9 +13,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.jsonpath.DocumentContext;
 import com.jayway.jsonpath.JsonPath;
 import org.apache.commons.lang3.StringUtils;
@@ -28,7 +26,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 /**
  * @author Mykhaylo Boychuk (mykhaylo.boychuk@4science.com)
  */
-public class ViafTitleProcessor implements JsonPathMetadataProcessor {
+public class ViafTitleProcessor extends JsonPathMetadataProcessor {
 
     private final static Logger log = LogManager.getLogger(ViafTitleProcessor.class);
 
@@ -166,17 +164,6 @@ public class ViafTitleProcessor implements JsonPathMetadataProcessor {
     private String getSourceName(JsonNode sourceNode) {
         String contentValue = sourceNode.at("/content").asText();
         return StringUtils.isNotBlank(contentValue) ? contentValue.substring(0, contentValue.indexOf("|")) : "";
-    }
-
-    private JsonNode convertStringJsonToJsonNode(String json) {
-        ObjectMapper mapper = new ObjectMapper();
-        JsonNode body = null;
-        try {
-            body = mapper.readTree(json);
-        } catch (JsonProcessingException e) {
-            log.error("Unable to process json response.", e);
-        }
-        return body;
     }
 
     public void setSeparetor(String separetor) {

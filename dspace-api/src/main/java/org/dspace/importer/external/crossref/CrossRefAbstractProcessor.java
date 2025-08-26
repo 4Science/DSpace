@@ -14,9 +14,7 @@ import java.util.Collection;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.ParserConfigurationException;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -28,7 +26,7 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
-public class CrossRefAbstractProcessor implements JsonPathMetadataProcessor {
+public class CrossRefAbstractProcessor extends JsonPathMetadataProcessor {
 
     private final static Logger log = LogManager.getLogger();
 
@@ -99,17 +97,6 @@ public class CrossRefAbstractProcessor implements JsonPathMetadataProcessor {
         }
 
         return sb.toString().trim();
-    }
-
-    private JsonNode convertStringJsonToJsonNode(String json) {
-        ObjectMapper mapper = new ObjectMapper();
-        JsonNode body = null;
-        try {
-            body = mapper.readTree(json);
-        } catch (JsonProcessingException e) {
-            log.error("Unable to process json response.", e);
-        }
-        return body;
     }
 
     public String getPath() {

@@ -27,9 +27,7 @@ import org.dspace.importer.external.metadatamapping.contributor.JsonPathMetadata
  * 
  * @author Mykhaylo Boychuk (mykhaylo.boychuk@4science.com)
  */
-public class CrossRefAuthorMetadataProcessor implements JsonPathMetadataProcessor {
-
-    private final static Logger log = LogManager.getLogger();
+public class CrossRefAuthorMetadataProcessor extends JsonPathMetadataProcessor {
 
     private String pathToArray;
 
@@ -47,17 +45,6 @@ public class CrossRefAuthorMetadataProcessor implements JsonPathMetadataProcesso
             }
         }
         return values;
-    }
-
-    private JsonNode convertStringJsonToJsonNode(String json) {
-        ObjectMapper mapper = new ObjectMapper();
-        JsonNode body = null;
-        try {
-            body = mapper.readTree(json);
-        } catch (JsonProcessingException e) {
-            log.error("Unable to process json response.", e);
-        }
-        return body;
     }
 
     public void setPathToArray(String pathToArray) {

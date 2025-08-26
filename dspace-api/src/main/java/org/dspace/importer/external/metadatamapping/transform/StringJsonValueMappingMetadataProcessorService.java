@@ -11,12 +11,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Optional;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.JsonNodeType;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.dspace.importer.external.metadatamapping.contributor.JsonPathMetadataProcessor;
 import org.dspace.util.SimpleMapConverter;
 
@@ -30,9 +26,8 @@ import org.dspace.util.SimpleMapConverter;
  * @author paulo-graca
  *
  */
-public class StringJsonValueMappingMetadataProcessorService implements JsonPathMetadataProcessor {
+public class StringJsonValueMappingMetadataProcessorService extends JsonPathMetadataProcessor {
 
-    private final static Logger log = LogManager.getLogger();
     /**
      * The value map converter.
      * a list of values to map from
@@ -54,17 +49,6 @@ public class StringJsonValueMappingMetadataProcessorService implements JsonPathM
                          .orElse(valueMapConverter.getValue(null)));
         }
         return values;
-    }
-
-    private JsonNode convertStringJsonToJsonNode(String json) {
-        ObjectMapper mapper = new ObjectMapper();
-        JsonNode body = null;
-        try {
-            body = mapper.readTree(json);
-        } catch (JsonProcessingException e) {
-            log.error("Unable to process json response.", e);
-        }
-        return body;
     }
 
     /* Getters and Setters */
