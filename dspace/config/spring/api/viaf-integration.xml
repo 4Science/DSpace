@@ -27,6 +27,7 @@
         <entry key-ref="viaf.glamperson.birthYear" value-ref="viafPersonBirthYear"/>
         <entry key-ref="viaf.glamperson.deathDate" value-ref="viafGlampersonDeathDate"/>
         <entry key-ref="viaf.glamperson.deathYear" value-ref="viafGlampersonDeathYear"/>
+        <entry key-ref="viaf.glam.link.viaf" value-ref="viafGlamLink"/>
     </util:map>
 
     <bean id="viafIDContrib" class="org.dspace.importer.external.metadatamapping.contributor.SimpleJsonPathMetadataContributor">
@@ -110,6 +111,18 @@
     </bean>
     <bean id="viaf.glamperson.deathYear" class="org.dspace.importer.external.metadatamapping.MetadataFieldConfig">
         <constructor-arg value="glamperson.deathYear"/>
+    </bean>
+
+    <bean id="viafGlamLink" class="org.dspace.importer.external.metadatamapping.contributor.SimpleJsonPathMetadataContributor">
+        <property name="field" ref="viaf.glam.link.viaf"/>
+        <property name="metadataProcessor" ref="viafGlamLinkMetadataProcessor"/>
+    </bean>
+    <bean id="viafGlamLinkMetadataProcessor" class="org.dspace.importer.external.viaf.contributors.ViafSimplePrefixProcessor">
+        <property name="query" value="/ns1:VIAFCluster/ns1:viafID"/>
+        <property name="prefix" value="http://viaf.org/viaf/"/>
+    </bean>
+    <bean id="viaf.glam.link.viaf" class="org.dspace.importer.external.metadatamapping.MetadataFieldConfig">
+        <constructor-arg value="glam.link.viaf"/>
     </bean>
 
 </beans>
