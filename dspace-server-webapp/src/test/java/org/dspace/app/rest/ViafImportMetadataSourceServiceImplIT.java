@@ -24,6 +24,8 @@ import org.dspace.importer.external.datamodel.ImportRecord;
 import org.dspace.importer.external.liveimportclient.service.LiveImportClientImpl;
 import org.dspace.importer.external.metadatamapping.MetadatumDTO;
 import org.dspace.importer.external.viaf.ViafImportMetadataSourceServiceImpl;
+import org.dspace.services.ConfigurationService;
+import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
@@ -39,21 +41,37 @@ public class ViafImportMetadataSourceServiceImplIT extends AbstractLiveImportInt
     @Autowired
     private LiveImportClientImpl liveImportClientImpl;
     @Autowired
+    private ConfigurationService configurationService;
+    @Autowired
     private ViafImportMetadataSourceServiceImpl viafService;
+
+    @Before
+    @Override
+    public void setUp() throws Exception {
+        super.setUp();
+        context.turnOffAuthorisationSystem();
+        String[] preferSources = {"ICCU", "DNB"};
+        configurationService.setProperty("viaf.prefer.sources", preferSources);
+        context.restoreAuthSystemState();
+    }
 
     @Test
     public void searchByViafIdUNIMARCtypeTest() throws Exception {
         List<MetadatumDTO> metadatums  = new ArrayList<>();
-        MetadatumDTO identifierOther = createMetadatumDTO("dc", "identifier", "other", "24658555");
+        MetadatumDTO identifierOther = createMetadatumDTO("person", "identifier", null, "24658555");
         MetadatumDTO title = createMetadatumDTO("dc", "title", null, "Albergati Capacelli , Francesco");
         MetadatumDTO gender = createMetadatumDTO("glamperson", "gender", null, "Male");
         MetadatumDTO birthDate = createMetadatumDTO("person", "birthDate", null, "1728-04-19");
         MetadatumDTO deathDate = createMetadatumDTO("glamperson", "deathDate", null, "1804-03-16");
+        MetadatumDTO birthYear = createMetadatumDTO("glamperson", "birthYear", null, "1728");
+        MetadatumDTO deathYear = createMetadatumDTO("glamperson", "deathYear", null, "1804");
         metadatums.add(identifierOther);
         metadatums.add(title);
         metadatums.add(gender);
         metadatums.add(birthDate);
+        metadatums.add(birthYear);
         metadatums.add(deathDate);
+        metadatums.add(deathYear);
         ImportRecord record2match = new ImportRecord(metadatums);
 
         context.turnOffAuthorisationSystem();
@@ -80,7 +98,7 @@ public class ViafImportMetadataSourceServiceImplIT extends AbstractLiveImportInt
     @Test
     public void searchByViafIdMARC21typeTest() throws Exception {
         List<MetadatumDTO> metadatums  = new ArrayList<>();
-        MetadatumDTO identifierOther = createMetadatumDTO("dc", "identifier", "other", "9999159477794927990009");
+        MetadatumDTO identifierOther = createMetadatumDTO("person", "identifier", null, "9999159477794927990009");
         MetadatumDTO title = createMetadatumDTO("dc", "title", null, "Sassi, Francesco");
         MetadatumDTO gender = createMetadatumDTO("glamperson", "gender", null, "Undefined");
         metadatums.add(identifierOther);
@@ -113,41 +131,51 @@ public class ViafImportMetadataSourceServiceImplIT extends AbstractLiveImportInt
     public void searchByNameTest() throws Exception {
         ArrayList<ImportRecord> records = new ArrayList<>();
         List<MetadatumDTO> metadatums  = new ArrayList<>();
-        MetadatumDTO identifierOther = createMetadatumDTO("dc", "identifier", "other", "8441159477949227990009");
+        MetadatumDTO identifierOther = createMetadatumDTO("person", "identifier", null, "8441159477949227990009");
         MetadatumDTO title = createMetadatumDTO("dc", "title", null,
                                           "Hohenlohe-Waldenburg-Schillingsfürst, Carl Albrecht I.");
         MetadatumDTO gender = createMetadatumDTO("glamperson", "gender", null, "Male");
         MetadatumDTO birthDate = createMetadatumDTO("person", "birthDate", null, "1719-09-22");
         MetadatumDTO deathDate = createMetadatumDTO("glamperson", "deathDate", null, "1793-01-25");
+        MetadatumDTO birthYear = createMetadatumDTO("glamperson", "birthYear", null, "1719");
+        MetadatumDTO deathYear = createMetadatumDTO("glamperson", "deathYear", null, "1793");
         metadatums.add(identifierOther);
         metadatums.add(title);
         metadatums.add(gender);
         metadatums.add(birthDate);
+        metadatums.add(birthYear);
         metadatums.add(deathDate);
+        metadatums.add(deathYear);
         records.add(new ImportRecord(metadatums));
 
         List<MetadatumDTO> metadatums2  = new ArrayList<>();
-        MetadatumDTO identifierOther2 = createMetadatumDTO("dc", "identifier", "other", "7646174414001308700008");
+        MetadatumDTO identifierOther2 = createMetadatumDTO("person", "identifier", null, "7646174414001308700008");
         MetadatumDTO title2 = createMetadatumDTO("dc", "title", null, "Farina, Carlo");
         MetadatumDTO gender2 = createMetadatumDTO("glamperson", "gender", null, "Male");
         MetadatumDTO deathDate2 = createMetadatumDTO("glamperson", "deathDate", null, "1639");
+        MetadatumDTO deathYear2 = createMetadatumDTO("glamperson", "deathYear", null, "1639");
         metadatums2.add(identifierOther2);
         metadatums2.add(title2);
         metadatums2.add(gender2);
         metadatums2.add(deathDate2);
+        metadatums2.add(deathYear2);
         records.add(new ImportRecord(metadatums2));
 
         List<MetadatumDTO> metadatums3  = new ArrayList<>();
-        MetadatumDTO identifierOther3 = createMetadatumDTO("dc", "identifier", "other", "7196150325547210090003");
+        MetadatumDTO identifierOther3 = createMetadatumDTO("person", "identifier", null, "7196150325547210090003");
         MetadatumDTO title3 = createMetadatumDTO("dc", "title", null, "Leo I");
         MetadatumDTO gender3 = createMetadatumDTO("glamperson", "gender", null, "Male");
         MetadatumDTO birthDate3 = createMetadatumDTO("person", "birthDate", null, "1806-12-13");
         MetadatumDTO deathDate3 = createMetadatumDTO("glamperson", "deathDate", null, "1881-04-14");
+        MetadatumDTO birthYear3 = createMetadatumDTO("glamperson", "birthYear", null, "1806");
+        MetadatumDTO deathYear3 = createMetadatumDTO("glamperson", "deathYear", null, "1881");
         metadatums3.add(identifierOther3);
         metadatums3.add(title3);
         metadatums3.add(gender3);
         metadatums3.add(birthDate3);
+        metadatums3.add(birthYear3);
         metadatums3.add(deathDate3);
+        metadatums3.add(deathYear3);
         records.add(new ImportRecord(metadatums3));
 
         context.turnOffAuthorisationSystem();

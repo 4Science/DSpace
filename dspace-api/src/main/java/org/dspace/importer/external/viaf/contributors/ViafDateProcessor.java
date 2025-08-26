@@ -54,7 +54,7 @@ public class ViafDateProcessor implements JsonPathMetadataProcessor  {
         } else {
             year = date;
         }
-        
+
         if (year.length() != 4) {
             return date;
         }

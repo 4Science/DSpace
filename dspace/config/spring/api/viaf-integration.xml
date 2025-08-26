@@ -30,7 +30,7 @@
     </util:map>
 
     <bean id="viafIDContrib" class="org.dspace.importer.external.metadatamapping.contributor.SimpleJsonPathMetadataContributor">
-        <property name="field" ref="vufind.id"/>
+        <property name="field" ref="viaf.id"/>
         <property name="query" value="/ns1:VIAFCluster/ns1:viafID"/>
     </bean>
     <bean id="viaf.id" class="org.dspace.importer.external.metadatamapping.MetadataFieldConfig">
