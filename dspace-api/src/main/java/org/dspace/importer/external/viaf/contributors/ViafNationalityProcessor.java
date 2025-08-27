@@ -25,7 +25,7 @@ import org.dspace.importer.external.metadatamapping.contributor.JsonPathMetadata
  * 
  * @author Mykhaylo Boychuk (mykhaylo.boychuk@4science.com)
  */
-public class ViafNationalityProcessor extends JsonPathMetadataProcessor  {
+public class ViafNationalityProcessor extends JsonPathMetadataProcessor {
 
     private final static Logger log = LogManager.getLogger(ViafNationalityProcessor.class);
 

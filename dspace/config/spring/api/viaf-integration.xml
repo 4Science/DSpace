@@ -30,6 +30,7 @@
         <entry key-ref="viaf.glam.link.viaf" value-ref="viafGlamLink"/>
         <entry key-ref="viaf.glam.link.wikipedia" value-ref="viafGlamWikipedia"/>
         <entry key-ref="viaf.person.nationality" value-ref="viafNationality"/>
+        <entry key-ref="viaf.glamperson.role" value-ref="viafGlampersonRole"/>
     </util:map>
 
     <bean id="viafIDContrib" class="org.dspace.importer.external.metadatamapping.contributor.SimpleJsonPathMetadataContributor">
@@ -42,7 +43,6 @@
 
     <bean id="viafTitle" class="org.dspace.importer.external.metadatamapping.contributor.SimpleJsonPathMetadataContributor">
         <property name="field" ref="vufind.dc.title"/>
-        <property name="query" value="/title"/>
         <property name="metadataProcessor" ref="viafTitleProcessor"/>
     </bean>
     <bean id="viaf.dc.title" class="org.dspace.importer.external.metadatamapping.MetadataFieldConfig">
@@ -50,7 +50,19 @@
     </bean>
     <bean id="viafTitleProcessor" class="org.dspace.importer.external.viaf.contributors.ViafTitleProcessor">
         <property name="separetor" value=" "/>
+        <property name="marc21codes" ref="title-marc21codes"/>
+        <property name="unimarcCodes" ref="title-unimarcCodes"/>
     </bean>
+
+    <util:list id="title-marc21codes" value-type="java.lang.String">
+        <value>a</value>
+        <value>b</value>
+    </util:list>
+    <util:list id="title-unimarcCodes" value-type="java.lang.String">
+        <value>a</value>
+        <value>b</value>
+        <value>d</value>
+    </util:list>
 
     <bean id="viafGender" class="org.dspace.importer.external.metadatamapping.contributor.SimpleJsonPathMetadataContributor">
         <property name="field" ref="viaf.glamperson.gender"/>
@@ -148,5 +160,22 @@
     <bean id="viaf.person.nationality" class="org.dspace.importer.external.metadatamapping.MetadataFieldConfig">
         <constructor-arg value="person.nationality"/>
     </bean>
+
+    <bean id="viafGlampersonRole" class="org.dspace.importer.external.metadatamapping.contributor.SimpleJsonPathMetadataContributor">
+        <property name="field" ref="viaf.glamperson.role"/>
+        <property name="metadataProcessor" ref="viafGlampersonRoleMetadataProcessor"/>
+    </bean>
+    <bean id="viafGlampersonRoleMetadataProcessor" class="org.dspace.importer.external.viaf.contributors.ViafTitleProcessor">
+        <property name="separetor" value=""/>
+        <property name="marc21codes" ref="role-codes"/>
+        <property name="unimarcCodes" ref="role-codes"/>
+    </bean>
+    <bean id="viaf.glamperson.role" class="org.dspace.importer.external.metadatamapping.MetadataFieldConfig">
+        <constructor-arg value="glamperson.role"/>
+    </bean>
+
+    <util:list id="role-codes" value-type="java.lang.String">
+        <value>c</value>
+    </util:list>
 
 </beans>

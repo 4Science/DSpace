@@ -30,8 +30,6 @@ public class ViafTitleProcessor extends JsonPathMetadataProcessor {
 
     private static final String MARC21 = "MARC21";
     private static final String UNIMARC = "UNIMARC";
-    private static final List<String> MARC21_CODES = List.of("a", "b");
-    private static final List<String> UNIMARC_CODES = List.of("a", "b", "d");
 
     private static final String UNSUPPORTED_TITLE_TYPE = "Unsupported type of title";
     private static final String DTYPE_PATH = "/dtype";
@@ -39,6 +37,8 @@ public class ViafTitleProcessor extends JsonPathMetadataProcessor {
     private static final String MAIN_HEADING_EL_PATH = "/ns1:VIAFCluster/ns1:mainHeadings/ns1:mainHeadingEl";
 
     private String separetor;
+    private List<String> marc21codes;
+    private List<String> unimarcCodes;
 
     @Override
     public Collection<String> processMetadata(String json) {
@@ -79,10 +79,10 @@ public class ViafTitleProcessor extends JsonPathMetadataProcessor {
     private Collection<String> getTitle(JsonNode datafieldNode) {
         String recordType = datafieldNode.at(DTYPE_PATH).asText();
         if (StringUtils.equals(MARC21, recordType)) {
-            return getTitleByType(MARC21_CODES, datafieldNode);
+            return getTitleByType(marc21codes, datafieldNode);
         }
         if (StringUtils.equals(UNIMARC, recordType)) {
-            return getTitleByType(UNIMARC_CODES, datafieldNode);
+            return getTitleByType(unimarcCodes, datafieldNode);
         }
         log.error("Current record contains unsupported type: " + recordType);
         return List.of(UNSUPPORTED_TITLE_TYPE);
@@ -112,7 +112,7 @@ public class ViafTitleProcessor extends JsonPathMetadataProcessor {
                 title.append(separetor).append(value);
             }
         }
-        return List.of(title.toString());
+        return title.isEmpty() ? List.of() : List.of(title.toString());
     }
 
     private String getSubfieldValueByCode(DocumentContext documentContext, String codeValue) {
@@ -163,6 +163,14 @@ public class ViafTitleProcessor extends JsonPathMetadataProcessor {
 
     public void setSeparetor(String separetor) {
         this.separetor = separetor;
+    }
+
+    public void setMarc21codes(List<String> marc21codes) {
+        this.marc21codes = marc21codes;
+    }
+
+    public void setUnimarcCodes(List<String> unimarcCodes) {
+        this.unimarcCodes = unimarcCodes;
     }
 
 }

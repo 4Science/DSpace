@@ -198,6 +198,7 @@ public class ViafImportMetadataSourceServiceImplIT extends AbstractLiveImportInt
         MetadatumDTO wikipedia3 = createMetadatumDTO("glam", "link", "wikipedia",
                                                "https://it.wikipedia.org/wiki/Carlo_Leone_Denuelle");
         MetadatumDTO nationality3 = createMetadatumDTO("person", "nationality", null, "IT");
+        MetadatumDTO role = createMetadatumDTO("glamperson", "role", null, "<papa>");
         metadatums3.add(identifierOther3);
         metadatums3.add(title3);
         metadatums3.add(gender3);
@@ -209,6 +210,7 @@ public class ViafImportMetadataSourceServiceImplIT extends AbstractLiveImportInt
         metadatums3.add(wikipedia2);
         metadatums3.add(wikipedia3);
         metadatums3.add(nationality3);
+        metadatums3.add(role);
         records.add(new ImportRecord(metadatums3));
 
         context.turnOffAuthorisationSystem();
