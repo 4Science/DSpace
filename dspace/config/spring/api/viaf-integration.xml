@@ -32,6 +32,7 @@
         <entry key-ref="viaf.person.nationality" value-ref="viafNationality"/>
         <entry key-ref="viaf.glamperson.role" value-ref="viafGlampersonRole"/>
         <entry key-ref="viaf.dc.subject.lcsh" value-ref="viafSubjectLcsh"/>
+        <entry key-ref="viaf.crisrp.name.variant" value-ref="viafVariantNames"/>
     </util:map>
 
     <bean id="viafIDContrib" class="org.dspace.importer.external.metadatamapping.contributor.SimpleJsonPathMetadataContributor">
@@ -188,6 +189,19 @@
     </bean>
     <bean id="viaf.dc.subject.lcsh" class="org.dspace.importer.external.metadatamapping.MetadataFieldConfig">
         <constructor-arg value="dc.subject.lcsh"/>
+    </bean>
+
+    <bean id="viafVariantNames" class="org.dspace.importer.external.metadatamapping.contributor.SimpleJsonPathMetadataContributor">
+        <property name="field" ref="viaf.crisrp.name.variant"/>
+        <property name="metadataProcessor" ref="viafVariantNamesMetadataProcessor"/>
+    </bean>
+    <bean id="viafVariantNamesMetadataProcessor" class="org.dspace.importer.external.viaf.contributors.ViafVariantNameProcessor">
+        <property name="separetor" value=" "/>
+        <property name="marc21codes" ref="title-marc21codes"/>
+        <property name="unimarcCodes" ref="title-unimarcCodes"/>
+    </bean>
+    <bean id="viaf.crisrp.name.variant" class="org.dspace.importer.external.metadatamapping.MetadataFieldConfig">
+        <constructor-arg value="crisrp.name.variant"/>
     </bean>
 
 </beans>

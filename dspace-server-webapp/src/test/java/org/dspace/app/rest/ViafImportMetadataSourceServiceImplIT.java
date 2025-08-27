@@ -52,6 +52,8 @@ public class ViafImportMetadataSourceServiceImplIT extends AbstractLiveImportInt
         context.turnOffAuthorisationSystem();
         String[] preferSources = {"ICCU", "DNB"};
         configurationService.setProperty("viaf.prefer.sources", preferSources);
+        String[] preferVariantNameSources = {"ICCU", "LC"};
+        configurationService.setProperty("viaf.prefer.variant.name.sources", preferVariantNameSources);
         context.restoreAuthSystemState();
     }
 
@@ -76,6 +78,13 @@ public class ViafImportMetadataSourceServiceImplIT extends AbstractLiveImportInt
         MetadatumDTO subject3 = createMetadatumDTO("dc", "subject", "lcsh", "writers");
         MetadatumDTO subject4 = createMetadatumDTO("dc", "subject", "lcsh", "playwrights");
 
+        MetadatumDTO nameVariant1 = createMetadatumDTO("crisrp", "name", "variant", "Albergati Capacelli, Francesco,");
+        MetadatumDTO nameVariant2 = createMetadatumDTO("crisrp", "name", "variant", "Albergatis, Francesco de,");
+        MetadatumDTO nameVariant3 = createMetadatumDTO("crisrp", "name", "variant", "Albergati , Francesco");
+        MetadatumDTO nameVariant4 = createMetadatumDTO("crisrp", "name", "variant", "Albergati Cappacelli , Francesco");
+        MetadatumDTO nameVariant5 = createMetadatumDTO("crisrp", "name", "variant", "Albergati Capacelli , Francesco");
+        MetadatumDTO nameVariant6 = createMetadatumDTO("crisrp", "name", "variant", "Albergatis, Franciscus de,");
+
         metadatums.add(identifierOther);
         metadatums.add(title);
         metadatums.add(gender);
@@ -91,6 +100,12 @@ public class ViafImportMetadataSourceServiceImplIT extends AbstractLiveImportInt
         metadatums.add(subject2);
         metadatums.add(subject3);
         metadatums.add(subject4);
+        metadatums.add(nameVariant1);
+        metadatums.add(nameVariant2);
+        metadatums.add(nameVariant3);
+        metadatums.add(nameVariant4);
+        metadatums.add(nameVariant5);
+        metadatums.add(nameVariant6);
         ImportRecord record2match = new ImportRecord(metadatums);
 
         context.turnOffAuthorisationSystem();
@@ -208,6 +223,16 @@ public class ViafImportMetadataSourceServiceImplIT extends AbstractLiveImportInt
                                                "https://it.wikipedia.org/wiki/Carlo_Leone_Denuelle");
         MetadatumDTO nationality3 = createMetadatumDTO("person", "nationality", null, "IT");
         MetadatumDTO role = createMetadatumDTO("glamperson", "role", null, "<papa>");
+        MetadatumDTO nameVariant1 = createMetadatumDTO("crisrp", "name", "variant", "Leo I");
+        MetadatumDTO nameVariant2 = createMetadatumDTO("crisrp", "name", "variant", "Leone : Magno");
+        MetadatumDTO nameVariant3 = createMetadatumDTO("crisrp", "name", "variant", "Leone");
+        MetadatumDTO nameVariant4 = createMetadatumDTO("crisrp", "name", "variant", "Leone I");
+        MetadatumDTO nameVariant5 = createMetadatumDTO("crisrp", "name", "variant", "Leone Magno");
+        MetadatumDTO nameVariant6 = createMetadatumDTO("crisrp", "name", "variant", "Léon : le Grand");
+        MetadatumDTO nameVariant7 = createMetadatumDTO("crisrp", "name", "variant", "Leo");
+        MetadatumDTO nameVariant8 = createMetadatumDTO("crisrp", "name", "variant", "Léon,");
+        MetadatumDTO nameVariant9 = createMetadatumDTO("crisrp", "name", "variant", "Leo : Magnus");
+
         metadatums3.add(identifierOther3);
         metadatums3.add(title3);
         metadatums3.add(gender3);
@@ -220,6 +245,16 @@ public class ViafImportMetadataSourceServiceImplIT extends AbstractLiveImportInt
         metadatums3.add(wikipedia3);
         metadatums3.add(nationality3);
         metadatums3.add(role);
+        metadatums3.add(nameVariant1);
+        metadatums3.add(nameVariant2);
+        metadatums3.add(nameVariant3);
+        metadatums3.add(nameVariant4);
+        metadatums3.add(nameVariant5);
+        metadatums3.add(nameVariant6);
+        metadatums3.add(nameVariant7);
+        metadatums3.add(nameVariant8);
+        metadatums3.add(nameVariant9);
+
         records.add(new ImportRecord(metadatums3));
 
         context.turnOffAuthorisationSystem();
