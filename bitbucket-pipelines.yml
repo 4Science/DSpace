@@ -4,39 +4,48 @@ definitions:
   docker:
     memory: 4096  # increase memory for docker-in-docker from 1GB to 4GB
   caches:
-    gradlewrapper: ~/.gradle/wrapper
+    gradle-java17: ~/.gradle/caches
+    gradlewrapper-java17: ~/.gradle/wrapper
+    maven-java17: ~/.m2/repository
   mvnVars:
     &setEnv export MAVEN_OPTS="-Xmx4096M" &&
     export MAVEN_ARGS="-Dorg.slf4j.simpleLogger.showDateTime=true -Dorg.slf4j.simpleLogger.dateTimeFormat=HH:mm:ss,SSS"
   steps:
     - step: &install
-        runs-on: self.hosted
+        runs-on:
+          - self.hosted
+          - linux.arm64
+          - arm64.group
         name: Install
         size: 1x
         clone:
           depth: 2
         caches:
-          - gradle
-          - gradlewrapper
-          - maven
+          - gradle-java17
+          - gradlewrapper-java17
+          - maven-java17
         script:
           - *setEnv
-          - mvn install -T 1C -B -P-assembly,pipeline $MAVEN_ARGS
+          - mvn install -ntp -T 1C -B -P-assembly,pipeline $MAVEN_ARGS
         artifacts:
           - target/local-repo/**
           - dspace-server-webapp/target/**
           - dspace-api/target/**
           - dspace-services/target/**
           - dspace-oai/target/**
+          - dspace/modules/server-boot/target/**
 
     - step: &unit-test-code-checks
-        runs-on: self.hosted
+        runs-on:
+          - self.hosted
+          - linux.arm64
+          - arm64.group
         name: unit-test-code-checks
         size: 2x
         caches:
-          - gradle
-          - gradlewrapper
-          - maven
+          - gradle-java17
+          - gradlewrapper-java17
+          - maven-java17
         script:
           - *setEnv
           - cp -rf target/local-repo/** ~/.m2/repository/
@@ -52,13 +61,16 @@ definitions:
           - dspace-oai/target/failsafe-reports/*-output.txt
 
     - step: &integration-tests-dspace-api
-        runs-on: self.hosted
+        runs-on:
+          - self.hosted
+          - linux.arm64
+          - arm64.group
         name: integration-tests-dspace-api
         size: 1x
         caches:
-          - gradle
-          - gradlewrapper
-          - maven
+          - gradle-java17
+          - gradlewrapper-java17
+          - maven-java17
         script:
           - *setEnv
           - cp -rf target/local-repo/** ~/.m2/repository/
@@ -68,13 +80,16 @@ definitions:
           - dspace-api/target/failsafe-reports/*-output.txt
 
     - step: &integration-tests-with-test-jars
-        runs-on: self.hosted
+        runs-on:
+          - self.hosted
+          - linux.arm64
+          - arm64.group
         name: integration-tests-with-test-jars
         size: 2x
         caches:
-          - gradle
-          - gradlewrapper
-          - maven
+          - gradle-java17
+          - gradlewrapper-java17
+          - maven-java17
         script:
           - *setEnv
           - #- ./dspace-api/src/test/data/dspaceFolder/bin/install_grobid.sh
@@ -85,13 +100,16 @@ definitions:
           - dspace-server-webapp/target/failsafe-reports/*-output.txt
 
     - step: &integration-tests-slow
-        runs-on: self.hosted
+        runs-on:
+          - self.hosted
+          - linux.arm64
+          - arm64.group
         name: integration-tests-slow
         size: 1x
         caches:
-          - gradle
-          - gradlewrapper
-          - maven
+          - gradle-java17
+          - gradlewrapper-java17
+          - maven-java17
         script:
           - *setEnv
           - cp -rf target/local-repo/** ~/.m2/repository/
@@ -100,39 +118,150 @@ definitions:
           - dspace-server-webapp/target/surefire-reports/*-output.txt
           - dspace-server-webapp/target/failsafe-reports/*-output.txt
 
+    - step: &build-and-push
+        runs-on:
+          - self.hosted
+          - linux.arm64
+          - arm64.group
+        name: Build and Push Docker Image to ECR
+        size: 1x
+        image: atlassian/default-image:4  # Default Bitbucket image with Docker support
+        services:
+          - docker
+        script:
+          - apt-get update && apt-get install -y python3-pip
+          - pip3 install awscli
+          - export HASH_COMMIT=${BITBUCKET_COMMIT:0:8}
+          - export BRANCH_NAME=$(echo "$BITBUCKET_BRANCH" | tr '[:upper:]' '[:lower:]' | sed 's|/|--|g')
+          - docker build -f Dockerfile.build -t dspace-cris:${BRANCH_NAME}-${HASH_COMMIT} -t dspace-cris:${BRANCH_NAME}-latest .
+          - pipe: atlassian/aws-ecr-push-image:2.5.0
+            variables:
+              AWS_ACCESS_KEY_ID: $AWS_ACCESS_KEY_ID
+              AWS_SECRET_ACCESS_KEY: $AWS_SECRET_ACCESS_KEY
+              AWS_DEFAULT_REGION: $AWS_REGION
+              IMAGE_NAME: dspace-cris
+              TAGS: "${BRANCH_NAME}-${HASH_COMMIT} ${BRANCH_NAME}-latest"
+
+    - step: &build-and-push-solr8
+        runs-on:
+          - self.hosted
+          - linux.arm64
+          - arm64.group
+        name: Build and Push SOLR8 Docker Image to ECR
+        size: 1x
+        image: atlassian/default-image:4  # Default Bitbucket image with Docker support
+        services:
+          - docker
+        script:
+          - export HASH_COMMIT=${BITBUCKET_COMMIT:0:8}
+          - export BRANCH_NAME=$(echo "$BITBUCKET_BRANCH" | tr '[:upper:]' '[:lower:]' | sed 's|/|--|g')
+          - docker build -f ./dspace/src/main/docker/dspace-solr/Dockerfile -t solr8:${BRANCH_NAME}-${HASH_COMMIT} -t solr8:${BRANCH_NAME}-latest .
+          - pipe: atlassian/aws-ecr-push-image:2.5.0
+            variables:
+              AWS_ACCESS_KEY_ID: $AWS_ACCESS_KEY_ID
+              AWS_SECRET_ACCESS_KEY: $AWS_SECRET_ACCESS_KEY
+              AWS_DEFAULT_REGION: $AWS_REGION
+              IMAGE_NAME: solr8
+              TAGS: "${BRANCH_NAME}-${HASH_COMMIT} ${BRANCH_NAME}-latest"
+
+    - step: &build-and-push-solr9
+        runs-on:
+          - self.hosted
+          - linux.arm64
+          - arm64.group
+        name: Build and Push SOLR9 Docker Image to ECR
+        size: 1x
+        image: atlassian/default-image:4  # Default Bitbucket image with Docker support
+        services:
+          - docker
+        script:
+          - export HASH_COMMIT=${BITBUCKET_COMMIT:0:8}
+          - export BRANCH_NAME=$(echo "$BITBUCKET_BRANCH" | tr '[:upper:]' '[:lower:]' | sed 's|/|--|g')
+          - docker build -f ./dspace/src/main/docker/dspace-solr/Dockerfile9 -t solr9:${BRANCH_NAME}-${HASH_COMMIT} -t solr9:${BRANCH_NAME}-latest .
+          - pipe: atlassian/aws-ecr-push-image:2.5.0
+            variables:
+              AWS_ACCESS_KEY_ID: $AWS_ACCESS_KEY_ID
+              AWS_SECRET_ACCESS_KEY: $AWS_SECRET_ACCESS_KEY
+              AWS_DEFAULT_REGION: $AWS_REGION
+              IMAGE_NAME: solr9
+              TAGS: "${BRANCH_NAME}-${HASH_COMMIT} ${BRANCH_NAME}-latest"
+
+    - step: &deploy-on-dev
+        name: Deploy on Development environment
+        image: alpine/git:latest
+        script:
+          - export HASH_COMMIT=${BITBUCKET_COMMIT:0:8}
+          - export BRANCH_NAME=$(echo "$BITBUCKET_BRANCH" | tr '[:upper:]' '[:lower:]' | sed 's|/|--|g')
+          - export BRANCH_FILE=$(echo "$BITBUCKET_BRANCH" | awk -F'/' '{if(NF==1)val=$1;else if(NF==2)val=$2;else if(NF==3)val=$2;else val=$3;gsub(/_/, "-", val);print tolower(val)}')
+          - git clone https://x-token-auth:${DSPACE_VALUES_ACCESS_TOKEN}@${DSPACE_VALUES_REPO}
+          - cd dspace-values
+          - 'sed -i "/^rest:/,/^[^ ]/s/\\(tag: \\).*/\\1${BRANCH_NAME}-${HASH_COMMIT}/" dev/${BRANCH_FILE}'
+          - git config --global user.email "${BB_USER}"
+          - git config --global user.name "${BB_EMAIL}"
+          - git commit -am "Update TAG with ${BRANCH_NAME}-${HASH_COMMIT}"
+          - git push
+
+    - step: &deploy-on-staging
+        name: Deploy on Staging environment
+        image: alpine/git:latest
+        script:
+          - export HASH_COMMIT=${BITBUCKET_COMMIT:0:8}
+          - export BRANCH_NAME=$(echo "$BITBUCKET_BRANCH" | tr '[:upper:]' '[:lower:]' | sed 's|/|--|g')
+          - export BRANCH_FILE=$(echo "$BITBUCKET_BRANCH" | awk -F'/' '{if(NF==1)val=$1;else if(NF==2)val=$2;else if(NF==3)val=$2;else val=$3;gsub(/_/, "-", val);print tolower(val)}')
+          - git clone https://x-token-auth:${DSPACE_VALUES_ACCESS_TOKEN}@${DSPACE_VALUES_REPO}
+          - cd dspace-values
+          - 'sed -i "/^rest:/,/^[^ ]/s/\\(tag: \\).*/\\1${BRANCH_NAME}-${HASH_COMMIT}/" staging/${BRANCH_FILE}'
+          - git config --global user.email "${BB_USER}"
+          - git config --global user.name "${BB_EMAIL}"
+          - git commit -am "Update TAG with ${BRANCH_NAME}-${HASH_COMMIT}"
+          - git push
+
 pipelines:
   branches:
     'main-cris':
       - step: *install
       - parallel: &parallel-pipeline
-        - step: *unit-test-code-checks
-        - step: *integration-tests-with-test-jars
-        - step: *integration-tests-slow
-        - step: *integration-tests-dspace-api
+          - step: *unit-test-code-checks
+          - step: *integration-tests-with-test-jars
+          - step: *integration-tests-slow
+          - step: *integration-tests-dspace-api
     'dspace-cris-2024_02_x':
       - step: *install
       - parallel: *parallel-pipeline
+      - step: *build-and-push
+      - step: *deploy-on-dev
+      - step: *deploy-on-staging
     'prod/**':
       - step: *install
       - parallel: *parallel-pipeline
+      - step: *build-and-push
+      - step: *deploy-on-dev
+      - step: *deploy-on-staging
 
   pull-requests:
     '**':
       - step: *install
       - parallel:
-        - step: *unit-test-code-checks
-        - step: *integration-tests-with-test-jars
-        - step: *integration-tests-slow
-        - step: *integration-tests-dspace-api
+          - step: *unit-test-code-checks
+          - step: *integration-tests-with-test-jars
+          - step: *integration-tests-slow
+          - step: *integration-tests-dspace-api
   custom:
     install:
       - step: *install
     integration-tests-with-test-jars:
-       - step: *integration-tests-with-test-jars
+      - step: *integration-tests-with-test-jars
     integration-dspace-api:
-       - step: *integration-tests-dspace-api
+      - step: *integration-tests-dspace-api
     integration-tests-slow:
-       - step: *integration-tests-slow
+      - step: *integration-tests-slow
     unit:
-       - step: *unit-test-code-checks
-
+      - step: *unit-test-code-checks
+    deploy-on-dev:
+      - step: *install
+      - step: *build-and-push
+      - step: *deploy-on-dev
+    e2e-test:
+      - step: *install
+      - step: *build-and-push
+      - step: *build-and-push-solr8

@@ -8,6 +8,7 @@
 package org.dspace.app.rest;
 
 import static org.dspace.app.rest.matcher.ProcessMatcher.matchProcess;
+import static org.dspace.content.ProcessStatus.FAILED;
 import static org.dspace.content.ProcessStatus.RUNNING;
 import static org.dspace.content.ProcessStatus.SCHEDULED;
 import static org.hamcrest.Matchers.contains;
@@ -1130,6 +1131,89 @@ public class ProcessRestRepositoryIT extends AbstractControllerIntegrationTest {
                         .andExpect(jsonPath("$.page", is(
                                 PageMatcher.pageEntryWithTotalPagesAndElements(0, 20, 1, 5))));
 
+    }
+
+    @Test
+    public void searchByOwnerWithStatusTest() throws Exception {
+        Process processScheduled = ProcessBuilder.createProcess(context, eperson, "mock-script-A", parameters)
+                                                 .withProcessStatus(SCHEDULED)
+                                                 .build();
+
+        ProcessBuilder.createProcess(context, eperson, "mock-script-A1", parameters)
+                      .withProcessStatus(FAILED)
+                      .build();
+
+        Process processFaileddByAdmin = ProcessBuilder.createProcess(context, admin, "mock-script-B", parameters)
+                                                        .withProcessStatus(FAILED)
+                                                        .build();
+
+        Process processRunning = ProcessBuilder.createProcess(context, eperson, "mock-script-C", parameters)
+                                               .withProcessStatus(RUNNING)
+                                               .build();
+
+        // search process launched by eperson
+        String token = getAuthToken(eperson.getEmail(), password);
+        getClient(token).perform(get("/api/system/processes/search/own")
+                        .param("processStatus", "SCHEDULED"))
+                        .andExpect(status().isOk())
+            .andExpect(jsonPath("$._embedded.processes", containsInRelativeOrder(matchProcess(
+                processScheduled.getName(), eperson.getID().toString(), processScheduled.getID(), parameters, SCHEDULED)
+                )))
+            .andExpect(jsonPath("$.page", is(PageMatcher.pageEntryWithTotalPagesAndElements(0, 20, 1, 1))));
+
+        getClient(token).perform(get("/api/system/processes/search/own")
+                        .param("processStatus", "RUNNING"))
+                        .andExpect(status().isOk())
+                .andExpect(jsonPath("$._embedded.processes", containsInRelativeOrder(matchProcess(
+                        processRunning.getName(), eperson.getID().toString(),
+                        processRunning.getID(), parameters, RUNNING)
+                        )))
+                .andExpect(jsonPath("$.page", is(PageMatcher.pageEntryWithTotalPagesAndElements(0, 20, 1, 1))));
+
+        // check process launched by admin
+        String tokenAdmin = getAuthToken(admin.getEmail(), password);
+        getClient(tokenAdmin).perform(get("/api/system/processes/search/own")
+                             .param("processStatus", "FAILED"))
+                             .andExpect(status().isOk())
+                .andExpect(jsonPath("$._embedded.processes", containsInRelativeOrder(matchProcess(
+                           processFaileddByAdmin.getName(), admin.getID().toString(),
+                           processFaileddByAdmin.getID(), parameters, FAILED)
+                           )))
+                .andExpect(jsonPath("$.page", is(PageMatcher.pageEntryWithTotalPagesAndElements(0, 20, 1, 1))));
+
+        getClient(tokenAdmin).perform(get("/api/system/processes/search/own")
+                             .param("processStatus", "RUNNING"))
+                             .andExpect(status().isOk())
+                             .andExpect(jsonPath("$._embedded.processes").doesNotExist())
+                        .andExpect(jsonPath("$.page", is(PageMatcher.pageEntryWithTotalPagesAndElements(0, 20, 0, 0))));
+    }
+
+    @Test
+    public void searchByOwnerWithStatusUnauthorizedTest() throws Exception {
+        ProcessBuilder.createProcess(context, eperson, "mock-script-A", parameters)
+                      .withProcessStatus(SCHEDULED)
+                      .build();
+
+        ProcessBuilder.createProcess(context, admin, "mock-script-B", parameters)
+                      .withProcessStatus(FAILED)
+                      .build();
+
+        // search process launched by anonymous
+        getClient().perform(get("/api/system/processes/search/own")
+                   .param("processStatus", "SCHEDULED"))
+                   .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    public void searchByOwnerBadRequestTest() throws Exception {
+        ProcessBuilder.createProcess(context, eperson, "mock-script-A", parameters)
+                      .withProcessStatus(SCHEDULED)
+                      .build();
+
+        String token = getAuthToken(eperson.getEmail(), password);
+        getClient(token).perform(get("/api/system/processes/search/own")
+                        .param("processStatus", "WRONG-STATUS"))
+                        .andExpect(status().isBadRequest());
     }
 
     @After
