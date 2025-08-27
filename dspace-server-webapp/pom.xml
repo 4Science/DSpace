@@ -13,7 +13,7 @@
     <parent>
         <groupId>org.dspace</groupId>
         <artifactId>dspace-parent</artifactId>
-        <version>cris-2024.02.02-SNAPSHOT</version>
+        <version>cris-2024.02.03-SNAPSHOT</version>
         <relativePath>..</relativePath>
     </parent>
 
@@ -674,14 +674,6 @@
                     <artifactId>json-smart</artifactId>
                 </exclusion>
             </exclusions>
-        </dependency>
-
-        <!-- Specify the version of json-smart we want to use.
-             This solves a version mismatch between nimbus-jose-jwt and json-path below. -->
-        <dependency>
-            <groupId>net.minidev</groupId>
-            <artifactId>json-smart</artifactId>
-            <version>2.5.2</version>
         </dependency>
 
         <dependency>

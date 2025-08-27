@@ -46,7 +46,6 @@ import org.dspace.content.Item;
 import org.dspace.content.WorkspaceItem;
 import org.dspace.eperson.EPerson;
 import org.dspace.event.factory.EventServiceFactory;
-import org.dspace.event.service.EventService;
 import org.dspace.services.ConfigurationService;
 import org.dspace.services.factory.DSpaceServicesFactory;
 import org.dspace.workflow.WorkflowItem;
@@ -73,10 +72,6 @@ public class SendLDNMessageActionIT extends AbstractIntegrationTestWithDatabase 
     public static String[] excludedDiscoveryConsumers;
     public static String[] consumers;
 
-    private static final ConfigurationService configurationService =
-        DSpaceServicesFactory.getInstance().getConfigurationService();
-    public static final EventService eventService = EventServiceFactory.getInstance().getEventService();
-
     private Collection collection;
     private EPerson submitter;
     private LDNMessageService ldnMessageService = NotifyServiceFactory.getInstance().getLDNMessageService();
@@ -85,6 +80,7 @@ public class SendLDNMessageActionIT extends AbstractIntegrationTestWithDatabase 
 
     @BeforeClass
     public static void tearUp() {
+        ConfigurationService configurationService = DSpaceServicesFactory.getInstance().getConfigurationService();
         excludedDiscoveryConsumers =
             configurationService.getArrayProperty(EVENT_DISPATCHER_EXCLUDE_DISCOVERY_CONSUMERS);
         consumers = configurationService.getArrayProperty(EVENT_DISPATCHER_DEFAULT_CONSUMERS);
@@ -101,11 +97,12 @@ public class SendLDNMessageActionIT extends AbstractIntegrationTestWithDatabase 
                 excludedConsumerSet.toArray()
             );
         }
-        eventService.reloadConfiguration();
+        EventServiceFactory.getInstance().getEventService().reloadConfiguration();
     }
 
     @AfterClass
     public static void reset() {
+        ConfigurationService configurationService = DSpaceServicesFactory.getInstance().getConfigurationService();
         configurationService.setProperty(
             EVENT_DISPATCHER_DEFAULT_CONSUMERS,
             consumers
@@ -114,13 +111,13 @@ public class SendLDNMessageActionIT extends AbstractIntegrationTestWithDatabase 
             EVENT_DISPATCHER_EXCLUDE_DISCOVERY_CONSUMERS,
             excludedDiscoveryConsumers
         );
-        eventService.reloadConfiguration();
+        EventServiceFactory.getInstance().getEventService().reloadConfiguration();
     }
 
     @Before
     public void setUp() throws Exception {
         super.setUp();
-        configurationService.setProperty("ldn.enabled", "true");
+        DSpaceServicesFactory.getInstance().getConfigurationService().setProperty("ldn.enabled", "true");
         sendLDNMessageAction = new SendLDNMessageAction();
         context.turnOffAuthorisationSystem();
         //** GIVEN **
