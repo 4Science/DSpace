@@ -73,7 +73,7 @@ public class ViafSubjectIcshProcessor extends JsonPathMetadataProcessor {
         if (sNode.isArray()) {
             Set<String> names = new HashSet<>();
             Iterator<JsonNode> sourceNames = sNode.iterator();
-            while(sourceNames.hasNext()) {
+            while (sourceNames.hasNext()) {
                 var sourceName = sourceNames.next().asText();
                 if (StringUtils.isNotBlank(sourceName)) {
                     names.add(sourceName);
