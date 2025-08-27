@@ -31,6 +31,7 @@
         <entry key-ref="viaf.glam.link.wikipedia" value-ref="viafGlamWikipedia"/>
         <entry key-ref="viaf.person.nationality" value-ref="viafNationality"/>
         <entry key-ref="viaf.glamperson.role" value-ref="viafGlampersonRole"/>
+        <entry key-ref="viaf.dc.subject.lcsh" value-ref="viafSubjectLcsh"/>
     </util:map>
 
     <bean id="viafIDContrib" class="org.dspace.importer.external.metadatamapping.contributor.SimpleJsonPathMetadataContributor">
@@ -177,5 +178,16 @@
     <util:list id="role-codes" value-type="java.lang.String">
         <value>c</value>
     </util:list>
+
+    <bean id="viafSubjectLcsh" class="org.dspace.importer.external.metadatamapping.contributor.SimpleJsonPathMetadataContributor">
+        <property name="field" ref="viaf.dc.subject.lcsh"/>
+        <property name="metadataProcessor" ref="viafSubjectLcshMetadataProcessor"/>
+    </bean>
+    <bean id="viafSubjectLcshMetadataProcessor" class="org.dspace.importer.external.viaf.contributors.ViafSubjectIcshProcessor">
+        <property name="query" value="/ns1:VIAFCluster/ns1:occupation/ns1:data"/>
+    </bean>
+    <bean id="viaf.dc.subject.lcsh" class="org.dspace.importer.external.metadatamapping.MetadataFieldConfig">
+        <constructor-arg value="dc.subject.lcsh"/>
+    </bean>
 
 </beans>

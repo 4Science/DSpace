@@ -71,6 +71,11 @@ public class ViafImportMetadataSourceServiceImplIT extends AbstractLiveImportInt
         MetadatumDTO wikipedia2 = createMetadatumDTO("glam", "link", "wikipedia",
                                                "https://it.wikipedia.org/wiki/Francesco_Albergati_Capacelli");
         MetadatumDTO nationality = createMetadatumDTO("person", "nationality", null, "IT");
+        MetadatumDTO subject1 = createMetadatumDTO("dc", "subject", "lcsh", "translators");
+        MetadatumDTO subject2 = createMetadatumDTO("dc", "subject", "lcsh", "senators");
+        MetadatumDTO subject3 = createMetadatumDTO("dc", "subject", "lcsh", "writers");
+        MetadatumDTO subject4 = createMetadatumDTO("dc", "subject", "lcsh", "playwrights");
+
         metadatums.add(identifierOther);
         metadatums.add(title);
         metadatums.add(gender);
@@ -82,6 +87,10 @@ public class ViafImportMetadataSourceServiceImplIT extends AbstractLiveImportInt
         metadatums.add(wikipedia1);
         metadatums.add(wikipedia2);
         metadatums.add(nationality);
+        metadatums.add(subject1);
+        metadatums.add(subject2);
+        metadatums.add(subject3);
+        metadatums.add(subject4);
         ImportRecord record2match = new ImportRecord(metadatums);
 
         context.turnOffAuthorisationSystem();
