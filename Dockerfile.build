@@ -9,7 +9,7 @@ ENV DSPACE_INSTALL=/dspace \
     DATA_FOLDER=/data
 RUN useradd -m -d /home/dspace -s /bin/bash dspace
 
-RUN mkdir -p $DSPACE_INSTALL $DATA_FOLDER
+RUN install -g dspace -o dspace -d $DSPACE_INSTALL $DATA_FOLDER
 
 COPY --chown=dspace ./dspace/config/ $DSPACE_INSTALL/config/
 COPY --chown=dspace --chmod=0754 ./dspace/bin/ $DSPACE_INSTALL/bin/
