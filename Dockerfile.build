@@ -20,7 +20,7 @@ RUN install -g dspace -o dspace -m 664 /dev/null $DATA_FOLDER/local.cfg && \
 
 WORKDIR $DSPACE_INSTALL
 USER dspace
-ENV JAVA_OPTS="-XX:InitialRAMPercentage:50 -XX:MaxRAMPercentage=75 \
+ENV JAVA_OPTS="-XX:InitialRAMPercentage=50 -XX:MaxRAMPercentage=75 \
     -XX:+UseG1GC -XX:+PrintGCDetails \
     -XX:+PrintGCDateStamps -Xloggc:/logs/gc.log"
 ENTRYPOINT [ "java", "-jar", "server-boot.jar", "--dspace.dir=${DSPACE_INSTALL}", "--logging.config=${DSPACE_INSTALL}/config/log4j2-eks.xml"]
