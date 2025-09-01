@@ -43,7 +43,7 @@ import org.springframework.stereotype.Component;
  * @author Luca Giamminonni (luca.giamminonni at 4science.it)
  *
  */
-@Component(StatisticsSupportRest.CATEGORY + "." + WorkflowOwnerStatisticsRest.NAME)
+@Component(StatisticsSupportRest.CATEGORY + "." + WorkflowOwnerStatisticsRest.NAME_PLURAL)
 public class WorkflowOwnerStatisticsRestRepository extends DSpaceRestRepository<WorkflowOwnerStatisticsRest, UUID> {
 
     public static final DateFormat DATE_FORMATTER = new SimpleDateFormat("yyyy-MM-dd");

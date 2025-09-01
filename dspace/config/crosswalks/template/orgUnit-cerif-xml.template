@@ -5,6 +5,7 @@
 	<Name>@organization.legalName@</Name>
     <Identifier>@organization.identifier@</Identifier>
     <Identifier type="URL">@oairecerif.identifier.url@</Identifier>
+    <RORID>@organization.identifier.ror@</RORID>
 	<PartOf>
 		@relation.organization-parentOrganization.start@
 		<OrgUnit id="@virtual.id@">

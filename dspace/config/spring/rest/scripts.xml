@@ -8,6 +8,11 @@
 
     <!-- This primary attribute is present so that we can assure that in the REST layer we'll always use this
         bean if it is present-->
+    <bean id="import-openaire-events" class="org.dspace.qaevent.script.OpenaireEventsImportScriptConfiguration" primary="true">
+        <property name="description" value="Import new openaire quality assurance broker events"/>
+        <property name="dspaceRunnableClass" value="org.dspace.qaevent.script.OpenaireEventsImport"/>
+     </bean>
+
     <bean id="metadata-import" class="org.dspace.app.bulkedit.MetadataImportScriptConfiguration" primary="true">
         <property name="description" value="Import metadata after batch editing" />
         <property name="dspaceRunnableClass" value="org.dspace.app.bulkedit.MetadataImport"/>
@@ -43,7 +48,7 @@
         <property name="description" value="Perform the bulk import of an excel file with a list of item to add, update or remove"/>
         <property name="dspaceRunnableClass" value="org.dspace.app.bulkedit.BulkImport"/>
     </bean>
-    
+
     <bean id="item-export" class="org.dspace.content.integration.crosswalks.script.ItemExportScriptConfiguration" primary="true">
         <property name="description" value="Perform the item export in the given format"/>
         <property name="dspaceRunnableClass" value="org.dspace.content.integration.crosswalks.script.ItemExport"/>
@@ -53,22 +58,17 @@
         <property name="description" value="Perform the multiple items export in the given format"/>
         <property name="dspaceRunnableClass" value="org.dspace.content.integration.crosswalks.script.BulkItemExport"/>
     </bean>
-    
+
     <bean id="collection-export" class="org.dspace.app.bulkedit.CollectionExportScriptConfiguration" primary="true">
         <property name="description" value="Perform the export of all the archived items of the given collection in xls format"/>
         <property name="dspaceRunnableClass" value="org.dspace.app.bulkedit.CollectionExport"/>
     </bean>
 
-    <bean id="import-nbevents" class="org.dspace.app.nbevent.NBEventsScriptConfiguration" primary="true">
-        <property name="description" value="Import new openAIRE notification broker events"/>
-        <property name="dspaceRunnableClass" value="org.dspace.app.nbevent.NBEventsRunnable"/>
-     </bean>
-
-    <bean id="import-oaire-suggestions" class="org.dspace.app.suggestion.OAIREPublicationLoaderScriptConfiguration" primary="true">
-        <property name="description" value="Import and store locally metadata from OpenAIRE"/>
-        <property name="dspaceRunnableClass" value="org.dspace.app.suggestion.OAIREPublicationLoaderRunnable"/>
+    <bean id="import-openaire-suggestions" class="org.dspace.app.suggestion.openaire.PublicationLoaderScriptConfiguration">
+        <property name="description" value="Imports suggestions from OpenAIRE for publication claim"/>
+        <property name="dspaceRunnableClass" value="org.dspace.app.suggestion.openaire.PublicationLoaderRunnable"/>
     </bean>
-    
+
     <bean id="orcid-bulk-push" class="org.dspace.orcid.script.OrcidBulkPushScriptConfiguration" primary="true">
         <property name="description" value="Perform the bulk synchronization of all the BATCH configured ORCID entities placed in the ORCID queue"/>
         <property name="dspaceRunnableClass" value="org.dspace.orcid.script.OrcidBulkPush"/>
@@ -109,6 +109,11 @@
         <property name="dspaceRunnableClass" value="org.dspace.app.itemexport.ItemExport"/>
     </bean>
 
+    <bean id="bulk-access-control" class="org.dspace.app.bulkaccesscontrol.BulkAccessControlScriptConfiguration" primary="true">
+        <property name="description" value="Bulk access control"/>
+        <property name="dspaceRunnableClass" value="org.dspace.app.bulkaccesscontrol.BulkAccessControl"/>
+    </bean>
+
     <bean id="export-schema" class="org.dspace.app.metadata.export.MetadataSchemaExportScriptConfiguration" primary="true">
         <property name="description" value="Exports a given schema into a registry xml-format file"/>
         <property name="dspaceRunnableClass" value="org.dspace.app.metadata.export.MetadataSchemaExportScript"/>
@@ -118,4 +123,15 @@
         <property name="description" value="Packager Ingestion and Dissemination" />
         <property name="dspaceRunnableClass" value="org.dspace.app.packager.Packager"/>
     </bean>
+
+    <bean id="filter-media" class="org.dspace.app.mediafilter.MediaFilterScriptConfiguration">
+        <property name="description" value="Perform the media filtering to extract full text from documents and to create thumbnails"/>
+        <property name="dspaceRunnableClass" value="org.dspace.app.mediafilter.MediaFilterScript"/>
+    </bean>
+
+    <bean id="submission-xml-to-xls" class="org.dspace.app.submission.SubmissionXmlToXlsScriptConfiguration" primary="true">
+        <property name="description" value="Generate XLS submission form from XML"/>
+        <property name="dspaceRunnableClass" value="org.dspace.app.submission.SubmissionXmlToXls"/>
+    </bean>
+
 </beans>

@@ -16,15 +16,6 @@
            http://www.springframework.org/schema/util
            http://www.springframework.org/schema/util/spring-util.xsd">
 
-
-    <!-- Identifier Service Application Interface.  Will be autowired with
-         any Identifier Providers present in Spring context.
-    -->
-    <bean id="org.dspace.identifier.service.IdentifierService"
-          class="org.dspace.identifier.IdentifierServiceImpl"
-          autowire="byType"
-          scope="singleton"/>
-
     <bean id="org.dspace.services.ConfigurationService"
           class="org.dspace.servicemanager.config.DSpaceConfigurationService" scope="singleton"/>
 
@@ -33,12 +24,6 @@
           scope="singleton">
         <property name="configurationService" ref="org.dspace.services.ConfigurationService"/>
     </bean-->
-
-    <bean id="org.dspace.identifier.VersionedHandleIdentifierProvider"
-          class="org.dspace.identifier.VersionedHandleIdentifierProvider"
-          scope="singleton">
-        <property name="configurationService" ref="org.dspace.services.ConfigurationService"/>
-    </bean>
 
     <bean name="org.dspace.core.DBConnection" class="org.dspace.core.HibernateDBConnection" lazy-init="true" scope="prototype"/>
 
@@ -78,6 +63,9 @@
                 </entry>
                 <entry key="currentuser">
                     <bean class="org.dspace.content.template.generator.CurrentUserValueGenerator" />
+                </entry>
+                <entry key="currentprofile">
+                    <bean class="org.dspace.content.template.generator.CurrentProfileValueGenerator" />
                 </entry>
             </map>
         </constructor-arg>

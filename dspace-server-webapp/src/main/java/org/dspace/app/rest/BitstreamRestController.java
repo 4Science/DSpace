@@ -15,10 +15,12 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.UUID;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.ws.rs.core.Response;
 import org.apache.catalina.connector.ClientAbortException;
+import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.Logger;
 import org.dspace.app.rest.converter.ConverterService;
@@ -136,10 +138,16 @@ public class BitstreamRestController {
             Boolean citationEnabledForBitstream = citationDocumentService.isCitationEnabledForBitstream(bit, context);
             context.turnOffAuthorisationSystem();
 
+            var bitstreamResource =
+                    new org.dspace.app.rest.utils.BitstreamResource(name, uuid,
+                            currentUser != null ? currentUser.getID() : null,
+                            context.getSpecialGroupUuids(), citationEnabledForBitstream, true);
+
             HttpHeadersInitializer httpHeadersInitializer = new HttpHeadersInitializer()
                 .withBufferSize(BUFFER_SIZE)
                 .withFileName(name)
-                .withChecksum(bit.getChecksum())
+                .withChecksum(bitstreamResource.getChecksum())
+                .withLength(bitstreamResource.contentLength())
                 .withMimetype(mimetype)
                 .with(request)
                 .with(response);
@@ -149,15 +157,14 @@ public class BitstreamRestController {
             }
 
             //Determine if we need to send the file as a download or if the browser can open it inline
+            //The file will be downloaded if its size is larger than the configured threshold,
+            //or if its mimetype/extension appears in the "webui.content_disposition_format" config
             long dispositionThreshold = configurationService.getLongProperty("webui.content_disposition_threshold");
-            if (dispositionThreshold >= 0 && filesize > dispositionThreshold) {
+            if ((dispositionThreshold >= 0 && filesize > dispositionThreshold)
+                    || checkFormatForContentDisposition(format)) {
                 httpHeadersInitializer.withDisposition(HttpHeadersInitializer.CONTENT_DISPOSITION_ATTACHMENT);
             }
 
-            org.dspace.app.rest.utils.BitstreamResource bitstreamResource =
-                new org.dspace.app.rest.utils.BitstreamResource(name, uuid,
-                    currentUser != null ? currentUser.getID() : null,
-                    context.getSpecialGroupUuids(), citationEnabledForBitstream, true);
             //We have all the data we need, close the connection to the database so that it doesn't stay open during
             //download/streaming
             context.complete();
@@ -165,6 +172,12 @@ public class BitstreamRestController {
             //Send the data
             if (httpHeadersInitializer.isValid()) {
                 HttpHeaders httpHeaders = httpHeadersInitializer.initialiseHeaders();
+
+                if (RequestMethod.HEAD.name().equals(request.getMethod())) {
+                    log.debug("HEAD request - no response body");
+                    return ResponseEntity.ok().headers(httpHeaders).build();
+                }
+
                 return ResponseEntity.ok().headers(httpHeaders).body(bitstreamResource);
             }
 
@@ -189,6 +202,57 @@ public class BitstreamRestController {
             }
         }
         return name;
+    }
+
+    private boolean isNotAnErrorResponse(HttpServletResponse response) {
+        Response.Status.Family responseCode = Response.Status.Family.familyOf(response.getStatus());
+        return responseCode.equals(Response.Status.Family.SUCCESSFUL)
+            || responseCode.equals(Response.Status.Family.REDIRECTION);
+    }
+
+    /**
+     * Check if a Bitstream of the specified format should always be downloaded (i.e. "content-disposition: attachment")
+     * or can be opened inline (i.e. "content-disposition: inline").
+     * <P>
+     * NOTE that downloading via "attachment" is more secure, as the user's browser will not attempt to process or
+     * display the file. But, downloading via "inline" may be seen as more user-friendly for common formats.
+     * @param format BitstreamFormat
+     * @return true if always download ("attachment"). false if can be opened inline ("inline")
+     */
+    private boolean checkFormatForContentDisposition(BitstreamFormat format) {
+        // Undefined or Unknown formats should ALWAYS be downloaded for additional security.
+        if (format == null || format.getSupportLevel() == BitstreamFormat.UNKNOWN) {
+            return true;
+        }
+
+        // Load additional formats configured to require download
+        List<String> configuredFormats = List.of(configurationService.
+                                                     getArrayProperty("webui.content_disposition_format"));
+
+        // If configuration includes "*", then all formats will always be downloaded.
+        if (configuredFormats.contains("*")) {
+            return true;
+        }
+
+        // Define a download list of formats which DSpace forces to ALWAYS be downloaded.
+        // These formats can embed JavaScript which may be run in the user's browser if the file is opened inline.
+        // Therefore, DSpace blocks opening these formats inline as it could be used for an XSS attack.
+        List<String> downloadOnlyFormats = List.of("text/html", "text/javascript", "text/xml", "rdf");
+
+        // Combine our two lists
+        List<String> formats = ListUtils.union(downloadOnlyFormats, configuredFormats);
+
+        // See if the passed in format's MIME type or file extension is listed.
+        boolean download = formats.contains(format.getMIMEType());
+        if (!download) {
+            for (String ext : format.getExtensions()) {
+                if (formats.contains(ext)) {
+                    download = true;
+                    break;
+                }
+            }
+        }
+        return download;
     }
 
     /**

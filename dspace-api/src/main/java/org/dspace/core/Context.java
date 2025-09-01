@@ -23,6 +23,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.apache.logging.log4j.Logger;
 import org.dspace.authorize.ResourcePolicy;
 import org.dspace.content.DSpaceObject;
+import org.dspace.core.exception.SQLRuntimeException;
 import org.dspace.eperson.EPerson;
 import org.dspace.eperson.Group;
 import org.dspace.eperson.factory.EPersonServiceFactory;
@@ -33,6 +34,7 @@ import org.dspace.event.service.EventService;
 import org.dspace.storage.rdbms.DatabaseConfigVO;
 import org.dspace.storage.rdbms.DatabaseUtils;
 import org.dspace.utils.DSpace;
+import org.hibernate.Session;
 import org.springframework.util.CollectionUtils;
 
 /**
@@ -127,6 +129,11 @@ public class Context implements AutoCloseable {
     protected EventService eventService;
 
     private DBConnection dbConnection;
+
+    /**
+     * The default administrator group
+     */
+    private Group adminGroup;
 
     public enum Mode {
         READ_ONLY,
@@ -446,6 +453,14 @@ public class Context implements AutoCloseable {
         }
     }
 
+    public void clear() {
+        try {
+            ((Session) dbConnection.getSession()).clear();
+            reloadContextBoundEntities();
+        } catch (SQLException e) {
+            throw new SQLRuntimeException(e);
+        }
+    }
 
     /**
      * Dispatch any events (cached in current Context) to configured EventListeners (consumers)
@@ -810,6 +825,15 @@ public class Context implements AutoCloseable {
             readOnlyCache.clear();
         }
 
+        // When going to READ_ONLY, flush database changes to ensure that the current data is retrieved
+        if (newMode == Mode.READ_ONLY && mode != Mode.READ_ONLY) {
+            try {
+                dbConnection.flushSession();
+            } catch (SQLException ex) {
+                log.warn("Unable to flush database changes after switching to READ_ONLY mode", ex);
+            }
+        }
+
         //save the new mode
         mode = newMode;
     }
@@ -869,7 +893,19 @@ public class Context implements AutoCloseable {
     }
 
     /**
-     * Remove an entity from the cache. This is necessary when batch processing a large number of items.
+     * Remove all entities from the cache and reload the current user entity. This is useful when batch processing
+     * a large number of entities when the calling code requires the cache to be completely cleared before continuing.
+     *
+     * @throws SQLException if a database error occurs.
+     */
+    public void uncacheEntities() throws SQLException {
+        dbConnection.uncacheEntities();
+        reloadContextBoundEntities();
+    }
+
+    /**
+     * Remove an entity from the cache. This is useful when batch processing a large number of entities
+     * when the calling code needs to retain some items in the cache while removing others.
      *
      * @param entity The entity to reload
      * @param <E>    The class of the entity. The entity must implement the {@link ReloadableEntity} interface.
@@ -939,6 +975,7 @@ public class Context implements AutoCloseable {
         }
     }
 
+
     public Set<Group> getCachedAllMemberGroupsSet(EPerson ePerson) {
         if (isReadOnly()) {
             return readOnlyCache.getCachedAllMemberGroupsSet(ePerson);
@@ -969,5 +1006,16 @@ public class Context implements AutoCloseable {
      */
     public boolean isContextUserSwitched() {
         return currentUserPreviousState != null;
+    }
+
+    /**
+     * Returns the default "Administrator" group for DSpace administrators.
+     * The result is cached in the 'adminGroup' field, so it is only looked up once.
+     * This is done to improve performance, as this method is called quite often.
+     */
+    public Group getAdminGroup() throws SQLException {
+        return (adminGroup == null) ? EPersonServiceFactory.getInstance()
+                                                           .getGroupService()
+                                                           .findByName(this, Group.ADMIN) : adminGroup;
     }
 }

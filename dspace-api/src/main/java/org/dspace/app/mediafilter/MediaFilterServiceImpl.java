@@ -8,13 +8,30 @@
 package org.dspace.app.mediafilter;
 
 import java.io.InputStream;
+import java.sql.SQLException;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.UUID;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
+import org.apache.commons.lang3.StringUtils;
+import org.apache.solr.client.solrj.SolrClient;
+import org.apache.solr.client.solrj.SolrQuery;
+import org.apache.solr.client.solrj.response.QueryResponse;
+import org.apache.solr.common.SolrDocument;
+import org.apache.solr.common.SolrDocumentList;
 import org.dspace.app.mediafilter.service.MediaFilterService;
+import org.dspace.app.policy.PolicyUpdater;
+import org.dspace.authorize.AuthorizeException;
 import org.dspace.authorize.service.AuthorizeService;
 import org.dspace.content.Bitstream;
 import org.dspace.content.BitstreamFormat;
@@ -23,6 +40,8 @@ import org.dspace.content.Collection;
 import org.dspace.content.Community;
 import org.dspace.content.DCDate;
 import org.dspace.content.Item;
+import org.dspace.content.dao.ItemDAO;
+import org.dspace.content.dao.impl.ItemDAOImpl;
 import org.dspace.content.service.BitstreamFormatService;
 import org.dspace.content.service.BitstreamService;
 import org.dspace.content.service.BundleService;
@@ -32,10 +51,15 @@ import org.dspace.content.service.ItemService;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.core.SelfNamedPlugin;
+import org.dspace.core.UUIDIterator;
+import org.dspace.core.factory.CoreServiceFactory;
+import org.dspace.discovery.SearchUtils;
 import org.dspace.eperson.Group;
 import org.dspace.eperson.service.GroupService;
 import org.dspace.scripts.handler.DSpaceRunnableHandler;
 import org.dspace.services.ConfigurationService;
+import org.dspace.services.factory.DSpaceServicesFactory;
+import org.dspace.util.ThrowableUtils;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -49,6 +73,10 @@ import org.springframework.beans.factory.annotation.Autowired;
  * maximum number of items.
  */
 public class MediaFilterServiceImpl implements MediaFilterService, InitializingBean {
+
+    //key (in dspace.cfg) which lists all enabled filters by name
+    public static final String MEDIA_FILTER_PLUGINS_KEY = "filter.plugins";
+
     @Autowired(required = true)
     protected AuthorizeService authorizeService;
     @Autowired(required = true)
@@ -66,7 +94,11 @@ public class MediaFilterServiceImpl implements MediaFilterService, InitializingB
     @Autowired(required = true)
     protected ItemService itemService;
     @Autowired(required = true)
+    protected ItemDAO itemDAO;
+    @Autowired(required = true)
     protected ConfigurationService configurationService;
+    @Autowired(required = true)
+    protected List<PolicyUpdater> policyUpdaters;
 
     protected DSpaceRunnableHandler handler;
 
@@ -87,6 +119,7 @@ public class MediaFilterServiceImpl implements MediaFilterService, InitializingB
     protected boolean isVerbose = false;
     protected boolean isQuiet = false;
     protected boolean isForce = false; // default to not forced
+    protected LocalDate fromDate = null;
 
     protected MediaFilterServiceImpl() {
 
@@ -105,7 +138,7 @@ public class MediaFilterServiceImpl implements MediaFilterService, InitializingB
     }
 
     @Override
-    public void applyFiltersAllItems(Context context) throws Exception {
+    public void applyFiltersAllItems(Context context, int sinceLastDays, String[] skipBundles) throws Exception {
         if (skipList != null) {
             //if a skip-list exists, we need to filter community-by-community
             //so we can respect what is in the skip-list
@@ -114,9 +147,45 @@ public class MediaFilterServiceImpl implements MediaFilterService, InitializingB
             for (Community topLevelCommunity : topLevelCommunities) {
                 applyFiltersCommunity(context, topLevelCommunity);
             }
+        } else if (fromDate != null) {
+            Iterator<Item> itemIterator =
+                    itemService.findByLastModifiedSince(
+                            context,
+                            Date.from(fromDate.atStartOfDay(ZoneId.systemDefault()).toInstant())
+                    );
+            while (itemIterator.hasNext() && processed < max2Process) {
+                applyFiltersItem(context, itemIterator.next());
+            }
         } else {
             //otherwise, just find every item and process
-            Iterator<Item> itemIterator = itemService.findAll(context);
+            SolrQuery discoverQuery = new SolrQuery();
+            discoverQuery.setQuery("search.resourcetype:Item AND archived:true");
+            discoverQuery.setFields("search.resourceid");
+            discoverQuery.setRows(100);
+            if (skipBundles != null && skipBundles.length > 0) {
+                discoverQuery.addFilterQuery("-bundleName_s:" + StringUtils.join(skipBundles, " OR -bundleName_s:"));
+            }
+            if (sinceLastDays > 0) {
+                discoverQuery.addFilterQuery("lastModified_dt:[NOW-" + sinceLastDays + "DAYS/DAY TO *]");
+            }
+            final SolrClient solr = SearchUtils.getSearchService().getSolrSearchCore().getSolr();
+            QueryResponse response = solr.query(discoverQuery);
+            int currPos = 0;
+            List<UUID> results = new ArrayList<UUID>((int) response.getResults().getNumFound());
+            while (response.getResults().getNumFound() > currPos) {
+                SolrDocumentList solrDocList = response.getResults();
+                for (SolrDocument doc : solrDocList) {
+                    UUID uuid = UUID.fromString((String) doc.getFirstValue("search.resourceid"));
+                    results.add(uuid);
+                }
+                currPos += 100;
+                discoverQuery.setStart(currPos);
+                response = solr.query(discoverQuery);
+            }
+            UUIDIterator<Item> itemIterator =
+                new UUIDIterator<>(
+                    context, results, Item.class, (ItemDAOImpl) itemDAO
+                );
             while (itemIterator.hasNext() && processed < max2Process) {
                 applyFiltersItem(context, itemIterator.next());
             }
@@ -126,12 +195,18 @@ public class MediaFilterServiceImpl implements MediaFilterService, InitializingB
     @Override
     public void applyFiltersCommunity(Context context, Community community)
         throws Exception {   //only apply filters if community not in skip-list
+        // ensure that the community is attached to the current hibernate session
+        // as we are committing after each item (handles, sub-communties and
+        // collections are lazy attributes)
+        community = context.reloadEntity(community);
         if (!inSkipList(community.getHandle())) {
             List<Community> subcommunities = community.getSubcommunities();
             for (Community subcommunity : subcommunities) {
                 applyFiltersCommunity(context, subcommunity);
             }
-
+            // ensure that the community is attached to the current hibernate session
+            // as we are committing after each item
+            community = context.reloadEntity(community);
             List<Collection> collections = community.getCollections();
             for (Collection collection : collections) {
                 applyFiltersCollection(context, collection);
@@ -142,6 +217,9 @@ public class MediaFilterServiceImpl implements MediaFilterService, InitializingB
     @Override
     public void applyFiltersCollection(Context context, Collection collection)
         throws Exception {
+        // ensure that the collection is attached to the current hibernate session
+        // as we are committing after each item (handles are lazy attributes)
+        collection = context.reloadEntity(collection);
         //only apply filters if collection not in skip-list
         if (!inSkipList(collection.getHandle())) {
             Iterator<Item> itemIterator = itemService.findAllByCollection(context, collection);
@@ -165,6 +243,8 @@ public class MediaFilterServiceImpl implements MediaFilterService, InitializingB
             }
             // clear item objects from context cache and internal cache
             c.uncacheEntity(currentItem);
+            // commit after each item to release DB resources
+            c.commit();
             currentItem = null;
         }
     }
@@ -192,7 +272,7 @@ public class MediaFilterServiceImpl implements MediaFilterService, InitializingB
 
         // iterate through filter classes. A single format may be actioned
         // by more than one filter
-        for (FormatFilter filterClass : filterClasses) {
+        for (FormatFilter filterClass : getFilterClasses()) {
             //List fmts = (List)filterFormats.get(filterClasses[i].getClass().getName());
             String pluginName = null;
 
@@ -221,23 +301,9 @@ public class MediaFilterServiceImpl implements MediaFilterService, InitializingB
                         filtered = true;
                     }
                 } catch (Exception e) {
-                    String handle = myItem.getHandle();
-                    List<Bundle> bundles = myBitstream.getBundles();
-                    long size = myBitstream.getSizeBytes();
-                    String checksum = myBitstream.getChecksum() + " (" + myBitstream.getChecksumAlgorithm() + ")";
-                    int assetstore = myBitstream.getStoreNumber();
-
                     // Printout helpful information to find the errored bitstream.
-                    StringBuilder sb = new StringBuilder("ERROR filtering, skipping bitstream:\n");
-                    sb.append("\tItem Handle: ").append(handle);
-                    for (Bundle bundle : bundles) {
-                        sb.append("\tBundle Name: ").append(bundle.getName());
-                    }
-                    sb.append("\tFile Size: ").append(size);
-                    sb.append("\tChecksum: ").append(checksum);
-                    sb.append("\tAsset Store: ").append(assetstore);
-                    logError(sb.toString());
-                    logError(e.getMessage(), e);
+                    logError(formatBitstreamDetails(myItem.getHandle(), myBitstream));
+                    logError(ThrowableUtils.formatCauseChain(e));
                 }
             } else if (filterClass instanceof SelfRegisterInputFormats) {
                 // Filter implements self registration, so check to see if it should be applied
@@ -315,25 +381,25 @@ public class MediaFilterServiceImpl implements MediaFilterService, InitializingB
 
         // check if destination bitstream exists
         Bundle existingBundle = null;
-        Bitstream existingBitstream = null;
+        List<Bitstream> existingBitstreams = new ArrayList<>();
         List<Bundle> bundles = itemService.getBundles(item, formatFilter.getBundleName());
 
-        if (bundles.size() > 0) {
-            // only finds the last match (FIXME?)
+        if (!bundles.isEmpty()) {
+            // only finds the last matching bundle and all matching bitstreams in the proper bundle(s)
             for (Bundle bundle : bundles) {
                 List<Bitstream> bitstreams = bundle.getBitstreams();
 
                 for (Bitstream bitstream : bitstreams) {
                     if (bitstream.getName().trim().equals(newName.trim())) {
                         existingBundle = bundle;
-                        existingBitstream = bitstream;
+                        existingBitstreams.add(bitstream);
                     }
                 }
             }
         }
 
         // if exists and overwrite = false, exit
-        if (!overWrite && (existingBitstream != null)) {
+        if (!overWrite && (!existingBitstreams.isEmpty())) {
             if (!isQuiet) {
                 logInfo("SKIPPED: bitstream " + source.getID()
                                        + " (item: " + item.getHandle() + ") because '" + newName + "' already exists");
@@ -366,7 +432,7 @@ public class MediaFilterServiceImpl implements MediaFilterService, InitializingB
             }
 
             Bundle targetBundle; // bundle we're modifying
-            if (bundles.size() < 1) {
+            if (bundles.isEmpty()) {
                 // create new bundle if needed
                 targetBundle = bundleService.create(context, item, formatFilter.getBundleName());
             } else {
@@ -388,29 +454,18 @@ public class MediaFilterServiceImpl implements MediaFilterService, InitializingB
             bitstreamService.update(context, b);
 
             //Set permissions on the derivative bitstream
-            //- First remove any existing policies
-            authorizeService.removeAllPolicies(context, b);
-
-            //- Determine if this is a public-derivative format
-            if (publicFiltersClasses.contains(formatFilter.getClass().getSimpleName())) {
-                //- Set derivative bitstream to be publicly accessible
-                Group anonymous = groupService.findByName(context, Group.ANONYMOUS);
-                authorizeService.addPolicy(context, b, Constants.READ, anonymous);
-            } else {
-                //- replace the policies using the same in the source bitstream
-                authorizeService.replaceAllPolicies(context, source, b);
-            }
+            updatePoliciesOfDerivativeBitstream(context, b, formatFilter, source);
 
             //do post-processing of the generated bitstream
             formatFilter.postProcessBitstream(context, item, b);
 
         } catch (OutOfMemoryError oome) {
             logError("!!! OutOfMemoryError !!!");
+            logError(formatBitstreamDetails(item.getHandle(), source));
         }
 
-        // fixme - set date?
         // we are overwriting, so remove old bitstream
-        if (existingBitstream != null) {
+        for (Bitstream existingBitstream : existingBitstreams) {
             bundleService.removeBitstream(context, existingBundle, existingBitstream);
         }
 
@@ -420,6 +475,52 @@ public class MediaFilterServiceImpl implements MediaFilterService, InitializingB
         }
 
         return true;
+    }
+
+    @Override
+    public void updatePoliciesOfDerivativeBitstreams(Context context, Item item, Bitstream source) {
+        if (this.policyUpdaters == null || this.policyUpdaters.isEmpty()) {
+            logInfo("No policy updater configured!");
+        }
+        this.policyUpdaters.forEach(updater -> {
+            try {
+                updater.updatePolicies(context, item, source);
+            } catch (Exception e) {
+                logError(
+                    "Failed to update policies with " + updater.getClass().getSimpleName() +
+                    " for bitstream " + source.getID() + " - " + source.getName() +
+                    " related to item " + item.getID(),
+                    e
+                );
+            }
+        });
+    }
+
+    /**
+     * update resource polices of derivative bitstreams.
+     * by remove all resource policies and
+     * set derivative bitstreams to be publicly accessible or
+     * replace derivative bitstreams policies using
+     * the same in the source bitstream.
+     *
+     * @param context the context
+     * @param bitstream derivative bitstream
+     * @param formatFilter formatFilter
+     * @param source the source bitstream
+     * @throws SQLException If something goes wrong in the database
+     * @throws AuthorizeException if authorization error
+     */
+    private void updatePoliciesOfDerivativeBitstream(Context context, Bitstream bitstream, FormatFilter formatFilter,
+                                                     Bitstream source) throws SQLException, AuthorizeException {
+
+        authorizeService.removeAllPolicies(context, bitstream);
+
+        if (publicFiltersClasses.contains(formatFilter.getClass().getSimpleName())) {
+            Group anonymous = groupService.findByName(context, Group.ANONYMOUS);
+            authorizeService.addPolicy(context, bitstream, Constants.READ, anonymous);
+        } else {
+            authorizeService.replaceAllPolicies(context, source, bitstream);
+        }
     }
 
     @Override
@@ -437,6 +538,37 @@ public class MediaFilterServiceImpl implements MediaFilterService, InitializingB
         } else {
             return false;
         }
+    }
+
+    /**
+     * Describe a Bitstream in detail.  Format a single line of text with
+     * information such as Bitstore index, backing file ID, size, checksum,
+     * enclosing Item and Bundles.
+     *
+     * @param itemHandle Handle of the Item by which we found the Bitstream.
+     * @param bitstream the Bitstream to be described.
+     * @return Bitstream details.
+     */
+    private String formatBitstreamDetails(String itemHandle,
+            Bitstream bitstream) {
+        List<Bundle> bundles;
+        try {
+            bundles = bitstream.getBundles();
+        } catch (SQLException ex) {
+            logError("Unexpected error fetching Bundles", ex);
+            bundles = Collections.EMPTY_LIST;
+        }
+        StringBuilder sb = new StringBuilder("ERROR filtering, skipping bitstream:\n");
+        sb.append("\tItem Handle: ").append(itemHandle);
+        for (Bundle bundle : bundles) {
+            sb.append("\tBundle Name: ").append(bundle.getName());
+        }
+        sb.append("\tFile Size: ").append(bitstream.getSizeBytes());
+        sb.append("\tChecksum: ").append(bitstream.getChecksum())
+                .append(" (").append(bitstream.getChecksumAlgorithm()).append(')');
+        sb.append("\tAsset Store: ").append(bitstream.getStoreNumber());
+        sb.append("\tInternal ID: ").append(bitstream.getInternalId());
+        return sb.toString();
     }
 
     private void logInfo(String message) {
@@ -499,5 +631,38 @@ public class MediaFilterServiceImpl implements MediaFilterService, InitializingB
     @Override
     public void setLogHandler(DSpaceRunnableHandler handler) {
         this.handler = handler;
+    }
+
+    List<String> getPublicFiltersClasses() {
+        return publicFiltersClasses;
+    }
+
+    List<FormatFilter> getFilterClasses() {
+        if (filterClasses == null) {
+            filterClasses = loadFilterClasses(
+                DSpaceServicesFactory.getInstance()
+                                     .getConfigurationService()
+                                     .getArrayProperty(MEDIA_FILTER_PLUGINS_KEY)
+            );
+        }
+        return filterClasses;
+    }
+
+    List<FormatFilter> loadFilterClasses(String... filterNames) {
+        return Stream.of(filterNames)
+                     .map(this::loadFormatFilter)
+                     .filter(Objects::nonNull)
+                     .collect(Collectors.toList());
+    }
+
+    private FormatFilter loadFormatFilter(String filterName) {
+        return (FormatFilter) CoreServiceFactory.getInstance().getPluginService()
+                                                .getNamedPlugin(FormatFilter.class,
+                                                                filterName);
+    }
+
+    @Override
+    public void setFromDate(LocalDate fromDate) {
+        this.fromDate = fromDate;
     }
 }

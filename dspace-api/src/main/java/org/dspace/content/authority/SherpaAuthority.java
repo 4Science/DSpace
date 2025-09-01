@@ -128,7 +128,7 @@ public class SherpaAuthority extends ItemAuthority {
         String authority = composeAuthorityValue(journal);
         Map<String, String> extras = getSherpaExtra(journal);
         String title = journal.getTitles().get(0);
-        return new Choice(authority, title, title, extras);
+        return new Choice(authority, title, title, extras, getSource());
     }
 
     private Map<String, String> getSherpaExtra(SHERPAJournal journal) {
@@ -171,11 +171,6 @@ public class SherpaAuthority extends ItemAuthority {
 
     private boolean isLocalItemChoicesEnabled() {
         return configurationService.getBooleanProperty("cris." + this.authorityName + ".local-item-choices-enabled");
-    }
-
-    @Override
-    public Map<String, String> getExternalSource() {
-        return Map.of();
     }
 
 }

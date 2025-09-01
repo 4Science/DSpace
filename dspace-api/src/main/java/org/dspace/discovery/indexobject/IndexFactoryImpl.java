@@ -67,7 +67,14 @@ public abstract class IndexFactoryImpl<T extends IndexableObject, S> implements 
 
         //Do any additional indexing, depends on the plugins
         for (SolrServiceIndexPlugin solrServiceIndexPlugin : ListUtils.emptyIfNull(solrServiceIndexPlugins)) {
-            solrServiceIndexPlugin.additionalIndex(context, indexableObject, doc);
+            try {
+                solrServiceIndexPlugin.additionalIndex(context, indexableObject, doc);
+            } catch (Exception e) {
+                log.error("An error occurred while indexing additional fields. " +
+                        "Could not fully index item with UUID: {}. Plugin: {}",
+                    indexableObject.getUniqueIndexID(), solrServiceIndexPlugin.getClass().getSimpleName());
+
+            }
         }
 
         return doc;
@@ -85,7 +92,7 @@ public abstract class IndexFactoryImpl<T extends IndexableObject, S> implements 
             writeDocument(solrInputDocument, null);
         } catch (Exception e) {
             log.error("Error occurred while writing SOLR document for {} object {}",
-                      indexableObject.getType(), indexableObject.getID(), e);
+                indexableObject.getType(), indexableObject.getID(), e);
         }
     }
 
@@ -104,51 +111,73 @@ public abstract class IndexFactoryImpl<T extends IndexableObject, S> implements 
             if (!ConfigurationService.getBooleanProperty("discovery.ignore-fulltext", false) && streams != null
                     && !streams.isEmpty()) {
                 // limit full text indexing to first 100,000 characters unless configured otherwise
-                final int charLimit = DSpaceServicesFactory.getInstance().getConfigurationService()
-                                                           .getIntProperty("discovery.solr.fulltext.charLimit",
-                                                                           100000);
-
-                // Use Tika's Text parser as the streams are always from the TEXT bundle (i.e. already extracted text)
-                TextAndCSVParser tikaParser = new TextAndCSVParser();
-                BodyContentHandler tikaHandler = new BodyContentHandler(charLimit);
-                Metadata tikaMetadata = new Metadata();
-                ParseContext tikaContext = new ParseContext();
-
-                // Use Apache Tika to parse the full text stream(s)
-                try (InputStream fullTextStreams = streams.getStream()) {
-                    tikaParser.parse(fullTextStreams, tikaHandler, tikaMetadata, tikaContext);
-                } catch (SAXException saxe) {
-                    // Check if this SAXException is just a notice that this file was longer than the character limit.
-                    // Unfortunately there is not a unique, public exception type to catch here. This error is thrown
-                    // by Tika's WriteOutContentHandler when it encounters a document longer than the char limit
-                    // https://github.com/apache/tika/blob/main/tika-core/src/main/java/org/apache/tika/sax/WriteOutContentHandler.java
-                    if (saxe.getMessage().contains("limit has been reached")) {
-                        // log that we only indexed up to that configured limit
-                        log.info("Full text is larger than the configured limit (discovery.solr.fulltext.charLimit)."
-                                     + " Only the first {} characters were indexed.", charLimit);
-                    } else {
-                        log.error("Tika parsing error. Could not index full text.", saxe);
-                        throw new IOException("Tika parsing error. Could not index full text.", saxe);
-                    }
-                } catch (TikaException ex) {
-                    log.error("Tika parsing error. Could not index full text.", ex);
-                    throw new IOException("Tika parsing error. Could not index full text.", ex);
+                final int charLimit = DSpaceServicesFactory.getInstance()
+                                                           .getConfigurationService()
+                                                           .getIntProperty("discovery.solr.fulltext.charLimit", 100000);
+                try (InputStream fullStream = streams.getFullTextStreamStream();
+                     InputStream miradorStream = streams.getMiradorStream();
+                     InputStream videoStream = streams.getVideoStream();
+                ) {
+                    addField(doc, "fulltext", fullStream, charLimit);
+                    addField(doc, "fulltext.mirador", miradorStream, charLimit);
+                    addField(doc, "fulltext.video", videoStream, charLimit);
+                } finally {
+                    // Add document to index
+                    solr.add(doc);
                 }
-
-                // Write Tika metadata to "tika_meta_*" fields.
-                // This metadata is not very useful right now, but we'll keep it just in case it becomes more useful.
-                for (String name : tikaMetadata.names()) {
-                    for (String value : tikaMetadata.getValues(name)) {
-                        doc.addField("tika_meta_" + name, value);
-                    }
-                }
-
-                // Save (parsed) full text to "fulltext" field
-                doc.addField("fulltext", tikaHandler.toString());
             }
-
             // Add document to index
             solr.add(doc);
+        }
+    }
+
+    private void addField(SolrInputDocument doc, String field, InputStream stream, int charLimit)
+        throws IOException {
+
+        // Use Tika's Text parser as the streams are always from the TEXT bundle (i.e. already extracted text)
+        TextAndCSVParser tikaParser = new TextAndCSVParser();
+        BodyContentHandler tikaHandler = new BodyContentHandler(charLimit);
+        Metadata tikaMetadata = new Metadata();
+        ParseContext tikaContext = new ParseContext();
+
+        // Use Apache Tika to parse the full text stream(s)
+        boolean extractionSucceeded = false;
+        try {
+            tikaParser.parse(stream, tikaHandler, tikaMetadata, tikaContext);
+            extractionSucceeded = true;
+        } catch (SAXException saxe) {
+            // Check if this SAXException is just a notice that this file was longer than the character limit.
+            // Unfortunately there is not a unique, public exception type to catch here. This error is thrown
+            // by Tika's WriteOutContentHandler when it encounters a document longer than the char limit
+            // https://github.com/apache/tika/blob/main/tika-core/src/main/java/org/apache/tika/sax/WriteOutContentHandler.java
+            if (saxe.getMessage().contains("limit has been reached")) {
+                // log that we only indexed up to that configured limit
+                log.info("Full text is larger than the configured limit (discovery.solr.fulltext.charLimit)."
+                    + " Only the first {} characters were indexed.", charLimit);
+                extractionSucceeded = true;
+            } else {
+                log.error("Tika parsing error. Could not index full text.", saxe);
+                throw new IOException("Tika parsing error. Could not index full text.", saxe);
+            }
+        } catch (TikaException | IOException ex) {
+            log.error("Tika parsing error. Could not index full text.", ex);
+            throw new IOException("Tika parsing error. Could not index full text.", ex);
+        } finally {
+            if (stream != null) {
+                stream.close();
+            }
+        }
+        if (extractionSucceeded) {
+            // Write Tika metadata to "tika_meta_*" fields.
+            // This metadata is not very useful right now,
+            // but we'll keep it just in case it becomes more useful.
+            for (String name : tikaMetadata.names()) {
+                for (String value : tikaMetadata.getValues(name)) {
+                    doc.addField("tika_meta_" + name, value);
+                }
+            }
+            // Save (parsed) full text to the provided field
+            doc.addField(field, tikaHandler.toString());
         }
     }
 

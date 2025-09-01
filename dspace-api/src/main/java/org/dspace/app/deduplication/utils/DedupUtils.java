@@ -47,12 +47,15 @@ import org.dspace.discovery.SearchServiceException;
 import org.dspace.services.ConfigurationService;
 import org.dspace.util.ItemUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 /**
  * Utility class used to search for duplicates inside the dedup solr core.
  *
  */
-public class DedupUtils {
+
+@Service
+public class DedupUtils implements IDedupUtils {
 
     private static Logger log = LogManager.getLogger(DedupUtils.class);
 
@@ -64,11 +67,14 @@ public class DedupUtils {
     @Autowired(required = true)
     protected ConfigurationService configurationService;
 
-    public DuplicateInfoList findSignatureWithDuplicate(Context context, String signatureType, int resourceType,
-            int limit, int offset, int rule) throws SearchServiceException, SQLException {
+    @Override
+    public Collection<DuplicateInfo> findSignatureWithDuplicate(Context context, String signatureType, int resourceType,
+                                                          int limit, int offset, int rule)
+        throws SearchServiceException, SQLException {
         return findPotentialMatch(context, signatureType, resourceType, limit, offset, rule);
     }
 
+    @Override
     public Map<String, Integer> countSignaturesWithDuplicates(String query, int resourceTypeId)
             throws SearchServiceException {
         Map<String, Integer> results = new HashMap<String, Integer>();
@@ -113,6 +119,7 @@ public class DedupUtils {
         return results;
     }
 
+    @Override
     public Map<String, Integer> countSuggestedDuplicate(String query, int resourceTypeId)
             throws SearchServiceException {
         Map<String, Integer> results = new HashMap<String, Integer>();
@@ -241,8 +248,9 @@ public class DedupUtils {
         return !response.getResults().isEmpty();
     }
 
+    @Override
     public boolean matchExist(Context context, UUID itemID, UUID targetItemID, Integer resourceType,
-            String signatureType, Boolean isInWorkflow) throws SQLException, SearchServiceException {
+                              String signatureType, Boolean isInWorkflow) throws SQLException, SearchServiceException {
         boolean exist = false;
         List<DuplicateItemInfo> potentialDuplicates = findDuplicate(context, itemID, resourceType, null, isInWorkflow);
         for (DuplicateItemInfo match : potentialDuplicates) {
@@ -256,9 +264,10 @@ public class DedupUtils {
 
     }
 
+    @Override
     public boolean rejectAdminDups(Context context, UUID firstId, UUID secondId, Integer type)
             throws SQLException, AuthorizeException {
-        if (firstId == secondId) {
+        if (firstId.equals(secondId)) {
             return false;
         }
         if (!AuthorizeServiceFactory.getInstance().getAuthorizeService().isAdmin(context)) {
@@ -309,6 +318,7 @@ public class DedupUtils {
      * @throws AuthorizeException
      * @throws SearchServiceException
      */
+    @Override
     public boolean rejectAdminDups(Context context, UUID itemID, String signatureType, int resourceType)
             throws SQLException, AuthorizeException, SearchServiceException {
 
@@ -317,7 +327,7 @@ public class DedupUtils {
         boolean found = false;
         for (DSpaceObject item : dsi.getItems()) {
             if (item != null) {
-                if (item.getID() == itemID) {
+                if (item.getID().equals(itemID)) {
                     found = true;
                     break;
                 }
@@ -336,6 +346,7 @@ public class DedupUtils {
 
     }
 
+    @Override
     public void rejectAdminDups(Context context, List<DSpaceObject> items, String signatureID)
             throws SQLException, AuthorizeException, SearchServiceException {
         for (DSpaceObject item : items) {
@@ -343,8 +354,9 @@ public class DedupUtils {
         }
     }
 
+    @Override
     public void verify(Context context, int dedupId, UUID firstId, UUID secondId, int type, boolean toFix, String note,
-            boolean check) throws SQLException, AuthorizeException {
+                       boolean check) throws SQLException, AuthorizeException {
         UUID[] sortedIds = new UUID[] { firstId, secondId };
         Arrays.sort(sortedIds);
         firstId = sortedIds[0];
@@ -417,8 +429,9 @@ public class DedupUtils {
         return row;
     }
 
+    @Override
     public void setDuplicateDecision(Context context, UUID firstId, UUID secondId, Integer type,
-            DuplicateDecisionObjectRest decisionObject)
+                                     DuplicateDecisionObjectRest decisionObject)
             throws AuthorizeException, SQLException, SearchServiceException {
 
         if (hasAuthorization(context, firstId, secondId)) {
@@ -478,6 +491,7 @@ public class DedupUtils {
         }
     }
 
+    @Override
     public boolean validateDecision(DuplicateDecisionObjectRest decisionObject) {
         boolean valid = false;
 
@@ -500,8 +514,9 @@ public class DedupUtils {
         return valid;
     }
 
+    @Override
     public boolean rejectDups(Context context, UUID firstId, UUID secondId, Integer type, boolean notDupl, String note,
-            boolean check) throws SQLException {
+                              boolean check) throws SQLException {
         UUID[] sortedIds = new UUID[] { firstId, secondId };
         Arrays.sort(sortedIds);
         Deduplication row = null;
@@ -547,10 +562,8 @@ public class DedupUtils {
         return false;
     }
 
-    private DuplicateInfoList findPotentialMatch(Context context, String signatureType, int resourceType, int start,
+    private List<DuplicateInfo> findPotentialMatch(Context context, String signatureType, int resourceType, int start,
             int rows, int rule) throws SearchServiceException, SQLException {
-
-        DuplicateInfoList dil = new DuplicateInfoList();
 
         if (StringUtils.isNotEmpty(signatureType)) {
             if (!StringUtils.contains(signatureType, "_signature")) {
@@ -594,7 +607,7 @@ public class DedupUtils {
 
         FacetField facetField = responseFacet.getFacetField(signatureType);
 
-        List<DuplicateInfo> result = new ArrayList<DuplicateInfo>();
+        List<DuplicateInfo> result = new ArrayList<>();
 
         int index = 0;
         for (Count facetHit : facetField.getValues()) {
@@ -653,10 +666,7 @@ public class DedupUtils {
             }
             index++;
         }
-
-        dil.setDsi(result);
-        dil.setSize(facetField.getValues().size());
-        return dil;
+        return result;
     }
 
     private DuplicateSignatureInfo findPotentialMatchByID(Context context, String signatureType, int resourceType,
@@ -699,37 +709,44 @@ public class DedupUtils {
         return dsi;
     }
 
+    @Override
     public DedupService getDedupService() {
         return dedupService;
     }
 
+    @Override
     public void setDedupService(DedupService dedupService) {
         this.dedupService = dedupService;
     }
 
+    @Override
     public void commit() {
         dedupService.commit();
     }
 
+    @Override
     public List<DuplicateItemInfo> getDuplicateByIDandType(Context context, UUID itemID, int typeID,
-            boolean isInWorkflow) throws SQLException, SearchServiceException {
+                                                           boolean isInWorkflow)
+        throws SQLException, SearchServiceException {
         return getDuplicateByIdAndTypeAndSignatureType(context, itemID, typeID, null, isInWorkflow);
     }
 
+    @Override
     public List<DuplicateItemInfo> getDuplicateByIdAndTypeAndSignatureType(Context context, UUID itemID, int typeID,
-            String signatureType, boolean isInWorkflow) throws SQLException, SearchServiceException {
+                                                                           String signatureType, boolean isInWorkflow)
+        throws SQLException, SearchServiceException {
         return findDuplicate(context, itemID, typeID, signatureType, isInWorkflow);
     }
 
+    @Override
     public List<DuplicateItemInfo> getAdminDuplicateByIdAndType(Context context, UUID itemID, int typeID)
             throws SQLException, SearchServiceException {
         return findDuplicate(context, itemID, typeID, null, null);
     }
 
-    public DuplicateInfoList findSuggestedDuplicate(Context context, int resourceType, int start, int rows)
+    @Override
+    public List<DuplicateInfo> findSuggestedDuplicate(Context context, int resourceType, int start, int rows)
             throws SearchServiceException, SQLException {
-
-        DuplicateInfoList dil = new DuplicateInfoList();
 
         SolrQuery solrQueryInternal = new SolrQuery();
 
@@ -774,8 +791,6 @@ public class DedupUtils {
             index++;
         }
 
-        dil.setDsi(result);
-        dil.setSize(solrDocumentList.getNumFound());
-        return dil;
+        return result;
     }
 }

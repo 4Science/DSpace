@@ -141,7 +141,7 @@ public class UpdateItemReference
     private String getItemNotFoundMessage(Item item, String authority, String[] providerAndId) {
         return "The item with uuid: " + item.getID() + " and reference value: "
             + authority + " because item with " + providerAndId[1] + ":" + providerAndId[2]
-            + " does not found on database";
+            + " was not found on database";
     }
 
     private String getReferenceResolvedMessage(Item item, String[] providerAndId, Item searchedItem) {

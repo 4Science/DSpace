@@ -23,7 +23,8 @@ public class SuggestionTargetMatcher {
                 hasJsonPath("$.display", is(name)),
                 hasJsonPath("$.source", is(source)),
                 hasJsonPath("$.total", is(total)),
-                hasJsonPath("$.type", is("suggestiontarget"))
+                hasJsonPath("$.type", is("suggestiontarget")),
+                hasJsonPath("$.uniqueType", is("integration.suggestiontarget"))
         );
     }
 }

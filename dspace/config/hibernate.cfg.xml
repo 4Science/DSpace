@@ -31,7 +31,7 @@
         <!-- hibernate.javax.cache.uri is defined in
                   config/spring/api/core-hibernate.xml so that we can use
                   property substitution. -->
-        <property name="javax.persistence.sharedCache.mode">ENABLE_SELECTIVE</property>
+        <property name="jakarta.persistence.sharedCache.mode">ENABLE_SELECTIVE</property>
 
         <!-- Entities to be loaded by hibernate -->
         <mapping class="org.dspace.app.util.WebApp"/>
@@ -62,13 +62,14 @@
         <mapping class="org.dspace.content.Site"/>
         <mapping class="org.dspace.content.WorkspaceItem"/>
 
-        <mapping class="org.dspace.content.NBEventProcessed" />
+        <mapping class="org.dspace.content.QAEventProcessed" />
 
         <mapping class="org.dspace.deduplication.Deduplication"/>
         <mapping class="org.dspace.eperson.EPerson"/>
         <mapping class="org.dspace.eperson.Group"/>
         <mapping class="org.dspace.eperson.Group2GroupCache"/>
         <mapping class="org.dspace.eperson.RegistrationData"/>
+        <mapping class="org.dspace.eperson.RegistrationDataMetadata"/>
         <mapping class="org.dspace.eperson.Subscription"/>
         <mapping class="org.dspace.eperson.SubscriptionParameter"/>
         <mapping class="org.dspace.handle.Handle"/>
@@ -108,6 +109,8 @@
         <mapping class="org.dspace.layout.CrisLayoutCell" />
         <mapping class="org.dspace.layout.CrisLayoutMetric2Box" />
         <mapping class="org.dspace.layout.CrisMetadataGroup" />
+        <mapping class="org.dspace.layout.CrisLayoutBox2SecurityGroup" />
+        <mapping class="org.dspace.layout.CrisLayoutTab2SecurityGroup" />
         <mapping class="org.dspace.layout.CrisLayoutHierarchicalVocabulary2Box" />
 
         <mapping class="org.dspace.orcid.OrcidQueue" />
@@ -118,6 +121,12 @@
 
         <mapping class="org.dspace.app.metrics.CrisMetrics"/>
         <mapping class="org.dspace.supervision.SupervisionOrder"/>
+
+        <mapping class="org.dspace.app.ldn.NotifyServiceEntity"/>
+        <mapping class="org.dspace.app.ldn.NotifyServiceInboundPattern"/>
+
+        <mapping class="org.dspace.app.ldn.LDNMessageEntity"/>
+        <mapping class="org.dspace.app.ldn.NotifyPatternToTrigger"/>
 
         <mapping class="org.dspace.unpaywall.model.Unpaywall" />
 

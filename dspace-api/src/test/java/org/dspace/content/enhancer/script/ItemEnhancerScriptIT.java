@@ -8,10 +8,13 @@
 package org.dspace.content.enhancer.script;
 
 import static org.dspace.app.matcher.MetadataValueMatcher.with;
+import static org.dspace.app.matcher.MetadataValueMatcher.withNoPlace;
 import static org.dspace.content.Item.ANY;
+import static org.dspace.content.enhancer.consumer.ItemEnhancerConsumer.ITEMENHANCER_ENABLED;
 import static org.dspace.core.CrisConstants.PLACEHOLDER_PARENT_METADATA_VALUE;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.hasSize;
@@ -21,6 +24,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
 import org.dspace.AbstractIntegrationTestWithDatabase;
 import org.dspace.app.launcher.ScriptLauncher;
@@ -36,6 +40,7 @@ import org.dspace.content.MetadataValue;
 import org.dspace.content.WorkspaceItem;
 import org.dspace.content.factory.ContentServiceFactory;
 import org.dspace.content.service.ItemService;
+import org.dspace.core.CrisConstants;
 import org.dspace.core.ReloadableEntity;
 import org.dspace.event.factory.EventServiceFactory;
 import org.dspace.event.service.EventService;
@@ -48,11 +53,15 @@ import org.junit.Test;
 
 public class ItemEnhancerScriptIT extends AbstractIntegrationTestWithDatabase {
 
-    private static String[] consumers;
+    private static ConfigurationService configService = DSpaceServicesFactory.getInstance().getConfigurationService();
 
+    private static final EventService eventService = EventServiceFactory.getInstance().getEventService();
+    private static boolean isEnabled;
+    private static String[] consumers;
     private ItemService itemService;
 
     private Collection collection;
+
 
     /**
      * This method will be run before the first test as per @BeforeClass. It will
@@ -61,13 +70,13 @@ public class ItemEnhancerScriptIT extends AbstractIntegrationTestWithDatabase {
      */
     @BeforeClass
     public static void initConsumers() {
-        ConfigurationService configService = DSpaceServicesFactory.getInstance().getConfigurationService();
         consumers = configService.getArrayProperty("event.dispatcher.default.consumers");
         Set<String> consumersSet = new HashSet<String>(Arrays.asList(consumers));
-        consumersSet.remove("itemenhancer");
-        configService.setProperty("event.dispatcher.default.consumers", consumersSet.toArray());
-        EventService eventService = EventServiceFactory.getInstance().getEventService();
-        eventService.reloadConfiguration();
+        if (!consumersSet.contains("itemenhancer")) {
+            consumersSet.add("itemenhancer");
+            configService.setProperty("event.dispatcher.default.consumers", consumersSet.toArray());
+            eventService.reloadConfiguration();
+        }
     }
 
     /**
@@ -75,18 +84,19 @@ public class ItemEnhancerScriptIT extends AbstractIntegrationTestWithDatabase {
      */
     @AfterClass
     public static void resetDefaultConsumers() {
-        ConfigurationService configService = DSpaceServicesFactory.getInstance().getConfigurationService();
         configService.setProperty("event.dispatcher.default.consumers", consumers);
-        EventService eventService = EventServiceFactory.getInstance().getEventService();
         eventService.reloadConfiguration();
     }
 
     @Before
     public void setup() {
 
+        configService.setProperty(ITEMENHANCER_ENABLED, false);
+
         itemService = ContentServiceFactory.getInstance().getItemService();
 
         context.turnOffAuthorisationSystem();
+
         parentCommunity = CommunityBuilder.createCommunity(context)
             .withName("Parent Community")
             .build();
@@ -130,24 +140,38 @@ public class ItemEnhancerScriptIT extends AbstractIntegrationTestWithDatabase {
             .withAuthor("Jesse Pinkman", secondAuthorId)
             .build();
 
-        WorkspaceItem thirdPublication = WorkspaceItemBuilder.createWorkspaceItem(context, collection)
-            .withTitle("Test publication 3")
+        final String randomUUID = UUID.randomUUID().toString();
+        Item thirdPublication = ItemBuilder.createItem(context, collection)
+                .withTitle("Test publication 3")
+                .withEntityType("Publication")
+                .withAuthor("Walter White", firstAuthorId)
+                .withAuthor("Jesse Pinkman", secondAuthorId)
+                // same author multiple time
+                .withAuthor("Walter White", firstAuthorId)
+                // an author is also an editor
+                .withEditor("Jesse Pinkman", secondAuthorId)
+                .withEditor("Editor WithExternaAuthority", "external-authority")
+                .withEditor("Editor WithExternaUUIDAuthority", randomUUID)
+                .build();
+
+        WorkspaceItem wsPublication = WorkspaceItemBuilder.createWorkspaceItem(context, collection)
+            .withTitle("Test workspace publication")
             .withEntityType("Publication")
-            .withAuthor("Jesse Pinkman", secondAuthorId)
+            .withEditor("Jesse Pinkman", secondAuthorId)
             .build();
 
         context.commit();
 
         firstPublication = reload(firstPublication);
         secondPublication = reload(secondPublication);
-        thirdPublication = reload(thirdPublication);
+        wsPublication = reload(wsPublication);
 
         assertThat(getMetadataValues(firstPublication, "cris.virtual.department"), empty());
         assertThat(getMetadataValues(firstPublication, "cris.virtualsource.department"), empty());
         assertThat(getMetadataValues(secondPublication, "cris.virtual.department"), empty());
         assertThat(getMetadataValues(secondPublication, "cris.virtualsource.department"), empty());
-        assertThat(getMetadataValues(thirdPublication, "cris.virtual.department"), empty());
-        assertThat(getMetadataValues(thirdPublication, "cris.virtualsource.department"), empty());
+        assertThat(getMetadataValues(wsPublication, "cris.virtual.department"), empty());
+        assertThat(getMetadataValues(wsPublication, "cris.virtualsource.department"), empty());
 
         TestDSpaceRunnableHandler runnableHandler = runScript(false);
 
@@ -156,22 +180,40 @@ public class ItemEnhancerScriptIT extends AbstractIntegrationTestWithDatabase {
 
         firstPublication = reload(firstPublication);
         secondPublication = reload(secondPublication);
+        thirdPublication = reload(thirdPublication);
+        wsPublication = reload(wsPublication);
 
         assertThat(getMetadataValues(firstPublication, "cris.virtual.department"), hasSize(1));
         assertThat(getMetadataValues(firstPublication, "cris.virtualsource.department"), hasSize(1));
+        assertThat(firstPublication.getMetadata(), hasItem(with("cris.virtual.department", "4Science")));
+        assertThat(firstPublication.getMetadata(), hasItem(with("cris.virtualsource.department", firstAuthorId)));
 
         assertThat(getMetadataValues(secondPublication, "cris.virtual.department"), hasSize(2));
         assertThat(getMetadataValues(secondPublication, "cris.virtualsource.department"), hasSize(2));
+        assertThat(getMetadataValues(secondPublication, "cris.virtual.department"),
+                containsInAnyOrder(
+                    withNoPlace("cris.virtual.department", "4Science"),
+                    withNoPlace("cris.virtual.department", "Company")));
+        assertThat(getMetadataValues(secondPublication, "cris.virtualsource.department"),
+                containsInAnyOrder(
+                    withNoPlace("cris.virtualsource.department", firstAuthorId),
+                    withNoPlace("cris.virtualsource.department", secondAuthorId)));
 
-        assertThat(firstPublication.getMetadata(), hasItem(with("cris.virtual.department", "4Science")));
-        assertThat(firstPublication.getMetadata(), hasItem(with("cris.virtualsource.department", firstAuthorId)));
-        assertThat(secondPublication.getMetadata(), hasItem(with("cris.virtual.department", "4Science")));
-        assertThat(secondPublication.getMetadata(), hasItem(with("cris.virtualsource.department", firstAuthorId)));
-        assertThat(secondPublication.getMetadata(), hasItem(with("cris.virtual.department", "Company", 1)));
-        assertThat(secondPublication.getMetadata(), hasItem(with("cris.virtualsource.department", secondAuthorId, 1)));
+        assertThat(getMetadataValues(thirdPublication, "cris.virtual.department"), hasSize(3));
+        assertThat(getMetadataValues(thirdPublication, "cris.virtualsource.department"), hasSize(3));
+        assertThat(getMetadataValues(thirdPublication, "cris.virtual.department"),
+                containsInAnyOrder(
+                    withNoPlace("cris.virtual.department", "4Science"),
+                    withNoPlace("cris.virtual.department", CrisConstants.PLACEHOLDER_PARENT_METADATA_VALUE),
+                    withNoPlace("cris.virtual.department", "Company")));
+        assertThat(getMetadataValues(thirdPublication, "cris.virtualsource.department"),
+                containsInAnyOrder(
+                    withNoPlace("cris.virtualsource.department", randomUUID),
+                    withNoPlace("cris.virtualsource.department", firstAuthorId),
+                    withNoPlace("cris.virtualsource.department", secondAuthorId)));
 
-        assertThat(getMetadataValues(thirdPublication, "cris.virtual.department"), empty());
-        assertThat(getMetadataValues(thirdPublication, "cris.virtualsource.department"), empty());
+        assertThat(getMetadataValues(wsPublication, "cris.virtual.department"), empty());
+        assertThat(getMetadataValues(wsPublication, "cris.virtualsource.department"), empty());
 
     }
 
@@ -217,10 +259,13 @@ public class ItemEnhancerScriptIT extends AbstractIntegrationTestWithDatabase {
         assertThat(getMetadataValues(publication, "cris.virtual.department"), hasSize(2));
         assertThat(getMetadataValues(publication, "cris.virtualsource.department"), hasSize(2));
 
-        assertThat(publication.getMetadata(), hasItem(with("cris.virtual.department", "4Science")));
-        assertThat(publication.getMetadata(), hasItem(with("cris.virtualsource.department", firstAuthorId)));
-        assertThat(publication.getMetadata(), hasItem(with("cris.virtual.department", "Company", 1)));
-        assertThat(publication.getMetadata(), hasItem(with("cris.virtualsource.department", secondAuthorId, 1)));
+        assertThat(getMetadataValues(publication, "cris.virtual.department"), containsInAnyOrder(
+                withNoPlace("cris.virtual.department", "4Science"),
+                withNoPlace("cris.virtual.department", "Company")));
+
+        assertThat(getMetadataValues(publication, "cris.virtualsource.department"), containsInAnyOrder(
+                withNoPlace("cris.virtualsource.department", firstAuthorId),
+                withNoPlace("cris.virtualsource.department", secondAuthorId)));
 
         context.turnOffAuthorisationSystem();
 
@@ -250,25 +295,26 @@ public class ItemEnhancerScriptIT extends AbstractIntegrationTestWithDatabase {
 
         context.turnOffAuthorisationSystem();
 
-        Item firstAuthor = ItemBuilder.createItem(context, collection)
+        Item editor = ItemBuilder.createItem(context, collection)
             .withTitle("Walter White")
             .withPersonMainAffiliation("4Science")
             .build();
 
-        String firstAuthorId = firstAuthor.getID().toString();
+        String editorId = editor.getID().toString();
 
-        Item secondAuthor = ItemBuilder.createItem(context, collection)
+        Item author = ItemBuilder.createItem(context, collection)
             .withTitle("Jesse Pinkman")
             .withPersonMainAffiliation("Company")
+            .withPersonMainAffiliation("Another Company")
             .build();
 
-        String secondAuthorId = secondAuthor.getID().toString();
+        String authorId = author.getID().toString();
 
         Item publication = ItemBuilder.createItem(context, collection)
             .withTitle("Test publication 2 ")
             .withEntityType("Publication")
-            .withAuthor("Walter White", firstAuthorId)
-            .withAuthor("Jesse Pinkman", secondAuthorId)
+            .withEditor("Walter White", editorId)
+            .withAuthor("Jesse Pinkman", authorId)
             .build();
 
         context.commit();
@@ -284,20 +330,24 @@ public class ItemEnhancerScriptIT extends AbstractIntegrationTestWithDatabase {
 
         publication = reload(publication);
 
-        assertThat(getMetadataValues(publication, "cris.virtual.department"), hasSize(2));
-        assertThat(getMetadataValues(publication, "cris.virtualsource.department"), hasSize(2));
+        assertThat(getMetadataValues(publication, "cris.virtual.department"), hasSize(3));
+        assertThat(getMetadataValues(publication, "cris.virtualsource.department"), hasSize(3));
 
-        assertThat(publication.getMetadata(), hasItem(with("cris.virtual.department", "4Science")));
-        assertThat(publication.getMetadata(), hasItem(with("cris.virtualsource.department", firstAuthorId)));
-        assertThat(publication.getMetadata(), hasItem(with("cris.virtual.department", "Company", 1)));
-        assertThat(publication.getMetadata(), hasItem(with("cris.virtualsource.department", secondAuthorId, 1)));
+        assertThat(getMetadataValues(publication, "cris.virtual.department"), containsInAnyOrder(
+                withNoPlace("cris.virtual.department", "4Science"),
+                withNoPlace("cris.virtual.department", "Another Company"),
+                withNoPlace("cris.virtual.department", "Company")));
+        assertThat(getMetadataValues(publication, "cris.virtualsource.department"), containsInAnyOrder(
+                withNoPlace("cris.virtualsource.department", editorId),
+                withNoPlace("cris.virtualsource.department", authorId),
+                withNoPlace("cris.virtualsource.department", authorId)));
 
         context.turnOffAuthorisationSystem();
 
-        MetadataValue authorToRemove = getMetadataValues(publication, "dc.contributor.author").get(1);
+        MetadataValue authorToRemove = getMetadataValues(publication, "dc.contributor.author").get(0);
         itemService.removeMetadataValues(context, publication, List.of(authorToRemove));
 
-        replaceMetadata(firstAuthor, "person", "affiliation", "name", "University");
+        replaceMetadata(editor, "person", "affiliation", "name", "University");
 
         context.restoreAuthSystemState();
 
@@ -310,9 +360,10 @@ public class ItemEnhancerScriptIT extends AbstractIntegrationTestWithDatabase {
         assertThat(getMetadataValues(publication, "cris.virtual.department"), hasSize(1));
         assertThat(getMetadataValues(publication, "cris.virtualsource.department"), hasSize(1));
 
-        assertThat(publication.getMetadata(), hasItem(with("cris.virtual.department", "University")));
-        assertThat(publication.getMetadata(), hasItem(with("cris.virtualsource.department", firstAuthorId)));
-
+        assertThat(getMetadataValues(publication, "cris.virtual.department"), hasItem(
+                with("cris.virtual.department", "University")));
+        assertThat(getMetadataValues(publication, "cris.virtualsource.department"), hasItem(
+                with("cris.virtualsource.department", editorId)));
     }
 
     @Test
@@ -369,17 +420,16 @@ public class ItemEnhancerScriptIT extends AbstractIntegrationTestWithDatabase {
         assertThat(getMetadataValues(publication, "cris.virtual.department"), hasSize(4));
         assertThat(getMetadataValues(publication, "cris.virtualsource.department"), hasSize(4));
 
-        assertThat(publication.getMetadata(), hasItem(with("cris.virtual.department",
-                                                           PLACEHOLDER_PARENT_METADATA_VALUE, 0)));
-        assertThat(publication.getMetadata(), hasItem(with("cris.virtualsource.department", firstAuthorId,0)));
-        assertThat(publication.getMetadata(), hasItem(with("cris.virtual.department", "4Science", 1)));
-        assertThat(publication.getMetadata(), hasItem(with("cris.virtualsource.department", secondAuthorId,1)));
-        assertThat(publication.getMetadata(), hasItem(with("cris.virtual.department", "Company", 2)));
-        assertThat(publication.getMetadata(), hasItem(with("cris.virtualsource.department", thirdAuthorId, 2)));
-        assertThat(publication.getMetadata(), hasItem(with("cris.virtual.department",
-                                                           PLACEHOLDER_PARENT_METADATA_VALUE, 3)));
-        assertThat(publication.getMetadata(), hasItem(with("cris.virtualsource.department", fourthAuthorId,3)));
-
+        assertThat(getMetadataValues(publication, "cris.virtual.department"), containsInAnyOrder(
+                withNoPlace("cris.virtual.department", PLACEHOLDER_PARENT_METADATA_VALUE),
+                withNoPlace("cris.virtual.department", "4Science"),
+                withNoPlace("cris.virtual.department", "Company"),
+                withNoPlace("cris.virtual.department", PLACEHOLDER_PARENT_METADATA_VALUE)));
+        assertThat(getMetadataValues(publication, "cris.virtualsource.department"), containsInAnyOrder(
+                withNoPlace("cris.virtualsource.department", firstAuthorId),
+                withNoPlace("cris.virtualsource.department", secondAuthorId),
+                withNoPlace("cris.virtualsource.department", thirdAuthorId),
+                withNoPlace("cris.virtualsource.department", fourthAuthorId)));
     }
 
     @Test
@@ -398,7 +448,7 @@ public class ItemEnhancerScriptIT extends AbstractIntegrationTestWithDatabase {
                                       .withTitle("Test publication 2 ")
                                       .withEntityType("Publication")
                                       .withAuthor("Jesse Pinkman")
-                                      .withAuthor("Jesse Smith", secondAuthorId)
+                                      .withEditor("Jesse Smith", secondAuthorId)
                                       .build();
 
         context.commit();
@@ -414,15 +464,11 @@ public class ItemEnhancerScriptIT extends AbstractIntegrationTestWithDatabase {
 
         publication = reload(publication);
 
-        assertThat(getMetadataValues(publication, "cris.virtual.department"), hasSize(2));
-        assertThat(getMetadataValues(publication, "cris.virtualsource.department"), hasSize(2));
+        assertThat(getMetadataValues(publication, "cris.virtual.department"), hasSize(1));
+        assertThat(getMetadataValues(publication, "cris.virtualsource.department"), hasSize(1));
 
-        assertThat(publication.getMetadata(), hasItem(with("cris.virtual.department",
-                                                           PLACEHOLDER_PARENT_METADATA_VALUE, 0)));
-        assertThat(publication.getMetadata(), hasItem(with("cris.virtualsource.department",
-                                                           PLACEHOLDER_PARENT_METADATA_VALUE,0)));
-        assertThat(publication.getMetadata(), hasItem(with("cris.virtual.department", "4Science", 1)));
-        assertThat(publication.getMetadata(), hasItem(with("cris.virtualsource.department", secondAuthorId,1)));
+        assertThat(publication.getMetadata(), hasItem(with("cris.virtual.department", "4Science", 0)));
+        assertThat(publication.getMetadata(), hasItem(with("cris.virtualsource.department", secondAuthorId,0)));
 
     }
 

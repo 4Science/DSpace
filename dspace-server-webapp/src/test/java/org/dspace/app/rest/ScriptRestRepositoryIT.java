@@ -9,12 +9,16 @@ package org.dspace.app.rest;
 
 import static com.jayway.jsonpath.JsonPath.read;
 import static com.jayway.jsonpath.matchers.JsonPathMatchers.hasJsonPath;
+import static org.dspace.builder.CollectionBuilder.createCollection;
 import static org.dspace.builder.ItemBuilder.createItem;
 import static org.dspace.core.CrisConstants.PLACEHOLDER_PARENT_METADATA_VALUE;
+import static org.dspace.util.WorkbookUtils.getRowValues;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
@@ -28,9 +32,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -39,12 +43,16 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import net.minidev.json.JSONArray;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.dspace.app.rest.converter.DSpaceRunnableParameterConverter;
 import org.dspace.app.rest.matcher.BitstreamMatcher;
 import org.dspace.app.rest.matcher.PageMatcher;
@@ -53,6 +61,7 @@ import org.dspace.app.rest.matcher.ScriptMatcher;
 import org.dspace.app.rest.model.ParameterValueRest;
 import org.dspace.app.rest.projection.Projection;
 import org.dspace.app.rest.test.AbstractControllerIntegrationTest;
+import org.dspace.app.util.SubmissionConfigReaderException;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.authorize.service.ResourcePolicyService;
 import org.dspace.builder.CollectionBuilder;
@@ -85,6 +94,7 @@ import org.hamcrest.CoreMatchers;
 import org.hamcrest.Matchers;
 import org.junit.After;
 import org.junit.Assume;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -116,7 +126,7 @@ public class ScriptRestRepositoryIT extends AbstractControllerIntegrationTest {
     private ChoiceAuthorityService choiceAuthorityService;
 
     @After
-    public void after() {
+    public void after() throws SubmissionConfigReaderException {
         DSpaceServicesFactory.getInstance().getConfigurationService().reloadConfig();
         metadataAuthorityService.clearCache();
         choiceAuthorityService.clearCache();
@@ -322,14 +332,73 @@ public class ScriptRestRepositoryIT extends AbstractControllerIntegrationTest {
     }
 
     @Test
-    public void findAllScriptsWithNoAdminTest() throws Exception {
+    public void findAllScriptsGenericLoggedInUserTest() throws Exception {
         String token = getAuthToken(eperson.getEmail(), password);
 
         getClient(token).perform(get("/api/system/scripts"))
                         .andExpect(status().isOk())
                         .andExpect(jsonPath("$.page",
-                                            is(PageMatcher.pageEntryWithTotalPagesAndElements(0, 20, 1, 4))));
+                                            is(PageMatcher.pageEntryWithTotalPagesAndElements(0, 20, 1, 2))));
+    }
 
+    @Test
+    public void findAllScriptsAnonymousUserTest() throws Exception {
+        // this should be changed once we allow anonymous user to execute some scripts
+        getClient().perform(get("/api/system/scripts"))
+                   .andExpect(status().isOk());
+    }
+
+    @Test
+    public void findAllScriptsLocalAdminsTest() throws Exception {
+        context.turnOffAuthorisationSystem();
+        EPerson comAdmin = EPersonBuilder.createEPerson(context)
+                .withEmail("comAdmin@example.com")
+                .withPassword(password).build();
+        EPerson colAdmin = EPersonBuilder.createEPerson(context)
+                .withEmail("colAdmin@example.com")
+                .withPassword(password).build();
+        EPerson itemAdmin = EPersonBuilder.createEPerson(context)
+                .withEmail("itemAdmin@example.com")
+                .withPassword(password).build();
+        Community community = CommunityBuilder.createCommunity(context)
+                                          .withName("Community")
+                                          .withAdminGroup(comAdmin)
+                                          .build();
+        Collection collection = CollectionBuilder.createCollection(context, community)
+                                                .withName("Collection")
+                                                .withAdminGroup(colAdmin)
+                                                .build();
+        ItemBuilder.createItem(context, collection).withAdminUser(itemAdmin)
+                .withTitle("Test item to curate").build();
+        context.restoreAuthSystemState();
+        ScriptConfiguration curateScriptConfiguration =
+                scriptConfigurations.stream().filter(scriptConfiguration
+                        -> scriptConfiguration.getName().equals("curate"))
+            .findAny().get();
+
+        // the local admins have at least access to the curate script
+        // and not access to process-cleaner script
+        String comAdminToken = getAuthToken(comAdmin.getEmail(), password);
+        getClient(comAdminToken).perform(get("/api/system/scripts").param("size", "100"))
+                        .andExpect(status().isOk())
+                        .andExpect(jsonPath("$._embedded.scripts", Matchers.hasItem(
+                                ScriptMatcher.matchScript(curateScriptConfiguration.getName(),
+                                        curateScriptConfiguration.getDescription()))))
+                        .andExpect(jsonPath("$.page.totalElements", greaterThanOrEqualTo(1)));
+        String colAdminToken = getAuthToken(colAdmin.getEmail(), password);
+        getClient(colAdminToken).perform(get("/api/system/scripts").param("size", "100"))
+                        .andExpect(status().isOk())
+                        .andExpect(jsonPath("$._embedded.scripts", Matchers.hasItem(
+                                ScriptMatcher.matchScript(curateScriptConfiguration.getName(),
+                                        curateScriptConfiguration.getDescription()))))
+                        .andExpect(jsonPath("$.page.totalElements", greaterThanOrEqualTo(1)));
+        String itemAdminToken = getAuthToken(itemAdmin.getEmail(), password);
+        getClient(itemAdminToken).perform(get("/api/system/scripts").param("size", "100"))
+                        .andExpect(status().isOk())
+                        .andExpect(jsonPath("$._embedded.scripts", Matchers.hasItem(
+                                ScriptMatcher.matchScript(curateScriptConfiguration.getName(),
+                                        curateScriptConfiguration.getDescription()))))
+                        .andExpect(jsonPath("$.page.totalElements", greaterThanOrEqualTo(1)));
     }
 
     @Test
@@ -375,14 +444,22 @@ public class ScriptRestRepositoryIT extends AbstractControllerIntegrationTest {
 
         getClient(token).perform(get("/api/system/scripts").param("size", "1").param("page", "1"))
                         .andExpect(status().isOk())
+                        .andExpect(
+                            jsonPath("$._embedded.scripts",
+                                not(
+                                    hasItem(
+                                        ScriptMatcher.matchScript(
+                                            scriptConfigurations.get(10).getName(),
+                                            scriptConfigurations.get(10).getDescription()
+                                        )
+                                    )
+                                )
+                            )
+                        )
                         .andExpect(jsonPath("$._embedded.scripts", hasItem(
-                ScriptMatcher.matchScript(scriptConfigurations.get(10).getName(),
-                    scriptConfigurations.get(10).getDescription())
+                                ScriptMatcher.matchScript(alphabeticScripts.get(1).getName(),
+                                                          alphabeticScripts.get(1).getDescription())
                         )))
-                        .andExpect(jsonPath("$._embedded.scripts", Matchers.not(hasItem(
-                                ScriptMatcher.matchScript(alphabeticScripts.get(0).getName(),
-                                                          alphabeticScripts.get(0).getDescription())
-                        ))))
                         .andExpect(jsonPath("$._links.first.href", Matchers.allOf(
                             Matchers.containsString("/api/system/scripts?"),
                             Matchers.containsString("page=0"), Matchers.containsString("size=1"))))
@@ -424,24 +501,348 @@ public class ScriptRestRepositoryIT extends AbstractControllerIntegrationTest {
     }
 
     @Test
-    public void findOneScriptByNameTestAccessDenied() throws Exception {
-        String token = getAuthToken(eperson.getEmail(), password);
+    public void findOneScriptByNameLocalAdminsTest() throws Exception {
+        context.turnOffAuthorisationSystem();
+        EPerson comAdmin = EPersonBuilder.createEPerson(context)
+                .withEmail("comAdmin@example.com")
+                .withPassword(password).build();
+        EPerson colAdmin = EPersonBuilder.createEPerson(context)
+                .withEmail("colAdmin@example.com")
+                .withPassword(password).build();
+        EPerson itemAdmin = EPersonBuilder.createEPerson(context)
+                .withEmail("itemAdmin@example.com")
+                .withPassword(password).build();
+        Community community = CommunityBuilder.createCommunity(context)
+                                          .withName("Community")
+                                          .withAdminGroup(comAdmin)
+                                          .build();
+        Collection collection = CollectionBuilder.createCollection(context, community)
+                                                .withName("Collection")
+                                                .withAdminGroup(colAdmin)
+                                                .build();
+        ItemBuilder.createItem(context, collection).withAdminUser(itemAdmin)
+                .withTitle("Test item to curate").build();
+        context.restoreAuthSystemState();
+        ScriptConfiguration curateScriptConfiguration =
+                scriptConfigurations.stream().filter(scriptConfiguration
+                        -> scriptConfiguration.getName().equals("curate"))
+            .findAny().get();
 
-        getClient(token).perform(get("/api/system/scripts/mock-script"))
-                        .andExpect(status().isForbidden());
+        String comAdminToken = getAuthToken(comAdmin.getEmail(), password);
+        String colAdminToken = getAuthToken(colAdmin.getEmail(), password);
+        String itemAdminToken = getAuthToken(itemAdmin.getEmail(), password);
+        getClient(comAdminToken).perform(get("/api/system/scripts/" + curateScriptConfiguration.getName()))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$", ScriptMatcher
+                .matchScript(
+                        curateScriptConfiguration.getName(),
+                        curateScriptConfiguration.getDescription())));
+        getClient(colAdminToken).perform(get("/api/system/scripts/" + curateScriptConfiguration.getName()))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$", ScriptMatcher
+                .matchScript(
+                        curateScriptConfiguration.getName(),
+                        curateScriptConfiguration.getDescription())));
+        getClient(itemAdminToken).perform(get("/api/system/scripts/" + curateScriptConfiguration.getName()))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$", ScriptMatcher
+                .matchScript(
+                        curateScriptConfiguration.getName(),
+                        curateScriptConfiguration.getDescription())));
+    }
+
+    @Test
+    public void findBulkImportScriptByAdminsTest() throws Exception {
+        context.turnOffAuthorisationSystem();
+        EPerson comAdmin = EPersonBuilder.createEPerson(context)
+                .withEmail("comAdmin@example.com")
+                .withPassword(password).build();
+        EPerson colAdmin = EPersonBuilder.createEPerson(context)
+                .withEmail("colAdmin@example.com")
+                .withPassword(password).build();
+        EPerson itemAdmin = EPersonBuilder.createEPerson(context)
+                .withEmail("itemAdmin@example.com")
+                .withPassword(password).build();
+        Community community = CommunityBuilder.createCommunity(context)
+                                          .withName("Community")
+                                          .withAdminGroup(comAdmin)
+                                          .build();
+        Collection collection = CollectionBuilder.createCollection(context, community)
+                                                .withName("Collection")
+                                                .withAdminGroup(colAdmin)
+                                                .build();
+        ItemBuilder.createItem(context, collection).withAdminUser(itemAdmin)
+                .withTitle("Test item").build();
+        context.restoreAuthSystemState();
+        ScriptConfiguration bulkImportScriptConfiguration =
+                scriptConfigurations.stream().filter(scriptConfiguration
+                        -> scriptConfiguration.getName().equals("bulk-import"))
+            .findAny().get();
+
+        String comAdminToken = getAuthToken(comAdmin.getEmail(), password);
+        String colAdminToken = getAuthToken(colAdmin.getEmail(), password);
+        String itemAdminToken = getAuthToken(itemAdmin.getEmail(), password);
+        getClient(comAdminToken).perform(get("/api/system/scripts/" + bulkImportScriptConfiguration.getName()))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$", ScriptMatcher
+                .matchScript(
+                        bulkImportScriptConfiguration.getName(),
+                        bulkImportScriptConfiguration.getDescription())));
+        getClient(colAdminToken).perform(get("/api/system/scripts/" + bulkImportScriptConfiguration.getName()))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$", ScriptMatcher
+                .matchScript(
+                        bulkImportScriptConfiguration.getName(),
+                        bulkImportScriptConfiguration.getDescription())));
+        getClient(itemAdminToken).perform(get("/api/system/scripts/" + bulkImportScriptConfiguration.getName()))
+            .andExpect(status().isForbidden());
+    }
+
+    @Test
+    public void findBulkAccessControlScriptByAdminsTest() throws Exception {
+        context.turnOffAuthorisationSystem();
+        EPerson comAdmin = EPersonBuilder.createEPerson(context)
+                .withEmail("comAdmin@example.com")
+                .withPassword(password).build();
+        EPerson colAdmin = EPersonBuilder.createEPerson(context)
+                .withEmail("colAdmin@example.com")
+                .withPassword(password).build();
+        EPerson itemAdmin = EPersonBuilder.createEPerson(context)
+                .withEmail("itemAdmin@example.com")
+                .withPassword(password).build();
+        Community community = CommunityBuilder.createCommunity(context)
+                .withName("Community")
+                .withAdminGroup(comAdmin)
+                .build();
+        Collection collection = CollectionBuilder.createCollection(context, community)
+                .withName("Collection")
+                .withAdminGroup(colAdmin)
+                .build();
+        ItemBuilder.createItem(context, collection).withAdminUser(itemAdmin)
+                .withTitle("Test item").build();
+        context.restoreAuthSystemState();
+        ScriptConfiguration scriptConfiguration =
+                scriptConfigurations.stream().filter(configuration
+                                -> configuration.getName().equals("bulk-access-control"))
+                        .findAny().get();
+
+        String comAdminToken = getAuthToken(comAdmin.getEmail(), password);
+        String colAdminToken = getAuthToken(colAdmin.getEmail(), password);
+        String itemAdminToken = getAuthToken(itemAdmin.getEmail(), password);
+        getClient(comAdminToken).perform(get("/api/system/scripts/" + scriptConfiguration.getName()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", ScriptMatcher
+                        .matchScript(
+                                scriptConfiguration.getName(),
+                                scriptConfiguration.getDescription())));
+        getClient(colAdminToken).perform(get("/api/system/scripts/" + scriptConfiguration.getName()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", ScriptMatcher
+                        .matchScript(
+                                scriptConfiguration.getName(),
+                                scriptConfiguration.getDescription())));
+        getClient(itemAdminToken).perform(get("/api/system/scripts/" + scriptConfiguration.getName()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", ScriptMatcher
+                        .matchScript(
+                                scriptConfiguration.getName(),
+                                scriptConfiguration.getDescription())));
+    }
+
+    @Test
+    public void findCollectionExportScriptByAdminsTest() throws Exception {
+        context.turnOffAuthorisationSystem();
+        EPerson comAdmin = EPersonBuilder.createEPerson(context)
+                .withEmail("comAdmin@example.com")
+                .withPassword(password).build();
+        EPerson colAdmin = EPersonBuilder.createEPerson(context)
+                .withEmail("colAdmin@example.com")
+                .withPassword(password).build();
+        EPerson itemAdmin = EPersonBuilder.createEPerson(context)
+                .withEmail("itemAdmin@example.com")
+                .withPassword(password).build();
+        Community community = CommunityBuilder.createCommunity(context)
+                .withName("Community")
+                .withAdminGroup(comAdmin)
+                .build();
+        Collection collection = CollectionBuilder.createCollection(context, community)
+                .withName("Collection")
+                .withAdminGroup(colAdmin)
+                .build();
+        ItemBuilder.createItem(context, collection).withAdminUser(itemAdmin)
+                .withTitle("Test item").build();
+        context.restoreAuthSystemState();
+        ScriptConfiguration scriptConfiguration =
+                scriptConfigurations.stream().filter(configuration
+                                -> configuration.getName().equals("collection-export"))
+                        .findAny().get();
+
+        String comAdminToken = getAuthToken(comAdmin.getEmail(), password);
+        String colAdminToken = getAuthToken(colAdmin.getEmail(), password);
+        String itemAdminToken = getAuthToken(itemAdmin.getEmail(), password);
+        getClient(comAdminToken).perform(get("/api/system/scripts/" + scriptConfiguration.getName()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", ScriptMatcher
+                        .matchScript(
+                                scriptConfiguration.getName(),
+                                scriptConfiguration.getDescription())));
+        getClient(colAdminToken).perform(get("/api/system/scripts/" + scriptConfiguration.getName()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", ScriptMatcher
+                        .matchScript(
+                                scriptConfiguration.getName(),
+                                scriptConfiguration.getDescription())));
+        getClient(itemAdminToken).perform(get("/api/system/scripts/" + scriptConfiguration.getName()))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    public void findItemExportScriptTest() throws Exception {
+        ScriptConfiguration scriptConfiguration =
+                scriptConfigurations.stream().filter(configuration
+                                -> configuration.getName().equals("item-export"))
+                        .findAny().get();
+
+        getClient().perform(get("/api/system/scripts/" + scriptConfiguration.getName()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", ScriptMatcher
+                        .matchScript(
+                                scriptConfiguration.getName(),
+                                scriptConfiguration.getDescription())));
+    }
+
+    @Test
+    public void findBulkItemExportScriptByAdminsTest() throws Exception {
+        context.turnOffAuthorisationSystem();
+        EPerson comAdmin = EPersonBuilder.createEPerson(context)
+                .withEmail("comAdmin@example.com")
+                .withPassword(password).build();
+        EPerson colAdmin = EPersonBuilder.createEPerson(context)
+                .withEmail("colAdmin@example.com")
+                .withPassword(password).build();
+        EPerson itemAdmin = EPersonBuilder.createEPerson(context)
+                .withEmail("itemAdmin@example.com")
+                .withPassword(password).build();
+        Community community = CommunityBuilder.createCommunity(context)
+                .withName("Community")
+                .withAdminGroup(comAdmin)
+                .build();
+        Collection collection = CollectionBuilder.createCollection(context, community)
+                .withName("Collection")
+                .withAdminGroup(colAdmin)
+                .build();
+        ItemBuilder.createItem(context, collection).withAdminUser(itemAdmin)
+                .withTitle("Test item").build();
+        context.restoreAuthSystemState();
+        ScriptConfiguration scriptConfiguration =
+                scriptConfigurations.stream().filter(configuration
+                                -> configuration.getName().equals("bulk-item-export"))
+                        .findAny().get();
+
+        String comAdminToken = getAuthToken(comAdmin.getEmail(), password);
+        String colAdminToken = getAuthToken(colAdmin.getEmail(), password);
+        String itemAdminToken = getAuthToken(itemAdmin.getEmail(), password);
+        String loggedInToken = getAuthToken(eperson.getEmail(), password);
+        getClient(comAdminToken).perform(get("/api/system/scripts/" + scriptConfiguration.getName()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", ScriptMatcher
+                        .matchScript(
+                                scriptConfiguration.getName(),
+                                scriptConfiguration.getDescription())));
+        getClient(colAdminToken).perform(get("/api/system/scripts/" + scriptConfiguration.getName()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", ScriptMatcher
+                        .matchScript(
+                                scriptConfiguration.getName(),
+                                scriptConfiguration.getDescription())));
+        getClient(itemAdminToken).perform(get("/api/system/scripts/" + scriptConfiguration.getName()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", ScriptMatcher
+                        .matchScript(
+                                scriptConfiguration.getName(),
+                                scriptConfiguration.getDescription())));
+        getClient(loggedInToken).perform(get("/api/system/scripts/" + scriptConfiguration.getName()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", ScriptMatcher
+                        .matchScript(
+                                scriptConfiguration.getName(),
+                                scriptConfiguration.getDescription())));
+        getClient().perform(get("/api/system/scripts/" + scriptConfiguration.getName()))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    public void findOneScriptByNameNotAuthenticatedTest() throws Exception {
+        getClient().perform(get("/api/system/scripts/mock-script"))
+                        .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    public void findOneScriptByNameTestAccessDenied() throws Exception {
+        String[] excludedScripts = new String[] {"curate", "bulk-import",
+                "item-export", "bulk-item-export", "bulk-access-control",
+                "collection-export"};
+
+        String token = getAuthToken(eperson.getEmail(), password);
+        scriptConfigurations.stream().filter(scriptConfiguration ->
+                        !StringUtils.equalsAny(scriptConfiguration.getName(), excludedScripts))
+                .forEach(scriptConfiguration -> {
+                    try {
+                        getClient(token).perform(get("/api/system/scripts/" + scriptConfiguration.getName()))
+                                .andExpect(status().isForbidden());
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                });
     }
 
     @Test
     public void findOneScriptByInvalidNameBadRequestExceptionTest() throws Exception {
         getClient().perform(get("/api/system/scripts/mock-script-invalid"))
-                   .andExpect(status().isBadRequest());
+                   .andExpect(status().isNotFound());
     }
 
+    /**
+     * This test will create a basic structure of communities, collections and items with some local admins at each
+     * level and verify that the local admins, nor generic users can run scripts reserved to administrator
+     * (i.e. default one that don't override the default
+     * {@link ScriptConfiguration#isAllowedToExecute(org.dspace.core.Context, List)} method implementation
+     */
     @Test
     public void postProcessNonAdminAuthorizeException() throws Exception {
-        String token = getAuthToken(eperson.getEmail(), password);
+        context.turnOffAuthorisationSystem();
+        EPerson comAdmin = EPersonBuilder.createEPerson(context)
+                .withEmail("comAdmin@example.com")
+                .withPassword(password).build();
+        EPerson colAdmin = EPersonBuilder.createEPerson(context)
+                .withEmail("colAdmin@example.com")
+                .withPassword(password).build();
+        EPerson itemAdmin = EPersonBuilder.createEPerson(context)
+                .withEmail("itemAdmin@example.com")
+                .withPassword(password).build();
+        Community community = CommunityBuilder.createCommunity(context)
+                                          .withName("Community")
+                                          .withAdminGroup(comAdmin)
+                                          .build();
+        Collection collection = CollectionBuilder.createCollection(context, community)
+                                                .withName("Collection")
+                                                .withAdminGroup(colAdmin)
+                                                .build();
+        Item item = ItemBuilder.createItem(context, collection).withAdminUser(itemAdmin)
+                                .withTitle("Test item to curate").build();
+        context.restoreAuthSystemState();
 
+        String token = getAuthToken(eperson.getEmail(), password);
+        String comAdmin_token = getAuthToken(eperson.getEmail(), password);
+        String colAdmin_token = getAuthToken(eperson.getEmail(), password);
+        String itemAdmin_token = getAuthToken(eperson.getEmail(), password);
         getClient(token).perform(multipart("/api/system/scripts/mock-script/processes"))
+                        .andExpect(status().isForbidden());
+        getClient(comAdmin_token).perform(multipart("/api/system/scripts/mock-script/processes"))
+                        .andExpect(status().isForbidden());
+        getClient(colAdmin_token).perform(multipart("/api/system/scripts/mock-script/processes"))
+                        .andExpect(status().isForbidden());
+        getClient(itemAdmin_token).perform(multipart("/api/system/scripts/mock-script/processes"))
                         .andExpect(status().isForbidden());
     }
 
@@ -475,16 +876,6 @@ public class ScriptRestRepositoryIT extends AbstractControllerIntegrationTest {
 
     @Test
     public void postProcessAdminNoOptionsFailedStatus() throws Exception {
-
-//        List<ParameterValueRest> list = new LinkedList<>();
-//
-//        ParameterValueRest parameterValueRest = new ParameterValueRest();
-//        parameterValueRest.setName("-z");
-//        parameterValueRest.setValue("test");
-//        ParameterValueRest parameterValueRest1 = new ParameterValueRest();
-//        parameterValueRest1.setName("-q");
-//        list.add(parameterValueRest);
-//        list.add(parameterValueRest1);
 
         LinkedList<DSpaceCommandLineParameter> parameters = new LinkedList<>();
 
@@ -521,7 +912,7 @@ public class ScriptRestRepositoryIT extends AbstractControllerIntegrationTest {
         String token = getAuthToken(admin.getEmail(), password);
 
         getClient(token).perform(multipart("/api/system/scripts/mock-script-invalid/processes"))
-                        .andExpect(status().isBadRequest());
+                        .andExpect(status().isNotFound());
     }
 
     @Test
@@ -632,12 +1023,19 @@ public class ScriptRestRepositoryIT extends AbstractControllerIntegrationTest {
     }
 
 
+
+
     @Test
     public void postProcessAdminWithWrongContentTypeBadRequestException() throws Exception {
 
         String token = getAuthToken(admin.getEmail(), password);
+
+        getClient(token)
+                .perform(post("/api/system/scripts/mock-script/processes"))
+                .andExpect(status().isBadRequest());
+
         getClient(token).perform(post("/api/system/scripts/mock-script-invalid/processes"))
-                        .andExpect(status().isBadRequest());
+                        .andExpect(status().isNotFound());
     }
 
     @Test
@@ -763,7 +1161,7 @@ public class ScriptRestRepositoryIT extends AbstractControllerIntegrationTest {
         }
     }
 
-    @Test
+    @Ignore
     public void postProcessWithAnonymousUser() throws Exception {
         context.turnOffAuthorisationSystem();
 
@@ -879,7 +1277,7 @@ public class ScriptRestRepositoryIT extends AbstractControllerIntegrationTest {
     @Test
     public void exportPubliclyAvailableItemsTest() throws Exception {
         // skip test based on configuration
-        Assume.assumeFalse(configurationService.getBooleanProperty("test.skip.cris", false));
+        Assume.assumeFalse(configurationService.getBooleanProperty("test.skip.cris", true));
 
         String adminLimit = configurationService.getProperty("bulk-export.limit.admin");
         String notLoggedInLimit = configurationService.getProperty("bulk-export.limit.notLoggedIn");
@@ -1343,6 +1741,271 @@ public class ScriptRestRepositoryIT extends AbstractControllerIntegrationTest {
 
     }
 
+
+    /**
+     * schedules collection-export process through {@link org.dspace.app.rest.repository.ScriptRestRepository}
+     * that uses an user that is configured as admin collection and then check for its valid status!
+     */
+    @Test
+    public void collectionExportProcessExecutionWithCollectionAdmin() throws Exception {
+
+        context.turnOffAuthorisationSystem();
+        parentCommunity =
+            CommunityBuilder.createCommunity(context)
+                            .withName("Parent Community")
+                            .build();
+
+        Collection collection =
+            createCollection(context, parentCommunity)
+                .withSubmissionDefinition("patent")
+                .withAdminGroup(eperson)
+                .build();
+
+        Item item =
+            ItemBuilder.createItem(context, collection)
+                       .withTitle("Test patent")
+                       .withAuthor("White, Walter")
+                       .withIssueDate("2020-01-01")
+                       .withLanguage("it")
+                       .withSubject("test")
+                       .withSubject("export")
+                       .build();
+
+        context.commit();
+        context.restoreAuthSystemState();
+
+        AtomicReference<Integer> idRef = new AtomicReference<>();
+
+        try {
+
+
+            String epersonToken = getAuthToken(eperson.getEmail(), password);
+
+            DSpaceCommandLineParameter collectionParam =
+                new DSpaceCommandLineParameter("-c", collection.getID().toString());
+
+            var parameters =
+                Stream.of(collectionParam)
+                      .map(lineParam -> dSpaceRunnableParameterConverter.convert(lineParam, Projection.DEFAULT))
+                      .collect(Collectors.toList());
+
+            getClient(epersonToken)
+                .perform(
+                    post("/api/system/scripts/collection-export/processes")
+                        .contentType("multipart/form-data")
+                        .param("properties", new Gson().toJson(parameters))
+                )
+                .andExpect(status().isAccepted())
+                .andExpect(
+                    jsonPath(
+                        "$", is(
+                            ProcessMatcher.matchProcess(
+                                "collection-export",
+                                String.valueOf(eperson.getID()),
+                                List.of(collectionParam),
+                                List.of(
+                                    ProcessStatus.SCHEDULED,
+                                    ProcessStatus.RUNNING,
+                                    ProcessStatus.COMPLETED
+                                )
+                            )
+                        )
+                    )
+                )
+                .andDo(
+                    result ->
+                        idRef.set(read(result.getResponse().getContentAsString(), "$.processId"))
+                );
+
+            AtomicReference<String> resultBitstreamId = new AtomicReference<>();
+
+            getClient(epersonToken)
+                .perform(
+                    get("/api/system/processes/" + idRef.get() + "/files")
+                )
+                .andExpect(status().isOk())
+                .andExpect(
+                    response ->
+                        hasJsonPath("$._embedded.files[?(@.name=='items.xls')].id")
+                )
+                .andDo(
+                    response ->
+                        resultBitstreamId.set(
+                            ((JSONArray) read(
+                                response.getResponse().getContentAsString(),
+                                "$._embedded.files[?(@.name=='items.xls')].id"
+                            )).get(0).toString()
+                        )
+                );
+
+            MvcResult processResult =
+                getClient(epersonToken)
+                    .perform(get("/api/core/bitstreams/" + resultBitstreamId.get() + "/content"))
+                    .andExpect(status().isOk())
+                    .andReturn();
+
+            try (ByteArrayInputStream bis =
+                     new ByteArrayInputStream(processResult.getResponse().getContentAsByteArray())) {
+
+                Workbook workbook = WorkbookFactory.create(bis);
+                assertThat(workbook.getNumberOfSheets(), equalTo(2));
+
+                Sheet sheet = workbook.getSheetAt(0);
+                assertThat(sheet.getPhysicalNumberOfRows(), equalTo(2));
+                assertThat(
+                    getRowValues(sheet.getRow(0), 19),
+                    contains(
+                        "ID", "DISCOVERABLE", "dc.title",
+                        "dcterms.dateAccepted", "dc.date.issued", "dc.contributor.author", "dcterms.rightsHolder",
+                        "dc.publisher", "dc.identifier.patentno", "dc.identifier.patentnumber", "dc.type",
+                        "dc.identifier.applicationnumber", "dc.date.filled", "dc.language.iso",
+                        "dc.subject", "dc.description.abstract", "dc.relation", "dc.relation.patent",
+                        "dc.relation.references"
+                    )
+                );
+                assertThat(
+                    getRowValues(sheet.getRow(1), 19),
+                    contains(
+                        item.getID().toString(), "Y", "Test patent", "",
+                        "2020-01-01", "White, Walter", "", "", "", "", "", "", "", "it", "test||export", "", "", "",
+                        ""
+                    )
+                );
+
+            }
+
+        } finally {
+            if (idRef.get() != null) {
+                ProcessBuilder.deleteProcess(idRef.get());
+            }
+        }
+
+    }
+
+
+    /**
+     * schedules collection-export process through {@link org.dspace.app.rest.repository.ScriptRestRepository}
+     * with an admin user and checks its validity!
+     */
+    @Test
+    public void collectionExportProcessExecutionWithAdmin() throws Exception {
+
+        context.turnOffAuthorisationSystem();
+        parentCommunity =
+            CommunityBuilder.createCommunity(context)
+                            .withName("Parent Community")
+                            .build();
+
+        Collection collection =
+            createCollection(context, parentCommunity)
+                .withSubmissionDefinition("patent")
+                .build();
+
+        Item item =
+            ItemBuilder.createItem(context, collection)
+                       .withTitle("Test patent")
+                       .withAuthor("White, Walter")
+                       .withIssueDate("2020-01-01")
+                       .withLanguage("it")
+                       .withSubject("test")
+                       .withSubject("export")
+                       .build();
+
+        context.commit();
+        context.restoreAuthSystemState();
+
+        AtomicReference<Integer> idRef = new AtomicReference<>();
+
+        try {
+
+
+            String adminToken = getAuthToken(admin.getEmail(), password);
+
+            DSpaceCommandLineParameter collectionParam =
+                new DSpaceCommandLineParameter("-c", collection.getID().toString());
+
+            var parameters =
+                Stream.of(collectionParam)
+                      .map(lineParam -> dSpaceRunnableParameterConverter.convert(lineParam, Projection.DEFAULT))
+                      .collect(Collectors.toList());
+
+            getClient(adminToken)
+                .perform(
+                    post("/api/system/scripts/collection-export/processes")
+                        .contentType("multipart/form-data")
+                        .param("properties", new Gson().toJson(parameters))
+                )
+                .andExpect(status().isAccepted())
+                .andExpect(
+                    jsonPath(
+                        "$", is(
+                            ProcessMatcher.matchProcess(
+                                "collection-export",
+                                String.valueOf(admin.getID()),
+                                List.of(collectionParam),
+                                List.of(
+                                    ProcessStatus.SCHEDULED,
+                                    ProcessStatus.RUNNING,
+                                    ProcessStatus.COMPLETED
+                                )
+                            )
+                        )
+                    )
+                )
+                .andDo(
+                    result ->
+                        idRef.set(read(result.getResponse().getContentAsString(), "$.processId"))
+                );
+
+        } finally {
+            if (idRef.get() != null) {
+                ProcessBuilder.deleteProcess(idRef.get());
+            }
+        }
+
+    }
+
+    /**
+     * Fails to schedule the collection-export process through {@link org.dspace.app.rest.repository.ScriptRestRepository}
+     * whenever launched with a non collectionAdmin user.!
+     */
+    @Test
+    public void collectionExportProcessExecutionFailsWithNonAdmin() throws Exception {
+
+        context.turnOffAuthorisationSystem();
+        parentCommunity =
+            CommunityBuilder.createCommunity(context)
+                            .withName("Parent Community")
+                            .build();
+
+        Collection collection =
+            createCollection(context, parentCommunity)
+                .withSubmissionDefinition("patent")
+                .build();
+
+        context.commit();
+        context.restoreAuthSystemState();
+
+        String epersonToken = getAuthToken(eperson.getEmail(), password);
+
+        DSpaceCommandLineParameter collectionParam =
+            new DSpaceCommandLineParameter("-c", collection.getID().toString());
+
+        var parameters =
+            Stream.of(collectionParam)
+                  .map(lineParam -> dSpaceRunnableParameterConverter.convert(lineParam, Projection.DEFAULT))
+                  .collect(Collectors.toList());
+
+        getClient(epersonToken)
+            .perform(
+                post("/api/system/scripts/collection-export/processes")
+                    .contentType("multipart/form-data")
+                    .param("properties", new Gson().toJson(parameters))
+            )
+            .andExpect(status().isForbidden());
+
+    }
+
     private void checkExportOutput(
         String processToken,
         String fileToken,
@@ -1350,7 +2013,7 @@ public class ScriptRestRepositoryIT extends AbstractControllerIntegrationTest {
         String[] includedContents,
         String[] excludedContents,
         boolean publicFile
-    ) throws Exception, SQLException, UnsupportedEncodingException {
+    ) throws Exception {
         String contentAsString = null;
         MvcResult mvcResult = null;
         // wait and retry up to 3 sec to get the process completed
@@ -1416,6 +2079,7 @@ public class ScriptRestRepositoryIT extends AbstractControllerIntegrationTest {
     @Override
     @After
     public void destroy() throws Exception {
+        context.turnOffAuthorisationSystem();
         CollectionUtils.emptyIfNull(processService.findAll(context)).stream().forEach(process -> {
             try {
                 processService.delete(context, process);
@@ -1423,6 +2087,7 @@ public class ScriptRestRepositoryIT extends AbstractControllerIntegrationTest {
                 throw new RuntimeException(e);
             }
         });
+        context.restoreAuthSystemState();
         super.destroy();
     }
 

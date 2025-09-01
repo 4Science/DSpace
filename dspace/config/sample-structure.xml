@@ -1,15 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <import_structure>
 	<community>
-		<name>CRIS</name>
+		<name>GLAM</name>
 		<description />
 		<intro />
 		<copyright />
 		<sidebar />
+        <community>
+            <name>Community di Test</name>
+            <description />
+            <intro />
+            <copyright />
+            <sidebar />
+        </community>
 		<collection>
-			<name>Person</name>
-			<entity-type>Person</entity-type>
-			<submission-type>person</submission-type>
+			<name>Aggregazioni</name>
+			<entity-type>Aggregation</entity-type>
+			<submission-type>aggregation</submission-type>
 			<description />
 			<intro />
 			<copyright />
@@ -18,9 +25,9 @@
 			<provenance />
 		</collection>
         <collection>
-            <name>Project</name>
-            <entity-type>Project</entity-type>
-			<submission-type>project</submission-type>
+            <name>Materiale Audio-Video</name>
+            <entity-type>AudioVideo</entity-type>
+			<submission-type>audiovideo</submission-type>
             <description />
             <intro />
             <copyright />
@@ -29,9 +36,9 @@
             <provenance />
         </collection>
         <collection>
-            <name>Funding</name>
-            <entity-type>Funding</entity-type>
-            <submission-type>funding</submission-type>
+            <name>Materiale archivistico</name>
+            <entity-type>ArchivalMaterial</entity-type>
+            <submission-type>archival_material</submission-type>
             <description />
             <intro />
             <copyright />
@@ -40,61 +47,7 @@
             <provenance />
         </collection>
         <collection>
-            <name>OrgUnit</name>
-            <entity-type>OrgUnit</entity-type>
-			<submission-type>orgunit</submission-type>
-            <description />
-            <intro />
-            <copyright />
-            <sidebar />
-            <license />
-            <provenance />
-        </collection>
-        <collection>
-            <name>Journal</name>
-            <entity-type>Journal</entity-type>
-			<submission-type>journal</submission-type>
-            <description />
-            <intro />
-            <copyright />
-            <sidebar />
-            <license />
-            <provenance />
-        </collection>
-        <collection>
-            <name>Publication</name>
-            <entity-type>Publication</entity-type>
-			<submission-type>publication</submission-type>
-            <description />
-            <intro />
-            <copyright />
-            <sidebar />
-            <license />
-            <provenance />
-        </collection>
-        <collection>
-            <name>Patent</name>
-            <entity-type>Patent</entity-type>
-			<submission-type>patent</submission-type>
-            <description />
-            <intro />
-            <copyright />
-            <sidebar />
-            <license />
-            <provenance />
-        </collection>
-        <collection>
-            <name>Dataset or other products</name>
-            <entity-type>Product</entity-type>
-            <description />
-            <intro />
-            <copyright />
-            <sidebar />
-            <license />
-            <provenance />
-        </collection>
-        <collection>
-            <name>Event</name>
+            <name>Eventi</name>
             <entity-type>Event</entity-type>
 			<submission-type>event</submission-type>
             <description />
@@ -105,9 +58,163 @@
             <provenance />
         </collection>
         <collection>
-            <name>Equipment</name>
-            <entity-type>Equipment</entity-type>
-			<submission-type>equipment</submission-type>
+            <name>Famiglie</name>
+            <entity-type>Family</entity-type>
+			<submission-type>family</submission-type>
+            <description />
+            <intro />
+            <copyright />
+            <sidebar />
+            <license />
+            <provenance />
+        </collection>
+        <collection>
+            <name>Fondi</name>
+            <entity-type>Fonds</entity-type>
+			<submission-type>fonds</submission-type>
+            <description />
+            <intro />
+            <copyright />
+            <sidebar />
+            <license />
+            <provenance />
+        </collection>
+        <collection>
+            <name>Fotografie</name>
+            <entity-type>Picture</entity-type>
+			<submission-type>picture</submission-type>
+            <description />
+            <intro />
+            <copyright />
+            <sidebar />
+            <license />
+            <provenance />
+        </collection>
+        <collection>
+            <name>Testate</name>
+            <entity-type>JournalFonds</entity-type>
+            <submission-type>journal_fonds</submission-type>
+            <description />
+            <intro />
+            <copyright />
+            <sidebar />
+            <license />
+            <provenance />
+        </collection>
+        <collection>
+            <name>Periodici</name>
+            <entity-type>JournalFile</entity-type>
+			<submission-type>journal_file</submission-type>
+            <description />
+            <intro />
+            <copyright />
+            <sidebar />
+            <license />
+            <provenance />
+        </collection>
+        <collection>
+            <name>Slider</name>
+            <entity-type>News</entity-type>
+			<submission-type>news</submission-type>
+            <description />
+            <intro />
+            <copyright />
+            <sidebar />
+            <license />
+            <provenance />
+        </collection>
+        <collection>
+            <name>Unità Organizzative</name>
+            <entity-type>OrgUnit</entity-type>
+            <submission-type>orgunit</submission-type>
+            <description />
+            <intro />
+            <copyright />
+            <sidebar />
+            <license />
+            <provenance />
+        </collection>
+        <collection>
+            <name>Percorsi</name>
+            <entity-type>Path</entity-type>
+            <submission-type>path</submission-type>
+            <description />
+            <intro />
+            <copyright />
+            <sidebar />
+            <license />
+            <provenance />
+        </collection>
+        <collection>
+            <name>Persone</name>
+            <entity-type>Person</entity-type>
+            <submission-type>person</submission-type>
+            <description />
+            <intro />
+            <copyright />
+            <sidebar />
+            <license />
+            <provenance />
+        </collection>
+        <collection>
+            <name>Luoghi</name>
+            <entity-type>Place</entity-type>
+            <submission-type>place</submission-type>
+            <description />
+            <intro />
+            <copyright />
+            <sidebar />
+            <license />
+            <provenance />
+        </collection>
+        <collection>
+            <name>Progetti</name>
+            <entity-type>Project</entity-type>
+            <submission-type>project</submission-type>
+            <description />
+            <intro />
+            <copyright />
+            <sidebar />
+            <license />
+            <provenance />
+        </collection>
+        <collection>
+            <name>Pubblicazioni</name>
+            <entity-type>Publication</entity-type>
+            <submission-type>publication</submission-type>
+            <description />
+            <intro />
+            <copyright />
+            <sidebar />
+            <license />
+            <provenance />
+        </collection>
+        <collection>
+            <name>Opere</name>
+            <entity-type>Opera</entity-type>
+            <submission-type>opera</submission-type>
+            <description />
+            <intro />
+            <copyright />
+            <sidebar />
+            <license />
+            <provenance />
+        </collection>
+        <collection>
+            <name>Annotazioni</name>
+            <entity-type>WebAnnotation</entity-type>
+            <submission-type>web_annotation</submission-type>
+            <description />
+            <intro />
+            <copyright />
+            <sidebar />
+            <license />
+            <provenance />
+        </collection>
+        <collection>
+            <name>Annotazioni Personali</name>
+            <entity-type>PersonalAnnotation</entity-type>
+            <submission-type>personal_annotation</submission-type>
             <description />
             <intro />
             <copyright />

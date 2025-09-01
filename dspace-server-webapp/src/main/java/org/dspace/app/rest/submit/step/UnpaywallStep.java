@@ -10,11 +10,13 @@ package org.dspace.app.rest.submit.step;
 import static java.lang.Boolean.TRUE;
 
 import java.util.Optional;
-import javax.servlet.http.HttpServletRequest;
 
+import jakarta.servlet.http.HttpServletRequest;
+import org.dspace.app.rest.exception.UnprocessableEntityException;
 import org.dspace.app.rest.model.patch.Operation;
 import org.dspace.app.rest.model.step.DataUnpaywall;
 import org.dspace.app.rest.submit.AbstractProcessingStep;
+import org.dspace.app.rest.submit.ListenerProcessingStep;
 import org.dspace.app.rest.submit.SubmissionService;
 import org.dspace.app.util.SubmissionStepConfig;
 import org.dspace.content.InProgressSubmission;
@@ -27,13 +29,18 @@ import org.dspace.services.ConfigurationService;
 import org.dspace.services.factory.DSpaceServicesFactory;
 import org.dspace.unpaywall.service.UnpaywallService;
 import org.dspace.web.ContextUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Unpaywall submission step.
  */
-public class UnpaywallStep extends AbstractProcessingStep {
+public class UnpaywallStep extends AbstractProcessingStep implements ListenerProcessingStep {
+
+    private final Logger logger = LoggerFactory.getLogger(UnpaywallStep.class);
 
     private final static String REFRESH_OPERATION = "refresh";
+    private final static String ACCEPT_OPERATION = "accept";
 
     private final UnpaywallService unpaywallService = ContentServiceFactory.getInstance().getUnpaywallService();
 
@@ -41,6 +48,20 @@ public class UnpaywallStep extends AbstractProcessingStep {
             DSpaceServicesFactory.getInstance().getConfigurationService();
 
     private final ItemService itemService = ContentServiceFactory.getInstance().getItemService();
+
+    @Override
+    public void doPreProcessing(Context context, InProgressSubmission wsi) {
+        // nothing to do
+    }
+
+    @Override
+    public void doPostProcessing(Context context, InProgressSubmission wsi) {
+        final Item item = wsi.getItem();
+        final Optional<String> doiValue = getDoiValue(item);
+        if (doiValue.isPresent()) {
+            unpaywallService.initUnpaywallCallIfNeeded(context, doiValue.get(), item.getID());
+        }
+    }
 
     @Override
     public DataUnpaywall getData(
@@ -64,13 +85,25 @@ public class UnpaywallStep extends AbstractProcessingStep {
             Operation operation,
             SubmissionStepConfig stepConf
     ) throws Exception {
-        getDoiValue(source.getItem()).ifPresent(doi -> {
-            if (isRefreshRequired(operation)) {
-                unpaywallService.initUnpaywallCall(context, doi, source.getItem().getID());
-            } else {
-                unpaywallService.initUnpaywallCallIfNeeded(context, doi, source.getItem().getID());
-            }
-        });
+        if (operation.getPath().contains(ACCEPT_OPERATION) && TRUE.equals(operation.getValue())) {
+            getDoiValue(source.getItem())
+                .flatMap(doi -> this.unpaywallService.findUnpaywall(context, doi, source.getItem().getID()))
+                .ifPresentOrElse(
+                    unpaywall -> this.unpaywallService.downloadResource(context, unpaywall, source.getItem()),
+                    () -> new UnprocessableEntityException(
+                        "Cannot find any unpaywall related to item: " + source.getItem().getID()
+                    )
+                );
+        } else if (operation.getPath().contains(REFRESH_OPERATION)) {
+            getDoiValue(source.getItem())
+                .ifPresent(doi -> {
+                    if (isRefreshRequired(operation)) {
+                        unpaywallService.initUnpaywallCall(context, doi, source.getItem().getID());
+                    } else {
+                        unpaywallService.initUnpaywallCallIfNeeded(context, doi, source.getItem().getID());
+                    }
+                });
+        }
     }
 
     private static boolean isRefreshRequired(Operation operation) {

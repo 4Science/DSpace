@@ -13,13 +13,13 @@
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
     xmlns:oaire="http://namespace.openaire.eu/schema/oaire/" xmlns:datacite="http://datacite.org/schema/kernel-4"
     xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:doc="http://www.lyncode.com/xoai"
-    xmlns:rdf="http://www.w3.org/TR/rdf-concepts/" version="1.0">
+                version="1.0">
     <xsl:output omit-xml-declaration="yes" method="xml" indent="yes"/>
 
     <xsl:template match="/">
-        <oaire:resource xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning"
-            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-            xsi:schemaLocation="http://namespace.openaire.eu/schema/oaire/ https://www.openaire.eu/schema/repo-lit/4.0/openaire.xsd">
+        <oaire:resource
+                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                xsi:schemaLocation="http://namespace.openaire.eu/schema/oaire/ https://www.openaire.eu/schema/repo-lit/4.0/openaire.xsd">
 
             <!-- datacite:title -->
             <xsl:apply-templates
@@ -75,6 +75,9 @@
             <xsl:apply-templates
                 select="doc:metadata/doc:element[@name='dc']/doc:element[@name='identifier']/doc:element[@name='uri']"
                 mode="datacite"/>
+            <!-- ACCESS RIGHTS from access status mechanism -->
+            <xsl:apply-templates
+                select="doc:metadata/doc:element[@name='others']/doc:element[@name='access-status']" mode="datacite" />
             <!-- datacite:rights -->
             <xsl:apply-templates
                 select="doc:metadata/doc:element[@name='dc']/doc:element[@name='rights']" mode="datacite"/>
@@ -93,6 +96,14 @@
             <!-- CREATIVE COMMON LICENSE -->
             <xsl:apply-templates
                 select="doc:metadata/doc:element[@name='others']/doc:element[@name='cc']" mode="oaire" />
+            <!-- primary doi identifier -->
+            <xsl:apply-templates
+                    select="doc:metadata/doc:element[@name='others']/doc:element[@name='datacite']/doc:element[@name='primary']"
+                    mode="datacite" />
+<!--            alternative doi identifiers-->
+            <xsl:apply-templates
+                    select="doc:metadata/doc:element[@name='others']/doc:element[@name='datacite']/doc:element[@name='alternative']"
+                    mode="datacite_altid" />
         </oaire:resource>
     </xsl:template>
 
@@ -454,6 +465,13 @@
         </oaire:funderIdentifier>
     </xsl:template>
 
+    <!-- This template creates the sub-element <oaire:funderIdentifier> from a Funded Project built entity -->
+    <xsl:template match="doc:field[starts-with(@name,'project.funder.rorIdentifier')]" mode="entity_funding">
+        <oaire:funderIdentifier funderIdentifierType="ROR" schemeURI="http://ror.org/">
+            <xsl:value-of select="./text()"/>
+        </oaire:funderIdentifier>
+    </xsl:template>
+
     <!-- This template creates the sub-element <oaire:fundingStream> from a Funded Project built entity -->
     <xsl:template match="doc:field[starts-with(@name,'oaire.fundingStream')]" mode="entity_funding">
         <oaire:fundingStream>
@@ -658,6 +676,40 @@
         </xsl:if>
     </xsl:template>
 
+    <!--  from Access Status mechanism  -->
+    <!-- datacite:rights -->
+    <!-- https://openaire-guidelines-for-literature-repository-managers.readthedocs.io/en/v4.0.0/field_accessrights.html -->
+    <xsl:template match="doc:element[@name='others']/doc:element[@name='access-status']/doc:field[@name='value']" mode="datacite">
+        <xsl:variable name="rightsValue">
+            <xsl:call-template name="resolveRightsName">
+                <xsl:with-param name="field" select="text()"/>
+            </xsl:call-template>
+        </xsl:variable>
+        <xsl:variable name="rightsURI">
+            <xsl:call-template name="resolveRightsURI">
+                <xsl:with-param name="field" select="text()"/>
+            </xsl:call-template>
+        </xsl:variable>
+        <xsl:variable name="lc_rightsValue">
+            <xsl:call-template name="lowercase">
+                <xsl:with-param name="value" select="$rightsValue"/>
+            </xsl:call-template>
+        </xsl:variable>
+        <!-- We are checking to ensure that only values ending in "access" can be used as datacite:rights. 
+        This is a valid solution as we pre-normalize dc.rights values in openaire4.xsl to end in the term 
+        "access" according to COAR Controlled Vocabulary -->
+        <xsl:if test="ends-with($lc_rightsValue,'access')">
+            <datacite:rights>
+                <xsl:if test="$rightsURI">
+                    <xsl:attribute name="rightsURI">
+                        <xsl:value-of select="$rightsURI"/>
+                    </xsl:attribute>
+                </xsl:if>
+                <xsl:value-of select="$rightsValue"/>
+            </datacite:rights>
+        </xsl:if>
+    </xsl:template>
+
 
    <!-- datacite:subjects -->
    <!-- https://openaire-guidelines-for-literature-repository-managers.readthedocs.io/en/v4.0.0/field_subject.html -->
@@ -694,7 +746,7 @@
     <!-- datacite.date @name=issued or @name=accepted -->
     <!-- https://openaire-guidelines-for-literature-repository-managers.readthedocs.io/en/v4.0.0/field_publicationdate.html -->
     <xsl:template
-        match="doc:element[@name='dc']/doc:element[@name='date']/doc:element[@name='issued' or @name='accepted']"
+        match="doc:element[@name='dc']/doc:element[@name='date']/doc:element[@name='issued']"
         mode="datacite">
         <xsl:variable name="dc_date_value" select="doc:element/doc:field[@name='value']/text()"/>
         <datacite:date dateType="Accepted">
@@ -846,18 +898,43 @@
     <xsl:template match="doc:element[@name='bitstreams']/doc:element[@name='bitstream']" mode="oaire">
         <oaire:file>
             <xsl:attribute name="accessRightsURI">
-                <xsl:call-template name="getRightsURI"/>
+                <!-- get the coar access rights at the individual file level -->
+                <!-- Look at resource policies to infer access level information, defaults to item-level status -->
+                <xsl:choose>
+                    <xsl:when test="doc:element[@name='resourcePolicies']/doc:element[doc:field[@name='action']/text()='READ' and doc:field[@name='group']/text()='Anonymous' and doc:field[@name='start-date']]">
+                        <xsl:call-template name="resolveRightsURI">
+                            <xsl:with-param name="field"
+                                            select="'embargo'"/>
+                        </xsl:call-template>
+                    </xsl:when>
+                    <xsl:when test="doc:element[@name='resourcePolicies']/doc:element[doc:field[@name='action']/text()='READ' and doc:field[@name='group']/text()='Anonymous' and not(doc:field[@name='start-date'])]">
+                        <xsl:call-template name="resolveRightsURI">
+                            <xsl:with-param name="field"
+                                            select="'open.access'"/>
+                        </xsl:call-template>
+                    </xsl:when>
+                    <xsl:when test="doc:element[@name='resourcePolicies']/doc:element[doc:field[@name='action']/text()='READ' and doc:field[@name='group']/text()='Administrator']">
+                        <xsl:call-template name="resolveRightsURI">
+                            <xsl:with-param name="field"
+                                            select="'restricted'"/>
+                        </xsl:call-template>
+                    </xsl:when>
+                    <xsl:otherwise>
+                        <!-- Default to item-level access status information -->
+                        <xsl:call-template name="getRightsURI"/>
+                    </xsl:otherwise>
+                </xsl:choose>
          </xsl:attribute>
             <xsl:attribute name="mimeType">
             <xsl:value-of select="doc:field[@name='format']"/>
          </xsl:attribute>
-            <xsl:attribute name="objectType">
+            <!-- Currently there is no available way to identify the type of the bitstream -->
+            <!--<xsl:attribute name="objectType">
             <xsl:choose>
-                <!-- Currently there is no available way to identify the type of the bitstream -->
                 <xsl:when test="1">
                     <xsl:text>fulltext</xsl:text>
                 </xsl:when>
-                <!--xsl:when test="$type='dataset'">
+                xsl:when test="$type='dataset'">
                     <xsl:text>dataset</xsl:text>
                 </xsl:when>
                 <xsl:when test="$type='software'">
@@ -865,12 +942,12 @@
                 </xsl:when>
                 <xsl:when test="$type='article'">
                     <xsl:text>fulltext</xsl:text>
-                </xsl:when-->
+                </xsl:when
                 <xsl:otherwise>                  
                     <xsl:text>other</xsl:text>
                 </xsl:otherwise>
              </xsl:choose>
-           </xsl:attribute>
+           </xsl:attribute>-->
             <xsl:value-of select="doc:field[@name='url']"/>
         </oaire:file>
     </xsl:template>
@@ -1002,6 +1079,8 @@
     </xsl:template>
 
     <!-- This template will retrieve the type of a date based on the element name -->
+    <!-- https://openaire-guidelines-for-literature-repository-managers.readthedocs.io/en/v4.0.0/vocab_datetype.html -->
+    <!-- Accepted and Issued date types are handled separately above. -->
     <xsl:template name="getDateType">
         <xsl:param name="elementName"/>
         <xsl:variable name="lc_dc_date_type">
@@ -1010,26 +1089,10 @@
             </xsl:call-template>
         </xsl:variable>
         <xsl:choose>
-            <xsl:when test="$lc_dc_date_type='available' or  $lc_dc_date_type = 'embargo'">
+            <xsl:when test="$lc_dc_date_type = 'embargo'">
+                <!-- Indicates the end of the embargo period. -->
+                <!-- https://openaire-guidelines-for-literature-repository-managers.readthedocs.io/en/v4.0.0/field_embargoenddate.html -->
                 <xsl:text>Available</xsl:text>
-            </xsl:when>
-            <xsl:when test="$lc_dc_date_type='collected'">
-                <xsl:text>Collected</xsl:text>
-            </xsl:when>
-            <xsl:when test="$lc_dc_date_type='copyrighted' or $lc_dc_date_type='copyright'">
-                <xsl:text>Copyrighted</xsl:text>
-            </xsl:when>
-            <xsl:when test="$lc_dc_date_type='created'">
-                <xsl:text>Created</xsl:text>
-            </xsl:when>
-            <xsl:when test="$lc_dc_date_type='submitted'">
-                <xsl:text>Submitted</xsl:text>
-            </xsl:when>
-            <xsl:when test="$lc_dc_date_type='updated'">
-                <xsl:text>Updated</xsl:text>
-            </xsl:when>
-            <xsl:when test="$lc_dc_date_type='valid'">
-                <xsl:text>Valid</xsl:text>
             </xsl:when>
         </xsl:choose>
     </xsl:template>
@@ -1125,11 +1188,11 @@
    <!-- Auxiliary templates - get global values -->
    <!--  -->
    
-    <!-- get the coar access rights globally -->
+    <!-- get the coar access rights globally from access status mechanism -->
     <xsl:template name="getRightsURI">
         <xsl:call-template name="resolveRightsURI">
             <xsl:with-param name="field"
-                select="//doc:element[@name='dc']/doc:element[@name='rights']/doc:element/doc:field[@name='value'and ends-with(translate(text(), $uppercase, $smallcase),'access')]/text()"/>
+                select="/doc:metadata/doc:element[@name='others']/doc:element[@name='access-status']/doc:field[@name='value']/text()"/>
         </xsl:call-template>
     </xsl:template>
 
@@ -1207,7 +1270,7 @@
             </xsl:element>
         </xsl:if>
     </xsl:template>
-   
+
    <!-- 
         This template will recursively create the field name based on parent node names
         to be something like this:
@@ -1395,6 +1458,18 @@
             <xsl:when test="$lc_dc_type = 'book review'">
                 <xsl:text>literature</xsl:text>
             </xsl:when>
+            <xsl:when test="$lc_dc_type = 'bachelor thesis'">
+                <xsl:text>literature</xsl:text>
+            </xsl:when>
+            <xsl:when test="$lc_dc_type = 'doctoral thesis'">
+                <xsl:text>literature</xsl:text>
+            </xsl:when>
+            <xsl:when test="$lc_dc_type = 'master thesis'">
+                <xsl:text>literature</xsl:text>
+            </xsl:when>
+            <xsl:when test="$lc_dc_type = 'thesis'">
+                <xsl:text>literature</xsl:text>
+            </xsl:when>		
             <xsl:when test="$lc_dc_type = 'dataset'">
                 <xsl:text>dataset</xsl:text>
             </xsl:when>
@@ -1603,6 +1678,37 @@
     </xsl:template>
 
     <!--
+        This template will return the COAR Access Right Vocabulary Names in English
+        like "open access"
+        based on the values from DSpace Access Status mechanism like String 'open.access'
+        please check class org.dspace.access.status.DefaultAccessStatusHelper for more information
+        https://openaire-guidelines-for-literature-repository-managers.readthedocs.io/en/v4.0.0/field_accessrights.html#definition-and-usage-instruction
+     -->
+    <xsl:template name="resolveRightsName">
+        <xsl:param name="field"/>
+        <xsl:variable name="lc_value">
+            <xsl:call-template name="lowercase">
+                <xsl:with-param name="value" select="$field"/>
+            </xsl:call-template>
+        </xsl:variable>
+        <xsl:choose>
+            <xsl:when test="$lc_value = 'open.access'">
+                <xsl:text>open access</xsl:text>
+            </xsl:when>
+            <xsl:when test="$lc_value = 'embargo'">
+                <xsl:text>embargoed access</xsl:text>
+            </xsl:when>
+            <xsl:when test="$lc_value = 'restricted'">
+                <xsl:text>restricted access</xsl:text>
+            </xsl:when>
+            <xsl:when test="$lc_value = 'metadata.only'">
+                <xsl:text>metadata only access</xsl:text>
+            </xsl:when>
+            <xsl:otherwise/>
+        </xsl:choose>
+    </xsl:template>
+
+    <!--
         This template will return the COAR Access Right Vocabulary URI
         like http://purl.org/coar/access_right/c_abf2
         based on a value text like 'open access'
@@ -1616,16 +1722,16 @@
             </xsl:call-template>
         </xsl:variable>
         <xsl:choose>
-            <xsl:when test="$lc_value = 'open access'">
+            <xsl:when test="$lc_value = 'open access' or $lc_value = 'open.access'">
                 <xsl:text>http://purl.org/coar/access_right/c_abf2</xsl:text>
             </xsl:when>
-            <xsl:when test="$lc_value = 'embargoed access'">
+            <xsl:when test="$lc_value = 'embargoed access' or $lc_value = 'embargo'">
                 <xsl:text>http://purl.org/coar/access_right/c_f1cf</xsl:text>
             </xsl:when>
-            <xsl:when test="$lc_value = 'restricted access'">
+            <xsl:when test="$lc_value = 'restricted access' or $lc_value = 'restricted'">
                 <xsl:text>http://purl.org/coar/access_right/c_16ec</xsl:text>
             </xsl:when>
-            <xsl:when test="$lc_value = 'metadata only access'">
+            <xsl:when test="$lc_value = 'metadata only access' or $lc_value = 'metadata.only'">
                 <xsl:text>http://purl.org/coar/access_right/c_14cb</xsl:text>
             </xsl:when>
             <xsl:otherwise/>
@@ -1666,6 +1772,26 @@
             </xsl:attribute>
             <xsl:value-of select="./doc:field[@name='name']/text()" />
         </oaire:licenseCondition>
+    </xsl:template>
+
+    <xsl:template match="doc:element[@name='others']/doc:element[@name='datacite']/doc:element[@name='primary']"
+                  mode="datacite">
+        <!-- only process the first element -->
+        <datacite:identifier>
+            <xsl:attribute name="identifierType">doi</xsl:attribute>
+            <xsl:value-of select="./doc:field[@name='doi']/text()"/>
+        </datacite:identifier>
+    </xsl:template>
+
+    <!-- for each alternative doi -->
+    <xsl:template match="doc:element[@name='others']/doc:element[@name='datacite']/doc:element[@name='alternative']" mode="datacite_altid">
+        <xsl:for-each select="./doc:field[@name='doi']">
+
+                <datacite:alternateIdentifier>
+                    <xsl:attribute name="alternateIdentifierType">doi</xsl:attribute>
+                    <xsl:value-of select="./text()"/>
+                </datacite:alternateIdentifier>
+        </xsl:for-each>
     </xsl:template>
 
     <!-- ignore all non specified text values or attributes -->

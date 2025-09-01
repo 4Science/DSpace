@@ -10,14 +10,17 @@ package org.dspace.layout.dao.impl;
 import static org.dspace.layout.CrisLayoutTab.ROWS_AND_CONTENT_GRAPH;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
-import javax.persistence.EntityGraph;
-import javax.persistence.TypedQuery;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Join;
-import javax.persistence.criteria.Root;
 
+import jakarta.persistence.EntityGraph;
+import jakarta.persistence.TypedQuery;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Join;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
+import org.apache.commons.lang3.StringUtils;
 import org.dspace.content.EntityType;
 import org.dspace.content.EntityType_;
 import org.dspace.content.MetadataField;
@@ -67,19 +70,37 @@ public class CrisLayoutTabDAOImpl extends AbstractHibernateDAO<CrisLayoutTab> im
      */
     @Override
     public List<CrisLayoutTab> findByEntityTypeAndEagerlyFetchBoxes(Context context,
+        String entityType, String customFilter) throws SQLException {
+        return findByEntityTypeAndEagerlyFetchBoxes(context, entityType, customFilter, null, null);
+    }
+
+    /* (non-Javadoc)
+     * @see org.dspace.layout.dao.CrisLayoutTabDAO#findByEntityType(java.lang.String)
+     */
+    @Override
+    public List<CrisLayoutTab> findByEntityTypeAndEagerlyFetchBoxes(Context context,
         String entityType) throws SQLException {
-        return findByEntityTypeAndEagerlyFetchBoxes(context, entityType, null, null);
+        return findByEntityTypeAndEagerlyFetchBoxes(context, entityType, null, null, null);
     }
 
     @Override
     public List<CrisLayoutTab> findByEntityTypeAndEagerlyFetchBoxes(Context context, String entityType,
-        Integer limit, Integer offset) throws SQLException {
+        String customFilter, Integer limit, Integer offset) throws SQLException {
 
         CriteriaBuilder cb = getCriteriaBuilder(context);
         CriteriaQuery<CrisLayoutTab> query = cb.createQuery(CrisLayoutTab.class);
         Root<CrisLayoutTab> tabRoot = query.from(CrisLayoutTab.class);
+        List<Predicate> andPredicates = new ArrayList<>();
+
+        andPredicates.add(cb.equal(tabRoot.get(CrisLayoutTab_.entity).get(EntityType_.LABEL), entityType));
+        if (StringUtils.isNotBlank(customFilter)) {
+            andPredicates.add(cb.equal(tabRoot.get(CrisLayoutTab_.CUSTOM_FILTER), customFilter));
+        } else {
+            andPredicates.add(cb.isNull((tabRoot.get(CrisLayoutTab_.CUSTOM_FILTER))));
+        }
+
         query
-            .where(cb.equal(tabRoot.get(CrisLayoutTab_.entity).get(EntityType_.LABEL), entityType))
+            .where(andPredicates.toArray(new Predicate[] {}))
             .orderBy(cb.asc(tabRoot.get(CrisLayoutTab_.PRIORITY)));
 
         TypedQuery<CrisLayoutTab> typedQuery = getHibernateSession(context).createQuery(query);

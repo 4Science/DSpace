@@ -24,6 +24,7 @@ import java.util.concurrent.Callable;
 import com.google.common.io.CharStreams;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.client.utils.URIBuilder;
+import org.dspace.app.util.XMLUtils;
 import org.dspace.content.Item;
 import org.dspace.importer.external.datamodel.ImportRecord;
 import org.dspace.importer.external.datamodel.Query;
@@ -42,6 +43,7 @@ import org.jdom2.input.SAXBuilder;
 import org.jdom2.xpath.XPathExpression;
 import org.jdom2.xpath.XPathFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.xml.sax.InputSource;
 
 /**
  * Implements a data source for querying PubMed Central
@@ -233,7 +235,10 @@ public class PubmedImportMetadataSourceServiceImpl extends AbstractImportMetadat
         String value = null;
 
         try {
-            SAXBuilder saxBuilder = new SAXBuilder();
+            SAXBuilder saxBuilder = XMLUtils.getSAXBuilder();
+            // To properly parse PubMed responses, we must allow DOCTYPEs overall. But, we can still apply all the
+            // other default XXE protections, including disabling external entities and entity expansion.
+            saxBuilder.setFeature("http://apache.org/xml/features/disallow-doctype-decl", false);
             Document document = saxBuilder.build(new StringReader(src));
             Element root = document.getRootElement();
 
@@ -292,7 +297,14 @@ public class PubmedImportMetadataSourceServiceImpl extends AbstractImportMetadat
             int countAttempt = 0;
             while (StringUtils.isBlank(response) && countAttempt <= attempt) {
                 countAttempt++;
+
+                long time = System.currentTimeMillis() - lastRequest;
+                if ((time) < interRequestTime) {
+                    Thread.sleep(interRequestTime - time);
+                }
+
                 response = liveImportClient.executeHttpGetRequest(1000, uriBuilder.toString(), params);
+                lastRequest = System.currentTimeMillis();
             }
 
             if (StringUtils.isBlank(response)) {
@@ -316,7 +328,13 @@ public class PubmedImportMetadataSourceServiceImpl extends AbstractImportMetadat
             countAttempt = 0;
             while (StringUtils.isBlank(response2) && countAttempt <= attempt) {
                 countAttempt++;
+                long time = System.currentTimeMillis() - lastRequest;
+                if ((time) < interRequestTime) {
+                    Thread.sleep(interRequestTime - time);
+                }
                 response2 = liveImportClient.executeHttpGetRequest(1000, uriBuilder2.toString(), params2);
+
+                lastRequest = System.currentTimeMillis();
             }
 
             if (StringUtils.isBlank(response2)) {
@@ -337,7 +355,12 @@ public class PubmedImportMetadataSourceServiceImpl extends AbstractImportMetadat
 
     private List<Element> splitToRecords(String recordsSrc) {
         try {
-            SAXBuilder saxBuilder = new SAXBuilder();
+            SAXBuilder saxBuilder = XMLUtils.getSAXBuilder();
+            // To properly parse PubMed responses, we must allow DOCTYPEs overall. But, we can still apply all the
+            // other default XXE protections, including disabling external entities and entity expansion.
+            saxBuilder.setFeature("http://apache.org/xml/features/disallow-doctype-decl", false);
+            saxBuilder.setExpandEntities(false);
+            saxBuilder.setEntityResolver((publicId, systemId) -> new InputSource(new StringReader("")));
             Document document = saxBuilder.build(new StringReader(recordsSrc));
             Element root = document.getRootElement();
 
@@ -347,7 +370,7 @@ public class PubmedImportMetadataSourceServiceImpl extends AbstractImportMetadat
             List<Element> recordsList = xpath.evaluate(root);
             return recordsList;
         } catch (JDOMException | IOException e) {
-            return null;
+            return List.of();
         }
     }
 
@@ -418,7 +441,13 @@ public class PubmedImportMetadataSourceServiceImpl extends AbstractImportMetadat
             int countAttempt = 0;
             while (StringUtils.isBlank(response) && countAttempt <= attempt) {
                 countAttempt++;
+                long time = System.currentTimeMillis() - lastRequest;
+                if ((time) < interRequestTime) {
+                    Thread.sleep(interRequestTime - time);
+                }
+
                 response = liveImportClient.executeHttpGetRequest(1000, uriBuilder.toString(), params);
+                lastRequest = System.currentTimeMillis();
             }
 
             if (StringUtils.isBlank(response)) {
@@ -441,7 +470,12 @@ public class PubmedImportMetadataSourceServiceImpl extends AbstractImportMetadat
             countAttempt = 0;
             while (StringUtils.isBlank(response2) && countAttempt <= attempt) {
                 countAttempt++;
+                long time = System.currentTimeMillis() - lastRequest;
+                if ((time) < interRequestTime) {
+                    Thread.sleep(interRequestTime - time);
+                }
                 response2 = liveImportClient.executeHttpGetRequest(1000, uriBuilder2.toString(), params2);
+                lastRequest = System.currentTimeMillis();
             }
 
             if (StringUtils.isBlank(response2)) {

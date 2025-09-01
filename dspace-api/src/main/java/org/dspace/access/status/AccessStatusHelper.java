@@ -17,14 +17,33 @@ import org.dspace.core.Context;
  * Plugin interface for the access status calculation.
  */
 public interface AccessStatusHelper {
+
+    public static final String EMBARGO = "embargo";
+    public static final String METADATA_ONLY = "metadata.only";
+    public static final String OPEN_ACCESS = "open.access";
+    public static final String RESTRICTED = "restricted";
+    public static final String UNKNOWN = "unknown";
+
     /**
      * Calculate the access status for the item.
      *
      * @param context the DSpace context
      * @param item    the item
+     * @param threshold the embargo threshold date
      * @return an access status value
      * @throws SQLException An exception that provides information on a database access error or other errors.
      */
     public String getAccessStatusFromItem(Context context, Item item, Date threshold)
         throws SQLException;
+
+    /**
+     * Retrieve embargo information for the item
+     *
+     * @param context the DSpace context
+     * @param item the item to check for embargo information
+     * @param threshold the embargo threshold date
+     * @return an embargo date
+     * @throws SQLException An exception that provides information on a database access error or other errors.
+     */
+    public String getEmbargoFromItem(Context context, Item item, Date threshold) throws SQLException;
 }

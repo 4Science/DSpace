@@ -18,7 +18,6 @@ import org.dspace.content.DSpaceObject;
 import org.dspace.core.Context;
 import org.dspace.eperson.EPerson;
 import org.dspace.eperson.Group;
-import org.dspace.service.DSpaceCRUDService;
 
 /**
  * Service interface class for the ResourcePolicy object.
@@ -27,7 +26,34 @@ import org.dspace.service.DSpaceCRUDService;
  *
  * @author kevinvandevelde at atmire.com
  */
-public interface ResourcePolicyService extends DSpaceCRUDService<ResourcePolicy> {
+public interface ResourcePolicyService {
+
+    public ResourcePolicy create(Context context, EPerson eperson, Group group) throws SQLException, AuthorizeException;
+
+    public ResourcePolicy find(Context context, int id) throws SQLException;
+
+    /**
+     * Persist a model object.
+     *
+     * @param context
+     * @param resourcePolicy object to be persisted.
+     * @throws SQLException passed through.
+     * @throws AuthorizeException passed through.
+     */
+    public void update(Context context, ResourcePolicy resourcePolicy) throws SQLException, AuthorizeException;
+
+
+    /**
+     * Persist a collection of model objects.
+     *
+     * @param context
+     * @param resourcePolicies object to be persisted.
+     * @throws SQLException passed through.
+     * @throws AuthorizeException passed through.
+     */
+    public void update(Context context, List<ResourcePolicy> resourcePolicies) throws SQLException, AuthorizeException;
+
+    public void delete(Context context, ResourcePolicy resourcePolicy) throws SQLException, AuthorizeException;
 
 
     public List<ResourcePolicy> find(Context c, DSpaceObject o) throws SQLException;
@@ -56,12 +82,19 @@ public interface ResourcePolicyService extends DSpaceCRUDService<ResourcePolicy>
         throws SQLException;
 
     /**
-     * Look for ResourcePolicies by DSpaceObject, Group, and action, ignoring IDs with a specific PolicyID.
-     * This method can be used to detect duplicate ResourcePolicies.
+     * Look for ResourcePolicies by DSpaceObject, Group, and action, ignoring
+     * IDs with a specific PolicyID. This method can be used to detect duplicate
+     * ResourcePolicies.
      *
-     * @param notPolicyID ResourcePolicies with this ID will be ignored while looking out for equal ResourcePolicies.
-     * @return List of resource policies for the same DSpaceObject, group and action but other policyID.
-     * @throws SQLException
+     * @param context current DSpace session.
+     * @param dso find policies for this object.
+     * @param group find policies referring to this group.
+     * @param action find policies for this action.
+     * @param notPolicyID ResourcePolicies with this ID will be ignored while
+     *                    looking out for equal ResourcePolicies.
+     * @return List of resource policies for the same DSpaceObject, group and
+     *         action but other policyID.
+     * @throws SQLException passed through.
      */
     public List<ResourcePolicy> findByTypeGroupActionExceptId(Context context, DSpaceObject dso, Group group,
                                                               int action, int notPolicyID)
@@ -71,6 +104,16 @@ public interface ResourcePolicyService extends DSpaceCRUDService<ResourcePolicy>
 
     public boolean isDateValid(ResourcePolicy resourcePolicy);
 
+    /**
+     * Create and persist a copy of a given ResourcePolicy, with an empty
+     * dSpaceObject field.
+     *
+     * @param context current DSpace session.
+     * @param resourcePolicy the policy to be copied.
+     * @return the copy.
+     * @throws SQLException passed through.
+     * @throws AuthorizeException passed through.
+     */
     public ResourcePolicy clone(Context context, ResourcePolicy resourcePolicy) throws SQLException, AuthorizeException;
 
     public void removeAllPolicies(Context c, DSpaceObject o) throws SQLException, AuthorizeException;
@@ -123,6 +166,7 @@ public interface ResourcePolicyService extends DSpaceCRUDService<ResourcePolicy>
      * @param ePerson       ePerson whose policies want to find
      * @param offset        the position of the first result to return
      * @param limit         paging limit
+     * @return some of the policies referring to {@code ePerson}.
      * @throws SQLException if database error
      */
     public List<ResourcePolicy> findByEPerson(Context context, EPerson ePerson, int offset, int limit)

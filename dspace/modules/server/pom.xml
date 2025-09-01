@@ -3,17 +3,11 @@
     <groupId>org.dspace.modules</groupId>
     <artifactId>server</artifactId>
     <packaging>war</packaging>
-    <name>DSpace Server Webapp:: Local Customizations</name>
-    <description>Overlay customizations.
-This is probably a temporary solution to the build problems. We like to investigate about
-the possibility to remove the overlays enable a more flexible extension mechanism.
-The use of web-fragment and spring mvc technology allow us to add request handlers
-just adding new jar in the classloader</description>
-
+    <name>DSpace Server Webapp:: Tomcat deployable WAR</name>
     <parent>
         <artifactId>modules</artifactId>
         <groupId>org.dspace</groupId>
-        <version>cris-2023.01.01</version>
+        <version>cris-2024.02.02</version>
         <relativePath>..</relativePath>
     </parent>
 
@@ -32,7 +26,7 @@ just adding new jar in the classloader</description>
                 <artifactId>maven-dependency-plugin</artifactId>
                 <executions>
                     <execution>
-                        <id>unpack</id>
+                        <id>unpack-additions</id>
                         <phase>prepare-package</phase>
                         <goals>
                             <goal>unpack-dependencies</goal>
@@ -47,6 +41,20 @@ just adding new jar in the classloader</description>
                             <excludes>META-INF/**</excludes>
                         </configuration>
                     </execution>
+                    <execution>
+                        <id>unpack-server</id>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>unpack-dependencies</goal>
+                        </goals>
+                        <configuration>
+                            <includeScope>runtime</includeScope>
+                            <includeGroupIds>org.dspace</includeGroupIds>
+                            <includeArtifactIds>dspace-server-webapp</includeArtifactIds>
+                            <includes>**/static/**,**/*.properties</includes>
+                            <outputDirectory>${project.build.directory}/additions</outputDirectory>
+                        </configuration>
+                    </execution>
                 </executions>
             </plugin>
             <plugin>
@@ -54,6 +62,7 @@ just adding new jar in the classloader</description>
                 <artifactId>maven-war-plugin</artifactId>
                 <configuration>
                     <archiveClasses>false</archiveClasses>
+                    <attachClasses>true</attachClasses>
                     <!-- Filter the web.xml (needed for IDE compatibility/debugging) -->
                     <filteringDeploymentDescriptors>true</filteringDeploymentDescriptors>
                     <!-- Copy any 'additions' (see m-dependency-p above) into WEB-INF/classes.
@@ -244,19 +253,53 @@ just adding new jar in the classloader</description>
                 </dependency>
             </dependencies>
         </profile>
-
         <profile>
-            <id>oracle-support</id>
+            <id>addon-networklab</id>
             <activation>
                 <property>
-                    <name>db.name</name>
-                    <value>oracle</value>
+                    <name>nl.on</name>
                 </property>
             </activation>
             <dependencies>
                 <dependency>
-                    <groupId>com.oracle</groupId>
-                    <artifactId>ojdbc6</artifactId>
+                    <groupId>it.4science.dspace</groupId>
+                    <artifactId>addon-networklab</artifactId>
+                    <version>${addon-networklab.version}</version>
+                    <type>jar</type>
+                </dependency>
+            </dependencies>
+        </profile>
+        <profile>
+            <id>addon-dataquality</id>
+            <activation>
+                <property>
+                    <name>dq.on</name>
+                </property>
+            </activation>
+            <dependencies>
+                <dependency>
+                    <groupId>it.4science.dspace</groupId>
+                    <artifactId>addon-dataquality</artifactId>
+                    <version>${addon-dataquality.version}</version>
+                    <type>jar</type>
+                </dependency>
+            </dependencies>
+        </profile>
+
+        <!-- Builds Orchestrator addon for DSpace -->
+        <profile>
+            <id>addon-orchestrator</id>
+            <activation>
+                <property>
+                    <name>orchestrator.on</name>
+                </property>
+            </activation>
+            <dependencies>
+                <dependency>
+                    <groupId>it.4science.dspace</groupId>
+                    <artifactId>addon-orchestrator-rest</artifactId>
+                    <version>${addon-orchestrator.version}</version>
+                    <type>jar</type>
                 </dependency>
             </dependencies>
         </profile>
@@ -271,17 +314,12 @@ just adding new jar in the classloader</description>
         <dependency>
             <groupId>org.dspace</groupId>
             <artifactId>dspace-server-webapp</artifactId>
-            <classifier>classes</classifier>
         </dependency>
         <dependency>
-            <groupId>org.dspace</groupId>
-            <artifactId>dspace-server-webapp</artifactId>
-            <type>war</type>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.solr</groupId>
-            <artifactId>solr-solrj</artifactId>
-            <version>${solr.client.version}</version>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-tomcat</artifactId>
+            <scope>provided</scope>
+            <version>${spring-boot.version}</version>
         </dependency>
 
         <!-- Test Dependencies -->
@@ -336,6 +374,13 @@ just adding new jar in the classloader</description>
             <artifactId>solr-core</artifactId>
             <version>${solr.client.version}</version>
             <scope>test</scope>
+            <exclusions>
+                <!-- Later version provided by Hibernate -->
+                <exclusion>
+                    <groupId>org.antlr</groupId>
+                    <artifactId>antlr4-runtime</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.apache.lucene</groupId>

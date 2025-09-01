@@ -8,11 +8,11 @@
 package org.dspace.app.rest.submit.factory.impl;
 
 import java.util.UUID;
-import javax.servlet.http.HttpServletRequest;
 
+import jakarta.servlet.http.HttpServletRequest;
 import org.dspace.app.deduplication.model.DuplicateDecisionObjectRest;
 import org.dspace.app.deduplication.model.DuplicateDecisionType;
-import org.dspace.app.deduplication.utils.DedupUtils;
+import org.dspace.app.deduplication.utils.IDedupUtils;
 import org.dspace.app.rest.exception.UnprocessableEntityException;
 import org.dspace.app.rest.model.patch.LateObjectEvaluator;
 import org.dspace.content.InProgressSubmission;
@@ -43,7 +43,7 @@ public class DetectDuplicateAddPatchOperation extends AddPatchOperation<Duplicat
                     String.format("The specified path '%s' is not valid", getAbsolutePath(path)));
         }
 
-        DedupUtils dedupUtils = new DSpace().getServiceManager().getServiceByName("dedupUtils", DedupUtils.class);
+        IDedupUtils IDedupUtils = new DSpace().getServiceManager().getServiceByName("dedupUtils", IDedupUtils.class);
 
         DuplicateDecisionObjectRest decisionObject = evaluateSingleObject((LateObjectEvaluator) value);
         UUID currentItemID = source.getItem().getID();
@@ -98,7 +98,7 @@ public class DetectDuplicateAddPatchOperation extends AddPatchOperation<Duplicat
 
         // generate UnprocessableEntityException if decisionObject is invalid
         try {
-            if (!dedupUtils.validateDecision(decisionObject)) {
+            if (!IDedupUtils.validateDecision(decisionObject)) {
                 throw new UnprocessableEntityException(
                         String.format("The specified decision %s is not valid", decisionObject.getValue()));
             }
@@ -106,13 +106,13 @@ public class DetectDuplicateAddPatchOperation extends AddPatchOperation<Duplicat
             throw new UnprocessableEntityException(String.format("The specified decision %s is not valid", subPath));
         }
 
-        if (!dedupUtils.matchExist(context, currentItemID, duplicateItemID, resourceType, null, isInWorkflow)) {
+        if (!IDedupUtils.matchExist(context, currentItemID, duplicateItemID, resourceType, null, isInWorkflow)) {
             throw new UnprocessableEntityException(
                     String.format("Cannot find any duplicate match related to Item %s", duplicateItemID));
         }
 
-        dedupUtils.setDuplicateDecision(context, source.getItem().getID(), duplicateItemID, source.getItem().getType(),
-                decisionObject);
+        IDedupUtils.setDuplicateDecision(context, source.getItem().getID(), duplicateItemID, source.getItem().getType(),
+                                         decisionObject);
 
     }
 

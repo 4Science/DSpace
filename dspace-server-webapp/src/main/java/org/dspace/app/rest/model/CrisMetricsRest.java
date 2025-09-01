@@ -19,6 +19,7 @@ public class CrisMetricsRest extends BaseObjectRest<String> {
 
     private static final long serialVersionUID = 1L;
     public static final String NAME = "metric";
+    public static final String NAME_PLURAL = "metrics";
     public static final String CATEGORY = RestAddressableModel.CRIS;
 
     private String metricType;
@@ -35,6 +36,11 @@ public class CrisMetricsRest extends BaseObjectRest<String> {
     @Override
     public String getType() {
         return NAME;
+    }
+
+    @Override
+    public String getTypePlural() {
+        return NAME_PLURAL;
     }
 
     @Override

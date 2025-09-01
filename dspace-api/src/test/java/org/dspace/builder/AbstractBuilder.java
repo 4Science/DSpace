@@ -15,11 +15,16 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.dspace.alerts.service.SystemWideAlertService;
 import org.dspace.app.audit.AuditService;
+import org.dspace.app.ldn.factory.NotifyServiceFactory;
+import org.dspace.app.ldn.service.LDNMessageService;
+import org.dspace.app.ldn.service.NotifyPatternToTriggerService;
+import org.dspace.app.ldn.service.NotifyService;
+import org.dspace.app.ldn.service.NotifyServiceInboundPatternService;
 import org.dspace.app.metrics.service.CrisMetricsService;
-import org.dspace.app.nbevent.service.NBEventService;
 import org.dspace.app.requestitem.factory.RequestItemServiceFactory;
 import org.dspace.app.requestitem.service.RequestItemService;
 import org.dspace.app.suggestion.SolrSuggestionStorageService;
+import org.dspace.app.util.SubmissionConfigReaderException;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.authorize.factory.AuthorizeServiceFactory;
 import org.dspace.authorize.service.AuthorizeService;
@@ -51,6 +56,8 @@ import org.dspace.eperson.service.SubscribeService;
 import org.dspace.externalservices.scopus.factory.CrisMetricsServiceFactory;
 import org.dspace.harvest.factory.HarvestServiceFactory;
 import org.dspace.harvest.service.HarvestedCollectionService;
+import org.dspace.identifier.factory.IdentifierServiceFactory;
+import org.dspace.identifier.service.DOIService;
 import org.dspace.layout.factory.CrisLayoutServiceFactory;
 import org.dspace.layout.service.CrisLayoutBoxService;
 import org.dspace.layout.service.CrisLayoutFieldService;
@@ -61,9 +68,12 @@ import org.dspace.orcid.factory.OrcidServiceFactory;
 import org.dspace.orcid.service.OrcidHistoryService;
 import org.dspace.orcid.service.OrcidQueueService;
 import org.dspace.orcid.service.OrcidTokenService;
+import org.dspace.qaevent.service.QAEventService;
 import org.dspace.scripts.factory.ScriptServiceFactory;
 import org.dspace.scripts.service.ProcessService;
 import org.dspace.services.factory.DSpaceServicesFactory;
+import org.dspace.submit.factory.SubmissionServiceFactory;
+import org.dspace.submit.service.SubmissionConfigService;
 import org.dspace.supervision.factory.SupervisionOrderServiceFactory;
 import org.dspace.supervision.service.SupervisionOrderService;
 import org.dspace.utils.DSpace;
@@ -123,17 +133,23 @@ public abstract class AbstractBuilder<T, S> {
     static CrisMetricsService crisMetricsService;
     static CrisLayoutMetric2BoxService crisLayoutMetric2BoxService;
     static HarvestedCollectionService harvestedCollectionService;
-    static NBEventService nbEventService;
-    static SolrSuggestionStorageService solrSuggestionService;
     static SubscribeService subscribeService;
     static RequestItemService requestItemService;
     static VersioningService versioningService;
+    static DOIService doiService;
     static OrcidHistoryService orcidHistoryService;
     static OrcidQueueService orcidQueueService;
     static OrcidTokenService orcidTokenService;
     static SystemWideAlertService systemWideAlertService;
+    static SubmissionConfigService submissionConfigService;
     static SupervisionOrderService supervisionOrderService;
+    static NotifyService notifyService;
+    static NotifyServiceInboundPatternService inboundPatternService;
+    static NotifyPatternToTriggerService notifyPatternToTriggerService;
 
+    static QAEventService qaEventService;
+    static SolrSuggestionStorageService solrSuggestionService;
+    static LDNMessageService ldnMessageService;
 
     protected Context context;
 
@@ -184,6 +200,7 @@ public abstract class AbstractBuilder<T, S> {
         requestItemService = RequestItemServiceFactory.getInstance().getRequestItemService();
         versioningService = DSpaceServicesFactory.getInstance().getServiceManager()
                                  .getServiceByName(VersioningService.class.getName(), VersioningService.class);
+        doiService = IdentifierServiceFactory.getInstance().getDOIService();
 
         // Temporarily disabled
         claimedTaskService = XmlWorkflowServiceFactory.getInstance().getClaimedTaskService();
@@ -198,7 +215,6 @@ public abstract class AbstractBuilder<T, S> {
         crisMetricsService = CrisMetricsServiceFactory.getInstance().getCrisMetricsService();
         harvestedCollectionService = HarvestServiceFactory.getInstance().getHarvestedCollectionService();
         crisLayoutMetric2BoxService = CrisLayoutServiceFactory.getInstance().getMetric2BoxService();
-        nbEventService = new DSpace().getSingletonService(NBEventService.class);
         solrSuggestionService = new DSpace().getSingletonService(SolrSuggestionStorageService.class);
         subscribeService = ContentServiceFactory.getInstance().getSubscribeService();
         orcidHistoryService = OrcidServiceFactory.getInstance().getOrcidHistoryService();
@@ -206,8 +222,19 @@ public abstract class AbstractBuilder<T, S> {
         orcidTokenService = OrcidServiceFactory.getInstance().getOrcidTokenService();
         systemWideAlertService = DSpaceServicesFactory.getInstance().getServiceManager()
                                                       .getServicesByType(SystemWideAlertService.class).get(0);
+        try {
+            submissionConfigService = SubmissionServiceFactory.getInstance().getSubmissionConfigService();
+        } catch (SubmissionConfigReaderException e) {
+            log.error(e.getMessage(), e);
+        }
         subscribeService = ContentServiceFactory.getInstance().getSubscribeService();
         supervisionOrderService = SupervisionOrderServiceFactory.getInstance().getSupervisionOrderService();
+        notifyService = NotifyServiceFactory.getInstance().getNotifyService();
+        inboundPatternService = NotifyServiceFactory.getInstance().getNotifyServiceInboundPatternService();
+        notifyPatternToTriggerService = NotifyServiceFactory.getInstance().getNotifyPatternToTriggerService();
+        qaEventService = new DSpace().getSingletonService(QAEventService.class);
+        solrSuggestionService = new DSpace().getSingletonService(SolrSuggestionStorageService.class);
+        ldnMessageService = NotifyServiceFactory.getInstance().getLDNMessageService();
     }
 
 
@@ -246,15 +273,20 @@ public abstract class AbstractBuilder<T, S> {
         orcidHistoryService = null;
         crisMetricsService = null;
         crisLayoutMetric2BoxService = null;
-        nbEventService = null;
         harvestedCollectionService = null;
-        subscribeService = null;
         requestItemService = null;
         versioningService = null;
+        doiService = null;
         orcidTokenService = null;
+        notifyService = null;
+        inboundPatternService = null;
+        notifyPatternToTriggerService = null;
+        qaEventService = null;
         systemWideAlertService = null;
+        submissionConfigService = null;
         subscribeService = null;
         supervisionOrderService = null;
+        ldnMessageService = null;
     }
 
     public static void cleanupObjects() throws Exception {

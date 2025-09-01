@@ -7,7 +7,10 @@
  */
 package org.dspace.content.authority;
 
+import java.util.List;
+
 import org.dspace.content.authority.mapper.ItemControlledVocabularyMapper;
+import org.dspace.discovery.configuration.DiscoverySortFieldConfiguration;
 
 /*
  * @author Jurgen Mamani
@@ -26,9 +29,11 @@ public class  ItemControlledVocabulary {
 
     private String selectableMetadata;
 
-    private String labelMetadata;
+    private List<String> labelMetadata;
 
-    private String sortFieldAndOrder;
+    private List<String> storedMetadata;
+
+    private List<DiscoverySortFieldConfiguration> sortFields;
 
     private ItemControlledVocabularyMapper extraValuesMapper;
 
@@ -74,11 +79,11 @@ public class  ItemControlledVocabulary {
         this.selectableMetadata = selectableMetadata;
     }
 
-    public String getLabelMetadata() {
+    public List<String> getLabelMetadata() {
         return labelMetadata;
     }
 
-    public void setLabelMetadata(String labelMetadata) {
+    public void setLabelMetadata(List<String> labelMetadata) {
         this.labelMetadata = labelMetadata;
     }
 
@@ -98,11 +103,19 @@ public class  ItemControlledVocabulary {
         this.extraValuesMapper = extraValuesMapper;
     }
 
-    public String getSortFieldAndOrder() {
-        return sortFieldAndOrder;
+    public List<DiscoverySortFieldConfiguration> getSortFields() {
+        return sortFields;
     }
 
-    public void setSortFieldAndOrder(String sortFieldAndOrder) {
-        this.sortFieldAndOrder = sortFieldAndOrder;
+    public void setSortFields(List<DiscoverySortFieldConfiguration> sortFields) {
+        this.sortFields = sortFields;
+    }
+
+    public List<String> getStoredMetadata() {
+        return storedMetadata;
+    }
+
+    public void setStoredMetadata(List<String> storedMetadata) {
+        this.storedMetadata = storedMetadata;
     }
 }

@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.Callable;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import org.apache.commons.io.Charsets;
@@ -57,6 +58,8 @@ public class OpenAireProjectImportMetadataSourceServiceImpl extends AbstractImpo
     private static final String ENDPOINT_SEARCH_OPENAIRE = "http://api.openaire.eu/search/projects";
 
     private int timeout = 1000;
+
+    private Supplier<HttpClientBuilder> httpClientBuilderSupplier = HttpClients::custom;
 
     @Autowired
     private ConfigurationService configurationService;
@@ -156,7 +159,7 @@ public class OpenAireProjectImportMetadataSourceServiceImpl extends AbstractImpo
             String proxyPort = configurationService.getProperty("http.proxy.port");
             HttpGet method = null;
             try {
-                HttpClientBuilder hcBuilder = HttpClients.custom();
+                HttpClientBuilder hcBuilder = httpClientBuilderSupplier.get();
                 Builder requestConfigBuilder = RequestConfig.custom();
                 requestConfigBuilder.setConnectionRequestTimeout(timeout);
 
@@ -213,7 +216,7 @@ public class OpenAireProjectImportMetadataSourceServiceImpl extends AbstractImpo
             String proxyPort = configurationService.getProperty("http.proxy.port");
             HttpGet method = null;
             try {
-                HttpClientBuilder hcBuilder = HttpClients.custom();
+                HttpClientBuilder hcBuilder = httpClientBuilderSupplier.get();
                 Builder requestConfigBuilder = RequestConfig.custom();
                 requestConfigBuilder.setConnectionRequestTimeout(timeout);
 
@@ -247,6 +250,10 @@ public class OpenAireProjectImportMetadataSourceServiceImpl extends AbstractImpo
             }
             return results;
         }
+    }
+
+    public void setHttpClientBuilderSupplier(Supplier<HttpClientBuilder> httpClientBuilderSupplier) {
+        this.httpClientBuilderSupplier = httpClientBuilderSupplier;
     }
 
     private List<Element> splitToRecords(String recordsSrc) {

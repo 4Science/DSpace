@@ -17,10 +17,10 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-import javax.annotation.PostConstruct;
-import javax.annotation.Resource;
 
-import org.apache.commons.collections4.CollectionUtils;
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.Resource;
+import org.apache.commons.lang3.StringUtils;
 import org.dspace.app.util.DCInputSet;
 import org.dspace.app.util.DCInputsReader;
 import org.dspace.app.util.DCInputsReaderException;
@@ -123,11 +123,10 @@ public class MetadataSecurityServiceImpl implements MetadataSecurityService {
         return isMetadataFieldVisible(context, boxes, item, metadataField, false);
     }
 
-
     private List<MetadataValue> getPermissionFilteredMetadata(Context context, Item item,
         List<MetadataValue> metadataValues, boolean preventBoxSecurityCheck) {
 
-        if (item.isWithdrawn() && isNotAdmin(context)) {
+        if (item.isWithdrawn() && isNotAdmin(context, item)) {
             return new ArrayList<MetadataValue>();
         }
 
@@ -143,6 +142,17 @@ public class MetadataSecurityServiceImpl implements MetadataSecurityService {
             .filter(value -> isMetadataValueReturnAllowed(context, item, value))
             .collect(Collectors.toList());
 
+    }
+
+    private boolean canEditItem(Context context, Item item) {
+        if (context == null) {
+            return false;
+        }
+        try {
+            return this.itemService.canEdit(context, item);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private List<CrisLayoutBox> findBoxes(Context context, Item item, boolean preventBoxSecurityCheck) {
@@ -166,10 +176,38 @@ public class MetadataSecurityServiceImpl implements MetadataSecurityService {
 
     private boolean isMetadataFieldVisible(Context context, List<CrisLayoutBox> boxes, Item item,
         MetadataField metadataField, boolean preventBoxSecurityCheck) {
-        if (CollectionUtils.isNotEmpty(boxes)) {
-            return isMetadataFieldVisibleByBoxes(context, boxes, item, metadataField, preventBoxSecurityCheck);
+
+        if (isPublicMetadataField(metadataField, boxes, preventBoxSecurityCheck)) {
+            return true;
         }
-        return isNotAdmin(context) ? isNotHidden(context, metadataField) : true;
+
+        // stop any further costly check if the converter request the fastest strategy
+        if (preventBoxSecurityCheck) {
+            return false;
+        }
+
+        EPerson currentUser = context != null ? context.getCurrentUser() : null;
+        List<CrisLayoutBox> notPublicBoxes = getNotPublicBoxes(metadataField, boxes);
+
+        if (Objects.nonNull(currentUser)) {
+
+            for (CrisLayoutBox box : notPublicBoxes) {
+                if (crisLayoutBoxAccessService.hasAccess(context, currentUser, box, item)) {
+                    return true;
+                }
+            }
+        }
+
+        // the metadata is not included in any box so use the default dspace security
+        if (notPublicBoxes.isEmpty() && isMetadataFieldVisibleFor(context, item, metadataField)) {
+            return true;
+        }
+
+        return false;
+    }
+
+    private boolean isMetadataFieldVisibleFor(Context context, Item item, MetadataField metadataField) {
+        return isNotHidden(context, metadataField) || canEditItem(context, item);
     }
 
     private boolean isMetadataValueReturnAllowed(Context context, Item item, MetadataValue metadataValue) {
@@ -186,44 +224,28 @@ public class MetadataSecurityServiceImpl implements MetadataSecurityService {
         }
     }
 
-    private boolean isMetadataFieldVisibleByBoxes(Context context, List<CrisLayoutBox> boxes, Item item,
-        MetadataField metadataField, boolean preventBoxSecurityCheck) {
-
-        if (isPublicMetadataField(metadataField, boxes, preventBoxSecurityCheck)) {
-            return true;
-        }
-
-        if (preventBoxSecurityCheck) {
-            return false;
-        }
-
-        EPerson currentUser = context.getCurrentUser();
-        List<CrisLayoutBox> notPublicBoxes = getNotPublicBoxes(metadataField, boxes);
-
-        if (Objects.nonNull(currentUser)) {
-
-            for (CrisLayoutBox box : notPublicBoxes) {
-                if (crisLayoutBoxAccessService.hasAccess(context, currentUser, box, item)) {
-                    return true;
-                }
-            }
-        }
-
-        // the metadata is not included in any box so use the default dspace security
-        if (notPublicBoxes.isEmpty() && isNotHidden(context, metadataField)) {
-            return true;
-        }
-
-        return false;
-    }
-
     private boolean isPublicMetadataField(MetadataField metadataField, List<CrisLayoutBox> boxes,
         boolean preventBoxSecurityCheck) {
 
-        List<String> publicFields = preventBoxSecurityCheck ? getPublicMetadataFromConfig() : getPublicMetadata(boxes);
+        List<String> publicFields = preventBoxSecurityCheck || boxes.isEmpty() ?
+                getPublicMetadataFromConfig() : getPublicMetadata(boxes);
 
         return publicFields.stream()
-            .anyMatch(publicField -> publicField.equals(metadataField.toString('.')));
+                .anyMatch(publicField -> metadataMatch(metadataField, publicField));
+    }
+
+    private boolean metadataMatch(MetadataField metadataField, String publicField) {
+        if (metadataField == null || publicField == null) {
+            return false;
+        }
+        if (publicField.contains(".*")) {
+            final String exactMatch = publicField.replace(".*", "");
+            StringBuffer qualifiedMatch = new StringBuffer(exactMatch).append(".");
+            return exactMatch.equals(metadataField.toString('.')) ||
+                    StringUtils.startsWith(metadataField.toString('.'), qualifiedMatch.toString());
+        } else {
+            return publicField.equals(metadataField.toString('.'));
+        }
     }
 
     private List<String> getPublicMetadataFromConfig() {
@@ -276,9 +298,9 @@ public class MetadataSecurityServiceImpl implements MetadataSecurityService {
         }
     }
 
-    private boolean isNotAdmin(Context context) {
+    private boolean isNotAdmin(Context context, Item item) {
         try {
-            return context == null || !authorizeService.isAdmin(context);
+            return context == null || !authorizeService.isAdmin(context, item);
         } catch (SQLException e) {
             throw new SQLRuntimeException(e);
         }
@@ -292,7 +314,7 @@ public class MetadataSecurityServiceImpl implements MetadataSecurityService {
         for (MetadataValue metadataValue : metadataValues) {
             MetadataField field = metadataValue.getMetadataField();
             if (dcInputsContainsField(dcInputSets, field)
-                || isMetadataFieldVisibleByBoxes(context, boxes, item, field, preventBoxSecurityCheck)) {
+                || isMetadataFieldVisible(context, boxes, item, field, preventBoxSecurityCheck)) {
                 filteredMetadataValues.add(metadataValue);
             }
         }
@@ -306,8 +328,9 @@ public class MetadataSecurityServiceImpl implements MetadataSecurityService {
 
     private boolean isNotHidden(Context context, MetadataField metadataField) {
         try {
-            return !metadataExposureService.isHidden(context, metadataField.getMetadataSchema().getName(),
-                metadataField.getElement(), metadataField.getQualifier());
+            return metadataField != null &&
+                    !metadataExposureService.isHidden(context, metadataField.getMetadataSchema().getName(),
+                            metadataField.getElement(), metadataField.getQualifier());
         } catch (SQLException e) {
             throw new SQLRuntimeException(e);
         }

@@ -24,6 +24,7 @@ import org.dspace.app.rest.utils.Utils;
 import org.dspace.core.Context;
 import org.dspace.metadataSecurity.EntityMetadataSecurityConfiguration;
 import org.dspace.services.ConfigurationService;
+import org.dspace.services.factory.DSpaceServicesFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -38,7 +39,7 @@ import org.springframework.stereotype.Component;
  * EntityMetadataSecurityConfiguration Rest objects.
  */
 @Component(EntityMetadataSecurityConfigurationRest.CATEGORY + "."
-        + EntityMetadataSecurityConfigurationRest.NAME)
+        + EntityMetadataSecurityConfigurationRest.NAME_PLURAL)
 public class EnitityMetadataSecurityConfigurationRestRepository extends
         DSpaceRestRepository<EntityMetadataSecurityConfigurationRest, String> {
     /**
@@ -58,8 +59,7 @@ public class EnitityMetadataSecurityConfigurationRestRepository extends
     /**
      * Configuration service injection to find metadata security configurations.
      */
-    @Autowired
-    private ConfigurationService configurationService;
+    private ConfigurationService configurationService = DSpaceServicesFactory.getInstance().getConfigurationService();
     /**
      * Utils class injection to use default utilities.
      */

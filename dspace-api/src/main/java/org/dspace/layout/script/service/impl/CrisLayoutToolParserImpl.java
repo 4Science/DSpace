@@ -7,6 +7,7 @@
  */
 package org.dspace.layout.script.service.impl;
 
+import static org.dspace.layout.script.service.CrisLayoutToolValidator.ALTERNATIVE_TO_COLUMN;
 import static org.dspace.layout.script.service.CrisLayoutToolValidator.BITSTREAM_TYPE;
 import static org.dspace.layout.script.service.CrisLayoutToolValidator.BOX2HIERARCHICAL_SHEET;
 import static org.dspace.layout.script.service.CrisLayoutToolValidator.BOX2METADATA_SHEET;
@@ -55,6 +56,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -78,6 +80,7 @@ import org.dspace.core.exception.SQLRuntimeException;
 import org.dspace.eperson.Group;
 import org.dspace.eperson.service.GroupService;
 import org.dspace.layout.CrisLayoutBox;
+import org.dspace.layout.CrisLayoutBox2SecurityGroup;
 import org.dspace.layout.CrisLayoutBoxTypes;
 import org.dspace.layout.CrisLayoutCell;
 import org.dspace.layout.CrisLayoutField;
@@ -87,6 +90,7 @@ import org.dspace.layout.CrisLayoutHierarchicalVocabulary2Box;
 import org.dspace.layout.CrisLayoutMetric2Box;
 import org.dspace.layout.CrisLayoutRow;
 import org.dspace.layout.CrisLayoutTab;
+import org.dspace.layout.CrisLayoutTab2SecurityGroup;
 import org.dspace.layout.CrisMetadataGroup;
 import org.dspace.layout.LayoutSecurity;
 import org.dspace.layout.script.service.CrisLayoutToolParser;
@@ -113,9 +117,21 @@ public class CrisLayoutToolParserImpl implements CrisLayoutToolParser {
     @Override
     public List<CrisLayoutTab> parse(Context context, Workbook workbook) {
         Sheet tabSheet = getSheetByName(workbook, TAB_SHEET);
-        return WorkbookUtils.getNotEmptyRowsSkippingHeader(tabSheet).stream()
-            .map(row -> buildTab(context, row))
-            .collect(Collectors.toList());
+        List<CrisLayoutTab> tabs =
+            WorkbookUtils.getNotEmptyRowsSkippingHeader(tabSheet).stream()
+                         .map(row -> buildTab(context, row))
+                         .collect(Collectors.toList());
+
+        tabs.forEach(tab -> {
+            tab.setTab2SecurityGroups(buildTab2SecurityGroups(context,
+                workbook, TAB_POLICY_SHEET, tab.getEntity().getLabel(), tab.getShortName(), tab, tabs));
+
+            tab.getBoxes().forEach(box ->
+                box.setBox2SecurityGroups(buildBox2SecurityGroups(context,
+                    workbook, BOX_POLICY_SHEET, box.getEntitytype().getLabel(), box.getShortname(), box, tabs)));
+        });
+
+        return  tabs;
     }
 
     private CrisLayoutTab buildTab(Context context, Row tabRow) {
@@ -123,9 +139,14 @@ public class CrisLayoutToolParserImpl implements CrisLayoutToolParser {
 
         Workbook workbook = tabRow.getSheet().getWorkbook();
         String name = getCellValue(tabRow, SHORTNAME_COLUMN);
-        String entityType = getCellValue(tabRow, ENTITY_COLUMN);
+        String entityColumn = getCellValue(tabRow, ENTITY_COLUMN);
+
+        int index = entityColumn.indexOf(".");
+        String customFilter = (index > 0 && index < entityColumn.length()) ? entityColumn.substring(index + 1) : null;
+        String entityType = (index > 0) ? entityColumn.substring(0, index) : entityColumn;
 
         tab.setEntity(getEntityType(context, entityType));
+        tab.setCustomFilter(customFilter);
         tab.setShortName(name);
         tab.setHeader(getCellValue(tabRow, LABEL_COLUMN));
         tab.setLeading(toBoolean(getCellValue(tabRow, LEADING_COLUMN)));
@@ -134,8 +155,6 @@ public class CrisLayoutToolParserImpl implements CrisLayoutToolParser {
         buildTabRows(context, workbook, entityType, name).forEach(tab::addRow);
         tab.setMetadataSecurityFields(buildMetadataSecurityField(context, workbook,
             TAB_POLICY_SHEET, entityType, name));
-        tab.setGroupSecurityFields(buildGroupSecurityField(context, workbook,
-                                                           TAB_POLICY_SHEET, entityType, name));
 
         return tab;
     }
@@ -175,7 +194,7 @@ public class CrisLayoutToolParserImpl implements CrisLayoutToolParser {
 
     private List<CrisLayoutBox> buildBoxes(Context context, Row tab2boxRow) {
 
-        String entityType = getCellValue(tab2boxRow, ENTITY_COLUMN);
+        String entityType = getEntityValue(tab2boxRow, ENTITY_COLUMN);
 
         String boxes = getCellValue(tab2boxRow, BOXES_COLUMN);
         if (StringUtils.isBlank(boxes)) {
@@ -216,8 +235,6 @@ public class CrisLayoutToolParserImpl implements CrisLayoutToolParser {
         box.setStyle(getCellValue(boxRow, STYLE_COLUMN));
         box.setMetadataSecurityFields(buildMetadataSecurityField(context, workbook,
             BOX_POLICY_SHEET, entityType, boxName));
-        box.setGroupSecurityFields(buildGroupSecurityField(context, workbook,
-                                                           BOX_POLICY_SHEET, entityType, boxName));
 
         if (boxType.equals(CrisLayoutBoxTypes.METADATA.name())) {
             buildCrisLayoutFields(context, workbook, entityType, boxName).forEach(box::addLayoutField);
@@ -288,7 +305,7 @@ public class CrisLayoutToolParserImpl implements CrisLayoutToolParser {
 
     private List<CrisMetadataGroup> buildCrisMetadataGroups(Context context, Row row) {
         String metadataField = getCellValue(row, METADATA_COLUMN);
-        String entity = getCellValue(row, ENTITY_COLUMN);
+        String entity = getEntityValue(row, ENTITY_COLUMN);
 
         Sheet metadatagroupsSheet = getSheetByName(row.getSheet().getWorkbook(), METADATAGROUPS_SHEET);
 
@@ -394,10 +411,111 @@ public class CrisLayoutToolParserImpl implements CrisLayoutToolParser {
             .collect(Collectors.toSet());
     }
 
+    private Set<CrisLayoutBox2SecurityGroup> buildBox2SecurityGroups(Context context, Workbook workbook,
+                                                                     String sheetName, String entity, String name,
+                                                                     CrisLayoutBox crisLayoutBox,
+                                                                     List<CrisLayoutTab> tabs) {
+        Sheet sheet = getSheetByName(workbook, sheetName);
+        Set<CrisLayoutBox2SecurityGroup> box2SecurityGroups = new HashSet<>();
+
+        getRowsByEntityAndColumnValue(sheet, entity, SHORTNAME_COLUMN, name)
+            .forEach(row -> {
+                String groupName = getCellValue(row, GROUP_COLUMN);
+                String alternativeBox = getCellValue(row, ALTERNATIVE_TO_COLUMN);
+
+                if (StringUtils.isNotBlank(groupName)) {
+                    Group group = getGroupField(context, groupName);
+                    if (group != null) {
+                        box2SecurityGroups.add(
+                            buildBox2SecurityGroup(group, crisLayoutBox, entity, alternativeBox, tabs)
+                        );
+                    }
+                }
+            });
+
+        return box2SecurityGroups;
+    }
+
+    private CrisLayoutBox2SecurityGroup buildBox2SecurityGroup(Group group, CrisLayoutBox box,
+                                                               String entity,
+                                                               String alternativeBox, List<CrisLayoutTab> tabs) {
+
+        CrisLayoutBox2SecurityGroup.CrisLayoutBox2SecurityGroupId box2SecurityGroupId =
+            new CrisLayoutBox2SecurityGroup.CrisLayoutBox2SecurityGroupId(box, group);
+
+        return new CrisLayoutBox2SecurityGroup(box2SecurityGroupId, box, group,
+            findAlternativeBox(alternativeBox, entity, tabs));
+    }
+
+    private CrisLayoutBox findAlternativeBox(String alternativeBox, String entityType, List<CrisLayoutTab> tabs) {
+
+        if (alternativeBox == null) {
+            return null;
+        }
+
+        return tabs.stream()
+                   .flatMap(tab -> tab.getBoxes().stream())
+                   .filter(crisLayoutBox -> crisLayoutBox.getShortname().equals(alternativeBox) &&
+                       crisLayoutBox.getEntitytype().getLabel().equals(entityType))
+                   .findFirst()
+                   .orElseThrow(() -> new RuntimeException("Alternative box not found for shortname: " +
+                       alternativeBox + ", entityType: " + entityType));
+    }
+
+    private Set<CrisLayoutTab2SecurityGroup> buildTab2SecurityGroups(Context context, Workbook workbook,
+                                                                     String sheetName, String entity, String name,
+                                                                     CrisLayoutTab crisLayoutTab,
+                                                                     List<CrisLayoutTab> tabs) {
+        Sheet sheet = getSheetByName(workbook, sheetName);
+        Set<CrisLayoutTab2SecurityGroup> tab2SecurityGroups = new HashSet<>();
+
+        getRowsByEntityAndColumnValue(sheet, entity, SHORTNAME_COLUMN, name)
+            .forEach(row -> {
+                String groupName = getCellValue(row, GROUP_COLUMN);
+                String alternativeTab = getCellValue(row, ALTERNATIVE_TO_COLUMN);
+
+                if (StringUtils.isNotBlank(groupName)) {
+                    Group group = getGroupField(context, groupName);
+                    if (group != null) {
+                        tab2SecurityGroups.add(
+                            buildTab2SecurityGroup(group, crisLayoutTab, entity, alternativeTab, tabs)
+                        );
+                    }
+                }
+            });
+
+        return tab2SecurityGroups;
+    }
+
+    private CrisLayoutTab2SecurityGroup buildTab2SecurityGroup(Group group, CrisLayoutTab tab,
+                                                               String entity,
+                                                               String alternativeTab, List<CrisLayoutTab> tabs) {
+
+        CrisLayoutTab2SecurityGroup.CrisLayoutTab2SecurityGroupId tab2SecurityGroupId =
+            new CrisLayoutTab2SecurityGroup.CrisLayoutTab2SecurityGroupId(tab, group);
+
+        return new CrisLayoutTab2SecurityGroup(tab2SecurityGroupId, tab, group,
+            findAlternativeTab(alternativeTab, entity, tabs));
+    }
+
+    private CrisLayoutTab findAlternativeTab(String alternativeTab, String entityType, List<CrisLayoutTab> tabs) {
+
+        if (alternativeTab == null) {
+            return null;
+        }
+
+        return tabs.stream()
+                   .filter(crisLayoutTab -> crisLayoutTab.getShortName().equals(alternativeTab) &&
+                       crisLayoutTab.getEntity().getLabel().equals(entityType))
+                   .findFirst()
+                   .orElseThrow(() -> new RuntimeException("Alternative tab not found for shortname: " +
+                       alternativeTab + ", entityType: " + entityType));
+    }
+
     private Stream<Row> getRowsByEntityAndColumnValue(Sheet sheet, String entity, String columnName, String value) {
         return WorkbookUtils.getNotEmptyRowsSkippingHeader(sheet).stream()
             .filter(row -> value.equals(getCellValue(row, columnName)))
-            .filter(row -> entity.equals(getCellValue(row, ENTITY_COLUMN)));
+            .filter(row -> entity.equals(getEntityValue(row, ENTITY_COLUMN)));
     }
 
     private boolean toBoolean(String value) {
@@ -410,6 +528,14 @@ public class CrisLayoutToolParserImpl implements CrisLayoutToolParser {
         } catch (NumberFormatException ex) {
             throw new IllegalArgumentException("Invalid integer value: " + value);
         }
+    }
+
+    private String getEntityValue(Row row, String header) {
+        String cellValue = WorkbookUtils.getCellValue(row, header);
+        return Optional.ofNullable(cellValue)
+                       .filter(cell -> cell.contains("."))
+                       .map(cell -> cell.split("\\.")[0])
+                       .orElse(StringUtils.isNotBlank(cellValue) ? cellValue : null);
     }
 
     private String getCellValue(Row row, String header) {

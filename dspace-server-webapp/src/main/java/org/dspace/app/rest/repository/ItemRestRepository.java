@@ -18,11 +18,11 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
-import javax.servlet.ServletInputStream;
-import javax.servlet.http.HttpServletRequest;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.servlet.ServletInputStream;
+import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -40,6 +40,7 @@ import org.dspace.app.rest.model.ItemRest;
 import org.dspace.app.rest.model.patch.Patch;
 import org.dspace.app.rest.repository.handler.service.UriListHandlerService;
 import org.dspace.authorize.AuthorizeException;
+import org.dspace.authorize.service.AuthorizeService;
 import org.dspace.content.Bundle;
 import org.dspace.content.Collection;
 import org.dspace.content.Item;
@@ -70,7 +71,7 @@ import org.springframework.stereotype.Component;
  * @author Andrea Bollini (andrea.bollini at 4science.it)
  */
 
-@Component(ItemRest.CATEGORY + "." + ItemRest.NAME)
+@Component(ItemRest.CATEGORY + "." + ItemRest.PLURAL_NAME)
 public class ItemRestRepository extends DSpaceObjectRestRepository<Item, ItemRest> {
 
     private static final Logger log = LogManager.getLogger(ItemRestRepository.class);
@@ -105,6 +106,9 @@ public class ItemRestRepository extends DSpaceObjectRestRepository<Item, ItemRes
 
     @Autowired
     EditMetadataFeature editMetadataFeature;
+
+    @Autowired
+    private AuthorizeService authorizeService;
 
     @Autowired
     private UriListHandlerService uriListHandlerService;
@@ -157,7 +161,8 @@ public class ItemRestRepository extends DSpaceObjectRestRepository<Item, ItemRes
     protected void patch(Context context, HttpServletRequest request, String apiCategory, String model, UUID id,
                          Patch patch) throws AuthorizeException, SQLException {
         Item item = itemService.find(context, id);
-        if (!editMetadataFeature.isAuthorized(context, converter.toRest(item, utils.obtainProjection()))) {
+        if (!authorizeService.isAdmin(context) &&
+                !editMetadataFeature.isAuthorized(context, converter.toRest(item, utils.obtainProjection()))) {
             throw new AccessDeniedException("Current user not authorized for this operation");
         }
         patchDSpaceObject(apiCategory, model, id, patch);
@@ -350,12 +355,12 @@ public class ItemRestRepository extends DSpaceObjectRestRepository<Item, ItemRes
         } catch (IOException e1) {
             throw new UnprocessableEntityException("Error parsing request body", e1);
         }
-        if (!editMetadataFeature.isAuthorized(context, itemRest)) {
-            throw new AccessDeniedException("Current user not authorized for this operation");
-        }
         Item item = itemService.find(context, uuid);
         if (item == null) {
             throw new ResourceNotFoundException(apiCategory + "." + model + " with id: " + uuid + " not found");
+        }
+        if (!authorizeService.isAdmin(context) && !editMetadataFeature.isAuthorized(context, itemRest)) {
+            throw new AccessDeniedException("Current user not authorized for this operation");
         }
 
         if (StringUtils.equals(uuid.toString(), itemRest.getId())) {

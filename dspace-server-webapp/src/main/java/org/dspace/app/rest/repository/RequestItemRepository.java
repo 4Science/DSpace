@@ -12,23 +12,22 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.sql.SQLException;
 import java.util.Date;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.UUID;
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.commons.text.StringEscapeUtils;
+import jakarta.servlet.http.HttpServletRequest;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.validator.routines.EmailValidator;
 import org.apache.http.client.utils.URIBuilder;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.dspace.app.requestitem.RequestItem;
-import org.dspace.app.requestitem.RequestItemAuthorExtractor;
 import org.dspace.app.requestitem.RequestItemEmailNotifier;
 import org.dspace.app.requestitem.service.RequestItemService;
 import org.dspace.app.rest.converter.RequestItemConverter;
@@ -50,15 +49,15 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
-
+import org.springframework.web.util.HtmlUtils;
 /**
  * Component to expose item requests.
  *
  * @author Mark H. Wood <mwood@iupui.edu>
  */
-@Component(RequestItemRest.CATEGORY + '.' + RequestItemRest.NAME)
+@Component(RequestItemRest.CATEGORY + '.' + RequestItemRest.PLURAL_NAME)
 public class RequestItemRepository
-        extends DSpaceRestRepository<RequestItemRest, String> {
+    extends DSpaceRestRepository<RequestItemRest, String> {
     private static final Logger LOG = LogManager.getLogger();
 
     @Autowired(required = true)
@@ -73,11 +72,11 @@ public class RequestItemRepository
     @Autowired(required = true)
     protected RequestItemConverter requestItemConverter;
 
-    @Resource(name = "requestItemAuthorExtractor")
-    protected RequestItemAuthorExtractor requestItemAuthorExtractor;
-
     @Autowired(required = true)
     protected ConfigurationService configurationService;
+
+    @Autowired(required = true)
+    protected RequestItemEmailNotifier requestItemEmailNotifier;
 
     /*
      * DSpaceRestRepository
@@ -102,11 +101,11 @@ public class RequestItemRepository
     @Override
     @PreAuthorize("permitAll()")
     public RequestItemRest createAndReturn(Context ctx)
-            throws AuthorizeException, SQLException {
+        throws AuthorizeException, SQLException {
         // Fill a RequestItemRest from the client's HTTP request.
         HttpServletRequest req = getRequestService()
-                .getCurrentRequest()
-                .getHttpServletRequest();
+            .getCurrentRequest()
+            .getHttpServletRequest();
         ObjectMapper mapper = new ObjectMapper();
         RequestItemRest rir;
         try {
@@ -175,16 +174,16 @@ public class RequestItemRepository
             username = user.getFullName();
         } else { // An anonymous session may provide a name.
             // Escape username to evade nasty XSS attempts
-            username = StringEscapeUtils.escapeHtml4(rir.getRequestName());
+            username = HtmlUtils.htmlEscape(rir.getRequestName(),"UTF-8");
         }
 
         // Requester's message text, escaped to evade nasty XSS attempts
-        String message = StringEscapeUtils.escapeHtml4(rir.getRequestMessage());
+        String message = HtmlUtils.htmlEscape(rir.getRequestMessage(),"UTF-8");
 
         // Create the request.
         String token;
         token = requestItemService.createRequest(ctx, bitstream, item,
-                allFiles, email, username, message);
+                                                 allFiles, email, username, message);
 
         // Some fields are given values during creation, so return created request.
         RequestItem ri = requestItemService.findByToken(ctx, token);
@@ -197,32 +196,32 @@ public class RequestItemRepository
             responseLink = getLinkTokenEmail(ri.getToken());
         } catch (URISyntaxException | MalformedURLException e) {
             LOG.warn("Impossible URL error while composing email:  {}",
-                    e::getMessage);
+                     e::getMessage);
             throw new RuntimeException("Request not sent:  " + e.getMessage());
         }
 
         // Send the request email
         try {
-            RequestItemEmailNotifier.sendRequest(ctx, ri, responseLink);
+            requestItemEmailNotifier.sendRequest(ctx, ri, responseLink);
         } catch (IOException | SQLException ex) {
             throw new RuntimeException("Request not sent.", ex);
         }
-
-        return requestItemConverter.convert(ri, Projection.DEFAULT);
+        // #8636 - Security issue: Should not return RequestItemRest to avoid token exposure
+        return null;
     }
 
     // NOTICE:  there is no service method for this -- requests are never deleted?
     @Override
     public void delete(Context context, String token)
-            throws AuthorizeException, RepositoryMethodNotImplementedException {
+        throws AuthorizeException, RepositoryMethodNotImplementedException {
         throw new RepositoryMethodNotImplementedException(RequestItemRest.NAME, "delete");
     }
 
     @Override
     @PreAuthorize("permitAll()")
     public RequestItemRest put(Context context, HttpServletRequest request,
-            String apiCategory, String model, String token, JsonNode requestBody)
-            throws AuthorizeException {
+                               String apiCategory, String model, String token, JsonNode requestBody)
+        throws AuthorizeException {
         RequestItem ri = requestItemService.findByToken(context, token);
         if (null == ri) {
             throw new UnprocessableEntityException("Item request not found");
@@ -232,8 +231,8 @@ public class RequestItemRepository
         Date decisionDate = ri.getDecision_date();
         if (null != decisionDate) {
             throw new UnprocessableEntityException("Request was "
-                    + (ri.isAccept_request() ? "granted" : "denied")
-                    + " on " + decisionDate + " and may not be updated.");
+                                                       + (ri.isAccept_request() ? "granted" : "denied")
+                                                       + " on " + decisionDate + " and may not be updated.");
         }
 
         // Make the changes
@@ -245,15 +244,22 @@ public class RequestItemRepository
         }
 
         JsonNode responseMessageNode = requestBody.findValue("responseMessage");
-        String message = responseMessageNode.asText();
+        String message = null;
+        if (responseMessageNode != null && !responseMessageNode.isNull()) {
+            message = responseMessageNode.asText();
+        }
 
+        JsonNode responseSubjectNode = requestBody.findValue("subject");
+        String subject = null;
+        if (responseSubjectNode != null && !responseSubjectNode.isNull()) {
+            subject = responseSubjectNode.asText();
+        }
         ri.setDecision_date(new Date());
         requestItemService.update(context, ri);
 
         // Send the response email
-        String subject = requestBody.findValue("subject").asText();
         try {
-            RequestItemEmailNotifier.sendResponse(context, ri, subject, message);
+            requestItemEmailNotifier.sendResponse(context, ri, subject, message);
         } catch (IOException ex) {
             LOG.warn("Response not sent:  {}", ex::getMessage);
             throw new RuntimeException("Response not sent", ex);
@@ -262,7 +268,7 @@ public class RequestItemRepository
         // Perhaps send Open Access request to admin.s.
         if (requestBody.findValue("suggestOpenAccess").asBoolean(false)) {
             try {
-                RequestItemEmailNotifier.requestOpenAccess(context, ri);
+                requestItemEmailNotifier.requestOpenAccess(context, ri);
             } catch (IOException ex) {
                 LOG.warn("Open access request not sent:  {}", ex::getMessage);
                 throw new RuntimeException("Open access request not sent", ex);
@@ -283,19 +289,24 @@ public class RequestItemRepository
      * Generate a link back to DSpace, to act on a request.
      *
      * @param token identifies the request.
-     * @return URL to the item request API, with the token as request parameter
-     *          "token".
+     * @return URL to the item request API, with /request-a-copy/{token} as the last URL segments
      * @throws URISyntaxException passed through.
      * @throws MalformedURLException passed through.
      */
-    private String getLinkTokenEmail(String token)
-            throws URISyntaxException, MalformedURLException {
+    public String getLinkTokenEmail(String token)
+        throws URISyntaxException, MalformedURLException {
         final String base = configurationService.getProperty("dspace.ui.url");
 
-        URI link = new URIBuilder(base)
-                .setPathSegments("request-a-copy", token)
-                .build();
+        // Construct the link, making sure to support sub-paths
+        URIBuilder uriBuilder = new URIBuilder(base);
+        List<String> segments = new LinkedList<>();
+        if (StringUtils.isNotBlank(uriBuilder.getPath())) {
+            segments.add(StringUtils.strip(uriBuilder.getPath(), "/"));
+        }
+        segments.add("request-a-copy");
+        segments.add(token);
 
-        return link.toURL().toExternalForm();
+        // Build and return the URL from segments (or throw exception)
+        return uriBuilder.setPathSegments(segments).build().toURL().toExternalForm();
     }
 }

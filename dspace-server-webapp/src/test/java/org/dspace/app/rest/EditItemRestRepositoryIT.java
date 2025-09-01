@@ -32,8 +32,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.UUID;
-import javax.ws.rs.core.MediaType;
 
+import jakarta.ws.rs.core.MediaType;
 import org.dspace.app.rest.model.patch.AddOperation;
 import org.dspace.app.rest.model.patch.Operation;
 import org.dspace.app.rest.model.patch.RemoveOperation;
@@ -58,6 +58,7 @@ import org.dspace.eperson.Group;
 import org.dspace.eperson.service.GroupService;
 import org.dspace.services.ConfigurationService;
 import org.hamcrest.Matchers;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mock.web.MockMultipartFile;
@@ -1424,6 +1425,8 @@ public class EditItemRestRepositoryIT extends AbstractControllerIntegrationTest 
             .build();
 
         Item itemA = ItemBuilder.createItem(context, collection)
+            .withTitle("Intial title")
+            .withIssueDate("2023-02-04")
             .withFulltext("bitstream.txt", "source", InputStream.nullInputStream())
             .build();
 
@@ -1434,8 +1437,10 @@ public class EditItemRestRepositoryIT extends AbstractControllerIntegrationTest 
         String tokenAdmin = getAuthToken(admin.getEmail(), password);
 
         List<Operation> operations = new ArrayList<Operation>();
+        operations.add(new RemoveOperation("/sections/titleAndIssuedDate/dc.date.issued"));
         operations.add(new AddOperation("/sections/titleAndIssuedDate/dc.title", of(Map.of("value", "My Title"))));
 
+        // we should be unable to change the title removing the date
         getClient(tokenAdmin).perform(patch("/api/core/edititems/" + editItem.getID() + ":FIRST")
             .content(getPatchContent(operations))
             .contentType(MediaType.APPLICATION_JSON_PATCH_JSON))
@@ -1445,11 +1450,100 @@ public class EditItemRestRepositoryIT extends AbstractControllerIntegrationTest 
                 hasJsonPath("paths", contains("/sections/titleAndIssuedDate/dc.date.issued"))))));
 
         operations.add(new AddOperation("/sections/titleAndIssuedDate/dc.date.issued", of(Map.of("value", "2022"))));
-
+        // this should succeed now as we are also providing a new date
         getClient(tokenAdmin).perform(patch("/api/core/edititems/" + editItem.getID() + ":FIRST")
             .content(getPatchContent(operations))
             .contentType(MediaType.APPLICATION_JSON_PATCH_JSON))
             .andExpect(status().isOk());
+    }
+
+    @Test
+    public void testPatchItemWithExistingValidationErrors() throws Exception {
+        context.turnOffAuthorisationSystem();
+
+        parentCommunity = CommunityBuilder.createCommunity(context)
+                .withName("Parent Community")
+                .build();
+
+        Collection collection = CollectionBuilder.createCollection(context, parentCommunity)
+                .withEntityType("Publication")
+                .withSubmissionDefinition("traditional-cris")
+                .withName("Collection 1")
+                .build();
+
+        // the item below miss the mandatory dc.title and dc.date.issued
+        Item itemA = ItemBuilder.createItem(context, collection)
+                .withAuthor("Wayne, Bruce")
+                .grantLicense()
+                .build();
+        // this one miss the mandatory dc.date.issued
+        Item itemB = ItemBuilder.createItem(context, collection)
+                .withTitle("At least the title...")
+                .withAuthor("Wayne, Bruce")
+                .grantLicense()
+                .build();
+
+        EditItem editItemA = new EditItem(context, itemA);
+        EditItem editItemB = new EditItem(context, itemB);
+
+        context.restoreAuthSystemState();
+
+        String tokenAdmin = getAuthToken(admin.getEmail(), password);
+
+        List<Map<String, String>> titleValues = new ArrayList<>();
+        Map<String, String> titleMap = new HashMap<>();
+        List<Map<String, String>> publisherValues = new ArrayList<>();
+        Map<String, String> publisherMap = new HashMap<>();
+        titleMap.put("value", "A title");
+        titleValues.add(titleMap);
+        publisherMap.put("value", "A publisher");
+        publisherValues.add(publisherMap);
+        List<Operation> listOpA = new ArrayList<>();
+        listOpA.add(new AddOperation("/sections/traditionalpageone-cris/dc.title", titleValues));
+        listOpA.add(new AddOperation("/sections/traditionalpageone-cris/dc.publisher", publisherValues));
+
+        List<Operation> listOpB = new ArrayList<>();
+        listOpB.add(new RemoveOperation("/sections/traditionalpageone-cris/dc.title"));
+        listOpB.add(new AddOperation("/sections/traditionalpageone-cris/dc.publisher", publisherValues));
+
+        String patchBodyA = getPatchContent(listOpA);
+        getClient(tokenAdmin).perform(patch("/api/core/edititems/" + editItemA.getID() + ":MODE1")
+                        .content(patchBodyA)
+                        .contentType(MediaType.APPLICATION_JSON_PATCH_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.sections.traditionalpageone-cris['dc.title'][0].value",
+                        is("A title")))
+                .andExpect(jsonPath("$.sections.traditionalpageone-cris['dc.publisher'][0].value",
+                        is("A publisher")))
+                .andExpect(jsonPath("$.errors[0].message", is("error.validation.required")))
+                .andExpect(jsonPath("$.errors[0].paths[0]", is("/sections/traditionalpageone-cris/dc.date.issued")));
+
+        getClient(tokenAdmin).perform(get("/api/core/edititems/" + editItemA.getID() + ":MODE1"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.sections.traditionalpageone-cris['dc.title'][0].value", is("A title")))
+            .andExpect(jsonPath("$.sections.traditionalpageone-cris['dc.publisher'][0].value", is("A publisher")))
+            .andExpect(jsonPath("$.errors[0].message", is("error.validation.required")))
+            .andExpect(jsonPath("$.errors[0].paths[0]", is("/sections/traditionalpageone-cris/dc.date.issued")));
+
+        // the list of operation B makes the item worst, so we expect a 422 response and the json should
+        // describe the errors according to the new state of the item attempted to be generated by the requested
+        String patchBodyB = getPatchContent(listOpB);
+        getClient(tokenAdmin).perform(patch("/api/core/edititems/" + editItemB.getID() + ":MODE1")
+                        .content(patchBodyB)
+                        .contentType(MediaType.APPLICATION_JSON_PATCH_JSON))
+                .andExpect(status().isUnprocessableEntity())
+                .andExpect(jsonPath("$.[0].message", is("error.validation.required")))
+                .andExpect(jsonPath("$.[0].paths[0]", is("/sections/traditionalpageone-cris/dc.title")))
+                .andExpect(jsonPath("$.[0].paths[1]", is("/sections/traditionalpageone-cris/dc.date.issued")));
+        // as the request has been rejected, the state should not be persisted
+        getClient(tokenAdmin).perform(get("/api/core/edititems/" + editItemB.getID() + ":MODE1"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.sections.traditionalpageone-cris['dc.title'][0].value",
+                    is("At least the title...")))
+            .andExpect(jsonPath("$.sections.traditionalpageone-cris['dc.publisher']").doesNotExist())
+            .andExpect(jsonPath("$.errors[0].message", is("error.validation.required")))
+            .andExpect(jsonPath("$.errors[0].paths[0]", is("/sections/traditionalpageone-cris/dc.date.issued")));
+
     }
 
     @Test
@@ -1949,6 +2043,126 @@ public class EditItemRestRepositoryIT extends AbstractControllerIntegrationTest 
             .andExpect(jsonPath("$.errors", hasSize(1)))
             .andExpect(jsonPath("$.errors[0].message", is("error.validation.required")))
             .andExpect(jsonPath("$.errors[0].paths", contains("/sections/test-outside-workflow-hidden/dc.title")));
+    }
+
+    @Test
+    public void testPatchWithValidationErrors3213() throws Exception {
+        context.turnOffAuthorisationSystem();
+
+        parentCommunity = CommunityBuilder.createCommunity(context)
+                .withName("Parent Community")
+                .build();
+
+        Collection collection = CollectionBuilder.createCollection(context, parentCommunity)
+                .withEntityType("Funding")
+                .withSubmissionDefinition("modeA")
+                .withName("Collection 1")
+                .build();
+
+        Collection orgunitCollection = CollectionBuilder.createCollection(context, parentCommunity)
+                .withName("Collection 1")
+                .withEntityType("OrgUnit")
+                .withSubmissionDefinition("orgunit")
+                .build();
+
+        Item itemA = ItemBuilder.createItem(context, collection)
+                .withTitle("Title item")
+                .withIssueDate("2015-06-25")
+                .withAuthor("Wayne, Bruce")
+                .grantLicense()
+                .build();
+
+        Item orgUnit = ItemBuilder.createItem(context, orgunitCollection)
+                .withTitle("OrgUnit")
+                .withIssueDate("1957")
+                .grantLicense()
+                .build();
+
+        EditItem editItem = new EditItem(context, itemA);
+
+        context.restoreAuthSystemState();
+
+        String tokenAdmin = getAuthToken(admin.getEmail(), password);
+
+        List<Operation> list = new ArrayList<>();
+        List<Map<String, String>> funderValues = new ArrayList<>();
+        Map<String, String> funderValuesMap = new HashMap<>();
+        List<Map<String, String>> currencyValues = new ArrayList<>();
+        Map<String, String> currencyMap = new HashMap<>();
+        List<Map<String, String>> amountValues = new ArrayList<>();
+        Map<String, String> amountMap = new HashMap<>();
+        funderValuesMap.put("value", "OrgUnit");
+        funderValuesMap.put("authority", orgUnit.getID().toString());
+        funderValues.add(funderValuesMap);
+        currencyMap.put("value", "Euro");
+        currencyValues.add(currencyMap);
+        amountMap.put("value", "12312");
+        amountValues.add(amountMap);
+        list.add(new AddOperation("/sections/funding/oairecerif.funder", funderValues));
+        list.add(new AddOperation("/sections/funding/oairecerif.amount.currency", currencyValues));
+        list.add(new AddOperation("/sections/funding/oairecerif.amount", amountValues));
+
+        String patchBody = getPatchContent(list);
+        getClient(tokenAdmin).perform(patch("/api/core/edititems/" + editItem.getID() + ":FIRST")
+                        .content(patchBody)
+                        .contentType(MediaType.APPLICATION_JSON_PATCH_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.sections.funding['oairecerif.funder'][0].value",
+                        is("OrgUnit")))
+                .andExpect(jsonPath("$.sections.funding['oairecerif.funder'][0].authority",
+                        is(orgUnit.getID().toString())))
+                .andExpect(jsonPath("$.sections.funding['oairecerif.amount.currency'][0].value",
+                        is("Euro")))
+                .andExpect(jsonPath("$.sections.funding['oairecerif.amount'][0].value",
+                        is("12312")));
+    }
+
+    @Test
+    @Ignore("see DSC-1787")
+    public void testPatchWithValidationErrors32() throws Exception {
+        context.turnOffAuthorisationSystem();
+
+        parentCommunity = CommunityBuilder.createCommunity(context)
+                .withName("Parent Community")
+                .build();
+
+        Collection collection = CollectionBuilder.createCollection(context, parentCommunity)
+                .withEntityType("Funding")
+                .withSubmissionDefinition("modeA")
+                .withName("Collection 1")
+                .build();
+
+        Item itemA = ItemBuilder.createItem(context, collection)
+                .withIssueDate("2015-06-25")
+                .withAuthor("Wayne, Bruce")
+                .grantLicense()
+                .build();
+
+        EditItem editItem = new EditItem(context, itemA);
+
+        context.restoreAuthSystemState();
+
+        String tokenAdmin = getAuthToken(admin.getEmail(), password);
+
+        List<Operation> list = new ArrayList<>();
+        List<Map<String, String>> currencyValues = new ArrayList<>();
+        Map<String, String> currencyMap = new HashMap<>();
+        List<Map<String, String>> amountValues = new ArrayList<>();
+        Map<String, String> amountMap = new HashMap<>();
+        currencyMap.put("value", "Euro");
+        currencyValues.add(currencyMap);
+        amountMap.put("value", "12312");
+        amountValues.add(amountMap);
+        list.add(new AddOperation("/sections/funding/oairecerif.amount.currency", currencyValues));
+        list.add(new AddOperation("/sections/funding/oairecerif.amount", amountValues));
+
+        String patchBody = getPatchContent(list);
+        getClient(tokenAdmin).perform(patch("/api/core/edititems/" + editItem.getID() + ":FIRST")
+                        .content(patchBody)
+                        .contentType(MediaType.APPLICATION_JSON_PATCH_JSON))
+                .andExpect(status().isUnprocessableEntity())
+                .andExpect(jsonPath("$.[0].message", is("error.validation.required")))
+                .andExpect(jsonPath("$.[0].paths[0]", is("/sections/funding/dc.title")));
     }
 
     private Bitstream getBitstream(Item item, String name) throws SQLException {

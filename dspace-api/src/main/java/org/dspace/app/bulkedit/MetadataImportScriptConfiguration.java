@@ -9,22 +9,30 @@ package org.dspace.app.bulkedit;
 
 import java.io.InputStream;
 import java.sql.SQLException;
+import java.util.List;
 
 import org.apache.commons.cli.Options;
-import org.dspace.authorize.service.AuthorizeService;
 import org.dspace.core.Context;
+import org.dspace.scripts.DSpaceCommandLineParameter;
 import org.dspace.scripts.configuration.ScriptConfiguration;
-import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * The {@link ScriptConfiguration} for the {@link MetadataImport} script
  */
 public class MetadataImportScriptConfiguration<T extends MetadataImport> extends ScriptConfiguration<T> {
 
-    @Autowired
-    private AuthorizeService authorizeService;
-
     private Class<T> dspaceRunnableClass;
+
+    @Override
+    public boolean isAllowedToExecute(Context context, List<DSpaceCommandLineParameter> commandLineParameters) {
+        try {
+            return authorizeService.isAdmin(context) || authorizeService.isComColAdmin(context) ||
+                authorizeService.isItemAdmin(context);
+        } catch (SQLException e) {
+            throw new RuntimeException(
+                "SQLException occurred when checking if the current user is eligible to run the script", e);
+        }
+    }
 
     @Override
     public Class<T> getDspaceRunnableClass() {
@@ -38,15 +46,6 @@ public class MetadataImportScriptConfiguration<T extends MetadataImport> extends
     @Override
     public void setDspaceRunnableClass(Class<T> dspaceRunnableClass) {
         this.dspaceRunnableClass = dspaceRunnableClass;
-    }
-
-    @Override
-    public boolean isAllowedToExecute(Context context) {
-        try {
-            return authorizeService.isAdmin(context);
-        } catch (SQLException e) {
-            throw new RuntimeException("SQLException occurred when checking if the current user is an admin", e);
-        }
     }
 
     @Override

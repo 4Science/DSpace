@@ -15,6 +15,7 @@ import static org.dspace.content.authority.Choices.CF_ACCEPTED;
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.SQLException;
+import java.time.Period;
 import java.util.Date;
 import java.util.UUID;
 
@@ -79,6 +80,17 @@ public class ItemBuilder extends AbstractDSpaceObjectBuilder<Item> {
         return setMetadataSingleValue(item, MetadataSchemaEnum.DC.getName(), "title", null, title);
     }
 
+    public ItemBuilder withFondParent(final String title, final UUID authority) {
+        return addMetadataValue(item, "glamfonds", "parent", null, null, title, authority.toString(), CF_ACCEPTED);
+    }
+
+    public ItemBuilder withJournalFondParent(final String title, final UUID authority) {
+        return addMetadataValue(
+            item, "glamjournalfonds", "parent", null,
+            null, title, authority.toString(), CF_ACCEPTED
+        );
+    }
+
     public ItemBuilder withAlternativeTitle(final String title) {
         return addMetadataValue(item, MetadataSchemaEnum.DC.getName(), "title", "alternative", title);
     }
@@ -92,8 +104,25 @@ public class ItemBuilder extends AbstractDSpaceObjectBuilder<Item> {
                 "date", "issued", new DCDate(issueDate).toString());
     }
 
+    public ItemBuilder withDateAvailable(final String dateAvailable) {
+        return addMetadataValue(item, MetadataSchemaEnum.DC.getName(),
+                "date", "available", new DCDate(dateAvailable).toString());
+    }
+
     public ItemBuilder withIdentifierOther(final String identifierOther) {
         return addMetadataValue(item, MetadataSchemaEnum.DC.getName(), "identifier", "other", identifierOther);
+    }
+
+    public ItemBuilder withIdentifierDoi(final String identifierDoi) {
+        return addMetadataValue(item, MetadataSchemaEnum.DC.getName(), "identifier", "doi", identifierDoi);
+    }
+
+    public ItemBuilder withIdentifierArxiv(final String identifierArxiv) {
+        return addMetadataValue(item, MetadataSchemaEnum.DC.getName(), "identifier", "arxiv", identifierArxiv);
+    }
+
+    public ItemBuilder withIdentifierPmid(final String identifierPmid) {
+        return addMetadataValue(item, MetadataSchemaEnum.DC.getName(), "identifier", "pmid", identifierPmid);
     }
 
     public ItemBuilder withAuthor(final String authorName) {
@@ -115,6 +144,10 @@ public class ItemBuilder extends AbstractDSpaceObjectBuilder<Item> {
 
     public ItemBuilder withAuthorAffiliation(String affiliation) {
         return addMetadataValue(item, "oairecerif", "author", "affiliation", affiliation);
+    }
+
+    public ItemBuilder withAuthorAffiliation(String affiliation, String authority) {
+        return addMetadataValue(item, "oairecerif", "author", "affiliation", null, affiliation, authority, 600);
     }
 
     public ItemBuilder withAuthorAffiliationForLanguage(String affiliation, String language) {
@@ -189,6 +222,10 @@ public class ItemBuilder extends AbstractDSpaceObjectBuilder<Item> {
         return addMetadataValue(item, "dspace", "iiif", "enabled", "true");
     }
 
+    public ItemBuilder enableRendering() {
+        return addMetadataValue(item, "viewer", "mirador", "download", "alternative");
+    }
+
     public ItemBuilder disableIIIF() {
         return addMetadataValue(item, "dspace", "iiif", "enabled", "false");
     }
@@ -211,6 +248,10 @@ public class ItemBuilder extends AbstractDSpaceObjectBuilder<Item> {
 
     public ItemBuilder withIIIFCanvasHeight(int i) {
         return addMetadataValue(item, "iiif", "image", "height", String.valueOf(i));
+    }
+
+    public ItemBuilder withDSpaceObjectOwner(String name, String authority) {
+        return addMetadataValue(item, "dspace", "object", "owner", null, name, authority, 600);
     }
 
     public ItemBuilder withMetadata(final String schema, final String element, final String qualifier,
@@ -477,6 +518,10 @@ public class ItemBuilder extends AbstractDSpaceObjectBuilder<Item> {
         return addMetadataValue(item, "dc", "publisher", null, publisher);
     }
 
+    public ItemBuilder withPublisher(String publisher, String authority) {
+        return addMetadataValue(item, "dc", "publisher", null, null, publisher, authority, 600);
+    }
+
     public ItemBuilder withRelationPublication(String publication) {
         return addMetadataValue(item, "dc", "relation", "publication", publication);
     }
@@ -520,6 +565,15 @@ public class ItemBuilder extends AbstractDSpaceObjectBuilder<Item> {
     public ItemBuilder withRelationEquipment(String equipment, String authority) {
         return addMetadataValue(item, "dc", "relation", "equipment", null, equipment, authority, 600);
     }
+
+    public ItemBuilder withRelationFonds(String fondsTitle, String authority) {
+        return addMetadataValue(item, "dc", "relation", "fonds", null, fondsTitle, authority, 600);
+    }
+
+    public ItemBuilder withRelationJournalFonds(String fondsTitle, String authority) {
+        return addMetadataValue(item, "dc", "relation", "journalfonds", null, fondsTitle, authority, 600);
+    }
+
 
     public ItemBuilder withVolume(String volume) {
         return addMetadataValue(item, "oaire", "citation", "volume", volume);
@@ -591,6 +645,22 @@ public class ItemBuilder extends AbstractDSpaceObjectBuilder<Item> {
 
     public ItemBuilder withOrcidSynchronizationFundingsPreference(String value) {
         return setMetadataSingleValue(item, "dspace", "orcid", "sync-fundings", value);
+    }
+
+    public ItemBuilder withOrcidSynchronizationProductsPreference(OrcidEntitySyncPreference value) {
+        return withOrcidSynchronizationProductsPreference(value.name());
+    }
+
+    public ItemBuilder withOrcidSynchronizationProductsPreference(String value) {
+        return setMetadataSingleValue(item, "dspace", "orcid", "sync-products", value);
+    }
+
+    public ItemBuilder withOrcidSynchronizationPatentsPreference(OrcidEntitySyncPreference value) {
+        return withOrcidSynchronizationPatentsPreference(value.name());
+    }
+
+    public ItemBuilder withOrcidSynchronizationPatentsPreference(String value) {
+        return setMetadataSingleValue(item, "dspace", "orcid", "sync-patents", value);
     }
 
     public ItemBuilder withOrcidSynchronizationProfilePreference(OrcidProfileSyncPreference value) {
@@ -794,7 +864,13 @@ public class ItemBuilder extends AbstractDSpaceObjectBuilder<Item> {
         return this;
     }
 
-    public ItemBuilder withEmbargoPeriod(String embargoPeriod) {
+    /**
+     * Set an embargo to end after some time from "now".
+     *
+     * @param embargoPeriod embargo starting "now", for this long.
+     * @return the ItemBuilder.
+     */
+    public ItemBuilder withEmbargoPeriod(Period embargoPeriod) {
         return setEmbargo(embargoPeriod, item);
     }
 
@@ -817,6 +893,10 @@ public class ItemBuilder extends AbstractDSpaceObjectBuilder<Item> {
 
     public ItemBuilder withOrgUnitCrossrefIdentifier(String crossrefid) {
         return addMetadataValue(item, "organization", "identifier", "crossrefid", crossrefid);
+    }
+
+    public ItemBuilder withOrgUnitRORIdentifier(String ror) {
+        return addMetadataValue(item, "organization", "identifier", "ror", ror);
     }
 
     public ItemBuilder withProjectStartDate(String startDate) {
@@ -848,9 +928,9 @@ public class ItemBuilder extends AbstractDSpaceObjectBuilder<Item> {
     }
 
     /**
-     * Create an admin group for the collection with the specified members
+     * Assign the admin permission to the specified eperson
      *
-     * @param ePerson eperson to add to the admin group
+     * @param ePerson the eperson that will get the ADMIN permission on the item
      * @return this builder
      * @throws SQLException
      * @throws AuthorizeException
@@ -885,6 +965,18 @@ public class ItemBuilder extends AbstractDSpaceObjectBuilder<Item> {
 
     public ItemBuilder withPersonEmail(String email) {
         return addMetadataValue(item, "person", "email", null, email);
+    }
+
+    public ItemBuilder withJournalAnce(String ance) {
+        return addMetadataValue(item, "miur", "journal", "ance", ance);
+    }
+
+    public ItemBuilder withDataCiteRights(String rights) {
+        return addMetadataValue(item, "datacite", "rights", null, rights);
+    }
+
+    public ItemBuilder withDataCiteAvailable(String available) {
+        return addMetadataValue(item, "datacite", "available", null, available);
     }
 
     @Override

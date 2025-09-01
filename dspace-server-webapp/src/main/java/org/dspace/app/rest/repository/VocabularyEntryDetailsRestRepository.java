@@ -42,7 +42,7 @@ import org.springframework.stereotype.Component;
  *
  * @author Andrea Bollini (andrea.bollini at 4science.it)
  */
-@Component(VocabularyRest.CATEGORY + "." + VocabularyEntryDetailsRest.NAME)
+@Component(VocabularyRest.CATEGORY + "." + VocabularyEntryDetailsRest.PLURAL_NAME)
 public class VocabularyEntryDetailsRestRepository extends DSpaceRestRepository<VocabularyEntryDetailsRest, String>
         implements InitializingBean {
 
@@ -86,7 +86,7 @@ public class VocabularyEntryDetailsRestRepository extends DSpaceRestRepository<V
             fix = true;
         }
         VocabularyEntryDetailsRest entryDetails = authorityUtils.convertEntryDetails(fix, choice, vocabularyName,
-                source.isHierarchical(), utils.obtainProjection());
+                source.isHierarchical(), source.storeAuthorityInMetadata(), utils.obtainProjection());
         //FIXME hack to deal with an improper use on the angular side of the node id (otherinformation.id) to
         // build a vocabulary entry details ID
         if (dspaceOrItemControlledVocabulary(source) && !StringUtils.startsWith(vocabularyId, vocabularyName)
@@ -115,7 +115,7 @@ public class VocabularyEntryDetailsRestRepository extends DSpaceRestRepository<V
             }
             for (Choice value : choices.values) {
                 results.add(authorityUtils.convertEntryDetails(fix, value, vocabularyId, source.isHierarchical(),
-                        utils.obtainProjection()));
+                        source.storeAuthorityInMetadata(), utils.obtainProjection()));
             }
             Page<VocabularyEntryDetailsRest> resources = new PageImpl<VocabularyEntryDetailsRest>(results, pageable,
                     choices.total);

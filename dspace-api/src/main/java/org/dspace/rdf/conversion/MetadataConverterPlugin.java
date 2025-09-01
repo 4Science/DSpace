@@ -15,17 +15,17 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import com.hp.hpl.jena.rdf.model.InfModel;
-import com.hp.hpl.jena.rdf.model.Model;
-import com.hp.hpl.jena.rdf.model.ModelFactory;
-import com.hp.hpl.jena.rdf.model.ResIterator;
-import com.hp.hpl.jena.reasoner.Reasoner;
-import com.hp.hpl.jena.reasoner.ReasonerRegistry;
-import com.hp.hpl.jena.reasoner.ValidityReport;
-import com.hp.hpl.jena.util.FileManager;
-import com.hp.hpl.jena.util.FileUtils;
-import com.hp.hpl.jena.vocabulary.RDF;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.jena.rdf.model.InfModel;
+import org.apache.jena.rdf.model.Model;
+import org.apache.jena.rdf.model.ModelFactory;
+import org.apache.jena.rdf.model.ResIterator;
+import org.apache.jena.reasoner.Reasoner;
+import org.apache.jena.reasoner.ReasonerRegistry;
+import org.apache.jena.reasoner.ValidityReport;
+import org.apache.jena.util.FileManager;
+import org.apache.jena.util.FileUtils;
+import org.apache.jena.vocabulary.RDF;
 import org.apache.logging.log4j.Logger;
 import org.dspace.app.util.factory.UtilServiceFactory;
 import org.dspace.authorize.AuthorizeException;
@@ -136,6 +136,10 @@ public class MetadataConverterPlugin implements ConverterPlugin {
         List<MetadataValue> metadata_values = dsoService
             .getMetadata(dso, MetadataSchemaEnum.DC.getName(), Item.ANY, Item.ANY, Item.ANY);
         for (MetadataValue value : metadata_values) {
+            // skip empty values
+            if (value == null || StringUtils.isBlank(value.getValue())) {
+                continue;
+            }
             MetadataField metadataField = value.getMetadataField();
             MetadataSchema metadataSchema = metadataField.getMetadataSchema();
             String fieldname = metadataSchema.getName() + "." + metadataField.getElement();

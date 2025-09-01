@@ -10,8 +10,8 @@ package org.dspace.app.rest.submit.step;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import javax.servlet.http.HttpServletRequest;
 
+import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.Logger;
 import org.dspace.app.rest.exception.UnprocessableEntityException;
@@ -32,8 +32,10 @@ import org.dspace.app.util.SubmissionStepConfig;
 import org.dspace.app.util.TypeBindUtils;
 import org.dspace.content.InProgressSubmission;
 import org.dspace.content.MetadataValue;
+import org.dspace.content.RelationshipMetadataService;
 import org.dspace.content.authority.factory.ContentAuthorityServiceFactory;
 import org.dspace.content.authority.service.MetadataAuthorityService;
+import org.dspace.content.factory.ContentServiceFactory;
 import org.dspace.core.Context;
 import org.dspace.core.Utils;
 import org.dspace.services.ConfigurationService;
@@ -59,6 +61,9 @@ public class DescribeStep extends AbstractProcessingStep {
     private final MetadataAuthorityService metadataAuthorityService = ContentAuthorityServiceFactory
             .getInstance()
             .getMetadataAuthorityService();
+
+    private RelationshipMetadataService relationshipMetadataService =
+        ContentServiceFactory.getInstance().getRelationshipMetadataService();
 
     public DescribeStep() throws DCInputsReaderException {
         inputReader = DCInputsReaderFactory.getDCInputsReader();
@@ -95,13 +100,16 @@ public class DescribeStep extends AbstractProcessingStep {
                     }
                 } else if (StringUtils.equalsIgnoreCase(input.getInputType(), "group") ||
                         StringUtils.equalsIgnoreCase(input.getInputType(), "inline-group")) {
-                    log.info("Called child form:" + config.getId() + "-" +
+                    log.debug("Called child form:" + config.getId() + "-" +
                              Utils.standardize(input.getSchema(), input.getElement(), input.getQualifier(), "-"));
                     DCInputSet inputConfigChild = inputReader.getInputsByFormName(config.getId() + "-" + Utils
                         .standardize(input.getSchema(), input.getElement(), input.getQualifier(), "-"));
                     readField(obj, config, data, inputConfigChild);
                 } else {
-                    fieldsName.add(input.getFieldName());
+                    String fieldName = input.getFieldName();
+                    if (fieldName != null) {
+                        fieldsName.add(fieldName);
+                    }
                 }
 
 
@@ -183,10 +191,6 @@ public class DescribeStep extends AbstractProcessingStep {
         }
     }
 
-    private boolean isFromVocabulary(DCInput dcInput) {
-        return StringUtils.isNotBlank(dcInput.getVocabulary());
-    }
-
     private List<String> getInputFieldsName(DCInputSet inputConfig, String configId) throws DCInputsReaderException {
         List<String> fieldsName = new ArrayList<String>();
         for (DCInput[] row : inputConfig.getFields()) {
@@ -197,7 +201,7 @@ public class DescribeStep extends AbstractProcessingStep {
                     }
                 } else if (StringUtils.equalsIgnoreCase(input.getInputType(), "group") ||
                         StringUtils.equalsIgnoreCase(input.getInputType(), "inline-group")) {
-                    log.info("Called child form:" + configId + "-" +
+                    log.debug("Called child form:" + configId + "-" +
                         Utils.standardize(input.getSchema(), input.getElement(), input.getQualifier(), "-"));
                     DCInputSet inputConfigChild = inputReader.getInputsByFormName(configId + "-" + Utils
                         .standardize(input.getSchema(), input.getElement(), input.getQualifier(), "-"));
@@ -210,4 +214,3 @@ public class DescribeStep extends AbstractProcessingStep {
         return fieldsName;
     }
 }
-

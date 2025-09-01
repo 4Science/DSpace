@@ -15,7 +15,6 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import javax.el.MethodNotFoundException;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -90,7 +89,7 @@ public class DataCiteImportMetadataSourceServiceIT extends AbstractLiveImportInt
         }
     }
 
-    @Test(expected = MethodNotFoundException.class)
+    @Test(expected = UnsupportedOperationException.class)
     public void dataCiteImportMetadataFindMatchingRecordsTest() throws Exception {
         context.turnOffAuthorisationSystem();
         parentCommunity = CommunityBuilder.createCommunity(context)
@@ -146,4 +145,23 @@ public class DataCiteImportMetadataSourceServiceIT extends AbstractLiveImportInt
         return records;
     }
 
+    @Test
+    public void dataCiteImportMetadataNoResultsTest() throws Exception {
+        context.turnOffAuthorisationSystem();
+        CloseableHttpClient originalHttpClient = liveImportClientImpl.getHttpClient();
+        CloseableHttpClient httpClient = Mockito.mock(CloseableHttpClient.class);
+        try (InputStream dataciteResp = getClass().getResourceAsStream("dataCite-noResults.json")) {
+            String dataciteTextResp = IOUtils.toString(dataciteResp, Charset.defaultCharset());
+            liveImportClientImpl.setHttpClient(httpClient);
+            CloseableHttpResponse response = mockResponse(dataciteTextResp, 200, "OK");
+            when(httpClient.execute(ArgumentMatchers.any())).thenReturn(response);
+            context.restoreAuthSystemState();
+            int tot = dataCiteServiceImpl.getRecordsCount("nocontent");
+            assertEquals(0, tot);
+            Collection<ImportRecord> importRecords  = dataCiteServiceImpl.getRecords("nocontent", 0 , -1);
+            assertEquals(0, importRecords.size());
+        } finally {
+            liveImportClientImpl.setHttpClient(originalHttpClient);
+        }
+    }
 }

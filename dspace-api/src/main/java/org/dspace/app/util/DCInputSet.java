@@ -103,9 +103,9 @@ public class DCInputSet {
      * @return true if the current set has all the prev. published fields
      */
     public boolean isDefinedPubBefore() {
-        return (isFieldPresent("dc.date.issued") &&
+        return isFieldPresent("dc.date.issued") &&
             isFieldPresent("dc.identifier.citation") &&
-            isFieldPresent("dc.publisher"));
+            isFieldPresent("dc.publisher");
     }
 
     /**
@@ -145,6 +145,9 @@ public class DCInputSet {
                     } catch (DCInputsReaderException e) {
                         log.error(e.getMessage(), e);
                     }
+                } else if (field.isRelationshipField() &&
+                    ("relation." + field.getRelationshipType()).equals(fieldName)) {
+                    return Optional.of(field);
                 } else {
                     String fullName = field.getFieldName();
                     if (fullName.equals(fieldName)) {

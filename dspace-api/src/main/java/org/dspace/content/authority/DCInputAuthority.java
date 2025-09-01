@@ -48,6 +48,8 @@ import org.dspace.core.SelfNamedPlugin;
  * fields.
  */
 public class DCInputAuthority extends SelfNamedPlugin implements ChoiceAuthority {
+    public static final String UNKNOWN_KEY = "UNKNOWN KEY ";
+
     private static Logger log = org.apache.logging.log4j.LogManager.getLogger(DCInputAuthority.class);
 
     /**
@@ -92,7 +94,7 @@ public class DCInputAuthority extends SelfNamedPlugin implements ChoiceAuthority
             initPluginNames();
         }
 
-        return (String[]) ArrayUtils.clone(pluginNames);
+        return ArrayUtils.clone(pluginNames);
     }
 
     private static synchronized void initPluginNames() {
@@ -161,8 +163,8 @@ public class DCInputAuthority extends SelfNamedPlugin implements ChoiceAuthority
         int found = 0;
         List<Choice> v = new ArrayList<Choice>();
         for (int i = 0; i < valuesLocale.length; ++i) {
-            if (query == null || StringUtils.containsIgnoreCase(valuesLocale[i], query) ||
-                    StringUtils.containsIgnoreCase(labelsLocale[i], query)) {
+            // In a DCInputAuthority context, a user will want to query the labels, not the values
+            if (query == null || StringUtils.containsIgnoreCase(labelsLocale[i], query)) {
                 if (found >= start && v.size() < limit) {
                     v.add(new Choice(null, valuesLocale[i], labelsLocale[i]));
                     if (valuesLocale[i].equalsIgnoreCase(query)) {
@@ -173,7 +175,7 @@ public class DCInputAuthority extends SelfNamedPlugin implements ChoiceAuthority
             }
         }
         Choice[] vArray = new Choice[v.size()];
-        return new Choices(v.toArray(vArray), start, found, Choices.CF_AMBIGUOUS, false, dflt);
+        return new Choices(v.toArray(vArray), start, found, Choices.CF_UNSET, false, dflt);
     }
 
     @Override
@@ -185,8 +187,8 @@ public class DCInputAuthority extends SelfNamedPlugin implements ChoiceAuthority
         for (int i = 0; i < valuesLocale.length; ++i) {
             if (text.equalsIgnoreCase(valuesLocale[i])) {
                 Choice v[] = new Choice[1];
-                v[0] = new Choice(String.valueOf(i), valuesLocale[i], labelsLocale[i]);
-                return new Choices(v, 0, v.length, Choices.CF_UNCERTAIN, false, 0);
+                v[0] = new Choice(null, valuesLocale[i], labelsLocale[i]);
+                return new Choices(v, 0, v.length, Choices.CF_UNSET, false, 0);
             }
         }
         return new Choices(Choices.CF_NOTFOUND);
@@ -205,17 +207,17 @@ public class DCInputAuthority extends SelfNamedPlugin implements ChoiceAuthority
         String[] labelsLocale = labels.get(locale);
         int pos = -1;
         // search in the values to return the label
-        for (int i = 0; i < valuesLocale.length; i++) {
+        for (int i = 0; valuesLocale != null && i < valuesLocale.length; i++) {
             if (valuesLocale[i].equals(key)) {
                 pos = i;
                 break;
             }
         }
-        if (pos != -1) {
+        if (pos != -1 && labelsLocale != null) {
             // return the label in the same position where we found the value
             return labelsLocale[pos];
         } else {
-            return "UNKNOWN KEY " + key;
+            return UNKNOWN_KEY + key;
         }
     }
 

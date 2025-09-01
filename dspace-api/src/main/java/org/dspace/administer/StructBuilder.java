@@ -9,6 +9,7 @@ package org.dspace.administer;
 
 import static org.dspace.content.Item.ANY;
 import static org.dspace.content.MetadataSchemaEnum.CRIS;
+import static org.dspace.content.authority.Choices.CF_UNSET;
 import static org.dspace.content.service.DSpaceObjectService.MD_COPYRIGHT_TEXT;
 import static org.dspace.content.service.DSpaceObjectService.MD_INTRODUCTORY_TEXT;
 import static org.dspace.content.service.DSpaceObjectService.MD_LICENSE;
@@ -29,7 +30,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 import javax.xml.xpath.XPath;
@@ -45,16 +45,19 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.lang3.StringUtils;
+import org.dspace.app.util.XMLUtils;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.content.Collection;
 import org.dspace.content.Community;
 import org.dspace.content.Item;
+import org.dspace.content.MetadataField;
 import org.dspace.content.MetadataFieldName;
 import org.dspace.content.MetadataSchemaEnum;
 import org.dspace.content.MetadataValue;
 import org.dspace.content.factory.ContentServiceFactory;
 import org.dspace.content.service.CollectionService;
 import org.dspace.content.service.CommunityService;
+import org.dspace.content.service.ItemService;
 import org.dspace.core.Context;
 import org.dspace.core.CrisConstants;
 import org.dspace.eperson.factory.EPersonServiceFactory;
@@ -122,7 +125,8 @@ public class StructBuilder {
             = EPersonServiceFactory.getInstance().getEPersonService();
     protected static final HandleService handleService
             = HandleServiceFactory.getInstance().getHandleService();
-
+    protected static final ItemService itemService
+        = ContentServiceFactory.getInstance().getItemService();
     /**
      * Default constructor
      */
@@ -407,6 +411,9 @@ public class StructBuilder {
         Element element = new Element("collection");
         element.setAttribute("identifier", collection.getHandle());
         element.addContent(new Element("name").setText(collection.getName()));
+
+        buildTemplateItem(collection, element);
+
         element.addContent(new Element("description")
                 .setText(collectionService.getMetadataFirstValue(collection,
                         MetadataSchemaEnum.DC.getName(), "description", "abstract", Item.ANY)));
@@ -642,8 +649,8 @@ public class StructBuilder {
      */
     private static org.w3c.dom.Document loadXML(InputStream input)
         throws IOException, ParserConfigurationException, SAXException {
-        DocumentBuilder builder = DocumentBuilderFactory.newInstance()
-                                                        .newDocumentBuilder();
+        // This builder factory does not disable external DTD, entities, etc.
+        DocumentBuilder builder = XMLUtils.getTrustedDocumentBuilder();
 
         org.w3c.dom.Document document = builder.parse(input);
 
@@ -831,7 +838,9 @@ public class StructBuilder {
 
             // default the short description to the empty string
             collectionService.setMetadataSingleValue(context, collection,
-                    MD_SHORT_DESCRIPTION, Item.ANY, " ");
+                    MD_SHORT_DESCRIPTION, null, " ");
+
+            handleTemplateItem(context, collection, tn);
 
             // import the rest of the metadata
             for (Map.Entry<String, MetadataFieldName> entry : collectionMap.entrySet()) {
@@ -853,6 +862,8 @@ public class StructBuilder {
             element.addContent(nameElement);
 
             String fieldValue;
+
+            buildTemplateItem(collection, element);
 
             fieldValue = collectionService.getMetadataFirstValue(collection,
                     CollectionService.MD_SHORT_DESCRIPTION, Item.ANY);
@@ -930,4 +941,93 @@ public class StructBuilder {
 
         return elements;
     }
+
+    private static void handleTemplateItem(Context context, Collection collection, Node tn)
+        throws XPathExpressionException, SQLException, AuthorizeException {
+
+        XPath xPath = XPathFactory.newInstance().newXPath();
+        Node node = (Node) xPath.compile("templateItem").evaluate(tn, XPathConstants.NODE);
+
+        if (node == null) {
+            return;
+        }
+
+        Item templateItem = itemService.createTemplateItem(context, collection);
+
+        NodeList metadataNodes = (NodeList) xPath.compile("metadata").evaluate(node, XPathConstants.NODESET);
+
+        for (int i = 0; i < metadataNodes.getLength(); i++) {
+            Node metadataNode = metadataNodes.item(i);
+            MetadataFieldName metadataFieldName = buildMetadataFieldName(metadataNode);
+
+            Node valueAttribute = (Node) xPath.compile("value").evaluate(metadataNode, XPathConstants.NODE);
+            Node authorityAttribute = (Node) xPath.compile("authority").evaluate(metadataNode, XPathConstants.NODE);
+            Node confidenceAttribute = (Node) xPath.compile("confidence").evaluate(metadataNode, XPathConstants.NODE);
+
+            String authority = null;
+            int confidence = CF_UNSET;
+
+            if (authorityAttribute != null) {
+                authority = authorityAttribute.getTextContent();
+                confidence = confidenceAttribute != null ? Integer.parseInt(confidenceAttribute.getTextContent()) : 600;
+            }
+
+            itemService.addMetadata(context, templateItem, metadataFieldName.schema, metadataFieldName.element,
+                metadataFieldName.qualifier, ANY, valueAttribute.getTextContent(), authority, confidence);
+            itemService.update(context, templateItem);
+        }
+    }
+
+    private static MetadataFieldName buildMetadataFieldName(Node node) {
+        Node schemaAttribute = node.getAttributes().getNamedItem("schema");
+        Node elementAttribute = node.getAttributes().getNamedItem("element");
+        Node qualifierAttribute = node.getAttributes().getNamedItem("qualifier");
+
+        if (qualifierAttribute == null) {
+            return new MetadataFieldName(schemaAttribute.getTextContent(), elementAttribute.getTextContent());
+        } else {
+            return new MetadataFieldName(schemaAttribute.getTextContent(),
+                elementAttribute.getTextContent(), qualifierAttribute.getTextContent());
+        }
+    }
+
+    private static void buildTemplateItem(Collection collection, Element element) {
+
+        try {
+            Item templateItem = collection.getTemplateItem();
+
+            if (templateItem == null) {
+                return;
+            }
+
+            Element templateItemElement = new Element("templateItem");
+
+            for (MetadataValue metadataValue : templateItem.getMetadata()) {
+                MetadataField metadataField = metadataValue.getMetadataField();
+                Element metadata = new Element("metadata");
+                metadata.setAttribute("schema", metadataField.getMetadataSchema().getName());
+                metadata.setAttribute("element", metadataField.getElement());
+
+                if (metadataField.getQualifier() != null) {
+                    metadata.setAttribute("qualifier", metadataField.getQualifier());
+                }
+
+                metadata.addContent(new Element("value").setText(metadataValue.getValue()));
+
+                if (metadataValue.getAuthority() != null) {
+                    metadata.addContent(new Element("authority").setText(metadataValue.getAuthority()));
+                    metadata.addContent(new Element("confidence").setText(
+                        String.valueOf(metadataValue.getConfidence())
+                    ));
+                }
+
+                templateItemElement.addContent(metadata);
+            }
+
+            element.addContent(templateItemElement);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
 }

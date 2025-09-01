@@ -13,6 +13,7 @@ import java.util.UUID;
 
 import org.apache.logging.log4j.Logger;
 import org.apache.solr.client.solrj.SolrServerException;
+import org.dspace.content.Item;
 import org.dspace.content.service.ItemService;
 import org.dspace.core.Context;
 import org.dspace.external.model.ExternalDataObject;
@@ -130,6 +131,7 @@ public abstract class SolrSuggestionProvider implements SuggestionProvider {
 
     /**
      *
+     * check if the externalDataObject may have suggestion
      * @param context
      * @param externalDataObject
      * @return true if the externalDataObject could be suggested by this provider
@@ -137,4 +139,31 @@ public abstract class SolrSuggestionProvider implements SuggestionProvider {
      */
     protected abstract boolean isExternalDataObjectPotentiallySuggested(Context context,
             ExternalDataObject externalDataObject);
+
+    /**
+     * Save a List of ImportRecord into Solr.
+     * ImportRecord will be translate into a SolrDocument by the method translateImportRecordToSolrDocument.
+     *
+     * @param context the DSpace Context
+     * @param item a DSpace Item
+     * @throws SolrServerException
+     * @throws IOException
+     */
+    public abstract void importRecords(Context context, Item item, String additionalQuery) throws Exception;
+
+    /**
+     * Save a List of ImportRecord into Solr.
+     * ImportRecord will be translate into a SolrDocument by the method translateImportRecordToSolrDocument.
+     *
+     * @param context the DSpace Context
+     * @param query the query to be run
+     * @throws SolrServerException
+     * @throws IOException
+     */
+    public abstract void importRecords(Context context, String query) throws Exception;
+
+    public boolean isSupportingQuery() {
+        return false;
+    }
+
 }

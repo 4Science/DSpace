@@ -24,7 +24,7 @@ import org.springframework.stereotype.Component;
  * 
  * @author Mykhaylo Boychuk (mykhaylo.boychuk at 4science.it)
  */
-@Component(CrisMetricsRest.CATEGORY + "." + CrisMetricsRest.NAME)
+@Component(CrisMetricsRest.CATEGORY + "." + CrisMetricsRest.NAME_PLURAL)
 public class CrisMetricsRestRepository extends DSpaceRestRepository<CrisMetricsRest, String> {
 
     @Autowired

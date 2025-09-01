@@ -11,6 +11,7 @@ import static org.dspace.content.authority.DSpaceControlledVocabulary.ID_SPLITTE
 
 import java.sql.SQLException;
 import java.text.MessageFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -33,6 +34,7 @@ import org.dspace.discovery.DiscoverQuery;
 import org.dspace.discovery.DiscoverResult;
 import org.dspace.discovery.SearchService;
 import org.dspace.discovery.SearchUtils;
+import org.dspace.discovery.configuration.DiscoverySortFieldConfiguration;
 import org.dspace.services.factory.DSpaceServicesFactory;
 import org.dspace.utils.DSpace;
 import org.dspace.web.ContextUtil;
@@ -41,29 +43,25 @@ import org.dspace.web.ContextUtil;
  * @author Jurgen Mamani
  */
 public class ItemControlledVocabularyService extends SelfNamedPlugin
-        implements HierarchicalAuthority {
+    implements HierarchicalAuthority {
 
     private static final Logger log = LogManager.getLogger(ItemControlledVocabularyService.class);
-
-    protected static String[] pluginNames = null;
-
     private static final String CONFIG_PREFIX = "item.controlled.vocabularies";
-
+    private static final boolean ENABLED_CACHE = DSpaceServicesFactory.getInstance().getConfigurationService()
+                                                                      .getBooleanProperty(
+                                                                          CONFIG_PREFIX + ".enable.cache");
+    private static final Map<UUID, Boolean> ITEM_CHILDREN_CACHE = new HashMap<>();
+    protected static String[] pluginNames = null;
     private final ItemControlledVocabularyFactory itemControlledVocabularyFactory =
         new DSpace().getServiceManager().getServiceByName(
             "itemControlledVocabularyFactory", ItemControlledVocabularyFactory.class);
-
     private final SearchService searchService = SearchUtils.getSearchService();
-
     private final ItemService itemService = ContentServiceFactory.getInstance().getItemService();
-
-    private static Map<UUID, Boolean> ITEM_CHILDREN_CACHE = new HashMap<>();
-
-    private ItemAuthorityServiceFactory itemAuthorityServiceFactory = new DSpace().getServiceManager()
-            .getServiceByName("itemAuthorityServiceFactory", ItemAuthorityServiceFactory.class);
-
-    private static final boolean ENABLED_CACHE = DSpaceServicesFactory.getInstance().getConfigurationService()
-        .getBooleanProperty(CONFIG_PREFIX + ".enable.cache");
+    private final ItemAuthorityServiceFactory itemAuthorityServiceFactory = new DSpace()
+        .getServiceManager()
+        .getServiceByName(
+            "itemAuthorityServiceFactory",
+            ItemAuthorityServiceFactory.class);
 
     public ItemControlledVocabularyService() {
         super();
@@ -80,7 +78,7 @@ public class ItemControlledVocabularyService extends SelfNamedPlugin
     private static synchronized void initPluginNames() {
         if (pluginNames == null) {
             pluginNames = DSpaceServicesFactory.getInstance().getConfigurationService()
-                    .getArrayProperty(CONFIG_PREFIX);
+                                               .getArrayProperty(CONFIG_PREFIX);
             log.info("Got plugin names = " + Arrays.deepToString(pluginNames));
         }
     }
@@ -96,9 +94,15 @@ public class ItemControlledVocabularyService extends SelfNamedPlugin
         discoverQuery.setMaxResults(limit);
         discoverQuery.setQuery(controlledVocabulary.getParentQuery());
 
-        if (! StringUtils.isEmpty(controlledVocabulary.getSortFieldAndOrder())) {
-            String sortAndOrder[] = controlledVocabulary.getSortFieldAndOrder().split(" ");
-            discoverQuery.setSortField(sortAndOrder[0], DiscoverQuery.SORT_ORDER.valueOf(sortAndOrder[1]));
+        if (controlledVocabulary.getSortFields() != null && !controlledVocabulary.getSortFields().isEmpty()) {
+            for (DiscoverySortFieldConfiguration sortConfig : controlledVocabulary.getSortFields()) {
+
+                discoverQuery.addSortField(
+                    searchService.toSortFieldIndex(sortConfig.getMetadataField(), sortConfig.getType()),
+                    DiscoverySortFieldConfiguration.SORT_ORDER.asc.equals(sortConfig.getDefaultSortOrder().asc) ?
+                        DiscoverQuery.SORT_ORDER.asc : DiscoverQuery.SORT_ORDER.desc
+                );
+            }
         }
 
         try {
@@ -134,9 +138,15 @@ public class ItemControlledVocabularyService extends SelfNamedPlugin
         discoverQuery.setStart(start);
         discoverQuery.setMaxResults(limit);
 
-        if (! StringUtils.isEmpty(controlledVocabulary.getSortFieldAndOrder())) {
-            String sortAndOrder[] = controlledVocabulary.getSortFieldAndOrder().split(" ");
-            discoverQuery.setSortField(sortAndOrder[0], DiscoverQuery.SORT_ORDER.valueOf(sortAndOrder[1]));
+        if (controlledVocabulary.getSortFields() != null && !controlledVocabulary.getSortFields().isEmpty()) {
+            for (DiscoverySortFieldConfiguration sortConfig : controlledVocabulary.getSortFields()) {
+
+                discoverQuery.addSortField(searchService.toSortFieldIndex(
+                                               sortConfig.getMetadataField(), sortConfig.getType()),
+                                           DiscoverySortFieldConfiguration.SORT_ORDER.asc.equals(
+                                               sortConfig.getDefaultSortOrder().asc) ?
+                                               DiscoverQuery.SORT_ORDER.asc : DiscoverQuery.SORT_ORDER.desc);
+            }
         }
 
         String childrenQuery = MessageFormat.format(controlledVocabulary.getChildrenQuery(), parentId);
@@ -172,15 +182,17 @@ public class ItemControlledVocabularyService extends SelfNamedPlugin
         }
         try {
             Item self = itemService.find(ContextUtil.obtainCurrentRequestContext(),
-                                           UUID.fromString(vocabularyId));
+                                         UUID.fromString(vocabularyId));
             MetadataValue parentMtd = itemService
-                    .getMetadataByMetadataString(self, controlledVocabulary.getParentMetadata())
-                    .stream().findFirst().orElse(null);
+                .getMetadataByMetadataString(self, controlledVocabulary.getParentMetadata())
+                .stream().findFirst().orElse(null);
 
             if (parentMtd != null) {
                 Item parentItem = itemService.find(ContextUtil.obtainCurrentRequestContext(),
-                                 UUID.fromString(parentMtd.getAuthority()));
-                return getChoiceFromItem(authorityName, controlledVocabulary, parentItem);
+                                                   UUID.fromString(parentMtd.getAuthority()));
+                if (parentItem != null) {
+                    return getChoiceFromItem(authorityName, controlledVocabulary, parentItem);
+                }
             }
         } catch (SQLException e) {
             log.warn(e.getMessage(), e);
@@ -197,19 +209,23 @@ public class ItemControlledVocabularyService extends SelfNamedPlugin
     private List<Choice> getChoicesFromResult(String authorityName, ItemControlledVocabulary controlledVocabulary,
                                               DiscoverResult result) {
         return result.getIndexableObjects().stream()
-            .filter(i -> i.getIndexedObject() instanceof Item)
-            .map(i -> {
-                Item item = (Item) i.getIndexedObject();
-                return getChoiceFromItem(authorityName, controlledVocabulary, item);
-            }).collect(Collectors.toList());
+                     .filter(i -> i.getIndexedObject() instanceof Item)
+                     .map(i -> {
+                         Item item = (Item) i.getIndexedObject();
+                         return getChoiceFromItem(authorityName, controlledVocabulary, item);
+                     }).collect(Collectors.toList());
     }
 
     private Choice getChoiceFromItem(String authorityName, ItemControlledVocabulary controlledVocabulary,
                                      Item item) {
         Choice choice = new Choice();
 
-        String labelMeta = getValueFromMetadata(item, controlledVocabulary.getLabelMetadata());
-        choice.value = labelMeta;
+        String labelMeta = getValueFromMetadataList(item, controlledVocabulary.getLabelMetadata());
+        String storedMeta = labelMeta;
+        if (controlledVocabulary.getStoredMetadata() != null) {
+            storedMeta = getValueFromMetadataList(item, controlledVocabulary.getStoredMetadata());
+        }
+        choice.value = storedMeta;
         choice.label = labelMeta;
         choice.extras = controlledVocabulary.getExtraValuesMapper().buildExtraValues(item);
 
@@ -224,12 +240,14 @@ public class ItemControlledVocabularyService extends SelfNamedPlugin
 
         try {
             MetadataValue parentMtd = itemService
-                    .getMetadataByMetadataString(item, controlledVocabulary.getParentMetadata())
-                    .stream().findFirst().orElse(null);
+                .getMetadataByMetadataString(item, controlledVocabulary.getParentMetadata())
+                .stream().findFirst().orElse(null);
             if (parentMtd != null) {
                 Item parentItem = itemService.find(ContextUtil.obtainCurrentRequestContext(),
-                                 UUID.fromString(parentMtd.getAuthority()));
-                choice.extras.put("parent", parentItem.getID().toString());
+                                                   UUID.fromString(parentMtd.getAuthority()));
+                if (parentItem != null) {
+                    choice.extras.put("parent", parentItem.getID().toString());
+                }
             }
         } catch (SQLException e) {
             log.warn(e.getMessage(), e);
@@ -243,6 +261,17 @@ public class ItemControlledVocabularyService extends SelfNamedPlugin
     private String getValueFromMetadata(Item item, String metadata) {
         String mtd = itemService.getMetadata(item, metadata);
         return mtd == null ? "" : mtd;
+    }
+
+    private String getValueFromMetadataList(Item item, List<String> metadataList) {
+        List<String> value = new ArrayList<>();
+        for (String mtd : metadataList) {
+            String mtdValue = getValueFromMetadata(item, mtd);
+            if (!mtdValue.isEmpty()) {
+                value.add(mtdValue);
+            }
+        }
+        return value.isEmpty() ? "" : String.join(" - ", value);
     }
 
     private boolean hasChildren(Item item) {
@@ -291,7 +320,7 @@ public class ItemControlledVocabularyService extends SelfNamedPlugin
     @Override
     public Choices getMatches(String text, int start, int limit, String locale) {
         ItemControlledVocabulary itemControlledVocabulary =
-                itemControlledVocabularyFactory.getInstance(this.getPluginInstanceName());
+            itemControlledVocabularyFactory.getInstance(this.getPluginInstanceName());
 
         DiscoverQuery discoverQuery = new DiscoverQuery();
 
@@ -313,7 +342,7 @@ public class ItemControlledVocabularyService extends SelfNamedPlugin
                 List<Choice> choices = getChoicesFromResult(itemControlledVocabulary, result);
 
                 return new Choices(choices.toArray(new Choice[choices.size()]), start, total, Choices.CF_AMBIGUOUS,
-                        total > start + limit);
+                                   total > start + limit);
             }
         } catch (Exception e) {
             log.error(e.getMessage(), e);
@@ -356,9 +385,9 @@ public class ItemControlledVocabularyService extends SelfNamedPlugin
             Item item = itemService
                 .find(ContextUtil.obtainCurrentRequestContext(), UUID.fromString(authKey));
             return getChoiceFromItem(
-                    super.getPluginInstanceName(),
-                    itemControlledVocabulary,
-                    item
+                super.getPluginInstanceName(),
+                itemControlledVocabulary,
+                item
             );
         } catch (Exception e) {
             log.warn(e);
@@ -370,14 +399,14 @@ public class ItemControlledVocabularyService extends SelfNamedPlugin
     @Override
     public boolean storeAuthorityInMetadata() {
         return DSpaceServicesFactory.getInstance().getConfigurationService()
-                .getBooleanProperty("item.controlled.vocabularies."
-                        + this.getPluginInstanceName()
-                        + ".store-authority-in-metadata", true);
+                                    .getBooleanProperty("item.controlled.vocabularies."
+                                                            + this.getPluginInstanceName()
+                                                            + ".store-authority-in-metadata", true);
     }
 
     public String getSolrQuery(String searchTerm) {
         ItemControlledVocabulary itemControlledVocabulary =
-                itemControlledVocabularyFactory.getInstance(this.getPluginInstanceName());
+            itemControlledVocabularyFactory.getInstance(this.getPluginInstanceName());
         String entityType = itemControlledVocabulary.getEntityType();
         return itemAuthorityServiceFactory.getInstance(entityType).getSolrQuery(searchTerm);
     }

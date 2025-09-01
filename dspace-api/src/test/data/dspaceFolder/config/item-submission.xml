@@ -26,6 +26,13 @@
         <name-map collection-handle="123456789/qualdrop-test" submission-name="qualdroptest"/>
         <name-map collection-handle="123456789/typebind-test" submission-name="typebindtest"/>
         <name-map collection-handle="123456789/accessCondition-not-discoverable" submission-name="accessConditionNotDiscoverable"/>
+        <name-map collection-handle="123456789/test-hidden" submission-name="test-hidden"/>
+        <name-map community-handle="123456789/topcommunity-test" submission-name="topcommunitytest"/>
+        <name-map community-handle="123456789/subcommunity-test" submission-name="subcommunitytest"/>
+        <name-map collection-handle="123456789/collection-test" submission-name="collectiontest"/>
+        <name-map collection-entity-type="CustomEntityType" submission-name="entitytypetest"/>
+        <name-map collection-handle="123456789/test-duplicate-detection" submission-name="test-duplicate-detection"/>
+        <name-map collection-handle="123456789/collection-test-patch" submission-name="publicationTestPatch"/>
     </submission-map>
 
 
@@ -100,7 +107,7 @@
             <type>utils</type>
             <scope visibility="hidden" visibilityOutside="hidden">submission</scope>
         </step-definition>
-        
+
         <step-definition id="qualdroptest">
             <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
             <type>submission-form</type>
@@ -115,7 +122,7 @@
             <processing-class>org.dspace.app.rest.submit.step.AccessConditionStep</processing-class>
             <type>accessCondition</type>
         </step-definition>
-        
+
         <step-definition id="notDiscoverable">
             <heading>submit.progressbar.accessCondition</heading>
             <processing-class>org.dspace.app.rest.submit.step.AccessConditionStep</processing-class>
@@ -146,7 +153,7 @@
             <type>detect-duplicate</type>
         </step-definition>
 
-        <step-definition id="extractionstep"> 
+        <step-definition id="extractionstep">
             <heading>submit.progressbar.ExtractMetadataStep</heading>
             <processing-class>org.dspace.app.rest.submit.step.ExtractMetadataStep</processing-class>
             <type>extract</type>
@@ -214,7 +221,7 @@
             <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
             <type>submission-form</type>
         </step-definition>
-        
+
         <step-definition id="sherpaPolicies" mandatory="true">
             <heading>submit.progressbar.sherpapolicy</heading>
             <processing-class>org.dspace.app.rest.submit.step.SherpaPolicyStep</processing-class>
@@ -231,8 +238,8 @@
             <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
             <type>submission-form</type>
         </step-definition>
-        
-        <step-definition id="custom-url" mandatory="false"> 
+
+        <step-definition id="custom-url" mandatory="false">
             <heading>submit.progressbar.CustomUrlStep</heading>
             <processing-class>org.dspace.app.rest.submit.step.CustomUrlStep</processing-class>
             <type>custom-url</type>
@@ -296,6 +303,39 @@
             <scope visibility="hidden" visibilityOutside="hidden">submission</scope>
         </step-definition>
 
+        <step-definition id="green" mandatory="true">
+            <heading>submit.progressbar.describe.green</heading>
+            <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
+            <type>submission-form</type>
+        </step-definition>
+        <step-definition id="orange" mandatory="true">
+            <heading>submit.progressbar.describe.green</heading>
+            <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
+            <type>submission-form</type>
+        </step-definition>
+        <step-definition id="funding" mandatory="true">
+            <heading>submit.progressbar.describe.funding</heading>
+            <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
+            <type>submission-form</type>
+        </step-definition>
+
+        <!-- Detect duplicates step -->
+        <step-definition id="duplicates">
+            <heading>submit.progressbar.duplicates</heading>
+            <processing-class>org.dspace.app.rest.submit.step.DuplicateDetectionStep</processing-class>
+            <type>duplicates</type>
+        </step-definition>
+
+        <step-definition id="coarnotify">
+            <heading>submit.progressbar.coarnotify</heading>
+            <processing-class>org.dspace.app.rest.submit.step.NotifyStep</processing-class>
+            <type>coarnotify</type>
+        </step-definition>
+        <step-definition id="upload-no-required-metadata" mandatory="true">
+            <heading>submit.progressbar.upload-no-required-metadata</heading>
+            <processing-class>org.dspace.app.rest.submit.step.UploadStep</processing-class>
+            <type>upload</type>
+        </step-definition>
     </step-definitions>
 
     <!-- The submission-definitions map lays out the detailed definition of -->
@@ -329,6 +369,9 @@
             <step id="traditionalpageone"/>
             <step id="traditionalpagetwo"/>
 
+            <!--Step will be COAR Notify services to the item -->
+            <step id="coarnotify"/>
+
             <!--Step will be to Upload the item -->
             <step id="upload"/>
             <!-- <step id="upload-with-embargo"/> -->
@@ -341,11 +384,11 @@
             <step id="license"/>
             <step id="cclicense"/>
         </submission-process>
-        
+
         <submission-process name="traditional-with-custom-url">
             <step id="collection"/>
             <step id="extraction" />
-            <step id="traditionalpageone"/>"
+            <step id="traditionalpageone"/>
             <step id="traditionalpagetwo"/>
             <step id="custom-url"/>
         </submission-process>
@@ -353,15 +396,16 @@
         <submission-process name="traditional-with-unpaywall">
             <step id="collection"/>
             <step id="extraction" />
-            <step id="traditionalpageone"/>"
+            <step id="traditionalpageone"/>
             <step id="traditionalpagetwo"/>
             <step id="unpaywall"/>
+            <step id="upload"/>
         </submission-process>
 
         <submission-process name="traditional-with-correction">
             <step id="collection"/>
             <step id="extraction" />
-            <step id="traditionalpageone"/>"
+            <step id="traditionalpageone"/>
             <step id="traditionalpagetwo"/>
             <step id="correction"/>
             <step id="license"/>
@@ -401,17 +445,17 @@
             <!-- <step id="verify"/> -->
         </submission-process>
 
-	    <submission-process name="publication">
-	      <step id="collection" />
-	      <step id="extraction" />
-	      <step id="publication" />
-	      <step id="publication_indexing" />
-	      <step id="publication_bibliographic_details" />
-	      <step id="publication_references" />
-	      <step id="detect-duplicate"/>
-	      <step id="upload" />
-	      <step id="license" />
-	    </submission-process>
+        <submission-process name="publication">
+            <step id="collection" />
+            <step id="extraction" />
+            <step id="publication" />
+            <step id="publication_indexing" />
+            <step id="publication_bibliographic_details" />
+            <step id="publication_references" />
+            <step id="detect-duplicate"/>
+            <step id="upload" />
+            <step id="license" />
+        </submission-process>
 
         <!-- patent, used by some collection like 123456789/1001 -->
         <submission-process name="patent">
@@ -422,25 +466,28 @@
             <step id="upload" />
             <step id="license" />
         </submission-process>
-	    <submission-process name="person">
-	      <step id="collection" />
-	      <step id="person" />
-	      <step id="detect-duplicate" />
-	      <step id="upload" />
-	      <step id="license" />
-	    </submission-process>
+
+        <submission-process name="person">
+            <step id="collection" />
+            <step id="person" />
+            <step id="detect-duplicate" />
+            <step id="upload" />
+            <step id="license" />
+        </submission-process>
 
         <submission-process name="languagetestprocess">
             <step id="collection"/>
             <step id="languagetest"/>
         </submission-process>
-        
+
         <submission-process name="modeA">
            <step id="titleAndIssuedDate"/>
         </submission-process>
+
         <submission-process name="modeB">
            <step id="onlyTitle"/>
         </submission-process>
+
         <submission-process name="modeC">
            <step id="collection" />
            <step id="onlyTitle"/>
@@ -452,15 +499,15 @@
             <step id="traditionalpageone"/>
             <step id="traditionalpagetwo"/>
             <step id="upload"/>
-            <step id="extractionstep"/>
+            <step id="extraction"/>
             <step id="license"/>
             <step id="cclicense"/>
         </submission-process>
-        
+
         <submission-process name="qualdroptest">
             <step id="qualdroptest" />
         </submission-process>
-        
+
         <submission-process name="typebindtest">
             <step id="typebindtest" />
         </submission-process>
@@ -484,6 +531,53 @@
             <step id="controlled-vocabulary-test"/>
         </submission-process>
 
+        <submission-process name="green">
+            <step id="extraction" />
+            <step id="green" />
+            <step id="upload" />
+        </submission-process>
+
+        <submission-process name="orange">
+            <step id="extraction" />
+            <step id="orange" />
+            <step id="upload" />
+        </submission-process>
+
+        <submission-process name="funding">
+            <step id="collection" />
+            <step id="funding" />
+            <step id="detect-duplicate" />
+            <step id="license" />
+        </submission-process>
+
+        <submission-process name="topcommunitytest">
+            <step id="collection"/>
+        </submission-process>
+
+        <submission-process name="subcommunitytest">
+            <step id="collection"/>
+        </submission-process>
+
+        <submission-process name="collectiontest">
+            <step id="collection"/>
+        </submission-process>
+
+        <submission-process name="entitytypetest">
+            <step id="collection"/>
+        </submission-process>
+
+        <submission-process name="test-duplicate-detection">
+            <step id="collection"/>
+            <step id="duplicates"/>
+            <step id="traditionalpageone"/>
+        </submission-process>
+
+        <submission-process name="publicationTestPatch">
+            <step id="collection" />
+            <step id="traditionalpageone" />
+            <step id="upload-no-required-metadata" />
+            <step id="license" />
+        </submission-process>
     </submission-definitions>
 
 </item-submission>

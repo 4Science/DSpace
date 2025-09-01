@@ -43,8 +43,8 @@ import org.dspace.app.deduplication.model.DuplicateDecisionValue;
 import org.dspace.app.deduplication.service.DedupService;
 import org.dspace.app.deduplication.service.SearchDeduplication;
 import org.dspace.app.deduplication.service.SolrDedupServiceIndexPlugin;
-import org.dspace.app.deduplication.utils.DedupUtils;
 import org.dspace.app.deduplication.utils.DuplicateItemInfo;
+import org.dspace.app.deduplication.utils.IDedupUtils;
 import org.dspace.app.deduplication.utils.Signature;
 import org.dspace.app.util.Util;
 import org.dspace.authorize.AuthorizeException;
@@ -174,7 +174,7 @@ public class SolrDedupServiceImpl implements DedupService {
     protected VersioningService versioningService;
 
     @Autowired(required = true)
-    protected DedupUtils dedupUtils;
+    protected IDedupUtils dedupUtils;
 
     /***
      * Deduplication status
@@ -225,7 +225,7 @@ public class SolrDedupServiceImpl implements DedupService {
         }
     }
 
-    protected SolrClient getSolr() {
+    public SolrClient getSolr() {
         if (solr == null) {
             String solrService = DSpaceServicesFactory.getInstance().getConfigurationService()
                     .getProperty("deduplication.search.server");
@@ -303,6 +303,22 @@ public class SolrDedupServiceImpl implements DedupService {
                 for (String signature : signatures) {
                     if (StringUtils.isNotEmpty(signature)) {
                         String key = algo.getSignatureType() + "_signature";
+                        if (tmpMapFilter.containsKey(key)) {
+                            List<String> obj = tmpMapFilter.get(key);
+                            obj.add(signature);
+                            tmpMapFilter.put(key, obj);
+                        } else {
+                            List<String> obj = new ArrayList<String>();
+                            obj.add(signature);
+                            tmpMapFilter.put(key, obj);
+                        }
+                    }
+                }
+
+                List<String> plainSignatures = algo.getPlainSignature(iu, ctx);
+                for (String signature : plainSignatures) {
+                    if (StringUtils.isNotEmpty(signature)) {
+                        String key = "plain_" + algo.getSignatureType() + "_signature";
                         if (tmpMapFilter.containsKey(key)) {
                             List<String> obj = tmpMapFilter.get(key);
                             obj.add(signature);
@@ -663,11 +679,11 @@ public class SolrDedupServiceImpl implements DedupService {
                 return;
             }
             long start = System.currentTimeMillis();
-            System.out.println("SOLR Search Optimize -- Process Started:" + start);
+            System.out.println("SOLR Dedup Optimize -- Process Started:" + start);
             getSolr().optimize();
             long finish = System.currentTimeMillis();
-            System.out.println("SOLR Search Optimize -- Process Finished:" + finish);
-            System.out.println("SOLR Search Optimize -- Total time taken:" + (finish - start) + " (ms).");
+            System.out.println("SOLR Dedup Optimize -- Process Finished:" + finish);
+            System.out.println("SOLR Dedup Optimize -- Total time taken:" + (finish - start) + " (ms).");
         } catch (SolrServerException sse) {
             System.err.println(sse.getMessage());
         } catch (IOException ioe) {
@@ -734,8 +750,8 @@ public class SolrDedupServiceImpl implements DedupService {
     private List<DuplicateItemInfo> findDuplicationWithDecisions(Context context, Item item) {
         try {
             return dedupUtils.getAdminDuplicateByIdAndType(context, item.getID(), item.getType()).stream()
-                .filter(duplication -> isNotEmpty(duplication.getDecisionTypes()))
-                .collect(Collectors.toList());
+                             .filter(duplication -> isNotEmpty(duplication.getDecisionTypes()))
+                             .collect(Collectors.toList());
         } catch (SQLException | SearchServiceException e) {
             throw new RuntimeException(e);
         }

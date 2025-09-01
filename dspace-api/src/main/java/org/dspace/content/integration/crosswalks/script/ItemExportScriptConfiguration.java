@@ -7,8 +7,11 @@
  */
 package org.dspace.content.integration.crosswalks.script;
 
+import java.util.List;
+
 import org.apache.commons.cli.Options;
 import org.dspace.core.Context;
+import org.dspace.scripts.DSpaceCommandLineParameter;
 import org.dspace.scripts.configuration.ScriptConfiguration;
 
 /**
@@ -23,7 +26,7 @@ public class ItemExportScriptConfiguration<T extends ItemExport> extends ScriptC
     private Class<T> dspaceRunnableClass;
 
     @Override
-    public boolean isAllowedToExecute(Context context) {
+    public boolean isAllowedToExecute(Context context, List<DSpaceCommandLineParameter> commandLineParameters) {
         return true;
     }
 

@@ -34,6 +34,7 @@ import org.dspace.core.Context;
 import org.dspace.core.exception.SQLRuntimeException;
 import org.dspace.services.ConfigurationService;
 import org.dspace.validation.model.ValidationError;
+import org.dspace.workflow.WorkflowItem;
 
 /**
  * Execute three validation check on fields validation: - mandatory metadata
@@ -100,12 +101,13 @@ public class MetadataValidator implements SubmissionStepValidator {
                         } else {
                             validateMetadataValues(obj.getCollection(), mdv, input, config, isAuthorityControlled,
                                 fieldKey, errors);
-                            if (mdv.size() > 0 && input.isVisible(DCInput.SUBMISSION_SCOPE)) {
+                            if (mdv.size() > 0 && (input.isVisible(DCInput.SUBMISSION_SCOPE) ||
+                                    input.isVisible(DCInput.WORKFLOW_SCOPE))) {
                                 foundResult = true;
                             }
                         }
                     }
-                    if (input.isRequired() && ! foundResult) {
+                    if (input.isRequired() && !foundResult) {
                         // for this required qualdrop no value was found, add to the list of error fields
                         addError(errors, ERROR_VALIDATION_REQUIRED,
                             "/" + OPERATION_PATH_SECTIONS + "/" + config.getId() + "/" +
@@ -113,7 +115,10 @@ public class MetadataValidator implements SubmissionStepValidator {
                     }
 
                 } else {
-                    fieldsName.add(input.getFieldName());
+                    String fieldName = input.getFieldName();
+                    if (fieldName != null) {
+                        fieldsName.add(fieldName);
+                    }
                 }
 
                 for (String fieldName : fieldsName) {
@@ -136,8 +141,10 @@ public class MetadataValidator implements SubmissionStepValidator {
                     }
                     validateMetadataValues(obj.getCollection(), mdv, input, config,
                         isAuthorityControlled, fieldKey, errors);
-                    if ((input.isRequired() && mdv.size() == 0) && input.isVisible(DCInput.SUBMISSION_SCOPE)
-                                                                && !valuesRemoved) {
+                    if ((input.isRequired() && mdv.size() == 0)
+                            && (input.isVisible(DCInput.SUBMISSION_SCOPE)
+                            || (obj instanceof WorkflowItem && input.isVisible(DCInput.WORKFLOW_SCOPE)))
+                            && !valuesRemoved) {
                         // Is the input required for *this* type? In other words, are we looking at a required
                         // input that is also allowed for this document type
                         if (input.isAllowedFor(documentType)) {

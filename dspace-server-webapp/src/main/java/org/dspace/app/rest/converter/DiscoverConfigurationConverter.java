@@ -8,13 +8,16 @@
 package org.dspace.app.rest.converter;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.dspace.app.rest.model.SearchConfigurationRest;
+import org.dspace.app.rest.model.SearchConfigurationRest.Filter.Operator;
 import org.dspace.app.rest.projection.Projection;
 import org.dspace.discovery.configuration.DiscoveryConfiguration;
+import org.dspace.discovery.configuration.DiscoveryConfigurationParameters;
 import org.dspace.discovery.configuration.DiscoverySearchFilter;
 import org.dspace.discovery.configuration.DiscoverySearchFilterFacet;
 import org.dspace.discovery.configuration.DiscoverySortConfiguration;
@@ -46,23 +49,38 @@ public class DiscoverConfigurationConverter
         return DiscoveryConfiguration.class;
     }
 
-    public void addSearchFilters(SearchConfigurationRest searchConfigurationRest,
-                                 List<DiscoverySearchFilter> searchFilterList,
-                                 List<DiscoverySearchFilterFacet> facetList) {
-        List<String> facetFieldNames = facetList.stream().map(DiscoverySearchFilterFacet::getIndexFieldName)
-                                                .collect(Collectors.toList());
-        for (DiscoverySearchFilter discoverySearchFilter : CollectionUtils.emptyIfNull(searchFilterList)) {
-            SearchConfigurationRest.Filter filter = new SearchConfigurationRest.Filter();
-            filter.setFilter(discoverySearchFilter.getIndexFieldName());
-            if (facetFieldNames.stream().anyMatch(str -> str.equals(discoverySearchFilter.getIndexFieldName()))) {
-                filter.setHasFacets(true);
-            }
-            filter.setType(discoverySearchFilter.getType());
-            filter.setOpenByDefault(discoverySearchFilter.isOpenByDefault());
+    public void addSearchFilters(
+        SearchConfigurationRest searchConfigurationRest,
+        List<DiscoverySearchFilter> searchFilterList,
+        List<DiscoverySearchFilterFacet> facetList
+    ) {
+        final Map<String, List<DiscoverySearchFilterFacet>> facetFieldMap =
+            facetList.stream()
+                .collect(
+                    Collectors.groupingBy(DiscoverySearchFilterFacet::getIndexFieldName)
+                );
+        CollectionUtils.emptyIfNull(searchFilterList)
+            .stream()
+            .map(discoverySearchFilter -> createFilter(facetFieldMap, discoverySearchFilter))
+            .forEach(searchConfigurationRest::addFilter);
+    }
+
+    protected SearchConfigurationRest.Filter createFilter(
+        final Map<String, List<DiscoverySearchFilterFacet>> facetFieldMap, DiscoverySearchFilter discoverySearchFilter
+    ) {
+        SearchConfigurationRest.Filter filter = new SearchConfigurationRest.Filter();
+        filter.setFilter(discoverySearchFilter.getIndexFieldName());
+        filter.setHasFacets(facetFieldMap.containsKey(discoverySearchFilter.getIndexFieldName()));
+        filter.setType(discoverySearchFilter.getType());
+        filter.setOpenByDefault(discoverySearchFilter.isOpenByDefault());
+        if (DiscoveryConfigurationParameters.TYPE_GEOMAP.equals(discoverySearchFilter.getType())) {
+            filter.addOperator(new Operator(SearchConfigurationRest.Filter.OPERATOR_POINT));
+            filter.addOperator(new Operator(SearchConfigurationRest.Filter.OPERATOR_POLYGON));
+        } else {
             filter.addDefaultOperatorsToList();
-            filter.setPageSize(discoverySearchFilter.getPageSize());
-            searchConfigurationRest.addFilter(filter);
         }
+        filter.setPageSize(discoverySearchFilter.getPageSize());
+        return filter;
     }
 
     private void addSortOptions(SearchConfigurationRest searchConfigurationRest,
@@ -79,6 +97,15 @@ public class DiscoverConfigurationConverter
                 sortOption.setActualName(discoverySearchSortConfiguration.getType());
                 sortOption.setSortOrder(discoverySearchSortConfiguration.getDefaultSortOrder().name());
                 searchConfigurationRest.addSortOption(sortOption);
+            }
+
+            DiscoverySortFieldConfiguration defaultSortField = searchSortConfiguration.getDefaultSortField();
+            if (defaultSortField != null) {
+                SearchConfigurationRest.SortOption sortOption = new SearchConfigurationRest.SortOption();
+                sortOption.setName(defaultSortField.getMetadataField());
+                sortOption.setActualName(defaultSortField.getType());
+                sortOption.setSortOrder(defaultSortField.getDefaultSortOrder().name());
+                searchConfigurationRest.setDefaultSortOption(sortOption);
             }
         }
 

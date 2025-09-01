@@ -11,9 +11,14 @@ import java.util.List;
 
 import org.dspace.content.DSpaceObject;
 import org.dspace.core.Context;
+import org.dspace.external.model.ExternalDataObject;
 
 public interface Signature {
     public List<String> getSignature(/* BrowsableDSpaceObject */DSpaceObject item, Context context);
+
+    public List<String> getPlainSignature(DSpaceObject item, Context context);
+
+    public List<String> getSignature(ExternalDataObject object);
 
     public int getResourceTypeID();
 

@@ -9,7 +9,6 @@ package org.dspace.app.rest.statistics;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 import org.apache.commons.lang3.StringUtils;
 import org.dspace.app.rest.model.UsageReportCategoryRest;
@@ -78,10 +77,11 @@ public class StatisticsReportsConfiguration {
     }
 
     public UsageReportGenerator getReportGenerator(DSpaceObject dso, String reportId) {
-        List<UsageReportCategoryRest> categories = getCategories(dso);
-        Optional<UsageReportCategoryRest> cat = categories.stream().filter(x -> x.getReports().containsKey(reportId))
-                .findFirst();
-        return cat.isPresent() ? cat.get().getReports().get(reportId) : null;
+        return getCategories(dso).stream()
+                                 .filter(x -> x.getReports().containsKey(reportId))
+                                 .findFirst()
+                                 .map(usageReportCategoryRest -> usageReportCategoryRest.getReports().get(reportId))
+                                 .orElse(null);
     }
 
     public UsageReportCategoryRest getCategory(String categoryId) {

@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
+import jakarta.ws.rs.NotAuthorizedException;
 import org.dspace.content.DCDate;
 import org.dspace.content.Item;
 import org.dspace.content.MetadataValue;
@@ -68,6 +69,9 @@ public class VersioningServiceImpl implements VersioningService {
     @Override
     public Version createNewVersion(Context c, Item item, String summary) {
         try {
+            if (!itemService.canCreateNewVersion(c, item)) {
+                throw new NotAuthorizedException("Current User is not allowed to create a new version of this item");
+            }
             VersionHistory vh = versionHistoryService.findByItem(c, item);
             if (vh == null) {
                 // first time: create 2 versions: old and new one
@@ -197,6 +201,9 @@ public class VersioningServiceImpl implements VersioningService {
     public Version createNewVersion(Context context, VersionHistory history, Item item, String summary, Date date,
                                     int versionNumber) {
         try {
+            if (!itemService.canCreateNewVersion(context, item)) {
+                throw new NotAuthorizedException("Current User is not allowed to create a new version of this item");
+            }
             Version version = versionDAO.create(context, new Version());
             if (versionNumber > 0 && !isVersionExist(context, item, versionNumber)) {
                 version.setVersionNumber(versionNumber);
@@ -222,8 +229,8 @@ public class VersioningServiceImpl implements VersioningService {
             return false;
         }
         return history.getVersions().stream().filter(v -> v.getVersionNumber() == versionNumber)
-                                    .findFirst()
-                                    .isPresent();
+                      .findFirst()
+                      .isPresent();
     }
 
     @Override
@@ -234,7 +241,7 @@ public class VersioningServiceImpl implements VersioningService {
 
     @Override
     public List<Version> getVersionsByHistoryWithItems(Context c, VersionHistory vh, int offset, int limit)
-           throws SQLException {
+        throws SQLException {
         return versionDAO.findVersionsWithItems(c, vh, offset, limit);
     }
 

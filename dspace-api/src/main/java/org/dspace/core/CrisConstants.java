@@ -21,10 +21,10 @@ public class CrisConstants {
      * same number than the parent leading metadata
      */
     public static final String PLACEHOLDER_PARENT_METADATA_VALUE = "#PLACEHOLDER_PARENT_METADATA_VALUE#";
-
+    public static final String DSPACE_BASE_VERSION = "DSpace 8.2";
     public static final MetadataFieldName MD_ENTITY_TYPE = new MetadataFieldName("dspace", "entity", "type");
     public static final MetadataFieldName MD_SUBMISSION_TYPE = new MetadataFieldName("cris", "submission",
-            "definition");
+                                                                                     "definition");
     public static final MetadataFieldName MD_WORKFLOW_NAME = new MetadataFieldName("cris", "workflow", "name");
     public static final MetadataFieldName MD_SHARED_WORKSPACE = new MetadataFieldName("cris", "workspace", "shared");
 

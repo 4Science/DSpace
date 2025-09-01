@@ -146,12 +146,14 @@ public class WorkspaceItemMatcher {
         if (witem != null) {
             return allOf(
                     hasJsonPath("$.id", is(witem.getID())),
-                    hasJsonPath("$.type", is("workspaceitem"))
+                    hasJsonPath("$.type", is("workspaceitem")),
+                    hasJsonPath("$.uniqueType", is("submission.workspaceitem"))
             );
         } else {
             return allOf(
                     hasJsonPath("$.id"),
-                    hasJsonPath("$.type", is("workspaceitem"))
+                    hasJsonPath("$.type", is("workspaceitem")),
+                    hasJsonPath("$.uniqueType", is("submission.workspaceitem"))
             );
         }
     }

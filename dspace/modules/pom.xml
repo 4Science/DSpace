@@ -1,7 +1,6 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>org.dspace</groupId>
     <artifactId>modules</artifactId>
     <packaging>pom</packaging>
 
@@ -11,7 +10,7 @@
     <parent>
         <groupId>org.dspace</groupId>
         <artifactId>dspace-parent</artifactId>
-        <version>cris-2023.01.01</version>
+        <version>cris-2024.02.02</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
@@ -27,6 +26,18 @@
         <module>additions</module>
     </modules>
 
+    <dependencyManagement>
+        <!-- Made provided in order to be excluded globally since conflicts with commons-logging -->
+        <dependencies>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-jcl</artifactId>
+                <version>[${spring.version},)</version>
+                <scope>provided</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
     <!--
          List of enabled DSpace "addon" / local customization Modules to build/install.
          To disable building of modules, you can use the Maven '-P' commandline
@@ -39,20 +50,6 @@
          compiling of the corresponding source module.
     -->
     <profiles>
-        <!-- As this old REST API module is deprecated, it only builds if you activate it via -Pdspace-rest -->
-        <profile>
-            <id>dspace-rest</id>
-            <activation>
-                <activeByDefault>false</activeByDefault>
-                <!-- Enable if we are doing a release (-Drelease), to tag/release this optional module -->
-                <property>
-                    <name>release</name>
-                </property>
-            </activation>
-            <modules>
-                <module>rest</module>
-            </modules>
-        </profile>
         <profile>
             <id>dspace-server-webapp</id>
             <activation>
@@ -62,6 +59,17 @@
             </activation>
             <modules>
                 <module>server</module>
+            </modules>
+        </profile>
+        <profile>
+            <id>dspace-server-webapp-boot</id>
+            <activation>
+                <file>
+                    <exists>server-boot/pom.xml</exists>
+                </file>
+            </activation>
+            <modules>
+                <module>server-boot</module>
             </modules>
         </profile>
     </profiles>

@@ -7,19 +7,28 @@
  */
 package org.dspace.core;
 
+import java.lang.reflect.Field;
 import java.sql.SQLException;
+import java.util.Arrays;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Stream;
-import javax.persistence.Query;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Expression;
-import javax.persistence.criteria.Root;
 
 import com.google.common.collect.AbstractIterator;
+import jakarta.persistence.Column;
+import jakarta.persistence.Id;
+import jakarta.persistence.Query;
+import jakarta.persistence.Tuple;
+import jakarta.persistence.TypedQuery;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Expression;
+import jakarta.persistence.criteria.Path;
+import jakarta.persistence.criteria.Root;
 import org.apache.commons.collections.CollectionUtils;
 import org.hibernate.Session;
 
@@ -95,8 +104,62 @@ public abstract class AbstractHibernateDAO<T> implements GenericDAO<T> {
         return result;
     }
 
+    public static List<Field> getAllFields(List<Field> fields, Class<?> type) {
+        fields.addAll(Arrays.asList(type.getDeclaredFields()));
+
+        if (type.getSuperclass() != null) {
+            getAllFields(fields, type.getSuperclass());
+        }
+
+        return fields;
+    }
+
+    @Override
+    public boolean exists(Context context, Class<T> clazz, UUID id) throws SQLException {
+        if (id == null) {
+            return false;
+        }
+        Optional<Field> optionalField =
+            getAllFields(new LinkedList<>(), clazz)
+                .stream()
+                .filter(field -> field.isAnnotationPresent(Id.class) && field.isAnnotationPresent(Column.class))
+                .findFirst();
+        if (optionalField.isEmpty()) {
+            return false;
+        }
+
+        Field idField = optionalField.get();
+        CriteriaBuilder criteriaBuilder = getCriteriaBuilder(context);
+        CriteriaQuery<Tuple> criteriaQuery = criteriaBuilder.createTupleQuery();
+
+        Root<T> root = criteriaQuery.from(clazz);
+        Path<?> idPath = root.get(idField.getName());
+        criteriaQuery.multiselect(idPath);
+        criteriaQuery.where(
+            criteriaBuilder.equal(
+                idPath,
+                id
+            )
+        );
+
+        TypedQuery<Tuple> query =
+            getHibernateSession(context).createQuery(criteriaQuery);
+        query.setMaxResults(1);
+        return !query.getResultList().isEmpty();
+    }
+
     @Override
     public T findByID(Context context, Class clazz, int id) throws SQLException {
+        @SuppressWarnings("unchecked")
+        T result = (T) getHibernateSession(context).get(clazz, id);
+        return result;
+    }
+
+    @Override
+    public T findByID(Context context, Class clazz, String id) throws SQLException {
+        if (id == null) {
+            return null;
+        }
         @SuppressWarnings("unchecked")
         T result = (T) getHibernateSession(context).get(clazz, id);
         return result;
@@ -303,7 +366,7 @@ public abstract class AbstractHibernateDAO<T> implements GenericDAO<T> {
         org.hibernate.query.Query hquery = query.unwrap(org.hibernate.query.Query.class);
         Stream<T> stream = hquery.stream();
         Iterator<T> iter = stream.iterator();
-        return new AbstractIterator<T> () {
+        return new AbstractIterator<T>() {
             @Override
             protected T computeNext() {
                 return iter.hasNext() ? iter.next() : endOfData();
@@ -459,6 +522,17 @@ public abstract class AbstractHibernateDAO<T> implements GenericDAO<T> {
             criteria.where(criteriaBuilder.equal(root.get(entry.getKey()), entry.getValue()));
         }
         return executeCriteriaQuery(context, criteria, cacheable, maxResults, offset);
+    }
+
+    /**
+     * Create a Query object from a CriteriaQuery
+     * @param context current Context
+     * @param criteriaQuery CriteriaQuery built via CriteriaBuilder
+     * @return corresponding Query
+     * @throws SQLException if error occurs
+     */
+    public Query createQuery(Context context, CriteriaQuery criteriaQuery) throws SQLException {
+        return this.getHibernateSession(context).createQuery(criteriaQuery);
     }
 
 }

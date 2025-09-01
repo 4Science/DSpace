@@ -7,6 +7,7 @@
  */
 package org.dspace.app.bulkimport.service;
 
+import static com.google.common.collect.Iterators.filter;
 import static com.google.common.collect.Iterators.transform;
 import static org.dspace.app.bulkedit.BulkImport.ACCESS_CONDITION_HEADER;
 import static org.dspace.app.bulkedit.BulkImport.ADDITIONAL_ACCESS_CONDITION_HEADER;
@@ -27,15 +28,16 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.function.BiConsumer;
+import java.util.logging.Level;
 import java.util.stream.Collectors;
-import javax.annotation.PostConstruct;
 
+import jakarta.annotation.PostConstruct;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -55,14 +57,18 @@ import org.dspace.content.dto.BitstreamDTO;
 import org.dspace.content.dto.ItemDTO;
 import org.dspace.content.dto.MetadataValueDTO;
 import org.dspace.content.dto.ResourcePolicyDTO;
+import org.dspace.content.integration.crosswalks.XlsCollectionCrosswalk;
 import org.dspace.content.service.CollectionService;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.core.CrisConstants;
 import org.dspace.core.exception.SQLRuntimeException;
+import org.dspace.scripts.handler.DSpaceRunnableHandler;
 import org.dspace.submit.model.AccessConditionOption;
 import org.dspace.submit.model.UploadConfiguration;
 import org.dspace.submit.model.UploadConfigurationService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.datetime.DateFormatter;
 
@@ -74,7 +80,7 @@ import org.springframework.format.datetime.DateFormatter;
  */
 public class BulkImportWorkbookBuilderImpl implements BulkImportWorkbookBuilder {
 
-    private static final Logger LOGGER = LogManager.getLogger(BulkImportWorkbookBuilderImpl.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(BulkImportWorkbookBuilderImpl.class);
 
     private static final DateFormatter DATE_FORMATTER = new DateFormatter("yyyy-MM-dd");
 
@@ -87,7 +93,11 @@ public class BulkImportWorkbookBuilderImpl implements BulkImportWorkbookBuilder 
     @Autowired
     private CollectionService collectionService;
 
+    @Autowired
+    private XlsCollectionCrosswalk xlsCollectionCrosswalk;
+
     private DCInputsReader reader;
+    private DSpaceRunnableHandler handler;
 
     @PostConstruct
     private void postConstruct() {
@@ -100,13 +110,22 @@ public class BulkImportWorkbookBuilderImpl implements BulkImportWorkbookBuilder 
 
     @Override
     public <T> Workbook build(Context ctx, Collection collection, Iterator<T> sources, ItemDTOConverter<T> converter) {
-        Iterator<ItemDTO> itemIterator = transform(sources, source -> converter.convert(ctx, source));
+        Iterator<ItemDTO> itemIterator =
+            filter(
+                transform(sources, source -> converter.convert(ctx, source)),
+                Objects::nonNull
+            );
         return build(ctx, collection, itemIterator);
     }
 
     @Override
-    public Workbook buildForItems(Context context, Collection collection, Iterator<Item> items) {
-        Iterator<ItemDTO> itemIterator = transform(items, item -> convertItem(context, collection, item));
+    public Workbook buildForItems(Context context, Collection collection, Iterator<Item> items,
+                                  BiConsumer<Level, String> logHandler) {
+        Iterator<ItemDTO> itemIterator =
+            filter(
+                transform(items, item -> convertItem(context, collection, item, logHandler)),
+                Objects::nonNull
+            );
         return build(context, collection, itemIterator);
     }
 
@@ -186,11 +205,13 @@ public class BulkImportWorkbookBuilderImpl implements BulkImportWorkbookBuilder 
     }
 
     private void writeMainSheet(ItemDTO item, BulkImportSheet mainSheet) {
+        if (item == null) {
+            return;
+        }
 
         mainSheet.appendRow();
 
         for (String header : mainSheet.getHeaders()) {
-
             if (header.equals(ID_HEADER)) {
                 mainSheet.setValueOnLastRow(header, item.getId().toString());
                 continue;
@@ -201,9 +222,12 @@ public class BulkImportWorkbookBuilderImpl implements BulkImportWorkbookBuilder 
                 continue;
             }
 
-            item.getMetadataValues(header).forEach(value -> writeMetadataValue(mainSheet, header, value));
-        }
+            List<MetadataValueDTO> metadataValues = item.getMetadataValues(header);
 
+            if (metadataValues != null) {
+                metadataValues.forEach(value -> writeMetadataValue(mainSheet, header, value));
+            }
+        }
     }
 
     private void writeNestedMetadataSheet(ItemDTO item, BulkImportSheet nestedMetadataSheet) {
@@ -243,8 +267,10 @@ public class BulkImportWorkbookBuilderImpl implements BulkImportWorkbookBuilder 
     }
 
     private void writeBitstreamSheet(ItemDTO item, BulkImportSheet sheet) {
-        for (BitstreamDTO bitstream : item.getBitstreams()) {
-            writeBitstreamRow(sheet, item, bitstream);
+        if (item != null) {
+            for (BitstreamDTO bitstream : item.getBitstreams()) {
+                writeBitstreamRow(sheet, item, bitstream);
+            }
         }
     }
 
@@ -432,12 +458,12 @@ public class BulkImportWorkbookBuilderImpl implements BulkImportWorkbookBuilder 
     private void autoSizeColumns(List<BulkImportSheet> sheets) {
         sheets.forEach(sheet -> autoSizeColumns(sheet.getSheet()));
     }
-
-    private ItemDTO convertItem(Context context, Collection collection, Item item) {
-
+    private ItemDTO convertItem(
+            Context context, Collection collection, Item item, BiConsumer<Level, String> logHandler) {
         if (isNotInCollection(context, item, collection)) {
-            throw new IllegalArgumentException("It is not possible to export items from two different collections: "
-                + "item " + item.getID() + " is not in collection " + collection.getID());
+            logHandler.accept(Level.WARNING, "Skipping item " + item.getID() +
+                    " because it is not mapped from collection " + collection.getID());
+            return null;
         }
 
         ItemDTO itemDTO = itemToItemDTOConverter.convert(context, item);

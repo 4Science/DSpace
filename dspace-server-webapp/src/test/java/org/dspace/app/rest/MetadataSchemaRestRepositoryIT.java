@@ -50,22 +50,23 @@ public class MetadataSchemaRestRepositoryIT extends AbstractControllerIntegratio
 
     @Autowired
     private MetadataSchemaConverter metadataSchemaConverter;
+
     @Test
     public void findAll() throws Exception {
 
         context.turnOffAuthorisationSystem();
         MetadataSchema metadataSchema = MetadataSchemaBuilder.createMetadataSchema(context, "ATest", "ANamespace")
-            .build();
+                                                             .build();
         context.restoreAuthSystemState();
 
         getClient().perform(get("/api/core/metadataschemas"))
-                .andExpect(status().isOk())
-                .andExpect(content().contentType(contentType))
-                .andExpect(jsonPath("$._embedded.metadataschemas", Matchers.hasItem(
-                        matchEntry()
-                )))
-                .andExpect(jsonPath("$._links.self.href", Matchers.containsString("/api/core/metadataschemas")))
-                .andExpect(jsonPath("$.page.size", is(20)));
+                   .andExpect(status().isOk())
+                   .andExpect(content().contentType(contentType))
+                   .andExpect(jsonPath("$._embedded.metadataschemas", Matchers.hasItem(
+                       matchEntry()
+                   )))
+                   .andExpect(jsonPath("$._links.self.href", Matchers.containsString("/api/core/metadataschemas")))
+                   .andExpect(jsonPath("$.page.size", is(20)));
     }
 
     @Test
@@ -73,14 +74,14 @@ public class MetadataSchemaRestRepositoryIT extends AbstractControllerIntegratio
 
         context.turnOffAuthorisationSystem();
         MetadataSchema metadataSchema = MetadataSchemaBuilder.createMetadataSchema(context, "ATest", "ANamespace")
-                .build();
+                                                             .build();
         context.restoreAuthSystemState();
 
         getClient().perform(get("/api/core/metadataschemas/" + metadataSchema.getID()))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$", is(
-                        matchEntry(metadataSchema)
-                )));
+                   .andExpect(status().isOk())
+                   .andExpect(jsonPath("$", is(
+                       matchEntry(metadataSchema)
+                   )));
     }
 
     @Test
@@ -101,12 +102,12 @@ public class MetadataSchemaRestRepositoryIT extends AbstractControllerIntegratio
 
         try {
             getClient(authToken)
-                    .perform(post("/api/core/metadataschemas")
-                            .content(new ObjectMapper().writeValueAsBytes(metadataSchemaRest))
-                            .contentType(contentType))
-                    .andExpect(status().isCreated())
-                    .andExpect(jsonPath("$", HalMatcher.matchNoEmbeds()))
-                    .andDo(result -> idRef.set(read(result.getResponse().getContentAsString(), "$.id")));
+                .perform(post("/api/core/metadataschemas")
+                             .content(new ObjectMapper().writeValueAsBytes(metadataSchemaRest))
+                             .contentType(contentType))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$", HalMatcher.matchNoEmbeds()))
+                .andDo(result -> idRef.set(read(result.getResponse().getContentAsString(), "$.id")));
 
             getClient().perform(get("/api/core/metadataschemas/" + idRef.get()))
                        .andExpect(status().isOk())
@@ -117,17 +118,52 @@ public class MetadataSchemaRestRepositoryIT extends AbstractControllerIntegratio
     }
 
     @Test
+    public void createUnprocessableEntity_prefixContainingInvalidCharacters() throws Exception {
+        context.turnOffAuthorisationSystem();
+
+        MetadataSchema metadataSchema = MetadataSchemaBuilder.createMetadataSchema(context, "ATest", "ANamespace")
+                                                             .build();
+        context.restoreAuthSystemState();
+
+        MetadataSchemaRest metadataSchemaRest = metadataSchemaConverter.convert(metadataSchema, Projection.DEFAULT);
+        metadataSchemaRest.setPrefix("test.SchemaName");
+        metadataSchemaRest.setNamespace(TEST_NAMESPACE);
+
+        String authToken = getAuthToken(admin.getEmail(), password);
+
+        getClient(authToken)
+            .perform(post("/api/core/metadataschemas")
+                         .content(new ObjectMapper().writeValueAsBytes(metadataSchemaRest))
+                         .contentType(contentType))
+            .andExpect(status().isUnprocessableEntity());
+
+        metadataSchemaRest.setPrefix("test,SchemaName");
+        getClient(authToken)
+            .perform(post("/api/core/metadataschemas")
+                         .content(new ObjectMapper().writeValueAsBytes(metadataSchemaRest))
+                         .contentType(contentType))
+            .andExpect(status().isUnprocessableEntity());
+
+        metadataSchemaRest.setPrefix("test SchemaName");
+        getClient(authToken)
+            .perform(post("/api/core/metadataschemas")
+                         .content(new ObjectMapper().writeValueAsBytes(metadataSchemaRest))
+                         .contentType(contentType))
+            .andExpect(status().isUnprocessableEntity());
+    }
+
+    @Test
     public void createUnauthorizedTest()
-            throws Exception {
+        throws Exception {
         MetadataSchemaRest metadataSchemaRest = new MetadataSchemaRest();
         metadataSchemaRest.setPrefix(TEST_NAME);
         metadataSchemaRest.setNamespace(TEST_NAMESPACE);
 
         getClient()
-                .perform(post("/api/core/metadataschemas")
-                        .content(new ObjectMapper().writeValueAsBytes(metadataSchemaRest))
-                        .contentType(contentType))
-                .andExpect(status().isUnauthorized());
+            .perform(post("/api/core/metadataschemas")
+                         .content(new ObjectMapper().writeValueAsBytes(metadataSchemaRest))
+                         .contentType(contentType))
+            .andExpect(status().isUnauthorized());
     }
 
     @Test
@@ -144,8 +180,8 @@ public class MetadataSchemaRestRepositoryIT extends AbstractControllerIntegratio
 
 
         getClient(getAuthToken(admin.getEmail(), password))
-                .perform(delete("/api/core/metadataschemas/" + metadataSchema.getID()))
-                .andExpect(status().isNoContent());
+            .perform(delete("/api/core/metadataschemas/" + metadataSchema.getID()))
+            .andExpect(status().isNoContent());
 
         getClient().perform(get("/api/core/metadataschemas/" + metadataSchema.getID()))
                    .andExpect(status().isNotFound());
@@ -164,8 +200,8 @@ public class MetadataSchemaRestRepositoryIT extends AbstractControllerIntegratio
         getClient().perform(get("/api/core/metadataschemas/" + metadataSchema.getID())).andExpect(status().isOk());
 
         getClient()
-                .perform(delete("/api/core/metadataschemas/" + metadataSchema.getID()))
-                .andExpect(status().isUnauthorized());
+            .perform(delete("/api/core/metadataschemas/" + metadataSchema.getID()))
+            .andExpect(status().isUnauthorized());
 
         getClient().perform(get("/api/core/metadataschemas/" + metadataSchema.getID())).andExpect(status().isOk());
 
@@ -187,8 +223,8 @@ public class MetadataSchemaRestRepositoryIT extends AbstractControllerIntegratio
             .andExpect(status().isNoContent());
 
         getClient(getAuthToken(admin.getEmail(), password))
-                .perform(delete("/api/core/metadataschemas/" + id))
-                .andExpect(status().isNotFound());
+            .perform(delete("/api/core/metadataschemas/" + id))
+            .andExpect(status().isNotFound());
     }
 
     @Test
@@ -202,19 +238,45 @@ public class MetadataSchemaRestRepositoryIT extends AbstractControllerIntegratio
 
         MetadataSchemaRest metadataSchemaRest = new MetadataSchemaRest();
         metadataSchemaRest.setId(metadataSchema.getID());
-        metadataSchemaRest.setPrefix(TEST_NAME_UPDATED);
+        metadataSchemaRest.setPrefix(TEST_NAME);
         metadataSchemaRest.setNamespace(TEST_NAMESPACE_UPDATED);
 
         getClient(getAuthToken(admin.getEmail(), password))
-                .perform(put("/api/core/metadataschemas/" + metadataSchema.getID())
-                        .content(new ObjectMapper().writeValueAsBytes(metadataSchemaRest))
-                        .contentType(contentType))
-                .andExpect(status().isOk());
+            .perform(put("/api/core/metadataschemas/" + metadataSchema.getID())
+                         .content(new ObjectMapper().writeValueAsBytes(metadataSchemaRest))
+                         .contentType(contentType))
+            .andExpect(status().isOk());
 
         getClient().perform(get("/api/core/metadataschemas/" + metadataSchema.getID()))
                    .andExpect(status().isOk())
                    .andExpect(jsonPath("$", MetadataschemaMatcher
-                       .matchEntry(TEST_NAME_UPDATED, TEST_NAMESPACE_UPDATED)));
+                       .matchEntry(TEST_NAME, TEST_NAMESPACE_UPDATED)));
+    }
+
+    @Test
+    public void update_schemaNameShouldThrowError() throws Exception {
+        context.turnOffAuthorisationSystem();
+
+        MetadataSchema metadataSchema = MetadataSchemaBuilder.createMetadataSchema(context, TEST_NAME, TEST_NAMESPACE)
+                                                             .build();
+
+        context.restoreAuthSystemState();
+
+        MetadataSchemaRest metadataSchemaRest = new MetadataSchemaRest();
+        metadataSchemaRest.setId(metadataSchema.getID());
+        metadataSchemaRest.setPrefix(TEST_NAME_UPDATED);
+        metadataSchemaRest.setNamespace(TEST_NAMESPACE_UPDATED);
+
+        getClient(getAuthToken(admin.getEmail(), password))
+            .perform(put("/api/core/metadataschemas/" + metadataSchema.getID())
+                         .content(new ObjectMapper().writeValueAsBytes(metadataSchemaRest))
+                         .contentType(contentType))
+            .andExpect(status().isUnprocessableEntity());
+
+        getClient().perform(get("/api/core/metadataschemas/" + metadataSchema.getID()))
+                   .andExpect(status().isOk())
+                   .andExpect(jsonPath("$", MetadataschemaMatcher
+                       .matchEntry(TEST_NAME, TEST_NAMESPACE)));
     }
 
     @Test
@@ -232,10 +294,10 @@ public class MetadataSchemaRestRepositoryIT extends AbstractControllerIntegratio
         metadataSchemaRest.setNamespace(TEST_NAMESPACE_UPDATED);
 
         getClient()
-                .perform(put("/api/core/metadataschemas/" + metadataSchema.getID())
-                        .content(new ObjectMapper().writeValueAsBytes(metadataSchemaRest))
-                        .contentType(contentType))
-                .andExpect(status().isUnauthorized());
+            .perform(put("/api/core/metadataschemas/" + metadataSchema.getID())
+                         .content(new ObjectMapper().writeValueAsBytes(metadataSchemaRest))
+                         .contentType(contentType))
+            .andExpect(status().isUnauthorized());
 
         getClient().perform(get("/api/core/metadataschemas/" + metadataSchema.getID()))
                    .andExpect(status().isOk())
@@ -274,80 +336,80 @@ public class MetadataSchemaRestRepositoryIT extends AbstractControllerIntegratio
 
         // Determine number of schemas from database
         int numberOfSchema = ContentServiceFactory.getInstance()
-                                                   .getMetadataSchemaService().findAll(context).size();
+                                                  .getMetadataSchemaService().findAll(context).size();
         // If we return 6 schema per page, determine number of pages we expect
         int pageSize = 6;
         int numberOfPages = (int) Math.ceil((double) numberOfSchema / pageSize);
 
         // In these tests we just validate the first 3 pages, as we currently have at least that many schema
         getClient().perform(get("/api/core/metadataschemas")
-                   .param("size", String.valueOf(pageSize))
-                   .param("page", "0"))
+                                .param("size", String.valueOf(pageSize))
+                                .param("page", "0"))
                    .andExpect(status().isOk())
                    .andExpect(content().contentType(contentType))
                    .andExpect(jsonPath("$._embedded.metadataschemas", Matchers.hasItem(matchEntry())))
                    .andExpect(jsonPath("$._links.first.href", Matchers.allOf(
-                           Matchers.containsString("/api/core/metadataschemas?"),
-                           Matchers.containsString("page=0"), Matchers.containsString("size=" + pageSize))))
+                       Matchers.containsString("/api/core/metadataschemas?"),
+                       Matchers.containsString("page=0"), Matchers.containsString("size=" + pageSize))))
                    .andExpect(jsonPath("$._links.self.href", Matchers.allOf(
-                           Matchers.containsString("/api/core/metadataschemas?"),
-                           Matchers.containsString("page=0"), Matchers.containsString("size=" + pageSize))))
+                       Matchers.containsString("/api/core/metadataschemas?"),
+                       Matchers.containsString("page=0"), Matchers.containsString("size=" + pageSize))))
                    .andExpect(jsonPath("$._links.next.href", Matchers.allOf(
-                           Matchers.containsString("/api/core/metadataschemas?"),
-                           Matchers.containsString("page=1"), Matchers.containsString("size=" + pageSize))))
+                       Matchers.containsString("/api/core/metadataschemas?"),
+                       Matchers.containsString("page=1"), Matchers.containsString("size=" + pageSize))))
                    .andExpect(jsonPath("$._links.last.href", Matchers.allOf(
-                           Matchers.containsString("/api/core/metadataschemas?"),
-                           Matchers.containsString("page=" + (numberOfPages - 1)),
-                           Matchers.containsString("size=" + pageSize))))
+                       Matchers.containsString("/api/core/metadataschemas?"),
+                       Matchers.containsString("page=" + (numberOfPages - 1)),
+                       Matchers.containsString("size=" + pageSize))))
                    .andExpect(jsonPath("$.page.totalElements", is(numberOfSchema)))
                    .andExpect(jsonPath("$.page.totalPages", is(numberOfPages)))
                    .andExpect(jsonPath("$.page.size", is(pageSize)));
 
         getClient().perform(get("/api/core/metadataschemas")
-                   .param("size", String.valueOf(pageSize))
-                   .param("page", "1"))
+                                .param("size", String.valueOf(pageSize))
+                                .param("page", "1"))
                    .andExpect(status().isOk())
                    .andExpect(content().contentType(contentType))
                    .andExpect(jsonPath("$._embedded.metadataschemas", Matchers.hasItem(matchEntry())))
                    .andExpect(jsonPath("$._links.first.href", Matchers.allOf(
-                           Matchers.containsString("/api/core/metadataschemas?"),
-                           Matchers.containsString("page=0"), Matchers.containsString("size=" + pageSize))))
+                       Matchers.containsString("/api/core/metadataschemas?"),
+                       Matchers.containsString("page=0"), Matchers.containsString("size=" + pageSize))))
                    .andExpect(jsonPath("$._links.prev.href", Matchers.allOf(
-                           Matchers.containsString("/api/core/metadataschemas?"),
-                           Matchers.containsString("page=0"), Matchers.containsString("size=" + pageSize))))
+                       Matchers.containsString("/api/core/metadataschemas?"),
+                       Matchers.containsString("page=0"), Matchers.containsString("size=" + pageSize))))
                    .andExpect(jsonPath("$._links.self.href", Matchers.allOf(
-                           Matchers.containsString("/api/core/metadataschemas?"),
-                           Matchers.containsString("page=1"), Matchers.containsString("size=" + pageSize))))
+                       Matchers.containsString("/api/core/metadataschemas?"),
+                       Matchers.containsString("page=1"), Matchers.containsString("size=" + pageSize))))
                    .andExpect(jsonPath("$._links.next.href", Matchers.allOf(
-                           Matchers.containsString("/api/core/metadataschemas?"),
-                           Matchers.containsString("page=2"), Matchers.containsString("size=" + pageSize))))
+                       Matchers.containsString("/api/core/metadataschemas?"),
+                       Matchers.containsString("page=2"), Matchers.containsString("size=" + pageSize))))
                    .andExpect(jsonPath("$._links.last.href", Matchers.allOf(
-                           Matchers.containsString("/api/core/metadataschemas?"),
-                           Matchers.containsString("page=" + (numberOfPages - 1)),
-                           Matchers.containsString("size=" + pageSize))))
+                       Matchers.containsString("/api/core/metadataschemas?"),
+                       Matchers.containsString("page=" + (numberOfPages - 1)),
+                       Matchers.containsString("size=" + pageSize))))
                    .andExpect(jsonPath("$.page.totalElements", is(numberOfSchema)))
                    .andExpect(jsonPath("$.page.totalPages", is(numberOfPages)))
                    .andExpect(jsonPath("$.page.size", is(pageSize)));
 
         getClient().perform(get("/api/core/metadataschemas")
-                   .param("size", String.valueOf(pageSize))
-                   .param("page", "2"))
+                                .param("size", String.valueOf(pageSize))
+                                .param("page", "2"))
                    .andExpect(status().isOk())
                    .andExpect(content().contentType(contentType))
                    .andExpect(jsonPath("$._embedded.metadataschemas", Matchers.hasItem(matchEntry())))
                    .andExpect(jsonPath("$._links.first.href", Matchers.allOf(
-                           Matchers.containsString("/api/core/metadataschemas?"),
-                           Matchers.containsString("page=0"), Matchers.containsString("size=" + pageSize))))
+                       Matchers.containsString("/api/core/metadataschemas?"),
+                       Matchers.containsString("page=0"), Matchers.containsString("size=" + pageSize))))
                    .andExpect(jsonPath("$._links.prev.href", Matchers.allOf(
-                           Matchers.containsString("/api/core/metadataschemas?"),
-                           Matchers.containsString("page=1"), Matchers.containsString("size=" + pageSize))))
+                       Matchers.containsString("/api/core/metadataschemas?"),
+                       Matchers.containsString("page=1"), Matchers.containsString("size=" + pageSize))))
                    .andExpect(jsonPath("$._links.self.href", Matchers.allOf(
-                           Matchers.containsString("/api/core/metadataschemas?"),
-                           Matchers.containsString("page=2"), Matchers.containsString("size=" + pageSize))))
+                       Matchers.containsString("/api/core/metadataschemas?"),
+                       Matchers.containsString("page=2"), Matchers.containsString("size=" + pageSize))))
                    .andExpect(jsonPath("$._links.last.href", Matchers.allOf(
-                           Matchers.containsString("/api/core/metadataschemas?"),
-                           Matchers.containsString("page=" + (numberOfPages - 1)),
-                           Matchers.containsString("size=" + pageSize))))
+                       Matchers.containsString("/api/core/metadataschemas?"),
+                       Matchers.containsString("page=" + (numberOfPages - 1)),
+                       Matchers.containsString("size=" + pageSize))))
                    .andExpect(jsonPath("$.page.totalElements", is(numberOfSchema)))
                    .andExpect(jsonPath("$.page.totalPages", is(numberOfPages)))
                    .andExpect(jsonPath("$.page.size", is(pageSize)));

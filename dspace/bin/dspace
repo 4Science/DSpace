@@ -13,6 +13,13 @@
 # Assume that this script is in the bin subdirectory of the DSpace installation directory.
 BINDIR=`dirname $0`
 DSPACEDIR=`cd "$BINDIR/.." ; pwd`
+TIKACFG=$DSPACEDIR/config/tika-config.xml
+
+# Check if exists the setenv script it can be also a symbolic link inside the bin directory, if so we need to execute it first
+if [ -r "$DSPACEDIR/bin/setenv.sh" ]
+then
+    . "$DSPACEDIR/bin/setenv.sh"
+fi
 
 # Get the JARs in $DSPACEDIR/lib
 JARS="$DSPACEDIR/lib/*"
@@ -33,11 +40,21 @@ if [ "$1" = "classpath" ]; then
   exit 0
 fi
 
-#Allow user to specify java options through JAVA_OPTS variable
+# Unset JAVA_TOOL_OPTIONS (exported by Dockerfile) so that any debug ports don't conflict
+unset JAVA_TOOL_OPTIONS
+# Note, if you wish to also debug the CLI launcher, the following line is an
+# example of how to do so - note the different port number and 'suspend=y' which
+# means the JVM will not begin execution until a debugger is attached.
+#JAVA_TOOL_OPTIONS="-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=*:1043"
+
+# Allow user to specify java options through JAVA_OPTS variable
 if [ "$JAVA_OPTS" = "" ]; then
   #Default Java to use 1024MB of memory
-  JAVA_OPTS="-Xmx1024m -Dfile.encoding=UTF-8"
+  JAVA_OPTS="-Xmx1024m -Dfile.encoding=UTF-8 -Dtika.config=$TIKACFG"
 fi
+
+#Add install/temp path to the Java tmpdir especially when invoked by CLI in the orchestrator and needs more space in some tasks like export
+export JAVA_OPTS="$JAVA_OPTS -Djava.io.tmpdir=$DSPACEDIR/temp -Dlog4j2.configurationFile=$DSPACEDIR/config/log4j2-cli.xml"
 
 # Now invoke Java
 java $JAVA_OPTS \

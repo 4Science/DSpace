@@ -9,11 +9,13 @@ package org.dspace.app.packager;
 
 import java.io.InputStream;
 import java.sql.SQLException;
+import java.util.List;
 
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.dspace.authorize.service.AuthorizeService;
 import org.dspace.core.Context;
+import org.dspace.scripts.DSpaceCommandLineParameter;
 import org.dspace.scripts.configuration.ScriptConfiguration;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -40,7 +42,7 @@ public class PackagerScriptConfiguration<T extends Packager> extends ScriptConfi
     }
 
     @Override
-    public boolean isAllowedToExecute(final Context context) {
+    public boolean isAllowedToExecute(final Context context, List<DSpaceCommandLineParameter> commandLineParameters) {
         try {
             return authorizeService.isAdmin(context);
         } catch (SQLException e) {
@@ -84,8 +86,8 @@ public class PackagerScriptConfiguration<T extends Packager> extends ScriptConfi
         options.addOption("h", "help", false,
                           "help (you may also specify '-h -t [type]' for additional help with a specific type of " +
                               "packager)");
-        options.addOption(Option.builder("z").longOpt("file-path")
-                .desc("The path to the file")
+        options.addOption(Option.builder("z").longOpt("zip")
+                .desc("name of zip file")
                 .type(InputStream.class)
                 .hasArg().build());
         options.addOption(Option.builder("u").longOpt("url")

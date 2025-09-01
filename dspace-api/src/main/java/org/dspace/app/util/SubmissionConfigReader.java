@@ -7,30 +7,34 @@
  */
 package org.dspace.app.util;
 
-import static org.dspace.content.Item.ANY;
-
 import java.io.File;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.FactoryConfigurationError;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.Logger;
 import org.dspace.content.Collection;
+import org.dspace.content.Community;
 import org.dspace.content.DSpaceObject;
 import org.dspace.content.InProgressSubmission;
+import org.dspace.content.Item;
 import org.dspace.content.edit.EditItem;
 import org.dspace.content.factory.ContentServiceFactory;
 import org.dspace.content.service.CollectionService;
 import org.dspace.core.Context;
 import org.dspace.handle.factory.HandleServiceFactory;
+import org.dspace.services.RequestService;
 import org.dspace.services.factory.DSpaceServicesFactory;
+import org.dspace.versioning.ItemCorrectionService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
@@ -58,6 +62,10 @@ import org.xml.sax.SAXException;
  */
 
 public class SubmissionConfigReader {
+
+    @Autowired
+    RequestService requestService;
+
     /**
      * The ID of the default collection. Will never be the ID of a named
      * collection
@@ -94,6 +102,20 @@ public class SubmissionConfigReader {
     private Map<String, String> collectionToSubmissionConfig = null;
 
     /**
+     * Hashmap which stores which submission process configuration is used by
+     * which community, computed from the item submission config file
+     * (specifically, the 'submission-map' tag)
+     */
+    private Map<String, String> communityToSubmissionConfig = null;
+
+    /**
+     * Hashmap which stores which submission process configuration is used by
+     * which entityType, computed from the item submission config file
+     * (specifically, the 'submission-map' tag)
+     */
+    private Map<String, String> entityTypeToSubmissionConfig = null;
+
+    /**
      * Reference to the global submission step definitions defined in the
      * "step-definitions" section
      */
@@ -112,6 +134,23 @@ public class SubmissionConfigReader {
     private SubmissionConfig lastSubmissionConfig = null;
 
     /**
+     * Collection Service instance, needed to interact with collection's
+     * stored data
+     */
+    protected static final CollectionService collectionService
+                = ContentServiceFactory.getInstance().getCollectionService();
+
+    /**
+     * itemCorrectionService instance, needed to retrieve the handle correctly
+     * item correction actions
+     *
+     */
+    protected static final  ItemCorrectionService itemCorrectionService =
+            DSpaceServicesFactory.getInstance().getServiceManager()
+                    .getServicesByType(ItemCorrectionService.class)
+                    .get(0);
+
+    /**
      * Load Submission Configuration from the
      * item-submission.xml configuration file
      *
@@ -123,6 +162,8 @@ public class SubmissionConfigReader {
 
     public void reload() throws SubmissionConfigReaderException {
         collectionToSubmissionConfig = null;
+        communityToSubmissionConfig = null;
+        entityTypeToSubmissionConfig = null;
         stepDefns = null;
         submitDefns = null;
         buildInputs(configDir + SUBMIT_DEF_FILE_PREFIX + SUBMIT_DEF_FILE_SUFFIX);
@@ -140,19 +181,18 @@ public class SubmissionConfigReader {
      * </ul>
      */
     private void buildInputs(String fileName) throws SubmissionConfigReaderException {
-        collectionToSubmissionConfig = new HashMap<String, String>();
-        submitDefns = new HashMap<String, List<Map<String, String>>>();
+        collectionToSubmissionConfig = new HashMap<>();
+        communityToSubmissionConfig = new HashMap<>();
+        entityTypeToSubmissionConfig = new HashMap<>();
+        submitDefns = new LinkedHashMap<>();
 
         String uri = "file:" + new File(fileName).getAbsolutePath();
 
         try {
-            DocumentBuilderFactory factory = DocumentBuilderFactory
-                .newInstance();
-            factory.setValidating(false);
-            factory.setIgnoringComments(true);
-            factory.setIgnoringElementContentWhitespace(true);
-
-            DocumentBuilder db = factory.newDocumentBuilder();
+            // This document builder factory will *not* disable external
+            // entities as they can be useful in managing large forms, but
+            // it will restrict them to the config dir containing submission definitions
+            DocumentBuilder db = XMLUtils.getTrustedDocumentBuilder(configDir);
             Document doc = db.parse(uri);
             doNodes(doc);
         } catch (FactoryConfigurationError fe) {
@@ -229,8 +269,10 @@ public class SubmissionConfigReader {
     public SubmissionConfig getCorrectionSubmissionConfigByCollection(Collection collection) {
         CollectionService collService = ContentServiceFactory.getInstance().getCollectionService();
 
-        String submitName = collService.getMetadataFirstValue(collection,
-            "cris", "submission", "definition-correction", ANY);
+        String submitName =
+            collService.getMetadataFirstValue(
+                collection, "cris", "submission", "definition-correction", Item.ANY
+            );
 
         if (submitName != null) {
             SubmissionConfig subConfig = getSubmissionConfigByName(submitName);
@@ -264,7 +306,7 @@ public class SubmissionConfigReader {
                 }
             } catch (IllegalStateException e) {
                 log.error("The collection " + collection.getID().toString()
-                        + " has an invalid cris.submission.definition value " + submitName, e);
+                              + " has an invalid cris.submission.definition value " + submitName, e);
             }
         }
 
@@ -278,20 +320,41 @@ public class SubmissionConfigReader {
                 }
             } catch (IllegalStateException e) {
                 log.error("The collection " + collection.getID().toString() + " has an invalid mapping by handle "
-                        + collection.getHandle() + " in the item-submission.xml " + submitName, e);
+                              + collection.getHandle() + " in the item-submission.xml " + submitName, e);
             }
         }
 
-        submitName = collService.getMetadataFirstValue(collection, "dspace", "entity", "type", null);
+        // get entity-type based configuration
+        submitName = getEntityTypeSubmission(collection, collService);
         if (submitName != null) {
             try {
-                SubmissionConfig subConfig = getSubmissionConfigByName(submitName.toLowerCase());
+                SubmissionConfig subConfig = getSubmissionConfigByName(submitName);
                 if (subConfig != null) {
                     return subConfig;
                 }
             } catch (IllegalStateException e) {
                 log.warn("The collection " + collection.getID().toString() + " has an entity type " + submitName
-                        + " without an explicit mapping, fallback to the default");
+                             + " without an explicit mapping, fallback to the default");
+            }
+        }
+
+        if (!communityToSubmissionConfig.isEmpty()) {
+            try {
+                List<Community> communities = collection.getCommunities();
+                for (Community com : communities) {
+                    submitName = getSubmissionConfigByCommunity(com);
+                    if (submitName != null) {
+                        SubmissionConfig subConfig = getSubmissionConfigByName(submitName);
+                        if (subConfig != null) {
+                            return subConfig;
+                        }
+                    }
+                }
+            } catch (SQLException sqle) {
+                throw new IllegalStateException(
+                    "Error occurred while getting item submission configured by community",
+                    sqle
+                );
             }
         }
 
@@ -304,7 +367,52 @@ public class SubmissionConfigReader {
         }
 
         throw new IllegalStateException("No item submission process configuration designated as 'default' "
-            + "in 'submission-map' section of 'item-submission.xml'.");
+                                            + "in 'submission-map' section of 'item-submission.xml'.");
+    }
+
+    /**
+     * Returns the submission name for the given collection based on the entity type.
+     * It checks for the {@code collection-entity-type} configuration (standard DSpace), otherwise defaults to the
+     * {@code entityType} in lowercase (standard CRIS).
+     *
+     * @param collection Collection of which check the submission configuration
+     * @param collService CollectionService
+     * @return Submission Definition found.
+     */
+    private String getEntityTypeSubmission(Collection collection, CollectionService collService) {
+        String submitName = null;
+        String entityType = collService.getMetadataFirstValue(collection, "dspace", "entity", "type", Item.ANY);
+        if (entityType != null) {
+            // collection-entity-type configuration (DSpace configuration)
+            submitName = Optional.ofNullable(entityTypeToSubmissionConfig.get(entityType))
+                                 // entity-type lowercase configuration (CRIS configuration)
+                                 .orElseGet(entityType::toLowerCase);
+        }
+        return submitName;
+    }
+
+    /**
+     * Recursive function to return the Item Submission process config
+     * used for a community or the closest community parent, or null
+     * if none is defined
+     *
+     * @param com community for which search Submission process config
+     * @return the SubmissionConfig representing the item submission config
+     */
+    private String getSubmissionConfigByCommunity(Community com) {
+        String submitName = communityToSubmissionConfig
+                .get(com.getHandle());
+        if (submitName != null) {
+            return submitName;
+        }
+        List<Community> communities = com.getParentCommunities();
+        for (Community parentCom : communities) {
+            submitName = getSubmissionConfigByCommunity(parentCom);
+            if (submitName != null) {
+                return submitName;
+            }
+        }
+        return null;
     }
 
     /**
@@ -314,8 +422,7 @@ public class SubmissionConfigReader {
      * @return the SubmissionConfig representing the item submission config
      */
     public SubmissionConfig getSubmissionConfigByName(String submitName) {
-        log.debug("Loading submission process config named '" + submitName
-                      + "'");
+        log.debug("Loading submission process config named '" + submitName + "'");
 
         // check mini-cache, and return if match
         if (lastSubmissionConfig != null
@@ -338,8 +445,8 @@ public class SubmissionConfigReader {
         log.debug("Submission process config '" + submitName
                       + "' not in cache. Reloading from scratch.");
 
-        lastSubmissionConfig = new SubmissionConfig(StringUtils.equals(getDefaultSubmissionConfigName(), submitName),
-                                                    submitName, steps);
+        lastSubmissionConfig =
+            new SubmissionConfig(StringUtils.equals(getDefaultSubmissionConfigName(), submitName), submitName, steps);
 
         log.debug("Submission process config has "
                       + lastSubmissionConfig.getNumberOfSteps() + " steps listed.");
@@ -418,6 +525,9 @@ public class SubmissionConfigReader {
         }
     }
 
+
+
+
     /**
      * Process the submission-map section of the XML file. Each element looks
      * like: <name-map collection-handle="hdl" submission-name="name" /> Extract
@@ -425,27 +535,37 @@ public class SubmissionConfigReader {
      * by the collection handle.
      */
     private void processMap(Node e) throws SAXException {
+
         NodeList nl = e.getChildNodes();
         int len = nl.getLength();
         for (int i = 0; i < len; i++) {
             Node nd = nl.item(i);
             if (nd.getNodeName().equals("name-map")) {
                 String id = getAttribute(nd, "collection-handle");
+                String communityId = getAttribute(nd, "community-handle");
+                String entityType = getAttribute(nd, "collection-entity-type");
                 String value = getAttribute(nd, "submission-name");
                 String content = getValue(nd);
-                if (id == null) {
+                if (id == null && communityId == null && entityType == null) {
                     throw new SAXException(
-                        "name-map element is missing collection-handle attribute in 'item-submission.xml'");
+                        "name-map element is missing collection-handle or community-handle or collection-entity-type " +
+                            "attribute in 'item-submission.xml'");
                 }
                 if (value == null) {
                     throw new SAXException(
                         "name-map element is missing submission-name attribute in 'item-submission.xml'");
                 }
-                if (content != null && content.length() > 0) {
+                if (content != null && !content.isEmpty()) {
                     throw new SAXException(
                         "name-map element has content in 'item-submission.xml', it should be empty.");
                 }
-                collectionToSubmissionConfig.put(id, value);
+                if (id != null) {
+                    collectionToSubmissionConfig.put(id, value);
+                } else if (communityId != null) {
+                    communityToSubmissionConfig.put(communityId, value);
+                } else {
+                    entityTypeToSubmissionConfig.putIfAbsent(entityType, value);
+                }
             } // ignore any child node that isn't a "name-map"
         }
     }
@@ -731,12 +851,52 @@ public class SubmissionConfigReader {
         return results;
     }
 
-    public SubmissionConfig getSubmissionConfigByInProgressSubmission(InProgressSubmission<?> object) {
+    public SubmissionConfig getSubmissionConfigByInProgressSubmission(InProgressSubmission<?> object, Context context) {
         if (object instanceof EditItem) {
             String submissionDefinition = ((EditItem) object).getMode().getSubmissionDefinition();
             return getSubmissionConfigByName(submissionDefinition);
         }
 
-        return getSubmissionConfigByCollection(object.getCollection());
+        if (isCorrectionItem(object.getItem(), context)) {
+            return getCorrectionSubmissionConfigByCollection(object.getCollection());
+        } else {
+            return getSubmissionConfigByCollection(object.getCollection());
+        }
     }
+
+    private boolean isCorrectionItem(Item item, Context context) {
+        try {
+            return itemCorrectionService.checkIfIsCorrectionItem(context, item);
+        } catch (Exception ex) {
+            log.error("An error occurs checking if the given item is a correction item.", ex);
+            return false;
+        }
+    }
+
+    public Map<String, Map<String, String>> getSafeStepDefns() {
+        Map<String, Map<String, String>> safeCopy = new HashMap<>();
+
+        for (Map.Entry<String, Map<String, String>> entry : stepDefns.entrySet()) {
+            safeCopy.put(entry.getKey(), new HashMap<>(entry.getValue())); // inner map immutable
+        }
+
+        return Map.copyOf(safeCopy); // outer map immutable
+    }
+
+    public Map<String, List<Map<String, String>>> getSafeSubmitDefns() {
+        Map<String, List<Map<String, String>>> safeCopy = new HashMap<>();
+
+        for (Map.Entry<String, List<Map<String, String>>> entry : submitDefns.entrySet()) {
+            List<Map<String, String>> listCopy = new ArrayList<>();
+
+            for (Map<String, String> map : entry.getValue()) {
+                listCopy.add(new HashMap<>(map)); // inner map copy
+            }
+
+            safeCopy.put(entry.getKey(), List.copyOf(listCopy)); // inner list immutable
+        }
+
+        return Map.copyOf(safeCopy); // outer map immutable
+    }
+
 }

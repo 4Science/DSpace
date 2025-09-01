@@ -36,6 +36,7 @@ import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
@@ -868,12 +869,12 @@ public class OAIHarvester {
      * @param item a newly created, but not yet installed, DSpace Item
      * @return null or the handle to be used.
      */
-    private String extractHandle(Item item) {
-        String[] acceptedHandleServers = configurationService.getArrayProperty("oai.harvester.acceptedHandleServer",
-            new String[] { "hdl.handle.net" });
+    protected String extractHandle(Item item) {
+        String[] acceptedHandleServers = configurationService
+            .getArrayProperty("oai.harvester.acceptedHandleServer", new String[] {"hdl.handle.net"});
 
-        String[] rejectedHandlePrefixes = configurationService.getArrayProperty("oai.harvester.rejectedHandlePrefix",
-            new String[] { "123456789" });
+        String[] rejectedHandlePrefixes = configurationService
+            .getArrayProperty("oai.harvester.rejectedHandlePrefix", new String[] {"123456789"});
 
         List<MetadataValue> values = itemService.getMetadata(item, "dc", "identifier", Item.ANY, Item.ANY);
 
@@ -881,22 +882,21 @@ public class OAIHarvester {
             return null;
         }
 
-        for (MetadataValue value : values) {
-            //     0   1       2         3   4
-            //   http://hdl.handle.net/1234/12
-            String[] urlPieces = value.getValue().split("/");
-            if (urlPieces.length != 5) {
-                continue;
-            }
+        if (!values.isEmpty() && acceptedHandleServers != null) {
+            for (MetadataValue value : values) {
+                //     0   1       2         3   4
+                //   https://hdl.handle.net/1234/12
+                String[] urlPieces = value.getValue().split("/");
+                if (urlPieces.length != 5) {
+                    continue;
+                }
 
-            for (String server : acceptedHandleServers) {
-                if (urlPieces[2].equals(server)) {
-                    for (String prefix : rejectedHandlePrefixes) {
-                        if (!urlPieces[3].equals(prefix)) {
+                for (String server : acceptedHandleServers) {
+                    if (urlPieces[2].equals(server)) {
+                        if (Arrays.stream(rejectedHandlePrefixes).noneMatch(prefix -> prefix.equals(urlPieces[3]))) {
                             return urlPieces[3] + "/" + urlPieces[4];
                         }
                     }
-
                 }
             }
         }

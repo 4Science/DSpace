@@ -13,7 +13,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import javax.servlet.http.HttpServletRequest;
 
 import com.rometools.modules.itunes.EntryInformation;
 import com.rometools.modules.itunes.EntryInformationImpl;
@@ -35,6 +34,7 @@ import com.rometools.rome.feed.synd.SyndPerson;
 import com.rometools.rome.feed.synd.SyndPersonImpl;
 import com.rometools.rome.io.FeedException;
 import com.rometools.rome.io.SyndFeedOutput;
+import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.Logger;
@@ -51,6 +51,7 @@ import org.dspace.content.service.CollectionService;
 import org.dspace.content.service.CommunityService;
 import org.dspace.content.service.ItemService;
 import org.dspace.core.Context;
+import org.dspace.core.I18nUtil;
 import org.dspace.discovery.IndexableObject;
 import org.dspace.discovery.indexobject.IndexableCollection;
 import org.dspace.discovery.indexobject.IndexableCommunity;
@@ -83,14 +84,10 @@ public class SyndicationFeed {
     public static final String MSG_FEED_TITLE = "feed.title";
     public static final String MSG_FEED_DESCRIPTION = "general-feed.description";
     public static final String MSG_METADATA = "metadata.";
-    public static final String MSG_UITYPE = "ui.type";
-
-    // UI keywords
-    public static final String UITYPE_XMLUI = "xmlui";
-    public static final String UITYPE_JSPUI = "jspui";
 
     // default DC fields for entry
     protected String defaultTitleField = "dc.title";
+    protected String defaultDescriptionField = "dc.description";
     protected String defaultAuthorField = "dc.contributor.author";
     protected String defaultDateField = "dc.date.issued";
     private static final String[] defaultDescriptionFields =
@@ -143,10 +140,6 @@ public class SyndicationFeed {
     // the feed object we are building
     protected SyndFeed feed = null;
 
-    // memory of UI that called us, "xmlui" or "jspui"
-    // affects Bitstream retrieval URL and I18N keys
-    protected String uiType = null;
-
     protected HttpServletRequest request = null;
 
     protected CollectionService collectionService;
@@ -155,12 +148,9 @@ public class SyndicationFeed {
 
     /**
      * Constructor.
-     *
-     * @param ui either "xmlui" or "jspui"
      */
-    public SyndicationFeed(String ui) {
+    public SyndicationFeed() {
         feed = new SyndFeedImpl();
-        uiType = ui;
         ContentServiceFactory contentServiceFactory = ContentServiceFactory.getInstance();
         itemService = contentServiceFactory.getItemService();
         collectionService = contentServiceFactory.getCollectionService();
@@ -196,15 +186,15 @@ public class SyndicationFeed {
         // dso is null for the whole site, or a search without scope
         if (dso == null) {
             defaultTitle = configurationService.getProperty("dspace.name");
-            feed.setDescription(localize(labels, MSG_FEED_DESCRIPTION));
+            defaultDescriptionField = localize(labels, MSG_FEED_DESCRIPTION);
             objectURL = resolveURL(request, null);
         } else {
             Bitstream logo = null;
             if (dso instanceof IndexableCollection) {
                 Collection col = ((IndexableCollection) dso).getIndexedObject();
                 defaultTitle = col.getName();
-                feed.setDescription(collectionService.getMetadataFirstValue(col,
-                        CollectionService.MD_SHORT_DESCRIPTION, Item.ANY));
+                defaultDescriptionField = collectionService.getMetadataFirstValue(col,
+                        CollectionService.MD_SHORT_DESCRIPTION, Item.ANY);
                 logo = col.getLogo();
                 String cols = configurationService.getProperty("webui.feed.podcast.collections");
                 if (cols != null && cols.length() > 1 && cols.contains(col.getHandle())) {
@@ -214,8 +204,8 @@ public class SyndicationFeed {
             } else if (dso instanceof IndexableCommunity) {
                 Community comm = ((IndexableCommunity) dso).getIndexedObject();
                 defaultTitle = comm.getName();
-                feed.setDescription(communityService.getMetadataFirstValue(comm,
-                        CommunityService.MD_SHORT_DESCRIPTION, Item.ANY));
+                defaultDescriptionField = communityService.getMetadataFirstValue(comm,
+                        CommunityService.MD_SHORT_DESCRIPTION, Item.ANY);
                 logo = comm.getLogo();
                 String comms = configurationService.getProperty("webui.feed.podcast.communities");
                 if (comms != null && comms.length() > 1 && comms.contains(comm.getHandle())) {
@@ -230,6 +220,12 @@ public class SyndicationFeed {
         }
         feed.setTitle(labels.containsKey(MSG_FEED_TITLE) ?
                           localize(labels, MSG_FEED_TITLE) : defaultTitle);
+
+        if (defaultDescriptionField == null || defaultDescriptionField == "") {
+            defaultDescriptionField = I18nUtil.getMessage("org.dspace.app.util.SyndicationFeed.no-description");
+        }
+
+        feed.setDescription(defaultDescriptionField);
         feed.setLink(objectURL);
         feed.setPublishedDate(new Date());
         feed.setUri(objectURL);
@@ -510,8 +506,7 @@ public class SyndicationFeed {
     protected String urlOfBitstream(HttpServletRequest request, Bitstream logo) {
         String name = logo.getName();
         return resolveURL(request, null) +
-            (uiType.equalsIgnoreCase(UITYPE_XMLUI) ? "/bitstream/id/" : "/retrieve/") +
-            logo.getID() + "/" + (name == null ? "" : name);
+            "/bitstreams/" + logo.getID() + "/download";
     }
 
     protected String baseURL = null;  // cache the result for null

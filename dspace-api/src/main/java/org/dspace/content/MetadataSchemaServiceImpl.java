@@ -148,6 +148,11 @@ public class MetadataSchemaServiceImpl implements MetadataSchemaService {
         return metadataSchemaDAO.find(context, shortName);
     }
 
+    @Override
+    public List<MetadataSchema> findAllByMetadata(Context context, String namespace, String element,
+                                                  String qualifier) throws SQLException {
+        return metadataSchemaDAO.findAllByNamespaceAndElementAndQualifier(context, namespace, element, qualifier);
+    }
 
     /**
      * Return true if and only if the passed name appears within the allowed

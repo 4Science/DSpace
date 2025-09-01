@@ -8,6 +8,7 @@
 
 package org.dspace.app.bulkedit;
 
+import java.io.InputStream;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -32,6 +33,7 @@ import org.dspace.discovery.indexobject.IndexableCollection;
 import org.dspace.discovery.indexobject.IndexableCommunity;
 import org.dspace.discovery.utils.DiscoverQueryBuilder;
 import org.dspace.discovery.utils.parameter.QueryBuilderSearchFilter;
+import org.dspace.eperson.EPerson;
 import org.dspace.eperson.factory.EPersonServiceFactory;
 import org.dspace.eperson.service.EPersonService;
 import org.dspace.scripts.DSpaceRunnable;
@@ -113,7 +115,8 @@ public class MetadataExportSearch extends DSpaceRunnable<MetadataExportSearchScr
 
         IndexableObject dso = null;
         Context context = new Context();
-        context.setCurrentUser(ePersonService.find(context, this.getEpersonIdentifier()));
+        assignCurrentUserInContext(context);
+        assignSpecialGroupsInContext(context);
 
         if (hasScope) {
             dso = resolveScope(context, identifier);
@@ -135,20 +138,28 @@ public class MetadataExportSearch extends DSpaceRunnable<MetadataExportSearchScr
                 queryBuilderSearchFilters.add(queryBuilderSearchFilter);
             }
         }
-        handler.logDebug("building query");
-        DiscoverQuery discoverQuery =
-            queryBuilder.buildQuery(context, dso, discoveryConfiguration, query, queryBuilderSearchFilters,
-            "Item", 10, Long.getLong("0"), null, SortOption.DESCENDING);
-        handler.logDebug("creating iterator");
+        try {
+            handler.logDebug("building query");
+            DiscoverQuery discoverQuery =
+                queryBuilder.buildQuery(context, dso, discoveryConfiguration, query, queryBuilderSearchFilters,
+                "Item", 10, Long.getLong("0"), null, SortOption.DESCENDING);
 
-        Iterator<Item> itemIterator = searchService.iteratorSearch(context, dso, discoverQuery);
-        handler.logDebug("creating dspacecsv");
-        DSpaceCSV dSpaceCSV = metadataDSpaceCsvExportService.export(context, itemIterator, true);
-        handler.logDebug("writing to file " + getFileNameOrExportFile());
-        handler.writeFilestream(context, getFileNameOrExportFile(), dSpaceCSV.getInputStream(), EXPORT_CSV);
-        context.restoreAuthSystemState();
-        context.complete();
+            handler.logDebug("creating iterator");
+            Iterator<Item> itemIterator = searchService.iteratorSearch(context, dso, discoverQuery);
+            handler.logDebug("creating dspacecsv");
+            DSpaceCSV dSpaceCSV = metadataDSpaceCsvExportService.export(context, itemIterator, true, handler);
 
+            try (InputStream is = dSpaceCSV.getInputStream()) {
+                handler.logDebug("writing to file " + getFileNameOrExportFile());
+                handler.writeFilestream(context, getFileNameOrExportFile(), is, EXPORT_CSV);
+            }
+
+            handleAuthorizationSystem(context);
+            context.complete();
+        } catch (Exception e) {
+            handler.handleException(e);
+            context.abort();
+        }
     }
 
     protected void loghelpinfo() {
@@ -158,6 +169,21 @@ public class MetadataExportSearch extends DSpaceRunnable<MetadataExportSearchScr
     protected String getFileNameOrExportFile() {
         return "metadataExportSearch.csv";
     }
+
+    private void assignCurrentUserInContext(Context context) throws SQLException {
+        UUID uuid = getEpersonIdentifier();
+        if (uuid != null) {
+            EPerson ePerson = EPersonServiceFactory.getInstance().getEPersonService().find(context, uuid);
+            context.setCurrentUser(ePerson);
+        }
+    }
+
+    private void assignSpecialGroupsInContext(Context context) throws SQLException {
+        for (UUID uuid : handler.getSpecialGroups()) {
+            context.setSpecialGroup(uuid);
+        }
+    }
+
 
     public IndexableObject resolveScope(Context context, String id) throws SQLException {
         UUID uuid = UUID.fromString(id);

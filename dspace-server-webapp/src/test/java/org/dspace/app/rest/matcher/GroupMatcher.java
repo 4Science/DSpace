@@ -21,7 +21,8 @@ import org.hamcrest.Matcher;
 
 public class GroupMatcher {
 
-    private GroupMatcher() { }
+    private GroupMatcher() {
+    }
 
     public static Matcher<? super Object> matchGroupEntry(UUID uuid, String name) {
         return allOf(
@@ -31,10 +32,11 @@ public class GroupMatcher {
 
     public static Matcher<? super Object> matchGroupWithName(String name) {
         return allOf(
-            hasJsonPath("$.name", is(name)),
-            hasJsonPath("$.type", is("group")),
-            hasJsonPath("$._links.self.href", containsString("/api/eperson/groups/")),
-            hasJsonPath("$._links.subgroups.href", endsWith("/subgroups"))
+                hasJsonPath("$.name", is(name)),
+                hasJsonPath("$.type", is("group")),
+                hasJsonPath("$.uniqueType", is("eperson.group")),
+                hasJsonPath("$._links.self.href", containsString("/api/eperson/groups/")),
+                hasJsonPath("$._links.subgroups.href", endsWith("/subgroups"))
         );
     }
 
@@ -66,6 +68,7 @@ public class GroupMatcher {
                 hasJsonPath("$.uuid", is(uuid.toString())),
                 hasJsonPath("$.name", is(name)),
                 hasJsonPath("$.type", is("group")),
+                hasJsonPath("$.uniqueType", is("eperson.group")),
                 hasJsonPath("$._links.self.href", containsString("/api/eperson/groups/" + uuid.toString())),
                 hasJsonPath("$._links.subgroups.href", endsWith(uuid.toString() + "/subgroups")),
                 hasJsonPath("$._links.epersons.href", endsWith(uuid.toString() + "/epersons"))

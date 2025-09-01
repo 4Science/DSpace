@@ -700,9 +700,9 @@ public class CSVMetadataImportReferenceIT extends AbstractIntegrationTestWithDat
         try {
             String[] args = null;
             if (validateOnly) {
-                args = new String[] {"metadata-import", "-f", fileLocation, "-e", eperson.getEmail(), "-s", "-v"};
+                args = new String[] {"metadata-import", "-f", fileLocation, "-e", admin.getEmail(), "-s", "-v"};
             } else {
-                args = new String[] {"metadata-import", "-f", fileLocation, "-e", eperson.getEmail(), "-s",};
+                args = new String[] {"metadata-import", "-f", fileLocation, "-e", admin.getEmail(), "-s",};
             }
             TestDSpaceRunnableHandler testDSpaceRunnableHandler = new TestDSpaceRunnableHandler();
 
@@ -714,8 +714,10 @@ public class CSVMetadataImportReferenceIT extends AbstractIntegrationTestWithDat
                 script = scriptService.createDSpaceRunnableForScriptConfiguration(scriptConfiguration);
             }
             if (script != null) {
-                script.initialize(args, testDSpaceRunnableHandler, null);
-                script.run();
+                if (DSpaceRunnable.StepResult.Continue
+                        .equals(script.initialize(args, testDSpaceRunnableHandler, null))) {
+                    script.run();
+                }
             }
             if (testDSpaceRunnableHandler.getException() != null) {
                 throw testDSpaceRunnableHandler.getException();

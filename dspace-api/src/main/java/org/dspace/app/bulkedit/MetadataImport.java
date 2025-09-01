@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -19,8 +20,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
-import javax.annotation.Nullable;
 
+import jakarta.annotation.Nullable;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.Logger;
@@ -86,6 +87,11 @@ public class MetadataImport extends DSpaceRunnable<MetadataImportScriptConfigura
      * The lines to import
      */
     List<DSpaceCSVLine> toImport;
+
+    /**
+     * The authority controlled fields
+     */
+    protected static Set<String> authorityControlled;
 
     /**
      * The prefix of the authority controlled field
@@ -182,11 +188,14 @@ public class MetadataImport extends DSpaceRunnable<MetadataImportScriptConfigura
         // Create a context
         Context c = null;
         c = new Context();
-        c.turnOffAuthorisationSystem();
 
         // Find the EPerson, assign to context
         assignCurrentUserInContext(c);
+        assignSpecialGroupsInContext(c);
 
+        if (authorityControlled == null) {
+            setAuthorizedMetadataFields();
+        }
         // Read commandLines from the CSV file
         try {
 
@@ -207,6 +216,7 @@ public class MetadataImport extends DSpaceRunnable<MetadataImportScriptConfigura
         initMetadataImport(csv);
         List<BulkEditChange> changes;
 
+        handleAuthorizationSystem(c);
         if (!commandLine.hasOption('s') || validateOnly) {
             // See what has changed
             try {
@@ -250,7 +260,7 @@ public class MetadataImport extends DSpaceRunnable<MetadataImportScriptConfigura
             }
 
             // Finsh off and tidy up
-            c.restoreAuthSystemState();
+            handleAuthorizationSystem(c);
             c.complete();
         } catch (Exception e) {
             c.abort();
@@ -269,6 +279,12 @@ public class MetadataImport extends DSpaceRunnable<MetadataImportScriptConfigura
             } catch (SQLException e) {
                 log.error("Something went wrong trying to fetch the eperson for uuid: " + uuid, e);
             }
+        }
+    }
+
+    private void assignSpecialGroupsInContext(Context context) throws SQLException {
+        for (UUID uuid : handler.getSpecialGroups()) {
+            context.setSpecialGroup(uuid);
         }
     }
 
@@ -349,6 +365,7 @@ public class MetadataImport extends DSpaceRunnable<MetadataImportScriptConfigura
         ArrayList<BulkEditChange> changes = new ArrayList<BulkEditChange>();
 
         // Make the changes
+        Context.Mode originalMode = c.getCurrentMode();
         c.setMode(Context.Mode.BATCH_EDIT);
 
         // Process each change
@@ -573,6 +590,10 @@ public class MetadataImport extends DSpaceRunnable<MetadataImportScriptConfigura
                             wfItem = workflowService.startWithoutNotify(c, wsItem);
                         }
                     } else {
+                        // Add provenance info
+                        String provenance = installItemService.getSubmittedByProvenanceMessage(c, wsItem.getItem());
+                        itemService.addMetadata(c, item, MetadataSchemaEnum.DC.getName(),
+                                "description", "provenance", "en", provenance);
                         // Install the item
                         installItemService.installItem(c, wsItem);
                     }
@@ -816,8 +837,10 @@ public class MetadataImport extends DSpaceRunnable<MetadataImportScriptConfigura
                 addRelationships(c, item, element, values);
             } else {
                 itemService.clearMetadata(c, item, schema, element, qualifier, language);
-                itemService.addMetadata(c, item, schema, element, qualifier,
-                                        language, values, authorities, confidences);
+                if (!values.isEmpty()) {
+                    itemService.addMetadata(c, item, schema, element, qualifier,
+                                            language, values, authorities, confidences);
+                }
                 itemService.update(c, item);
             }
         }
@@ -1112,8 +1135,8 @@ public class MetadataImport extends DSpaceRunnable<MetadataImportScriptConfigura
                     .getAuthoritySeparator() + dcv.getConfidence();
             }
 
-            // Add it
-            if ((value != null) && (!"".equals(value))) {
+            // Add it, if value is not blank
+            if (value != null && StringUtils.isNotBlank(value)) {
                 changes.registerAdd(dcv);
             }
         }
@@ -1368,10 +1391,25 @@ public class MetadataImport extends DSpaceRunnable<MetadataImportScriptConfigura
     /**
      * is the field is defined as authority controlled
      */
-    private boolean isAuthorityControlledField(String md) {
-        String mdf = StringUtils.substringAfter(md, ":");
+    private static boolean isAuthorityControlledField(String md) {
+        String mdf = md.contains(":") ? StringUtils.substringAfter(md, ":") : md;
         mdf = StringUtils.substringBefore(mdf, "[");
-        return metadataAuthorityService.isAuthorityAllowed(mdf.replaceAll("\\.", "_"), Constants.ITEM, null);
+        return authorityControlled.contains(mdf);
+    }
+
+    /**
+     * Set authority controlled fields
+     */
+    private void setAuthorizedMetadataFields() {
+        authorityControlled = new HashSet<>();
+        Enumeration propertyNames = configurationService.getProperties().propertyNames();
+        while (propertyNames.hasMoreElements()) {
+            String key = ((String) propertyNames.nextElement()).trim();
+            if (key.startsWith(AC_PREFIX)
+                && configurationService.getBooleanProperty(key, false)) {
+                authorityControlled.add(key.substring(AC_PREFIX.length()));
+            }
+        }
     }
 
     /**

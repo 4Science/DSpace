@@ -78,7 +78,7 @@
                     <xsl:if test="Families/Family">
                         <fo:block font-size="10pt" margin-top="2mm">
                             <fo:inline font-weight="bold" text-align="right"  >
-                                <xsl:text>Soggettto produttore/Famiglia: </xsl:text>
+                                <xsl:text>Soggetto produttore/Famiglia: </xsl:text>
                             </fo:inline >
                             <fo:inline>
                                 <xsl:for-each select="Families/Family">

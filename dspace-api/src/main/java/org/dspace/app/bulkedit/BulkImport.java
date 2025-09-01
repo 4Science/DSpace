@@ -59,7 +59,7 @@ import org.dspace.app.bulkimport.model.EntityRow;
 import org.dspace.app.bulkimport.model.ImportAction;
 import org.dspace.app.bulkimport.model.MetadataGroup;
 import org.dspace.app.bulkimport.model.UploadDetails;
-import org.dspace.app.bulkimport.util.BulkImportFileUtil;
+import org.dspace.app.bulkimport.util.ImportFileUtil;
 import org.dspace.app.util.DCInputsReader;
 import org.dspace.app.util.DCInputsReaderException;
 import org.dspace.authority.service.ItemSearchService;
@@ -210,7 +210,7 @@ public class BulkImport extends DSpaceRunnable<BulkImportScriptConfiguration<Bul
 
     private Context context;
 
-    private BulkImportFileUtil bulkImportFileUtil;
+    private ImportFileUtil importFileUtil;
 
     private BundleService bundleService;
 
@@ -241,7 +241,9 @@ public class BulkImport extends DSpaceRunnable<BulkImportScriptConfiguration<Bul
         this.workflowItemService = WorkflowServiceFactory.getInstance().getWorkflowItemService();
         this.bulkImportTransformerService = new DSpace().getServiceManager().getServiceByName(
                BulkImportTransformerService.class.getName(), BulkImportTransformerService.class);
-        this.bulkImportFileUtil = new BulkImportFileUtil(this.handler);
+        if (this.importFileUtil == null) {
+            this.importFileUtil = new ImportFileUtil(this.handler);
+        }
         this.bundleService = ContentServiceFactory.getInstance().getBundleService();
         this.bitstreamService = ContentServiceFactory.getInstance().getBitstreamService();
         this.bitstreamFormatService = ContentServiceFactory.getInstance().getBitstreamFormatService();
@@ -258,7 +260,7 @@ public class BulkImport extends DSpaceRunnable<BulkImportScriptConfiguration<Bul
         collectionId = commandLine.getOptionValue('c');
         filename = commandLine.getOptionValue('f');
 
-        if (commandLine.hasOption('e')) {
+        if (commandLine.hasOption("er")) {
             abortOnError = true;
         }
     }
@@ -266,10 +268,8 @@ public class BulkImport extends DSpaceRunnable<BulkImportScriptConfiguration<Bul
     @Override
     public void internalRun() throws Exception {
         context = new Context(Context.Mode.BATCH_EDIT);
-        assignCurrentUserInContext();
+        assignCurrentUserInContext(context);
         assignSpecialGroupsInContext();
-
-        context.turnOffAuthorisationSystem();
 
         InputStream inputStream = handler.getFileStream(context, filename)
             .orElseThrow(() -> new IllegalArgumentException("Error reading file, the file couldn't be "
@@ -285,6 +285,7 @@ public class BulkImport extends DSpaceRunnable<BulkImportScriptConfiguration<Bul
         }
 
         try {
+            context.turnOffAuthorisationSystem();
             performImport(inputStream);
             context.complete();
             context.restoreAuthSystemState();
@@ -1042,7 +1043,7 @@ public class BulkImport extends DSpaceRunnable<BulkImportScriptConfiguration<Bul
 
         String filePath = uploadDetails.getFilePath();
 
-        Optional<InputStream> inputStream = bulkImportFileUtil.getInputStream(filePath);
+        Optional<InputStream> inputStream = importFileUtil.getInputStream(filePath);
 
         if (inputStream.isEmpty()) {
             handler.logError("Cannot create bitstream from file at path " + filePath);
@@ -1604,7 +1605,7 @@ public class BulkImport extends DSpaceRunnable<BulkImportScriptConfiguration<Bul
         }
     }
 
-    private void assignCurrentUserInContext() throws SQLException {
+    protected void assignCurrentUserInContext(Context context) throws SQLException, ParseException {
         UUID uuid = getEpersonIdentifier();
         if (uuid != null) {
             EPerson ePerson = EPersonServiceFactory.getInstance().getEPersonService().find(context, uuid);
@@ -1632,6 +1633,10 @@ public class BulkImport extends DSpaceRunnable<BulkImportScriptConfiguration<Bul
 
     private boolean isAppendModeDisabled() {
         return !configurationService.getBooleanProperty("core.authorization.installitem.inheritance-read.append-mode");
+    }
+
+    public void setImportFileUtil(ImportFileUtil importFileUtil) {
+        this.importFileUtil = importFileUtil;
     }
 
     @Override

@@ -9,7 +9,10 @@ package org.dspace.app.rest.converter;
 
 import static org.dspace.app.util.Util.getSourceVersion;
 
+import jakarta.servlet.http.HttpServletRequest;
+import org.apache.commons.lang3.StringUtils;
 import org.dspace.app.rest.model.RootRest;
+import org.dspace.core.CrisConstants;
 import org.dspace.services.ConfigurationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -23,12 +26,23 @@ public class RootConverter {
     @Autowired
     private ConfigurationService configurationService;
 
-    public RootRest convert() {
+    public RootRest convert(HttpServletRequest request) {
         RootRest rootRest = new RootRest();
         rootRest.setDspaceName(configurationService.getProperty("dspace.name"));
         rootRest.setDspaceUI(configurationService.getProperty("dspace.ui.url"));
-        rootRest.setDspaceServer(configurationService.getProperty("dspace.server.url"));
-        rootRest.setDspaceVersion("DSpace " + getSourceVersion());
+        String requestUrl = request.getRequestURL().toString();
+        String dspaceUrl = configurationService.getProperty("dspace.server.url");
+        String dspaceSSRUrl = configurationService.getProperty("dspace.server.ssr.url", dspaceUrl);
+        if (!dspaceUrl.equals(dspaceSSRUrl) && StringUtils.isNotBlank(dspaceSSRUrl)
+            && requestUrl.startsWith(dspaceSSRUrl)) {
+            rootRest.setDspaceServer(dspaceSSRUrl);
+        } else {
+            rootRest.setDspaceServer(dspaceUrl);
+        }
+        rootRest.setDspaceVersion(CrisConstants.DSPACE_BASE_VERSION);
+        rootRest.setCrisVersion(getSourceVersion());
         return rootRest;
     }
+
+
 }

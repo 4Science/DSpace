@@ -74,6 +74,7 @@ import org.dspace.harvest.util.NamespaceUtils;
 import org.dspace.services.ConfigurationService;
 import org.dspace.services.factory.DSpaceServicesFactory;
 import org.dspace.util.UUIDUtils;
+import org.dspace.validation.LicenseValidator;
 import org.dspace.xmlworkflow.factory.XmlWorkflowServiceFactory;
 import org.dspace.xmlworkflow.storedcomponents.PoolTask;
 import org.dspace.xmlworkflow.storedcomponents.XmlWorkflowItem;
@@ -768,7 +769,7 @@ public class OAIHarvesterIT extends AbstractIntegrationTestWithDatabase {
             Item publication = publications.get(0);
 
             List<MetadataValue> values = publication.getMetadata();
-            assertThat(values, hasSize(17));
+            assertThat(values, hasSize(21));
 
             assertThat(values, hasItems(with("dc.title", "Test Publication")));
             assertThat(values, hasItems(with("dc.type", "Controlled Vocabulary for Resource Type Genres::text")));
@@ -779,6 +780,8 @@ public class OAIHarvesterIT extends AbstractIntegrationTestWithDatabase {
             assertThat(values, hasItems(with("oaire.citation.endPage", "180")));
             assertThat(values, hasItems(with("dc.identifier.doi", "10.1007/978-3-642-35233-1_18")));
             assertThat(values, hasItems(with("oairecerif.author.affiliation", PLACEHOLDER_PARENT_METADATA_VALUE)));
+            assertThat(values, hasItems(with("cris.virtual.department", PLACEHOLDER_PARENT_METADATA_VALUE)));
+            assertThat(values, hasItems(with("cris.virtual.orcid", PLACEHOLDER_PARENT_METADATA_VALUE)));
             assertThat(values, hasItems(with("cris.sourceId", "test-harvest::3")));
             assertThat(values, hasItems(with("dspace.entity.type", "Publication")));
 
@@ -871,7 +874,7 @@ public class OAIHarvesterIT extends AbstractIntegrationTestWithDatabase {
 
             Item publication = findItemByOaiID("oai:test-harvest:Publications/3", collection);
             values = publication.getMetadata();
-            assertThat(values, hasSize(19));
+            assertThat(values, hasSize(21));
 
             assertThat(values, hasItems(with("dc.title", "Test Publication")));
             assertThat(values, hasItems(with("dc.type", "Controlled Vocabulary for Resource Type Genres::text")));
@@ -884,8 +887,10 @@ public class OAIHarvesterIT extends AbstractIntegrationTestWithDatabase {
             assertThat(values, hasItems(with("oairecerif.author.affiliation", PLACEHOLDER_PARENT_METADATA_VALUE)));
             assertThat(values, hasItems(with("cris.sourceId", "test-harvest::3")));
             assertThat(values, hasItems(with("dspace.entity.type", "Publication")));
-            assertThat(values, hasItems(with("cris.virtual.author-orcid", "0000-0002-9079-5932")));
-            assertThat(values, hasItems(with("cris.virtualsource.author-orcid",
+            assertThat(values, hasItems(with("cris.virtual.department", PLACEHOLDER_PARENT_METADATA_VALUE)));
+            assertThat(values, hasItems(with("cris.virtualsource.department", UUIDUtils.toString(person.getID()))));
+            assertThat(values, hasItems(with("cris.virtual.orcid", "0000-0002-9079-5932")));
+            assertThat(values, hasItems(with("cris.virtualsource.orcid",
                                              UUIDUtils.toString(person.getID()))));
 
             MetadataValue author = itemService.getMetadata(publication, "dc", "contributor", "author", Item.ANY).get(0);
@@ -1085,7 +1090,7 @@ public class OAIHarvesterIT extends AbstractIntegrationTestWithDatabase {
 
         Item item = workflowItems.get(0).getItem();
         assertThat(item.isArchived(), equalTo(false));
-        assertThat(item.getMetadata(), hasSize(7));
+        assertThat(item.getMetadata(), hasSize(8));
         assertThat(harvestedItemService.find(context, item), notNullValue());
     }
 
@@ -1244,6 +1249,9 @@ public class OAIHarvesterIT extends AbstractIntegrationTestWithDatabase {
     @Test
     public void testRunHarvestWithEmailSentIfItemValidationFails() throws Exception {
 
+        //disable file upload mandatory
+        configurationService.setProperty("webui.submit.upload.required", false);
+
         OAIHarvesterEmailSender originalEmailSender = harvester.getOaiHarvesterEmailSender();
 
         try {
@@ -1299,10 +1307,10 @@ public class OAIHarvesterIT extends AbstractIntegrationTestWithDatabase {
 
             ErrorDetails errorDetails = errors.get("oai:test-harvest:Publications/3");
             assertThat(errorDetails.getAction(), is("created"));
-            assertThat(errorDetails.getMessages(), hasSize(2));
-            assertThat(errorDetails.getMessages(), hasItem("error.validation.filerequired - [/sections/upload]"));
+            assertThat(errorDetails.getMessages(), hasSize(1));
             assertThat(errorDetails.getMessages(),
-                hasItem("error.validation.license.notgranted - [/sections/license]"));
+               hasItem(LicenseValidator.ERROR_VALIDATION_LICENSEREQUIRED + " - [/sections/license]")
+            );
 
             verifyNoMoreInteractions(mockClient, mockEmailSender);
 
@@ -1378,6 +1386,9 @@ public class OAIHarvesterIT extends AbstractIntegrationTestWithDatabase {
     @Test
     public void testRunHarvestWithEmailSentIfItemAndRecordValidationFails() throws Exception {
 
+        //disable file upload mandatory
+        configurationService.setProperty("webui.submit.upload.required", false);
+
         OAIHarvesterEmailSender originalEmailSender = harvester.getOaiHarvesterEmailSender();
 
         try {
@@ -1423,26 +1434,23 @@ public class OAIHarvesterIT extends AbstractIntegrationTestWithDatabase {
             ErrorDetails errorDetails = errors.get("oai:test-harvest:Publications/123456789/1001");
             assertThat(errorDetails.getAction(), is("created"));
             List<String> messages = errorDetails.getMessages();
-            assertThat(messages, hasSize(3));
-            assertThat(messages, hasItem("error.validation.filerequired - [/sections/upload]"));
-            assertThat(messages, hasItem("error.validation.license.notgranted - [/sections/license]"));
+            assertThat(messages, hasSize(2));
+            assertThat(messages, hasItem(LicenseValidator.ERROR_VALIDATION_LICENSEREQUIRED + " - [/sections/license]"));
             assertThat(messages, hasItem("error.validation.required - [/sections/publication/dc.date.issued]"));
 
             errorDetails = errors.get("oai:test-harvest:Publications/123456789/1002");
             assertThat(errorDetails.getAction(), is("created"));
             messages = errorDetails.getMessages();
-            assertThat(messages, hasSize(3));
-            assertThat(messages, hasItem("error.validation.filerequired - [/sections/upload]"));
-            assertThat(messages, hasItem("error.validation.license.notgranted - [/sections/license]"));
+            assertThat(messages, hasSize(2));
+            assertThat(messages, hasItem(LicenseValidator.ERROR_VALIDATION_LICENSEREQUIRED + " - [/sections/license]"));
             assertThat(errorDetails.getMessages(), hasItem(containsString("Element 'oai_cerif:Publishers' "
                 + "cannot have character [children]")));
 
             errorDetails = errors.get("oai:test-harvest:Publications/123456789/1003");
             assertThat(errorDetails.getAction(), is("created"));
             messages = errorDetails.getMessages();
-            assertThat(messages, hasSize(2));
-            assertThat(messages, hasItem("error.validation.filerequired - [/sections/upload]"));
-            assertThat(messages, hasItem("error.validation.license.notgranted - [/sections/license]"));
+            assertThat(messages, hasSize(1));
+            assertThat(messages, hasItem(LicenseValidator.ERROR_VALIDATION_LICENSEREQUIRED + " - [/sections/license]"));
 
             verifyNoMoreInteractions(mockClient, mockEmailSender);
 

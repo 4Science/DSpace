@@ -16,6 +16,7 @@ import org.dspace.app.rest.authorization.AuthorizationFeature;
 import org.dspace.app.rest.authorization.AuthorizationFeatureDocumentation;
 import org.dspace.app.rest.model.BaseObjectRest;
 import org.dspace.app.rest.model.ItemRest;
+import org.dspace.app.rest.model.SiteRest;
 import org.dspace.content.Item;
 import org.dspace.content.edit.CorrectItemMode;
 import org.dspace.content.security.service.CrisSecurityService;
@@ -60,6 +61,10 @@ public class ItemCorrectionFeature implements AuthorizationFeature {
     @Override
     @SuppressWarnings("rawtypes")
     public boolean isAuthorized(Context context, BaseObjectRest object) throws SQLException {
+        if (object instanceof SiteRest) {
+            return configurationService.getBooleanProperty("item-correction.enabled", true);
+        }
+
         if (!(object instanceof ItemRest)) {
             return false;
         }
@@ -73,7 +78,7 @@ public class ItemCorrectionFeature implements AuthorizationFeature {
 
     @Override
     public String[] getSupportedTypes() {
-        return new String[] { ItemRest.CATEGORY + "." + ItemRest.NAME };
+        return new String[] { ItemRest.CATEGORY + "." + ItemRest.NAME, SiteRest.CATEGORY + "." + SiteRest.NAME};
     }
 
     private boolean isAuthorizedToCorrectItem(Context context, ItemRest itemRest) throws SQLException {

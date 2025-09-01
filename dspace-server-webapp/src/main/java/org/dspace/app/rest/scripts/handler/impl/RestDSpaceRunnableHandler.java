@@ -44,6 +44,8 @@ import org.dspace.scripts.ProcessLogLevel;
 import org.dspace.scripts.factory.ScriptServiceFactory;
 import org.dspace.scripts.handler.DSpaceRunnableHandler;
 import org.dspace.scripts.service.ProcessService;
+import org.dspace.services.ConfigurationService;
+import org.dspace.services.factory.DSpaceServicesFactory;
 import org.dspace.utils.DSpace;
 import org.springframework.core.task.TaskExecutor;
 
@@ -54,6 +56,7 @@ public class RestDSpaceRunnableHandler implements DSpaceRunnableHandler {
     private static final Logger log = org.apache.logging.log4j.LogManager
         .getLogger(RestDSpaceRunnableHandler.class);
 
+    private ConfigurationService configurationService = DSpaceServicesFactory.getInstance().getConfigurationService();
     private BitstreamService bitstreamService = ContentServiceFactory.getInstance().getBitstreamService();
     private ProcessService processService = ScriptServiceFactory.getInstance().getProcessService();
     private EPersonService ePersonService = EPersonServiceFactory.getInstance().getEPersonService();
@@ -140,7 +143,7 @@ public class RestDSpaceRunnableHandler implements DSpaceRunnableHandler {
 
     @Override
     public void handleException(Exception e) {
-        handleException(null, e);
+        handleException(e.getMessage(), e);
     }
 
     @Override
@@ -298,8 +301,10 @@ public class RestDSpaceRunnableHandler implements DSpaceRunnableHandler {
      * @param script    The script to be ran
      */
     public void schedule(DSpaceRunnable script) {
+        String taskExecutorBeanName = configurationService.getProperty("dspace.task.executor",
+                                                                  "dspaceRunnableThreadExecutor");
         TaskExecutor taskExecutor = new DSpace().getServiceManager()
-                                                .getServiceByName("dspaceRunnableThreadExecutor", TaskExecutor.class);
+                                                .getServiceByName(taskExecutorBeanName, TaskExecutor.class);
         Context context = new Context();
         try {
             Process process = processService.find(context, processId);
@@ -360,4 +365,17 @@ public class RestDSpaceRunnableHandler implements DSpaceRunnableHandler {
     public Locale getLocale() {
         return this.locale;
     }
+
+    public Integer getProcessId() {
+        return processId;
+    }
+
+    public String getScriptName() {
+        return scriptName;
+    }
+
+    public UUID getePersonId() {
+        return ePersonId;
+    }
+
 }

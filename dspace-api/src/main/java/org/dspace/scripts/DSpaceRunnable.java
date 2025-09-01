@@ -8,6 +8,7 @@
 package org.dspace.scripts;
 
 import java.io.InputStream;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -18,6 +19,9 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.lang3.StringUtils;
+import org.dspace.authorize.factory.AuthorizeServiceFactory;
+import org.dspace.cli.DSpaceSkipUnknownArgumentsParser;
+import org.dspace.core.Context;
 import org.dspace.eperson.EPerson;
 import org.dspace.scripts.configuration.ScriptConfiguration;
 import org.dspace.scripts.handler.DSpaceRunnableHandler;
@@ -37,6 +41,11 @@ public abstract class DSpaceRunnable<T extends ScriptConfiguration> implements R
     protected CommandLine commandLine;
 
     /**
+     * The minimal CommandLine object for the script that'll hold help information
+     */
+    protected CommandLine helpCommandLine;
+
+    /**
      * This EPerson identifier variable is the UUID of the EPerson that's running the script
      */
     private UUID epersonIdentifier;
@@ -46,6 +55,11 @@ public abstract class DSpaceRunnable<T extends ScriptConfiguration> implements R
      *  a CommandlineDSpaceRunnableHandler depending from where the script is called
      */
     protected DSpaceRunnableHandler handler;
+
+    /**
+     * Tells if the current context user that is running the script is an admin
+     */
+    private Boolean isAdmin = null;
 
     /**
      * This method will return the Configuration that the implementing DSpaceRunnable uses
@@ -58,22 +72,56 @@ public abstract class DSpaceRunnable<T extends ScriptConfiguration> implements R
         this.handler = dSpaceRunnableHandler;
     }
 
+    public DSpaceRunnableHandler getHandler() {
+        return this.handler;
+    }
+
     /**
      * This method sets the appropriate DSpaceRunnableHandler depending on where it was ran from and it parses
      * the arguments given to the script
      * @param args                  The arguments given to the script
      * @param dSpaceRunnableHandler The DSpaceRunnableHandler object that defines from where the script was ran
      * @param currentUser
+     * @return the result of this step; StepResult.Continue: continue the normal process,
+     * initialize is successful; otherwise exit the process (the help or version is shown)
      * @throws ParseException       If something goes wrong
      */
-    public void initialize(String[] args, DSpaceRunnableHandler dSpaceRunnableHandler,
+    public StepResult initialize(String[] args, DSpaceRunnableHandler dSpaceRunnableHandler,
                            EPerson currentUser) throws ParseException {
         if (currentUser != null) {
             this.setEpersonIdentifier(currentUser.getID());
         }
         this.setHandler(dSpaceRunnableHandler);
-        this.parse(args);
+
+        // parse the command line in a first step for the help options
+        // --> no other option is required
+        StepResult result = this.parseForHelp(args);
+        switch (result) {
+            case Exit:
+                // arguments of the command line matches the help options, handle this
+                handleHelpCommandLine();
+                break;
+
+            case Continue:
+                // arguments of the command line matches NOT the help options, parse the args for the normal options
+                result = this.parse(args);
+                break;
+            default:
+                break;
+        }
+
+        return result;
     }
+
+
+    /**
+     * This method handle the help command line. In this easy implementation only the help is printed. For more
+     * complexity override this method.
+     */
+    private void handleHelpCommandLine() {
+        printHelp();
+    }
+
 
     /**
      * This method will take the primitive array of String objects that represent the parameters given to the String
@@ -81,9 +129,19 @@ public abstract class DSpaceRunnable<T extends ScriptConfiguration> implements R
      * @param args              The primitive array of Strings representing the parameters
      * @throws ParseException   If something goes wrong
      */
-    private void parse(String[] args) throws ParseException {
+    private StepResult parse(String[] args) throws ParseException {
         commandLine = new DefaultParser().parse(getScriptConfiguration().getOptions(), args);
         setup();
+        return StepResult.Continue;
+    }
+
+    private StepResult parseForHelp(String[] args) throws ParseException {
+        helpCommandLine = new DSpaceSkipUnknownArgumentsParser().parse(getScriptConfiguration().getHelpOptions(), args);
+        if (helpCommandLine.getOptions() != null && helpCommandLine.getOptions().length > 0) {
+            return StepResult.Exit;
+        }
+
+        return StepResult.Continue;
     }
 
     /**
@@ -157,5 +215,41 @@ public abstract class DSpaceRunnable<T extends ScriptConfiguration> implements R
      */
     public void setEpersonIdentifier(UUID epersonIdentifier) {
         this.epersonIdentifier = epersonIdentifier;
+    }
+
+    public enum StepResult {
+        Continue, Exit;
+    }
+
+    protected boolean isAdmin() {
+        return isAdmin;
+    }
+
+    protected void setAdmin(boolean admin) {
+        isAdmin = admin;
+    }
+
+    /**
+     * Method that handles the authorization system for the script.
+     * It will disable the authorization system if the script is run as an admin.
+     * It will restore authorization system if is in ignore state and if the script is run as an admin.
+     *
+     * @param context current DSpace Context
+     */
+    protected void handleAuthorizationSystem(Context context) {
+        if (this.isAdmin == null) {
+            try {
+                this.setAdmin(AuthorizeServiceFactory.getInstance().getAuthorizeService().isAdmin(context));
+            } catch (SQLException e) {
+                handler.handleException("Cannot determine if the script is run as an admin", e);
+            }
+        }
+        if (Boolean.TRUE.equals(this.isAdmin)) {
+            if (context.ignoreAuthorization()) {
+                context.restoreAuthSystemState();
+            } else {
+                context.turnOffAuthorisationSystem();
+            }
+        }
     }
 }

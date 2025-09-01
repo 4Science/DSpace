@@ -10,19 +10,23 @@ package org.dspace.unpaywall.dao.impl;
 import java.sql.SQLException;
 import java.util.Optional;
 import java.util.UUID;
-import javax.persistence.NoResultException;
-import javax.persistence.Query;
 
+import jakarta.persistence.NoResultException;
+import jakarta.persistence.Query;
 import org.dspace.core.AbstractHibernateDAO;
 import org.dspace.core.Context;
 import org.dspace.unpaywall.dao.UnpaywallDAO;
 import org.dspace.unpaywall.model.Unpaywall;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Implementation of {@link UnpaywallDAO}.
  */
 @SuppressWarnings("unchecked")
 public class UnpaywallDAOImpl extends AbstractHibernateDAO<Unpaywall> implements UnpaywallDAO {
+
+    private static final Logger logger = LoggerFactory.getLogger(UnpaywallDAOImpl.class);
 
     @Override
     public Optional<Unpaywall> findByItemId(Context context, UUID itemId) {
@@ -31,6 +35,7 @@ public class UnpaywallDAOImpl extends AbstractHibernateDAO<Unpaywall> implements
             query.setParameter("itemId", itemId);
             return getSingleResult(query);
         } catch (SQLException e) {
+            logger.error("Error while retrieving the unpaywall", e);
             throw new RuntimeException(e);
         }
     }
@@ -43,6 +48,7 @@ public class UnpaywallDAOImpl extends AbstractHibernateDAO<Unpaywall> implements
             query.setParameter("itemId", itemId);
             return getSingleResult(query);
         } catch (SQLException e) {
+            logger.error("Error while retrieving the unpaywall", e);
             throw new RuntimeException(e);
         }
     }

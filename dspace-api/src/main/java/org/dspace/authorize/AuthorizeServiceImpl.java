@@ -9,6 +9,7 @@ package org.dspace.authorize;
 
 import static org.dspace.app.util.AuthorizeUtil.canCollectionAdminManageAccounts;
 import static org.dspace.app.util.AuthorizeUtil.canCommunityAdminManageAccounts;
+import static org.dspace.discovery.SearchUtils.RESOURCE_TYPE_FIELD;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -47,6 +48,7 @@ import org.dspace.discovery.SearchService;
 import org.dspace.discovery.SearchServiceException;
 import org.dspace.discovery.indexobject.IndexableCollection;
 import org.dspace.discovery.indexobject.IndexableCommunity;
+import org.dspace.discovery.indexobject.IndexableItem;
 import org.dspace.eperson.EPerson;
 import org.dspace.eperson.Group;
 import org.dspace.eperson.service.GroupService;
@@ -466,7 +468,7 @@ public class AuthorizeServiceImpl implements AuthorizeService {
         if (e == null) {
             return false; // anonymous users can't be admins....
         } else {
-            return groupService.isMember(c, e, Group.ADMIN);
+            return groupService.isMember(c, e, c.getAdminGroup());
         }
     }
 
@@ -567,17 +569,20 @@ public class AuthorizeServiceImpl implements AuthorizeService {
     @Override
     public void addPolicies(Context c, List<ResourcePolicy> policies, DSpaceObject dest)
         throws SQLException, AuthorizeException {
+
+        if (policies == null || policies.isEmpty()) {
+            return;
+        }
+
         // now add them to the destination object
         List<ResourcePolicy> newPolicies = new ArrayList<>(policies.size());
 
         for (ResourcePolicy srp : policies) {
-            ResourcePolicy rp = resourcePolicyService.create(c);
+            ResourcePolicy rp = resourcePolicyService.create(c, srp.getEPerson(), srp.getGroup());
 
             // copy over values
             rp.setdSpaceObject(dest);
             rp.setAction(srp.getAction());
-            rp.setEPerson(srp.getEPerson());
-            rp.setGroup(srp.getGroup());
             rp.setStartDate(srp.getStartDate());
             rp.setEndDate(srp.getEndDate());
             rp.setRpName(srp.getRpName());
@@ -676,60 +681,6 @@ public class AuthorizeServiceImpl implements AuthorizeService {
         }
     }
 
-    /**
-     * Generate Policies policies READ for the date in input adding reason. New policies are assigned automatically
-     * at the groups that
-     * have right on the collection. E.g., if the anonymous can access the collection policies are assigned to
-     * anonymous.
-     *
-     * @param context          The relevant DSpace Context.
-     * @param embargoDate      embargo end date
-     * @param reason           embargo reason
-     * @param dso              DSpace object
-     * @param owningCollection collection to get group policies from
-     * @throws SQLException       if database error
-     * @throws AuthorizeException if authorization error
-     */
-    @Override
-    public void generateAutomaticPolicies(Context context, Date embargoDate,
-                                          String reason, DSpaceObject dso, Collection owningCollection)
-        throws SQLException, AuthorizeException {
-
-        if (embargoDate != null || (embargoDate == null && dso instanceof Bitstream)) {
-
-            List<Group> authorizedGroups = getAuthorizedGroups(context, owningCollection, Constants.DEFAULT_ITEM_READ);
-
-            removeAllPoliciesByDSOAndType(context, dso, ResourcePolicy.TYPE_CUSTOM);
-
-            // look for anonymous
-            boolean isAnonymousInPlace = false;
-            for (Group g : authorizedGroups) {
-                if (StringUtils.equals(g.getName(), Group.ANONYMOUS)) {
-                    isAnonymousInPlace = true;
-                }
-            }
-            if (!isAnonymousInPlace) {
-                // add policies for all the groups
-                for (Group g : authorizedGroups) {
-                    ResourcePolicy rp = createOrModifyPolicy(null, context, null, g, null, embargoDate, Constants.READ,
-                                                             reason, dso);
-                    if (rp != null) {
-                        resourcePolicyService.update(context, rp);
-                    }
-                }
-
-            } else {
-                // add policy just for anonymous
-                ResourcePolicy rp = createOrModifyPolicy(null, context, null,
-                                                         groupService.findByName(context, Group.ANONYMOUS), null,
-                                                         embargoDate, Constants.READ, reason, dso);
-                if (rp != null) {
-                    resourcePolicyService.update(context, rp);
-                }
-            }
-        }
-    }
-
     @Override
     public ResourcePolicy createResourcePolicy(Context context, DSpaceObject dso, Group group, EPerson eperson,
                                                int type, String rpType) throws SQLException, AuthorizeException {
@@ -745,11 +696,9 @@ public class AuthorizeServiceImpl implements AuthorizeService {
                 "We need at least an eperson or a group in order to create a resource policy.");
         }
 
-        ResourcePolicy myPolicy = resourcePolicyService.create(context);
+        ResourcePolicy myPolicy = resourcePolicyService.create(context, eperson, group);
         myPolicy.setdSpaceObject(dso);
         myPolicy.setAction(type);
-        myPolicy.setGroup(group);
-        myPolicy.setEPerson(eperson);
         myPolicy.setRpType(rpType);
         myPolicy.setRpName(rpName);
         myPolicy.setRpDescription(rpDescription);
@@ -772,7 +721,7 @@ public class AuthorizeServiceImpl implements AuthorizeService {
             if (!duplicates.isEmpty()) {
                 policy = duplicates.get(0);
             }
-        } else {
+        } else if (group != null) {
             // if an identical policy (same Action and same Group) is already in place modify it...
             policyTemp = findByTypeGroupAction(context, dso, group, action);
         }
@@ -815,7 +764,7 @@ public class AuthorizeServiceImpl implements AuthorizeService {
      */
     @Override
     public boolean isCommunityAdmin(Context context) throws SQLException {
-        return performCheck(context, "search.resourcetype:" + IndexableCommunity.TYPE);
+        return performCheck(context, RESOURCE_TYPE_FIELD + ":" + IndexableCommunity.TYPE);
     }
 
     /**
@@ -828,7 +777,20 @@ public class AuthorizeServiceImpl implements AuthorizeService {
      */
     @Override
     public boolean isCollectionAdmin(Context context) throws SQLException {
-        return performCheck(context, "search.resourcetype:" + IndexableCollection.TYPE);
+        return performCheck(context, RESOURCE_TYPE_FIELD + ":" + IndexableCollection.TYPE);
+    }
+
+    /**
+     * Checks that the context's current user is an item admin in the site by querying the solr database.
+     *
+     * @param context   context with the current user
+     * @return          true if the current user is an item admin in the site
+     *                  false when this is not the case, or an exception occurred
+     * @throws java.sql.SQLException passed through.
+     */
+    @Override
+    public boolean isItemAdmin(Context context) throws SQLException {
+        return performCheck(context, RESOURCE_TYPE_FIELD + ":" + IndexableItem.TYPE);
     }
 
     /**
@@ -842,8 +804,8 @@ public class AuthorizeServiceImpl implements AuthorizeService {
     @Override
     public boolean isComColAdmin(Context context) throws SQLException {
         return performCheck(context,
-            "(search.resourcetype:" + IndexableCommunity.TYPE + " OR search.resourcetype:" +
-                IndexableCollection.TYPE + ")");
+            "(" + RESOURCE_TYPE_FIELD + ":" + IndexableCommunity.TYPE + " OR " +
+            RESOURCE_TYPE_FIELD + ":" + IndexableCollection.TYPE + ")");
     }
 
     /**
@@ -861,7 +823,7 @@ public class AuthorizeServiceImpl implements AuthorizeService {
         throws SearchServiceException, SQLException {
         List<Community> communities = new ArrayList<>();
         query = formatCustomQuery(query);
-        DiscoverResult discoverResult = getDiscoverResult(context, query + "search.resourcetype:" +
+        DiscoverResult discoverResult = getDiscoverResult(context, query + RESOURCE_TYPE_FIELD + ":" +
                                                               IndexableCommunity.TYPE,
             offset, limit, null, null);
         for (IndexableObject solrCollections : discoverResult.getIndexableObjects()) {
@@ -883,9 +845,9 @@ public class AuthorizeServiceImpl implements AuthorizeService {
     public long countAdminAuthorizedCommunity(Context context, String query)
         throws SearchServiceException, SQLException {
         query = formatCustomQuery(query);
-        DiscoverResult discoverResult = getDiscoverResult(context, query + "search.resourcetype:" +
+        DiscoverResult discoverResult = getDiscoverResult(context, query + RESOURCE_TYPE_FIELD + ":" +
                                                               IndexableCommunity.TYPE,
-            null, null, null, null);
+            null, 0, null, null);
         return discoverResult.getTotalSearchResults();
     }
 
@@ -908,7 +870,7 @@ public class AuthorizeServiceImpl implements AuthorizeService {
         }
 
         query = formatCustomQuery(query);
-        DiscoverResult discoverResult = getDiscoverResult(context, query + "search.resourcetype:" +
+        DiscoverResult discoverResult = getDiscoverResult(context, query + RESOURCE_TYPE_FIELD + ":" +
                                                               IndexableCollection.TYPE,
             offset, limit, CollectionService.SOLR_SORT_FIELD, SORT_ORDER.asc);
 
@@ -931,9 +893,9 @@ public class AuthorizeServiceImpl implements AuthorizeService {
     public long countAdminAuthorizedCollection(Context context, String query)
         throws SearchServiceException, SQLException {
         query = formatCustomQuery(query);
-        DiscoverResult discoverResult = getDiscoverResult(context, query + "search.resourcetype:" +
+        DiscoverResult discoverResult = getDiscoverResult(context, query + RESOURCE_TYPE_FIELD + ":" +
                                                               IndexableCollection.TYPE,
-            null, null, null, null);
+            null, 0, null, null);
         return discoverResult.getTotalSearchResults();
     }
 
@@ -958,7 +920,7 @@ public class AuthorizeServiceImpl implements AuthorizeService {
                 return true;
             }
         } catch (SearchServiceException e) {
-            log.error("Failed getting getting community/collection admin status for "
+            log.error("Failed getting community/collection admin status for "
                 + context.getCurrentUser().getEmail() + " The search error is: " + e.getMessage()
                 + " The search resourceType filter was: " + query);
         }

@@ -23,8 +23,13 @@ import org.springframework.beans.factory.annotation.Autowired;
  */
 public class RegexPasswordValidator implements PasswordValidatorService {
 
+    protected static final String REGEX_VALIDATION_PATTERN = "authentication-password.regex-validation.pattern";
+    protected final ConfigurationService configurationService;
+
     @Autowired
-    private ConfigurationService configurationService;
+    RegexPasswordValidator(ConfigurationService configurationService) {
+        this.configurationService = configurationService;
+    }
 
     @Override
     public boolean isPasswordValidationEnabled() {
@@ -42,7 +47,7 @@ public class RegexPasswordValidator implements PasswordValidatorService {
     }
 
     private String getPasswordValidationPattern() {
-        return configurationService.getProperty("authentication-password.regex-validation.pattern");
+        return configurationService.getProperty(REGEX_VALIDATION_PATTERN);
     }
 
 }

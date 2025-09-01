@@ -44,6 +44,23 @@ public interface DOIService {
     public DOI create(Context context) throws SQLException;
 
     /**
+     * Deletes the given {@link DOI}.
+     *
+     * @param context current DSpace session.
+     * @throws SQLException passed through.
+     */
+    void delete(Context context, DOI doi) throws SQLException;
+
+    /**
+     * Retrieves the full list of {@link DOI}s currently in storage.
+     *
+     * @param context current DSpace session.
+     * @return The list of all DOIs currently in storage.
+     * @throws SQLException passed through.
+     */
+    List<DOI> findAll(Context context) throws SQLException;
+
+    /**
      * Find a specific DOI in storage.
      *
      * @param context current DSpace session.
@@ -123,6 +140,18 @@ public interface DOIService {
      * @throws SQLException passed through.
      */
     public List<DOI> getDOIsByStatus(Context context, List<Integer> statuses) throws SQLException;
+
+    /**
+     * Find all DOIs that have one of a given set of statuses.
+     * @param  context      current DSpace session.
+     * @param  statuses     desired statuses.
+     * @param  offset       offset value
+     * @param  limit        limited number of items
+     * @return              all DOIs having any of the given statuses.
+     * @throws SQLException passed through.
+     */
+    public List<DOI> getDOIsByStatus(Context context, List<Integer> statuses, int offset, int limit)
+        throws SQLException;
 
     /**
      * Find all DOIs that are similar to the specified pattern and not in the

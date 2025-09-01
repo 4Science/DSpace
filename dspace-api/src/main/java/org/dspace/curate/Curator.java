@@ -88,7 +88,7 @@ public class Curator {
     protected Appendable reporter = null;
     protected Invoked iMode = null;
     protected TaskResolver resolver = new TaskResolver();
-    protected TxScope txScope = TxScope.OPEN;
+    protected TxScope txScope = TxScope.OBJECT;
     protected CommunityService communityService;
     protected ItemService itemService;
     protected HandleService handleService;
@@ -258,7 +258,7 @@ public class Curator {
             }
             // if curation scoped, commit transaction
             if (txScope.equals(TxScope.CURATION)) {
-                Context ctx = curationCtx.get();
+                Context ctx = curationContext();
                 if (ctx != null) {
                     ctx.complete();
                 }
@@ -275,8 +275,9 @@ public class Curator {
      * (Community, Collection or Item).
      * @param dso the DSpace object
      * @throws IOException if IO error
+     * @throws SQLException
      */
-    public void curate(DSpaceObject dso) throws IOException {
+    public void curate(DSpaceObject dso) throws IOException, SQLException {
         if (dso == null) {
             throw new IOException("Cannot perform curation task(s) on a null DSpaceObject!");
         }
@@ -307,9 +308,10 @@ public class Curator {
      * @param c   session context in which curation takes place.
      * @param dso the single object to be curated.
      * @throws java.io.IOException passed through.
+     * @throws SQLException
      */
     public void curate(Context c, DSpaceObject dso)
-        throws IOException {
+        throws IOException, SQLException {
         curationCtx.set(c);
         curate(dso);
     }
@@ -462,6 +464,8 @@ public class Curator {
             //Then, perform this task for all Top-Level Communities in the Site
             // (this will recursively perform task for all objects in DSpace)
             for (Community subcomm : communityService.findAllTop(ctx)) {
+                // force a reload of the community in case a commit was performed
+                subcomm = ctx.reloadEntity(subcomm);
                 if (!doCommunity(tr, subcomm)) {
                     return false;
                 }
@@ -480,21 +484,29 @@ public class Curator {
      * @param comm Community
      * @return true if successful, false otherwise
      * @throws IOException if IO error
+     * @throws SQLException
      */
-    protected boolean doCommunity(TaskRunner tr, Community comm) throws IOException {
+    protected boolean doCommunity(TaskRunner tr, Community comm) throws IOException, SQLException {
         if (!tr.run(comm)) {
             return false;
         }
+        Context context = curationContext();
+        // force a reload in case we are committing after each object
+        comm = context.reloadEntity(comm);
         for (Community subcomm : comm.getSubcommunities()) {
             if (!doCommunity(tr, subcomm)) {
                 return false;
             }
         }
+        // force a reload in case we are committing after each object
+        comm = context.reloadEntity(comm);
         for (Collection coll : comm.getCollections()) {
+            context.reloadEntity(coll);
             if (!doCollection(tr, coll)) {
                 return false;
             }
         }
+        context.uncacheEntity(comm);
         return true;
     }
 
@@ -521,6 +533,7 @@ public class Curator {
                     return false;
                 }
             }
+            context.uncacheEntity(coll);
         } catch (SQLException sqlE) {
             throw new IOException(sqlE.getMessage(), sqlE);
         }
@@ -533,13 +546,12 @@ public class Curator {
      *
      * @param dso the DSpace object
      * @throws IOException A general class of exceptions produced by failed or interrupted I/O operations.
+     * @throws SQLException
      */
-    protected void visit(DSpaceObject dso) throws IOException {
-        Context curCtx = curationCtx.get();
-        if (curCtx != null) {
-            if (txScope.equals(TxScope.OBJECT)) {
-                curCtx.dispatchEvents();
-            }
+    protected void visit(DSpaceObject dso) throws IOException, SQLException {
+        Context curCtx = curationContext();
+        if (curCtx != null && txScope.equals(TxScope.OBJECT)) {
+            curCtx.commit();
         }
     }
 
@@ -552,7 +564,7 @@ public class Curator {
             this.task = task;
         }
 
-        public boolean run(DSpaceObject dso) throws IOException {
+        public boolean run(DSpaceObject dso) throws IOException, SQLException {
             try {
                 if (dso == null) {
                     throw new IOException("DSpaceObject is null");
@@ -562,14 +574,14 @@ public class Curator {
                 logInfo(logMessage(id));
                 visit(dso);
                 return !suspend(statusCode);
-            } catch (IOException ioe) {
+            } catch (IOException | SQLException e) {
                 //log error & pass exception upwards
-                System.out.println("Error executing curation task '" + task.getName() + "'; " + ioe);
-                throw ioe;
+                System.out.println("Error executing curation task '" + task.getName() + "'; " + e);
+                throw e;
             }
         }
 
-        public boolean run(Context c, String id) throws IOException {
+        public boolean run(Context c, String id) throws IOException, SQLException {
             try {
                 if (c == null || id == null) {
                     throw new IOException("Context or identifier is null");

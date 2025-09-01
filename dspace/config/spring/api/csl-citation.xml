@@ -8,6 +8,8 @@
     	<property name="typeConverter" ref="mapConverterPublicationTypes"/>
     	<property name="type" value="dc.type"/>
     	<property name="language" value="dc.language.iso"/>
+        <!-- please note the following is not a typo abstract is a reserved word in JAVA
+             so the property has been named abstrct (without the a) -->
         <property name="abstrct" value="dc.description.abstract"/>
         <property name="DOI" value="dc.identifier.doi"/>
         <property name="ISBN" value="dc.identifier.isbn"/>
@@ -22,6 +24,7 @@
         <property name="issued" value="dc.date.issued"/>
         <property name="author" value="dc.contributor.author"/>
         <property name="editor" value="dc.contributor.editor"/>
+        <property name="containerTitle" value="dc.relation.ispartof"/>
     </bean>
     
     <bean name="mapConverterPublicationTypes" class="org.dspace.util.SimpleMapConverter" init-method="init">

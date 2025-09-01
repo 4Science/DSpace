@@ -27,11 +27,15 @@ import org.dspace.builder.ItemBuilder;
 import org.dspace.content.Collection;
 import org.dspace.content.Community;
 import org.dspace.content.Item;
+import org.dspace.content.authority.service.ChoiceAuthorityService;
+import org.dspace.core.service.PluginService;
+import org.dspace.services.ConfigurationService;
 import org.hamcrest.Matcher;
 import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * 
@@ -43,6 +47,15 @@ public class VocabularyEntryDetailsIT extends AbstractControllerIntegrationTest 
     private Community community;
 
     private Collection collection;
+
+    @Autowired
+    private ConfigurationService configurationService;
+
+    @Autowired
+    private PluginService pluginService;
+
+    @Autowired
+    private ChoiceAuthorityService choiceAuthorityService;
 
     @Before
     public void setup() {
@@ -203,6 +216,74 @@ public class VocabularyEntryDetailsIT extends AbstractControllerIntegrationTest 
          .andExpect(jsonPath("$.page.totalElements", Matchers.is(12)));
     }
 
+    public void srscSearchTopNoAuthorityTest() throws Exception {
+        String tokenAdmin = getAuthToken(admin.getEmail(), password);
+        String tokenEPerson = getAuthToken(eperson.getEmail(), password);
+        getClient(tokenAdmin).perform(get("/api/submission/vocabularyEntryDetails/search/top")
+          .param("vocabulary", "srsc-noauthority"))
+          .andExpect(status().isOk())
+          .andExpect(jsonPath("$._embedded.vocabularyEntryDetails", Matchers.containsInAnyOrder(
+          VocabularyEntryDetailsMatcher.matchNoAuthorityEntry("srsc-noauthority:SCB11", "HUMANITIES and RELIGION",
+                  "HUMANITIES and RELIGION"),
+          VocabularyEntryDetailsMatcher.matchNoAuthorityEntry("srsc-noauthority:SCB12", "LAW/JURISPRUDENCE",
+                  "LAW/JURISPRUDENCE"),
+          VocabularyEntryDetailsMatcher.matchNoAuthorityEntry("srsc-noauthority:SCB13", "SOCIAL SCIENCES",
+                  "SOCIAL SCIENCES"),
+          VocabularyEntryDetailsMatcher.matchNoAuthorityEntry("srsc-noauthority:SCB14", "MATHEMATICS",
+                  "MATHEMATICS"),
+          VocabularyEntryDetailsMatcher.matchNoAuthorityEntry("srsc-noauthority:SCB15", "NATURAL SCIENCES",
+                  "NATURAL SCIENCES"),
+          VocabularyEntryDetailsMatcher.matchNoAuthorityEntry("srsc-noauthority:SCB16", "TECHNOLOGY",
+                  "TECHNOLOGY"),
+          VocabularyEntryDetailsMatcher.matchNoAuthorityEntry("srsc-noauthority:SCB17",
+                   "FORESTRY, AGRICULTURAL SCIENCES and LANDSCAPE PLANNING",
+                  "FORESTRY, AGRICULTURAL SCIENCES and LANDSCAPE PLANNING"),
+          VocabularyEntryDetailsMatcher.matchNoAuthorityEntry("srsc-noauthority:SCB18", "MEDICINE",
+                  "MEDICINE"),
+          VocabularyEntryDetailsMatcher.matchNoAuthorityEntry("srsc-noauthority:SCB19", "ODONTOLOGY",
+                  "ODONTOLOGY"),
+          VocabularyEntryDetailsMatcher.matchNoAuthorityEntry("srsc-noauthority:SCB21", "PHARMACY",
+                  "PHARMACY"),
+          VocabularyEntryDetailsMatcher.matchNoAuthorityEntry("srsc-noauthority:SCB22", "VETERINARY MEDICINE",
+                  "VETERINARY MEDICINE"),
+          VocabularyEntryDetailsMatcher.matchNoAuthorityEntry("srsc-noauthority:SCB23",
+                  "INTERDISCIPLINARY RESEARCH AREAS", "INTERDISCIPLINARY RESEARCH AREAS")
+          )))
+          .andExpect(jsonPath("$.page.totalElements", Matchers.is(12)));
+
+        getClient(tokenEPerson).perform(get("/api/submission/vocabularyEntryDetails/search/top")
+         .param("vocabulary", "srsc-noauthority"))
+         .andExpect(status().isOk())
+         .andExpect(jsonPath("$._embedded.vocabularyEntryDetails", Matchers.containsInAnyOrder(
+                 VocabularyEntryDetailsMatcher.matchNoAuthorityEntry("srsc-noauthority:SCB11",
+                         "HUMANITIES and RELIGION", "HUMANITIES and RELIGION"),
+                 VocabularyEntryDetailsMatcher.matchNoAuthorityEntry("srsc-noauthority:SCB12", "LAW/JURISPRUDENCE",
+                         "LAW/JURISPRUDENCE"),
+                 VocabularyEntryDetailsMatcher.matchNoAuthorityEntry("srsc-noauthority:SCB13", "SOCIAL SCIENCES",
+                         "SOCIAL SCIENCES"),
+                 VocabularyEntryDetailsMatcher.matchNoAuthorityEntry("srsc-noauthority:SCB14", "MATHEMATICS",
+                         "MATHEMATICS"),
+                 VocabularyEntryDetailsMatcher.matchNoAuthorityEntry("srsc-noauthority:SCB15", "NATURAL SCIENCES",
+                         "NATURAL SCIENCES"),
+                 VocabularyEntryDetailsMatcher.matchNoAuthorityEntry("srsc-noauthority:SCB16", "TECHNOLOGY",
+                         "TECHNOLOGY"),
+                 VocabularyEntryDetailsMatcher.matchNoAuthorityEntry("srsc-noauthority:SCB17",
+                          "FORESTRY, AGRICULTURAL SCIENCES and LANDSCAPE PLANNING",
+                         "FORESTRY, AGRICULTURAL SCIENCES and LANDSCAPE PLANNING"),
+                 VocabularyEntryDetailsMatcher.matchNoAuthorityEntry("srsc-noauthority:SCB18", "MEDICINE",
+                         "MEDICINE"),
+                 VocabularyEntryDetailsMatcher.matchNoAuthorityEntry("srsc-noauthority:SCB19", "ODONTOLOGY",
+                         "ODONTOLOGY"),
+                 VocabularyEntryDetailsMatcher.matchNoAuthorityEntry("srsc-noauthority:SCB21", "PHARMACY",
+                         "PHARMACY"),
+                 VocabularyEntryDetailsMatcher.matchNoAuthorityEntry("srsc-noauthority:SCB22", "VETERINARY MEDICINE",
+                         "VETERINARY MEDICINE"),
+                 VocabularyEntryDetailsMatcher.matchNoAuthorityEntry("srsc-noauthority:SCB23",
+                         "INTERDISCIPLINARY RESEARCH AREAS", "INTERDISCIPLINARY RESEARCH AREAS")
+          )))
+         .andExpect(jsonPath("$.page.totalElements", Matchers.is(12)));
+    }
+
     @Test
     public void srscSearchFirstLevel_MATHEMATICS_Test() throws Exception {
         String tokenAdmin = getAuthToken(admin.getEmail(), password);
@@ -215,6 +296,25 @@ public class VocabularyEntryDetailsIT extends AbstractControllerIntegrationTest 
                    VocabularyEntryDetailsMatcher.matchAuthorityEntry("srsc:SCB1402", "Applied mathematics",
                            "MATHEMATICS::Applied mathematics"),
                    VocabularyEntryDetailsMatcher.matchAuthorityEntry("srsc:SCB1409", "Other mathematics",
+                           "MATHEMATICS::Other mathematics")
+                  )))
+                 .andExpect(jsonPath("$._embedded.children[*].otherInformation.parent",
+                         Matchers.everyItem(is("MATHEMATICS"))))
+                 .andExpect(jsonPath("$.page.totalElements", Matchers.is(3)));
+    }
+
+    @Test
+    public void srscSearchFirstLevel_MATHEMATICS_NoAuthorityTest() throws Exception {
+        String tokenAdmin = getAuthToken(admin.getEmail(), password);
+        getClient(tokenAdmin).perform(get("/api/submission/vocabularyEntryDetails/srsc-noauthority:SCB14/children"))
+                 .andExpect(status().isOk())
+                 .andExpect(jsonPath("$._embedded.children", Matchers.containsInAnyOrder(
+                   VocabularyEntryDetailsMatcher.matchNoAuthorityEntry("srsc-noauthority:SCB1401",
+                           "Algebra, geometry and mathematical analysis",
+                           "MATHEMATICS::Algebra, geometry and mathematical analysis"),
+                   VocabularyEntryDetailsMatcher.matchNoAuthorityEntry("srsc-noauthority:SCB1402",
+                           "Applied mathematics", "MATHEMATICS::Applied mathematics"),
+                   VocabularyEntryDetailsMatcher.matchNoAuthorityEntry("srsc-noauthority:SCB1409", "Other mathematics",
                            "MATHEMATICS::Other mathematics")
                   )))
                  .andExpect(jsonPath("$._embedded.children[*].otherInformation.parent",
@@ -399,6 +499,17 @@ public class VocabularyEntryDetailsIT extends AbstractControllerIntegrationTest 
                  .andExpect(jsonPath("$", is(
                          VocabularyEntryDetailsMatcher.matchAuthorityEntry(
                                  "srsc:SCB18", "MEDICINE","MEDICINE")
+                  )));
+    }
+
+    @Test
+    public void findParentByChildNoAuthorityTest() throws Exception {
+        String tokenEperson = getAuthToken(eperson.getEmail(), password);
+        getClient(tokenEperson).perform(get("/api/submission/vocabularyEntryDetails/srsc-noauthority:SCB180/parent"))
+                 .andExpect(status().isOk())
+                 .andExpect(jsonPath("$", is(
+                         VocabularyEntryDetailsMatcher.matchNoAuthorityEntry(
+                                 "srsc-noauthority:SCB18", "MEDICINE","MEDICINE")
                   )));
     }
 
@@ -951,6 +1062,119 @@ public class VocabularyEntryDetailsIT extends AbstractControllerIntegrationTest 
                 get("/api/submission/vocabularyEntryDetails/orgunits:" + orgUnit1.getID() + "/parent"))
                 .andExpect(status().isNoContent());
         //
+    }
+
+    @Test
+    public void authorityFondsVocabularies() throws Exception {
+        context.turnOffAuthorisationSystem();
+
+        configurationService.setProperty("plugin.named.org.dspace.content.authority.ChoiceAuthority",
+                                         new String[] {
+                                             "org.dspace.content.authority.ItemAuthority = FondsAuthority"
+                                         });
+
+
+        configurationService.setProperty("cris.ItemAuthority.FondsAuthority.entityType", "Fonds");
+        configurationService.setProperty("cris.ItemAuthority.FondsAuthority.relationshipType", "Fonds");
+
+        configurationService.setProperty("choices.plugin.glamfonds.parent","FondsAuthority");
+        configurationService.setProperty("choices.presentation.glamfonds.parent","suggest");
+        configurationService.setProperty("authority.controlled.glamfonds.parent","true");
+        configurationService.setProperty("authority.required.glamfonds.parent","true");
+        configurationService.setProperty("choices.closed.glamfonds.parent","true");
+
+        configurationService.setProperty("item.controlled.vocabularies","fonds");
+        configurationService.setProperty("item.controlled.vocabularies.fonds.store-authority-in-metadata", "true");
+
+        // These clears have to happen so that the config is actually reloaded in those
+        // classes. This is needed for
+        // the properties that we're altering above and this is only used within the
+        // tests
+        pluginService.clearNamedPluginClasses();
+        choiceAuthorityService.clearCache();
+
+        parentCommunity = CommunityBuilder.createCommunity(context).build();
+        Collection col1 = CollectionBuilder.createCollection(context, parentCommunity).build();
+
+        Item fonds1 =
+            ItemBuilder.createItem(context, col1)
+                       .withTitle("Fonds 1")
+                       .withType("fond type")
+                       .withEntityType("Fonds")
+                       .withMetadata("glamfonds", "index", null, "1")
+                       .build();
+
+        Item fonds2 =
+            ItemBuilder.createItem(context, col1)
+                       .withTitle("Fonds 2")
+                       .withType("fond type")
+                       .withEntityType("Fonds")
+                       .withMetadata("glamfonds", "index", null, "2")
+                       .build();
+
+        Item fonds3 =
+            ItemBuilder.createItem(context, col1)
+                       .withTitle("Fonds 3")
+                       .withType("fond type")
+                       .withEntityType("Fonds")
+                       .withMetadata("glamfonds", "index", null, "3")
+                       .build();
+        context.restoreAuthSystemState();
+
+        // all fonds should be loaded without the glamfonds.index
+        String token = getAuthToken(eperson.getEmail(), password);
+        getClient(token)
+            .perform(
+                get("/api/submission/vocabularyEntryDetails/search/top?vocabulary=fondsTree"))
+            .andExpect(status().isOk())
+            .andExpect(
+                jsonPath("$._embedded.vocabularyEntryDetails", Matchers.hasSize(3))
+            )
+            .andExpect(
+                jsonPath("$._embedded.vocabularyEntryDetails", Matchers.containsInAnyOrder(
+                    allOf(
+                        hasJsonPath("$.display", is("1 - Fonds 1")),
+                        hasJsonPath("$.value", is("Fonds 1"))
+                    ),
+                    allOf(
+                        hasJsonPath("$.display", is("2 - Fonds 2")),
+                        hasJsonPath("$.value", is("Fonds 2"))
+                    ),
+                    allOf(
+                        hasJsonPath("$.display", is("3 - Fonds 3")),
+                        hasJsonPath("$.value", is("Fonds 3"))
+                    )
+                ))
+
+            );
+
+
+        // for the Fonds vocabulary, the glamfonds.index should be shown
+        getClient(token)
+            .perform(
+                get("/api/submission/vocabularyEntryDetails/search/top?vocabulary=fonds"))
+            .andExpect(status().isOk())
+            .andExpect(
+                jsonPath("$._embedded.vocabularyEntryDetails", Matchers.hasSize(3))
+            )
+            .andExpect(
+                jsonPath("$._embedded.vocabularyEntryDetails", Matchers.containsInAnyOrder(
+                    allOf(
+                        hasJsonPath("$.display", is("1 - Fonds 1")),
+                        hasJsonPath("$.value", is("Fonds 1"))
+                    ),
+                    allOf(
+                        hasJsonPath("$.display", is("2 - Fonds 2")),
+                        hasJsonPath("$.value", is("Fonds 2"))
+                    ),
+                    allOf(
+                        hasJsonPath("$.display", is("3 - Fonds 3")),
+                        hasJsonPath("$.value", is("Fonds 3"))
+                    )
+                ))
+
+            );
+
     }
 
 }

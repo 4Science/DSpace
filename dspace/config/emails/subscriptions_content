@@ -1,19 +1,28 @@
 ## E-mail sent to designated address about updates on subscribed items
 ##
-## Parameters: {0} Collections updates
-##             {1} Communities updates
-##             {2} Items updates
+## Parameters: {0} Link to subscriptions page
+##             {1} Communities updates block
+##             {2} Collections updates block
+##             {3} Entity updates block
+#set($subject = "${config.get('dspace.name')}: Statistics of updates on subscribed items")
 
-This email is sent from DSpace-CRIS based on the chosen subscription preferences.
+This email is sent from ${config.get('dspace.name')} based on the chosen subscription preferences.
+You can manage your subscription preferences from ${params[0]}
 
+#if( not( "$params[1]" == "" ))
 Communities
------------
-List of changed items : ${params[0]}
+-------------------
+${params[1]}
 
+#end
+#if( not( "$params[2]" == "" ))
 Collections
------------
-List of changed items : ${params[1]}
+-------------------
+${params[2]}
 
-Items
------
-List of changed items : ${params[2]}
+#end
+#if( not( "$params[3]" == "" ))
+Entities
+-------------------
+${params[3]}
+#end

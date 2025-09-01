@@ -19,7 +19,6 @@ import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 import org.dspace.content.crosswalk.MetadataValidationException;
-import org.eclipse.jetty.util.StringUtil;
 import org.jdom2.Document;
 import org.jdom2.Element;
 import org.jdom2.JDOMException;
@@ -52,7 +51,7 @@ public class MAGManifest {
     }
 
     public static MAGManifest create(InputStream is, boolean validate)
-            throws IOException, MetadataValidationException {
+        throws IOException, MetadataValidationException {
         SAXBuilder builder = new SAXBuilder(validate);
         builder.setIgnoringElementContentWhitespace(true);
 
@@ -83,37 +82,10 @@ public class MAGManifest {
         }
 
         listNodes.stream()
-                .filter(node -> node.getNamespacePrefix().isEmpty())
-                .forEach(node -> node.setNamespace(rootNamespace));
+                 .filter(node -> node.getNamespacePrefix().isEmpty())
+                 .forEach(node -> node.setNamespace(rootNamespace));
 
         listNodes.forEach(node -> addMagToNodes(node.getChildren(), rootNamespace));
-    }
-
-    public List<Element> getFiles() {
-        List<Element> elements = getElementsByXPath("/mag:metadigit/mag:img", true);
-        if (nonNull(elements)) {
-            return elements;
-        }
-        return new ArrayList<>();
-    }
-
-    public String getOriginalFileName(String absoluteParentPath, Element file) {
-        return getFileName(absoluteParentPath, file, "mag:file");
-    }
-
-    public String getThumbnailFileName(String absoluteParentPath, Element file) {
-        return getFileName(absoluteParentPath, file, "mag:altimg/mag:file");
-    }
-
-    public String getFileName(String absoluteParentPath, Element file, String xpath) {
-        Element element = getElementByXPath(xpath, false, file);
-        String filePath = element.getAttributeValue("href", xlinkNS);
-        if (StringUtil.isBlank(filePath)) {
-            throw new RuntimeException(
-                    "Invalid MAG Manifest: " + xpath + " does not have" +
-                            " xlink:href=\"URL\" attribute.");
-        }
-        return absoluteParentPath + fixFilePath(filePath);
     }
 
     private static String fixFilePath(String path) {
@@ -126,6 +98,49 @@ public class MAGManifest {
         return File.separator + path;
     }
 
+    public List<Element> getImageFiles() {
+        List<Element> elements = getElementsByXPath("/mag:metadigit/mag:img", true);
+        if (nonNull(elements)) {
+            return elements;
+        }
+        return new ArrayList<>();
+    }
+
+    public List<Element> getAltImageFiles(Element source) {
+        List<Element> elements = getElementsByXPathAndFile("mag:altimg", true, source);
+        if (nonNull(elements)) {
+            return elements;
+        }
+        return new ArrayList<>();
+    }
+
+    public List<Element> getDocFiles() {
+        List<Element> elements = getElementsByXPath("/mag:metadigit/mag:doc", true);
+        if (nonNull(elements)) {
+            return elements;
+        }
+        return new ArrayList<>();
+    }
+
+    public String getOriginalFileName(String absoluteParentPath, Element file) {
+        return getFileName(absoluteParentPath, file, "mag:file");
+    }
+
+    public String getThumbnailFileName(String absoluteParentPath, Element file) {
+        return getFileName(absoluteParentPath, file, "mag:file");
+    }
+
+    public String getFileName(String absoluteParentPath, Element file, String xpath) {
+        Element element = getElementByXPath(xpath, false, file);
+        String filePath = element.getAttributeValue("href", xlinkNS);
+        if (StringUtils.isBlank(filePath)) {
+            throw new RuntimeException(
+                "Invalid MAG Manifest: " + xpath + " does not have" +
+                    " xlink:href=\"URL\" attribute.");
+        }
+        return absoluteParentPath + fixFilePath(filePath);
+    }
+
     public Integer getOriginalSequenceId(Element file) {
         Element seqID = getElementByXPath("mag:sequence_number", true, file);
         return nonNull(seqID) && nonNull(seqID.getValue()) ? Integer.parseInt(seqID.getValue()) : null;
@@ -133,7 +148,8 @@ public class MAGManifest {
 
     protected Element getElementByXPath(String path, boolean nullOk, Element sourse) {
         XPathExpression<Element> xpath = XPathFactory.instance()
-                .compile(path, Filters.element(), null, magNS, xlinkNS, dcNS, nisoNS);
+                                                     .compile(path, Filters.element(), null, magNS, xlinkNS, dcNS,
+                                                              nisoNS);
         Element result = xpath.evaluateFirst(sourse);
         if (result == null && nullOk) {
             return null;
@@ -150,8 +166,23 @@ public class MAGManifest {
 
     protected List<Element> getElementsByXPath(String path, boolean nullOk) {
         XPathExpression<Element> xpath = XPathFactory.instance()
-                .compile(path, Filters.element(), null, magNS, xlinkNS, dcNS, nisoNS);
+                                                     .compile(path, Filters.element(), null, magNS, xlinkNS, dcNS,
+                                                              nisoNS);
         List<Element> result = xpath.evaluate(mag);
+        if (result == null && nullOk) {
+            return null;
+        } else if (result == null && !nullOk) {
+            throw new RuntimeException("MAGManifest: Failed to resolve XPath, path=\"" + path + "\"");
+        } else {
+            return result;
+        }
+    }
+
+    protected List<Element> getElementsByXPathAndFile(String path, boolean nullOk, Element source) {
+        XPathExpression<Element> xpath = XPathFactory.instance()
+                                                     .compile(path, Filters.element(), null, magNS, xlinkNS, dcNS,
+                                                              nisoNS);
+        List<Element> result = xpath.evaluate(source);
         if (result == null && nullOk) {
             return null;
         } else if (result == null && !nullOk) {
@@ -164,6 +195,6 @@ public class MAGManifest {
     public InputStream getMagsAsStream() {
         XMLOutputter outputPretty = new XMLOutputter(Format.getPrettyFormat());
         return new ByteArrayInputStream(
-                outputPretty.outputString(mag).getBytes(StandardCharsets.UTF_8));
+            outputPretty.outputString(mag).getBytes(StandardCharsets.UTF_8));
     }
 }

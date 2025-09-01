@@ -29,6 +29,16 @@
         <property name="uploadConfigurationService" ref="uploadConfigurationService"/>
     </bean>
 
+    <bean name="cclicenseValidation" class="org.dspace.validation.CclicenseValidator">
+        <property name="itemService" ref="org.dspace.content.ItemServiceImpl"/>
+        <property name="name" value="cclicense"/>
+    </bean>
+
+    <bean name="accessConditionValidation" class="org.dspace.validation.AccessConditionValidator">
+        <property name="name" value="accessCondition"/>
+        <property name="accessConditionConfigurationService" ref="accessConditionConfigurationService"/>
+    </bean>
+
     <bean name="licenseValidation" class="org.dspace.validation.LicenseValidator">
         <property name="name" value="license"/>
     </bean>
@@ -53,5 +63,14 @@
         </property>
         <property name="filter" ref="funding-has-at-least-one-investigator-or-one-lead-organization_filter"/>
     </bean>
+
+    <bean name="geoMapFieldValidator" class="org.dspace.validation.GeoMapValidator"/>
+
+    <bean name="externalFileUploadValidator" class="org.dspace.validation.ExternalFileUploadValidator">
+        <property name="name" value="external-upload"/>
+    </bean>
+
+    <bean name="org.dspace.validation.service.impl.GeoJsonValidationServiceImpl" class="org.dspace.validation.service.impl.GeoJsonValidationServiceImpl" />
+    <bean name="geoJsonValidationServiceFactory" class="org.dspace.validation.service.factory.impl.GeoJsonValidationServiceFactoryImpl" />
     
 </beans>

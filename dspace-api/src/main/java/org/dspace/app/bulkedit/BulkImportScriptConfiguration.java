@@ -9,10 +9,12 @@ package org.dspace.app.bulkedit;
 
 import java.io.InputStream;
 import java.sql.SQLException;
+import java.util.List;
 
 import org.apache.commons.cli.Options;
 import org.dspace.authorize.service.AuthorizeService;
 import org.dspace.core.Context;
+import org.dspace.scripts.DSpaceCommandLineParameter;
 import org.dspace.scripts.configuration.ScriptConfiguration;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -31,7 +33,7 @@ public class BulkImportScriptConfiguration<T extends BulkImport> extends ScriptC
     private Class<T> dspaceRunnableClass;
 
     @Override
-    public boolean isAllowedToExecute(Context context) {
+    public boolean isAllowedToExecute(Context context, List<DSpaceCommandLineParameter> commandLineParameters) {
         try {
             return authorizeService.isCollectionAdmin(context) || authorizeService.isAdmin(context);
         } catch (SQLException e) {
@@ -52,9 +54,9 @@ public class BulkImportScriptConfiguration<T extends BulkImport> extends ScriptC
             options.getOption("f").setType(InputStream.class);
             options.getOption("f").setRequired(true);
 
-            options.addOption("e", "concludeOnError", false, "conclude the import at the first error");
-            options.getOption("e").setType(boolean.class);
-            options.getOption("e").setRequired(false);
+            options.addOption("er", "concludeOnError", false, "conclude the import at the first error");
+            options.getOption("er").setType(boolean.class);
+            options.getOption("er").setRequired(false);
 
             super.options = options;
         }

@@ -68,8 +68,8 @@ public class ProcessBuilder extends AbstractBuilder<Process, ProcessService> {
 
     public ProcessBuilder withStartAndEndTime(String startTime, String endTime) throws ParseException {
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd/MM/yyyy");
-        process.setStartTime(simpleDateFormat.parse(startTime));
-        process.setFinishedTime(simpleDateFormat.parse(endTime));
+        process.setStartTime(startTime == null ? null : simpleDateFormat.parse(startTime));
+        process.setFinishedTime(endTime == null ? null : simpleDateFormat.parse(endTime));
         return this;
     }
 
@@ -113,6 +113,9 @@ public class ProcessBuilder extends AbstractBuilder<Process, ProcessService> {
     }
 
     public static void deleteProcess(Integer integer) throws SQLException, IOException {
+        if (integer == null) {
+            return;
+        }
         try (Context c = new Context()) {
             c.turnOffAuthorisationSystem();
             Process process = processService.find(c, integer);

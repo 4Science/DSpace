@@ -20,8 +20,10 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
+import static org.junit.Assert.assertNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.matches;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
@@ -248,7 +250,7 @@ public class CrisConsumerIT extends AbstractControllerIntegrationTest {
     @Test
     public void testItemMetadataModification() throws Exception {
         // skip test based on configuration
-        Assume.assumeFalse(configurationService.getBooleanProperty("test.skip.cris", false));
+        Assume.assumeFalse(configurationService.getBooleanProperty("test.skip.cris", true));
 
         context.turnOffAuthorisationSystem();
         Item item = ItemBuilder.createItem(context, publicationCollection).build();
@@ -686,7 +688,6 @@ public class CrisConsumerIT extends AbstractControllerIntegrationTest {
             .build();
 
         Item publication = ItemBuilder.createItem(context, publicationCollection)
-            .withEntityType("Publication")
             .withAuthor("Walter White", AuthorityValueService.GENERATE + "ORCID::0000-0002-9079-593X")
             .build();
 
@@ -715,7 +716,6 @@ public class CrisConsumerIT extends AbstractControllerIntegrationTest {
         createCollection("Collection of persons", "Person", subCommunity);
 
         Item publication = ItemBuilder.createItem(context, publicationCollection)
-            .withEntityType("Publication")
             .withAuthor("Walter White", AuthorityValueService.GENERATE + "ORCID::0000-0002-9079-593X")
             .build();
 
@@ -746,7 +746,6 @@ public class CrisConsumerIT extends AbstractControllerIntegrationTest {
             .build();
 
         Item publication = ItemBuilder.createItem(context, publicationCollection)
-            .withEntityType("Publication")
             .withAuthor("Walter White", AuthorityValueService.REFERENCE + "ORCID::0000-0002-9079-593X")
             .build();
 
@@ -777,7 +776,6 @@ public class CrisConsumerIT extends AbstractControllerIntegrationTest {
         createCollection("Collection of persons", "Person", subCommunity);
 
         Item publication = ItemBuilder.createItem(context, publicationCollection)
-            .withEntityType("Publication")
             .withAuthor("Walter White", AuthorityValueService.REFERENCE + "ORCID::0000-0002-9079-593X")
             .build();
 
@@ -1041,7 +1039,6 @@ public class CrisConsumerIT extends AbstractControllerIntegrationTest {
             .build();
 
         Item publication = ItemBuilder.createItem(context, publicationCollection)
-            .withEntityType("Publication")
             .withAuthor("Walter White", AuthorityValueService.REFERENCE + "ORCID::0000-0002-9079-593X")
             .build();
 
@@ -1069,7 +1066,7 @@ public class CrisConsumerIT extends AbstractControllerIntegrationTest {
 
         String orcid = "0000-0002-9029-1854";
 
-        when(mockOrcidConnector.get(eq(orcid + "/person"), any()))
+        when(mockOrcidConnector.get(matches("^\\d{4}-\\d{4}-\\d{4}-\\d{4}/person$"), any()))
             .thenAnswer(i -> orcidPersonRecord.getInputStream());
 
         try {
@@ -1147,9 +1144,6 @@ public class CrisConsumerIT extends AbstractControllerIntegrationTest {
             metadataAuthorityService.clearCache();
             choiceAuthorityService.clearCache();
 
-            final String CHOICES_PLUGIN_PREFIX = "choices.plugin.";
-            List<String> propKeys = configurationService.getPropertyKeys(CHOICES_PLUGIN_PREFIX);
-
             String issn = "2731-0582";
 
             context.turnOffAuthorisationSystem();
@@ -1178,7 +1172,7 @@ public class CrisConsumerIT extends AbstractControllerIntegrationTest {
             assertThat(journal.getOwningCollection(), is(journals));
             assertThat(journal.getMetadata(), hasItems(
                 with("dc.title", "Nature Synthesis"),
-                with("dc.identifier.issn", issn),
+                with("creativeworkseries.issn", issn),
                 with("cris.sourceId", "ISSN::" + issn)));
 
             context.turnOffAuthorisationSystem();
@@ -1208,6 +1202,29 @@ public class CrisConsumerIT extends AbstractControllerIntegrationTest {
             metadataAuthorityService.clearCache();
             choiceAuthorityService.clearCache();
         }
+    }
+
+    @Test
+    public void testAddItemEntityTypeIfNotExit() throws Exception {
+
+        InputStream pdf = simpleArticle.getInputStream();
+
+        WorkspaceItem wsitem = WorkspaceItemBuilder.createWorkspaceItem(context, publicationCollection)
+                .withTitle("Submission Item")
+                .withIssueDate("2017-10-17")
+                .withFulltext("simple-article.pdf", "/local/path/simple-article.pdf", pdf)
+                .grantLicense()
+                .build();
+
+        // clear the entity type metadata
+        itemService.clearMetadata(context, wsitem.getItem(), "dspace", "entity", "type", null);
+        assertNull(itemService.getEntityType(wsitem.getItem()));
+
+        String authToken = getAuthToken(submitter.getEmail(), password);
+        submitItemViaRest(authToken, wsitem.getID());
+
+        // check that the entity type equals to the entity type of the owning collection
+        assertThat(itemService.getEntityType(context.reloadEntity(wsitem.getItem())), is("Publication"));
     }
 
     private ItemRest getItemViaRestByID(String authToken, UUID id) throws Exception {

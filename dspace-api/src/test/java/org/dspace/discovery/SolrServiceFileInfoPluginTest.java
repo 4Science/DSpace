@@ -7,9 +7,6 @@
  */
 package org.dspace.discovery;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.empty;
-import static org.hamcrest.Matchers.not;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
@@ -25,6 +22,7 @@ import org.dspace.content.Bitstream;
 import org.dspace.content.Bundle;
 import org.dspace.content.Item;
 import org.dspace.core.Context;
+import org.dspace.discovery.index.adder.IndexAdder;
 import org.dspace.discovery.indexobject.IndexableItem;
 import org.junit.Before;
 import org.junit.Test;
@@ -64,13 +62,15 @@ public class SolrServiceFileInfoPluginTest {
 
         SolrInputDocument document = spy(solrInputDocument);
 
+        IndexAdder simpleSolrIndexAdder = mock(IndexAdder.class);
+        solrServiceFileInfoPlugin.setSimpleIndexAdder(simpleSolrIndexAdder);
+
         doThrow(new NullPointerException())
             .when(document)
             .addField("original_bundle_filenames", "bitstream1");
 
         solrServiceFileInfoPlugin.additionalIndex(context, indexableItem, document);
 
-        verify(document, times(2)).addField(any(), any());
-        assertThat(document.getFieldNames(), not(empty()));
+        verify(simpleSolrIndexAdder, times(2)).add(any(), any(), any());
     }
 }

@@ -62,7 +62,7 @@ public class CollectionExport extends DSpaceRunnable<CollectionExportScriptConfi
         assignCurrentUserInContext();
         assignSpecialGroupsInContext();
 
-        context.turnOffAuthorisationSystem();
+        handleAuthorizationSystem(context);
 
         Collection collection = getCollection();
         if (collection == null) {
@@ -76,7 +76,7 @@ public class CollectionExport extends DSpaceRunnable<CollectionExportScriptConfi
         try {
             performExport(collection);
             context.complete();
-            context.restoreAuthSystemState();
+            handleAuthorizationSystem(context);
         } catch (Exception e) {
             handler.handleException(e);
             context.abort();
@@ -84,20 +84,26 @@ public class CollectionExport extends DSpaceRunnable<CollectionExportScriptConfi
 
     }
 
-    private void performExport(Collection collection) throws Exception {
+    private void performExport(Collection collection) {
+        try {
+            xlsCollectionCrosswalk.setHandler(handler);
+            String fileName = xlsCollectionCrosswalk.getFileName();
 
-        String fileName = xlsCollectionCrosswalk.getFileName();
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            xlsCollectionCrosswalk.disseminate(context, collection, out);
 
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        xlsCollectionCrosswalk.disseminate(context, collection, out);
+            ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
+            context.setMode(Context.Mode.READ_WRITE);
+            handler.writeFilestream(context, fileName, in, xlsCollectionCrosswalk.getMIMEType());
 
-        ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
-        context.setMode(Context.Mode.READ_WRITE);
-        handler.writeFilestream(context, fileName, in, xlsCollectionCrosswalk.getMIMEType());
-
-        handler.logInfo("Items exported successfully into file named " + fileName);
-
+            handler.logInfo("Items exported successfully into file named " + fileName);
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            xlsCollectionCrosswalk.setHandler(null);
+        }
     }
+
 
     private void assignCurrentUserInContext() throws SQLException {
         UUID uuid = getEpersonIdentifier();

@@ -18,6 +18,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.ArrayUtils;
@@ -43,9 +45,15 @@ public class OrcidAuthority extends ItemAuthority {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(OrcidAuthority.class);
 
-    public static final String ORCID_EXTRA = "data-person_identifier_orcid";
+    private static final String IS_LATIN_REGEX = "\\p{IsLatin}+";
 
-    public static final String INSTITUTION_EXTRA = "institution-affiliation-name";
+    public static final String DEFAULT_ORCID_KEY = "person_identifier_orcid";
+
+    public static final String DEFAULT_INSTITUTION_KEY = "oairecerif_author_affiliation";
+
+    public static final String ORCID_REGEX = "\\d{4}-\\d{4}-\\d{4}-\\d{4}";
+
+    public static final Pattern ORCID_PATTERN = Pattern.compile(ORCID_REGEX);
 
     private ConfigurationService configurationService = DSpaceServicesFactory.getInstance().getConfigurationService();
 
@@ -90,6 +98,11 @@ public class OrcidAuthority extends ItemAuthority {
     }
 
     private String formatQuery(String text) {
+        text = text.trim();
+        Matcher matcher = ORCID_PATTERN.matcher(text);
+        if (matcher.matches()) {
+            return format("(orcid:%s)", text);
+        }
         return Arrays.stream(replaceCommaWithSpace(text).split(" "))
             .map(name -> format("(given-names:%s+OR+family-name:%s+OR+other-names:%s)", name, name, name))
             .collect(Collectors.joining("+AND+"));
@@ -111,16 +124,20 @@ public class OrcidAuthority extends ItemAuthority {
         String title = getTitle(result);
         String authority = composeAuthorityValue(result.getOrcidId());
         Map<String, String> extras = composeExtras(result);
-        return new Choice(authority, title, title, extras);
+        return new Choice(authority, title, title, extras, getSource());
     }
 
     private String getTitle(ExpandedResult result) {
         String givenName = result.getGivenNames();
         String familyName = result.getFamilyNames();
 
-        String title = isNotBlank(givenName) ? capitalizeFully(givenName) : "";
-        title += isNotBlank(familyName) ? " " + capitalizeFully(familyName) : "";
-
+        String capitalizedFamilyName = capitalizeFully(familyName);
+        String capitalizedGivenName = capitalizeFully(givenName);
+        String title = capitalizedFamilyName + ", " + capitalizedGivenName;
+        if (!givenName.matches(IS_LATIN_REGEX) || !familyName.matches(IS_LATIN_REGEX)) {
+            title = isNotBlank(familyName) ? capitalizeFully(familyName) : "";
+            title += isNotBlank(givenName) ? " " + capitalizeFully(givenName) : "";
+        }
         return title.trim();
     }
 
@@ -131,11 +148,24 @@ public class OrcidAuthority extends ItemAuthority {
 
     private Map<String, String> composeExtras(ExpandedResult result) {
         Map<String, String> extras = new HashMap<>();
-        extras.put(ORCID_EXTRA, result.getOrcidId());
-
+        String orcidIdKey = getOrcidIdKey();
+        String orcidId = result.getOrcidId();
+        if (StringUtils.isNotBlank(orcidId)) {
+            if (useOrcidIDAsData()) {
+                extras.put("data-" + orcidIdKey, orcidId);
+            }
+            if (useOrcidIDForDisplaying()) {
+                extras.put(orcidIdKey, orcidId);
+            }
+        }
+        String institutionKey = getInstitutionKey();
         String[] institutionNames = result.getInstitutionNames();
-        if (ArrayUtils.isNotEmpty(institutionNames)) {
-            extras.put(INSTITUTION_EXTRA, String.join(", ", institutionNames));
+
+        if (ArrayUtils.isNotEmpty(institutionNames) && useInstitutionAsData()) {
+            extras.put("data-" + institutionKey, String.join(", ", institutionNames));
+        }
+        if (ArrayUtils.isNotEmpty(institutionNames) && useInstitutionForDisplaying()) {
+            extras.put(institutionKey, String.join(", ", institutionNames));
         }
 
         return extras;
@@ -163,6 +193,42 @@ public class OrcidAuthority extends ItemAuthority {
 
     public static void setAccessToken(String accessToken) {
         OrcidAuthority.accessToken = accessToken;
+    }
+
+    public String getOrcidIdKey() {
+        return configurationService.getProperty("cris.OrcidAuthority." + getPluginInstanceName() + ".orcid-id.key",
+                configurationService.getProperty("cris.OrcidAuthority.orcid-id.key", DEFAULT_ORCID_KEY));
+    }
+
+    public String getInstitutionKey() {
+        return configurationService.getProperty("cris.OrcidAuthority." + getPluginInstanceName() + ".institution.key",
+                configurationService.getProperty("cris.OrcidAuthority.institution.key", DEFAULT_INSTITUTION_KEY));
+    }
+
+    public boolean useInstitutionAsData() {
+        return configurationService.getBooleanProperty(
+                "cris.OrcidAuthority." + getPluginInstanceName() + ".institution.as-data",
+                configurationService.getBooleanProperty("cris.OrcidAuthority.institution.as-data", true));
+    }
+
+    public boolean useInstitutionForDisplaying() {
+        return configurationService.getBooleanProperty(
+                "cris.OrcidAuthority." + getPluginInstanceName() + ".institution.display",
+                configurationService.getBooleanProperty("cris.OrcidAuthority.institution.display", true));
+    }
+
+    public boolean useOrcidIDAsData() {
+        return configurationService.getBooleanProperty(
+                "cris.OrcidAuthority." + getPluginInstanceName() + ".orcid-id.as-data",
+                configurationService.getBooleanProperty("cris.OrcidAuthority.orcid-id.as-data", true));
+    }
+
+    public boolean useOrcidIDForDisplaying() {
+        return configurationService.getBooleanProperty(
+                "cris.OrcidAuthority." + getPluginInstanceName() + ".orcid-id.display",
+                configurationService.getBooleanProperty(
+                        "cris.OrcidAuthority." + getPluginInstanceName() + ".orcid-id.display", true));
+
     }
 
 }

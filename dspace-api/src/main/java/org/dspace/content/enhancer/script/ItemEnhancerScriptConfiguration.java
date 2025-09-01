@@ -7,13 +7,8 @@
  */
 package org.dspace.content.enhancer.script;
 
-import java.sql.SQLException;
-
 import org.apache.commons.cli.Options;
-import org.dspace.authorize.service.AuthorizeService;
-import org.dspace.core.Context;
 import org.dspace.scripts.configuration.ScriptConfiguration;
-import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * Script configuration of {@link ItemEnhancerScript}.
@@ -22,26 +17,16 @@ import org.springframework.beans.factory.annotation.Autowired;
  */
 public class ItemEnhancerScriptConfiguration<T extends ItemEnhancerScript> extends ScriptConfiguration<T> {
 
-    @Autowired
-    private AuthorizeService authorizeService;
-
     private Class<T> dspaceRunnableClass;
-
-    @Override
-    public boolean isAllowedToExecute(Context context) {
-        try {
-            return authorizeService.isAdmin(context);
-        } catch (SQLException e) {
-            throw new RuntimeException("SQLException occurred when checking if the current user is an admin", e);
-        }
-    }
 
     @Override
     public Options getOptions() {
         if (options == null) {
             Options options = new Options();
 
-            options.addOption("f", "force", false, "force the recalculation of all the virtual fields");
+            options.addOption("f", "force", false,
+                    "force the usage of the deep mode"
+                    + " (always compute the enhanced metadata to verify if the item need an update)");
             options.getOption("f").setType(boolean.class);
             options.getOption("f").setRequired(false);
 

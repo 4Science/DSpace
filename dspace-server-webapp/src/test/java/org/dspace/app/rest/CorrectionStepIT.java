@@ -14,6 +14,7 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
+import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -126,7 +127,8 @@ public class CorrectionStepIT extends AbstractControllerIntegrationTest {
                 .withEntityType("Publication")
                 .withWorkflowGroup("editor", admin)
                 .withSubmitterGroup(eperson)
-                .withSubmissionDefinition("traditional-with-correction")
+                .withSubmissionDefinition("traditional")
+                .withCorrectionSubmissionDefinition("traditional-with-correction")
                 .build();
 
         date = "2020-02-20";
@@ -201,7 +203,7 @@ public class CorrectionStepIT extends AbstractControllerIntegrationTest {
                 .param("owningCollection", collection.getID().toString())
                 .param("relationship", "isCorrectionOfItem")
                 .param("item", itemToBeCorrected.getID().toString())
-                .contentType(org.springframework.http.MediaType.APPLICATION_JSON))
+                .contentType(APPLICATION_JSON))
                 .andExpect(status().isCreated())
                 .andDo(result -> workspaceItemIdRef.set(read(result.getResponse().getContentAsString(), "$.id")));
 
@@ -275,6 +277,101 @@ public class CorrectionStepIT extends AbstractControllerIntegrationTest {
     }
 
     @Test
+    public void checkCorrectionWithDuplicates() throws Exception {
+
+        String tokenSubmitter = getAuthToken(eperson.getEmail(), password);
+
+        //create a correction item
+        getClient(tokenSubmitter).perform(post("/api/submission/workspaceitems")
+                        .param("owningCollection", collection.getID().toString())
+                        .param("relationship", "isCorrectionOfItem")
+                        .param("item", itemToBeCorrected.getID().toString())
+                        .contentType(APPLICATION_JSON))
+                .andExpect(status().isCreated())
+                .andDo(result -> workspaceItemIdRef.set(read(result.getResponse().getContentAsString(), "$.id")));
+
+        List<Relationship> relationshipList = relationshipService.findByItem(context, itemToBeCorrected);
+        assert relationshipList.size() > 0;
+        Item correctedItem  = relationshipList.get(0).getLeftItem();
+        WorkspaceItem newWorkspaceItem = workspaceItemService.findByItem(context,correctedItem);
+
+        //make a change on the title
+        Map<String, String> value = new HashMap<String, String>();
+        final String newDate = "2020-02-21";
+        value.put("value", newDate);
+        List<Operation> operations = new ArrayList<Operation>();
+        operations.add(new ReplaceOperation("/sections/traditionalpageone/dc.date.issued/0", value));
+        String patchBody = getPatchContent(operations);
+        getClient(tokenSubmitter).perform(patch("/api/submission/workspaceitems/" + newWorkspaceItem.getID())
+                        .content(patchBody)
+                        .contentType("application/json-patch+json"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.errors").doesNotExist());
+
+        final String newTitle = "New Title";
+        value.put("value", newTitle);
+        operations = new ArrayList<Operation>();
+        operations.add(new ReplaceOperation("/sections/traditionalpageone/dc.title/0", value));
+        patchBody = getPatchContent(operations);
+        getClient(tokenSubmitter).perform(patch("/api/submission/workspaceitems/" + newWorkspaceItem.getID())
+                        .content(patchBody)
+                        .contentType("application/json-patch+json"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.errors").doesNotExist());
+
+        //remove subject
+        operations = new ArrayList<Operation>();
+        operations.add(new RemoveOperation("/sections/traditionalpagetwo/dc.subject/0"));
+        patchBody = getPatchContent(operations);
+        getClient(tokenSubmitter).perform(patch("/api/submission/workspaceitems/" + newWorkspaceItem.getID())
+                        .content(patchBody)
+                        .contentType("application/json-patch+json"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.errors").doesNotExist());
+
+        //add an asbtract description
+        Map<String, String> addValue = new HashMap<String, String>();
+        final String newDescription = "New Description";
+        addValue.put("value", newDescription);
+        operations = new ArrayList<Operation>();
+        operations.add(new AddOperation("/sections/traditionalpagetwo/dc.description.abstract",  List.of(addValue)));
+        patchBody = getPatchContent(operations);
+        getClient(tokenSubmitter).perform(patch("/api/submission/workspaceitems/" + newWorkspaceItem.getID())
+                        .content(patchBody)
+                        .contentType("application/json-patch+json"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.errors").doesNotExist());
+
+        getClient(tokenSubmitter).perform(get("/api/submission/workspaceitems/" + newWorkspaceItem.getID()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.sections.correction.metadata").doesNotExist());
+
+        AtomicReference<Integer> workflowItemIdRef = new AtomicReference<Integer>();
+
+        getClient(tokenSubmitter).perform(post("/api/workflow/workflowitems")
+                        .content("/api/submission/workspaceitems/" + newWorkspaceItem.getID())
+                        .contentType(textUriContentType))
+                .andExpect(status().isCreated())
+                .andDo(result -> workflowItemIdRef.set(read(result.getResponse().getContentAsString(), "$.id")));
+
+        String tokenAdmin = getAuthToken(admin.getEmail(), password);
+
+        //check if the correction is present
+        final String extraEntry = "ExtraEntry";
+        getClient(tokenAdmin).perform(get("/api/workflow/workflowitems/" + workflowItemIdRef.get()))
+                //The status has to be 200 OK
+                .andExpect(status().isOk())
+                //The array of browse index should have a size equals to 4
+                .andExpect(jsonPath("$.sections.correction.metadata", hasSize(equalTo(4))))
+                .andExpect(jsonPath("$.sections.correction.empty", is(false)))
+                .andExpect(jsonPath("$.sections.correction.metadata",hasItem(matchMetadataCorrection(newTitle))))
+                .andExpect(jsonPath("$.sections.correction.metadata",hasItem(matchMetadataCorrection(newDate))))
+                .andExpect(jsonPath("$.sections.correction.metadata",hasItem(matchMetadataCorrection(newDescription))))
+                .andExpect(jsonPath("$.sections.correction.metadata",hasItem(matchMetadataCorrection(extraEntry))));
+
+    }
+
+    @Test
     public void checkEmptyCorrection() throws Exception {
         String tokenSubmitter = getAuthToken(eperson.getEmail(), password);
 
@@ -283,7 +380,7 @@ public class CorrectionStepIT extends AbstractControllerIntegrationTest {
                 .param("owningCollection", collection.getID().toString())
                 .param("relationship", "isCorrectionOfItem")
                 .param("item", itemToBeCorrected.getID().toString())
-                .contentType(org.springframework.http.MediaType.APPLICATION_JSON))
+                .contentType(APPLICATION_JSON))
                 .andExpect(status().isCreated())
                 .andDo(result -> workspaceItemIdRef.set(read(result.getResponse().getContentAsString(), "$.id")));
 

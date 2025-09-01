@@ -50,6 +50,18 @@
     <fieldType name="sdouble" class="solr.DoublePointField" sortMissingLast="true" omitNorms="true" docValues="true"/>
 
     <fieldType name="random" class="solr.RandomSortField" indexed="true" />
+    <fieldType name="geojson_rptgeom"
+               class="solr.RptWithGeometrySpatialField"
+               spatialContextFactory="JTS"
+               geo="true"
+               format="GeoJSON"
+               autoIndex="true"
+               validationRule="repairBuffer0"
+               distErrPct="0.15"
+               maxDistErr="0.001"
+               distanceUnits="kilometers"
+    />
+
 
     <!-- A text field that only splits on whitespace for exact matching of words -->
     <fieldType name="text_ws" class="solr.TextField" positionIncrementGap="100">
@@ -163,6 +175,7 @@
       <analyzer>
         <tokenizer class="solr.KeywordTokenizerFactory"/>
         <filter class="solr.LowerCaseFilterFactory" />
+        <filter class="solr.ICUFoldingFilterFactory"/>
         <filter class="solr.TrimFilterFactory" />
       </analyzer>
     </fieldType>
@@ -251,6 +264,8 @@
     <field name="search_text" type="text" indexed="true" stored="false" multiValued="true"/>
 
     <field name="fulltext" type="text" indexed="true" stored="true" multiValued="true"/>
+    <field name="fulltext.mirador" type="text" indexed="true" stored="true" multiValued="true"/>
+    <field name="fulltext.video" type="text" indexed="true" stored="true" multiValued="true"/>
 
     <!-- Internal DSpace Object ID -->
     <field name="search.resourceid" type="string" indexed="true" stored="true" required="true" omitNorms="true" />
@@ -277,6 +292,8 @@
    
     <field name="has_content_in_original_bundle" type="string" indexed="true" stored="true" omitNorms="true" multiValued="true" docValues="true" />
 
+    <field name="has_geospatial_metadata" type="string" indexed="true" stored="true" omitNorms="true" multiValued="true" docValues="true" />
+
     <!-- used to track which group(s) have submit permissions -->
     <field name="submit" type="string" indexed="true" stored="true" omitNorms="true" multiValued="true" docValues="true" />
 
@@ -295,6 +312,8 @@
     <field name="a_spell" type="textSpell" />
     <copyField source="fulltext" dest="a_spell" />
     <copyField source="fulltext" dest="fulltext_hl" />
+    <copyField source="fulltext.mirador" dest="fulltext.mirador_hl" />
+    <copyField source="fulltext.video" dest="fulltext.video_hl" />
 
     <!-- used by the DSpace Discovery Solr Indexer to track the last time a document was indexed -->
     <field name="SolrIndexer.lastIndexed" type="date" indexed="true" stored="true" default="NOW" multiValued="false" omitNorms="true" />
@@ -341,7 +360,7 @@
     <dynamicField name="*_mlt" type="text" indexed="true" stored="true" multiValued="true" omitNorms="true" termVectors="true" termPositions="true" termOffsets="true"/>
 
     <!--Date matching-->
-    <dynamicField name="*.year" type="sint" indexed="true" stored="true" multiValued="true" omitNorms="true" />
+<!--	<dynamicField name="*.year" type="sint" indexed="true" stored="true" multiValued="true" omitNorms="true" />	 -->
     <dynamicField name="*_dt" type="date" indexed="true" stored="true" multiValued="false" omitNorms="true"  docValues="true"/>
 
     <!--Dynamic field used for update metrics in Solr doc-->
@@ -376,13 +395,15 @@
     <dynamicField name="attr_*" type="textgen" indexed="true" stored="true" multiValued="true"/>
 
     <dynamicField name="random_*" type="random" />
-    
+    <dynamicField name="*geo_p" type="geojson_rptgeom" indexed="true" stored="true"/>
+
     <!-- Item authority lookup -->
      <field name="itemauthoritylookup" type="itemLookup" indexed="true" stored="true" multiValued="true"/>
      <field name="itemauthoritylookupexactmatch" type="text" indexed="true" stored="true" multiValued="true"/>
-     
+     <field name="geo_p" type="geojson_rptgeom" indexed="true" multiValued="false"/>
+
     <field name="customurl" type="string" indexed="true" stored="true" required="false" multiValued="true"/>
-    
+
  </fields>
 
  <uniqueKey>search.uniqueid</uniqueKey>

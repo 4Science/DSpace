@@ -8,12 +8,14 @@
 package org.dspace.content.integration.crosswalks.script;
 
 import java.sql.SQLException;
+import java.util.List;
 import java.util.Optional;
 
 import org.apache.commons.cli.Options;
 import org.dspace.authorize.factory.AuthorizeServiceFactory;
 import org.dspace.authorize.service.AuthorizeService;
 import org.dspace.core.Context;
+import org.dspace.scripts.DSpaceCommandLineParameter;
 import org.dspace.scripts.configuration.ScriptConfiguration;
 import org.dspace.services.ConfigurationService;
 import org.dspace.utils.DSpace;
@@ -30,16 +32,20 @@ public class BulkItemExportScriptConfiguration<T extends BulkItemExport> extends
     private Class<T> dspaceRunnableClass;
 
     @Override
-    public boolean isAllowedToExecute(Context context) {
+    public boolean isAllowedToExecute(Context context, List<DSpaceCommandLineParameter> commandLineParameters) {
         StringBuilder property = new StringBuilder("bulk-export.limit.");
         AuthorizeService authorizeService = AuthorizeServiceFactory.getInstance().getAuthorizeService();
         ConfigurationService configurationService = new DSpace().getConfigurationService();
         try {
-            if (authorizeService.isAdmin(context) || authorizeService.isComColAdmin(context)) {
+            if (
+                    authorizeService.isAdmin(context) ||
+                    authorizeService.isComColAdmin(context) ||
+                    authorizeService.isItemAdmin(context)
+            ) {
                 property.append("admin");
             } else {
                 property.append(Optional.ofNullable(context.getCurrentUser()).map(ignored -> "loggedIn")
-                                    .orElse("notLoggedIn"));
+                                        .orElse("notLoggedIn"));
             }
         } catch (SQLException e) {
             return false;

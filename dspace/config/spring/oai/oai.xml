@@ -31,6 +31,11 @@
         the fulltext access condition -->
     <bean class="org.dspace.xoai.app.FulltextAccessElementItemCompilePlugin"/>
 
+    <bean class="org.dspace.xoai.app.DataciteDOIItemCompilePlugin"/>
+
+    <!-- Additional item.compile plugin to enrich field with information about
+        Access Status metadata -->
+    <bean class="org.dspace.xoai.app.plugins.AccessStatusElementItemCompilePlugin"/>
         <!--
          This is no longer needed as the orcid information are consolidated in the publication's metadata via an Item Enhancer
          see metadata-enancers.xml
@@ -51,4 +56,9 @@
 <!--			</map>-->
 <!--        </property>-->
 <!--    </bean>-->
+
+	<!-- Additional item.compile plugin to enrich field with information about
+		Access Status metadata -->
+	<bean class="org.dspace.xoai.app.plugins.AccessStatusElementItemCompilePlugin"/>
+    <bean class="org.dspace.xoai.app.MimeTypeElementItemCompilePlugin"/>
 </beans>

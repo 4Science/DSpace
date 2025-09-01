@@ -31,6 +31,9 @@
     <bean class="org.dspace.authority.AuthorityValueServiceImpl"/>
     <bean class="org.dspace.authority.AuthorityServiceImpl"/>
 
+    <bean class="org.dspace.browse.ItemCounter"/>
+    <bean id="itemCountDAO" class="org.dspace.browse.ItemCountDAOSolr" scope="prototype"/>
+
     <bean class="org.dspace.checker.ChecksumHistoryServiceImpl"/>
     <bean class="org.dspace.checker.ChecksumResultServiceImpl"/>
     <bean class="org.dspace.checker.MostRecentChecksumServiceImpl"/>
@@ -40,6 +43,7 @@
     <bean class="org.dspace.content.BitstreamFormatServiceImpl"/>
     <bean class="org.dspace.content.BitstreamServiceImpl"/>
     <bean class="org.dspace.content.BundleServiceImpl"/>
+    <bean class="org.dspace.content.integration.crosswalks.virtualfields.ItemDOIService"/>
     <bean class="org.dspace.content.CommunityServiceImpl"/>
     <bean class="org.dspace.content.InstallItemServiceImpl"/>
     <bean class="org.dspace.content.ItemServiceImpl"/>
@@ -56,6 +60,7 @@
     <bean class="org.dspace.content.RelationshipTypeServiceImpl"/>
     <bean class="org.dspace.content.RelationshipMetadataServiceImpl"/>
     <bean class="org.dspace.content.FeedbackServiceImpl"/>
+    <bean class="org.dspace.content.DuplicateDetectionServiceImpl"/>
 
     <bean class="org.dspace.scripts.ProcessServiceImpl"/>
     <bean class="org.dspace.scripts.ScriptServiceImpl"/>
@@ -79,6 +84,8 @@
           autowire-candidate='true'>
         <constructor-arg name='configPrefix' value='solr'/>
     </bean>
+
+    <bean class="org.dspace.contentreport.ContentReportServiceImpl"/>
 
     <!-- Ensure PluginService is initialized properly via init() method -->
     <bean class="org.dspace.core.LegacyPluginServiceImpl" init-method="init"/>
@@ -106,6 +113,7 @@
     <bean class="org.dspace.eperson.EPersonServiceImpl"/>
     <bean class="org.dspace.eperson.GroupServiceImpl"/>
     <bean class="org.dspace.eperson.RegistrationDataServiceImpl"/>
+    <bean class="org.dspace.eperson.RegistrationDataMetadataServiceImpl"/>
     <bean class="org.dspace.eperson.SubscribeServiceImpl"/>
     
     <bean class="org.dspace.eperson.SubscribeParameterServiceImpl"/>
@@ -158,6 +166,7 @@
     <bean class="org.dspace.discovery.indexobject.WorkflowItemIndexFactoryImpl" autowire-candidate="true"/>
     <bean class="org.dspace.discovery.indexobject.WorkspaceItemIndexFactoryImpl" autowire-candidate="true"/>
     <bean class="org.dspace.discovery.indexobject.MetadataFieldIndexFactoryImpl" autowire-candidate="true"/>
+    <bean class="org.dspace.discovery.indexobject.LDNMessageEntityIndexFactoryImpl" autowire-candidate="true"/>
 
     <!-- Imp beans -->
     <bean class="org.dspace.batch.ImpBitstreamServiceImpl"/>
@@ -196,7 +205,22 @@
     <bean class="org.dspace.authorize.ValidatePasswordServiceImpl"/>
     <bean class="org.dspace.authorize.RegexPasswordValidator" />
 
+    <bean id="org.dspace.app.client.DSpaceHttpClientFactory" class="org.dspace.app.client.DSpaceHttpClientFactory"/>
+    <bean class="org.dspace.app.client.DSpaceProxyRoutePlanner"/>
+
     <bean class="org.dspace.supervision.SupervisionOrderServiceImpl"/>
+    
+    <bean id="com.science4.webcache.WebServerCache" class="com.science4.webcache.NGinxWebServerCache" init-method="initialize"/>
+
+    <bean class="org.dspace.content.ItemFilterServiceImpl"/>
+
+    <!-- Submission Config Service -->
+    <bean class="org.dspace.submit.service.SubmissionConfigServiceImpl"/>
+
+    <bean class="org.dspace.correctiontype.service.impl.CorrectionTypeServiceImpl"/>
+
+    <bean class="org.dspace.app.policy.PolicyUpdaterServiceImpl" />
+    <bean class="org.dspace.app.policy.MediaFilterRelatedPolicyUpdater" />
 
 </beans>
 

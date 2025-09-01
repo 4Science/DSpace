@@ -47,6 +47,9 @@ public interface CrisMetricsService {
     public CrisMetrics findLastMetricByResourceIdAndMetricsTypes(Context context, String metricType, UUID resourceUuid)
             throws SQLException;
 
+    public List<CrisMetrics> findLastMetricsByResourceId(Context context, UUID resourceUuid,
+            Integer limit, Integer offset) throws SQLException;
+
     public CrisMetrics uniqueLastMetricByResourceIdAndResourceTypeIdAndMetricsType(Context context, String metricType,
                              UUID resourceUuid, boolean last) throws SQLException;
 

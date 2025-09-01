@@ -10,6 +10,7 @@ package org.dspace.content.integration.crosswalks.script;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.sql.SQLException;
+import java.util.Objects;
 import java.util.UUID;
 
 import org.apache.commons.cli.ParseException;
@@ -44,7 +45,7 @@ public class ItemExport extends DSpaceRunnable<ItemExportScriptConfiguration<Ite
 
     private String exportFormat;
 
-    private Context context;
+    protected Context context;
 
     @Override
     public void setup() throws ParseException {
@@ -67,6 +68,7 @@ public class ItemExport extends DSpaceRunnable<ItemExportScriptConfiguration<Ite
 
         context = new Context(Context.Mode.READ_ONLY);
         assignCurrentUserInContext();
+        assignHandlerLocaleInContext();
         assignSpecialGroupsInContext();
 
         if (exportFormat == null) {
@@ -126,7 +128,7 @@ public class ItemExport extends DSpaceRunnable<ItemExportScriptConfiguration<Ite
 
     }
 
-    private void assignCurrentUserInContext() throws SQLException {
+    protected void assignCurrentUserInContext() throws SQLException {
         UUID uuid = getEpersonIdentifier();
         if (uuid != null) {
             EPerson ePerson = EPersonServiceFactory.getInstance().getEPersonService().find(context, uuid);
@@ -134,9 +136,19 @@ public class ItemExport extends DSpaceRunnable<ItemExportScriptConfiguration<Ite
         }
     }
 
-    private void assignSpecialGroupsInContext() throws SQLException {
+    protected void assignSpecialGroupsInContext() throws SQLException {
         for (UUID uuid : handler.getSpecialGroups()) {
             context.setSpecialGroup(uuid);
+        }
+    }
+
+    private void assignHandlerLocaleInContext() {
+        if (Objects.nonNull(this.handler) &&
+            Objects.nonNull(this.context) &&
+            Objects.nonNull(this.handler.getLocale()) &&
+            !this.handler.getLocale().equals(this.context.getCurrentLocale())
+        ) {
+            this.context.setCurrentLocale(this.handler.getLocale());
         }
     }
 

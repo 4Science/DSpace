@@ -11,8 +11,8 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import javax.servlet.http.HttpServletRequest;
 
+import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.StringUtils;
 import org.dspace.app.rest.model.BrowseIndexRest;
 import org.dspace.app.rest.model.ItemRest;
@@ -42,7 +42,7 @@ import org.springframework.stereotype.Component;
  *
  * @author Andrea Bollini (andrea.bollini at 4science.it)
  */
-@Component(BrowseIndexRest.CATEGORY + "." + BrowseIndexRest.NAME + "." + BrowseIndexRest.ITEMS)
+@Component(BrowseIndexRest.CATEGORY + "." + BrowseIndexRest.PLURAL_NAME + "." + BrowseIndexRest.LINK_ITEMS)
 public class BrowseItemLinkRepository extends AbstractDSpaceRestRepository
     implements LinkRestRepository {
 
@@ -155,7 +155,8 @@ public class BrowseItemLinkRepository extends AbstractDSpaceRestRepository
     @Override
     public boolean isEmbeddableRelation(Object data, String name) {
         BrowseIndexRest bir = (BrowseIndexRest) data;
-        if (!bir.isMetadataBrowse() && "items".equals(name)) {
+        if (bir.getBrowseType().equals(BrowseIndexRest.BROWSE_TYPE_FLAT) &&
+                name.equals(BrowseIndexRest.LINK_ITEMS)) {
             return true;
         }
         return false;

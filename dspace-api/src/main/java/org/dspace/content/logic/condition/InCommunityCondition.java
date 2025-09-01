@@ -9,6 +9,7 @@ package org.dspace.content.logic.condition;
 
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Optional;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -17,6 +18,7 @@ import org.dspace.content.Community;
 import org.dspace.content.DSpaceObject;
 import org.dspace.content.Item;
 import org.dspace.content.logic.LogicalStatementException;
+import org.dspace.content.logic.supplier.HandleSupplierFactory;
 import org.dspace.core.Context;
 
 /**
@@ -25,8 +27,19 @@ import org.dspace.core.Context;
  *
  * @author Kim Shepherd
  */
-public class InCommunityCondition extends AbstractCondition {
+public class InCommunityCondition extends AbstractInHandlesCondition {
     private final static Logger log = LogManager.getLogger();
+
+    public InCommunityCondition() {
+        super(HandleSupplierFactory.getInstance().communityHandleSupplier());
+    }
+
+    @Override
+    public List<String> getHandles() {
+        return Optional.ofNullable(getParameters().get("communities"))
+                       .map(handles -> (List<String>)handles)
+                       .orElse(List.of());
+    }
 
     /**
      * Return true if item is in one of the specified collections
@@ -38,24 +51,17 @@ public class InCommunityCondition extends AbstractCondition {
      */
     @Override
     public Boolean getResult(Context context, Item item) throws LogicalStatementException {
+        return super.getResult(context, item) ||
+            isParentCollectionCommunitiesInHandles(context, item) ||
+            notFound(item);
 
-        List<String> communityHandles = (List<String>)getParameters().get("communities");
-        List<Collection> itemCollections = item.getCollections();
+    }
 
-        for (Collection collection : itemCollections) {
-            try {
-                List<Community> communities = collection.getCommunities();
-                for (Community community : communities) {
-                    if (communityHandles.contains(community.getHandle())) {
-                        return true;
-                    }
-                }
-            } catch (SQLException e) {
-                log.error(e.getMessage());
-                throw new LogicalStatementException(e);
-            }
-        }
+    protected boolean notFound(Item item) {
+        return false;
+    }
 
+    private boolean isParentCollectionCommunitiesInHandles(Context context, Item item) {
         // Look for the parent object of the item. This is important as the item.getOwningCollection method
         // may return null, even though the item itself does have a parent object, at the point of archival
         try {
@@ -68,7 +74,7 @@ public class InCommunityCondition extends AbstractCondition {
                     Collection collection = (Collection)parent;
                     List<Community> communities = collection.getCommunities();
                     for (Community community : communities) {
-                        if (communityHandles.contains(community.getHandle())) {
+                        if (getHandles().contains(community.getHandle())) {
                             return true;
                         }
                     }
@@ -83,7 +89,6 @@ public class InCommunityCondition extends AbstractCondition {
             log.error("Error obtaining parent DSO", e);
             throw new LogicalStatementException(e);
         }
-
         return false;
     }
 }

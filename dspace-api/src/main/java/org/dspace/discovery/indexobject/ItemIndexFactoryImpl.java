@@ -32,6 +32,8 @@ import org.apache.commons.lang3.time.DateFormatUtils;
 import org.apache.logging.log4j.Logger;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.common.SolrInputDocument;
+import org.dspace.authority.service.AuthorityValueService;
+import org.dspace.content.Bundle;
 import org.dspace.content.Collection;
 import org.dspace.content.Community;
 import org.dspace.content.Item;
@@ -94,6 +96,8 @@ public class ItemIndexFactoryImpl extends DSpaceObjectIndexFactoryImpl<Indexable
     protected ItemService itemService;
     @Autowired(required = true)
     protected ChoiceAuthorityService choiceAuthorityService;
+    @Autowired(required = true)
+    protected AuthorityValueService authorityValueService;
     @Autowired
     protected MetadataAuthorityService metadataAuthorityService;
     @Autowired
@@ -149,14 +153,19 @@ public class ItemIndexFactoryImpl extends DSpaceObjectIndexFactoryImpl<Indexable
         doc.addField("lastModified", SolrUtils.getDateFormatter().format(item.getLastModified()));
         doc.addField("latestVersion", itemService.isLatestVersion(context, item));
 
+        for (Bundle bnd : item.getBundles()) {
+            doc.addField("bundleName_s", bnd.getName());
+        }
         EPerson submitter = item.getSubmitter();
-        if (submitter != null) {
-            addFacetIndex(doc, "submitter", submitter.getID().toString(),
-                    submitter.getFullName());
+        if (submitter != null && !(DSpaceServicesFactory.getInstance().getConfigurationService().getBooleanProperty(
+            "discovery.index.item.submitter.enabled", false))) {
+            doc.addField("submitter_authority", submitter.getID().toString());
+        } else if (submitter != null) {
+            addFacetIndex(doc, "submitter", submitter.getID().toString(), submitter.getFullName());
         }
 
         // Add the item metadata
-        List<DiscoveryConfiguration> discoveryConfigurations = SearchUtils.getAllDiscoveryConfigurations(item);
+        List<DiscoveryConfiguration> discoveryConfigurations = SearchUtils.getAllDiscoveryConfigurations(context, item);
         addDiscoveryFields(doc, context, indexableItem.getIndexedObject(), discoveryConfigurations);
 
         //mandatory facet to show status on mydspace
@@ -168,13 +177,6 @@ public class ItemIndexFactoryImpl extends DSpaceObjectIndexFactoryImpl<Indexable
             addNamedResourceTypeIndex(doc, acvalue);
         }
 
-        // write the index and close the inputstreamreaders
-        try {
-            log.info("Wrote Item: " + item.getID() + " to Index");
-        } catch (RuntimeException e) {
-            log.error("Error while writing item to discovery index: " + item.getID() + " message:"
-                    + e.getMessage(), e);
-        }
         return doc;
     }
 
@@ -392,7 +394,11 @@ public class ItemIndexFactoryImpl extends DSpaceObjectIndexFactoryImpl<Indexable
                                                                 Boolean.FALSE),
                                                 true);
 
-                        if (!ignorePrefered && hasChoiceAuthority) {
+                        if (
+                                !ignorePrefered &&
+                                hasChoiceAuthority &&
+                                !authority.startsWith(AuthorityValueService.GENERATE)
+                        ) {
                             try {
                                 preferedLabel = choiceAuthorityService.getLabel(meta, Constants.ITEM, collection,
                                         meta.getLanguage());
@@ -424,8 +430,8 @@ public class ItemIndexFactoryImpl extends DSpaceObjectIndexFactoryImpl<Indexable
                     }
                 }
 
-                if ((searchFilters.get(field) != null || searchFilters
-                        .get(unqualifiedField + "." + Item.ANY) != null)) {
+                if (searchFilters.get(field) != null || searchFilters
+                        .get(unqualifiedField + "." + Item.ANY) != null) {
                     List<DiscoverySearchFilter> searchFilterConfigs = searchFilters.get(field);
                     if (searchFilterConfigs == null) {
                         searchFilterConfigs = searchFilters.get(unqualifiedField + "." + Item.ANY);
@@ -435,6 +441,11 @@ public class ItemIndexFactoryImpl extends DSpaceObjectIndexFactoryImpl<Indexable
                         Date date = null;
                         String separator = DSpaceServicesFactory.getInstance().getConfigurationService()
                                 .getProperty("discovery.solr.facets.split.char");
+                        // GEOPOINT fields are configured using the additionalPlugin
+                        // org.dspace.discovery.SolrServiceGeoPointIndexPlugin
+                        if (DiscoveryConfigurationParameters.TYPE_GEOMAP.equals(searchFilter.getType())) {
+                            continue;
+                        }
                         if (separator == null) {
                             separator = SearchUtils.FILTER_SEPARATOR;
                         }
@@ -559,12 +570,12 @@ public class ItemIndexFactoryImpl extends DSpaceObjectIndexFactoryImpl<Indexable
                                         (HierarchicalSidebarFacetConfiguration) searchFilter;
                                 String[] subValues = value.split(hierarchicalSidebarFacetConfiguration.getSplitter());
                                 if (hierarchicalSidebarFacetConfiguration.isOnlyLastNodeRelevant()) {
-                                    subValues = (String[]) ArrayUtils.subarray(subValues, subValues.length - 1,
+                                    subValues = ArrayUtils.subarray(subValues, subValues.length - 1,
                                             subValues.length);
                                 } else if (hierarchicalSidebarFacetConfiguration
                                         .isSkipFirstNodeLevel() && 1 < subValues.length) {
                                     //Remove the first element of our array
-                                    subValues = (String[]) ArrayUtils.subarray(subValues, 1, subValues.length);
+                                    subValues = ArrayUtils.subarray(subValues, 1, subValues.length);
                                 }
                                 for (int i = 0; i < subValues.length; i++) {
                                     StringBuilder valueBuilder = new StringBuilder();
@@ -905,7 +916,7 @@ public class ItemIndexFactoryImpl extends DSpaceObjectIndexFactoryImpl<Indexable
             if (hierarchicalSidebarFacetConfiguration
                 .isSkipFirstNodeLevel() && 1 < subValues.length) {
                 //Remove the first element of our array
-                subValues = (String[]) ArrayUtils.subarray(subValues, 1, subValues.length);
+                subValues = ArrayUtils.subarray(subValues, 1, subValues.length);
             }
             for (int i = 0; i < subValues.length; i++) {
                 StringBuilder valueBuilder = new StringBuilder();
@@ -951,7 +962,7 @@ public class ItemIndexFactoryImpl extends DSpaceObjectIndexFactoryImpl<Indexable
     private void saveFacetPrefixParts(SolrInputDocument doc, DiscoverySearchFilter searchFilter, String value,
                                       String separator, String authority, String preferedLabel) {
         value = StringUtils.normalizeSpace(value);
-        Pattern pattern = Pattern.compile("\\b\\w+\\b", Pattern.CASE_INSENSITIVE);
+        Pattern pattern = Pattern.compile("\\b\\w+\\b", Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CHARACTER_CLASS);
         Matcher matcher = pattern.matcher(value);
         while (matcher.find()) {
             int index = matcher.start();

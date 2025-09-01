@@ -19,6 +19,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -56,9 +57,9 @@ public class OrcidAffiliationFactory extends AbstractOrcidProfileSectionFactory 
 
     @Override
     public List<String> getMetadataFields() {
-        return List.of(organizationField, roleField, startDateField, endDateField).stream()
-            .filter(StringUtils::isNotBlank)
-            .collect(Collectors.toList());
+        return Stream.of(organizationField, roleField, startDateField, endDateField)
+                     .filter(StringUtils::isNotBlank)
+                     .collect(Collectors.toList());
     }
 
     @Override
@@ -80,20 +81,29 @@ public class OrcidAffiliationFactory extends AbstractOrcidProfileSectionFactory 
         orcidCommonObjectFactory.createFuzzyDate(endDate).ifPresent(affiliation::setEndDate);
         affiliation.setRoleTitle(isUnprocessableValue(role) ? null : role.getValue());
 
-        orcidCommonObjectFactory.createOrganization(context, organization).ifPresent(affiliation::setOrganization);
+        orcidCommonObjectFactory.createOrganization(context, organization).ifPresent(org -> {
+            affiliation.setOrganization(org);
+            affiliation.setDepartmentName(org.getName());
+        });
 
         return affiliation;
     }
 
     @Override
     public List<String> getMetadataSignatures(Context context, Item item) {
-        List<String> signatures = new ArrayList<String>();
+        List<String> signatures = new ArrayList<>();
 
         Map<String, List<MetadataValue>> metadataGroups = getMetadataGroups(item);
         int groupSize = metadataGroups.getOrDefault(organizationField, Collections.emptyList()).size();
         for (int currentGroupIndex = 0; currentGroupIndex < groupSize; currentGroupIndex++) {
             List<MetadataValue> metadataValues = getMetadataValueByPlace(metadataGroups, currentGroupIndex);
-            signatures.add(metadataSignatureGenerator.generate(context, metadataValues));
+            //only "visible" metadatavalues within this group
+            metadataValues = metadataValues.stream()
+                .filter(this::isAllowedMetadataByVisibility)
+                .collect(Collectors.toList());
+            if (!metadataValues.isEmpty()) {
+                signatures.add(metadataSignatureGenerator.generate(context, metadataValues));
+            }
         }
 
         return signatures;
@@ -162,7 +172,7 @@ public class OrcidAffiliationFactory extends AbstractOrcidProfileSectionFactory 
     }
 
     private List<MetadataValue> getMetadataValueByPlace(Map<String, List<MetadataValue>> metadataGroups, int place) {
-        List<MetadataValue> metadataValues = new ArrayList<MetadataValue>();
+        List<MetadataValue> metadataValues = new ArrayList<>();
         for (String metadataField : metadataGroups.keySet()) {
             List<MetadataValue> nestedMetadataValues = metadataGroups.get(metadataField);
             if (nestedMetadataValues.size() > place) {

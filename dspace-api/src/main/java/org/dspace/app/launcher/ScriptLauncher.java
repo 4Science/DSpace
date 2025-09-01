@@ -19,9 +19,11 @@ import java.util.TreeMap;
 import org.apache.commons.cli.ParseException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.dspace.app.util.XMLUtils;
 import org.dspace.core.Context;
 import org.dspace.eperson.EPerson;
 import org.dspace.scripts.DSpaceRunnable;
+import org.dspace.scripts.DSpaceRunnable.StepResult;
 import org.dspace.scripts.configuration.ScriptConfiguration;
 import org.dspace.scripts.factory.ScriptServiceFactory;
 import org.dspace.scripts.handler.DSpaceRunnableHandler;
@@ -165,8 +167,13 @@ public class ScriptLauncher {
     private static int executeScript(String[] args, DSpaceRunnableHandler dSpaceRunnableHandler, DSpaceRunnable script,
         EPerson currentUser) {
         try {
-            script.initialize(args, dSpaceRunnableHandler, currentUser);
-            script.run();
+            StepResult result = script.initialize(args, dSpaceRunnableHandler, currentUser);
+            // check the StepResult, only run the script if the result is Continue;
+            // otherwise - for example the script is started with the help as argument, nothing is to do
+            if (StepResult.Continue.equals(result)) {
+                // runs the script, the normal initialization is successful
+                script.run();
+            }
             return 0;
         } catch (ParseException e) {
             script.printHelp();
@@ -328,7 +335,7 @@ public class ScriptLauncher {
         String config = kernelImpl.getConfigurationService().getProperty("dspace.dir") +
             System.getProperty("file.separator") + "config" +
             System.getProperty("file.separator") + "launcher.xml";
-        SAXBuilder saxBuilder = new SAXBuilder();
+        SAXBuilder saxBuilder = XMLUtils.getSAXBuilder();
         Document doc = null;
         try {
             doc = saxBuilder.build(config);

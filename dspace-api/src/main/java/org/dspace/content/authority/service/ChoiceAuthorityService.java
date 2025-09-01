@@ -10,12 +10,14 @@ package org.dspace.content.authority.service;
 import java.util.List;
 import java.util.Set;
 
+import org.dspace.app.util.SubmissionConfigReaderException;
 import org.dspace.content.Collection;
 import org.dspace.content.Item;
 import org.dspace.content.MetadataValue;
 import org.dspace.content.authority.Choice;
 import org.dspace.content.authority.ChoiceAuthority;
 import org.dspace.content.authority.Choices;
+import org.dspace.content.authority.DSpaceControlledVocabularyIndex;
 import org.dspace.core.Constants;
 
 /**
@@ -28,8 +30,8 @@ import org.dspace.core.Constants;
  * choices.plugin.<FIELD> = name-of-plugin
  *
  * # mode of UI presentation desired in submission UI:
- * #  "select" is dropdown menu, "lookup" is popup with selector, "suggest" is autocomplete/suggest
- * choices.presentation.<FIELD> = "select" | "suggest"
+ * #  "select" is dropdown menu, "lookup" is an input type with search button, "suggest" is autocomplete/suggest
+ * choices.presentation.<FIELD> = "select" | "suggest" | "lookup"
  *
  * # is value "closed" to the set of these choices or are non-authority values permitted?
  * choices.closed.<FIELD> = true | false
@@ -183,7 +185,7 @@ public interface ChoiceAuthorityService {
     /**
      * This method has been created to have a way of clearing the cache kept inside the service
      */
-    public void clearCache();
+    public void clearCache() throws SubmissionConfigReaderException;
 
     /**
      * Get the entity type starting from the metadata field.
@@ -242,4 +244,7 @@ public interface ChoiceAuthorityService {
      * @param item          the item to be linked to the metadata value
      */
     void setReferenceWithAuthority(MetadataValue metadataValue, Item item);
+
+    public DSpaceControlledVocabularyIndex getVocabularyIndex(String nameVocab);
+
 }

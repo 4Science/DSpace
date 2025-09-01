@@ -32,4 +32,9 @@
         <property name="description" value="Mocking a script for testing purposes" />
         <property name="dspaceRunnableClass" value="org.dspace.scripts.impl.MockDSpaceRunnableScript"/>
     </bean>
+
+    <bean id="packager" class="org.dspace.app.packager.PackagerCLIScriptConfiguration" primary="true">
+        <property name="description" value="Packager Ingestion and Dissemination" />
+        <property name="dspaceRunnableClass" value="org.dspace.app.packager.PackagerCLI"/>
+    </bean>
 </beans>

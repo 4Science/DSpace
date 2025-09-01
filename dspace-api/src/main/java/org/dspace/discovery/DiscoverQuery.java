@@ -10,6 +10,7 @@ package org.dspace.discovery;
 import static java.util.Collections.singletonList;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
+import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -58,8 +59,7 @@ public class DiscoverQuery {
         asc
     }
 
-    private String sortField;
-    private SORT_ORDER sortOrder;
+    private List<SortEntry<String, SORT_ORDER>> sortFields = new ArrayList<SortEntry<String, SORT_ORDER>>();
 
     /**
      * Attributes required for the faceting of values
@@ -115,17 +115,17 @@ public class DiscoverQuery {
         this.start = start;
     }
 
+    public void addSortField(String sortField, SORT_ORDER sortOrder) {
+        this.sortFields.add(new SortEntry<String, SORT_ORDER>(sortField, sortOrder));
+    }
+
     public void setSortField(String sortField, SORT_ORDER sortOrder) {
-        this.sortField = sortField;
-        this.sortOrder = sortOrder;
+        this.sortFields.clear();
+        this.sortFields.add(new SortEntry<String, SORT_ORDER>(sortField, sortOrder));
     }
 
-    public String getSortField() {
-        return sortField;
-    }
-
-    public SORT_ORDER getSortOrder() {
-        return sortOrder;
+    public List<SortEntry<String, SORT_ORDER>> getSortFields() {
+        return sortFields;
     }
 
     /**
@@ -449,5 +449,15 @@ public class DiscoverQuery {
 
     public void setIncludeNotDiscoverableOrWithdrawn(boolean includeNotDiscoverableAndWithdrawn) {
         this.includeNotDiscoverableOrWithdrawn = includeNotDiscoverableAndWithdrawn;
+    }
+
+    public class SortEntry<K, V> extends AbstractMap.SimpleEntry<K, V> {
+        public SortEntry(K key, V value) {
+            super(key, value);
+        }
+
+        public SortEntry(Map.Entry<? extends K, ? extends V> entry) {
+            super(entry);
+        }
     }
 }

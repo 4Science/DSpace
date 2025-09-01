@@ -45,9 +45,9 @@
         <property name="dspaceRunnableClass" value="org.dspace.app.bulkedit.MetadataDeletionCli"/>
     </bean>
 
-    <bean id="filter-media" class="org.dspace.app.mediafilter.MediaFilterScriptConfiguration">
+    <bean id="filter-media" class="org.dspace.app.mediafilter.MediaFilterCliScriptConfiguration">
         <property name="description" value="Perform the media filtering to extract full text from documents and to create thumbnails"/>
-        <property name="dspaceRunnableClass" value="org.dspace.app.mediafilter.MediaFilterScript"/>
+        <property name="dspaceRunnableClass" value="org.dspace.app.mediafilter.MediaFilterCliScript"/>
     </bean>
 
     <bean id="solr-database-resync" class="org.dspace.app.solrdatabaseresync.SolrDatabaseResyncCliScriptConfiguration">
@@ -103,6 +103,11 @@
     <bean id="orcid-bulk-push" class="org.dspace.orcid.script.OrcidBulkPushScriptConfiguration">
         <property name="description" value="Perform the bulk synchronization of all the BATCH configured ORCID entities placed in the ORCID queue"/>
         <property name="dspaceRunnableClass" value="org.dspace.orcid.script.OrcidBulkPush"/>
+    </bean>
+    
+    <bean id="import-openaire-events" class="org.dspace.qaevent.script.OpenaireEventsImportCliScriptConfiguration" primary="true">
+        <property name="description" value="Import new openaire quality assurance broker events"/>
+        <property name="dspaceRunnableClass" value="org.dspace.qaevent.script.OpenaireEventsImportCli"/>
     </bean>
 
     <bean id="orcid-bulk-pull" class="org.dspace.orcid.script.OrcidBulkPullScriptConfiguration">
@@ -164,6 +169,16 @@
     <bean id="packager" class="org.dspace.app.packager.PackagerCLIScriptConfiguration" primary="true">
         <property name="description" value="Packager Ingestion and Dissemination" />
         <property name="dspaceRunnableClass" value="org.dspace.app.packager.PackagerCLI"/>
+    </bean>
+
+    <bean id="bulk-access-control" class="org.dspace.app.bulkaccesscontrol.BulkAccessControlCliScriptConfiguration" primary="true">
+        <property name="description" value="Bulk access control"/>
+        <property name="dspaceRunnableClass" value="org.dspace.app.bulkaccesscontrol.BulkAccessControlCli"/>
+    </bean>
+
+    <bean id="submission-xml-to-xls" class="org.dspace.app.submission.SubmissionXmlToXlsScriptConfigurationCLI" primary="true">
+        <property name="description" value="Generate XLS submission form from XML"/>
+        <property name="dspaceRunnableClass" value="org.dspace.app.submission.SubmissionXmlToXlsCLI"/>
     </bean>
 
 </beans>

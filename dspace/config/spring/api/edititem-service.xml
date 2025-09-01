@@ -22,6 +22,9 @@
 									<value type="org.dspace.content.security.CrisSecurity">
 										SUBMITTER_GROUP
 									</value>
+                                    <value type="org.dspace.content.security.CrisSecurity">
+                                        ITEM_ADMIN
+                                    </value>
 								</list>
 							</property>
                             <property name="submissionDefinition" value="publication-edit" />
@@ -40,6 +43,9 @@
 									<value type="org.dspace.content.security.CrisSecurity">
 										SUBMITTER_GROUP
 									</value>
+                                    <value type="org.dspace.content.security.CrisSecurity">
+                                        ITEM_ADMIN
+                                    </value>
 								</list>
 							</property>
                             <property name="submissionDefinition" value="person-edit" />
@@ -59,6 +65,9 @@
 									<value type="org.dspace.content.security.CrisSecurity">
 										SUBMITTER_GROUP
 									</value>
+                                    <value type="org.dspace.content.security.CrisSecurity">
+                                        ITEM_ADMIN
+                                    </value>
 								</list>
 							</property>
                             <property name="submissionDefinition" value="orgunit-edit" />
@@ -78,6 +87,9 @@
 									<value type="org.dspace.content.security.CrisSecurity">
 										SUBMITTER_GROUP
 									</value>
+                                    <value type="org.dspace.content.security.CrisSecurity">
+                                        ITEM_ADMIN
+                                    </value>
 								</list>
 							</property>
                             <property name="submissionDefinition" value="project-edit" />
@@ -96,6 +108,9 @@
 									<value type="org.dspace.content.security.CrisSecurity">
 										SUBMITTER_GROUP
 									</value>
+                                    <value type="org.dspace.content.security.CrisSecurity">
+                                        ITEM_ADMIN
+                                    </value>
 								</list>
 							</property>
                             <property name="submissionDefinition" value="event-edit" />
@@ -115,6 +130,9 @@
 									<value type="org.dspace.content.security.CrisSecurity">
 										SUBMITTER_GROUP
 									</value>
+                                    <value type="org.dspace.content.security.CrisSecurity">
+                                        ITEM_ADMIN
+                                    </value>
 								</list>
 							</property>
                             <property name="submissionDefinition" value="archival_material-edit" />
@@ -134,6 +152,9 @@
 									<value type="org.dspace.content.security.CrisSecurity">
 										SUBMITTER_GROUP
 									</value>
+                                    <value type="org.dspace.content.security.CrisSecurity">
+                                        ITEM_ADMIN
+                                    </value>
 								</list>
 							</property>
                             <property name="submissionDefinition" value="fonds-edit" />
@@ -153,6 +174,9 @@
 									<value type="org.dspace.content.security.CrisSecurity">
 										SUBMITTER_GROUP
 									</value>
+                                    <value type="org.dspace.content.security.CrisSecurity">
+                                        ITEM_ADMIN
+                                    </value>
 								</list>
 							</property>
                             <property name="submissionDefinition" value="family-edit" />
@@ -172,6 +196,9 @@
 									<value type="org.dspace.content.security.CrisSecurity">
 										SUBMITTER_GROUP
 									</value>
+                                    <value type="org.dspace.content.security.CrisSecurity">
+                                        ITEM_ADMIN
+                                    </value>
 								</list>
 							</property>
                             <property name="submissionDefinition" value="place-edit" />
@@ -191,6 +218,9 @@
 									<value type="org.dspace.content.security.CrisSecurity">
 										SUBMITTER_GROUP
 									</value>
+                                    <value type="org.dspace.content.security.CrisSecurity">
+                                        ITEM_ADMIN
+                                    </value>
 								</list>
 							</property>
                             <property name="submissionDefinition" value="aggregation-edit" />
@@ -210,6 +240,9 @@
 									<value type="org.dspace.content.security.CrisSecurity">
 										SUBMITTER_GROUP
 									</value>
+                                    <value type="org.dspace.content.security.CrisSecurity">
+                                        ITEM_ADMIN
+                                    </value>
 								</list>
 							</property>
                             <property name="submissionDefinition" value="journal_fonds-edit" />
@@ -229,6 +262,9 @@
 									<value type="org.dspace.content.security.CrisSecurity">
 										SUBMITTER_GROUP
 									</value>
+                                    <value type="org.dspace.content.security.CrisSecurity">
+                                        ITEM_ADMIN
+                                    </value>
 								</list>
 							</property>
                             <property name="submissionDefinition" value="journal_file-edit" />
@@ -248,6 +284,9 @@
 									<value type="org.dspace.content.security.CrisSecurity">
 										SUBMITTER_GROUP
 									</value>
+                                    <value type="org.dspace.content.security.CrisSecurity">
+                                        ITEM_ADMIN
+                                    </value>
 								</list>
 							</property>
                             <property name="submissionDefinition" value="news-edit" />
@@ -267,6 +306,9 @@
 									<value type="org.dspace.content.security.CrisSecurity">
 										SUBMITTER_GROUP
 									</value>
+                                    <value type="org.dspace.content.security.CrisSecurity">
+                                        ITEM_ADMIN
+                                    </value>
 								</list>
 							</property>
                             <property name="submissionDefinition" value="path-edit" />
@@ -286,11 +328,182 @@
 									<value type="org.dspace.content.security.CrisSecurity">
 										SUBMITTER_GROUP
 									</value>
+                                    <value type="org.dspace.content.security.CrisSecurity">
+                                        ITEM_ADMIN
+                                    </value>
 								</list>
 							</property>
                             <property name="submissionDefinition" value="picture-edit" />
                         </bean>
                         
+                    </list>
+                </entry>
+                <entry key="audiovideo">
+                    <list>
+                        <bean class="org.dspace.content.edit.EditItemMode">
+                            <property name="name" value="FULL" />
+                            <property name="securities">
+                                <list>
+                                    <value type="org.dspace.content.security.CrisSecurity">
+                                        ADMIN
+                                    </value>
+                                    <value type="org.dspace.content.security.CrisSecurity">
+                                        SUBMITTER_GROUP
+                                    </value>
+                                    <value type="org.dspace.content.security.CrisSecurity">
+                                        ITEM_ADMIN
+                                    </value>
+                                </list>
+                            </property>
+                            <property name="submissionDefinition" value="audiovideo-edit" />
+                        </bean>
+                    </list>
+                </entry>
+                <entry key="opera">
+                    <list>
+                        <bean class="org.dspace.content.edit.EditItemMode">
+                            <property name="name" value="FULL" />
+                            <property name="securities">
+                                <list>
+                                    <value type="org.dspace.content.security.CrisSecurity">
+                                        ADMIN
+                                    </value>
+                                    <value type="org.dspace.content.security.CrisSecurity">
+                                        SUBMITTER_GROUP
+                                    </value>
+                                    <value type="org.dspace.content.security.CrisSecurity">
+                                        ITEM_ADMIN
+                                    </value>
+                                </list>
+                            </property>
+                            <property name="submissionDefinition" value="opera-edit" />
+                        </bean>
+                    </list>
+                </entry>
+                <entry key="coin">
+                    <list>
+                        <bean class="org.dspace.content.edit.EditItemMode">
+                            <property name="name" value="FULL" />
+                            <property name="securities">
+                                <list>
+                                    <value type="org.dspace.content.security.CrisSecurity">
+                                        ADMIN
+                                    </value>
+                                    <value type="org.dspace.content.security.CrisSecurity">
+                                        SUBMITTER_GROUP
+                                    </value>
+                                    <value type="org.dspace.content.security.CrisSecurity">
+                                        ITEM_ADMIN
+                                    </value>
+                                </list>
+                            </property>
+                            <property name="submissionDefinition" value="coin-edit" />
+                        </bean>
+                    </list>
+                </entry>
+                <entry key="musicallibrettos">
+                    <list>
+                        <bean class="org.dspace.content.edit.EditItemMode">
+                            <property name="name" value="FULL" />
+                            <property name="securities">
+                                <list>
+                                    <value type="org.dspace.content.security.CrisSecurity">
+                                        ADMIN
+                                    </value>
+                                    <value type="org.dspace.content.security.CrisSecurity">
+                                        SUBMITTER_GROUP
+                                    </value>
+                                    <value type="org.dspace.content.security.CrisSecurity">
+                                        ITEM_ADMIN
+                                    </value>
+                                </list>
+                            </property>
+                            <property name="submissionDefinition" value="musical_librettos-edit" />
+                        </bean>
+                    </list>
+                </entry>
+                <entry key="scientificmaterial">
+                    <list>
+                        <bean class="org.dspace.content.edit.EditItemMode">
+                            <property name="name" value="FULL" />
+                            <property name="securities">
+                                <list>
+                                    <value type="org.dspace.content.security.CrisSecurity">
+                                        ADMIN
+                                    </value>
+                                    <value type="org.dspace.content.security.CrisSecurity">
+                                        SUBMITTER_GROUP
+                                    </value>
+                                    <value type="org.dspace.content.security.CrisSecurity">
+                                        ITEM_ADMIN
+                                    </value>
+                                </list>
+                            </property>
+                            <property name="submissionDefinition" value="scientific_materials-edit" />
+                        </bean>
+                    </list>
+                </entry>
+                <entry key="artwork">
+                    <list>
+                        <bean class="org.dspace.content.edit.EditItemMode">
+                            <property name="name" value="FULL" />
+                            <property name="securities">
+                                <list>
+                                    <value type="org.dspace.content.security.CrisSecurity">
+                                        ADMIN
+                                    </value>
+                                    <value type="org.dspace.content.security.CrisSecurity">
+                                        SUBMITTER_GROUP
+                                    </value>
+                                    <value type="org.dspace.content.security.CrisSecurity">
+                                        ITEM_ADMIN
+                                    </value>
+                                </list>
+                            </property>
+                            <property name="submissionDefinition" value="artworks-edit" />
+                        </bean>
+                    </list>
+                </entry>
+                <entry key="webannotation">
+                    <list>
+                        <bean class="org.dspace.content.edit.EditItemMode">
+                            <property name="name" value="FULL" />
+                            <property name="securities">
+                                <list>
+                                    <value type="org.dspace.content.security.CrisSecurity">
+                                        ADMIN
+                                    </value>
+                                    <value type="org.dspace.content.security.CrisSecurity">
+                                        SUBMITTER_GROUP
+                                    </value>
+                                    <value type="org.dspace.content.security.CrisSecurity">
+                                        ITEM_ADMIN
+                                    </value>
+                                </list>
+                            </property>
+                            <property name="submissionDefinition" value="web_annotation-edit" />
+                        </bean>
+                    </list>
+                </entry>
+                <entry key="personalannotation">
+                    <list>
+                        <bean class="org.dspace.content.edit.EditItemMode">
+                            <property name="name" value="FULL" />
+                            <property name="securities">
+                                <list>
+                                    <value type="org.dspace.content.security.CrisSecurity">
+                                        ADMIN
+                                    </value>
+                                    <value type="org.dspace.content.security.CrisSecurity">
+                                        SUBMITTER_GROUP
+                                    </value>
+                                    <value type="org.dspace.content.security.CrisSecurity">
+                                        ITEM_ADMIN
+                                    </value>
+                                </list>
+                            </property>
+                            <property name="submissionDefinition" value="personal_annotation-edit" />
+                        </bean>
                     </list>
                 </entry>
             </map>

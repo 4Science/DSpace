@@ -11,9 +11,9 @@ import java.sql.SQLException;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-import javax.annotation.PostConstruct;
-import javax.servlet.http.HttpServletRequest;
 
+import jakarta.annotation.PostConstruct;
+import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.codec.binary.StringUtils;
 import org.apache.commons.collections4.IteratorUtils;
 import org.dspace.app.rest.model.RestModel;

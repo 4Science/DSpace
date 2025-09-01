@@ -38,9 +38,12 @@ import org.dspace.content.Collection;
 import org.dspace.content.Community;
 import org.dspace.content.Item;
 import org.dspace.services.ConfigurationService;
+import org.dspace.services.EventService;
+import org.dspace.services.factory.DSpaceServicesFactory;
 import org.dspace.statistics.factory.StatisticsServiceFactory;
 import org.dspace.statistics.service.SolrLoggerService;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -48,15 +51,26 @@ import org.springframework.beans.factory.annotation.Autowired;
  * Test
  */
 public class UpdateViewAndDownloadMetricsIT extends AbstractControllerIntegrationTest {
+
     protected final SolrLoggerService solrLoggerService = StatisticsServiceFactory.getInstance().getSolrLoggerService();
+
     @Autowired
     private CrisMetricsService crisMetriscService;
+
     @Autowired
-    ConfigurationService configurationService;
+    protected EventService eventService;
+
     CrisMetrics crisMetrics = null;
 
+    protected static final ConfigurationService configurationService =
+        DSpaceServicesFactory.getInstance().getConfigurationService();
+
+    @BeforeClass
+    public static void setUpBeforeClass() throws Exception {
+        configurationService.setProperty("system-event.thread.size", 0);
+    }
+
     @Before
-    @Override
     public void setUp() throws Exception {
         super.setUp();
         // Explicitly use solr commit in SolrLoggerServiceImpl#postView
@@ -106,23 +120,23 @@ public class UpdateViewAndDownloadMetricsIT extends AbstractControllerIntegratio
                     .contentType(contentType))
                     .andExpect(status().isCreated());
 
-            String[] args = new String[]{"store-metrics"};
-            TestDSpaceRunnableHandler handler = new TestDSpaceRunnableHandler();
-            int status = handleScript(args, ScriptLauncher.getConfig(kernelImpl), handler, kernelImpl, admin);
-            assertEquals(0, status);
-            //find view and downloads metrics
-            CrisMetrics metrics_downloads = crisMetriscService.findLastMetricByResourceIdAndMetricsTypes(
-                    context, "download", itemVisited.getID());
-            CrisMetrics metrics_views = crisMetriscService.findLastMetricByResourceIdAndMetricsTypes(
-                    context, "view", itemVisited.getID());
-            assertEquals("view", metrics_views.getMetricType());
-            assertEquals("download", metrics_downloads.getMetricType());
-            assertEquals(2, metrics_downloads.getMetricCount(), 0);
-            assertEquals(1, metrics_views.getMetricCount(), 0);
-            assertNull(metrics_downloads.getDeltaPeriod1());
-            assertNull(metrics_views.getDeltaPeriod2());
-            assertTrue(metrics_views.getLast());
-            assertTrue(metrics_downloads.getLast());
+        String[] args = new String[] {"store-metrics"};
+        TestDSpaceRunnableHandler handler = new TestDSpaceRunnableHandler();
+        int status = handleScript(args, ScriptLauncher.getConfig(kernelImpl), handler, kernelImpl, admin);
+        assertEquals(0, status);
+        //find view and downloads metrics
+        CrisMetrics metrics_downloads = crisMetriscService.findLastMetricByResourceIdAndMetricsTypes(
+            context, "download", itemVisited.getID());
+        CrisMetrics metrics_views = crisMetriscService.findLastMetricByResourceIdAndMetricsTypes(
+            context, "view", itemVisited.getID());
+        assertEquals("view", metrics_views.getMetricType());
+        assertEquals("download", metrics_downloads.getMetricType());
+        assertEquals(2, metrics_downloads.getMetricCount(), 0);
+        assertEquals(1, metrics_views.getMetricCount(), 0);
+        assertNull(metrics_downloads.getDeltaPeriod1());
+        assertNull(metrics_views.getDeltaPeriod2());
+        assertTrue(metrics_views.getLast());
+        assertTrue(metrics_downloads.getLast());
     }
 
     //test only with views
@@ -148,21 +162,22 @@ public class UpdateViewAndDownloadMetricsIT extends AbstractControllerIntegratio
                     .content(mapper.writeValueAsBytes(viewEventRestItem))
                     .contentType(contentType))
                     .andExpect(status().isCreated());
-            String[] args = new String[]{"store-metrics"};
-            TestDSpaceRunnableHandler handler = new TestDSpaceRunnableHandler();
-            int status = handleScript(args, ScriptLauncher.getConfig(kernelImpl), handler, kernelImpl, admin);
-            assertEquals(0, status);
-            CrisMetrics metrics_views = crisMetriscService.findLastMetricByResourceIdAndMetricsTypes(
-                    context, "view", itemVisited.getID());
-            // find downloads metric
-            CrisMetrics metrics_downloads = crisMetriscService.findLastMetricByResourceIdAndMetricsTypes(
-                    context, "download", itemVisited.getID());
-            assertEquals("view", metrics_views.getMetricType());
-            assertTrue(metrics_views.getLast());
-            assertEquals(1, metrics_views.getMetricCount(), 0);
-            assertNull(metrics_views.getDeltaPeriod2());
-            // must be null because for the item there are not downloads
-            assertNull(metrics_downloads);
+
+        String[] args = new String[] {"store-metrics"};
+        TestDSpaceRunnableHandler handler = new TestDSpaceRunnableHandler();
+        int status = handleScript(args, ScriptLauncher.getConfig(kernelImpl), handler, kernelImpl, admin);
+        assertEquals(0, status);
+        CrisMetrics metrics_views = crisMetriscService.findLastMetricByResourceIdAndMetricsTypes(
+            context, "view", itemVisited.getID());
+        // find downloads metric
+        CrisMetrics metrics_downloads = crisMetriscService.findLastMetricByResourceIdAndMetricsTypes(
+            context, "download", itemVisited.getID());
+        assertEquals("view", metrics_views.getMetricType());
+        assertTrue(metrics_views.getLast());
+        assertEquals(1, metrics_views.getMetricCount(), 0);
+        assertNull(metrics_views.getDeltaPeriod2());
+        // must be null because for the item there are not downloads
+        assertNull(metrics_downloads);
     }
 
     //test with previous metrics
@@ -209,26 +224,26 @@ public class UpdateViewAndDownloadMetricsIT extends AbstractControllerIntegratio
                     .contentType(contentType))
                     .andExpect(status().isCreated());
 
-            String[] args = new String[]{"store-metrics"};
-            TestDSpaceRunnableHandler handler = new TestDSpaceRunnableHandler();
-            int status = handleScript(args, ScriptLauncher.getConfig(kernelImpl), handler, kernelImpl, admin);
-            assertEquals(0, status);
-            CrisMetrics metrics_downloads = crisMetriscService.findLastMetricByResourceIdAndMetricsTypes(
-                    context, "download", itemVisited.getID());
-            CrisMetrics metrics_views = crisMetriscService.findLastMetricByResourceIdAndMetricsTypes(
-                    context, "view", itemVisited.getID());
-            // find previous metric
-            CrisMetrics old_metric = crisMetriscService.find(context, crisMetrics.getID());
-            assertEquals("view", metrics_views.getMetricType());
-            assertEquals("download", metrics_downloads.getMetricType());
-            assertEquals(2, metrics_downloads.getMetricCount(), 0);
-            assertEquals(1, metrics_views.getMetricCount(), 0);
-            assertNull(metrics_downloads.getDeltaPeriod1());
-            assertNull(metrics_views.getDeltaPeriod2());
-            assertTrue(metrics_views.getLast());
-            assertTrue(metrics_downloads.getLast());
-            // previous metric must have last value false
-            assertFalse(old_metric.getLast());
+        String[] args = new String[] {"store-metrics"};
+        TestDSpaceRunnableHandler handler = new TestDSpaceRunnableHandler();
+        int status = handleScript(args, ScriptLauncher.getConfig(kernelImpl), handler, kernelImpl, admin);
+        assertEquals(0, status);
+        CrisMetrics metrics_downloads = crisMetriscService.findLastMetricByResourceIdAndMetricsTypes(
+            context, "download", itemVisited.getID());
+        CrisMetrics metrics_views = crisMetriscService.findLastMetricByResourceIdAndMetricsTypes(
+            context, "view", itemVisited.getID());
+        // find previous metric
+        CrisMetrics old_metric = crisMetriscService.find(context, crisMetrics.getID());
+        assertEquals("view", metrics_views.getMetricType());
+        assertEquals("download", metrics_downloads.getMetricType());
+        assertEquals(2, metrics_downloads.getMetricCount(), 0);
+        assertEquals(1, metrics_views.getMetricCount(), 0);
+        assertNull(metrics_downloads.getDeltaPeriod1());
+        assertNull(metrics_views.getDeltaPeriod2());
+        assertTrue(metrics_views.getLast());
+        assertTrue(metrics_downloads.getLast());
+        // previous metric must have last value false
+        assertFalse(old_metric.getLast());
     }
 
     //test with previous week and month views and downloads
@@ -298,6 +313,7 @@ public class UpdateViewAndDownloadMetricsIT extends AbstractControllerIntegratio
                                 .content(mapper.writeValueAsBytes(viewEventRestBitstream))
                                 .contentType(contentType))
                    .andExpect(status().isCreated());
+
         String[] args = new String[] {"store-metrics"};
         TestDSpaceRunnableHandler handler = new TestDSpaceRunnableHandler();
         int status = handleScript(args, ScriptLauncher.getConfig(kernelImpl), handler, kernelImpl, admin);
@@ -307,8 +323,10 @@ public class UpdateViewAndDownloadMetricsIT extends AbstractControllerIntegratio
         CrisMetrics metrics_views = crisMetriscService.findLastMetricByResourceIdAndMetricsTypes(
             context, "view", itemVisited.getID());
         // find previous metrics
-        CrisMetrics old_metric_views_month = crisMetriscService.find(context, crisMetrics_previous_week_views.getID());
-        CrisMetrics old_metric_views_week = crisMetriscService.find(context, crisMetrics_previous_month_views.getID());
+        CrisMetrics old_metric_views_month =
+            crisMetriscService.find(context, crisMetrics_previous_week_views.getID());
+        CrisMetrics old_metric_views_week =
+            crisMetriscService.find(context, crisMetrics_previous_month_views.getID());
         CrisMetrics old_metric_downloads_month = crisMetriscService.find(context,
                                                                          crisMetrics_previous_month_downloads.getID());
         CrisMetrics old_metric_downloads_week = crisMetriscService.find(context,
@@ -407,23 +425,25 @@ public class UpdateViewAndDownloadMetricsIT extends AbstractControllerIntegratio
                         .content(mapper.writeValueAsBytes(viewEventRestBitstream))
                         .contentType(contentType))
                 .andExpect(status().isCreated());
-        String[] args = new String[]{"store-metrics"};
+
+
+        String[] args = new String[] {"store-metrics"};
         TestDSpaceRunnableHandler handler = new TestDSpaceRunnableHandler();
         int status = handleScript(args, ScriptLauncher.getConfig(kernelImpl), handler, kernelImpl, admin);
         assertEquals(0, status);
         CrisMetrics metric_view_item = crisMetriscService.findLastMetricByResourceIdAndMetricsTypes(
-                context, "view", item.getID());
+            context, "view", item.getID());
         CrisMetrics metric_download = crisMetriscService.findLastMetricByResourceIdAndMetricsTypes(
-                context, "download", item.getID());
+            context, "download", item.getID());
         CrisMetrics metrics_views_comm = crisMetriscService.findLastMetricByResourceIdAndMetricsTypes(
-                context, "view", community.getID());
+            context, "view", community.getID());
         // find previous metrics
         CrisMetrics old_metric_views_month = crisMetriscService.find(context,
-            crisMetrics_previous_month_views_comm.getID());
+                                                                     crisMetrics_previous_month_views_comm.getID());
         CrisMetrics old_metric_views_week = crisMetriscService.find(context,
-            crisMetrics_previous_week_views_comm.getID());
+                                                                    crisMetrics_previous_week_views_comm.getID());
         CrisMetrics old_metric_downloads_week = crisMetriscService.find(context,
-            crisMetrics_previous_week_downloads.getID());
+                                                                        crisMetrics_previous_week_downloads.getID());
 
 
         //control download values
@@ -447,6 +467,7 @@ public class UpdateViewAndDownloadMetricsIT extends AbstractControllerIntegratio
         assertFalse(old_metric_views_month.getLast());
         assertFalse(old_metric_views_week.getLast());
         assertFalse(old_metric_downloads_week.getLast());
+
     }
 
     //test with previous week and month views and downloads for community collection and items together
@@ -552,31 +573,32 @@ public class UpdateViewAndDownloadMetricsIT extends AbstractControllerIntegratio
                         .content(mapper.writeValueAsBytes(viewEventRestBitstream))
                         .contentType(contentType))
                 .andExpect(status().isCreated());
-        String[] args = new String[]{"store-metrics"};
+
+        String[] args = new String[] {"store-metrics"};
         TestDSpaceRunnableHandler handler = new TestDSpaceRunnableHandler();
         int status = handleScript(args, ScriptLauncher.getConfig(kernelImpl), handler, kernelImpl, admin);
         assertEquals(0, status);
         CrisMetrics metric_view_item = crisMetriscService.findLastMetricByResourceIdAndMetricsTypes(
-                context, "view", item.getID());
+            context, "view", item.getID());
         CrisMetrics metric_download = crisMetriscService.findLastMetricByResourceIdAndMetricsTypes(
-                context, "download", item.getID());
+            context, "download", item.getID());
         CrisMetrics metrics_views_comm = crisMetriscService.findLastMetricByResourceIdAndMetricsTypes(
-                context, "view", community.getID());
+            context, "view", community.getID());
         CrisMetrics metrics_views_cols = crisMetriscService.findLastMetricByResourceIdAndMetricsTypes(
-                context, "view", col1.getID());
+            context, "view", col1.getID());
         // find previous metrics
         CrisMetrics old_metric_views_month = crisMetriscService.find(context,
-            crisMetrics_previous_month_views_comm.getID());
+                                                                     crisMetrics_previous_month_views_comm.getID());
         CrisMetrics old_metric_views_week = crisMetriscService.find(context,
-            crisMetrics_previous_week_views_comm.getID());
+                                                                    crisMetrics_previous_week_views_comm.getID());
         CrisMetrics old_metric_downloads_week = crisMetriscService.find(context,
-                crisMetrics_previous_week_downloads.getID());
+                                                                        crisMetrics_previous_week_downloads.getID());
         CrisMetrics old_metric_view_week_items = crisMetriscService.find(context,
-                crisMetrics_previous_week_views_item.getID());
+                                                                         crisMetrics_previous_week_views_item.getID());
         CrisMetrics old_metric_view_week_col = crisMetriscService.find(context,
-                crisMetrics_previous_week_views_col.getID());
+                                                                       crisMetrics_previous_week_views_col.getID());
         CrisMetrics old_metric_view_month_col = crisMetriscService.find(context,
-                crisMetrics_previous_month_views_col.getID());
+                                                                        crisMetrics_previous_month_views_col.getID());
 
         //control download values
         assertEquals("download", metric_download.getMetricType());
@@ -682,23 +704,25 @@ public class UpdateViewAndDownloadMetricsIT extends AbstractControllerIntegratio
                         .content(mapper.writeValueAsBytes(viewEventRestColl))
                         .contentType(contentType))
                 .andExpect(status().isCreated());
-        String[] args = new String[]{"store-metrics"};
+
+
+        String[] args = new String[] {"store-metrics"};
         TestDSpaceRunnableHandler handler = new TestDSpaceRunnableHandler();
         int status = handleScript(args, ScriptLauncher.getConfig(kernelImpl), handler, kernelImpl, admin);
         assertEquals(0, status);
         CrisMetrics metrics_views_comm = crisMetriscService.findLastMetricByResourceIdAndMetricsTypes(
-                context, "view", community.getID());
+            context, "view", community.getID());
         CrisMetrics metrics_views_cols = crisMetriscService.findLastMetricByResourceIdAndMetricsTypes(
-                context, "view", col1.getID());
+            context, "view", col1.getID());
         // find previous metrics
         CrisMetrics old_metric_views_month = crisMetriscService.find(context,
-            crisMetrics_previous_month_views_comm.getID());
+                                                                     crisMetrics_previous_month_views_comm.getID());
         CrisMetrics old_metric_views_week = crisMetriscService.find(context,
-            crisMetrics_previous_week_views_comm.getID());
+                                                                    crisMetrics_previous_week_views_comm.getID());
         CrisMetrics old_metric_view_week_col = crisMetriscService.find(context,
-            crisMetrics_previous_week_views_col.getID());
+                                                                       crisMetrics_previous_week_views_col.getID());
         CrisMetrics old_metric_view_month_col = crisMetriscService.find(context,
-            crisMetrics_previous_month_views_col.getID());
+                                                                        crisMetrics_previous_month_views_col.getID());
 
 
         assertEquals("view", metrics_views_comm.getMetricType());

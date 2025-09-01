@@ -12,9 +12,9 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
-import javax.servlet.http.HttpServletRequest;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.collections.CollectionUtils;
 import org.dspace.app.metrics.CrisMetrics;
 import org.dspace.app.rest.Parameter;
@@ -24,11 +24,16 @@ import org.dspace.app.rest.exception.DSpaceBadRequestException;
 import org.dspace.app.rest.exception.RepositoryMethodNotImplementedException;
 import org.dspace.app.rest.exception.UnprocessableEntityException;
 import org.dspace.app.rest.model.CrisLayoutBoxRest;
+import org.dspace.app.rest.model.CrisLayoutMetadataConfigurationRest;
 import org.dspace.app.rest.model.CrisLayoutMetricsConfigurationRest;
 import org.dspace.app.rest.model.CrisLayoutTabRest;
 import org.dspace.app.rest.model.patch.Patch;
 import org.dspace.app.rest.repository.patch.ResourcePatch;
 import org.dspace.authorize.AuthorizeException;
+import org.dspace.content.Bundle;
+import org.dspace.content.Item;
+import org.dspace.content.service.ItemService;
+import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.layout.CrisLayoutBoxTypes;
 import org.dspace.layout.CrisLayoutTab;
@@ -46,7 +51,7 @@ import org.springframework.stereotype.Component;
  * @author Danilo Di Nuzzo (danilo dot dinuzzo at 4science dot it)
  *
  */
-@Component(CrisLayoutTabRest.CATEGORY + "." + CrisLayoutTabRest.NAME)
+@Component(CrisLayoutTabRest.CATEGORY + "." + CrisLayoutTabRest.NAME_PLURAL)
 public class CrisLayoutTabRestRepository extends DSpaceRestRepository<CrisLayoutTabRest, Integer>
     implements ReloadableEntityObjectRepository<CrisLayoutTab, Integer> {
 
@@ -63,6 +68,9 @@ public class CrisLayoutTabRestRepository extends DSpaceRestRepository<CrisLayout
 
     @Autowired
     private CrisItemMetricsService metricsService;
+
+    @Autowired
+    private ItemService itemService;
 
     @Override
     @PreAuthorize("permitAll")
@@ -87,10 +95,12 @@ public class CrisLayoutTabRestRepository extends DSpaceRestRepository<CrisLayout
     @SearchRestMethod(name = "findByItem")
     public Page<CrisLayoutTabRest> findByItem(
         @Parameter(value = "uuid", required = true) String itemUuid, Pageable pageable) throws SQLException {
-        List<CrisLayoutTab> tabList = service.findByItem(obtainContext(), itemUuid);
+        Context context = obtainContext();
+        List<CrisLayoutTab> tabList = service.findByItem(context, itemUuid);
         getRequestService().getCurrentRequest().setAttribute(SCOPE_ITEM_ATTRIBUTE, itemUuid);
         Page<CrisLayoutTabRest> restTabs = converter.toRestPage(tabList, pageable, utils.obtainProjection());
         restTabs = filterTabWithoutRows(pageable, restTabs);
+        restTabs = filterFieldsWithAdvancedAttachmentRenderType(context, restTabs, itemUuid);
         return filterBoxesWithMetricsType(restTabs, itemUuid);
     }
 
@@ -106,6 +116,7 @@ public class CrisLayoutTabRestRepository extends DSpaceRestRepository<CrisLayout
             tabList = service.findByEntityType(
                 context,
                 type,
+                null,
                 pageable.getPageSize(),
                 (pageable.getPageNumber() * pageable.getPageSize()) );
         } catch (SQLException e) {
@@ -207,17 +218,7 @@ public class CrisLayoutTabRestRepository extends DSpaceRestRepository<CrisLayout
         List<CrisLayoutTabRest> listOfTabs = restTabs.toList();
 
         // Get CrisLayoutBoxRest with boxType=METRICS
-        List<CrisLayoutBoxRest> boxes = listOfTabs
-            .stream()
-            .flatMap(t -> t.getRows()
-                .stream()
-                .flatMap(r -> r.getCells()
-                    .stream()
-                    .flatMap(c -> c.getBoxes()
-                        .stream()
-                        .filter(b -> b.getBoxType()
-                            .equals(CrisLayoutBoxTypes.METRICS.name())))))
-            .collect(Collectors.toList());
+        List<CrisLayoutBoxRest> boxes = findBoxesByType(listOfTabs, CrisLayoutBoxTypes.METRICS.name());
 
         // Set new metrics for each box
         boxes.forEach(box -> {
@@ -242,4 +243,66 @@ public class CrisLayoutTabRestRepository extends DSpaceRestRepository<CrisLayout
 
         return utils.getPage(listOfTabs, restTabs.getPageable());
     }
+
+    private Page<CrisLayoutTabRest> filterFieldsWithAdvancedAttachmentRenderType(Context context,
+                                                                                 Page<CrisLayoutTabRest> restTabs,
+                                                                                 String itemUuid) throws SQLException {
+        List<CrisLayoutTabRest> listOfTabs = restTabs.toList();
+        Item item = itemService.find(context, UUID.fromString(itemUuid));
+
+        if (hasOriginalBitstream(item)) {
+            return restTabs;
+        }
+
+        // Get CrisLayoutBoxRest with boxType=METADATA
+        List<CrisLayoutBoxRest> boxes = findBoxesByType(listOfTabs, CrisLayoutBoxTypes.METADATA.name());
+
+        boxes.forEach(box -> {
+
+            CrisLayoutMetadataConfigurationRest boxConfiguration =
+                ((CrisLayoutMetadataConfigurationRest) box.getConfiguration());
+
+
+            // filter fields with rendering not equal to 'advancedattachment'
+            boxConfiguration
+                .getRows()
+                .forEach(row -> row.getCells()
+                    .forEach(cell -> cell.setFields(
+                        cell.getFields()
+                        .stream()
+                        .filter(field -> !"advancedattachment".equals(field.getRendering()))
+                        .collect(Collectors.toList()))));
+
+            // remove cells that contain empty fields
+            boxConfiguration
+                .getRows()
+                .forEach(row -> row.getCells().removeIf(cell -> cell.getFields().isEmpty()));
+
+            // remove rows that contain empty cells
+            boxConfiguration
+                .getRows().removeIf(row -> row.getCells().isEmpty());
+        });
+
+        return utils.getPage(listOfTabs, restTabs.getPageable());
+    }
+
+    private List<CrisLayoutBoxRest> findBoxesByType(List<CrisLayoutTabRest> tabs, String type) {
+
+        return tabs.stream()
+                   .flatMap(t -> t.getRows()
+                        .stream()
+                        .flatMap(r -> r.getCells()
+                             .stream()
+                             .flatMap(c -> c.getBoxes()
+                                  .stream()
+                                  .filter(b -> b.getBoxType()
+                                       .equals(type)))))
+                   .collect(Collectors.toList());
+    }
+
+    private boolean hasOriginalBitstream(Item item) {
+        List<Bundle> bundles =  item.getBundles(Constants.DEFAULT_BUNDLE_NAME);
+        return !bundles.isEmpty() && !bundles.get(0).getBitstreams().isEmpty();
+    }
+
 }

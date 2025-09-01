@@ -292,4 +292,13 @@ public interface CommunityService extends DSpaceObjectService<Community>, DSpace
     public List<Community> findAuthorizedGroupMapped(Context context, List<Integer> actions) throws SQLException;
 
     int countTotal(Context context) throws SQLException;
+
+    /**
+     * Returns total community archived items
+     *
+     * @param context         DSpace context
+     * @param community       Community
+     * @return                total community archived items
+     */
+    int countArchivedItems(Context context, Community community);
 }

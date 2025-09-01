@@ -18,27 +18,28 @@ import org.dspace.app.rest.RestResourceController;
 
 /**
  * The CrisLayoutTab REST Resource
- * 
+ *
  * @author Danilo Di Nuzzo (danilo.dinuzzo at 4science.it)
  *
  */
-@LinksRest(links = {
-        @LinkRest(
-                name = CrisLayoutTabRest.SECURITY_METADATA,
-                method = "getSecurityMetadata"
-        )
-})
+@LinksRest(
+    links = {
+        @LinkRest(name = CrisLayoutTabRest.SECURITY_METADATA, method = "getSecurityMetadata")
+    }
+)
 public class CrisLayoutTabRest extends BaseObjectRest<Integer> {
 
     private static final long serialVersionUID = -6032412882381032490L;
 
     public static final String NAME = "tab";
+    public static final String NAME_PLURAL = "tabs";
     public static final String CATEGORY = RestAddressableModel.LAYOUT;
     public static final String SECURITY_METADATA = "securitymetadata";
 
     private String shortname;
     private String header;
     private String entityType;
+    private String customFilter;
     private Integer priority;
     private Integer security;
     private Boolean leading;
@@ -51,6 +52,11 @@ public class CrisLayoutTabRest extends BaseObjectRest<Integer> {
     @JsonProperty(access = Access.READ_ONLY)
     public String getType() {
         return NAME;
+    }
+
+    @Override
+    public String getTypePlural() {
+        return NAME_PLURAL;
     }
 
     /* (non-Javadoc)
@@ -100,6 +106,14 @@ public class CrisLayoutTabRest extends BaseObjectRest<Integer> {
 
     public void setEntityType(String entityType) {
         this.entityType = entityType;
+    }
+
+    public String getCustomFilter() {
+        return customFilter;
+    }
+
+    public void setCustomFilter(String customFilter) {
+        this.customFilter = customFilter;
     }
 
     public Integer getPriority() {

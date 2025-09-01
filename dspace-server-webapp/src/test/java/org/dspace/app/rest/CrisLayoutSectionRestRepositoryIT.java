@@ -10,6 +10,7 @@ package org.dspace.app.rest;
 import static com.jayway.jsonpath.matchers.JsonPathMatchers.hasJsonPath;
 import static org.dspace.app.rest.matcher.CrisLayoutSectionMatcher.withBrowseComponent;
 import static org.dspace.app.rest.matcher.CrisLayoutSectionMatcher.withFacetComponent;
+import static org.dspace.app.rest.matcher.CrisLayoutSectionMatcher.withIdAndAdvancedTopComponent;
 import static org.dspace.app.rest.matcher.CrisLayoutSectionMatcher.withIdAndBrowseComponent;
 import static org.dspace.app.rest.matcher.CrisLayoutSectionMatcher.withIdAndCarouselComponent;
 import static org.dspace.app.rest.matcher.CrisLayoutSectionMatcher.withIdAndCountersComponent;
@@ -82,25 +83,23 @@ public class CrisLayoutSectionRestRepositoryIT extends AbstractControllerIntegra
 
 
             .andExpect(jsonPath("$._embedded.sections",
-                hasItem(withIdAndCarouselComponent("site", 1, 0, "col-md-12", "news"))))
+                hasItem(withIdAndCarouselComponent("site", 1, 0, "col-12 px-0", "news"))))
 
             .andExpect(jsonPath("$._embedded.sections",
-                hasItem(withIdAndSearchComponent("site", 2, 0, "col-md-12", "site"))))
+                        hasItem(withIdAndTextRowComponent("site", 2, 0 ,
+                                "py-3 col-12 col-md-5", "text-metadata"))))
 
             .andExpect(jsonPath("$._embedded.sections",
-                        hasItem(withIdAndTextRowComponent("site", 3, 0 ,
-                                "col-md-5 pad-left-title align-items-center d-flex flex", "text-metadata"))))
-
-            .andExpect(jsonPath("$._embedded.sections",
-                hasItem(withIdAndCountersComponent("site", 3, 1, "col-md-7 pad-right", Arrays.asList("fonds",
+                hasItem(withIdAndCountersComponent("site", 2, 1, "py-3 col-12 col-md-7", Arrays.asList("fonds",
                                                                                                  "journalfonds",
                                                                                                  "aggregations",
                                                                                                  "documents")))))
 
             .andExpect(jsonPath("$._embedded.sections",
-              hasItem(withIdAndTopComponent("site", 4, 0, "col-md-12 pad-left pad-right bg-light", "additions",
-                                            "lastModified", "desc", 8, true, true, "card",
-                                            "", "col-6 col-lg-3", "", true, "top"))))
+              hasItem(withIdAndAdvancedTopComponent("site", 3, 0, "py-4",
+                                            List.of("aggregationsHomePage", "fondsHomePage", "journalfondsHomePage"),
+                                            "cris.priority", "asc", 8, true, true, "card",
+                                            "", "col-6 col-lg-3", "", true, "slider", "advanced-top-component"))))
             ;
     }
 

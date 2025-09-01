@@ -237,7 +237,7 @@
         <scope_note>Contains all uuids of PUBLICATIONS which link to the current ISSUE via a "latest" relationship. In other words, this stores all relationships pointing to the current ISSUE from any PUBLICATION, implying that the ISSUE is marked as "latest". Internally used by DSpace to support versioning. Do not manually add, remove or edit values.</scope_note>
     </dc-type>
 
-    <!-- OpenAIRE4 Guidelines - required relationships -->
+    <!-- Openaire4 Guidelines - required relationships -->
 
     <dc-type>
         <schema>relation</schema>
@@ -285,6 +285,26 @@
         <element>isProjectOfFundingAgency</element>
         <qualifier>latestForDiscovery</qualifier>
         <scope_note>Contains all uuids of PROJECTS which link to the current FUNDING AGENCY via a "latest" relationship. In other words, this stores all relationships pointing to the current FUNDING AGENCY from any PROJECT, implying that the FUNDING AGENCY is marked as "latest". Internally used by DSpace to support versioning. Do not manually add, remove or edit values.</scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>relation</schema>
+        <element>isCorrectionOfItem</element>
+    </dc-type>
+    <dc-type>
+        <schema>relation</schema>
+        <element>isCorrectionOfItem</element>
+        <qualifier>latestForDiscovery</qualifier>
+    </dc-type>
+
+    <dc-type>
+        <schema>relation</schema>
+        <element>isCorrectedByItem</element>
+    </dc-type>
+    <dc-type>
+        <schema>relation</schema>
+        <element>isCorrectedByItem</element>
+        <qualifier>latestForDiscovery</qualifier>
     </dc-type>
 
 </dspace-dc-types>

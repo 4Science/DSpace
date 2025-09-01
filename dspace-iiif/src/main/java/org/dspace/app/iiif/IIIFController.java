@@ -7,6 +7,7 @@
  */
 package org.dspace.app.iiif;
 
+import java.util.List;
 import java.util.UUID;
 
 import org.dspace.core.Context;
@@ -48,7 +49,7 @@ public class IIIFController {
      * @param id DSpace Item uuid
      * @return manifest as JSON
      */
-    @RequestMapping(method = RequestMethod.GET, value = "/{id}/manifest")
+    @RequestMapping(method = RequestMethod.GET, value = "/{id}/manifest", produces = "application/json")
     public String findOne(@PathVariable UUID id) {
         Context context = ContextUtil.obtainCurrentRequestContext();
         return iiifFacade.getManifest(context, id);
@@ -110,5 +111,22 @@ public class IIIFController {
     public String findCanvas(@PathVariable UUID id, @PathVariable String cid) {
         Context context = ContextUtil.obtainCurrentRequestContext();
         return iiifFacade.getCanvas(context, id, cid);
+    }
+    /**
+     * Retrieves the download configuration for a specific item identified by the given ID.
+     *
+     * This method is a part of the IIIF API and is responsible for returning the download
+     * configuration for the item with the specified ID. The download configuration is returned
+     * as a map where the key is a String and the value is a List of Strings. The returned map
+     * typically contains configurations that define what formats or options are available for
+     * downloading the resource.
+     *
+     * @param id DSpace Item uuid
+     * @return a List of Strings representing the download options available
+     */
+    @RequestMapping(method = RequestMethod.GET, value = "/{id}/download")
+    public List<String> findDownloadConfig(@PathVariable UUID id) {
+        Context context = ContextUtil.obtainCurrentRequestContext();
+        return iiifFacade.getDownloadConfig(context, id);
     }
 }
