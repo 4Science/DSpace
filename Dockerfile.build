@@ -9,11 +9,13 @@ ENV DSPACE_INSTALL=/dspace \
     DATA_FOLDER=/data
 RUN useradd -m -d /home/dspace -s /bin/bash dspace
 
+COPY --chown=dspace ./dspace/modules/server-boot/target/server-boot-*.jar /home/dspace/server-boot.jar
+RUN java -Djarmode=tools -jar /home/dspace/server-boot.jar extract --destination $DSPACE_INSTALL --libraries lib
+
 RUN install -g dspace -o dspace -d $DSPACE_INSTALL $DATA_FOLDER
 
 COPY --chown=dspace ./dspace/config/ $DSPACE_INSTALL/config/
 COPY --chown=dspace --chmod=0754 ./dspace/bin/ $DSPACE_INSTALL/bin/
-COPY --chown=dspace ./dspace/modules/server-boot/target/server-boot-*.jar $DSPACE_INSTALL/server-boot.jar
 
 RUN install -g dspace -o dspace -m 664 /dev/null $DATA_FOLDER/local.cfg && \
     ln -s $DATA_FOLDER/local.cfg $DSPACE_INSTALL/config/local.cfg
