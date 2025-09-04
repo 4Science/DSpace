@@ -19,23 +19,21 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.dspace.app.util.XMLUtils;
-import org.dspace.importer.external.metadatamapping.contributor.JsonPathMetadataProcessor;
+import org.dspace.importer.external.metadatamapping.contributor.AbstractJsonPathMetadataProcessor;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
-public class CrossRefAbstractProcessor extends JsonPathMetadataProcessor {
+public class CrossRefAbstractProcessor extends AbstractJsonPathMetadataProcessor {
 
-    private final static Logger log = LogManager.getLogger();
-
-    private String path;
+    private final static Logger log = LogManager.getLogger(CrossRefAbstractProcessor.class);
 
     @Override
     public Collection<String> processMetadata(String json) {
         JsonNode rootNode = convertStringJsonToJsonNode(json);
-        JsonNode abstractNode = rootNode.at(path);
+        JsonNode abstractNode = rootNode.at(query);
         Collection<String> values = new ArrayList<>();
         if (!abstractNode.isMissingNode()) {
             String abstractValue = abstractNode.textValue();
@@ -99,11 +97,4 @@ public class CrossRefAbstractProcessor extends JsonPathMetadataProcessor {
         return sb.toString().trim();
     }
 
-    public String getPath() {
-        return path;
-    }
-
-    public void setPath(String path) {
-        this.path = path;
-    }
 }

@@ -33,7 +33,7 @@ import org.apache.commons.lang3.StringUtils;
  *
  * @author Mykhaylo Boychuk (mykhaylo.boychuk@4science.com)
  */
-public class ArrayElementAttributeProcessor extends JsonPathMetadataProcessor {
+public class ArrayElementAttributeProcessor extends AbstractJsonPathMetadataProcessor {
 
     private String pathToArray;
 

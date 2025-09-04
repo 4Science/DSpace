@@ -18,12 +18,12 @@ import com.fasterxml.jackson.databind.JsonNode;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.dspace.importer.external.metadatamapping.contributor.JsonPathMetadataProcessor;
+import org.dspace.importer.external.metadatamapping.contributor.AbstractJsonPathMetadataProcessor;
 
 /**
  * @author Mykhaylo Boychuk (mykhaylo.boychuk@4science.com)
  */
-public class ViafSubjectIcshProcessor extends JsonPathMetadataProcessor {
+public class ViafSubjectIcshProcessor extends AbstractJsonPathMetadataProcessor {
 
     private final static Logger log = LogManager.getLogger(ViafNationalityProcessor.class);
 

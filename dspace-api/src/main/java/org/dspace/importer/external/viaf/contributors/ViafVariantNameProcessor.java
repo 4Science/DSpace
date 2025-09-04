@@ -20,12 +20,12 @@ import com.jayway.jsonpath.JsonPath;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.dspace.importer.external.metadatamapping.contributor.JsonPathMetadataProcessor;
+import org.dspace.importer.external.metadatamapping.contributor.AbstractJsonPathMetadataProcessor;
 
 /**
  * @author Mykhaylo Boychuk (mykhaylo.boychuk@4science.com)
  */
-public class ViafVariantNameProcessor extends JsonPathMetadataProcessor {
+public class ViafVariantNameProcessor extends AbstractJsonPathMetadataProcessor {
 
     private final static Logger log = LogManager.getLogger(ViafTitleProcessor.class);
 

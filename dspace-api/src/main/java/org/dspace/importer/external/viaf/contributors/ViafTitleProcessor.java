@@ -19,12 +19,16 @@ import com.jayway.jsonpath.JsonPath;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.dspace.importer.external.metadatamapping.contributor.JsonPathMetadataProcessor;
+import org.dspace.importer.external.metadatamapping.contributor.AbstractJsonPathMetadataProcessor;
 
 /**
+ * Processes titles from VIAF (Virtual International Authority File) responses,
+ * handling both MARC21 and UNIMARC formats.
+ * Supports title extraction based on configurable preferred sources and custom field separators.
+ * 
  * @author Mykhaylo Boychuk (mykhaylo.boychuk@4science.com)
  */
-public class ViafTitleProcessor extends JsonPathMetadataProcessor {
+public class ViafTitleProcessor extends AbstractJsonPathMetadataProcessor {
 
     private final static Logger log = LogManager.getLogger(ViafTitleProcessor.class);
 

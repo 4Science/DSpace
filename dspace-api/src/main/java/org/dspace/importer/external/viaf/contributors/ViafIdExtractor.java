@@ -11,6 +11,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 
 public interface ViafIdExtractor {
 
-    public String getViafId(JsonNode jsonNode, Integer recordNumberForNameSpace);
+    public String getViafId(JsonNode jsonNode, int recordNumberForNameSpace);
 
 }

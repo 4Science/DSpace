@@ -12,12 +12,12 @@ import java.util.List;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import org.apache.commons.lang.StringUtils;
-import org.dspace.importer.external.metadatamapping.contributor.JsonPathMetadataProcessor;
+import org.dspace.importer.external.metadatamapping.contributor.AbstractJsonPathMetadataProcessor;
 
 /**
  * @author Mykhaylo Boychuk (mykhaylo.boychuk@4science.com)
  */
-public class ViafSimplePrefixProcessor extends JsonPathMetadataProcessor  {
+public class ViafSimplePrefixProcessor extends AbstractJsonPathMetadataProcessor {
 
     private String prefix;
 

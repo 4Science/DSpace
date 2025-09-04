@@ -14,12 +14,12 @@ import java.util.List;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import org.apache.commons.lang.StringUtils;
-import org.dspace.importer.external.metadatamapping.contributor.JsonPathMetadataProcessor;
+import org.dspace.importer.external.metadatamapping.contributor.AbstractJsonPathMetadataProcessor;
 
 /**
  * @author Mykhaylo Boychuk (mykhaylo.boychuk@4science.com)
  */
-public class ViafWikipediaProcessor extends JsonPathMetadataProcessor  {
+public class ViafWikipediaProcessor extends AbstractJsonPathMetadataProcessor {
 
     private final static String CONTENT_PATH = "/content";
     private final static List<String> ALLOWED_WIKI = List.of("https://en.wikipedia.org", "https://it.wikipedia.org");

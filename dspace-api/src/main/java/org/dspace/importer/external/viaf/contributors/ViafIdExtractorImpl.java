@@ -15,11 +15,10 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * Implementation of the VIAF ID extractor.
- * 
+ * Implementation of {@link ViafIdExtractor} interface for extracting VIAF IDs.
  * This class provides functionality to extract VIAF (Virtual International Authority File)
- * identifiers from JSON records returned by VIAF services. It specifically filters
- * results to only return VIAF IDs for personal names, excluding other entity types.
+ * identifiers from JSON records returned by VIAF services.
+ * It specifically filters results to only return VIAF IDs for personal names, excluding other entity types.
  *
  * @author Mykhaylo Boychuk (mykhaylo.boychuk@4science.com)
  */
@@ -48,10 +47,10 @@ public class ViafIdExtractorImpl implements ViafIdExtractor {
      * @return The VIAF ID if the record represents a Person
      */
     @Override
-    public String getViafId(JsonNode jsonNode, Integer recordNumberForNameSpace) {
+    public String getViafId(JsonNode jsonNode, int recordNumberForNameSpace) {
         String id = extractValue(jsonNode, VIAF_ID_PATH, recordNumberForNameSpace);
         String nameType = extractValue(jsonNode, NAME_TYPE_PATH, recordNumberForNameSpace);
-        log.debug("Extracted viaf-id:%s and nameType: %s", id, nameType);
+        log.debug("Extracted viaf-id:{} and nameType: {}", id, nameType);
         return StringUtils.equals(VIAF_PERSON_TYPE, nameType) ? id : null;
     }
 

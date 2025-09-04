@@ -24,7 +24,7 @@ public class CrossRefDateMetadataProcessorTest {
     @Test
     public void testProcessMetadata() {
         CrossRefDateMetadataProcessor unit = new CrossRefDateMetadataProcessor();
-        unit.setPathToArray("/dates");
+        unit.setQuery("/dates");
         Collection metadata = unit.processMetadata("{\"dates\": ["
                 + "[1957, 1, 27],"
                 + "[1957, 1],"

@@ -72,7 +72,7 @@
     </bean>
     <bean id="viafGenderMetadataProcessor" class="org.dspace.importer.external.metadatamapping.transform.StringJsonValueMappingMetadataProcessorService">
         <property name="valueMapConverter" ref="mapConverterViafGenderType"/>
-        <property name="path" value="/ns1:VIAFCluster/ns1:fixed/ns1:gender"/>
+        <property name="query" value="/ns1:VIAFCluster/ns1:fixed/ns1:gender"/>
     </bean>
     <bean name="mapConverterViafGenderType" class="org.dspace.util.SimpleMapConverter" init-method="init">
         <property name="converterNameFile" value="mapConverter-viaf-gender-type.properties" />

@@ -14,7 +14,7 @@ import java.util.Collection;
 import java.util.Iterator;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import org.dspace.importer.external.metadatamapping.contributor.JsonPathMetadataProcessor;
+import org.dspace.importer.external.metadatamapping.contributor.AbstractJsonPathMetadataProcessor;
 
 /**
  * This class is used for CrossRef's Live-Import to extract
@@ -23,14 +23,12 @@ import org.dspace.importer.external.metadatamapping.contributor.JsonPathMetadata
  *
  * @author Francesco Pio Scognamiglio (francescopio.scognamiglio at 4science.com)
  */
-public class CrossRefDateMetadataProcessor extends JsonPathMetadataProcessor {
-
-    private String pathToArray;
+public class CrossRefDateMetadataProcessor extends AbstractJsonPathMetadataProcessor {
 
     @Override
     public Collection<String> processMetadata(String json) {
         JsonNode rootNode = convertStringJsonToJsonNode(json);
-        Iterator<JsonNode> dates = rootNode.at(pathToArray).iterator();
+        Iterator<JsonNode> dates = rootNode.at(query).iterator();
         Collection<String> values = new ArrayList<>();
         while (dates.hasNext()) {
             JsonNode date = dates.next();
@@ -56,10 +54,6 @@ public class CrossRefDateMetadataProcessor extends JsonPathMetadataProcessor {
             values.add(issuedDate.format(issuedDateFormat));
         }
         return values;
-    }
-
-    public void setPathToArray(String pathToArray) {
-        this.pathToArray = pathToArray;
     }
 
 }

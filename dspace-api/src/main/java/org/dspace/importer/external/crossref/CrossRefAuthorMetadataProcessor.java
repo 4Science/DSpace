@@ -13,7 +13,7 @@ import java.util.Iterator;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import org.apache.commons.lang3.StringUtils;
-import org.dspace.importer.external.metadatamapping.contributor.JsonPathMetadataProcessor;
+import org.dspace.importer.external.metadatamapping.contributor.AbstractJsonPathMetadataProcessor;
 
 /**
  * This class is used for CrossRef's Live-Import to extract
@@ -23,14 +23,12 @@ import org.dspace.importer.external.metadatamapping.contributor.JsonPathMetadata
  * 
  * @author Mykhaylo Boychuk (mykhaylo.boychuk@4science.com)
  */
-public class CrossRefAuthorMetadataProcessor extends JsonPathMetadataProcessor {
-
-    private String pathToArray;
+public class CrossRefAuthorMetadataProcessor extends AbstractJsonPathMetadataProcessor {
 
     @Override
     public Collection<String> processMetadata(String json) {
         JsonNode rootNode = convertStringJsonToJsonNode(json);
-        Iterator<JsonNode> authors = rootNode.at(pathToArray).iterator();
+        Iterator<JsonNode> authors = rootNode.at(query).iterator();
         Collection<String> values = new ArrayList<>();
         while (authors.hasNext()) {
             JsonNode author = authors.next();
@@ -41,10 +39,6 @@ public class CrossRefAuthorMetadataProcessor extends JsonPathMetadataProcessor {
             }
         }
         return values;
-    }
-
-    public void setPathToArray(String pathToArray) {
-        this.pathToArray = pathToArray;
     }
 
 }

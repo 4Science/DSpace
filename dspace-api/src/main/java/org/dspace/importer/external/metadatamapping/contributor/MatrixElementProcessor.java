@@ -34,14 +34,12 @@ import org.apache.commons.lang3.StringUtils;
  * 
  * @author Mykhaylo Boychuk (mykhaylo.boychuk@4science.com)
  */
-public class MatrixElementProcessor extends JsonPathMetadataProcessor {
-
-    private String pathToMatrix;
+public class MatrixElementProcessor extends AbstractJsonPathMetadataProcessor {
 
     @Override
     public Collection<String> processMetadata(String json) {
         JsonNode rootNode = convertStringJsonToJsonNode(json);
-        Iterator<JsonNode> array = rootNode.at(pathToMatrix).elements();
+        Iterator<JsonNode> array = rootNode.at(query).elements();
         Collection<String> values = new ArrayList<>();
         while (array.hasNext()) {
             JsonNode element = array.next();
@@ -61,10 +59,6 @@ public class MatrixElementProcessor extends JsonPathMetadataProcessor {
             }
         }
         return values;
-    }
-
-    public void setPathToMatrix(String pathToMatrix) {
-        this.pathToMatrix = pathToMatrix;
     }
 
 }

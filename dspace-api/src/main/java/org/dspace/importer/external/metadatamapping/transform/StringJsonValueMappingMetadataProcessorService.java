@@ -13,7 +13,7 @@ import java.util.Optional;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeType;
-import org.dspace.importer.external.metadatamapping.contributor.JsonPathMetadataProcessor;
+import org.dspace.importer.external.metadatamapping.contributor.AbstractJsonPathMetadataProcessor;
 import org.dspace.util.SimpleMapConverter;
 
 /**
@@ -26,19 +26,18 @@ import org.dspace.util.SimpleMapConverter;
  * @author paulo-graca
  *
  */
-public class StringJsonValueMappingMetadataProcessorService extends JsonPathMetadataProcessor {
+public class StringJsonValueMappingMetadataProcessorService extends AbstractJsonPathMetadataProcessor {
 
     /**
      * The value map converter.
      * a list of values to map from
      */
     private SimpleMapConverter valueMapConverter;
-    private String path;
 
     @Override
     public Collection<String> processMetadata(String json) {
         JsonNode rootNode = convertStringJsonToJsonNode(json);
-        Optional<JsonNode> abstractNode = Optional.ofNullable(rootNode.at(path));
+        Optional<JsonNode> abstractNode = Optional.ofNullable(rootNode.at(query));
         Collection<String> values = new ArrayList<>(1);
 
         if (abstractNode.isPresent() && abstractNode.get().getNodeType().equals(JsonNodeType.STRING)) {
@@ -59,10 +58,6 @@ public class StringJsonValueMappingMetadataProcessorService extends JsonPathMeta
 
     public void setValueMapConverter(SimpleMapConverter valueMapConverter) {
         this.valueMapConverter = valueMapConverter;
-    }
-
-    public void setPath(String path) {
-        this.path = path;
     }
 
 }
