@@ -112,9 +112,9 @@ public class ViafImportMetadataSourceServiceImplIT extends AbstractLiveImportInt
         CloseableHttpClient originalHttpClient = liveImportClientImpl.getHttpClient();
         CloseableHttpClient httpClient = Mockito.mock(CloseableHttpClient.class);
 
-        try (InputStream viafResponceIS = getClass().getResourceAsStream("viaf-findByIdResponce.json")) {
+        try (InputStream viafResponseIS = getClass().getResourceAsStream("viaf-findByIdResponse.json")) {
 
-            String viafResp = IOUtils.toString(viafResponceIS, Charset.defaultCharset());
+            String viafResp = IOUtils.toString(viafResponseIS, Charset.defaultCharset());
 
             liveImportClientImpl.setHttpClient(httpClient);
             CloseableHttpResponse response = mockResponse(viafResp, 200, "OK");
@@ -146,9 +146,9 @@ public class ViafImportMetadataSourceServiceImplIT extends AbstractLiveImportInt
         CloseableHttpClient originalHttpClient = liveImportClientImpl.getHttpClient();
         CloseableHttpClient httpClient = Mockito.mock(CloseableHttpClient.class);
 
-        try (InputStream viafResponceIS = getClass().getResourceAsStream("viaf-findByIdMARC21Responce.json")) {
+        try (InputStream viafResponseIS = getClass().getResourceAsStream("viaf-findByIdMARC21Response.json")) {
 
-            String viafResp = IOUtils.toString(viafResponceIS, Charset.defaultCharset());
+            String viafResp = IOUtils.toString(viafResponseIS, Charset.defaultCharset());
 
             liveImportClientImpl.setHttpClient(httpClient);
             CloseableHttpResponse response = mockResponse(viafResp, 200, "OK");
@@ -261,12 +261,12 @@ public class ViafImportMetadataSourceServiceImplIT extends AbstractLiveImportInt
         CloseableHttpClient originalHttpClient = liveImportClientImpl.getHttpClient();
         CloseableHttpClient httpClient = Mockito.mock(CloseableHttpClient.class);
 
-        try (InputStream viafResponceIS = getClass().getResourceAsStream("viaf-searchByName.json");
-             InputStream carlo1IS = getClass().getResourceAsStream("viaf-Carlo-responce1.json");
-             InputStream carlo2IS = getClass().getResourceAsStream("viaf-Carlo-responce2.json");
-             InputStream carlo3IS = getClass().getResourceAsStream("viaf-Carlo-responce3.json")) {
+        try (InputStream viafResponseIS = getClass().getResourceAsStream("viaf-searchByName.json");
+             InputStream carlo1IS = getClass().getResourceAsStream("viaf-Carlo-response1.json");
+             InputStream carlo2IS = getClass().getResourceAsStream("viaf-Carlo-response2.json");
+             InputStream carlo3IS = getClass().getResourceAsStream("viaf-Carlo-response3.json")) {
 
-            String viafSearchByNameResp = IOUtils.toString(viafResponceIS, Charset.defaultCharset());
+            String viafSearchByNameResp = IOUtils.toString(viafResponseIS, Charset.defaultCharset());
             String viafEnrico1Resp = IOUtils.toString(carlo1IS, Charset.defaultCharset());
             String viafEnrico2Resp = IOUtils.toString(carlo2IS, Charset.defaultCharset());
             String viafEnrico3Resp = IOUtils.toString(carlo3IS, Charset.defaultCharset());
@@ -294,9 +294,9 @@ public class ViafImportMetadataSourceServiceImplIT extends AbstractLiveImportInt
         CloseableHttpClient originalHttpClient = liveImportClientImpl.getHttpClient();
         CloseableHttpClient httpClient = Mockito.mock(CloseableHttpClient.class);
 
-        try (InputStream viafResponceIS = getClass().getResourceAsStream("viaf-searchByName.json")) {
+        try (InputStream viafResponseIS = getClass().getResourceAsStream("viaf-searchByName.json")) {
 
-            String viafSearchByNameResp = IOUtils.toString(viafResponceIS, Charset.defaultCharset());
+            String viafSearchByNameResp = IOUtils.toString(viafResponseIS, Charset.defaultCharset());
             CloseableHttpResponse response1 = mockResponse(viafSearchByNameResp, 200, "OK");
 
             liveImportClientImpl.setHttpClient(httpClient);
