@@ -160,4 +160,9 @@
         <qualifier>linkedin-id</qualifier>
     </dc-type>
 
+    <dc-type>
+        <schema>person</schema>
+        <element>nationality</element>
+    </dc-type>
+
 </dspace-dc-types>
