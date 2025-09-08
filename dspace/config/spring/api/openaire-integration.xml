@@ -25,6 +25,7 @@
         <entry key-ref="openaire.category.term" value-ref="openaireCategoryTermContrib"/>
         <entry key-ref="openaire.author.name" value-ref="openaireAuthorContrib"/>
         <entry key-ref="openaire.identifier.other" value-ref="openaireOtherContrib"/>
+        <entry key-ref="openaire.dc.publisher" value-ref="openairePublisherContrib"/>
     </util:map>
 
 
@@ -36,7 +37,6 @@
     <bean id="openaire.identifier.other" class="org.dspace.importer.external.metadatamapping.MetadataFieldConfig">
         <constructor-arg value="dc.identifier.other"/>
     </bean>
-
 
     <bean id="openaireTitleContrib" class="org.dspace.importer.external.metadatamapping.contributor.SimpleXpathMetadatumContributor">
         <property name="field" ref="openaire.title"/>
@@ -104,13 +104,22 @@
         <constructor-arg value="dc.contributor.author"/>
     </bean>
 
+    <bean id="openairePublisherContrib" class="org.dspace.importer.external.metadatamapping.contributor.SimpleXpathMetadatumContributor">
+        <property name="field" ref="openaire.dc.publisher"/>
+        <property name="query" value="descendant::oaf:result/publisher"/>
+        <property name="prefixToNamespaceMapping" ref="openairePrefixToNamespaceMapping"/>
+    </bean>
+    <bean id="openaire.dc.publisher" class="org.dspace.importer.external.metadatamapping.MetadataFieldConfig">
+        <constructor-arg value="dc.publisher"/>
+    </bean>
+
     <util:map id="openairePrefixToNamespaceMapping" map-class="java.util.HashMap"
         key-type="java.lang.String" value-type="java.lang.String">
         <entry key="http://www.driver-repository.eu/namespace/dri" value="dri" />
         <entry key="http://namespace.openaire.eu/oaf" value="oaf" />
         <entry key="http://www.w3.org/2001/XMLSchema-instance" value="xsi" />
     </util:map>
-    
+
 
     <util:map id="openaireProjectsMetadataFieldMap" key-type="org.dspace.importer.external.metadatamapping.MetadataFieldConfig"
               value-type="org.dspace.importer.external.metadatamapping.contributor.MetadataContributor">
