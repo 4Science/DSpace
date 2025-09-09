@@ -75,6 +75,7 @@
 
 
     <fields>
+        <field name="_version_" type="long" indexed="true" stored="false" docValues="true" multiValued="false"/>
         <field name="id" type="string" multiValued="false" indexed="true" stored="true" required="true"/>
         <field name="ocr_text" type="text_ocr" multiValued="false" indexed="true" stored="true" />
         <field name="manifest_url" type="text_general" multiValued="false" indexed="true" stored="true" required="true"/>
