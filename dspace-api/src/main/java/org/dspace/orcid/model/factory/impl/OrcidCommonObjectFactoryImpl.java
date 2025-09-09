@@ -98,10 +98,12 @@ public class OrcidCommonObjectFactoryImpl implements OrcidCommonObjectFactory {
             return empty();
         }
 
-        LocalDate localDate = MultiFormatDateParser.parse(metadataValue.getValue());
-        if (localDate == null) {
+        Date date = MultiFormatDateParser.parse(metadataValue.getValue());
+        if (date == null) {
             return empty();
         }
+
+        LocalDate localDate = convertToLocalDate(date);
         return of(FuzzyDate.valueOf(localDate.getYear(), localDate.getMonthValue(), localDate.getDayOfMonth()));
     }
 

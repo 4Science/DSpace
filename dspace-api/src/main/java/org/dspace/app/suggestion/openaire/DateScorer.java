@@ -7,8 +7,10 @@
  */
 package org.dspace.app.suggestion.openaire;
 
-import java.time.LocalDate;
+import java.util.Calendar;
 import java.util.Collections;
+import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.List;
 
 import org.dspace.app.suggestion.SuggestionEvidence;
@@ -200,12 +202,13 @@ public class DateScorer implements EvidenceScorer {
     private int getYear(String birthDateStr) {
         int birthDateYear = -1;
         if (birthDateStr != null) {
-            LocalDate birthDate = MultiFormatDateParser.parse(birthDateStr);
+            Date birthDate = MultiFormatDateParser.parse(birthDateStr);
             if (birthDate != null) {
-                birthDateYear = birthDate.getYear();
+                Calendar calendar = new GregorianCalendar();
+                calendar.setTime(birthDate);
+                birthDateYear = calendar.get(Calendar.YEAR);
             }
         }
         return birthDateYear;
     }
-
 }

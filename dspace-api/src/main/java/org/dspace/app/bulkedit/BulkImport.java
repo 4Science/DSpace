@@ -26,8 +26,6 @@ import static org.dspace.util.WorkbookUtils.getRows;
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.SQLException;
-import java.time.LocalDate;
-import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -1622,8 +1620,7 @@ public class BulkImport extends DSpaceRunnable<BulkImportScriptConfiguration<Bul
     }
 
     private Date parseDate(String date) {
-        LocalDate localDate = MultiFormatDateParser.parse(date);
-        return Date.from(localDate.atStartOfDay(ZoneId.of("UTC")).toInstant()); //TODO check
+        return MultiFormatDateParser.parse(date);
     }
 
     private Collection getCollection() {

@@ -12,7 +12,6 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.ZoneOffset;
-import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.TimeZone;
 
@@ -94,9 +93,5 @@ public class SolrUtils {
             }
         }
         return date;
-    }
-
-    public static DateTimeFormatter getDateTimeFormatter() {
-        return DateTimeFormatter.ofPattern(SOLR_DATE_FORMAT).withZone(ZoneOffset.UTC);
     }
 }

@@ -12,9 +12,9 @@ import static org.junit.Assert.assertEquals;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -148,7 +148,7 @@ public class MultiFormatDateParserTest {
     public void testParse() throws ParseException {
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat(expectedFormat);
         simpleDateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
-        LocalDate result = MultiFormatDateParser.parse(toParseDate);
+        Date result = MultiFormatDateParser.parse(toParseDate);
         assertEquals(testMessage, expectedResult, simpleDateFormat.parse(toParseDate).equals(result));
     }
 }

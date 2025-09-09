@@ -8,8 +8,6 @@
 package org.dspace.sword2;
 
 import java.sql.SQLException;
-import java.time.LocalDate;
-import java.time.ZoneId;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -285,9 +283,8 @@ public class ReceiptGenerator {
         List<MetadataValue> dcv = itemService.getMetadataByMetadataString(
             result.getItem(), "dc.date.issued");
         if (dcv != null && !dcv.isEmpty()) {
-            LocalDate published = MultiFormatDateParser.parse(dcv.get(0).getValue());
-            receipt.getWrappedEntry()
-                   .setPublished(Date.from(published.atStartOfDay(ZoneId.of("UTC")).toInstant()));
+            Date published = MultiFormatDateParser.parse(dcv.get(0).getValue());
+            receipt.getWrappedEntry().setPublished(published);
         }
     }
 
@@ -301,9 +298,8 @@ public class ReceiptGenerator {
         List<MetadataValue> dcv = itemService.getMetadataByMetadataString(
             item, "dc.date.issued");
         if (dcv != null && dcv.size() == 1) {
-            LocalDate published = MultiFormatDateParser.parse(dcv.get(0).getValue());
-            receipt.getWrappedEntry()
-                   .setPublished(Date.from(published.atStartOfDay(ZoneId.of("UTC")).toInstant()));
+            Date published = MultiFormatDateParser.parse(dcv.get(0).getValue());
+            receipt.getWrappedEntry().setPublished(published);
         }
     }
 
@@ -320,9 +316,8 @@ public class ReceiptGenerator {
         List<MetadataValue> dcv = itemService.getMetadataByMetadataString(
             result.getItem(), config);
         if (dcv != null && dcv.size() == 1) {
-            LocalDate updated = MultiFormatDateParser.parse(dcv.get(0).getValue());
-            receipt.getWrappedEntry()
-                   .setUpdated(Date.from(updated.atStartOfDay(ZoneId.of("UTC")).toInstant()));
+            Date updated = MultiFormatDateParser.parse(dcv.get(0).getValue());
+            receipt.getWrappedEntry().setUpdated(updated);
         }
     }
 
@@ -338,9 +333,8 @@ public class ReceiptGenerator {
         List<MetadataValue> dcv = itemService.getMetadataByMetadataString(
             item, config);
         if (dcv != null && dcv.size() == 1) {
-            LocalDate updated = MultiFormatDateParser.parse(dcv.get(0).getValue());
-            receipt.getWrappedEntry()
-                   .setUpdated(Date.from(updated.atStartOfDay(ZoneId.of("UTC")).toInstant()));
+            Date updated = MultiFormatDateParser.parse(dcv.get(0).getValue());
+            receipt.getWrappedEntry().setUpdated(updated);
         }
     }
 }
