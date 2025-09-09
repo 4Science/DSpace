@@ -31,6 +31,8 @@
 
     <types>
 
+        <fieldType name="long" class="solr.LongPointField"/>
+
         <fieldType name="string" class="solr.StrField" sortMissingLast="true" omitNorms="true"/>
 
         <fieldType name="text_general" class="solr.TextField" positionIncrementGap="100" multiValued="true">
