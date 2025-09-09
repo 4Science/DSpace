@@ -1151,7 +1151,6 @@
           <repeatable>false</repeatable>
           <required />
           <hint>Inserire il VIAF ID della persona</hint>
-          <vocabulary closed="true">aggregationsTree</vocabulary>
         </field>
       </row>
       <row>
