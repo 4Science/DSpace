@@ -32,6 +32,7 @@ import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.AWSCredentialsProvider;
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
+import com.amazonaws.auth.BasicSessionCredentials;
 import com.amazonaws.auth.DefaultAWSCredentialsProviderChain;
 import com.amazonaws.client.builder.AwsClientBuilder.EndpointConfiguration;
 import com.amazonaws.regions.DefaultAwsRegionProviderChain;
@@ -46,6 +47,9 @@ import com.amazonaws.services.s3.transfer.Download;
 import com.amazonaws.services.s3.transfer.TransferManager;
 import com.amazonaws.services.s3.transfer.TransferManagerBuilder;
 import com.amazonaws.services.s3.transfer.Upload;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import org.apache.commons.cli.CommandLine;
@@ -56,6 +60,7 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.output.NullOutputStream;
+import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpStatus;
 import org.apache.logging.log4j.LogManager;
@@ -82,6 +87,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 public class S3BitStoreService extends BaseBitStoreService {
     protected static final String DEFAULT_BUCKET_PREFIX = "dspace-asset-";
     protected static final Gson GSON = new GsonBuilder().serializeNulls().setPrettyPrinting().create();
+    public static final String REGEX_SECRET = "^(.{3})(.*)(.{3})$";
     // Prefix indicating a registered bitstream
     protected final String REGISTERED_FLAG = "-R";
     /**
@@ -115,6 +121,7 @@ public class S3BitStoreService extends BaseBitStoreService {
     private String awsAccessKey;
     private String awsSecretKey;
     private String awsRegionName;
+    private String awsSessionToken;
     private boolean useRelativePath;
     private Integer maxConnections;
     private Integer connectionTimeout;
@@ -170,12 +177,27 @@ public class S3BitStoreService extends BaseBitStoreService {
                                                     Optional.ofNullable(connectionTimeout)
                                                             .orElse(ClientConfiguration.DEFAULT_CONNECTION_TIMEOUT)
                                                 );
-            log.debug(
-                "AmazonS3Client client configuration: {}",
-                GSON.toJson(clientConfiguration)
-            );
+            if (log.isDebugEnabled()) {
+                log.debug(
+                    "AmazonS3Client client configuration: {}",
+                    toJson(clientConfiguration)
+                );
+            }
             return clientConfiguration;
         };
+    }
+
+    private static String toJson(ClientConfiguration clientConfiguration) {
+        try {
+            return new ObjectMapper()
+                .configure(SerializationFeature.INDENT_OUTPUT, true)
+                .configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false)
+                .writeValueAsString(clientConfiguration);
+        } catch (JsonProcessingException e) {
+            log.error("Cannot convert client S3 configuration into JSON", e);
+            log.info("Trying converting to simple String");
+            return ReflectionToStringBuilder.toString(clientConfiguration);
+        }
     }
 
     /**
@@ -270,8 +292,8 @@ public class S3BitStoreService extends BaseBitStoreService {
         BasicAWSCredentials credentials = new BasicAWSCredentials(awsAccessKey, awsSecretKey);
         log.info(
             "AmazonS3Client credentials - accessKey: {}, secretKey: {}",
-            credentials.getAWSAccessKeyId().replaceFirst("^(.{3})(.*)(.{3})$", "$1***$3"),
-            credentials.getAWSSecretKey().replaceFirst("^(.{3})(.*)(.{3})$", "$1***$3")
+            credentials.getAWSAccessKeyId().replaceFirst(REGEX_SECRET, "$1***$3"),
+            credentials.getAWSSecretKey().replaceFirst(REGEX_SECRET, "$1***$3")
         );
         return getAwsCredentialsSupplier(credentials);
     }
@@ -280,6 +302,19 @@ public class S3BitStoreService extends BaseBitStoreService {
         AWSCredentials credentials
     ) {
         return () -> new AWSStaticCredentialsProvider(credentials);
+    }
+
+    protected static Supplier<AWSStaticCredentialsProvider> getBasicCredentialsSupplier(
+        String awsAccessKey, String awsSecretKey, String awsSessionToken
+    ) {
+        BasicSessionCredentials credentials = new BasicSessionCredentials(awsAccessKey, awsSecretKey, awsSessionToken);
+        log.info(
+            "AmazonS3Client credentials - accessKey: {}, secretKey: {}, awsSessionToken: {}",
+            credentials.getAWSAccessKeyId().replaceFirst(REGEX_SECRET, "$1***$3"),
+            credentials.getAWSSecretKey().replaceFirst(REGEX_SECRET, "$1***$3"),
+            credentials.getSessionToken().replaceFirst(REGEX_SECRET, "$1***$3")
+        );
+        return getAwsCredentialsSupplier(credentials);
     }
 
     protected static Regions getDefaultRegion() {
@@ -331,8 +366,15 @@ public class S3BitStoreService extends BaseBitStoreService {
         try {
             Supplier<? extends AWSCredentialsProvider> awsCredentialsSupplier;
             if (StringUtils.isNotBlank(getAwsAccessKey()) && StringUtils.isNotBlank(getAwsSecretKey())) {
-                log.warn("Use local defined S3 credentials");
-                awsCredentialsSupplier = getAwsCredentialsSupplier(getAwsAccessKey(), getAwsSecretKey());
+                if (StringUtils.isNotBlank(getAwsSessionToken())) {
+                    log.warn("Use local S3 credentials with session token");
+                    awsCredentialsSupplier =
+                        getBasicCredentialsSupplier(getAwsAccessKey(), getAwsSecretKey(), getAwsSessionToken());
+                } else {
+                    log.warn("Use local S3 credentials with access and secret keys");
+                    awsCredentialsSupplier =
+                        getAwsCredentialsSupplier(getAwsAccessKey(), getAwsSecretKey());
+                }
             } else {
                 log.info("Use an IAM role or aws environment credentials");
                 awsCredentialsSupplier = DefaultAWSCredentialsProviderChain::new;
@@ -667,6 +709,14 @@ public class S3BitStoreService extends BaseBitStoreService {
 
     public void setEndpoint(String endpoint) {
         this.endpoint = endpoint;
+    }
+
+    public String getAwsSessionToken() {
+        return awsSessionToken;
+    }
+
+    public void setAwsSessionToken(String awsSessionToken) {
+        this.awsSessionToken = awsSessionToken;
     }
 
     /**

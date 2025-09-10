@@ -35,7 +35,8 @@ public class OrcidQueueMatcher {
                 hasJsonPath("$.description", is(orcidQueue.getDescription())),
                 hasJsonPath("$.recordType", is(orcidQueue.getRecordType())),
                 hasJsonPath("$.operation", is(orcidQueue.getOperation().name())),
-                hasJsonPath("$.type", is("orcidqueue"))
+                hasJsonPath("$.type", is("orcidqueue")),
+                hasJsonPath("$.uniqueType", is("eperson.orcidqueue"))
         );
     }
 }

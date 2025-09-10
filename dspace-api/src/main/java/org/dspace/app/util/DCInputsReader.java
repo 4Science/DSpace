@@ -23,7 +23,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.FactoryConfigurationError;
 
 import org.apache.commons.lang3.StringUtils;
@@ -128,15 +127,17 @@ public class DCInputsReader {
         formDefns = new HashMap<String, List<List<Map<String, String>>>>();
         valuePairs = new HashMap<String, List<String>>();
 
-        String uri = "file:" + new File(fileName).getAbsolutePath();
+        File inputFile = new File(fileName);
+        String inputFileDir = inputFile.toPath().normalize().getParent().toString();
+
+        String uri = "file:" + inputFile.getAbsolutePath();
 
         try {
-            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-            factory.setValidating(false);
-            factory.setIgnoringComments(true);
-            factory.setIgnoringElementContentWhitespace(true);
-
-            DocumentBuilder db = factory.newDocumentBuilder();
+            // This document builder will *not* disable external
+            // entities as they can be useful in managing large forms, but
+            // it will restrict them to be within the directory that the
+            // current input form XML file exists (or a sub-directory)
+            DocumentBuilder db = XMLUtils.getTrustedDocumentBuilder(inputFileDir);
             Document doc = db.parse(uri);
             doNodes(doc);
             checkValues();
@@ -539,7 +540,7 @@ public class DCInputsReader {
                                                        "." + field.get("dc-qualifier") +
                                                        " has no language attribute");
                         } else {
-                            field.put(PAIR_TYPE_NAME, pairTypeName);
+                            field.put("language." + PAIR_TYPE_NAME, pairTypeName);
                         }
                     }
                 } else if (StringUtils.equalsIgnoreCase(tagName, "linked-metadata-field")) {
@@ -596,7 +597,7 @@ public class DCInputsReader {
                                            "." + field.get("dc-qualifier") +
                                            " has no name attribute");
             } else {
-                field.put(PAIR_TYPE_NAME, pairTypeName);
+                field.put(value + "." + PAIR_TYPE_NAME, pairTypeName);
             }
         }
     }
@@ -735,7 +736,7 @@ public class DCInputsReader {
                     if (StringUtils.isNotBlank(type) && (type.equals("dropdown")
                         || type.equals("qualdrop_value")
                         || type.equals("list"))) {
-                        String pairsName = fld.get(PAIR_TYPE_NAME);
+                        String pairsName = fld.get(type + "." + PAIR_TYPE_NAME);
                         List<String> v = valuePairs.get(pairsName);
                         if (v == null) {
                             String errString = "Cannot find value pairs for " + pairsName;

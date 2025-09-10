@@ -18,99 +18,125 @@ import org.hamcrest.Matcher;
 
 /**
  * Utility class to construct a Matcher for ItemAuthority
- * 
+ *
  * @author Mykhaylo Boychuk (4Science.it)
  */
 public class ItemAuthorityMatcher {
 
-    private ItemAuthorityMatcher() {}
+    private ItemAuthorityMatcher() {
+    }
 
     public static Matcher<? super Object> matchItemAuthorityProperties(String authority, String display, String value,
-            String type) {
+                                                                       String type) {
         return allOf(
-                hasJsonPath("$.authority", is(authority)),
-                hasJsonPath("$.display", is(display)),
-                hasJsonPath("$.value", is(value)),
-                hasJsonPath("$.type", is(type))
+            hasJsonPath("$.authority", is(authority)),
+            hasJsonPath("$.display", is(display)),
+            hasJsonPath("$.value", is(value)),
+            hasJsonPath("$.type", is(type))
         );
     }
 
     public static Matcher<? super Object> matchItemAuthorityWithOtherInformations(String authority, String display,
-            String value, String type, String otherInfMetadata, String metadataValue) {
+                                                                                  String value, String type,
+                                                                                  String otherInfMetadata,
+                                                                                  String metadataValue) {
         return allOf(
-                hasJsonPath("$.authority", is(authority)),
-                hasJsonPath("$.display", is(display)),
-                hasJsonPath("$.value", is(value)),
-                hasJsonPath("$.type", is(type)),
-                hasJsonPath("$.otherInformation", aMapWithSize(2)),
-                hasJsonPath("$.otherInformation['" + otherInfMetadata + "']", is(metadataValue)),
-                hasJsonPath("$.otherInformation['" + "data-" + otherInfMetadata + "']", is(metadataValue))
+            hasJsonPath("$.authority", is(authority)),
+            hasJsonPath("$.display", is(display)),
+            hasJsonPath("$.value", is(value)),
+            hasJsonPath("$.type", is(type)),
+            hasJsonPath("$.otherInformation", aMapWithSize(2)),
+            hasJsonPath("$.otherInformation['" + otherInfMetadata + "']", is(metadataValue)),
+            hasJsonPath("$.otherInformation['" + "data-" + otherInfMetadata + "']", is(metadataValue))
         );
     }
 
     public static Matcher<? super Object> matchItemAuthorityWithOtherInformations(String authority, String display,
-            String value, String type, String otherInfMetadata, String metadataValue, String source) {
+                                                                                  String value, String type,
+                                                                                  String otherInfMetadata,
+                                                                                  String metadataValue, String source) {
         return allOf(
-                hasJsonPath("$.authority", is(authority)),
-                hasJsonPath("$.display", is(display)),
-                hasJsonPath("$.value", is(value)),
-                hasJsonPath("$.type", is(type)),
-                hasJsonPath("$.source", is(source)),
-                hasJsonPath("$.otherInformation", aMapWithSize(2)),
-                hasJsonPath("$.otherInformation['" + otherInfMetadata + "']", is(metadataValue)),
-                hasJsonPath("$.otherInformation['" + "data-" + otherInfMetadata + "']", is(metadataValue))
+            hasJsonPath("$.authority", is(authority)),
+            hasJsonPath("$.display", is(display)),
+            hasJsonPath("$.value", is(value)),
+            hasJsonPath("$.type", is(type)),
+            hasJsonPath("$.source", is(source)),
+            hasJsonPath("$.otherInformation", aMapWithSize(2)),
+            hasJsonPath("$.otherInformation['" + otherInfMetadata + "']", is(metadataValue)),
+            hasJsonPath("$.otherInformation['" + "data-" + otherInfMetadata + "']", is(metadataValue))
+        );
+    }
+
+    public static Matcher<? super Object> matchItemAuthorityWithOtherInformations(
+        String authority,
+        String display,
+        String value,
+        String type,
+        Map<String, String> otherInformation
+    ) {
+        return allOf(
+            hasJsonPath("$.authority", is(authority)),
+            hasJsonPath("$.display", is(display)),
+            hasJsonPath("$.value", is(value)),
+            hasJsonPath("$.type", is(type)),
+            hasJsonPath("$.otherInformation", is(otherInformation))
         );
     }
 
     public static Matcher<? super Object> matchItemAuthorityWithOtherInformations(String authority, String display,
-            String value, String type, Map<String, String> otherInformation) {
+                                                                                  String value, String type,
+                                                                                  Map<String, String> otherInformation,
+                                                                                  String source) {
         return allOf(
-                hasJsonPath("$.authority", is(authority)),
-                hasJsonPath("$.display", is(display)),
-                hasJsonPath("$.value", is(value)),
-                hasJsonPath("$.type", is(type)),
-                hasJsonPath("$.otherInformation", is(otherInformation))
+            hasJsonPath("$.authority", is(authority)),
+            hasJsonPath("$.display", is(display)),
+            hasJsonPath("$.value", is(value)),
+            hasJsonPath("$.type", is(type)),
+            hasJsonPath("$.otherInformation", is(otherInformation)),
+            hasJsonPath("$.source", is(source))
         );
     }
 
-    public static Matcher<? super Object> matchItemAuthorityWithOtherInformations(String authority, String display,
-            String value, String type, Map<String, String> otherInformation, String source) {
+    public static Matcher<? super Object> matchItemAuthorityWithTwoMetadataInOtherInformations(
+        String authority,
+        String display,
+        String value,
+        String type,
+        String firstOtherMetadata,
+        String firstOtherValue,
+        String secondOtherMetadata,
+        String secondOtherValue,
+        String source
+    ) {
         return allOf(
-                hasJsonPath("$.authority", is(authority)),
-                hasJsonPath("$.display", is(display)),
-                hasJsonPath("$.value", is(value)),
-                hasJsonPath("$.type", is(type)),
-                hasJsonPath("$.otherInformation", is(otherInformation)),
-                hasJsonPath("$.source", is(source))
+            hasJsonPath("$.authority", is(authority)),
+            hasJsonPath("$.display", is(display)),
+            hasJsonPath("$.value", is(value)),
+            hasJsonPath("$.type", is(type)),
+            hasJsonPath("$.source", is(source)),
+            hasJsonPath("$.otherInformation", aMapWithSize(2)),
+            allOf(
+                hasJsonPath("$.otherInformation." + firstOtherMetadata, is(firstOtherValue)),
+                hasJsonPath("$.otherInformation." + secondOtherMetadata, is(secondOtherValue))
+            )
         );
     }
 
-    public static Matcher<? super Object> matchItemAuthorityWithTwoMetadataInOtherInformations(String authority,
-            String display, String value, String type, String firstOtherMetadata, String firstOtherValue,
-            String secondOtherMetadata, String secondOtherValue, String source) {
-        return allOf(
-                hasJsonPath("$.authority", is(authority)),
-                hasJsonPath("$.display", is(display)),
-                hasJsonPath("$.value", is(value)),
-                hasJsonPath("$.type", is(type)),
-                hasJsonPath("$.source", is(source)),
-                hasJsonPath("$.otherInformation", aMapWithSize(2)),
-                allOf (
-                      hasJsonPath("$.otherInformation." + firstOtherMetadata, is(firstOtherValue)),
-                      hasJsonPath("$.otherInformation." + secondOtherMetadata, is(secondOtherValue))
-                )
-        );
-    }
+    public static Matcher<? super Object> matchItemAuthorityWithTwoMetadataInOtherInformations(
+        String authority,
+        String display,
+        String value,
+        String type,
+        Map<String, String> orcidAndAffiliation
+    ) {
 
-    public static Matcher<? super Object> matchItemAuthorityWithTwoMetadataInOtherInformations(String authority,
-            String display, String value, String type, Map<String, String> orcidAndAffiliation) {
         return allOf(
             hasJsonPath("$.authority", is(authority)),
             hasJsonPath("$.display", is(display)),
             hasJsonPath("$.value", is(value)),
             hasJsonPath("$.type", is(type)),
             hasJsonPath("$.otherInformation", aMapWithSize(4)),
-            allOf (
+            allOf(
                 hasJsonPath("$.otherInformation", is(orcidAndAffiliation))
             )
         );

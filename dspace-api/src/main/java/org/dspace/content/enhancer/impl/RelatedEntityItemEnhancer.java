@@ -15,6 +15,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -134,9 +135,11 @@ public class RelatedEntityItemEnhancer extends AbstractItemEnhancer {
     }
 
     private boolean equivalent(List<MetadataValue> metadataValue, List<MetadataValueDTO> metadataValueDTO) {
-        if (metadataValue.size() != metadataValueDTO.size()) {
+        if ((Objects.isNull(metadataValue) && !Objects.isNull(metadataValueDTO)) ||
+                (!Objects.isNull(metadataValue) && Objects.isNull(metadataValueDTO)) ||
+                    metadataValue.size() != metadataValueDTO.size()) {
             return false;
-        } else {
+        } else if (!Objects.isNull(metadataValue) && !Objects.isNull(metadataValueDTO)) {
             for (int i = 0; i < metadataValue.size(); i++) {
                 if (!equivalent(metadataValue.get(i), metadataValueDTO.get(i))) {
                     return false;

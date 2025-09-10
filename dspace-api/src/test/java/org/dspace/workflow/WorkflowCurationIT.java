@@ -22,7 +22,9 @@ import org.dspace.content.Community;
 import org.dspace.content.MetadataValue;
 import org.dspace.content.factory.ContentServiceFactory;
 import org.dspace.content.service.ItemService;
+import org.dspace.core.Context;
 import org.dspace.ctask.testing.MarkerTask;
+import org.dspace.curate.Curator;
 import org.dspace.eperson.EPerson;
 import org.dspace.xmlworkflow.storedcomponents.XmlWorkflowItem;
 import org.junit.Ignore;
@@ -98,5 +100,51 @@ public class WorkflowCurationIT extends AbstractIntegrationTestWithDatabase {
             }
         }
         assertThat("Item should have been curated", found);
+    }
+
+    /**
+     * Test method which include calling
+     * {@link org.dspace.curate.XmlWorkflowCuratorServiceImpl#curate(Curator, Context, XmlWorkflowItem)}.
+     * <p>
+     * Verifies that the curate process is executed correctly given a specific
+     * {@link Curator}, {@link Context}, and {@link XmlWorkflowItem}.
+     * </p>
+     * <p>
+     * This method depends on setting the transaction scope of the curator
+     * to {@code Curator.TxScope.CURATION}. If this is not set, an exception
+     * will be thrown during the curation process.
+     * </p>
+     */
+    @Test
+    public void changeScopeToCurationBeforeCurateTest() throws Exception {
+        context.turnOffAuthorisationSystem();
+
+        final String CURATION_COLLECTION_HANDLE = "123456789/curation-test-2";
+
+        EPerson submitter = EPersonBuilder.createEPerson(context)
+                .withEmail("submitter@example.com")
+                .withPassword(password)
+                .withLanguage("en")
+                .build();
+
+        Community community = CommunityBuilder.createCommunity(context)
+                .withName("Community")
+                .build();
+
+        Collection collection = CollectionBuilder
+                .createCollection(context, community, CURATION_COLLECTION_HANDLE)
+                .withName("Collection")
+                .build();
+
+        context.setCurrentUser(submitter);
+
+        //
+        WorkflowItemBuilder.createWorkflowItem(context, collection)
+                .withTitle("Test of workflow curation")
+                .withIssueDate("2021-05-14")
+                .withSubject("Testing")
+                .build();
+
+        context.restoreAuthSystemState();
     }
 }

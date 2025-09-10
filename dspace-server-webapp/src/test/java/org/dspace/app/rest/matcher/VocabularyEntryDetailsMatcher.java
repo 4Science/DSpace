@@ -47,7 +47,8 @@ public class VocabularyEntryDetailsMatcher {
                 hasJsonPath("$.id", is(id)),
                 hasJsonPath("$.display", is(display)),
                 hasJsonPath("$.value", is(value)),
-                hasJsonPath("$.type", is("vocabularyEntryDetail"))
+                hasJsonPath("$.type", is("vocabularyEntryDetail")),
+                hasJsonPath("$.uniqueType", is("submission.vocabularyEntryDetail"))
         );
     }
 }
