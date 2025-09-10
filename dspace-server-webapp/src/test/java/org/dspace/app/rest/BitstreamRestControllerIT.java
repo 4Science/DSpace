@@ -250,6 +250,57 @@ public class BitstreamRestControllerIT extends AbstractControllerIntegrationTest
     }
 
     @Test
+    public void testGetBitstreamWithNullMimeType() throws Exception {
+
+        context.turnOffAuthorisationSystem();
+
+        //** GIVEN **
+        //1. A community-collection structure with one parent community and one collection
+
+        parentCommunity = CommunityBuilder
+            .createCommunity(context)
+            .build();
+
+        Collection collection = CollectionBuilder
+            .createCollection(context, parentCommunity)
+            .build();
+
+        //2. A public item with a bitstream
+
+        String bitstreamContent = "0123456789";
+        String bitstreamName = "testBitstreamWithNullMimeType";
+        BitstreamFormat bf;
+        try (InputStream is = IOUtils.toInputStream(bitstreamContent, CharEncoding.UTF_8)) {
+
+            Item item = ItemBuilder
+                .createItem(context, collection)
+                .build();
+            bf = bitstreamFormatService.create(context);
+            bf.setMIMEType("null");
+            bf.setShortDescription(context,"null");
+
+            bitstream = BitstreamBuilder
+                .createBitstream(context, item, is)
+                .withName(bitstreamName)
+                .withMimeType("null")
+                .build();
+        }
+
+        context.restoreAuthSystemState();
+        context.commit();
+
+        //** WHEN **
+        //We download the bitstream
+        getClient().perform(get("/api/core/bitstreams/" + bitstream.getID() + "/content"))
+            //** THEN **
+            .andExpect(status().isOk());
+        context.turnOffAuthorisationSystem();
+        bitstreamFormatService.delete(context, bf);
+        context.restoreAuthSystemState();
+        context.commit();
+    }
+
+    @Test
     public void retrieveRangeBitstream() throws Exception {
         context.turnOffAuthorisationSystem();
 
