@@ -20,11 +20,13 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -259,17 +261,38 @@ public class ItemIndexFactoryImpl extends DSpaceObjectIndexFactoryImpl<Indexable
                     }
 
                     if (!metadataValueList.isEmpty() && shouldExposeMinMax) {
-                        metadataValueList.sort((mdv1, mdv2) -> mdv1.getValue().compareTo(mdv2.getValue()));
-                        MetadataValue firstMetadataValue = metadataValueList.get(0);
-                        MetadataValue lastMetadataValue = metadataValueList.get(metadataValueList.size() - 1);
+                        List<String> metadataValues;
+                        if (discoverySearchFilter.getType().equals(DiscoveryConfigurationParameters.TYPE_DATE)) {
+                            metadataValues = metadataValueList
+                                                .stream()
+                                                .map(
+                                                    e -> SolrMultiFormatDateParser.parse(
+                                                        e.getValue()))
+                                                .filter(Objects::nonNull)
+                                                .sorted()
+                                                .map(ZonedDateTime::getYear)
+                                                .map(String::valueOf)
+                                                .collect(Collectors.toList());
+                        } else {
+                            metadataValues = metadataValueList
+                                                            .stream()
+                                                            .map(MetadataValue::getValue)
+                                                            .filter(Objects::nonNull)
+                                                            .sorted()
+                                                            .map(String::valueOf)
+                                                            .collect(Collectors.toList());
+                        }
 
-                        doc.addField(discoverySearchFilter.getIndexFieldName() + "_min", firstMetadataValue.getValue());
-                        doc.addField(discoverySearchFilter.getIndexFieldName()
-                                + "_min_sort", firstMetadataValue.getValue());
-                        doc.addField(discoverySearchFilter.getIndexFieldName() + "_max", lastMetadataValue.getValue());
-                        doc.addField(discoverySearchFilter.getIndexFieldName()
-                                + "_max_sort", lastMetadataValue.getValue());
-
+                        if (!metadataValues.isEmpty()) {
+                            String firstMetadataValue = metadataValues.get(0);
+                            String lastMetadataValue = metadataValues.get(metadataValues.size() - 1);
+                            doc.addField(discoverySearchFilter.getIndexFieldName() + "_min", firstMetadataValue);
+                            doc.addField(discoverySearchFilter.getIndexFieldName()
+                                             + "_min_sort", firstMetadataValue);
+                            doc.addField(discoverySearchFilter.getIndexFieldName() + "_max", lastMetadataValue);
+                            doc.addField(discoverySearchFilter.getIndexFieldName()
+                                             + "_max_sort", lastMetadataValue);
+                        }
                     }
                 }
 
@@ -451,7 +474,7 @@ public class ItemIndexFactoryImpl extends DSpaceObjectIndexFactoryImpl<Indexable
                         }
                         if (searchFilter.getType().equals(DiscoveryConfigurationParameters.TYPE_DATE)) {
                             //For our search filters that are dates we format them properly
-                            date = SolrMultiFormatDateParser.parseRaw(value);
+                            date = SolrMultiFormatDateParser.parse(value);
                             if (date != null) {
                                 //TODO: make this date format configurable !
                                 value = DateTimeFormatter.ISO_LOCAL_DATE.format(date);
@@ -607,7 +630,7 @@ public class ItemIndexFactoryImpl extends DSpaceObjectIndexFactoryImpl<Indexable
                                 }
                                 String facetValue = value;
                                 if (graphFacet.isDate()) {
-                                    ZonedDateTime parsedValue = SolrMultiFormatDateParser.parseRaw(value);
+                                    ZonedDateTime parsedValue = SolrMultiFormatDateParser.parse(value);
                                     if (parsedValue != null) {
                                         facetValue = String.valueOf(parsedValue.getYear());
                                     }
@@ -655,7 +678,7 @@ public class ItemIndexFactoryImpl extends DSpaceObjectIndexFactoryImpl<Indexable
                     }
 
                     if (type.equals(DiscoveryConfigurationParameters.TYPE_DATE)) {
-                        ZonedDateTime date = SolrMultiFormatDateParser.parse(value);
+                        ZonedDateTime date = SolrMultiFormatDateParser.parseAdjusted(value);
                         if (date != null) {
                             String stringDate = SolrUtils
                                 .getDateTimeFormatter()
