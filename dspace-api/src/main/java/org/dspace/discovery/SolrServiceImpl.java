@@ -1435,7 +1435,9 @@ public class SolrServiceImpl implements SearchService, IndexingService {
                 final boolean isStandardField =
                     Optional.ofNullable(config)
                             .flatMap(c -> Optional.ofNullable(c.getSidebarFacet(field)))
-                            .map(facet -> facet.getType().startsWith(TYPE_PREFIX) || facet.getType().equals(TYPE_STANDARD))
+                            .map(facet ->
+                                     facet.getType().startsWith(TYPE_PREFIX) || facet.getType().equals(TYPE_STANDARD)
+                            )
                             .orElse(false);
                 final boolean isDate =
                     Optional.ofNullable(config)
