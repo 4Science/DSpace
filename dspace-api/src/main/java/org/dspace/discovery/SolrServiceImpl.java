@@ -1434,11 +1434,19 @@ public class SolrServiceImpl implements SearchService, IndexingService {
             if (operator.endsWith("equals")) {
                 final boolean isStandardField =
                     Optional.ofNullable(config)
-                        .flatMap(c -> Optional.ofNullable(c.getSidebarFacet(field)))
-                        .map(facet -> facet.getType().startsWith(TYPE_PREFIX) || facet.getType().equals(TYPE_STANDARD))
-                        .orElse(false);
-                if (!isStandardField) {
+                            .flatMap(c -> Optional.ofNullable(c.getSidebarFacet(field)))
+                            .map(facet -> facet.getType().startsWith(TYPE_PREFIX) || facet.getType().equals(TYPE_STANDARD))
+                            .orElse(false);
+                final boolean isDate =
+                    Optional.ofNullable(config)
+                            .flatMap(c -> Optional.ofNullable(c.getSidebarFacet(field)))
+                            .map(facet -> facet.getType().equals(DiscoveryConfigurationParameters.TYPE_DATE))
+                            .orElse(false);
+                if (!isStandardField && !isDate) {
                     filterQuery.append("_keyword");
+                }
+                if (isDate) {
+                    filterQuery.append(".year");
                 }
             } else if (operator.endsWith("authority")) {
                 filterQuery.append("_authority");
