@@ -20,6 +20,7 @@ import org.dspace.builder.CollectionBuilder;
 import org.dspace.builder.CommunityBuilder;
 import org.dspace.builder.ItemBuilder;
 import org.dspace.content.Collection;
+import org.dspace.content.authority.DCInputAuthority;
 import org.dspace.content.authority.service.ChoiceAuthorityService;
 import org.dspace.core.service.PluginService;
 import org.dspace.services.ConfigurationService;
@@ -61,6 +62,7 @@ public class SolrSuggestAuthorityIT extends AbstractControllerIntegrationTest {
     @After
     public void teardown() throws SubmissionConfigReaderException {
         context.turnOffAuthorisationSystem();
+        DCInputAuthority.reset();
         pluginService.clearNamedPluginClasses();
         choiceAuthorityService.clearCache();
         context.restoreAuthSystemState();

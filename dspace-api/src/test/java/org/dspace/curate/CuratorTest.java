@@ -17,6 +17,8 @@ import java.util.Map;
 import org.dspace.AbstractUnitTest;
 import org.dspace.content.DSpaceObject;
 import org.dspace.content.Item;
+import org.dspace.content.authority.DCInputAuthority;
+import org.dspace.content.authority.factory.ContentAuthorityServiceFactory;
 import org.dspace.content.factory.ContentServiceFactory;
 import org.dspace.content.service.SiteService;
 import org.dspace.core.factory.CoreServiceFactory;
@@ -54,7 +56,9 @@ public class CuratorTest extends AbstractUnitTest {
      */
     @Test
     public void testCurate_DSpaceObject() throws Exception {
+        DCInputAuthority.reset();
         CoreServiceFactory.getInstance().getPluginService().clearNamedPluginClasses();
+        ContentAuthorityServiceFactory.getInstance().getChoiceAuthorityService().clearCache();
 
         final String TASK_NAME = "dummyTask";
 
@@ -91,8 +95,9 @@ public class CuratorTest extends AbstractUnitTest {
 
     @Test
     public void testCurate_NoOpTask() throws Exception {
-
+        DCInputAuthority.reset();
         CoreServiceFactory.getInstance().getPluginService().clearNamedPluginClasses();
+        ContentAuthorityServiceFactory.getInstance().getChoiceAuthorityService().clearCache();
 
         final String TASK_NAME = "noop";
 
