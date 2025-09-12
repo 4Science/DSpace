@@ -28,8 +28,11 @@ import org.dspace.builder.WorkspaceItemBuilder;
 import org.dspace.content.Collection;
 import org.dspace.content.Item;
 import org.dspace.content.WorkspaceItem;
+import org.dspace.content.authority.DCInputAuthority;
+import org.dspace.content.authority.factory.ContentAuthorityServiceFactory;
 import org.dspace.content.factory.ContentServiceFactory;
 import org.dspace.content.service.InstallItemService;
+import org.dspace.core.factory.CoreServiceFactory;
 import org.dspace.eperson.EPerson;
 import org.dspace.services.ConfigurationService;
 import org.junit.Before;
@@ -57,6 +60,10 @@ public class ItemReferenceResolverConsumerIT extends AbstractControllerIntegrati
 
     @Before
     public void setup() throws Exception {
+
+        DCInputAuthority.reset();
+        CoreServiceFactory.getInstance().getPluginService().clearNamedPluginClasses();
+        ContentAuthorityServiceFactory.getInstance().getChoiceAuthorityService().clearCache();
 
         installItemService = ContentServiceFactory.getInstance().getInstallItemService();
 

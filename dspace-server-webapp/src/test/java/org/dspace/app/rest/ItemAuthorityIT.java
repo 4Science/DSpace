@@ -1043,12 +1043,11 @@ public class ItemAuthorityIT extends AbstractControllerIntegrationTest {
     }
 
     @Override
-    @After
     // We need to cleanup the authorities cache once than the configuration has been restored
     public void destroy() throws Exception {
-        super.destroy();
         DCInputAuthority.reset();
         pluginService.clearNamedPluginClasses();
         choiceAuthorityService.clearCache();
+        super.destroy();
     }
 }
