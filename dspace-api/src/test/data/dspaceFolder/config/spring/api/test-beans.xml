@@ -1,14 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xmlns:context="http://www.springframework.org/schema/context"
-    xmlns:util="http://www.springframework.org/schema/util"
-    xsi:schemaLocation="http://www.springframework.org/schema/beans
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
            http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
            http://www.springframework.org/schema/context
-           http://www.springframework.org/schema/context/spring-context-2.5.xsd
-           http://www.springframework.org/schema/util 
-           http://www.springframework.org/schema/util/spring-util-3.0.xsd">
+           http://www.springframework.org/schema/context/spring-context-2.5.xsd">
 
     <context:annotation-config /> <!-- allows us to use spring annotations in beans -->
 
@@ -21,6 +18,36 @@
 		<property name="converter" ref="jsonValueConverter" />
 		<property name="linesPostProcessor" ref="jsonPostProcessor" />
 	</bean>
+<!--
+    <bean class="org.dspace.content.integration.crosswalks.ReferCrosswalk" id="referCrosswalkVirtualBitstreamInfo">
+        <property name="templateFileName" value="crosswalks/template/virtual-bitstream_info-json.template"/>
+        <property name="mimeType" value="application/json; charset=UTF-8"/>
+        <property name="fileName" value="test.json"/>
+        <property name="entityType" value="Publication"/>
+        <property name="crosswalkMode" value="#{T(org.dspace.content.crosswalk.CrosswalkMode).SINGLE}"/>
+        <property name="converter" ref="jsonObjectConverter" />
+        <property name="linesPostProcessor" ref="jsonPostProcessor" />
+    </bean>
+
+    <bean class="org.dspace.content.integration.crosswalks.ReferCrosswalk" id="referCrosswalkVirtualCollection">
+        <property name="templateFileName" value="crosswalks/template/virtual-field-collection-json.template"/>
+        <property name="mimeType" value="application/json; charset=UTF-8"/>
+        <property name="fileName" value="test.json"/>
+        <property name="entityType" value="Publication"/>
+        <property name="crosswalkMode" value="#{T(org.dspace.content.crosswalk.CrosswalkMode).SINGLE}"/>
+        <property name="converter" ref="jsonObjectConverter" />
+        <property name="linesPostProcessor" ref="jsonPostProcessor" />
+    </bean>
+
+    <bean class="org.dspace.content.integration.crosswalks.ReferCrosswalk" id="referCrosswalkVirtualCommunity">
+        <property name="templateFileName" value="crosswalks/template/virtual-field-communities-json.template"/>
+        <property name="mimeType" value="application/json; charset=UTF-8"/>
+        <property name="fileName" value="test.json"/>
+        <property name="entityType" value="Publication"/>
+        <property name="crosswalkMode" value="#{T(org.dspace.content.crosswalk.CrosswalkMode).SINGLE}"/>
+        <property name="converter" ref="jsonObjectConverter" />
+        <property name="linesPostProcessor" ref="jsonPostProcessor" />
+    </bean>-->
 
     <bean class="org.dspace.content.integration.crosswalks.ReferCrosswalk" id="referCrosswalkVirtualFieldDOI">
         <property name="templateFileName" value="crosswalks/template/virtual-field-doi-json.template"/>

@@ -1,0 +1,5 @@
+{
+	"collections": [
+@virtual.collection.template:"${collection.name} - ${collection.handle}",@
+	]
+}

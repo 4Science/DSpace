@@ -1,0 +1,7 @@
+{
+    "has_files": @virtual.bitstream_info.has_files.ORIGINAL@,
+    "bitstreams": {
+        "resourcepolicies": @virtual.bitstream_info.resourcepolicy.ORIGINAL@,
+        "size": @virtual.bitstream_info.size.ORIGINAL@
+    }
+}
