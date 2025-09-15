@@ -151,7 +151,7 @@ definitions:
           - docker
         script:
           - export HASH_COMMIT=${BITBUCKET_COMMIT:0:8}
-          - export BRANCH_NAME=$(echo "$BITBUCKET_BRANCH" | tr '[:upper:]' '[:lower:]' | sed 's|/|--|g')
+          - export BRANCH_NAME=$(echo "$BITBUCKET_BRANCH" | awk -F'/' '{if(NF==1)val=$1; else if(NF==2)val=$1"--"$2; else if(NF==3)val=$2; else if(NF==4)val=$2"--"$3; print tolower(val)}')
           - docker build -f ./dspace/src/main/docker/dspace-solr/Dockerfile -t solr8:${BRANCH_NAME}-${HASH_COMMIT} -t solr8:${BRANCH_NAME}-latest .
           - pipe: atlassian/aws-ecr-push-image:2.5.0
             variables:
@@ -173,7 +173,7 @@ definitions:
           - docker
         script:
           - export HASH_COMMIT=${BITBUCKET_COMMIT:0:8}
-          - export BRANCH_NAME=$(echo "$BITBUCKET_BRANCH" | tr '[:upper:]' '[:lower:]' | sed 's|/|--|g')
+          - export BRANCH_NAME=$(echo "$BITBUCKET_BRANCH" | awk -F'/' '{if(NF==1)val=$1; else if(NF==2)val=$1"--"$2; else if(NF==3)val=$2; else if(NF==4)val=$2"--"$3; print tolower(val)}')
           - docker build -f ./dspace/src/main/docker/dspace-solr/Dockerfile9 -t solr9:${BRANCH_NAME}-${HASH_COMMIT} -t solr9:${BRANCH_NAME}-latest .
           - pipe: atlassian/aws-ecr-push-image:2.5.0
             variables:
@@ -192,7 +192,7 @@ definitions:
           - export BRANCH_FILE=$(echo "$BITBUCKET_BRANCH" | awk -F'/' '{if(NF==1)val=$1;else if(NF==2)val=$2;else if(NF==3)val=$2;else val=$3;gsub(/_/, "-", val);print tolower(val)}')
           - git clone https://x-token-auth:${DSPACE_VALUES_ACCESS_TOKEN}@${DSPACE_VALUES_REPO}
           - cd dspace-values
-          - 'sed -i "/^rest:/,/^[^ ]/s/\\(tag: \\).*/\\1${BRANCH_NAME}-${HASH_COMMIT}/" dev/${BRANCH_FILE}'
+          - [ -f "dev/${BRANCH_FILE}" ] && sed -i "/^rest:/,/^[^ ]/s/\(tag: \).*/\1${BRANCH_NAME}-${HASH_COMMIT}/" "dev/${BRANCH_FILE}"
           - git config --global user.email "${BB_USER}"
           - git config --global user.name "${BB_EMAIL}"
           - git commit -am "Update TAG with ${BRANCH_NAME}-${HASH_COMMIT}"
@@ -207,7 +207,7 @@ definitions:
           - export BRANCH_FILE=$(echo "$BITBUCKET_BRANCH" | awk -F'/' '{if(NF==1)val=$1;else if(NF==2)val=$2;else if(NF==3)val=$2;else val=$3;gsub(/_/, "-", val);print tolower(val)}')
           - git clone https://x-token-auth:${DSPACE_VALUES_ACCESS_TOKEN}@${DSPACE_VALUES_REPO}
           - cd dspace-values
-          - 'sed -i "/^rest:/,/^[^ ]/s/\\(tag: \\).*/\\1${BRANCH_NAME}-${HASH_COMMIT}/" staging/${BRANCH_FILE}'
+          - [ -f "staging/${BRANCH_FILE}" ] && sed -i "/^rest:/,/^[^ ]/s/\(tag: \).*/\1${BRANCH_NAME}-${HASH_COMMIT}/" "staging/${BRANCH_FILE}"
           - git config --global user.email "${BB_USER}"
           - git config --global user.name "${BB_EMAIL}"
           - git commit -am "Update TAG with ${BRANCH_NAME}-${HASH_COMMIT}"
