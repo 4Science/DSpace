@@ -40,7 +40,12 @@ if [ "$JAVA_OPTS" = "" ]; then
   JAVA_OPTS="-Xmx1024m -Dfile.encoding=UTF-8 -Dtika.config=$TIKACFG"
 fi
 
-export JAVA_OPTS="$JAVA_OPTS -Dlog4j2.configurationFile=$DSPACEDIR/config/log4j2-cli.xml"
+# Check if LOGGING_CONFIG env variable is set, use that value as log4j2 configuration
+if [ -z "$LOGGING_CONFIG" ]; then
+    export LOGGING_CONFIG="$DSPACEDIR/config/log4j2-cli.xml"
+fi
+#Add install/temp path to the Java tmpdir especially when invoked by CLI in the orchestrator and needs more space in some tasks like export
+export JAVA_OPTS="$JAVA_OPTS -Djava.io.tmpdir=$DSPACEDIR/temp  -Dlog4j2.configurationFile=$LOGGING_CONFIG"
 
 # Now invoke Java
 java $JAVA_OPTS \
