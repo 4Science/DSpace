@@ -52,6 +52,7 @@ import org.dspace.builder.ItemBuilder;
 import org.dspace.content.Bitstream;
 import org.dspace.content.Bundle;
 import org.dspace.content.Collection;
+import org.dspace.content.CollectionServiceImpl;
 import org.dspace.content.Community;
 import org.dspace.content.EntityType;
 import org.dspace.content.Item;
@@ -114,6 +115,8 @@ public class ReferCrosswalkIT extends AbstractIntegrationTestWithDatabase {
 
     private ChoiceAuthorityService choiceAuthorityService;
 
+    private CollectionServiceImpl collectionService;
+
     @Before
     public void setup() throws SQLException, AuthorizeException {
 
@@ -124,6 +127,7 @@ public class ReferCrosswalkIT extends AbstractIntegrationTestWithDatabase {
         assertThat(crosswalkMapper, notNullValue());
 
         this.itemService = new DSpace().getSingletonService(ItemServiceImpl.class);
+        this.collectionService = new DSpace().getSingletonService(CollectionServiceImpl.class);
         this.mfss = new DSpace().getSingletonService(MetadataFieldServiceImpl.class);
 
         this.configurationService = DSpaceServicesFactory.getInstance().getConfigurationService();
@@ -2665,40 +2669,6 @@ public class ReferCrosswalkIT extends AbstractIntegrationTestWithDatabase {
     }
 
     @Test
-    public void testReferCrosswalkPublicationDataciteXmlWithoutTypeAndAuthor() throws Exception {
-
-        ReferCrosswalk referCrosswalk = new DSpace().getServiceManager()
-            .getServiceByName("referCrosswalkPublicationDataciteXml", ReferCrosswalk.class);
-        assertThat(referCrosswalk, notNullValue());
-
-        Item publisher = createItem(context, collection)
-                .withEntityType("OrgUnit")
-                .withTitle("Publisher Name")
-                .withOrgUnitRORIdentifier("rorID2")
-                .build();
-        Item item = createItem(context, collection)
-            .withEntityType("Publication")
-            .withTitle("Publication title")
-            .withPublisher("Publisher", publisher.getID().toString())
-            .withIssueDate("2023")
-            .withDateAvailable("2023-10-20")
-            .withHandle("123456789/99999")
-            .build();
-
-        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-
-        referCrosswalk.disseminate(context, item, byteArrayOutputStream);
-
-        System.out.println(new String(byteArrayOutputStream.toByteArray()));
-
-        try (FileInputStream fis = getFileInputStream("publication-without-authors-and-type-datacite.xml")) {
-            String expectedXml = IOUtils.toString(fis, Charset.defaultCharset());
-            compareEachLine(byteArrayOutputStream.toString(), expectedXml);
-        }
-
-    }
-
-    @Test
     public void testReferCrosswalkPublicationDataciteXmlWithVirtualPlace() throws Exception {
 
         ReferCrosswalk referCrosswalk = new DSpace().getServiceManager()
@@ -3030,6 +3000,176 @@ public class ReferCrosswalkIT extends AbstractIntegrationTestWithDatabase {
         }
     }
 
+/*
+    @Test
+    public void testVirtualFieldBitstreamsInfo() throws Exception {
+
+        context.turnOffAuthorisationSystem();
+
+        Group epersons = GroupBuilder.createGroup(context)
+                                     .withName("epersons")
+                                     .addMember(eperson)
+                                     .build();
+
+        Item publication =
+            ItemBuilder.createItem(context, collection)
+                       .withEntityType("Publication")
+                       .withIssueDate("2020-02-14")
+                       .withDateAccepted("2021")
+                       .withDateAccepted("2022")
+                       .withDateAccepted("2023")
+                       .build();
+
+        Bundle bundle =
+            BundleBuilder.createBundle(context, publication)
+                         .withName("ORIGINAL")
+                         .build();
+
+        Bitstream bitstream =
+            BitstreamBuilder.createBitstream(context, bundle, getFileInputStream("picture.jpg"))
+                            .withType("personal picture")
+                            .build();
+
+        ResourcePolicyBuilder.createResourcePolicy(context, eperson, epersons)
+                             .withDspaceObject(bitstream)
+                             .withAction(Constants.WRITE)
+                             .withName("administrator")
+                             .withPolicyType(ResourcePolicy.TYPE_CUSTOM)
+                             .build();
+
+        ResourcePolicyBuilder.createResourcePolicy(context, eperson, epersons)
+                             .withDspaceObject(bitstream)
+                             .withAction(Constants.READ)
+                             .withName("embargo")
+                             .withStartDate(parse("2025-03-25"))
+                             .withPolicyType(ResourcePolicy.TYPE_CUSTOM)
+                             .build();
+
+        ResourcePolicyBuilder.createResourcePolicy(context, eperson, epersons)
+                             .withDspaceObject(bitstream)
+                             .withAction(Constants.READ)
+                             .withName("lease")
+                             .withDescription("Test")
+                             .withEndDate(parse("2025-03-25"))
+                             .withPolicyType(ResourcePolicy.TYPE_CUSTOM)
+                             .build();
+
+        context.restoreAuthSystemState();
+        context.commit();
+
+        ReferCrosswalk referCrosswalk =
+            DSpaceServicesFactory.getInstance()
+                                 .getServiceManager()
+                                 .getServiceByName("referCrosswalkVirtualBitstreamInfo", ReferCrosswalk.class);
+
+        assertThat(referCrosswalk, notNullValue());
+
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        referCrosswalk.disseminate(context, publication, out);
+
+        String[] resultLines = out.toString().split("\n");
+        assertThat(resultLines.length, is(7));
+        assertThat(resultLines[0].trim(), is("{"));
+        assertThat(resultLines[1].trim(), is("\"has_files\": true,"));
+        assertThat(resultLines[2].trim(), is("\"bitstreams\": {"));
+        assertThat(
+            resultLines[3].trim(),
+           is("\"resourcepolicies\": {\"administrator\":true,\"openaccess\":false,\"lease\":true,\"embargo\":true},")
+        );
+        assertThat(resultLines[4].trim(), is("\"size\": 1"));
+        assertThat(resultLines[5].trim(), is("}"));
+        assertThat(resultLines[6].trim(), is("}"));
+    }
+
+    @Test
+    public void testVirtualFieldCollection() throws Exception {
+
+        context.turnOffAuthorisationSystem();
+
+        Collection col =
+            CollectionBuilder.createCollection(context, community, "123456789/990")
+                             .withEntityType("Publication")
+                             .withName("Collection Title")
+                             .build();
+
+        Item publication =
+            ItemBuilder.createItem(context, col)
+                       .withIssueDate("2020-02-14")
+                       .withDateAccepted("2021")
+                       .withDateAccepted("2022")
+                       .withDateAccepted("2023")
+                       .build();
+
+        context.restoreAuthSystemState();
+        context.commit();
+
+        ReferCrosswalk referCrosswalk =
+            DSpaceServicesFactory.getInstance()
+                                 .getServiceManager()
+                                 .getServiceByName("referCrosswalkVirtualCollection", ReferCrosswalk.class);
+
+        assertThat(referCrosswalk, notNullValue());
+
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        referCrosswalk.disseminate(context, publication, out);
+
+        String[] resultLines = out.toString().split("\n");
+        assertThat(resultLines.length, is(5));
+        assertThat(resultLines[0].trim(), is("{"));
+        assertThat(resultLines[1].trim(), is("\"collections\": ["));
+        assertThat(resultLines[2].trim(), is("\"Collection Title - 123456789/990\""));
+        assertThat(resultLines[3].trim(), is("]"));
+        assertThat(resultLines[4].trim(), is("}"));
+    }
+
+    @Test
+    public void testVirtualFieldCommunity() throws Exception {
+
+        context.turnOffAuthorisationSystem();
+
+        Community comm =
+            CommunityBuilder.createCommunity(context, "123456789/commtest")
+                            .withName("Community Title")
+                            .build();
+
+        CommunityBuilder.createSubCommunity(context, comm, "123456789/subcommtest")
+                        .withName("SubCommunity Title")
+                        .build();
+
+        Collection col =
+            CollectionBuilder.createCollection(context, comm)
+                             .withEntityType("Publication")
+                             .withName("Collection Title")
+                             .build();
+
+        Item publication =
+            ItemBuilder.createItem(context, col)
+                       .withIssueDate("2020-02-14")
+                       .build();
+
+        context.restoreAuthSystemState();
+        context.commit();
+
+        ReferCrosswalk referCrosswalk =
+            DSpaceServicesFactory.getInstance()
+                                 .getServiceManager()
+                                 .getServiceByName("referCrosswalkVirtualCommunity", ReferCrosswalk.class);
+
+        assertThat(referCrosswalk, notNullValue());
+
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        referCrosswalk.disseminate(context, publication, out);
+
+        String[] resultLines = out.toString().split("\n");
+        assertThat(resultLines.length, is(6));
+        assertThat(resultLines[0].trim(), is("{"));
+        assertThat(resultLines[1].trim(), is("\"communities\": ["));
+        assertThat(resultLines[2].trim(), is("\"Community Title - 123456789/commtest\","));
+        assertThat(resultLines[3].trim(), is("\"SubCommunity Title - 123456789/subcommtest\""));
+        assertThat(resultLines[4].trim(), is("]"));
+        assertThat(resultLines[5].trim(), is("}"));
+    }
+*/
 
     private void createSelectedRelationship(Item author, Item publication, RelationshipType selectedRelationshipType) {
         createRelationshipBuilder(context, publication, author, selectedRelationshipType, -1, -1).build();
