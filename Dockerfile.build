@@ -1,5 +1,5 @@
 # Set the JDK version and DSpace version
-ARG JDK_VERSION=17
+ARG JDK_VERSION=11
 ARG DOCKER_REGISTRY=docker.io
 
 # Stage 1 - Copy artifacts
