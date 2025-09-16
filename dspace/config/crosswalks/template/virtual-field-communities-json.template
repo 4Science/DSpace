@@ -1,5 +1,0 @@
-{
-    "communities": [
-@virtual.community.template:"${community.name} - ${community.handle}",@
-    ]
-}
