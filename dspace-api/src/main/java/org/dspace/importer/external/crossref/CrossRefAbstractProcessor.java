@@ -14,30 +14,26 @@ import java.util.Collection;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.ParserConfigurationException;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.dspace.app.util.XMLUtils;
-import org.dspace.importer.external.metadatamapping.contributor.JsonPathMetadataProcessor;
+import org.dspace.importer.external.metadatamapping.contributor.AbstractJsonPathMetadataProcessor;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
-public class CrossRefAbstractProcessor implements JsonPathMetadataProcessor {
+public class CrossRefAbstractProcessor extends AbstractJsonPathMetadataProcessor {
 
-    private final static Logger log = LogManager.getLogger();
-
-    private String path;
+    private final static Logger log = LogManager.getLogger(CrossRefAbstractProcessor.class);
 
     @Override
     public Collection<String> processMetadata(String json) {
         JsonNode rootNode = convertStringJsonToJsonNode(json);
-        JsonNode abstractNode = rootNode.at(path);
+        JsonNode abstractNode = rootNode.at(query);
         Collection<String> values = new ArrayList<>();
         if (!abstractNode.isMissingNode()) {
             String abstractValue = abstractNode.textValue();
@@ -101,22 +97,4 @@ public class CrossRefAbstractProcessor implements JsonPathMetadataProcessor {
         return sb.toString().trim();
     }
 
-    private JsonNode convertStringJsonToJsonNode(String json) {
-        ObjectMapper mapper = new ObjectMapper();
-        JsonNode body = null;
-        try {
-            body = mapper.readTree(json);
-        } catch (JsonProcessingException e) {
-            log.error("Unable to process json response.", e);
-        }
-        return body;
-    }
-
-    public String getPath() {
-        return path;
-    }
-
-    public void setPath(String path) {
-        this.path = path;
-    }
 }
