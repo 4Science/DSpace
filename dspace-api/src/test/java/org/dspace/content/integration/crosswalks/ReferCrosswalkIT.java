@@ -120,7 +120,10 @@ public class ReferCrosswalkIT extends AbstractIntegrationTestWithDatabase {
         this.crosswalkMapper = new DSpace().getSingletonService(StreamDisseminationCrosswalkMapper.class);
         assertThat(crosswalkMapper, notNullValue());
 
-        this.virtualFieldMapper = new DSpace().getSingletonService(VirtualFieldMapper.class);
+        this.virtualFieldMapper =
+            DSpaceServicesFactory.getInstance()
+                                 .getServiceManager()
+                                 .getServiceByName("virtualFieldMapper", VirtualFieldMapper.class);
         assertThat(crosswalkMapper, notNullValue());
 
         this.itemService = new DSpace().getSingletonService(ItemServiceImpl.class);
