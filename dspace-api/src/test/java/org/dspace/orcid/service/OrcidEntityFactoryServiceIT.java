@@ -317,6 +317,9 @@ public class OrcidEntityFactoryServiceIT extends AbstractIntegrationTestWithData
     public void testWorkWithFundingCreation() {
         context.turnOffAuthorisationSystem();
 
+        configurationService.addPropertyValue(
+            "cris-consumer.skip-empty-authority.metadata", "dc.relation.funding");
+
         Item publication = ItemBuilder.createItem(context, publications)
             .withTitle("Test publication")
             .withAuthor("Walter White")
@@ -343,6 +346,9 @@ public class OrcidEntityFactoryServiceIT extends AbstractIntegrationTestWithData
     public void testProductWorkWithFundingCreation() {
         context.turnOffAuthorisationSystem();
 
+        configurationService.addPropertyValue(
+            "cris-consumer.skip-empty-authority.metadata", "dc.relation.funding");
+
         Item product = ItemBuilder.createItem(context, products)
             .withTitle("Test dataset")
             .withAuthor("Walter White")
@@ -368,6 +374,9 @@ public class OrcidEntityFactoryServiceIT extends AbstractIntegrationTestWithData
     @Test
     public void testPatentsWorkWithFundingCreation() {
         context.turnOffAuthorisationSystem();
+
+        configurationService.addPropertyValue(
+            "cris-consumer.skip-empty-authority.metadata", "dc.relation.funding");
 
         Item patent = ItemBuilder.createItem(context, patents)
             .withTitle("Test patent")

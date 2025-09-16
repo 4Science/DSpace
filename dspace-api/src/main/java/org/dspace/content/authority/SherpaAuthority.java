@@ -165,8 +165,9 @@ public class SherpaAuthority extends ItemAuthority {
     }
 
     @Override
-    public String getLinkedEntityType() {
-        return configurationService.getProperty("cris." + this.authorityName + ".entityType", "Journal");
+    public String[] getLinkedEntityTypes() {
+        return configurationService.getArrayProperty("cris." + this.authorityName + ".entityType",
+            new String[] {"Journal"});
     }
 
     private boolean isLocalItemChoicesEnabled() {

@@ -7,6 +7,7 @@
  */
 package org.dspace.content.authority;
 
+import java.util.Arrays;
 import java.util.List;
 
 import org.apache.commons.collections.CollectionUtils;
@@ -21,8 +22,10 @@ public class EntityTypeAuthorityFilter extends CustomAuthorityFilter {
 
     public boolean appliesTo(LinkableEntityAuthority linkableEntityAuthority) {
 
+        String[] entityTypes = linkableEntityAuthority.getLinkedEntityTypes();
         return CollectionUtils.isEmpty(supportedEntities)
-            || supportedEntities.contains(linkableEntityAuthority.getLinkedEntityType());
+            || (entityTypes != null && entityTypes.length > 0
+                && supportedEntities.containsAll(Arrays.asList(entityTypes)));
     }
 
     public EntityTypeAuthorityFilter(List<String> customQueries) {

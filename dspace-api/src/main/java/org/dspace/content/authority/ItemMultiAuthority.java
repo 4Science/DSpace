@@ -93,10 +93,18 @@ public class ItemMultiAuthority implements LinkableEntityAuthority {
         solrQuery.setStart(start);
         solrQuery.setRows(limit);
 
-        String entityType = getLinkedEntityType();
-        if (StringUtils.isNotBlank(entityType)) {
-            String filter = "dspace.entity.type:" + entityType;
-            solrQuery.addFilterQuery(filter);
+        String[] entityTypes = getLinkedEntityTypes();
+        if (entityTypes != null && entityTypes.length > 0) {
+            StringBuilder filter = new StringBuilder();
+            boolean first = true;
+            for (String entityType : entityTypes) {
+                if (!first) {
+                    filter.append(" OR ");
+                }
+                filter.append("dspace.entity.type:").append(entityType);
+                first = false;
+            }
+            solrQuery.addFilterQuery(filter.toString());
         }
 
         customAuthorityFilters.stream()
@@ -163,8 +171,8 @@ public class ItemMultiAuthority implements LinkableEntityAuthority {
     }
 
     @Override
-    public String getLinkedEntityType() {
-        return configurationService.getProperty("cris.ItemAuthority." + field + ".entityType");
+    public String[] getLinkedEntityTypes() {
+        return configurationService.getArrayProperty("cris.ItemAuthority." + field + ".entityType");
     }
 
     @Override

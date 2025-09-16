@@ -192,7 +192,7 @@ public interface ChoiceAuthorityService {
      *
      * @return       the entity type as a String
      */
-    String getLinkedEntityType(String fieldKey);
+    String[] getLinkedEntityTypes(String fieldKey);
 
     /**
      * Wrapper that calls getTopChoices method of the plugin.

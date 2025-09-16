@@ -179,8 +179,10 @@ public class OrcidAuthority extends ItemAuthority {
     }
 
     @Override
-    public String getLinkedEntityType() {
-        return configurationService.getProperty("researcher-profile.type", "Person");
+    public String[] getLinkedEntityTypes() {
+        return new String[] {
+            configurationService.getProperty("researcher-profile.type", "Person")
+        };
     }
 
     private OrcidClient getOrcidClient() {

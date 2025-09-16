@@ -116,7 +116,7 @@ public class ItemAuthority implements ChoiceAuthority, LinkableEntityAuthority {
             return new Choices(Choices.CF_UNSET);
         }
 
-        String entityType = getLinkedEntityType();
+        String[] entityTypes = getLinkedEntityTypes();
         ItemAuthorityService itemAuthorityService = itemAuthorityServiceFactory.getInstance(authorityName);
 
         String query = "";
@@ -135,8 +135,17 @@ public class ItemAuthority implements ChoiceAuthority, LinkableEntityAuthority {
         solrQuery.addFilterQuery("withdrawn:false");
         solrQuery.addFilterQuery("NOT(discoverable:false)");
 
-        if (StringUtils.isNotBlank(entityType)) {
-            solrQuery.addFilterQuery("dspace.entity.type:" + entityType);
+        if (entityTypes != null && entityTypes.length > 0) {
+            StringBuilder filter = new StringBuilder();
+            boolean first = true;
+            for (String entityType : entityTypes) {
+                if (!first) {
+                    filter.append(" OR ");
+                }
+                filter.append("dspace.entity.type:").append(entityType);
+                first = false;
+            }
+            solrQuery.addFilterQuery(filter.toString());
         }
 
         customAuthorityFilters.stream()
@@ -213,8 +222,8 @@ public class ItemAuthority implements ChoiceAuthority, LinkableEntityAuthority {
     }
 
     @Override
-    public String getLinkedEntityType() {
-        return configurationService.getProperty("cris.ItemAuthority." + authorityName + ".entityType");
+    public String[] getLinkedEntityTypes() {
+        return configurationService.getArrayProperty("cris.ItemAuthority." + authorityName + ".entityType");
     }
 
     public void setPluginInstanceName(String name) {

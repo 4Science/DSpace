@@ -167,8 +167,8 @@ public class RorOrgUnitAuthority extends ItemAuthority {
     }
 
     @Override
-    public String getLinkedEntityType() {
-        return configurationService.getProperty("cris.ItemAuthority." + authorityName + ".entityType");
+    public String[] getLinkedEntityTypes() {
+        return configurationService.getArrayProperty("cris.ItemAuthority." + authorityName + ".entityType");
     }
 
     @Override

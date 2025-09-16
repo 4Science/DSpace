@@ -1224,6 +1224,49 @@ public class CrisConsumerIT extends AbstractControllerIntegrationTest {
         assertThat(itemService.getEntityType(context.reloadEntity(wsitem.getItem())), is("Publication"));
     }
 
+    @Test
+    public void testAuthorityOnMultipleEntityTypesShouldResolveReference() throws Exception {
+        context.turnOffAuthorisationSystem();
+
+        Collection publicationCollection = CollectionBuilder
+            .createCollection(context, parentCommunity)
+            .withName("Publication Collection")
+            .withEntityType("Publication").build();
+
+        Collection archivalMaterialCollection = CollectionBuilder
+            .createCollection(context, parentCommunity)
+            .withName("ArchivalMaterial Collection")
+            .withEntityType("ArchivalMaterial").build();
+
+        Collection journalFileCollection = CollectionBuilder
+            .createCollection(context, parentCommunity)
+            .withName("JournalFile Collection")
+            .withEntityType("JournalFile").build();
+
+        Item item = ItemBuilder
+            .createItem(context, archivalMaterialCollection)
+            .withTitle("Hymni et epigrammata")
+            .withLegacyId("538cd81a-5c00-4c15-8f4e-b7ffbed225e3")
+            .inArchive().build();
+
+        Item testItem = ItemBuilder
+            .createItem(context, publicationCollection)
+            .withTitle("Test Item")
+            .withLegacyId("CNCE013761")
+            .withMetadata("glam", "relation", "boundedwith",
+                null, "Hymni et epigrammata",
+                "will be referenced::LEGACY-ID::538cd81a-5c00-4c15-8f4e-b7ffbed225e3", 600)
+            .inArchive().build();
+
+        context.commit();
+        testItem = context.reloadEntity(testItem);
+
+        List<MetadataValue> metadata = testItem.getMetadata();
+        assertThat(metadata, hasItems(with("glam.relation.boundedwith",
+            "Hymni et epigrammata", item.getID().toString(),
+            0, 600)));
+    }
+
     private ItemRest getItemViaRestByID(String authToken, UUID id) throws Exception {
         MvcResult result = getClient(authToken)
                 .perform(get(BASE_REST_SERVER_URL + "/api/core/items/{id}", id))
