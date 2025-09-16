@@ -18,36 +18,6 @@
 		<property name="converter" ref="jsonValueConverter" />
 		<property name="linesPostProcessor" ref="jsonPostProcessor" />
 	</bean>
-<!--
-    <bean class="org.dspace.content.integration.crosswalks.ReferCrosswalk" id="referCrosswalkVirtualBitstreamInfo">
-        <property name="templateFileName" value="crosswalks/template/virtual-bitstream_info-json.template"/>
-        <property name="mimeType" value="application/json; charset=UTF-8"/>
-        <property name="fileName" value="test.json"/>
-        <property name="entityType" value="Publication"/>
-        <property name="crosswalkMode" value="#{T(org.dspace.content.crosswalk.CrosswalkMode).SINGLE}"/>
-        <property name="converter" ref="jsonObjectConverter" />
-        <property name="linesPostProcessor" ref="jsonPostProcessor" />
-    </bean>
-
-    <bean class="org.dspace.content.integration.crosswalks.ReferCrosswalk" id="referCrosswalkVirtualCollection">
-        <property name="templateFileName" value="crosswalks/template/virtual-field-collection-json.template"/>
-        <property name="mimeType" value="application/json; charset=UTF-8"/>
-        <property name="fileName" value="test.json"/>
-        <property name="entityType" value="Publication"/>
-        <property name="crosswalkMode" value="#{T(org.dspace.content.crosswalk.CrosswalkMode).SINGLE}"/>
-        <property name="converter" ref="jsonObjectConverter" />
-        <property name="linesPostProcessor" ref="jsonPostProcessor" />
-    </bean>
-
-    <bean class="org.dspace.content.integration.crosswalks.ReferCrosswalk" id="referCrosswalkVirtualCommunity">
-        <property name="templateFileName" value="crosswalks/template/virtual-field-communities-json.template"/>
-        <property name="mimeType" value="application/json; charset=UTF-8"/>
-        <property name="fileName" value="test.json"/>
-        <property name="entityType" value="Publication"/>
-        <property name="crosswalkMode" value="#{T(org.dspace.content.crosswalk.CrosswalkMode).SINGLE}"/>
-        <property name="converter" ref="jsonObjectConverter" />
-        <property name="linesPostProcessor" ref="jsonPostProcessor" />
-    </bean>-->
 
     <bean class="org.dspace.content.integration.crosswalks.ReferCrosswalk" id="referCrosswalkVirtualFieldDOI">
         <property name="templateFileName" value="crosswalks/template/virtual-field-doi-json.template"/>

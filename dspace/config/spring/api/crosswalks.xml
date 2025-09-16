@@ -532,28 +532,32 @@
 	
 	<!-- VIRTUAL FIELDS CONFIGURATION -->
 
-	<bean id="virtualFieldMapper"
-          class="org.dspace.content.integration.crosswalks.virtualfields.VirtualFieldMapper" lazy-init="true">
-		<constructor-arg>
-			<map>
-				<entry key="id" value-ref="virtualFieldId" />
-				<entry key="authority" value-ref="virtualFieldAuthority" />
-				<entry key="primary-doi" value-ref="virtualFieldPrimaryDOI" />
-				<entry key="alternative-doi" value-ref="virtualFieldAlternativeDOI" />
-				<entry key="reftype" value-ref="virtualFieldRefererType" />
-				<entry key="authors" value-ref="virtualFieldAuthors" />
-				<entry key="fullpage" value-ref="virtualFieldPageNumber" />
-				<entry key="bitstream" value-ref="virtualFieldBitstream" />
-				<entry key="mapConverter" value-ref="virtualFieldMapConverter" />
-				<entry key="personName" value-ref="virtualFieldPersonName" />
-				<entry key="date" value-ref="virtualFieldDateFormatter" />
-				<entry key="vocabulary" value-ref="virtualFieldVocabulary" />
-				<entry key="vocabulary_i18n" value-ref="virtualFieldVocabularyI18n" />
+    <bean id="virtualFieldsMap" class="java.util.HashMap">
+        <constructor-arg>
+            <map>
+                <entry key="id" value-ref="virtualFieldId" />
+                <entry key="authority" value-ref="virtualFieldAuthority" />
+                <entry key="primary-doi" value-ref="virtualFieldPrimaryDOI" />
+                <entry key="alternative-doi" value-ref="virtualFieldAlternativeDOI" />
+                <entry key="reftype" value-ref="virtualFieldRefererType" />
+                <entry key="authors" value-ref="virtualFieldAuthors" />
+                <entry key="fullpage" value-ref="virtualFieldPageNumber" />
+                <entry key="bitstream" value-ref="virtualFieldBitstream" />
+                <entry key="mapConverter" value-ref="virtualFieldMapConverter" />
+                <entry key="personName" value-ref="virtualFieldPersonName" />
+                <entry key="date" value-ref="virtualFieldDateFormatter" />
+                <entry key="vocabulary" value-ref="virtualFieldVocabulary" />
+                <entry key="vocabulary_i18n" value-ref="virtualFieldVocabularyI18n" />
                 <entry key="metric" value-ref="virtualFieldMetric" />
                 <entry key="citations" value-ref="virtualFieldCitations" />
                 <entry key="place" value-ref="virtualFieldAtPlace" />
             </map>
-		</constructor-arg>
+        </constructor-arg>
+    </bean>
+
+    <bean id="virtualFieldMapper"
+          class="org.dspace.content.integration.crosswalks.virtualfields.VirtualFieldMapper" lazy-init="true">
+		<constructor-arg ref="virtualFieldsMap"/>
 	</bean>
 
     <bean class="org.dspace.content.integration.crosswalks.virtualfields.VirtualFieldToEnhancedMetadata"
