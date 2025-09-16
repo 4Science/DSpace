@@ -52,7 +52,6 @@ import org.dspace.builder.ItemBuilder;
 import org.dspace.content.Bitstream;
 import org.dspace.content.Bundle;
 import org.dspace.content.Collection;
-import org.dspace.content.CollectionServiceImpl;
 import org.dspace.content.Community;
 import org.dspace.content.EntityType;
 import org.dspace.content.Item;
@@ -115,8 +114,6 @@ public class ReferCrosswalkIT extends AbstractIntegrationTestWithDatabase {
 
     private ChoiceAuthorityService choiceAuthorityService;
 
-    private CollectionServiceImpl collectionService;
-
     @Before
     public void setup() throws SQLException, AuthorizeException {
 
@@ -127,7 +124,6 @@ public class ReferCrosswalkIT extends AbstractIntegrationTestWithDatabase {
         assertThat(crosswalkMapper, notNullValue());
 
         this.itemService = new DSpace().getSingletonService(ItemServiceImpl.class);
-        this.collectionService = new DSpace().getSingletonService(CollectionServiceImpl.class);
         this.mfss = new DSpace().getSingletonService(MetadataFieldServiceImpl.class);
 
         this.configurationService = DSpaceServicesFactory.getInstance().getConfigurationService();
@@ -2667,6 +2663,45 @@ public class ReferCrosswalkIT extends AbstractIntegrationTestWithDatabase {
         }
 
     }
+
+    @Test
+
+    public void testReferCrosswalkPublicationDataciteXmlWithoutTypeAndAuthor() throws Exception {
+
+
+        ReferCrosswalk referCrosswalk = new DSpace().getServiceManager()
+                                                    .getServiceByName("referCrosswalkPublicationDataciteXml",
+                                                                      ReferCrosswalk.class);
+        assertThat(referCrosswalk, notNullValue());
+
+        Item publisher = createItem(context, collection)
+            .withEntityType("OrgUnit")
+            .withTitle("Publisher Name")
+            .withOrgUnitRORIdentifier("rorID2")
+            .build();
+
+        Item item = createItem(context, collection)
+            .withEntityType("Publication")
+            .withTitle("Publication title")
+            .withPublisher("Publisher", publisher.getID().toString())
+            .withIssueDate("2023")
+            .withDateAvailable("2023-10-20")
+            .withHandle("123456789/99999")
+            .build();
+
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+
+        referCrosswalk.disseminate(context, item, byteArrayOutputStream);
+
+        System.out.println(new String(byteArrayOutputStream.toByteArray()));
+
+        try (FileInputStream fis = getFileInputStream("publication-without-authors-and-type-datacite.xml")) {
+            String expectedXml = IOUtils.toString(fis, Charset.defaultCharset());
+            compareEachLine(byteArrayOutputStream.toString(), expectedXml);
+        }
+    }
+
+
 
     @Test
     public void testReferCrosswalkPublicationDataciteXmlWithVirtualPlace() throws Exception {
