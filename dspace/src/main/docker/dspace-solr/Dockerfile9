@@ -7,14 +7,19 @@
 #
 
 # To build use root as context for (easier) access to solr cfgs
-# docker build --build-arg SOLR_VERSION=8.11.4 -f ./dspace/src/main/docker/dspace-solr/Dockerfile .
+# docker build --build-arg SOLR_VERSION=9.8 -f ./dspace/src/main/docker/dspace-solr/Dockerfile .
 # This will be published as 4science/dspace-cris-solr:$DSPACE_VERSION
 
-ARG SOLR_VERSION=8.11.4
+ARG SOLR_VERSION=9.8
 
-FROM docker.io/solr:${SOLR_VERSION}-slim
+# NOTE: Cannot use the "-slim" image because it doesn't include the extra modules needed for DSpace (e.g. icu4j)
+FROM docker.io/solr:${SOLR_VERSION}
 ARG SOLR_VERSION
-ENV AUDIT_CONFIGSET_PATH=/opt/solr/server/solr/configsets/audit/conf \
+
+# Customize SOLR_OPTS to enable "<lib>" tags in solrconfig.xml files
+# Also set several environment variables to save configset paths used below
+ENV SOLR_OPTS="-Dsolr.config.lib.enabled=true" \
+    AUDIT_CONFIGSET_PATH=/opt/solr/server/solr/configsets/audit/conf \
     AUTHORITY_CONFIGSET_PATH=/opt/solr/server/solr/configsets/authority/conf \
     DEDUP_CONFIGSET_PATH=/opt/solr/server/solr/configsets/dedup/conf \
     OAI_CONFIGSET_PATH=/opt/solr/server/solr/configsets/oai/conf \
