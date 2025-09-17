@@ -909,8 +909,6 @@
         <property name="sidebarFacets">
             <list>
                 <ref bean="searchFilterType" />
-                <ref bean="graphPublicationByDate" />
-                <ref bean="graphPublicationByType" />
                 <ref bean="searchFilterAuthor" />
                 <ref bean="searchFilterAggregation" />
                 <ref bean="searchFilterSubject" />
@@ -925,10 +923,6 @@
         <property name="searchFilters">
             <list>
                 <ref bean="searchFilterType" />
-                <ref bean="graphPublicationByType" />
-                <ref bean="graphPublicationByDate" />
-                <ref bean="graphPublicationByDateDemoLTR" />
-                <ref bean="graphPublicationByDateDemoRTL" />
                 <ref bean="searchFilterTitle" />
                 <ref bean="searchFilterAuthor" />
                 <ref bean="searchFilterAggregation" />
@@ -1669,8 +1663,6 @@
         <!--Which sidebar facets are to be displayed-->
         <property name="sidebarFacets">
             <list>
-                <ref bean="graphPublicationByType" />
-                <ref bean="graphPublicationByDate" />
                 <ref bean="searchFilterIssued" />
                 <ref bean="searchFilterAuthor" />
                 <ref bean="searchFilterEditor" />
@@ -1686,10 +1678,6 @@
         <property name="searchFilters">
             <list>
                 <ref bean="searchFilterTitle" />
-                <ref bean="graphPublicationByType" />
-                <ref bean="graphPublicationByDate" />
-                <ref bean="graphPublicationByDateDemoLTR" />
-                <ref bean="graphPublicationByDateDemoRTL" />
                 <ref bean="searchFilterIssued" />
                 <ref bean="searchFilterAuthor" />
                 <ref bean="searchFilterEditor" />
@@ -5898,8 +5886,6 @@
         <property name="sidebarFacets">
             <list>
                 <ref bean="searchFilterTypes" />
-                <ref bean="graphPublicationByType" />
-                <ref bean="graphPublicationByDate" />
                 <ref bean="searchFilterAuthor" />
                 <ref bean="searchFilterSubject" />
                 <ref bean="searchFilterIssued" />
@@ -5911,8 +5897,6 @@
         <property name="searchFilters">
             <list>
                 <ref bean="searchFilterTypes" />
-                <ref bean="graphPublicationByType" />
-                <ref bean="graphPublicationByDate" />
                 <ref bean="searchFilterTitle" />
                 <ref bean="searchFilterAuthor" />
                 <ref bean="searchFilterSubject" />
