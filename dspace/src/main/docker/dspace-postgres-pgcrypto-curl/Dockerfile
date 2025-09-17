@@ -8,7 +8,7 @@
 
 # To build for example use:
 # docker build --build-arg POSTGRES_VERSION=13 --build-arg POSTGRES_PASSWORD=mypass ./dspace/src/main/docker/dspace-postgres-pgcrypto-curl/
-# This will be published as dspace/dspace-postgres-pgcrypto:$DSPACE_VERSION-loadsql
+# This will be published as 4science/dspace-cris-postgres-pgcrypto:$DSPACE_VERSION-loadsql
 
 ARG POSTGRES_VERSION=15
 ARG POSTGRES_PASSWORD=dspace
@@ -20,7 +20,11 @@ ENV POSTGRES_USER=dspace
 ENV POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
 
 # Install curl which is necessary to load SQL file
-RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
+RUN apt-get update \
+    && apt-get install -y curl \
+    && apt-get purge -y --auto-remove \
+    && rm -rf /var/lib/apt/lists/*
+
 
 # Load a SQL dump.  Set LOADSQL to a URL for the sql dump file.
 COPY install-pgcrypto.sh /docker-entrypoint-initdb.d/
