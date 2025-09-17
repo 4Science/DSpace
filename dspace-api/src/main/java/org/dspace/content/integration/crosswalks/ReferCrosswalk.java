@@ -14,7 +14,6 @@ import static org.dspace.core.CrisConstants.PLACEHOLDER_PARENT_METADATA_VALUE;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -243,7 +242,7 @@ public class ReferCrosswalk implements ItemExportCrosswalk {
         return mimeType;
     }
 
-    protected List<TemplateLine> readTemplateLines(File templateFile) throws IOException, FileNotFoundException {
+    protected List<TemplateLine> readTemplateLines(File templateFile) throws IOException {
         try (BufferedReader templateReader = new BufferedReader(new FileReader(templateFile))) {
             return templateReader.lines()
                 .map(this::buildTemplateLine)
