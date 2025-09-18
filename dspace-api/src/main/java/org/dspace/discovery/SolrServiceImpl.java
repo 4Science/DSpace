@@ -997,6 +997,9 @@ public class SolrServiceImpl implements SearchService, IndexingService {
         if (0 < discoveryQuery.getHitHighlightingFields().size()) {
             solrQuery.setHighlight(true);
             solrQuery.add(HighlightParams.USE_PHRASE_HIGHLIGHTER, Boolean.TRUE.toString());
+            solrQuery.set("hl.maxAnalyzedChars", Integer.toString(
+                configurationService
+                    .getIntProperty("discovery.solr.fulltext.charLimit", 100000)));
             for (DiscoverHitHighlightingField highlightingField : discoveryQuery.getHitHighlightingFields()) {
                 solrQuery.addHighlightField(highlightingField.getField() + "_hl");
                 solrQuery.add("f." + highlightingField.getField() + "_hl." + HighlightParams.FRAGSIZE,
