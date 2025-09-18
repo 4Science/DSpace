@@ -220,6 +220,7 @@ public abstract class AbstractCurationTask implements CurationTask {
 
         // Only query for items
         query.addFilterQueries("search.resourcetype:Item");
+        query.addFilterQueries("-withdrawn:true AND -discoverable:false");
 
         // Add location filter based on object type
         switch (type) {
