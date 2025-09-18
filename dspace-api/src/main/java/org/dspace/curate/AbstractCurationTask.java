@@ -51,6 +51,7 @@ public abstract class AbstractCurationTask implements CurationTask {
     protected HandleService handleService;
     protected ConfigurationService configurationService;
     protected SearchService searchService;
+    protected int batchSize;
 
     private void addOrUpdateProcessMetadata(Context context, Item item) throws SQLException {
         List<MetadataValue> existingProcesses = itemService.getMetadata(item, "cris", "curation", "process", Item.ANY);
@@ -117,6 +118,7 @@ public abstract class AbstractCurationTask implements CurationTask {
         handleService = HandleServiceFactory.getInstance().getHandleService();
         configurationService = DSpaceServicesFactory.getInstance().getConfigurationService();
         searchService = SearchUtils.getSearchService();
+        batchSize = configurationService.getIntProperty("curation.task.batchsize", 100);
     }
 
     @Override
@@ -143,92 +145,116 @@ public abstract class AbstractCurationTask implements CurationTask {
         try {
             Context ctx = Curator.curationContext();
             int type = dso.getType();
-            final int batchSize = configurationService.getIntProperty("curation.task.batchsize", 100);
             curator.logInfo(String.format("Curation task %s using batch size of %d", this.taskId, batchSize));
 
             UUID lastProcessedId = null;
-            List<IndexableObject> indexables;
+            List<IndexableObject> indexableObjects = findItems(ctx, dso, type, lastProcessedId);
 
-            do {
-                DiscoverQuery query = new DiscoverQuery();
-                query.setMaxResults(batchSize);
-                query.setSortField("search.resourceid", DiscoverQuery.SORT_ORDER.asc);
-
-                // Only query for items
-                query.addFilterQueries("search.resourcetype:Item");
-
-                // Add location filter based on object type
-                switch (type) {
-                    case Constants.ITEM:
-                        query.addFilterQueries("search.resourceid:" + dso.getID());
-                        break;
-                    case Constants.COLLECTION:
-                        query.addFilterQueries("location.coll:" + dso.getID());
-                        break;
-                    case Constants.COMMUNITY:
-                        query.addFilterQueries("location.comm:" + dso.getID());
-                        break;
-                    case Constants.SITE:
-                        // No additional filter needed: all items
-                        break;
-                    default:
-                        break;
-                }
-
-                if (curator.getModifiedSinceDays() > 0) {
-                    query.addFilterQueries("lastModified_dt:[NOW-" + curator.getModifiedSinceDays() + "DAYS/DAY TO *]");
-                }
-
+            if (indexableObjects.isEmpty()) {
+                StringBuilder sb = new StringBuilder(
+                    String.format("Curation task %s didn't found any item to process!", this.taskId)
+                );
                 if (!curator.isForce()) {
-                    // Exclude items already processed by this curation task
-                    query.addFilterQueries("-cris.curation.process:" + taskId);
+                    sb.append(
+                        String.format(
+                            "Try to re-run the %s task with --force option",
+                            this.taskId)
+                    );
                 }
+                curator.logInfo(sb.toString());
+                return;
+            }
 
-                if (lastProcessedId != null) {
-                    // Simulate cursor by skipping all IDs <= lastProcessedId
-                    query.addFilterQueries("search.resourceid:{" + lastProcessedId + " TO *]");
-                }
+            while (!indexableObjects.isEmpty()) {
 
-                DiscoverResult result = searchService.search(ctx, query);
-                indexables = result.getIndexableObjects();
-                curator.logInfo(String.format("Curation task %s found %d processable items",
-                                              this.taskId,
-                                              result.getIndexableObjects().size()));
+                curator.logInfo(
+                    String.format(
+                        "Curation task %s found %d processable items",
+                        this.taskId,
+                        indexableObjects.size()
+                    )
+                );
 
-                if (indexables != null && !indexables.isEmpty()) {
-                    for (IndexableObject idxObj : indexables) {
-                        if (idxObj instanceof IndexableItem) {
-                            Item item = ((IndexableItem) idxObj).getIndexedObject();
-                            if (item != null) {
-                                try {
-                                    performObject(item);
-                                } catch (Exception e) {
-                                    String msg = "Unable to process item with handle=" + item.getHandle()
-                                        + " and uuid=" + item.getID();
-                                    setResult(msg);
-                                    curator.logError(msg, e);
-                                }
-                                try {
-                                    setExecutionMetadata(item);
-                                } catch (Exception e) {
-                                    String msg = "Unable to set metadata for item with handle=" + item.getHandle()
-                                        + " and uuid=" + item.getID();
-                                    setResult(msg);
-                                    curator.logError(msg, e);
-                                }
-                                lastProcessedId = item.getID();
+                for (IndexableObject idxObj : indexableObjects) {
+                    if (idxObj instanceof IndexableItem) {
+                        Item item = ((IndexableItem) idxObj).getIndexedObject();
+                        if (item != null) {
+                            try {
+                                performObject(item);
+                            } catch (Exception e) {
+                                String msg = "Unable to process item with handle=" + item.getHandle()
+                                    + " and uuid=" + item.getID();
+                                setResult(msg);
+                                curator.logError(msg, e);
                             }
+                            try {
+                                setExecutionMetadata(item);
+                            } catch (Exception e) {
+                                String msg = "Unable to set metadata for item with handle=" + item.getHandle()
+                                    + " and uuid=" + item.getID();
+                                setResult(msg);
+                                curator.logError(msg, e);
+                            }
+                            lastProcessedId = item.getID();
                         }
                     }
-
-                    ctx.commit();
                 }
 
-            } while (indexables != null && !indexables.isEmpty());
+                // commit batched changes
+                ctx.commit();
 
+                // fetch items!
+                indexableObjects = findItems(ctx, dso, batchSize, lastProcessedId);
+            }
         } catch (SQLException | SearchServiceException e) {
             throw new IOException("Error distributing task [" + taskId + "] for object " + dso.getHandle(), e);
         }
+    }
+
+    private List<IndexableObject> findItems(
+        Context ctx, DSpaceObject dso, int type, UUID lastProcessedId
+    ) throws SearchServiceException {
+        DiscoverQuery query = new DiscoverQuery();
+        query.setMaxResults(batchSize);
+        query.setSortField("search.resourceid", DiscoverQuery.SORT_ORDER.asc);
+
+        // Only query for items
+        query.addFilterQueries("search.resourcetype:Item");
+
+        // Add location filter based on object type
+        switch (type) {
+            case Constants.ITEM:
+                query.addFilterQueries("search.resourceid:" + dso.getID());
+                break;
+            case Constants.COLLECTION:
+                query.addFilterQueries("location.coll:" + dso.getID());
+                break;
+            case Constants.COMMUNITY:
+                query.addFilterQueries("location.comm:" + dso.getID());
+                break;
+            case Constants.SITE:
+                // No additional filter needed: all items
+                break;
+            default:
+                break;
+        }
+
+        if (curator.getModifiedSinceDays() > 0) {
+            query.addFilterQueries("lastModified_dt:[NOW-" + curator.getModifiedSinceDays() + "DAYS/DAY TO *]");
+        }
+
+        if (!curator.isForce()) {
+            // Exclude items already processed by this curation task
+            query.addFilterQueries("-cris.curation.process:" + taskId);
+        }
+
+        if (lastProcessedId != null) {
+            // Simulate cursor by skipping all IDs <= lastProcessedId
+            query.addFilterQueries("search.resourceid:{" + lastProcessedId + " TO *]");
+        }
+
+        DiscoverResult result = searchService.search(ctx, query);
+        return result.getIndexableObjects();
     }
 
 
