@@ -10,7 +10,7 @@
     <parent>
         <groupId>org.dspace</groupId>
         <artifactId>dspace-parent</artifactId>
-        <version>cris-2024.02.02-SNAPSHOT</version>
+        <version>cris-2025.01.00-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
