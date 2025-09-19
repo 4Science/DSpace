@@ -7,8 +7,6 @@
  */
 package org.dspace.importer.external.metadatamapping.transform;
 
-import static java.util.Optional.ofNullable;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Optional;
@@ -45,13 +43,13 @@ public class StringJsonValueMappingMetadataProcessorService implements JsonPathM
     @Override
     public Collection<String> processMetadata(String json) {
         JsonNode rootNode = convertStringJsonToJsonNode(json);
-        Optional<JsonNode> abstractNode = Optional.of(rootNode.at(path));
-        Collection<String> values = new ArrayList<>();
+        Optional<JsonNode> abstractNode = Optional.ofNullable(rootNode.at(path));
+        Collection<String> values = new ArrayList<>(1);
 
         if (abstractNode.isPresent() && abstractNode.get().getNodeType().equals(JsonNodeType.STRING)) {
 
             String stringValue = abstractNode.get().asText();
-            values.add(ofNullable(stringValue)
+            values.add(Optional.ofNullable(stringValue)
                          .map(value -> valueMapConverter != null ? valueMapConverter.getValue(value) : value)
                          .orElse(valueMapConverter.getValue(null)));
         }
