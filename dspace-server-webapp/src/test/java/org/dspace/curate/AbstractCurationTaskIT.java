@@ -20,8 +20,10 @@ import static org.junit.Assert.assertNull;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 import java.util.stream.Stream;
 
 import org.dspace.AbstractIntegrationTestWithDatabase;
@@ -217,6 +219,60 @@ public class AbstractCurationTaskIT extends AbstractIntegrationTestWithDatabase 
         assertThat(historyMetadata[0], containsString("Executed " + MOCK_CURATION_TASK + " on"));
         assertThat(historyMetadata[1], containsString("Executed " + MOCK_CURATION_TASK + " on"));
     }
+
+    @Test
+    public void testDistributeWritesProcessMetadataToOnlyOneOfMultipleItems() throws Exception {
+        context.turnOffAuthorisationSystem();
+
+        Community community = CommunityBuilder.createCommunity(context)
+                                              .withName("Test Community")
+                                              .build();
+
+        Collection collection = CollectionBuilder.createCollection(context, community)
+                                                 .withName("Test Collection")
+                                                 .build();
+
+        // Create 10 items
+        List<Item> items = new ArrayList<>();
+        for (int i = 1; i <= 10; i++) {
+            Item item = ItemBuilder.createItem(context, collection)
+                                   .withTitle("Item " + i)
+                                   .build();
+            items.add(item);
+        }
+
+        context.restoreAuthSystemState();
+
+        // Run the script only on the first item
+        Item targetItem = items.get(0);
+        String[] args = new String[] {"curate", "-t", MOCK_CURATION_TASK, "-i", targetItem.getHandle()};
+
+        TestDSpaceRunnableHandler testDSpaceRunnableHandler = new TestDSpaceRunnableHandler();
+        ScriptLauncher.handleScript(args, ScriptLauncher.getConfig(kernelImpl), testDSpaceRunnableHandler, kernelImpl,
+                                    admin);
+
+        assertThat(testDSpaceRunnableHandler.getErrorMessages(), empty());
+        assertThat(testDSpaceRunnableHandler.getWarningMessages(), empty());
+        assertThat(testDSpaceRunnableHandler.getInfoMessages(), hasSize(3));
+
+        // Validate that only the first item got the curation metadata
+        for (int i = 0; i < items.size(); i++) {
+            Item current = items.get(i);
+            context.reloadEntity(current);
+
+            String processMeta = itemService.getMetadata(current, "cris.curation.process");
+            String historyMeta = itemService.getMetadata(current, "cris.curation.history");
+
+            if (i == 0) {
+                assertEquals(MOCK_CURATION_TASK, processMeta);
+                assertThat(historyMeta, containsString("Executed " + MOCK_CURATION_TASK + " on"));
+            } else {
+                assertNull("Other items should not have process metadata", processMeta);
+                assertNull("Other items should not have history metadata", historyMeta);
+            }
+        }
+    }
+
 
     @Test
     public void shouldProcessOnlyMostRecentlyModifiedItemWhenLimitIsOneDay() throws Exception {
