@@ -21,11 +21,16 @@ public class EntityTypeAuthorityFilter extends CustomAuthorityFilter {
     }
 
     public boolean appliesTo(LinkableEntityAuthority linkableEntityAuthority) {
+        if (CollectionUtils.isEmpty(supportedEntities)) {
+            return true;
+        }
 
         String[] entityTypes = linkableEntityAuthority.getLinkedEntityTypes();
-        return CollectionUtils.isEmpty(supportedEntities)
-            || (entityTypes != null && entityTypes.length > 0
-                && supportedEntities.containsAll(Arrays.asList(entityTypes)));
+        if (entityTypes == null || entityTypes.length == 0) {
+            return false;
+        }
+
+        return supportedEntities.containsAll(Arrays.asList(entityTypes));
     }
 
     public EntityTypeAuthorityFilter(List<String> customQueries) {

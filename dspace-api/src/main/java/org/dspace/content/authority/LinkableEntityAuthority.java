@@ -27,7 +27,7 @@ public interface LinkableEntityAuthority extends ChoiceAuthority {
     /**
      * Get the primary linked entity type managed by the authority
      *
-     * @return the primary linked entity types as an array of String
+     * @return the primary linked entity types as a String
      */
     public String getPrimaryLinkedEntityType();
 

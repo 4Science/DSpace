@@ -10,6 +10,7 @@ package org.dspace.content.authority;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -136,16 +137,10 @@ public class ItemAuthority implements ChoiceAuthority, LinkableEntityAuthority {
         solrQuery.addFilterQuery("NOT(discoverable:false)");
 
         if (entityTypes != null && entityTypes.length > 0) {
-            StringBuilder filter = new StringBuilder();
-            boolean first = true;
-            for (String entityType : entityTypes) {
-                if (!first) {
-                    filter.append(" OR ");
-                }
-                filter.append("dspace.entity.type:").append(entityType);
-                first = false;
-            }
-            solrQuery.addFilterQuery(filter.toString());
+            String filter = Arrays.stream(entityTypes)
+                .map(entityType -> "dspace.entity.type:" + entityType)
+                .collect(Collectors.joining(" OR "));
+            solrQuery.addFilterQuery(filter);
         }
 
         customAuthorityFilters.stream()

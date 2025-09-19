@@ -8,6 +8,7 @@
 package org.dspace.content.authority;
 
 import java.sql.SQLException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -95,16 +96,10 @@ public class ItemMultiAuthority implements LinkableEntityAuthority {
 
         String[] entityTypes = getLinkedEntityTypes();
         if (entityTypes != null && entityTypes.length > 0) {
-            StringBuilder filter = new StringBuilder();
-            boolean first = true;
-            for (String entityType : entityTypes) {
-                if (!first) {
-                    filter.append(" OR ");
-                }
-                filter.append("dspace.entity.type:").append(entityType);
-                first = false;
-            }
-            solrQuery.addFilterQuery(filter.toString());
+            String filter = Arrays.stream(entityTypes)
+                .map(entityType -> "dspace.entity.type:" + entityType)
+                .collect(Collectors.joining(" OR "));
+            solrQuery.addFilterQuery(filter);
         }
 
         customAuthorityFilters.stream()
