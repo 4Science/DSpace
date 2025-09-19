@@ -148,9 +148,9 @@ public abstract class AbstractCurationTask implements CurationTask {
             curator.logInfo(String.format("Curation task %s using batch size of %d", this.taskId, batchSize));
 
             UUID lastProcessedId = null;
-            List<IndexableObject> indexableObjects = findItems(ctx, dso, type, lastProcessedId);
+            List<IndexableObject> indexables = findItems(ctx, dso, type, lastProcessedId);
 
-            if (indexableObjects.isEmpty()) {
+            if (indexables.isEmpty()) {
                 StringBuilder sb = new StringBuilder(
                     String.format("Curation task %s didn't found any item to process!", this.taskId)
                 );
@@ -165,17 +165,17 @@ public abstract class AbstractCurationTask implements CurationTask {
                 return;
             }
 
-            while (!indexableObjects.isEmpty()) {
+            while (!indexables.isEmpty()) {
 
                 curator.logInfo(
                     String.format(
                         "Curation task %s found %d processable items",
                         this.taskId,
-                        indexableObjects.size()
+                        indexables.size()
                     )
                 );
 
-                for (IndexableObject idxObj : indexableObjects) {
+                for (IndexableObject idxObj : indexables) {
                     if (idxObj instanceof IndexableItem) {
                         Item item = ((IndexableItem) idxObj).getIndexedObject();
                         if (item != null) {
@@ -204,7 +204,7 @@ public abstract class AbstractCurationTask implements CurationTask {
                 ctx.commit();
 
                 // fetch items!
-                indexableObjects = findItems(ctx, dso, batchSize, lastProcessedId);
+                indexables = findItems(ctx, dso, type, lastProcessedId);
             }
         } catch (SQLException | SearchServiceException e) {
             throw new IOException("Error distributing task [" + taskId + "] for object " + dso.getHandle(), e);
