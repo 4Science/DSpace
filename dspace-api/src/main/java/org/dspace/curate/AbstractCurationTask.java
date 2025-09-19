@@ -220,7 +220,6 @@ public abstract class AbstractCurationTask implements CurationTask {
 
         // Only query for items
         query.addFilterQueries("search.resourcetype:Item");
-        query.addFilterQueries("-withdrawn:true AND -discoverable:false");
 
         // Add location filter based on object type
         switch (type) {
@@ -229,9 +228,11 @@ public abstract class AbstractCurationTask implements CurationTask {
                 break;
             case Constants.COLLECTION:
                 query.addFilterQueries("location.coll:" + dso.getID());
+                query.addFilterQueries("-withdrawn:true AND -discoverable:false");
                 break;
             case Constants.COMMUNITY:
                 query.addFilterQueries("location.comm:" + dso.getID());
+                query.addFilterQueries("-withdrawn:true AND -discoverable:false");
                 break;
             case Constants.SITE:
                 // No additional filter needed: all items
