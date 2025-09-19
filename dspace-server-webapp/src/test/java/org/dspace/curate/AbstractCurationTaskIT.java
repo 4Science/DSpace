@@ -108,7 +108,7 @@ public class AbstractCurationTaskIT extends AbstractIntegrationTestWithDatabase 
 
         assertThat(testDSpaceRunnableHandler.getErrorMessages(), empty());
         assertThat(testDSpaceRunnableHandler.getWarningMessages(), empty());
-        assertThat(testDSpaceRunnableHandler.getInfoMessages(), hasSize(4));
+        assertThat(testDSpaceRunnableHandler.getInfoMessages(), hasSize(3));
 
         context.reloadEntity(item);
         String processMeta = itemService.getMetadata(item, "cris.curation.process");
@@ -144,7 +144,7 @@ public class AbstractCurationTaskIT extends AbstractIntegrationTestWithDatabase 
 
         assertThat(testDSpaceRunnableHandler.getErrorMessages(), empty());
         assertThat(testDSpaceRunnableHandler.getWarningMessages(), empty());
-        assertThat(testDSpaceRunnableHandler.getInfoMessages(), hasSize(4));
+        assertThat(testDSpaceRunnableHandler.getInfoMessages(), hasSize(3));
 
         // Second execution — should not process the item again
         TestDSpaceRunnableHandler secondHandler = new TestDSpaceRunnableHandler();
@@ -194,7 +194,7 @@ public class AbstractCurationTaskIT extends AbstractIntegrationTestWithDatabase 
 
         assertThat(testDSpaceRunnableHandler.getErrorMessages(), empty());
         assertThat(testDSpaceRunnableHandler.getWarningMessages(), empty());
-        assertThat(testDSpaceRunnableHandler.getInfoMessages(), hasSize(4));
+        assertThat(testDSpaceRunnableHandler.getInfoMessages(), hasSize(3));
 
         // Second forced execution — should process the item again
         args = Stream.concat(Arrays.stream(args), Stream.of("-f")).toArray(String[]::new);
@@ -264,7 +264,7 @@ public class AbstractCurationTaskIT extends AbstractIntegrationTestWithDatabase 
 
         assertThat(testDSpaceRunnableHandler.getErrorMessages(), empty());
         assertThat(testDSpaceRunnableHandler.getWarningMessages(), empty());
-        assertThat(testDSpaceRunnableHandler.getInfoMessages(), hasSize(4));
+        assertThat(testDSpaceRunnableHandler.getInfoMessages(), hasSize(3));
 
         assertThat(testDSpaceRunnableHandler.getInfoMessages(),
                    hasItem(is(
@@ -321,7 +321,7 @@ public class AbstractCurationTaskIT extends AbstractIntegrationTestWithDatabase 
 
         assertThat(testDSpaceRunnableHandler.getErrorMessages(), empty());
         assertThat(testDSpaceRunnableHandler.getWarningMessages(), empty());
-        assertThat(testDSpaceRunnableHandler.getInfoMessages(), hasSize(4));
+        assertThat(testDSpaceRunnableHandler.getInfoMessages(), hasSize(3));
 
         String message = testDSpaceRunnableHandler.getInfoMessages()
                                                   .stream()
@@ -386,7 +386,7 @@ public class AbstractCurationTaskIT extends AbstractIntegrationTestWithDatabase 
 
         assertThat(testDSpaceRunnableHandler.getErrorMessages(), empty());
         assertThat(testDSpaceRunnableHandler.getWarningMessages(), empty());
-        assertThat(testDSpaceRunnableHandler.getInfoMessages(), hasSize(4));
+        assertThat(testDSpaceRunnableHandler.getInfoMessages(), hasSize(3));
 
         String message = testDSpaceRunnableHandler.getInfoMessages()
                                                   .stream()
@@ -435,7 +435,7 @@ public class AbstractCurationTaskIT extends AbstractIntegrationTestWithDatabase 
 
         assertThat(testDSpaceRunnableHandler.getErrorMessages(), empty());
         assertThat(testDSpaceRunnableHandler.getWarningMessages(), empty());
-        assertThat(testDSpaceRunnableHandler.getInfoMessages(), hasSize(4));
+        assertThat(testDSpaceRunnableHandler.getInfoMessages(), hasSize(3));
         String message = testDSpaceRunnableHandler.getInfoMessages()
                                                   .stream()
                                                   .filter(m -> m.startsWith(
@@ -506,7 +506,7 @@ public class AbstractCurationTaskIT extends AbstractIntegrationTestWithDatabase 
 
         assertThat(testDSpaceRunnableHandler.getErrorMessages(), empty());
         assertThat(testDSpaceRunnableHandler.getWarningMessages(), empty());
-        assertThat(testDSpaceRunnableHandler.getInfoMessages(), hasSize(4));
+        assertThat(testDSpaceRunnableHandler.getInfoMessages(), hasSize(3));
 
         String message = testDSpaceRunnableHandler.getInfoMessages()
                                                   .stream()
@@ -602,7 +602,7 @@ public class AbstractCurationTaskIT extends AbstractIntegrationTestWithDatabase 
 
         assertThat(testDSpaceRunnableHandler.getErrorMessages(), empty());
         assertThat(testDSpaceRunnableHandler.getWarningMessages(), empty());
-        assertThat(testDSpaceRunnableHandler.getInfoMessages(), hasSize(4));
+        assertThat(testDSpaceRunnableHandler.getInfoMessages(), hasSize(3));
 
         String message = testDSpaceRunnableHandler.getInfoMessages()
                                                   .stream()
@@ -693,7 +693,7 @@ public class AbstractCurationTaskIT extends AbstractIntegrationTestWithDatabase 
 
         assertThat(testDSpaceRunnableHandler.getErrorMessages(), empty());
         assertThat(testDSpaceRunnableHandler.getWarningMessages(), empty());
-        assertThat(testDSpaceRunnableHandler.getInfoMessages(), hasSize(4));
+        assertThat(testDSpaceRunnableHandler.getInfoMessages(), hasSize(3));
 
         String message = testDSpaceRunnableHandler.getInfoMessages()
                                                   .stream()
@@ -786,7 +786,7 @@ public class AbstractCurationTaskIT extends AbstractIntegrationTestWithDatabase 
 
         assertThat(testDSpaceRunnableHandler.getErrorMessages(), empty());
         assertThat(testDSpaceRunnableHandler.getWarningMessages(), empty());
-        assertThat(testDSpaceRunnableHandler.getInfoMessages(), hasSize(7));
+        assertThat(testDSpaceRunnableHandler.getInfoMessages(), hasSize(6));
         String message = testDSpaceRunnableHandler.getInfoMessages()
                                                   .stream()
                                                   .filter(m -> m.startsWith(
@@ -849,7 +849,7 @@ public class AbstractCurationTaskIT extends AbstractIntegrationTestWithDatabase 
 
         assertThat(testDSpaceRunnableHandler.getErrorMessages(), empty());
         assertThat(testDSpaceRunnableHandler.getWarningMessages(), empty());
-        assertThat(testDSpaceRunnableHandler.getInfoMessages(), hasSize(4));
+        assertThat(testDSpaceRunnableHandler.getInfoMessages(), hasSize(3));
         String message = testDSpaceRunnableHandler.getInfoMessages()
                                                   .stream()
                                                   .filter(m -> m.startsWith(
@@ -912,7 +912,7 @@ public class AbstractCurationTaskIT extends AbstractIntegrationTestWithDatabase 
 
         assertThat(testDSpaceRunnableHandler.getErrorMessages(), empty());
         assertThat(testDSpaceRunnableHandler.getWarningMessages(), empty());
-        assertThat(testDSpaceRunnableHandler.getInfoMessages(), hasSize(4));
+        assertThat(testDSpaceRunnableHandler.getInfoMessages(), hasSize(3));
         String message = testDSpaceRunnableHandler.getInfoMessages()
                                                   .stream()
                                                   .filter(m -> m.startsWith(
