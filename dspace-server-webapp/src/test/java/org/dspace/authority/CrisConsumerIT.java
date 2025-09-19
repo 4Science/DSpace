@@ -1229,19 +1229,20 @@ public class CrisConsumerIT extends AbstractControllerIntegrationTest {
     public void testAuthorityOnMultipleEntityTypesShouldResolveReference() throws Exception {
         context.turnOffAuthorisationSystem();
 
-        Collection archivalMaterialCollection = CollectionBuilder
-            .createCollection(context, parentCommunity)
-            .withName("ArchivalMaterial Collection")
-            .withEntityType("ArchivalMaterial").build();
+        // set configurations
+        configurationService.addPropertyValue("plugin.named.org.dspace.content.authority.ChoiceAuthority",
+            "org.dspace.content.authority.ItemAuthority = PersonOrgUnitAuthority");
+        configurationService.setProperty("cris-consumer.skip-empty-authority", false);
+        configurationService.addPropertyValue("cris.ItemAuthority.PersonOrgUnitAuthority.entityType", "Person");
+        configurationService.addPropertyValue("cris.ItemAuthority.PersonOrgUnitAuthority.entityType", "OrgUnit");
+        configurationService.setProperty("cris.ItemAuthority.PersonOrgUnitAuthority.primaryEntityType", "Person");
+        configurationService.setProperty("choices.plugin.dc.contributor.author", "PersonOrgUnitAuthority");
 
-        Collection journalFileCollection = CollectionBuilder
-            .createCollection(context, parentCommunity)
-            .withName("JournalFile Collection")
-            .withEntityType("JournalFile").build();
+        Collection personCollection = createCollection("Person Collection", "Person", subCommunity);
 
         Item item = ItemBuilder
-            .createItem(context, archivalMaterialCollection)
-            .withTitle("Hymni et epigrammata")
+            .createItem(context, personCollection)
+            .withTitle("Francesco Pio Scognamiglio")
             .withLegacyId("538cd81a-5c00-4c15-8f4e-b7ffbed225e3")
             .inArchive().build();
 
@@ -1249,8 +1250,7 @@ public class CrisConsumerIT extends AbstractControllerIntegrationTest {
             .createItem(context, publicationCollection)
             .withTitle("Test Item")
             .withLegacyId("CNCE013761")
-            .withMetadata("glam", "relation", "boundedwith",
-                null, "Hymni et epigrammata",
+            .withAuthor("Scognamiglio, Francesco Pio",
                 "will be referenced::LEGACY-ID::538cd81a-5c00-4c15-8f4e-b7ffbed225e3", 600)
             .inArchive().build();
 
@@ -1258,8 +1258,8 @@ public class CrisConsumerIT extends AbstractControllerIntegrationTest {
         testItem = context.reloadEntity(testItem);
 
         List<MetadataValue> metadata = testItem.getMetadata();
-        assertThat(metadata, hasItems(with("glam.relation.boundedwith",
-            "Hymni et epigrammata", item.getID().toString(),
+        assertThat(metadata, hasItems(with("dc.contributor.author",
+            "Scognamiglio, Francesco Pio", item.getID().toString(),
             0, 600)));
     }
 
@@ -1267,100 +1267,104 @@ public class CrisConsumerIT extends AbstractControllerIntegrationTest {
     public void testAuthorityOnMultipleEntityTypesWithPrimaryEntityTypeShouldCreateItem() throws Exception {
         context.turnOffAuthorisationSystem();
 
-        Collection archivalMaterialCollection = CollectionBuilder
-            .createCollection(context, parentCommunity)
-            .withName("ArchivalMaterial Collection")
-            .withEntityType("ArchivalMaterial").build();
+        // set configurations
+        configurationService.addPropertyValue("plugin.named.org.dspace.content.authority.ChoiceAuthority",
+            "org.dspace.content.authority.ItemAuthority = PersonOrgUnitAuthority");
+        configurationService.setProperty("cris-consumer.skip-empty-authority", false);
+        configurationService.addPropertyValue("cris.ItemAuthority.PersonOrgUnitAuthority.entityType", "Person");
+        configurationService.addPropertyValue("cris.ItemAuthority.PersonOrgUnitAuthority.entityType", "OrgUnit");
+        configurationService.setProperty("cris.ItemAuthority.PersonOrgUnitAuthority.primaryEntityType", "Person");
+        configurationService.setProperty("choices.plugin.dc.contributor.author", "PersonOrgUnitAuthority");
+
+        Collection personCollection = createCollection("Person Collection", "Person", subCommunity);
 
         Item testItem = ItemBuilder
-            .createItem(context, archivalMaterialCollection)
+            .createItem(context, publicationCollection)
             .withTitle("Test Item")
             .withLegacyId("CNCE013761")
-            .withMetadata("glam", "relation", "boundedwith", "Hymni et epigrammata")
+            .withAuthor("Scognamiglio, Francesco Pio")
             .inArchive().build();
 
         context.commit();
         testItem = context.reloadEntity(testItem);
         publicationCollection = context.reloadEntity(publicationCollection);
-        archivalMaterialCollection = context.reloadEntity(archivalMaterialCollection);
+        personCollection = context.reloadEntity(personCollection);
 
-        Iterator<Item> publications = itemService.findByCollection(context, publicationCollection);
-        assertThat(publications.hasNext(), is(true));
-        Item publication = publications.next();
-
-        Iterator<Item> archivalMaterials = itemService.findByCollection(context, archivalMaterialCollection);
-        assertThat(archivalMaterials.hasNext(), is(true));
+        Iterator<Item> people = itemService.findByCollection(context, personCollection);
+        assertThat(people.hasNext(), is(true));
+        Item person = people.next();
 
         List<MetadataValue> metadata = testItem.getMetadata();
-        assertThat(metadata, hasItems(with("glam.relation.boundedwith",
-            "Hymni et epigrammata", publication.getID().toString(), 0, 600)));
+        assertThat(metadata, hasItems(with("dc.contributor.author",
+            "Scognamiglio, Francesco Pio", person.getID().toString(), 0, 600)));
     }
 
     @Test
     public void testAuthorityOnMultipleEntityTypesWithoutPrimaryEntityTypeShouldNotCreateItem() throws Exception {
         context.turnOffAuthorisationSystem();
 
+        // set configurations
+        configurationService.addPropertyValue("plugin.named.org.dspace.content.authority.ChoiceAuthority",
+            "org.dspace.content.authority.ItemAuthority = PersonOrgUnitAuthority");
+        configurationService.setProperty("cris-consumer.skip-empty-authority", false);
+        configurationService.addPropertyValue("cris.ItemAuthority.PersonOrgUnitAuthority.entityType", "Person");
+        configurationService.addPropertyValue("cris.ItemAuthority.PersonOrgUnitAuthority.entityType", "OrgUnit");
         // remove property to simulate no primary entity type
-        configurationService.setProperty("cris.ItemAuthority.PubArchMatJFileManAuthority.primaryEntityType", null);
+        configurationService.setProperty("cris.ItemAuthority.PersonOrgUnitAuthority.primaryEntityType", null);
+        configurationService.setProperty("choices.plugin.dc.contributor.author", "PersonOrgUnitAuthority");
 
-        Collection archivalMaterialCollection = CollectionBuilder
-            .createCollection(context, parentCommunity)
-            .withName("ArchivalMaterial Collection")
-            .withEntityType("ArchivalMaterial").build();
+        metadataAuthorityService.clearCache();
+        choiceAuthorityService.clearCache();
+
+        Collection personCollection = createCollection("Person Collection", "Person", subCommunity);
 
         Item testItem = ItemBuilder
-            .createItem(context, archivalMaterialCollection)
+            .createItem(context, publicationCollection)
             .withTitle("Test Item")
             .withLegacyId("CNCE013761")
-            .withMetadata("glam", "relation", "boundedwith", "Hymni et epigrammata")
+            .withAuthor("Scognamiglio, Francesco Pio")
             .inArchive().build();
 
         context.commit();
         testItem = context.reloadEntity(testItem);
         publicationCollection = context.reloadEntity(publicationCollection);
-        archivalMaterialCollection = context.reloadEntity(archivalMaterialCollection);
+        personCollection = context.reloadEntity(personCollection);
 
-        Iterator<Item> publications = itemService.findByCollection(context, publicationCollection);
-        assertThat(publications.hasNext(), is(false));
-
-        Iterator<Item> archivalMaterials = itemService.findByCollection(context, archivalMaterialCollection);
-        assertThat(archivalMaterials.hasNext(), is(true));
+        Iterator<Item> people = itemService.findByCollection(context, personCollection);
+        assertThat(people.hasNext(), is(false));
 
         List<MetadataValue> metadata = testItem.getMetadata();
-        assertThat(metadata, hasItems(with("glam.relation.boundedwith", "Hymni et epigrammata")));
+        assertThat(metadata, hasItems(with("dc.contributor.author", "Scognamiglio, Francesco Pio")));
     }
 
     @Test
     public void testAuthorityOnSingleEntityTypeWithoutPrimaryEntityTypeShouldCreateItem() throws Exception {
         context.turnOffAuthorisationSystem();
 
-        Collection archivalMaterialCollection = CollectionBuilder
-            .createCollection(context, parentCommunity)
-            .withName("ArchivalMaterial Collection")
-            .withEntityType("ArchivalMaterial").build();
+        // set configurations
+        configurationService.setProperty("cris-consumer.skip-empty-authority", false);
+
+        Collection personCollection = createCollection("Person Collection", "Person", subCommunity);
 
         Item testItem = ItemBuilder
-            .createItem(context, archivalMaterialCollection)
+            .createItem(context, publicationCollection)
             .withTitle("Test Item")
             .withLegacyId("CNCE013761")
-            .withMetadata("dc", "relation", "isreferencedby", "Hymni et epigrammata")
+            .withAuthor("Scognamiglio, Francesco Pio")
             .inArchive().build();
 
         context.commit();
         testItem = context.reloadEntity(testItem);
         publicationCollection = context.reloadEntity(publicationCollection);
-        archivalMaterialCollection = context.reloadEntity(archivalMaterialCollection);
+        personCollection = context.reloadEntity(personCollection);
 
-        Iterator<Item> publications = itemService.findByCollection(context, publicationCollection);
-        assertThat(publications.hasNext(), is(true));
-        Item publication = publications.next();
-
-        Iterator<Item> archivalMaterials = itemService.findByCollection(context, archivalMaterialCollection);
-        assertThat(archivalMaterials.hasNext(), is(true));
+        Iterator<Item> people = itemService.findByCollection(context, personCollection);
+        assertThat(people.hasNext(), is(true));
+        Item person = people.next();
 
         List<MetadataValue> metadata = testItem.getMetadata();
-        assertThat(metadata, hasItems(with("dc.relation.isreferencedby",
-            "Hymni et epigrammata", publication.getID().toString(), 0, 600)));
+        assertThat(metadata, hasItems(with("dc.contributor.author",
+            "Scognamiglio, Francesco Pio", person.getID().toString(), 0, 600)));
     }
 
     private ItemRest getItemViaRestByID(String authToken, UUID id) throws Exception {
