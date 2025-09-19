@@ -167,8 +167,8 @@ public class CrisConsumer implements Consumer {
             }
 
             if (!relatedItemAlreadyPresent) {
-                // the first entity type is used when creating a new item
-                String entityType = entityTypes[0];
+                // the primary entity type is used when creating a new item
+                String entityType = choiceAuthorityService.getPrimaryLinkedEntityType(fieldKey);
 
                 Collection collection = collectionService.retrieveCollectionByEntityType(context, item, entityType);
                 if (collection == null) {

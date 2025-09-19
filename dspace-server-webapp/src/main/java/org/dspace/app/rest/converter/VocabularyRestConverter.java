@@ -34,12 +34,7 @@ public class VocabularyRestConverter implements DSpaceConverter<ChoiceAuthority,
         authorityRest.setScrollable(authority.isScrollable());
         authorityRest.setPreloadLevel(authority.getPreloadLevel());
         if (authority instanceof LinkableEntityAuthority) {
-            String firstEntityType = null;
-            String[] entityTypes = ((LinkableEntityAuthority) authority).getLinkedEntityTypes();
-            if (entityTypes != null && entityTypes.length > 0) {
-                firstEntityType = entityTypes[0];
-            }
-            authorityRest.setEntity(firstEntityType);
+            authorityRest.setEntity(((LinkableEntityAuthority) authority).getPrimaryLinkedEntityType());
             authorityRest.setExternalSource(((LinkableEntityAuthority) authority).getExternalSource());
         }
 

@@ -170,6 +170,24 @@ public class SherpaAuthority extends ItemAuthority {
             new String[] {"Journal"});
     }
 
+    @Override
+    public String getPrimaryLinkedEntityType() {
+        String entityType = configurationService.getProperty(
+            "cris.ItemAuthority." + authorityName + ".primaryEntityType");
+        if (org.apache.commons.lang3.StringUtils.isNotBlank(entityType)) {
+            return entityType;
+        }
+
+        // fallback strategy
+        String[] entityTypes = getLinkedEntityTypes();
+        if (entityTypes != null && entityTypes.length == 1) {
+            return entityTypes[0];
+        }
+
+        // default strategy
+        return "Journal";
+    }
+
     private boolean isLocalItemChoicesEnabled() {
         return configurationService.getBooleanProperty("cris." + this.authorityName + ".local-item-choices-enabled");
     }

@@ -25,6 +25,13 @@ public interface LinkableEntityAuthority extends ChoiceAuthority {
     public String[] getLinkedEntityTypes();
 
     /**
+     * Get the primary linked entity type managed by the authority
+     *
+     * @return the primary linked entity types as an array of String
+     */
+    public String getPrimaryLinkedEntityType();
+
+    /**
      * Get the eternal source configured for this authority by given metadata key
      *
      * @return the linked external source identifier as a String

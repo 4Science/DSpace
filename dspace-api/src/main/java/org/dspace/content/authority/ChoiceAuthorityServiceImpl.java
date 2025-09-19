@@ -656,6 +656,18 @@ public final class ChoiceAuthorityServiceImpl implements ChoiceAuthorityService 
         return null;
     }
 
+    @Override
+    public String getPrimaryLinkedEntityType(String fieldKey) {
+        ChoiceAuthority ma = getAuthorityByFieldKeyCollection(fieldKey, Constants.ITEM, null);
+        if (ma == null) {
+            throw new IllegalArgumentException("No choices plugin was configured for  field \"" + fieldKey + "\".");
+        }
+        if (ma instanceof LinkableEntityAuthority) {
+            return ((LinkableEntityAuthority) ma).getPrimaryLinkedEntityType();
+        }
+        return null;
+    }
+
     public Choice getParentChoice(String authorityName, String vocabularyId, String locale) {
         HierarchicalAuthority ma = (HierarchicalAuthority) getChoiceAuthorityByAuthorityName(authorityName);
         return ma.getParentChoice(authorityName, vocabularyId, locale);

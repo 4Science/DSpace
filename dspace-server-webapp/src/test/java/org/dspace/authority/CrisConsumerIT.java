@@ -35,6 +35,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.sql.SQLException;
+import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
 
@@ -1228,11 +1229,6 @@ public class CrisConsumerIT extends AbstractControllerIntegrationTest {
     public void testAuthorityOnMultipleEntityTypesShouldResolveReference() throws Exception {
         context.turnOffAuthorisationSystem();
 
-        Collection publicationCollection = CollectionBuilder
-            .createCollection(context, parentCommunity)
-            .withName("Publication Collection")
-            .withEntityType("Publication").build();
-
         Collection archivalMaterialCollection = CollectionBuilder
             .createCollection(context, parentCommunity)
             .withName("ArchivalMaterial Collection")
@@ -1265,6 +1261,106 @@ public class CrisConsumerIT extends AbstractControllerIntegrationTest {
         assertThat(metadata, hasItems(with("glam.relation.boundedwith",
             "Hymni et epigrammata", item.getID().toString(),
             0, 600)));
+    }
+
+    @Test
+    public void testAuthorityOnMultipleEntityTypesWithPrimaryEntityTypeShouldCreateItem() throws Exception {
+        context.turnOffAuthorisationSystem();
+
+        Collection archivalMaterialCollection = CollectionBuilder
+            .createCollection(context, parentCommunity)
+            .withName("ArchivalMaterial Collection")
+            .withEntityType("ArchivalMaterial").build();
+
+        Item testItem = ItemBuilder
+            .createItem(context, archivalMaterialCollection)
+            .withTitle("Test Item")
+            .withLegacyId("CNCE013761")
+            .withMetadata("glam", "relation", "boundedwith", "Hymni et epigrammata")
+            .inArchive().build();
+
+        context.commit();
+        testItem = context.reloadEntity(testItem);
+        publicationCollection = context.reloadEntity(publicationCollection);
+        archivalMaterialCollection = context.reloadEntity(archivalMaterialCollection);
+
+        Iterator<Item> publications = itemService.findByCollection(context, publicationCollection);
+        assertThat(publications.hasNext(), is(true));
+        Item publication = publications.next();
+
+        Iterator<Item> archivalMaterials = itemService.findByCollection(context, archivalMaterialCollection);
+        assertThat(archivalMaterials.hasNext(), is(true));
+
+        List<MetadataValue> metadata = testItem.getMetadata();
+        assertThat(metadata, hasItems(with("glam.relation.boundedwith",
+            "Hymni et epigrammata", publication.getID().toString(), 0, 600)));
+    }
+
+    @Test
+    public void testAuthorityOnMultipleEntityTypesWithoutPrimaryEntityTypeShouldNotCreateItem() throws Exception {
+        context.turnOffAuthorisationSystem();
+
+        // remove property to simulate no primary entity type
+        configurationService.setProperty("cris.ItemAuthority.PubArchMatJFileManAuthority.primaryEntityType", null);
+
+        Collection archivalMaterialCollection = CollectionBuilder
+            .createCollection(context, parentCommunity)
+            .withName("ArchivalMaterial Collection")
+            .withEntityType("ArchivalMaterial").build();
+
+        Item testItem = ItemBuilder
+            .createItem(context, archivalMaterialCollection)
+            .withTitle("Test Item")
+            .withLegacyId("CNCE013761")
+            .withMetadata("glam", "relation", "boundedwith", "Hymni et epigrammata")
+            .inArchive().build();
+
+        context.commit();
+        testItem = context.reloadEntity(testItem);
+        publicationCollection = context.reloadEntity(publicationCollection);
+        archivalMaterialCollection = context.reloadEntity(archivalMaterialCollection);
+
+        Iterator<Item> publications = itemService.findByCollection(context, publicationCollection);
+        assertThat(publications.hasNext(), is(false));
+
+        Iterator<Item> archivalMaterials = itemService.findByCollection(context, archivalMaterialCollection);
+        assertThat(archivalMaterials.hasNext(), is(true));
+
+        List<MetadataValue> metadata = testItem.getMetadata();
+        assertThat(metadata, hasItems(with("glam.relation.boundedwith", "Hymni et epigrammata")));
+    }
+
+    @Test
+    public void testAuthorityOnSingleEntityTypeWithoutPrimaryEntityTypeShouldCreateItem() throws Exception {
+        context.turnOffAuthorisationSystem();
+
+        Collection archivalMaterialCollection = CollectionBuilder
+            .createCollection(context, parentCommunity)
+            .withName("ArchivalMaterial Collection")
+            .withEntityType("ArchivalMaterial").build();
+
+        Item testItem = ItemBuilder
+            .createItem(context, archivalMaterialCollection)
+            .withTitle("Test Item")
+            .withLegacyId("CNCE013761")
+            .withMetadata("dc", "relation", "isreferencedby", "Hymni et epigrammata")
+            .inArchive().build();
+
+        context.commit();
+        testItem = context.reloadEntity(testItem);
+        publicationCollection = context.reloadEntity(publicationCollection);
+        archivalMaterialCollection = context.reloadEntity(archivalMaterialCollection);
+
+        Iterator<Item> publications = itemService.findByCollection(context, publicationCollection);
+        assertThat(publications.hasNext(), is(true));
+        Item publication = publications.next();
+
+        Iterator<Item> archivalMaterials = itemService.findByCollection(context, archivalMaterialCollection);
+        assertThat(archivalMaterials.hasNext(), is(true));
+
+        List<MetadataValue> metadata = testItem.getMetadata();
+        assertThat(metadata, hasItems(with("dc.relation.isreferencedby",
+            "Hymni et epigrammata", publication.getID().toString(), 0, 600)));
     }
 
     private ItemRest getItemViaRestByID(String authToken, UUID id) throws Exception {

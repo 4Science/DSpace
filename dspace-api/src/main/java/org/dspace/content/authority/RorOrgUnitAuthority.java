@@ -172,6 +172,23 @@ public class RorOrgUnitAuthority extends ItemAuthority {
     }
 
     @Override
+    public String getPrimaryLinkedEntityType() {
+        String entityType = configurationService.getProperty(
+            "cris.ItemAuthority." + authorityName + ".primaryEntityType");
+        if (StringUtils.isNotBlank(entityType)) {
+            return entityType;
+        }
+
+        // fallback strategy
+        String[] entityTypes = getLinkedEntityTypes();
+        if (entityTypes != null && entityTypes.length == 1) {
+            return entityTypes[0];
+        }
+
+        return null;
+    }
+
+    @Override
     public void setPluginInstanceName(String name) {
         authorityName = name;
     }
