@@ -1232,7 +1232,6 @@ public class CrisConsumerIT extends AbstractControllerIntegrationTest {
         // set configurations
         configurationService.addPropertyValue("plugin.named.org.dspace.content.authority.ChoiceAuthority",
             "org.dspace.content.authority.ItemAuthority = PersonOrgUnitAuthority");
-        configurationService.setProperty("cris-consumer.skip-empty-authority", false);
         configurationService.addPropertyValue("cris.ItemAuthority.PersonOrgUnitAuthority.entityType", "Person");
         configurationService.addPropertyValue("cris.ItemAuthority.PersonOrgUnitAuthority.entityType", "OrgUnit");
         configurationService.setProperty("cris.ItemAuthority.PersonOrgUnitAuthority.primaryEntityType", "Person");
@@ -1261,6 +1260,15 @@ public class CrisConsumerIT extends AbstractControllerIntegrationTest {
         assertThat(metadata, hasItems(with("dc.contributor.author",
             "Scognamiglio, Francesco Pio", item.getID().toString(),
             0, 600)));
+
+        // revert changes on configurations
+        configurationService.addPropertyValue("plugin.named.org.dspace.content.authority.ChoiceAuthority",
+            "org.dspace.content.authority.ItemAuthority = PersonAuthority");
+        configurationService.setProperty("cris.ItemAuthority.PersonOrgUnitAuthority.entityType", null);
+        configurationService.setProperty("cris.ItemAuthority.PersonOrgUnitAuthority.primaryEntityType", null);
+        configurationService.setProperty("choices.plugin.dc.contributor.author", "PersonAuthority");
+        metadataAuthorityService.clearCache();
+        choiceAuthorityService.clearCache();
     }
 
     @Test
@@ -1270,7 +1278,6 @@ public class CrisConsumerIT extends AbstractControllerIntegrationTest {
         // set configurations
         configurationService.addPropertyValue("plugin.named.org.dspace.content.authority.ChoiceAuthority",
             "org.dspace.content.authority.ItemAuthority = PersonOrgUnitAuthority");
-        configurationService.setProperty("cris-consumer.skip-empty-authority", false);
         configurationService.addPropertyValue("cris.ItemAuthority.PersonOrgUnitAuthority.entityType", "Person");
         configurationService.addPropertyValue("cris.ItemAuthority.PersonOrgUnitAuthority.entityType", "OrgUnit");
         configurationService.setProperty("cris.ItemAuthority.PersonOrgUnitAuthority.primaryEntityType", "Person");
@@ -1297,6 +1304,15 @@ public class CrisConsumerIT extends AbstractControllerIntegrationTest {
         List<MetadataValue> metadata = testItem.getMetadata();
         assertThat(metadata, hasItems(with("dc.contributor.author",
             "Scognamiglio, Francesco Pio", person.getID().toString(), 0, 600)));
+
+        // revert changes on configurations
+        configurationService.addPropertyValue("plugin.named.org.dspace.content.authority.ChoiceAuthority",
+            "org.dspace.content.authority.ItemAuthority = PersonAuthority");
+        configurationService.setProperty("cris.ItemAuthority.PersonOrgUnitAuthority.entityType", null);
+        configurationService.setProperty("cris.ItemAuthority.PersonOrgUnitAuthority.primaryEntityType", null);
+        configurationService.setProperty("choices.plugin.dc.contributor.author", "PersonAuthority");
+        metadataAuthorityService.clearCache();
+        choiceAuthorityService.clearCache();
     }
 
     @Test
@@ -1306,7 +1322,6 @@ public class CrisConsumerIT extends AbstractControllerIntegrationTest {
         // set configurations
         configurationService.addPropertyValue("plugin.named.org.dspace.content.authority.ChoiceAuthority",
             "org.dspace.content.authority.ItemAuthority = PersonOrgUnitAuthority");
-        configurationService.setProperty("cris-consumer.skip-empty-authority", false);
         configurationService.addPropertyValue("cris.ItemAuthority.PersonOrgUnitAuthority.entityType", "Person");
         configurationService.addPropertyValue("cris.ItemAuthority.PersonOrgUnitAuthority.entityType", "OrgUnit");
         // remove property to simulate no primary entity type
@@ -1335,14 +1350,20 @@ public class CrisConsumerIT extends AbstractControllerIntegrationTest {
 
         List<MetadataValue> metadata = testItem.getMetadata();
         assertThat(metadata, hasItems(with("dc.contributor.author", "Scognamiglio, Francesco Pio")));
+
+        // revert changes on configurations
+        configurationService.addPropertyValue("plugin.named.org.dspace.content.authority.ChoiceAuthority",
+            "org.dspace.content.authority.ItemAuthority = PersonAuthority");
+        configurationService.setProperty("cris.ItemAuthority.PersonOrgUnitAuthority.entityType", null);
+        configurationService.setProperty("cris.ItemAuthority.PersonOrgUnitAuthority.primaryEntityType", null);
+        configurationService.setProperty("choices.plugin.dc.contributor.author", "PersonAuthority");
+        metadataAuthorityService.clearCache();
+        choiceAuthorityService.clearCache();
     }
 
     @Test
     public void testAuthorityOnSingleEntityTypeWithoutPrimaryEntityTypeShouldCreateItem() throws Exception {
         context.turnOffAuthorisationSystem();
-
-        // set configurations
-        configurationService.setProperty("cris-consumer.skip-empty-authority", false);
 
         Collection personCollection = createCollection("Person Collection", "Person", subCommunity);
 
