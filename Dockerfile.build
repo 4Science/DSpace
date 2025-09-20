@@ -22,6 +22,7 @@ COPY --chown=dspace ./dspace/modules/server-boot/target/lib/ $DSPACE_INSTALL/lib
 RUN install -g dspace -o dspace -d $DATA_FOLDER $DSPACE_INSTALL $HANDLE_DIR $TRIPLESTORE_DIR $DOWNLOAD_DIR $UPLOAD_DIR $VAR_DIR $OAI_DIR
 
 COPY --chown=dspace ./dspace/config/ $DSPACE_INSTALL/config/
+COPY --chown=dspace ./dspace/etc/conftool $DSPACE_INSTALL/config/conftool
 COPY --chown=dspace --chmod=0754 ./dspace/bin/ $DSPACE_INSTALL/bin/
 
 RUN install -g dspace -o dspace -m 664 /dev/null $DATA_FOLDER/local.cfg && \
