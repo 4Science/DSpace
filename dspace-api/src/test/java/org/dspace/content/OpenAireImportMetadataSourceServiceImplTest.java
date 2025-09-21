@@ -48,7 +48,7 @@ public class OpenAireImportMetadataSourceServiceImplTest extends AbstractUnitTes
 
     private ServiceManager serviceManager;
 
-    private static final String OPENAIRE_RESOURCE = "/org/dspace/app/openaire-publications/openaire-publication-record.xml";
+    private static final String OPENAIRE_FILE = "/org/dspace/app/openaire-publications/openaire-publication-record.xml";
     private static final int EXPECTED_METADATA_COUNT = 19;
 
     @Before
@@ -64,7 +64,7 @@ public class OpenAireImportMetadataSourceServiceImplTest extends AbstractUnitTes
         Map<MetadataFieldConfig, MetadataContributor> metadataFieldMap = (Map<MetadataFieldConfig, MetadataContributor>)
                                serviceManager.getServiceByName("openairePublicationsMetadataFieldMap", Map.class);
 
-        String openAireSourceXmlString = readDocumentFromResource(OPENAIRE_RESOURCE);
+        String openAireSourceXmlString = readDocumentFromResource(OPENAIRE_FILE);
         List<Element> records = splitToRecords(openAireSourceXmlString);
         if (records.isEmpty()) {
             throw new IllegalStateException("No records extracted from OpenAIRE XML");
