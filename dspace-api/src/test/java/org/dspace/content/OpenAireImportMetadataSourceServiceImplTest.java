@@ -10,8 +10,6 @@ package org.dspace.content;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
@@ -23,6 +21,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.io.IOUtils;
+import org.dspace.AbstractUnitTest;
 import org.dspace.app.util.XMLUtils;
 import org.dspace.importer.external.metadatamapping.MetadataFieldConfig;
 import org.dspace.importer.external.metadatamapping.MetadatumDTO;
@@ -45,12 +44,11 @@ import org.junit.Test;
  *
  * @author Mykhaylo Boychuk (mykhaylo.boychuk@4science.com)
  */
-public class OpenAireImportMetadataSourceServiceImplTest extends AbstractDSpaceObjectTest {
+public class OpenAireImportMetadataSourceServiceImplTest extends AbstractUnitTest {
 
     private ServiceManager serviceManager;
 
-    private static final String OPENAIRE_DIR_PATH = "./target/testing/dspace/assetstore/";
-    private static final String OPENAIRE_RESOURCE = "openaire-publication-record.xml";
+    private static final String OPENAIRE_RESOURCE = "/org/dspace/app/openaire-publications/openaire-publication-record.xml";
     private static final int EXPECTED_METADATA_COUNT = 19;
 
     @Before
@@ -66,7 +64,7 @@ public class OpenAireImportMetadataSourceServiceImplTest extends AbstractDSpaceO
         Map<MetadataFieldConfig, MetadataContributor> metadataFieldMap = (Map<MetadataFieldConfig, MetadataContributor>)
                                serviceManager.getServiceByName("openairePublicationsMetadataFieldMap", Map.class);
 
-        String openAireSourceXmlString = readDocumentFromResource(OPENAIRE_DIR_PATH, OPENAIRE_RESOURCE);
+        String openAireSourceXmlString = readDocumentFromResource(OPENAIRE_RESOURCE);
         List<Element> records = splitToRecords(openAireSourceXmlString);
         if (records.isEmpty()) {
             throw new IllegalStateException("No records extracted from OpenAIRE XML");
@@ -141,25 +139,13 @@ public class OpenAireImportMetadataSourceServiceImplTest extends AbstractDSpaceO
         }
     }
 
-    private String readDocumentFromResource(String dir, String name) throws IOException {
-        try (InputStream inputStream = new FileInputStream(new File(dir, name))) {
+    private String readDocumentFromResource(String name) throws IOException {
+        try (InputStream inputStream = getClass().getResourceAsStream(name)) {
             if (inputStream == null) {
-                throw new IOException("Resource not found: " + dir + name);
+                throw new IOException("Resource not found: " + name);
             }
             return IOUtils.toString(inputStream, StandardCharsets.UTF_8);
         }
     }
-
-    @Override
-    public void testGetType() { }
-
-    @Override
-    public void testGetID() { }
-
-    @Override
-    public void testGetHandle() { }
-
-    @Override
-    public void testGetName() { }
 
 }
