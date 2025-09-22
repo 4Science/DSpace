@@ -7,6 +7,7 @@ FROM ${DOCKER_REGISTRY}/eclipse-temurin:${JDK_VERSION}-jre AS install
 EXPOSE 8080
 ENV DATA_FOLDER=/data \
     DSPACE_INSTALL=/dspace \
+    ASSETSTORE=/dspace/assetstore \
     HANDLE_DIR=/dspace/handle-server \
     TRIPLESTORE_DIR=/dspace/triplestore \
     DOWNLOAD_DIR=/dspace/download \
@@ -19,7 +20,7 @@ RUN useradd -m -d /home/dspace -s /bin/bash dspace
 COPY --chown=dspace ./dspace/modules/server-boot/target/server-boot-*.jar $DSPACE_INSTALL/server-boot.jar
 COPY --chown=dspace ./dspace/modules/server-boot/target/lib/ $DSPACE_INSTALL/lib/
 
-RUN install -g dspace -o dspace -d $DATA_FOLDER $DSPACE_INSTALL $HANDLE_DIR $TRIPLESTORE_DIR $DOWNLOAD_DIR $UPLOAD_DIR $VAR_DIR $OAI_DIR
+RUN install -g dspace -o dspace -d $DATA_FOLDER $ASSETSTORE $DSPACE_INSTALL $HANDLE_DIR $TRIPLESTORE_DIR $DOWNLOAD_DIR $UPLOAD_DIR $VAR_DIR $OAI_DIR
 
 COPY --chown=dspace ./dspace/config/ $DSPACE_INSTALL/config/
 COPY --chown=dspace ./dspace/etc/conftool $DSPACE_INSTALL/config/conftool
