@@ -8,9 +8,9 @@ definitions:
     gradlewrapper-java17: ~/.gradle/wrapper
     maven-java17: ~/.m2/repository
   mvnVars:
+    # Please mind to start with a comma if you add one or more addon profiles
     &setEnv export MAVEN_OPTS="-Xmx4096M" &&
     export MAVEN_ARGS="-Dorg.slf4j.simpleLogger.showDateTime=true -Dorg.slf4j.simpleLogger.dateTimeFormat=HH:mm:ss,SSS" &&
-    # Please mind to start with a comma if you add one or more addon profiles
     export ADDON_PROFILES=",addon-iiif,addon-ocr,addon-video,addon-document-viewer,addon-analytics,addon-dataquality,addon-networklab,addon-orchestrator,addon-loginmiur,addon-importplus"
   steps:
     - step: &install
