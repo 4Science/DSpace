@@ -8,7 +8,7 @@
 
 # To build use root as context for (easier) access to solr cfgs
 # docker build --build-arg SOLR_VERSION=8.11.4 -f ./dspace/src/main/docker/dspace-solr/Dockerfile .
-# This will be published as dspace/dspace-solr:$DSPACE_VERSION
+# This will be published as 4science/dspace-cris-solr:$DSPACE_VERSION
 
 ARG SOLR_VERSION=8.11.4
 
