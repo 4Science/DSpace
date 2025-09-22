@@ -3398,7 +3398,7 @@ public class DiscoveryRestControllerIT extends AbstractControllerIntegrationTest
             FacetEntryMatcher.authorFacetWithMinMax(true, "Doe, Jane", "Testing, Works"),
             FacetEntryMatcher.entityTypeFacet(false),
             FacetEntryMatcher.subjectFacet(true),
-            FacetEntryMatcher.dateIssuedFacetWithMinMax(false, "1990-02-13", "2010-10-17"),
+            FacetEntryMatcher.dateIssuedFacetWithMinMax(false, "1990", "2010"),
             FacetEntryMatcher.hasContentInOriginalBundleFacet(false),
             FacetEntryMatcher.languageFacet(false)
         ));
@@ -3489,7 +3489,7 @@ public class DiscoveryRestControllerIT extends AbstractControllerIntegrationTest
             FacetEntryMatcher.authorFacetWithMinMax(true, "Doe, Jane", "Testing, Works"),
             FacetEntryMatcher.entityTypeFacet(false),
             FacetEntryMatcher.subjectFacet(true),
-            FacetEntryMatcher.dateIssuedFacetWithMinMax(false, "1990-02-13", "2010-10-17"),
+            FacetEntryMatcher.dateIssuedFacetWithMinMax(false, "1990", "2010"),
             FacetEntryMatcher.hasContentInOriginalBundleFacet(false),
             FacetEntryMatcher.languageFacet(false)
         ));
@@ -8541,6 +8541,371 @@ public class DiscoveryRestControllerIT extends AbstractControllerIntegrationTest
                                            SearchResultMatcher.matchOnItemName("item", "items",
                                                                                publicationItem.getName()))));
 
+    }
+
+    @Test
+    public void discoverSearchObjectsWithNegativeDate() throws Exception {
+        //We turn off the authorization system in order to create the structure as defined below
+        context.turnOffAuthorisationSystem();
+
+        //** GIVEN **
+        //1. A community-collection structure with one parent community with sub-community and two collections.
+        parentCommunity = CommunityBuilder.createCommunity(context)
+                                          .withName("Parent Community")
+                                          .build();
+        Community child1 = CommunityBuilder.createSubCommunity(context, parentCommunity)
+                                           .withName("Sub Community")
+                                           .build();
+        Collection col1 = CollectionBuilder.createCollection(context, child1).withName("Collection 1").build();
+
+        Item item = ItemBuilder.createItem(context, col1)
+                               .withTitle("Public Item")
+                               .withIssueDate("-2010-02-13")
+                               .build();
+
+        context.restoreAuthSystemState();
+
+
+        getClient().perform(get("/api/discover/search/objects")
+                                .param("f.dateIssued", "[-2010 TO 0],equals")
+                   )
+                   //** THEN **
+                   //The status has to be 200 OK
+                   .andExpect(status().isOk())
+                   //The type has to be 'discover'
+                   .andExpect(jsonPath("$.type", is("discover")))
+                   //The page object needs to look like this
+                   .andExpect(jsonPath("$._embedded.searchResult.page", is(
+                       PageMatcher.pageEntry(0, 20)
+                   )))
+                   //The search results have to contain the items that match the searchFilter
+                   .andExpect(jsonPath("$._embedded.searchResult._embedded.objects", Matchers.hasItem(
+                       SearchResultMatcher.matchOnItemName("item", "items", "Public Item")
+                   )));
+
+        getClient().perform(get("/api/discover/search/objects")
+                                .param("f.dateIssued", "[-20 TO 0],equals")
+                   )
+                   //** THEN **
+                   //The status has to be 200 OK
+                   .andExpect(status().isOk())
+                   .andExpect(jsonPath("$._embedded.searchResult.page.totalElements", is(0)));
+
+    }
+
+    @Test
+    public void discoverSearchObjectsWithNegativeDcDateIssuedDt() throws Exception {
+        //We turn off the authorization system in order to create the structure as defined below
+        context.turnOffAuthorisationSystem();
+
+        //** GIVEN **
+        //1. A community-collection structure with one parent community with sub-community and two collections.
+        parentCommunity = CommunityBuilder.createCommunity(context)
+                                          .withName("Parent Community")
+                                          .build();
+        Community child1 = CommunityBuilder.createSubCommunity(context, parentCommunity)
+                                           .withName("Sub Community")
+                                           .build();
+        Collection col1 = CollectionBuilder.createCollection(context, child1).withName("Collection 1").build();
+        //2. Three public items that are readable by Anonymous with different subjects
+
+        Item publicItem3 = ItemBuilder.createItem(context, col1)
+                                      .withTitle("Public Item")
+                                      .withIssueDate("-0010-02-13")
+                                      .build();
+
+        context.restoreAuthSystemState();
+
+        getClient().perform(get("/api/discover/search/objects")
+                                .param("query", "dc.date.issued_dt:\"-9-02-13T00:00:00Z\""))
+
+                   //** THEN **
+                   //The status has to be 200 OK
+                   .andExpect(status().isOk())
+                   //The type has to be 'discover'
+                   .andExpect(jsonPath("$.type", is("discover")))
+                   //The page object needs to look like this
+                   .andExpect(jsonPath("$._embedded.searchResult.page", is(
+                       PageMatcher.pageEntry(0, 20)
+                   )))
+                   //This is the only item that should be returned with the query given
+                   .andExpect(jsonPath("$._embedded.searchResult._embedded.objects", Matchers.contains(
+                       SearchResultMatcher.matchOnItemName("item", "items", "Public Item")
+                   )));
+
+
+    }
+
+    @Test
+    public void discoverSearchObjectsWithNegativeSortedDesc() throws Exception {
+        context.turnOffAuthorisationSystem();
+
+        parentCommunity = CommunityBuilder.createCommunity(context)
+                                          .withName("Parent Community").build();
+
+        Collection col = CollectionBuilder.createCollection(context, parentCommunity)
+                                          .withName("Collection 1")
+                                          .build();
+
+        ItemBuilder.createItem(context, col)
+                   .withTitle("Test 3")
+                   .withIssueDate("-1234-10-17")
+                   .withAuthor("Smith, Donald")
+                   .withSubject("ExtraEntry").build();
+
+        ItemBuilder.createItem(context, col)
+                   .withTitle("Test 2")
+                   .withIssueDate("-0123-01-19")
+                   .withAuthor("Tommaso, Gattari")
+                   .withSubject("ExtraEntry").build();
+
+        ItemBuilder.createItem(context, col)
+                   .withTitle("Test 1")
+                   .withIssueDate("-0012-10-17")
+                   .withAuthor("Smith, Donald")
+                   .withSubject("ExtraEntry").build();
+
+        context.restoreAuthSystemState();
+
+        String adminToken = getAuthToken(admin.getEmail(), password);
+
+        getClient(adminToken).perform(get("/api/discover/search/objects")
+                                          .param("sort", "dc.date.issued,DESC"))
+                             .andExpect(status().isOk())
+                             .andExpect(jsonPath("$.type", is("discover")))
+                             .andExpect(jsonPath("$._embedded.searchResult.page.totalElements", is(3)))
+                             // Validate titles
+                             .andExpect(jsonPath(
+                                 "$._embedded.searchResult._embedded.objects[0]._embedded.indexableObject" +
+                                     ".metadata['dc.title'][0].value",
+                                 is("Test 1")))
+                             .andExpect(jsonPath(
+                                 "$._embedded.searchResult._embedded.objects[1]._embedded.indexableObject" +
+                                     ".metadata['dc.title'][0].value",
+                                 is("Test 2")))
+                             .andExpect(jsonPath(
+                                 "$._embedded.searchResult._embedded.objects[2]._embedded.indexableObject" +
+                                     ".metadata['dc.title'][0].value",
+                                 is("Test 3")))
+                             // Validate issue dates
+                             .andExpect(jsonPath(
+                                 "$._embedded.searchResult._embedded.objects[0]._embedded.indexableObject" +
+                                     ".metadata['dc.date.issued'][0].value",
+                                 is("-0012-10-17")))
+                             .andExpect(jsonPath(
+                                 "$._embedded.searchResult._embedded.objects[1]._embedded.indexableObject" +
+                                     ".metadata['dc.date.issued'][0].value",
+                                 is("-0123-01-19")))
+                             .andExpect(jsonPath(
+                                 "$._embedded.searchResult._embedded.objects[2]._embedded.indexableObject" +
+                                     ".metadata['dc.date.issued'][0].value",
+                                 is("-1234-10-17")));
+    }
+
+    @Test
+    public void discoverSearchObjectsWithNegativeSortedAsc() throws Exception {
+        context.turnOffAuthorisationSystem();
+
+        parentCommunity = CommunityBuilder.createCommunity(context)
+                                          .withName("Parent Community").build();
+
+        Collection col = CollectionBuilder.createCollection(context, parentCommunity)
+                                          .withName("Collection 1")
+                                          .build();
+
+        ItemBuilder.createItem(context, col)
+                   .withTitle("Test 3")
+                   .withIssueDate("-1234-10-17")
+                   .withAuthor("Smith, Donald")
+                   .withSubject("ExtraEntry").build();
+
+        ItemBuilder.createItem(context, col)
+                   .withTitle("Test 2")
+                   .withIssueDate("-0123-01-19")
+                   .withAuthor("Tommaso, Gattari")
+                   .withSubject("ExtraEntry").build();
+
+        ItemBuilder.createItem(context, col)
+                   .withTitle("Test 1")
+                   .withIssueDate("-0012-10-17")
+                   .withAuthor("Smith, Donald")
+                   .withSubject("ExtraEntry").build();
+
+        context.restoreAuthSystemState();
+
+        String adminToken = getAuthToken(admin.getEmail(), password);
+
+        getClient(adminToken).perform(get("/api/discover/search/objects")
+                                          .param("sort", "dc.date.issued,ASC"))
+                             .andExpect(status().isOk())
+                             .andExpect(jsonPath("$.type", is("discover")))
+                             .andExpect(jsonPath("$._embedded.searchResult.page.totalElements", is(3)))
+                             // Validate titles
+                             .andExpect(jsonPath("$._embedded.searchResult._embedded.objects[0]._embedded" +
+                                                     ".indexableObject.metadata['dc.title'][0].value", is("Test 3")))
+                             .andExpect(jsonPath(
+                                 "$._embedded.searchResult._embedded.objects[1]._embedded.indexableObject" +
+                                     ".metadata['dc.title'][0].value",
+                                 is("Test 2")))
+                             .andExpect(jsonPath("$._embedded.searchResult._embedded.objects[2]._embedded" +
+                                                     ".indexableObject.metadata['dc.title'][0].value", is("Test 1")))
+                             // Validate issue dates
+                             .andExpect(jsonPath(
+                                 "$._embedded.searchResult._embedded.objects[0]._embedded.indexableObject" +
+                                     ".metadata['dc.date.issued'][0].value",
+                                 is("-1234-10-17")))
+                             .andExpect(jsonPath(
+                                 "$._embedded.searchResult._embedded.objects[1]._embedded.indexableObject" +
+                                     ".metadata['dc.date.issued'][0].value",
+                                 is("-0123-01-19")))
+                             .andExpect(jsonPath(
+                                 "$._embedded.searchResult._embedded.objects[2]._embedded.indexableObject" +
+                                     ".metadata['dc.date.issued'][0].value",
+                                 is("-0012-10-17")));
+    }
+
+    @Test
+    public void discoverSearchWithYearZero() throws Exception {
+        context.turnOffAuthorisationSystem();
+        parentCommunity = CommunityBuilder.createCommunity(context).build();
+        Collection col = CollectionBuilder.createCollection(context, parentCommunity).build();
+
+        ItemBuilder.createItem(context, col)
+                   .withTitle("Year Zero Item")
+                   .withIssueDate("0000-01-01")
+                   .build();
+
+        context.restoreAuthSystemState();
+
+        getClient().perform(get("/api/discover/search/objects")
+                                .param("f.dateIssued", "[0 TO 1],equals"))
+                   .andExpect(status().isOk())
+                   .andExpect(jsonPath("$._embedded.searchResult._embedded.objects", Matchers.hasItem(
+                       SearchResultMatcher.matchOnItemName("item", "items", "Year Zero Item")
+                   )));
+    }
+
+    @Test
+    public void discoverSearchWithThreeDigitYear() throws Exception {
+        context.turnOffAuthorisationSystem();
+        parentCommunity = CommunityBuilder.createCommunity(context).build();
+        Collection col = CollectionBuilder.createCollection(context, parentCommunity).build();
+
+        ItemBuilder.createItem(context, col)
+                   .withTitle("111 BC Item")
+                   .withIssueDate("-1111-06-05")
+                   .withStartDate("-1111-06-05")
+                   .withEndDate("-0111-01-01")
+                   .build();
+
+        context.restoreAuthSystemState();
+
+        getClient().perform(get("/api/discover/search/objects")
+                                .param("f.dateIssued", "[-2000 TO -100],equals"))
+                   .andExpect(status().isOk())
+                   .andExpect(jsonPath("$._embedded.searchResult._embedded.objects", Matchers.hasItem(
+                       SearchResultMatcher.matchOnItemName("item", "items", "111 BC Item")
+                   )));
+    }
+
+    @Test
+    public void discoverSearchAcrossBceCeBoundary() throws Exception {
+        context.turnOffAuthorisationSystem();
+        parentCommunity = CommunityBuilder.createCommunity(context).build();
+        Collection col = CollectionBuilder.createCollection(context, parentCommunity).build();
+
+        ItemBuilder.createItem(context, col).withTitle("-1 BC").withIssueDate("-0001-01-01").build();
+        ItemBuilder.createItem(context, col).withTitle("0 AD").withIssueDate("0000-01-01").build();
+        ItemBuilder.createItem(context, col).withTitle("1 AD").withIssueDate("0001-01-01").build();
+
+        context.restoreAuthSystemState();
+
+        getClient().perform(get("/api/discover/search/objects")
+                                .param("f.dateIssued", "[-1 TO 1],equals"))
+                   .andExpect(status().isOk())
+                   .andExpect(jsonPath(
+                       "$._embedded.searchResult._embedded.objects[*]._embedded.indexableObject" +
+                           ".metadata['dc.title'][0].value",
+                       Matchers.containsInAnyOrder("-1 BC", "0 AD", "1 AD")));
+    }
+
+    @Test
+    public void discoverSortingWithMixedBceAndCeDates() throws Exception {
+        context.turnOffAuthorisationSystem();
+        parentCommunity = CommunityBuilder.createCommunity(context).build();
+        Collection col = CollectionBuilder.createCollection(context, parentCommunity).build();
+
+        ItemBuilder.createItem(context, col).withTitle("-12 BC").withIssueDate("-0012-05-01").build();
+        ItemBuilder.createItem(context, col).withTitle("1 AD").withIssueDate("0001-01-01").build();
+        ItemBuilder.createItem(context, col).withTitle("0 AD").withIssueDate("0000-01-01").build();
+
+        context.restoreAuthSystemState();
+        String adminToken = getAuthToken(admin.getEmail(), password);
+
+        // ASC sort
+        getClient(adminToken).perform(get("/api/discover/search/objects")
+                                          .param("sort", "dc.date.issued,ASC"))
+                             .andExpect(status().isOk())
+                             .andExpect(jsonPath("$._embedded.searchResult._embedded.objects[0]" +
+                                                     "._embedded.indexableObject.metadata['dc.title'][0].value",
+                                                 is("-12 BC")))
+                             .andExpect(jsonPath("$._embedded.searchResult._embedded.objects[1]" +
+                                                     "._embedded.indexableObject.metadata['dc.title'][0].value",
+                                                 is("1 AD")))
+                             .andExpect(jsonPath("$._embedded.searchResult._embedded.objects[2]" +
+                                                     "._embedded.indexableObject.metadata['dc.title'][0].value",
+                                                 is("0 AD")));
+
+        // DESC sort
+        getClient(adminToken).perform(get("/api/discover/search/objects")
+                                          .param("sort", "dc.date.issued,DESC"))
+                             .andExpect(status().isOk())
+                             .andExpect(jsonPath("$._embedded.searchResult._embedded.objects[0]" +
+                                                     "._embedded.indexableObject.metadata['dc.title'][0].value",
+                                                 is("1 AD")))
+                             .andExpect(jsonPath("$._embedded.searchResult._embedded.objects[1]" +
+                                                     "._embedded.indexableObject.metadata['dc.title'][0].value",
+                                                 is("0 AD")))
+                             .andExpect(jsonPath("$._embedded.searchResult._embedded.objects[2]" +
+                                                     "._embedded.indexableObject.metadata['dc.title'][0].value",
+                                                 is("-12 BC")));
+    }
+
+    @Test
+    public void discoverFacetCountsForBceDates() throws Exception {
+        context.turnOffAuthorisationSystem();
+        parentCommunity = CommunityBuilder.createCommunity(context).build();
+        Collection col = CollectionBuilder.createCollection(context, parentCommunity).build();
+
+        ItemBuilder.createItem(context, col).withTitle("Item 1").withIssueDate("-0010-10-17").build();
+        ItemBuilder.createItem(context, col).withTitle("Item 2").withIssueDate("-0010-11-17").build();
+        ItemBuilder.createItem(context, col).withTitle("Item 3").withIssueDate("-0009-01-19").build();
+
+        context.restoreAuthSystemState();
+
+        getClient().perform(get("/api/discover/facets/graphpubldate"))
+                   .andExpect(status().isOk())
+                   .andExpect(jsonPath("$.facetType", is("chart.bar")))
+                   .andExpect(jsonPath("$._embedded.values[*].label", Matchers.hasItems("-10", "-9")));
+    }
+
+    @Test
+    public void discoverInvalidBceDatesAreIgnored() throws Exception {
+        context.turnOffAuthorisationSystem();
+        parentCommunity = CommunityBuilder.createCommunity(context).build();
+        Collection col = CollectionBuilder.createCollection(context, parentCommunity).build();
+
+        // Invalid BCE dates
+        ItemBuilder.createItem(context, col).withTitle("Bad Date 1").withIssueDate("-20-13-40").build();
+        ItemBuilder.createItem(context, col).withTitle("Bad Date 2").withIssueDate("-201A-01-01").build();
+
+        context.restoreAuthSystemState();
+
+        // They should not show up in a valid query
+        getClient().perform(get("/api/discover/search/objects")
+                                .param("f.dateIssued", "[-9999 TO 0],equals"))
+                   .andExpect(status().isOk())
+                   .andExpect(jsonPath("$._embedded.searchResult._embedded.objects", Matchers.empty()));
     }
 
 }

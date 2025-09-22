@@ -4154,6 +4154,8 @@
         <property name="metadataFields">
             <list>
                 <value>dc.date.issued</value>
+                <value>dc.date.start</value>
+                <value>dc.date.end</value>
             </list>
         </property>
         <property name="type" value="date"/>

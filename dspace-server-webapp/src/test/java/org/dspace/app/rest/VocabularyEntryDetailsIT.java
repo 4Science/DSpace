@@ -27,6 +27,7 @@ import org.dspace.builder.ItemBuilder;
 import org.dspace.content.Collection;
 import org.dspace.content.Community;
 import org.dspace.content.Item;
+import org.dspace.content.authority.DCInputAuthority;
 import org.dspace.content.authority.service.ChoiceAuthorityService;
 import org.dspace.core.service.PluginService;
 import org.dspace.services.ConfigurationService;
@@ -1090,6 +1091,7 @@ public class VocabularyEntryDetailsIT extends AbstractControllerIntegrationTest 
         // classes. This is needed for
         // the properties that we're altering above and this is only used within the
         // tests
+        DCInputAuthority.reset();
         pluginService.clearNamedPluginClasses();
         choiceAuthorityService.clearCache();
 
