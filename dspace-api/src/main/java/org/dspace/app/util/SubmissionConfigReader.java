@@ -17,7 +17,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.FactoryConfigurationError;
 
 import org.apache.commons.lang3.StringUtils;
@@ -190,13 +189,10 @@ public class SubmissionConfigReader {
         String uri = "file:" + new File(fileName).getAbsolutePath();
 
         try {
-            DocumentBuilderFactory factory = DocumentBuilderFactory
-                .newInstance();
-            factory.setValidating(false);
-            factory.setIgnoringComments(true);
-            factory.setIgnoringElementContentWhitespace(true);
-
-            DocumentBuilder db = factory.newDocumentBuilder();
+            // This document builder factory will *not* disable external
+            // entities as they can be useful in managing large forms, but
+            // it will restrict them to the config dir containing submission definitions
+            DocumentBuilder db = XMLUtils.getTrustedDocumentBuilder(configDir);
             Document doc = db.parse(uri);
             doNodes(doc);
         } catch (FactoryConfigurationError fe) {
@@ -876,4 +872,31 @@ public class SubmissionConfigReader {
             return false;
         }
     }
+
+    public Map<String, Map<String, String>> getSafeStepDefns() {
+        Map<String, Map<String, String>> safeCopy = new HashMap<>();
+
+        for (Map.Entry<String, Map<String, String>> entry : stepDefns.entrySet()) {
+            safeCopy.put(entry.getKey(), new HashMap<>(entry.getValue())); // inner map immutable
+        }
+
+        return Map.copyOf(safeCopy); // outer map immutable
+    }
+
+    public Map<String, List<Map<String, String>>> getSafeSubmitDefns() {
+        Map<String, List<Map<String, String>>> safeCopy = new HashMap<>();
+
+        for (Map.Entry<String, List<Map<String, String>>> entry : submitDefns.entrySet()) {
+            List<Map<String, String>> listCopy = new ArrayList<>();
+
+            for (Map<String, String> map : entry.getValue()) {
+                listCopy.add(new HashMap<>(map)); // inner map copy
+            }
+
+            safeCopy.put(entry.getKey(), List.copyOf(listCopy)); // inner list immutable
+        }
+
+        return Map.copyOf(safeCopy); // outer map immutable
+    }
+
 }

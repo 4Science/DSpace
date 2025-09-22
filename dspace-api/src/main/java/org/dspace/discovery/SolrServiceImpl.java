@@ -33,6 +33,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.TimeZone;
 import java.util.UUID;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import jakarta.mail.MessagingException;
@@ -49,6 +50,9 @@ import org.apache.solr.client.solrj.response.FacetField;
 import org.apache.solr.client.solrj.response.FieldStatsInfo;
 import org.apache.solr.client.solrj.response.PivotField;
 import org.apache.solr.client.solrj.response.QueryResponse;
+import org.apache.solr.client.solrj.response.json.BucketBasedJsonFacet;
+import org.apache.solr.client.solrj.response.json.BucketJsonFacet;
+import org.apache.solr.client.solrj.response.json.NestableJsonFacet;
 import org.apache.solr.client.solrj.util.ClientUtils;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
@@ -85,6 +89,7 @@ import org.dspace.discovery.indexobject.IndexableCommunity;
 import org.dspace.discovery.indexobject.IndexableItem;
 import org.dspace.discovery.indexobject.factory.IndexFactory;
 import org.dspace.discovery.indexobject.factory.IndexObjectFactoryFactory;
+import org.dspace.discovery.indexobject.factory.ItemIndexFactory;
 import org.dspace.eperson.Group;
 import org.dspace.eperson.factory.EPersonServiceFactory;
 import org.dspace.eperson.service.GroupService;
@@ -122,6 +127,12 @@ public class SolrServiceImpl implements SearchService, IndexingService {
     // Suffix of the solr field used to index the facet/filter so that the facet search can search all word in a
     // facet by indexing "each word to end of value' partial value
     public static final String SOLR_FIELD_SUFFIX_FACET_PREFIXES = "_prefix";
+    // each point is issued as this [ 16.826866113744146, 41.134281200631847 ]
+    // multiple points are listed as a matrix
+    // [[642957.5168454978,4546150.636464767],[642957.5168454978,4561411.808859862]]
+    public static final Pattern SOLR_GEO_FILTER_PATTERN =
+        Pattern.compile("(?:\\[\\s*)(\\d+.\\d+)(?:\\s*,\\s*)(\\d+.\\d+)(?:\\s*\\])");
+    public static final String SOLR_INTERSECT_FILTER = "\"Intersects(%s)\"";
 
     @Autowired
     protected ContentServiceFactory contentServiceFactory;
@@ -135,6 +146,8 @@ public class SolrServiceImpl implements SearchService, IndexingService {
     protected ConfigurationService configurationService;
     @Autowired
     protected IndexObjectFactoryFactory indexObjectFactoryFactory;
+    @Autowired
+    protected SolrGeomapFilterService geomapFilterService;
 
     protected SolrServiceImpl() {
 
@@ -357,6 +370,7 @@ public class SolrServiceImpl implements SearchService, IndexingService {
         try {
             final List<IndexFactory> indexableObjectServices = indexObjectServiceFactory.
                 getIndexFactories();
+            int indexObject = 0;
             for (IndexFactory indexableObjectService : indexableObjectServices) {
                 if (type == null || StringUtils.equals(indexableObjectService.getType(), type)) {
                     final Iterator<IndexableObject> indexableObjects = indexableObjectService.findAll(context);
@@ -364,6 +378,10 @@ public class SolrServiceImpl implements SearchService, IndexingService {
                         final IndexableObject indexableObject = indexableObjects.next();
                         indexContent(context, indexableObject, force);
                         context.uncacheEntity(indexableObject.getIndexedObject());
+                        indexObject++;
+                        if ((indexObject % 100) == 0 && indexableObjectService instanceof ItemIndexFactory) {
+                            context.uncacheEntities();
+                        }
                     }
                 }
             }
@@ -870,16 +888,20 @@ public class SolrServiceImpl implements SearchService, IndexingService {
 
         solrQuery.setQuery(query);
 
-        // Add any search fields to our query. This is the limited list
-        // of fields that will be returned in the solr result
-        for (String fieldName : discoveryQuery.getSearchFields()) {
-            solrQuery.addField(fieldName);
+        if (discoveryQuery.getMaxResults() != 0) {
+            // set search fields in Solr query only if we are interested in the actual search results
+
+            // Add any search fields to our query. This is the limited list
+            // of fields that will be returned in the solr result
+            for (String fieldName : discoveryQuery.getSearchFields()) {
+                solrQuery.addField(fieldName);
+            }
+            // Also ensure a few key obj identifier fields are returned with every query
+            solrQuery.addField(SearchUtils.RESOURCE_TYPE_FIELD);
+            solrQuery.addField(SearchUtils.RESOURCE_ID_FIELD);
+            solrQuery.addField(SearchUtils.RESOURCE_UNIQUE_ID);
+            solrQuery.addField(STATUS_FIELD);
         }
-        // Also ensure a few key obj identifier fields are returned with every query
-        solrQuery.addField(SearchUtils.RESOURCE_TYPE_FIELD);
-        solrQuery.addField(SearchUtils.RESOURCE_ID_FIELD);
-        solrQuery.addField(SearchUtils.RESOURCE_UNIQUE_ID);
-        solrQuery.addField(STATUS_FIELD);
 
         if (discoveryQuery.isSpellCheck()) {
             solrQuery.setParam(SpellingParams.SPELLCHECK_Q, query);
@@ -1091,8 +1113,8 @@ public class SolrServiceImpl implements SearchService, IndexingService {
 
                 //Resolve our facet field values
                 resolveFacetFields(context, query, result, zombieFound, solrQueryResponse);
-                //Add total entries count for metadata browsing
-                resolveEntriesCount(result, solrQueryResponse);
+                //Resolve our json facet field values used for metadata browsing
+                resolveJsonFacetFields(context, result, solrQueryResponse);
             }
 
             if (solrQueryResponse.getFacetPivot() != null && !zombieFound) {
@@ -1127,35 +1149,38 @@ public class SolrServiceImpl implements SearchService, IndexingService {
     }
 
     /**
-     * Stores the total count of entries for metadata index browsing. The count is calculated by the
-     * <code>json.facet</code> parameter with the following value:
+     * Process the 'json.facet' response, which is currently only used for metadata browsing
      *
-     * <pre><code>
-     * {
-     *     "entries_count": {
-     *         "type": "terms",
-     *         "field": "facetNameField_filter",
-     *         "limit": 0,
-     *         "prefix": "prefix_value",
-     *         "numBuckets": true
-     *     }
-     * }
-     * </code></pre>
-     *
-     * This value is returned in the <code>facets</code> field of the Solr response.
-     *
-     * @param result DiscoverResult object where the total entries count will be stored
-     * @param solrQueryResponse QueryResponse object containing the solr response
+     * @param context context object
+     * @param result the result object to add the facet results to
+     * @param solrQueryResponse the solr query response
+     * @throws SQLException if database error
      */
-    private void resolveEntriesCount(DiscoverResult result, QueryResponse solrQueryResponse) {
+    private void resolveJsonFacetFields(Context context, DiscoverResult result, QueryResponse solrQueryResponse)
+        throws SQLException {
 
-        Object facetsObj = solrQueryResponse.getResponse().get("facets");
-        if (facetsObj instanceof NamedList) {
-            NamedList<Object> facets = (NamedList<Object>) facetsObj;
-            Object bucketsInfoObj = facets.get("entries_count");
-            if (bucketsInfoObj instanceof NamedList) {
-                NamedList<Object> bucketsInfo = (NamedList<Object>) bucketsInfoObj;
-                result.setTotalEntries((int) bucketsInfo.get("numBuckets"));
+        NestableJsonFacet response = solrQueryResponse.getJsonFacetingResponse();
+        if (response != null && response.getBucketBasedFacetNames() != null) {
+            for (String facetName : response.getBucketBasedFacetNames()) {
+                BucketBasedJsonFacet facet = response.getBucketBasedFacets(facetName);
+                if (facet != null) {
+                    result.setTotalEntries(facet.getNumBucketsCount());
+                    for (BucketJsonFacet bucket : facet.getBuckets()) {
+                        String facetValue = bucket.getVal() != null ? bucket.getVal().toString() : "";
+                        String field = facetName + "_filter";
+                        String displayedValue = transformDisplayedValue(context, field, facetValue);
+                        String authorityValue = transformAuthorityValue(context, field, facetValue);
+                        String sortValue = transformSortValue(context, field, facetValue);
+                        String filterValue = displayedValue;
+                        if (StringUtils.isNotBlank(authorityValue)) {
+                            filterValue = authorityValue;
+                        }
+                        result.addFacetResult(facetName,
+                            new DiscoverResult.FacetResult(filterValue, displayedValue,
+                                authorityValue, sortValue, bucket.getCount(),
+                                DiscoveryConfigurationParameters.TYPE_TEXT));
+                    }
+                }
             }
         }
     }
@@ -1426,7 +1451,12 @@ public class SolrServiceImpl implements SearchService, IndexingService {
 
 
             filterQuery.append(":");
-            if ("equals".equals(operator) || "notequals".equals(operator)) {
+            if (
+                    StringUtils.isNotBlank(operator) &&
+                    SolrGeomapFilterService.isValidOperator(operator.toUpperCase())
+            ) {
+                filterQuery.append(geomapFilterService.generateFilter(context, field, operator, value));
+            } else if ("equals".equals(operator) || "notequals".equals(operator)) {
                 //DO NOT ESCAPE RANGE QUERIES !
                 if (!value.matches("\\[.*TO.*\\]")) {
                     value = ClientUtils.escapeQueryChars(value);

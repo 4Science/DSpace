@@ -4,7 +4,9 @@ definitions:
   docker:
     memory: 4096  # increase memory for docker-in-docker from 1GB to 4GB
   caches:
-    gradlewrapper: ~/.gradle/wrapper
+    gradle-java17: ~/.gradle/caches
+    gradlewrapper-java17: ~/.gradle/wrapper
+    maven-java17: ~/.m2/repository
   mvnVars:
     &setEnv export MAVEN_OPTS="-Xmx4096M" &&
     export MAVEN_ARGS="-Dorg.slf4j.simpleLogger.showDateTime=true -Dorg.slf4j.simpleLogger.dateTimeFormat=HH:mm:ss,SSS"
@@ -16,9 +18,9 @@ definitions:
         clone:
           depth: 2
         caches:
-          - gradle
-          - gradlewrapper
-          - maven
+          - gradle-java17
+          - gradlewrapper-java17
+          - maven-java17
         script:
           - *setEnv
           - mvn install -T 1C -B -P-assembly,pipeline $MAVEN_ARGS
@@ -34,9 +36,9 @@ definitions:
         name: unit-test-code-checks
         size: 2x
         caches:
-          - gradle
-          - gradlewrapper
-          - maven
+          - gradle-java17
+          - gradlewrapper-java17
+          - maven-java17
         script:
           - *setEnv
           - cp -rf target/local-repo/** ~/.m2/repository/
@@ -56,9 +58,9 @@ definitions:
         name: integration-tests-dspace-api
         size: 2x
         caches:
-          - gradle
-          - gradlewrapper
-          - maven
+          - gradle-java17
+          - gradlewrapper-java17
+          - maven-java17
         script:
           - *setEnv
           - cp -rf target/local-repo/** ~/.m2/repository/
@@ -72,9 +74,9 @@ definitions:
         name: integration-tests-with-test-jars
         size: 2x
         caches:
-          - gradle
-          - gradlewrapper
-          - maven
+          - gradle-java17
+          - gradlewrapper-java17
+          - maven-java17
         script:
           - *setEnv
 #          - ./dspace-api/src/test/data/dspaceFolder/bin/install_grobid.sh
@@ -89,9 +91,9 @@ definitions:
         name: integration-tests-slow
         size: 1x
         caches:
-          - gradle
-          - gradlewrapper
-          - maven
+          - gradle-java17
+          - gradlewrapper-java17
+          - maven-java17
         script:
           - *setEnv
           - cp -rf target/local-repo/** ~/.m2/repository/
@@ -109,9 +111,6 @@ pipelines:
           - step: *integration-tests-with-test-jars
           - step: *integration-tests-slow
           - step: *integration-tests-dspace-api
-    'dspace-cris-2023_02_x':
-      - step: *install
-      - parallel: *parallel-pipeline
     'prod/**':
       - step: *install
       - parallel: *parallel-pipeline

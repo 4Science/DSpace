@@ -1158,7 +1158,8 @@ public class DiscoveryRestControllerIT extends AbstractControllerIntegrationTest
             SearchFilterMatcher.isOrgUnitOfPublicationRelation(),
             SearchFilterMatcher.isPublicationOfJournalIssueRelation(),
             SearchFilterMatcher.isJournalOfPublicationRelation(),
-            SearchFilterMatcher.languageFilter()
+            SearchFilterMatcher.languageFilter(),
+            SearchFilterMatcher.geoMapFilter()
         ));
 
         List<Matcher<? super Object>> allExpectedSortFields = new ArrayList<>(customSortFields);

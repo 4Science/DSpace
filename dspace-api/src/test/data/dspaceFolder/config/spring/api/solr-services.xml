@@ -45,13 +45,13 @@
     <bean id="org.dspace.statistics.SolrStatisticsCore"
           class="org.dspace.statistics.MockSolrStatisticsCore"
           autowire-candidate="true"/>
-    
+
     <!-- qa events -->
     <bean class="org.dspace.qaevent.MockQAEventService"
           id="org.dspace.qaevent.service.QAEventService" />
-          
+
     <bean class="org.dspace.statistics.GeoIpService" autowire-candidate="true"/>
-          
+
     <!-- deduplication -->
     <bean class="org.dspace.deduplication.MockSolrDedupCore" id="org.dspace.app.deduplication.service.DedupService"/>
     
@@ -67,5 +67,9 @@
           autowire-candidate='true'>
         <description>Connection to an embedded Solr instance.</description>
     </bean>
+
+    <!-- service that generates geomap filters -->
+    <bean id="org.dspace.discovery.SolrGeomapFilterService"
+          class="org.dspace.discovery.SolrGeomapFilterService" />
 
 </beans>

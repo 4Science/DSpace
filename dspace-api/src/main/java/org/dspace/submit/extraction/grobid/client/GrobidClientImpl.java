@@ -24,7 +24,7 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.mime.HttpMultipartMode;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
+import org.dspace.app.client.DSpaceHttpClientFactory;
 import org.dspace.submit.extraction.grobid.TEI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,7 +52,7 @@ public class GrobidClientImpl implements GrobidClient {
 
     @Override
     public TEI processHeaderDocument(InputStream inputStream, ConsolidateHeaderEnum consolidateHeader) {
-        try (CloseableHttpClient client = HttpClients.createDefault()) {
+        try (CloseableHttpClient client = DSpaceHttpClientFactory.getInstance().build()) {
 
             HttpPost method = new HttpPost(baseUrl + "/api/processHeaderDocument");
             MultipartEntityBuilder builder = MultipartEntityBuilder.create()

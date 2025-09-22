@@ -129,6 +129,11 @@
         <property name="dspaceRunnableClass" value="org.dspace.app.mediafilter.MediaFilterScript"/>
     </bean>
 
+    <bean id="submission-xml-to-xls" class="org.dspace.app.submission.SubmissionXmlToXlsScriptConfiguration" primary="true">
+        <property name="description" value="Generate XLS submission form from XML"/>
+        <property name="dspaceRunnableClass" value="org.dspace.app.submission.SubmissionXmlToXls"/>
+    </bean>
+
     <bean id="metadata-update" class="org.dspace.app.metadataupdate.MetadataUpdateScriptConfiguration" primary="true">
         <property name="description" value="update metadata values"/>
         <property name="dspaceRunnableClass" value="org.dspace.app.metadataupdate.MetadataUpdateScript"/>

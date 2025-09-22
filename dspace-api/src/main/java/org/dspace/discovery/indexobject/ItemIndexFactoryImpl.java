@@ -430,8 +430,8 @@ public class ItemIndexFactoryImpl extends DSpaceObjectIndexFactoryImpl<Indexable
                     }
                 }
 
-                if ((searchFilters.get(field) != null || searchFilters
-                        .get(unqualifiedField + "." + Item.ANY) != null)) {
+                if (searchFilters.get(field) != null || searchFilters
+                        .get(unqualifiedField + "." + Item.ANY) != null) {
                     List<DiscoverySearchFilter> searchFilterConfigs = searchFilters.get(field);
                     if (searchFilterConfigs == null) {
                         searchFilterConfigs = searchFilters.get(unqualifiedField + "." + Item.ANY);
@@ -441,6 +441,11 @@ public class ItemIndexFactoryImpl extends DSpaceObjectIndexFactoryImpl<Indexable
                         Date date = null;
                         String separator = DSpaceServicesFactory.getInstance().getConfigurationService()
                                 .getProperty("discovery.solr.facets.split.char");
+                        // GEOPOINT fields are configured using the additionalPlugin
+                        // org.dspace.discovery.SolrServiceGeoPointIndexPlugin
+                        if (DiscoveryConfigurationParameters.TYPE_GEOMAP.equals(searchFilter.getType())) {
+                            continue;
+                        }
                         if (separator == null) {
                             separator = SearchUtils.FILTER_SEPARATOR;
                         }
@@ -565,12 +570,12 @@ public class ItemIndexFactoryImpl extends DSpaceObjectIndexFactoryImpl<Indexable
                                         (HierarchicalSidebarFacetConfiguration) searchFilter;
                                 String[] subValues = value.split(hierarchicalSidebarFacetConfiguration.getSplitter());
                                 if (hierarchicalSidebarFacetConfiguration.isOnlyLastNodeRelevant()) {
-                                    subValues = (String[]) ArrayUtils.subarray(subValues, subValues.length - 1,
+                                    subValues = ArrayUtils.subarray(subValues, subValues.length - 1,
                                             subValues.length);
                                 } else if (hierarchicalSidebarFacetConfiguration
                                         .isSkipFirstNodeLevel() && 1 < subValues.length) {
                                     //Remove the first element of our array
-                                    subValues = (String[]) ArrayUtils.subarray(subValues, 1, subValues.length);
+                                    subValues = ArrayUtils.subarray(subValues, 1, subValues.length);
                                 }
                                 for (int i = 0; i < subValues.length; i++) {
                                     StringBuilder valueBuilder = new StringBuilder();
@@ -911,7 +916,7 @@ public class ItemIndexFactoryImpl extends DSpaceObjectIndexFactoryImpl<Indexable
             if (hierarchicalSidebarFacetConfiguration
                 .isSkipFirstNodeLevel() && 1 < subValues.length) {
                 //Remove the first element of our array
-                subValues = (String[]) ArrayUtils.subarray(subValues, 1, subValues.length);
+                subValues = ArrayUtils.subarray(subValues, 1, subValues.length);
             }
             for (int i = 0; i < subValues.length; i++) {
                 StringBuilder valueBuilder = new StringBuilder();

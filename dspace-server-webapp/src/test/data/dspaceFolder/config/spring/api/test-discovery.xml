@@ -1275,6 +1275,7 @@
                 <ref bean="searchFilterIsPublicationOfJournalIssueRelation"/>
                 <ref bean="searchFilterIsJournalOfPublicationRelation"/>
                 <ref bean="searchFilterLanguage" />
+                <ref bean="searchFilterGeoMap" />
             </list>
         </property>
         <!--The sort filters for the discovery search (same as defaultConfiguration above)-->

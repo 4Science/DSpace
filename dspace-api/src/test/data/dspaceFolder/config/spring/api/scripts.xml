@@ -176,6 +176,11 @@
         <property name="dspaceRunnableClass" value="org.dspace.app.bulkaccesscontrol.BulkAccessControlCli"/>
     </bean>
 
+    <bean id="submission-xml-to-xls" class="org.dspace.app.submission.SubmissionXmlToXlsScriptConfigurationCLI" primary="true">
+        <property name="description" value="Generate XLS submission form from XML"/>
+        <property name="dspaceRunnableClass" value="org.dspace.app.submission.SubmissionXmlToXlsCLI"/>
+    </bean>
+
     <bean id="metadata-update" class="org.dspace.app.metadataupdate.MetadataUpdateCliScriptConfiguration" primary="true">
         <property name="description" value="update metadata values"/>
         <property name="dspaceRunnableClass" value="org.dspace.app.metadataupdate.MetadataUpdateScriptCli"/>

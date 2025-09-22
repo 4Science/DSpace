@@ -64,9 +64,13 @@
         <property name="filter" ref="funding-has-at-least-one-investigator-or-one-lead-organization_filter"/>
     </bean>
 
+    <bean name="geoMapFieldValidator" class="org.dspace.validation.GeoMapValidator"/>
 
     <bean name="externalFileUploadValidator" class="org.dspace.validation.ExternalFileUploadValidator">
         <property name="name" value="external-upload"/>
     </bean>
+
+    <bean name="org.dspace.validation.service.impl.GeoJsonValidationServiceImpl" class="org.dspace.validation.service.impl.GeoJsonValidationServiceImpl" />
+    <bean name="geoJsonValidationServiceFactory" class="org.dspace.validation.service.factory.impl.GeoJsonValidationServiceFactoryImpl" />
     
 </beans>

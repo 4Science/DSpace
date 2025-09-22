@@ -57,4 +57,8 @@
 
     <!-- suggestion service for solr providers -->
 	<bean id="org.dspace.app.suggestion.SolrSuggestionStorageService" class="org.dspace.app.suggestion.SolrSuggestionStorageServiceImpl" />
+
+    <!-- service that generates geomap filters -->
+    <bean id="org.dspace.discovery.SolrGeomapFilterService"
+          class="org.dspace.discovery.SolrGeomapFilterService" />
 </beans>

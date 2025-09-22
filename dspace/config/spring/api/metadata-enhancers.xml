@@ -31,6 +31,64 @@
         <value>Patent</value>
     </util:list>
 
+    <util:list id="geoRelatedEntityTypes">
+        <value>Person</value>
+        <value>Project</value>
+        <value>OrgUnit</value>
+        <value>Publication</value>
+        <value>Event</value>
+        <value>ArchivalMaterial</value>
+        <value>Fonds</value>
+        <value>Family</value>
+        <value>JournalFonds</value>
+        <value>Aggregation</value>
+        <value>News</value>
+        <value>StaticPage</value>
+        <value>JournalFile</value>
+        <value>Path</value>
+        <value>Opera</value>
+        <value>Coin</value>
+        <value>ScientificMaterial</value>
+        <value>Picture</value>
+        <value>AudioVideo</value>
+        <value>Artwork</value>
+        <value>MusicalLibrettos</value>
+        <value>WebAnnotation</value>
+        <value>PersonalAnnotation</value>
+    </util:list>
+
+    <!-- Enhancers for GEO-Location points -->
+    <bean id="geoPointLatitudeEnhancer" class="org.dspace.content.enhancer.impl.RelatedEntityItemEnhancer" >
+        <property name="sourceEntityTypes" ref="geoRelatedEntityTypes" />
+        <property name="sourceItemMetadataFields">
+            <list>
+                <value>dc.relation.place</value>
+            </list>
+        </property>
+        <property name="relatedItemMetadataFields">
+            <list>
+                <value>glamplace.lat</value>
+            </list>
+        </property>
+        <property name="virtualQualifier" value="latitude" />
+    </bean>
+
+    <bean id="geoPointLongitudeEnhancer" class="org.dspace.content.enhancer.impl.RelatedEntityItemEnhancer" >
+        <property name="sourceEntityTypes" ref="geoRelatedEntityTypes" />
+        <property name="sourceItemMetadataFields">
+            <list>
+                <value>dc.relation.place</value>
+            </list>
+        </property>
+        <property name="relatedItemMetadataFields">
+            <list>
+                <value>glamplace.long</value>
+            </list>
+        </property>
+        <property name="virtualQualifier" value="longitude" />
+    </bean>
+    <!-- Enhancers for GEO-Location points -->
+
     <bean class="org.dspace.content.enhancer.impl.RelatedEntityItemEnhancer" >
         <property name="sourceEntityTypes" ref="researchOutputsEntityTypes" />
         <property name="sourceItemMetadataFields">
