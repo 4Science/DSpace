@@ -32,7 +32,14 @@
         <qualifier>fos</qualifier>
         <scope_note>Fields of Science and Technology - OECD</scope_note>
     </dc-type>
-    
+
+    <dc-type>
+        <schema>datacite</schema>
+        <element>subject</element>
+        <qualifier>sdg</qualifier>
+        <scope_note>Sustainable Development Goals - (SDGs)</scope_note>
+    </dc-type>
+
     <dc-type>
         <schema>datacite</schema>
         <element>relation</element>

@@ -17,21 +17,25 @@
             only matters here for postprocessing of the value. The mapped MetadatumContributor has full control over
             what metadatafield is generated.
         </description>
+        <!-- <entry key-ref="metadata-dc.source" value-ref="openaireJournalContrib"/> -->
+        <!-- <entry key-ref="metadata-dc.rights" value-ref="openaireLicenseContrib"/> -->
         <entry key-ref="metadata-dc.title" value-ref="openaireTitleContrib"/>
         <entry key-ref="metadata-dc.description.abstract" value-ref="openaireSummaryContrib"/>
         <entry key-ref="metadata-dc.date.issued" value-ref="openairePublishedContrib"/>
-        <!-- <entry key-ref="metadata-dc.source" value-ref="openaireJournalContrib"/> -->
         <entry key-ref="metadata-dc.subject" value-ref="openaireCategoryTermContrib"/>
+        <entry key-ref="metadata-datacite.subject.fos" value-ref="openaireSubjectFosContrib"/>
+        <entry key-ref="metadata-datacite.subject.sdg" value-ref="openaireSubjectSdgContrib"/>
         <entry key-ref="metadata-dc.contributor.author" value-ref="openaireAuthorContrib"/>
         <entry key-ref="metadata-dc.identifier" value-ref="openaireIdentifierContrib"/>
         <entry key-ref="metadata-dc.identifier.other" value-ref="openaireOtherContrib"/>
         <entry key-ref="metadata-dc.publisher" value-ref="openairePublisherContrib"/>
         <entry key-ref="metadata-dc.contributor.contributor" value-ref="openaireContributorContrib"/>
         <entry key-ref="metadata-dc.format" value-ref="openaireFormatContrib"/>
-        <!-- <entry key-ref="metadata-dc.rights" value-ref="openaireLicenseContrib"/> -->
         <entry key-ref="metadata-dc.relation.issn" value-ref="openaireISSNContrib"/>
         <entry key-ref="metadata-dc.identifier.doi" value-ref="openaireDoiContrib"/>
         <entry key-ref="metadata-dc.identifier.pmid" value-ref="openairePmidContrib"/>
+        <entry key-ref="metadata-oaire.citation.volume" value-ref="openaireVolumeContrib"/>
+        <entry key-ref="metadata-dc.relation.ispartof" value-ref="openaireJournalContrib"/>
     </util:map>
 
 
@@ -82,6 +86,7 @@
         <constructor-arg value="dc.identifier"/>
     </bean>
 
+    <!--
     <bean id="openaireJournalContrib" class="org.dspace.importer.external.metadatamapping.contributor.SimpleXpathMetadatumContributor">
         <property name="field" ref="metadata-dc.source"/>
         <property name="query" value="descendant::oaf:result/collectedfrom/@name"/>
@@ -90,15 +95,33 @@
     <bean id="metadata-dc.source" class="org.dspace.importer.external.metadatamapping.MetadataFieldConfig">
         <constructor-arg value="dc.source"/>
     </bean>
-
+    -->
 
     <bean id="openaireCategoryTermContrib" class="org.dspace.importer.external.metadatamapping.contributor.SimpleXpathMetadatumContributor">
         <property name="field" ref="metadata-dc.subject"/>
-        <property name="query" value="descendant::oaf:result/subject"/>
+        <property name="query" value="descendant::oaf:result/subject[@classid='keyword']/text()"/>
         <property name="prefixToNamespaceMapping" ref="openairePrefixToNamespaceMapping"/>
     </bean>
     <bean id="metadata-dc.subject" class="org.dspace.importer.external.metadatamapping.MetadataFieldConfig">
         <constructor-arg value="dc.subject"/>
+    </bean>
+
+    <bean id="openaireSubjectFosContrib" class="org.dspace.importer.external.metadatamapping.contributor.SimpleXpathMetadatumContributor">
+        <property name="field" ref="metadata-datacite.subject.fos"/>
+        <property name="query" value="descendant::oaf:result/subject[@classid='FOS']/text()"/>
+        <property name="prefixToNamespaceMapping" ref="openairePrefixToNamespaceMapping"/>
+    </bean>
+    <bean id="metadata-datacite.subject.fos" class="org.dspace.importer.external.metadatamapping.MetadataFieldConfig">
+        <constructor-arg value="datacite.subject.fos"/>
+    </bean>
+
+    <bean id="openaireSubjectSdgContrib" class="org.dspace.importer.external.metadatamapping.contributor.SimpleXpathMetadatumContributor">
+        <property name="field" ref="metadata-datacite.subject.sdg"/>
+        <property name="query" value="descendant::oaf:result/subject[@classid='SDG']/text()"/>
+        <property name="prefixToNamespaceMapping" ref="openairePrefixToNamespaceMapping"/>
+    </bean>
+    <bean id="metadata-datacite.subject.sdg" class="org.dspace.importer.external.metadatamapping.MetadataFieldConfig">
+        <constructor-arg value="datacite.subject.sdg"/>
     </bean>
 
     <bean id="openaireAuthorContrib" class="org.dspace.importer.external.metadatamapping.contributor.SimpleXpathMetadatumContributor">
@@ -146,11 +169,15 @@
         <constructor-arg value="dc.rights"/>
     </bean>
 
-    <bean id="openaireISSNContrib" class="org.dspace.importer.external.metadatamapping.contributor.SimpleXpathMetadatumContributor">
+    <bean id="openaireISSNContrib" class="org.dspace.importer.external.metadatamapping.contributor.SimpleXpathArrayQueryMetadatumContributor">
         <property name="field" ref="metadata-dc.relation.issn"/>
-        <property name="query" value="descendant::oaf:result/journal/@issn"/>
+        <property name="queries" ref="openaireISSNQueries"/>
         <property name="prefixToNamespaceMapping" ref="openairePrefixToNamespaceMapping"/>
     </bean>
+    <util:list id="openaireISSNQueries" value-type="java.lang.String">
+        <value>descendant::oaf:result/journal/@issn</value>
+        <value>descendant::oaf:result/journal/@eissn</value>
+    </util:list>
     <bean id="metadata-dc.relation.issn" class="org.dspace.importer.external.metadatamapping.MetadataFieldConfig">
         <constructor-arg value="dc.relation.issn"/>
     </bean>
@@ -171,6 +198,24 @@
     </bean>
     <bean id="metadata-dc.identifier.pmid" class="org.dspace.importer.external.metadatamapping.MetadataFieldConfig">
         <constructor-arg value="dc.identifier.pmid"/>
+    </bean>
+
+    <bean id="openaireVolumeContrib" class="org.dspace.importer.external.metadatamapping.contributor.SimpleXpathMetadatumContributor">
+        <property name="field" ref="metadata-oaire.citation.volume"/>
+        <property name="query" value="descendant::oaf:result/journal/@vol"/>
+        <property name="prefixToNamespaceMapping" ref="openairePrefixToNamespaceMapping"/>
+    </bean>
+    <bean id="metadata-oaire.citation.volume" class="org.dspace.importer.external.metadatamapping.MetadataFieldConfig">
+        <constructor-arg value="oaire.citation.volume"/>
+    </bean>
+
+    <bean id="openaireJournalContrib" class="org.dspace.importer.external.metadatamapping.contributor.SimpleXpathMetadatumContributor">
+        <property name="field" ref="metadata-dc.relation.ispartof"/>
+        <property name="query" value="descendant::oaf:result/journal"/>
+        <property name="prefixToNamespaceMapping" ref="openairePrefixToNamespaceMapping"/>
+    </bean>
+    <bean id="metadata-dc.relation.ispartof" class="org.dspace.importer.external.metadatamapping.MetadataFieldConfig">
+        <constructor-arg value="dc.relation.ispartof"/>
     </bean>
 
     <util:map id="openairePrefixToNamespaceMapping" map-class="java.util.HashMap"
