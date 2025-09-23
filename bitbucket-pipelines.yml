@@ -64,7 +64,7 @@ definitions:
           - linux.arm64
           - arm64.group
         name: integration-tests-dspace-api
-        size: 1x
+        size: 2x
         caches:
           - gradle
           - gradlewrapper
