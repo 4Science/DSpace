@@ -49,7 +49,7 @@ public class OpenAireImportMetadataSourceServiceImplTest extends AbstractUnitTes
     private ServiceManager serviceManager;
 
     private static final String OPENAIRE_FILE = "/org/dspace/app/openaire-publications/openaire-publication-record.xml";
-    private static final int EXPECTED_METADATA_COUNT = 19;
+    private static final int EXPECTED_METADATA_COUNT = 21;
 
     @Before
     @Override
@@ -77,6 +77,10 @@ public class OpenAireImportMetadataSourceServiceImplTest extends AbstractUnitTes
             }
         }
 
+        for (MetadatumDTO metadataValue : metadataValues) {
+            System.out.println("Field: " + metadataValue.getField() + " | Value: " + metadataValue.getValue());
+        }
+
         assertNotNull(metadataValues);
         assertEquals(EXPECTED_METADATA_COUNT, metadataValues.size());
 
@@ -90,17 +94,17 @@ public class OpenAireImportMetadataSourceServiceImplTest extends AbstractUnitTes
         assertEquals("dc.date.issued", metadataValues.get(3).getField());
         assertEquals("2021-04-01", metadataValues.get(3).getValue());
         assertEquals("dc.subject", metadataValues.get(4).getField());
-        assertEquals("03 medical and health sciences", metadataValues.get(4).getValue());
+        assertEquals("Foreword", metadataValues.get(4).getValue());
         assertEquals("dc.subject", metadataValues.get(5).getField());
-        assertEquals("0302 clinical medicine", metadataValues.get(5).getValue());
-        assertEquals("dc.subject", metadataValues.get(6).getField());
-        assertEquals("0502 economics and business", metadataValues.get(6).getValue());
-        assertEquals("dc.subject", metadataValues.get(7).getField());
-        assertEquals("05 social sciences", metadataValues.get(7).getValue());
-        assertEquals("dc.subject", metadataValues.get(8).getField());
-        assertEquals("Foreword", metadataValues.get(8).getValue());
-        assertEquals("dc.subject", metadataValues.get(9).getField());
-        assertEquals("General Medicine", metadataValues.get(9).getValue());
+        assertEquals("General Medicine", metadataValues.get(5).getValue());
+        assertEquals("datacite.subject.fos", metadataValues.get(6).getField());
+        assertEquals("03 medical and health sciences", metadataValues.get(6).getValue());
+        assertEquals("datacite.subject.fos", metadataValues.get(7).getField());
+        assertEquals("0302 clinical medicine", metadataValues.get(7).getValue());
+        assertEquals("datacite.subject.fos", metadataValues.get(8).getField());
+        assertEquals("0502 economics and business", metadataValues.get(8).getValue());
+        assertEquals("datacite.subject.fos", metadataValues.get(9).getField());
+        assertEquals("05 social sciences", metadataValues.get(9).getValue());
         assertEquals("dc.contributor.author", metadataValues.get(10).getField());
         assertEquals("Van Rhee, James A.", metadataValues.get(10).getValue());
         assertEquals("dc.identifier", metadataValues.get(11).getField());
@@ -119,6 +123,10 @@ public class OpenAireImportMetadataSourceServiceImplTest extends AbstractUnitTes
         assertEquals("10.1016/j.cpha.2021.01.002", metadataValues.get(17).getValue());
         assertEquals("dc.identifier.pmid", metadataValues.get(18).getField());
         assertEquals("33655081", metadataValues.get(18).getValue());
+        assertEquals("oaire.citation.volume", metadataValues.get(19).getField());
+        assertEquals("6", metadataValues.get(19).getValue());
+        assertEquals("dc.relation.ispartof", metadataValues.get(20).getField());
+        assertEquals("Physician Assistant Clinics", metadataValues.get(20).getValue());
     }
 
     private List<Element> splitToRecords(String recordsSrc) {
