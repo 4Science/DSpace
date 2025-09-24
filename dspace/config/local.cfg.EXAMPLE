@@ -345,7 +345,7 @@ aws.sqs.command_queue_uri =
 aws.sqs.heartbeat_queue_uri =
 
 # List of scripts name that are required to be processed locally instead to be delegated to the orchestrator.
-orchestrator.ignore-script = process-cleaner, item-export, bulk-item-export, cris-layout-tool, export-cris-layout-tool, deduplication-merge-items, bulk-access-control, export-schema
+orchestrator.ignore-script = process-cleaner, item-export, bulk-item-export, cris-layout-tool, export-cris-layout-tool, deduplication-merge-items, bulk-access-control, export-schema, dspace-object-deletion
 
 ########################
 #  LDN INBOX SETTINGS  #
