@@ -4,12 +4,12 @@ networks:
       config:
         # Define a custom subnet for our DSpace network, so that we can easily trust requests from host to container.
         # If you customize this value, be sure to customize the 'proxies.trusted.ipranges' env variable below.
-        - subnet: 172.23.0.0/16
+        - subnet: 172.24.0.0/16
 
 services:
   # DSpace (backend) development container
   dspace-dev:
-    container_name: dspace-dev
+    container_name: "${COMPOSE_PROJECT_NAME}_dspace-dev"
     build:
       context: .
       dockerfile: dev.Dockerfile
@@ -25,7 +25,7 @@ services:
       # __P__ => "." (e.g. dspace__P__dir => dspace.dir)
       # __D__ => "-" (e.g. google__D__metadata => google-metadata)
       # dspace.dir: Must match with Dockerfile's DSPACE_INSTALL directory.
-      dspace.dir: /dspace
+      dspace__P__dir: /dspace
       logging.config: /dspace/config/log4j2-container.xml
       # db.url: Ensure we are using the 'dspacedb' image for our database
       db__P__url: 'jdbc:postgresql://dspacedb:5432/dspace'
@@ -33,17 +33,16 @@ services:
       solr__P__server: http://dspacesolr:8983/solr
       # proxies.trusted.ipranges: This setting is required for a REST API running in Docker to trust requests
       # from the host machine. This IP range MUST correspond to the 'dspacenet' subnet defined above.
-      proxies__P__trusted__P__ipranges: '172.23.0'
+      proxies__P__trusted__P__ipranges: '172.24.0'
+      solr__P__multicorePrefix: ''
     depends_on:
       - dspacedb
       - dspacesolr
     networks:
       - dspacenet
     ports:
-      - published: 8080
-        target: 8080
-      - published: 5006
-        target: 5005
+      - target: 8080
+      - target: 5005
     stdin_open: true
     tty: true
     volumes:
@@ -67,12 +66,12 @@ services:
         mvn -f dspace/modules/server-boot/pom.xml \
           spring-boot:run \
           -Dspring-boot.run.arguments="--dspace.dir=${DSPACE_DIR:-/dspace} --logging.config=${LOG4J_CONFIG_FILE:-/dspace-src/dspace/config/log4j2-container.xml}" \
-          -Dspring.boot.run.jvmArguments="-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005"
+          -Dspring-boot.run.jvmArguments="-Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=*:5005"
     # DSpace PostgreSQL database container
   dspacedb:
-    container_name: dspacedb
+    container_name: "${COMPOSE_PROJECT_NAME}_dspacedb"
     # Uses a custom Postgres image with pgcrypto installed
-    image: "${DOCKER_OWNER:-dspace}/dspace-postgres-pgcrypto:${DSPACE_VER:-dspace-cris-7_x}"
+    image: "${DOCKER_REGISTRY:-docker.io}/${DOCKER_OWNER:-4science}/dspace-cris-postgres-pgcrypto:${DSPACE_VER:-2023_02_x}"
     build:
       # Must build out of subdirectory to have access to install script for pgcrypto
       context: ./dspace/src/main/docker/dspace-postgres-pgcrypto/
@@ -82,8 +81,7 @@ services:
     networks:
       dspacenet:
     ports:
-      - published: 5432
-        target: 5432
+      - target: 5432
     stdin_open: true
     tty: true
     volumes:
@@ -92,27 +90,26 @@ services:
 
     # DSpace Solr container
   dspacesolr:
-    container_name: dspacesolr
-    image: "${DOCKER_OWNER:-dspace}/dspace-solr:${DSPACE_VER:-dspace-cris-7_x}"
+    container_name: "${COMPOSE_PROJECT_NAME}_dspacesolr"
+    image: "${DOCKER_REGISTRY:-docker.io}/${DOCKER_OWNER:-4science}/dspace-cris-solr:${DSPACE_VER:-2023_02_x}"
     build:
       context: ./dspace/src/main/docker/dspace-solr/
       # Provide path to Solr configs necessary to build Docker image
       additional_contexts:
         solrconfigs: ./dspace/solr/
       args:
-        SOLR_VERSION: "${SOLR_VER:-8.11}"
+        SOLR_VERSION: "${SOLR_VER:-8.11.4}"
     networks:
       dspacenet:
     ports:
-      - published: 8983
-        target: 8983
+      - target: 8983
     stdin_open: true
     tty: true
     working_dir: /var/solr/data
     volumes:
       # Keep Solr data directory between reboots
       - solr_data:/var/solr/data
-      # Initialize all DSpace Solr cores then start Solr
+    # Initialize all DSpace Solr cores then start Solr:
     entrypoint:
       - /bin/bash
       - '-c'
