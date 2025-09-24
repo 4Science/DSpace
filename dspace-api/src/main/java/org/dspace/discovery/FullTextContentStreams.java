@@ -97,7 +97,8 @@ public class FullTextContentStreams extends ContentStreamBase {
                 String viewer = getViewerProvider(originalBitstream);
                 boolean isSubtitleExtracted = isOriginalBitstreamSubtitle(originalBitstream);
 
-                if (isOcrProcessed && OCR_FILENAME.equals(textBitstream.getName())) {
+                if (isOcrProcessed && (OCR_FILENAME.equals(textBitstream.getName()) ||
+                        textBitstream.getSizeBytes() > 0)) {
                     fullTextMiradorStreams.add(fullTextBitstream);
                 } else if (StringUtils.equalsAny(viewer, "video-streaming", "audio-streaming")
                     || isSubtitleExtracted) {
