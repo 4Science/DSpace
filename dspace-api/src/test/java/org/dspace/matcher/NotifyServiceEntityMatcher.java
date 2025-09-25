@@ -7,6 +7,8 @@
  */
 package org.dspace.matcher;
 
+import java.util.Objects;
+
 import org.dspace.app.ldn.NotifyServiceEntity;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
@@ -33,13 +35,12 @@ public class NotifyServiceEntityMatcher extends TypeSafeMatcher<NotifyServiceEnt
 
     @Override
     protected boolean matchesSafely(NotifyServiceEntity actualEntity) {
-        return actualEntity.getName().equals(expectedEntity.getName()) &&
-            actualEntity.getDescription().equals(expectedEntity.getDescription()) &&
-            actualEntity.getUrl().equals(expectedEntity.getUrl()) &&
-            actualEntity.getLdnUrl().equals(expectedEntity.getLdnUrl()) &&
-            actualEntity.getInboundPatterns() == expectedEntity.getInboundPatterns() &&
-            actualEntity.isEnabled() == expectedEntity.isEnabled() &&
-            actualEntity.getScore() == expectedEntity.getScore();
+        return Objects.equals(actualEntity.getName(), expectedEntity.getName()) &&
+            Objects.equals(actualEntity.getDescription(), expectedEntity.getDescription()) &&
+            Objects.equals(actualEntity.getUrl(), expectedEntity.getUrl()) &&
+            Objects.equals(actualEntity.getLdnUrl(), expectedEntity.getLdnUrl()) &&
+            Objects.equals(actualEntity.isEnabled(), expectedEntity.isEnabled()) &&
+            Objects.equals(actualEntity.getScore(), expectedEntity.getScore());
     }
 
     @Override

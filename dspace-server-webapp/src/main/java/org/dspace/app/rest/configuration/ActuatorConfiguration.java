@@ -17,6 +17,7 @@ import org.dspace.app.deduplication.service.impl.SolrDedupServiceImpl;
 import org.dspace.app.rest.DiscoverableEndpointsService;
 import org.dspace.app.rest.health.EPersonGroupHealthIndicator;
 import org.dspace.app.rest.health.GeoIpHealthIndicator;
+import org.dspace.app.rest.health.SEOHealthIndicator;
 import org.dspace.app.rest.health.SiteHealthIndicator;
 import org.dspace.app.rest.health.SolrHealthIndicator;
 import org.dspace.app.suggestion.SolrSuggestionStorageServiceImpl;
@@ -118,6 +119,12 @@ public class ActuatorConfiguration {
     public SolrHealthIndicator solrSuggestionHealthIndicator(SolrSuggestionStorageServiceImpl solrSuggestionStrgService)
             throws MalformedURLException, SolrServerException, IOException {
         return new SolrHealthIndicator(solrSuggestionStrgService.getSolr());
+    }
+
+    @Bean
+    @ConditionalOnEnabledHealthIndicator("seo")
+    public SEOHealthIndicator seoHealthIndicator() {
+        return new SEOHealthIndicator();
     }
 
     @Bean

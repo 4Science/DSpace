@@ -42,7 +42,7 @@
                         </configuration>
                     </execution>
                     <execution>
-                        <id>unpack-webapp</id>
+                        <id>unpack-server</id>
                         <phase>prepare-package</phase>
                         <goals>
                             <goal>unpack-dependencies</goal>
