@@ -17,9 +17,8 @@
     <xsl:output omit-xml-declaration="yes" method="xml" indent="yes"/>
 
     <xsl:template match="/">
-        <oaire:resource
-                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-                xsi:schemaLocation="http://namespace.openaire.eu/schema/oaire/ https://www.openaire.eu/schema/repo-lit/4.0/openaire.xsd">
+        <oaire:resource xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+               xsi:schemaLocation="http://namespace.openaire.eu/schema/oaire/ https://www.openaire.eu/schema/repo-lit/4.0/openaire.xsd">
 
             <!-- datacite:title -->
             <xsl:apply-templates
@@ -39,10 +38,18 @@
             <!-- oaire:fundingRefence -->
             <xsl:apply-templates
                 select="doc:metadata/doc:element[@name='dc']/doc:element[@name='relation']" mode="oaire"/>
-            <!-- datacite:relatedIdentifier -->
+            <datacite:identifiers>
+                <!-- datacite:identifier -->
+                <xsl:apply-templates
+                    select="doc:metadata/doc:element[@name='dc']/doc:element[@name='identifier']/doc:element[@name='doi']" mode="datacite"/>
+                <!-- datacite:identifier -->
+                <xsl:apply-templates
+                    select="doc:metadata/doc:element[@name='dc']/doc:element[@name='identifier']/doc:element[@name='uri']" mode="datacite"/>
+            </datacite:identifiers>
+            <!-- datacite:alternateIdentifier -->
             <xsl:apply-templates
                 select="doc:metadata/doc:element[@name='dc']/doc:element[@name='identifier']" mode="datacite"/>
-            <!-- if dc.identifier.uri has more than 1 value -->
+            <!-- if dc.identifier.uri has more than 1 value
             <xsl:if
                 test="count(doc:metadata/doc:element[@name='dc']/doc:element[@name='identifier']/doc:element[@name='uri']/doc:element/doc:field[@name='value'])>1">
                 <datacite:alternateIdentifiers>
@@ -51,6 +58,7 @@
                         mode="datacite_altid"/>
                 </datacite:alternateIdentifiers>
             </xsl:if>
+             -->
             <!-- datacite:dates and embargo -->
             <xsl:apply-templates
                 select="doc:metadata/doc:element[@name='dc']/doc:element[@name='date']" mode="datacite"/>
@@ -58,16 +66,24 @@
             <xsl:apply-templates
                 select="doc:metadata/doc:element[@name='dc']/doc:element[@name='language']/doc:element[@name='iso']"
                 mode="dc"/>
+            <!-- datacite:relatedIdentifier -->
+            <xsl:apply-templates
+                 select="doc:metadata/doc:element[@name='dc']/doc:element[@name='relation']/doc:element[@name='opac']" mode="datacite"/>
             <!-- dc:publisher -->
             <xsl:apply-templates
                 select="doc:metadata/doc:element[@name='dc']/doc:element[@name='publisher']" mode="dc"/>
             <!-- oaire:resourceType -->
             <xsl:apply-templates
                 select="doc:metadata/doc:element[@name='dc']/doc:element[@name='type']" mode="oaire"/>
-            <!-- dc:description -->
-            <xsl:apply-templates
-                select="doc:metadata/doc:element[@name='dc']/doc:element[@name='description']/doc:element[@name='abstract']"
-                mode="dc"/>
+            <!-- datacite:description -->
+            <datacite:descriptions>
+                <xsl:apply-templates select="doc:metadata/doc:element[@name='dc']/doc:element[@name='description']" mode="datacite"/>
+                <xsl:apply-templates select="doc:metadata/doc:element[@name='dc']/doc:element[@name='description']/doc:element[@name='abstract']" mode="datacite"/>
+                <xsl:apply-templates select="doc:metadata/doc:element[@name='dc']/doc:element[@name='description']/doc:element[@name='tableofcontents']" mode="datacite"/>
+                <xsl:apply-templates select="doc:metadata/doc:element[@name='dc']/doc:element[@name='description']/doc:element[@name='uri']" mode="datacite"/>
+                <xsl:apply-templates select="doc:metadata/doc:element[@name='dc']/doc:element[@name='description']/doc:element[@name='note']" mode="datacite"/>
+                <xsl:apply-templates select="doc:metadata/doc:element[@name='dc']/doc:element[@name='description']/doc:element[@name='bibliography']" mode="datacite"/>
+            </datacite:descriptions>
             <!-- dc:format -->
             <xsl:apply-templates
                 select="doc:metadata/doc:element[@name='bundles']/doc:element[@name='bundle']" mode="dc"/>
@@ -82,8 +98,12 @@
             <xsl:apply-templates
                 select="doc:metadata/doc:element[@name='dc']/doc:element[@name='rights']" mode="datacite"/>
             <!-- datacite:subject -->
-            <xsl:apply-templates
-                select="doc:metadata/doc:element[@name='dc']/doc:element[@name='subject']" mode="datacite"/>
+            <datacite:subjects>
+                <xsl:apply-templates
+                    select="doc:metadata/doc:element[@name='dc']/doc:element[@name='subject']" mode="datacite"/>
+                <xsl:apply-templates
+                    select="doc:metadata/doc:element[@name='datacite']/doc:element[@name='subject']" mode="datacite"/>
+            </datacite:subjects>
             <!-- datacite:size -->
             <xsl:apply-templates
                 select="doc:metadata/doc:element[@name='bundles']/doc:element[@name='bundle']" mode="datacite"/>
@@ -92,7 +112,21 @@
                 select="doc:metadata/doc:element[@name='bundles']/doc:element[@name='bundle']" mode="oaire"/>
             <!-- oaire:citation* -->
             <xsl:apply-templates
-                select="doc:metadata/doc:element[@name='oaire']/doc:element[@name='citation']" mode="oaire"/>
+                select="doc:metadata/doc:element[@name='dc']/doc:element[@name='description']/doc:element[@name='issue']" mode="oaire"/>
+            <!-- dc:coverage -->
+            <xsl:apply-templates
+                    select="doc:metadata/doc:element[@name='dc']/doc:element[@name='coverage']/doc:element[@name='temporal']" mode="dc"/>
+            <!-- oaire:citationTitle -->
+            <xsl:apply-templates
+                    select="doc:metadata/doc:element[@name='dc']/doc:element[@name='relation']/doc:element[@name='ispartof']" mode="oaire"/>
+            <!-- oaire:citationTitle -->
+            <xsl:apply-templates
+                    select="doc:metadata/doc:element[@name='dc']/doc:element[@name='relation']/doc:element[@name='ispartofseries']" mode="oaire"/>
+            <!-- oaire:citationTitle -->
+            <xsl:apply-templates
+                    select="doc:metadata/doc:element[@name='dc']/doc:element[@name='relation']/doc:element[@name='conference']" mode="oaire"/>
+            <xsl:apply-templates
+                 select="doc:metadata/doc:element[@name='dc']/doc:element[@name='description']/doc:element[@name='abstract']" mode="datacite"/>
             <!-- CREATIVE COMMON LICENSE -->
             <xsl:apply-templates
                 select="doc:metadata/doc:element[@name='others']/doc:element[@name='cc']" mode="oaire" />
@@ -100,10 +134,22 @@
             <xsl:apply-templates
                     select="doc:metadata/doc:element[@name='others']/doc:element[@name='datacite']/doc:element[@name='primary']"
                     mode="datacite" />
-<!--            alternative doi identifiers-->
+            <!-- alternative doi identifiers-->
             <xsl:apply-templates
                     select="doc:metadata/doc:element[@name='others']/doc:element[@name='datacite']/doc:element[@name='alternative']"
                     mode="datacite_altid" />
+
+            <!-- dc:publisher.place -->
+            <datacite:geoLocations>
+                <xsl:apply-templates select="doc:metadata/doc:element[@name='dc']/doc:element[@name='publisher']/doc:element[@name='place']" mode="datacite"/>
+                <xsl:apply-templates select="doc:metadata/doc:element[@name='dc']/doc:element[@name='coverage']/doc:element[@name='spatial']" mode="datacite"/>
+                <xsl:apply-templates select="doc:metadata/doc:element[@name='dc']/doc:element[@name='relation']/doc:element[@name='place']" mode="datacite"/>
+            </datacite:geoLocations>
+
+            <!-- dc.description.edition -->
+            <xsl:apply-templates
+                select="doc:metadata/doc:element[@name='dc']/doc:element[@name='description']/doc:element[@name='edition']"
+                mode="oaire"/>
         </oaire:resource>
     </xsl:template>
 
@@ -496,30 +542,29 @@
         <xsl:value-of select="./text()"/>
     </xsl:template>
 
-    <!-- datacite:relatedIdentifiers -->
+    <!-- datacite:alternateIdentifier -->
     <!-- https://openaire-guidelines-for-literature-repository-managers.readthedocs.io/en/v4.0.0/field_relatedidentifier.html -->
     <xsl:template match="doc:element[@name='dc']/doc:element[@name='identifier']" mode="datacite">
-        <datacite:relatedIdentifiers>
-            <xsl:apply-templates select="./doc:element" mode="datacite_ids"/>
-        </datacite:relatedIdentifiers>
+        <datacite:alternateIdentifiers>
+            <xsl:apply-templates select="./doc:element" mode="datacite_altIds"/>
+        </datacite:alternateIdentifiers>
     </xsl:template>
         
    <!-- datacite:relatedIdentifier -->
    <!-- handle: dc.identifier.issn -->
-    <xsl:template match="doc:element[@name='issn']" mode="datacite_ids">
+    <xsl:template match="doc:element[@name='issn']" mode="datacite_altIds">
         <xsl:for-each select=".//doc:field[@name='value']">
-            <xsl:call-template name="relatedIdentifierTemplate">
+            <xsl:call-template name="alternateIdentifierTemplate">
                 <xsl:with-param name="value" select="text()"/>
                 <xsl:with-param name="relatedIdentifierType" select="'ISSN'"/>
-                <xsl:with-param name="relationType" select="'IsPartOf'"/>
             </xsl:call-template>
         </xsl:for-each>
     </xsl:template>
 
     <!-- handle: dc.identifier.ismn -->
-    <xsl:template match="doc:element[@name='ismn']" mode="datacite_ids">
+    <xsl:template match="doc:element[@name='ismn']" mode="datacite_altIds">
         <xsl:for-each select=".//doc:field[@name='value']">
-            <xsl:call-template name="relatedIdentifierTemplate">
+            <xsl:call-template name="alternateIdentifierTemplate">
                 <xsl:with-param name="value"
                     select="concat('ISMN:',normalize-space(text()))"/>
                 <xsl:with-param name="relatedIdentifierType" select="'URN'"/>
@@ -529,9 +574,9 @@
     </xsl:template>
 
     <!-- handle: dc.identifier.govdoc -->
-    <xsl:template match="doc:element[@name='govdoc']" mode="datacite_ids">
+    <xsl:template match="doc:element[@name='govdoc']" mode="datacite_altIds">
         <xsl:for-each select=".//doc:field[@name='value']">
-            <xsl:call-template name="relatedIdentifierTemplate">
+            <xsl:call-template name="alternateIdentifierTemplate">
                 <xsl:with-param name="value"
                     select="concat('govdoc:',normalize-space(text()))"/>
                 <xsl:with-param name="relatedIdentifierType" select="'URN'"/>
@@ -541,20 +586,19 @@
     </xsl:template>
 
     <!-- handle: dc.identifier.isbn -->
-    <xsl:template match="doc:element[@name='isbn']" mode="datacite_ids">
+    <xsl:template match="doc:element[@name='isbn']" mode="datacite_altIds">
         <xsl:for-each select=".//doc:field[@name='value']">
-            <xsl:call-template name="relatedIdentifierTemplate">
+            <xsl:call-template name="alternateIdentifierTemplate">
                 <xsl:with-param name="value" select="text()"/>
                 <xsl:with-param name="relatedIdentifierType" select="'ISBN'"/>
-                <xsl:with-param name="relationType" select="'IsPartOf'"/>
             </xsl:call-template>
         </xsl:for-each>
     </xsl:template>
 
     <!-- handle: dc.identifier.sici -->
-    <xsl:template match="doc:element[@name='sici']" mode="datacite_ids">
+    <xsl:template match="doc:element[@name='sici']" mode="datacite_altIds">
         <xsl:for-each select=".//doc:field[@name='value']">
-            <xsl:call-template name="relatedIdentifierTemplate">
+            <xsl:call-template name="alternateIdentifierTemplate">
                 <xsl:with-param name="value"
                     select="concat('sici:',normalize-space(text()))"/>
                 <xsl:with-param name="relatedIdentifierType" select="'URN'"/>
@@ -563,10 +607,82 @@
         </xsl:for-each>
     </xsl:template>
 
-    <!-- handle: dc.identifier.other -->
-    <xsl:template match="doc:element[@name='other']" mode="datacite_ids">
+    <xsl:template match="doc:element[@name='isi']" mode="datacite_altIds">
         <xsl:for-each select=".//doc:field[@name='value']">
-            <xsl:call-template name="relatedIdentifierTemplate">
+            <xsl:call-template name="alternateIdentifierTemplate">
+                <xsl:with-param name="value" select="text()"/>
+                <xsl:with-param name="relatedIdentifierType" select="'WOS'"/>
+            </xsl:call-template>
+        </xsl:for-each>
+    </xsl:template>
+
+    <xsl:template match="doc:element[@name='pmid']" mode="datacite_altIds">
+        <xsl:for-each select=".//doc:field[@name='value']">
+            <xsl:call-template name="alternateIdentifierTemplate">
+                <xsl:with-param name="value" select="text()"/>
+                <xsl:with-param name="relatedIdentifierType" select="'PMID'"/>
+            </xsl:call-template>
+        </xsl:for-each>
+    </xsl:template>
+
+    <xsl:template match="doc:element[@name='oclc']" mode="datacite_altIds">
+        <xsl:for-each select=".//doc:field[@name='value']">
+            <xsl:call-template name="alternateIdentifierTemplate">
+                <xsl:with-param name="value" select="text()"/>
+                <xsl:with-param name="relatedIdentifierType" select="'OCLC'"/>
+            </xsl:call-template>
+        </xsl:for-each>
+    </xsl:template>
+
+    <xsl:template match="doc:element[@name='bid']" mode="datacite_altIds">
+        <xsl:for-each select=".//doc:field[@name='value']">
+            <xsl:call-template name="alternateIdentifierTemplate">
+                <xsl:with-param name="value" select="text()"/>
+                <xsl:with-param name="relatedIdentifierType" select="'BID'"/>
+            </xsl:call-template>
+        </xsl:for-each>
+    </xsl:template>
+
+    <xsl:template match="doc:element[@name='codex']" mode="datacite_altIds">
+        <xsl:for-each select=".//doc:field[@name='value']">
+            <xsl:call-template name="alternateIdentifierTemplate">
+                <xsl:with-param name="value" select="text()"/>
+                <xsl:with-param name="relatedIdentifierType" select="'Codex'"/>
+            </xsl:call-template>
+        </xsl:for-each>
+    </xsl:template>
+
+    <xsl:template match="doc:element[@name='nbn']" mode="datacite_altIds">
+        <xsl:for-each select=".//doc:field[@name='value']">
+            <xsl:call-template name="alternateIdentifierTemplate">
+                <xsl:with-param name="value" select="text()"/>
+                <xsl:with-param name="relatedIdentifierType" select="'NBN:IT'"/>
+            </xsl:call-template>
+        </xsl:for-each>
+    </xsl:template>
+
+    <xsl:template match="doc:element[@name='shelfmark']" mode="datacite_altIds">
+        <xsl:for-each select=".//doc:field[@name='value']">
+            <xsl:call-template name="alternateIdentifierTemplate">
+                <xsl:with-param name="value" select="text()"/>
+                <xsl:with-param name="relatedIdentifierType" select="'Shelfmark'"/>
+            </xsl:call-template>
+        </xsl:for-each>
+    </xsl:template>
+
+    <xsl:template match="doc:element[@name='inventorynumber']" mode="datacite_altIds">
+        <xsl:for-each select=".//doc:field[@name='value']">
+            <xsl:call-template name="alternateIdentifierTemplate">
+                <xsl:with-param name="value" select="text()"/>
+                <xsl:with-param name="relatedIdentifierType" select="'Inventory number'"/>
+            </xsl:call-template>
+        </xsl:for-each>
+    </xsl:template>
+
+    <!-- handle: dc.identifier.other -->
+    <xsl:template match="doc:element[@name='other']" mode="datacite_altIds">
+        <xsl:for-each select=".//doc:field[@name='value']">
+            <xsl:call-template name="alternateIdentifierTemplate">
                 <xsl:with-param name="value" select="text()"/>
                 <xsl:with-param name="relatedIdentifierType" select="'URN'"/>
                 <xsl:with-param name="relationType" select="'IsPartOf'"/>
@@ -577,33 +693,59 @@
     <!-- handle: dc.identifier.doi -->
     <xsl:template match="doc:element[@name='doi']" mode="datacite_ids">
         <xsl:for-each select=".//doc:field[@name='value']">
-            <xsl:call-template name="relatedIdentifierTemplate">
+            <xsl:call-template name="identifierTemplate">
                 <xsl:with-param name="value" select="text()"/>
                 <xsl:with-param name="relatedIdentifierType" select="'DOI'"/>
-                <xsl:with-param name="relationType" select="'IsPartOf'"/>
             </xsl:call-template>
         </xsl:for-each>
     </xsl:template>
 
     <!-- handle: dc.identifier.* -->
-    <xsl:template match="doc:element" mode="datacite_ids"/>
+    <xsl:template match="doc:element" mode="datacite_altIds"/>
     
     <!-- template for all relatedIdentifier -->
-    <xsl:template name="relatedIdentifierTemplate">
+    <xsl:template name="alternateIdentifierTemplate">
         <xsl:param name="value"/>
         <xsl:param name="relatedIdentifierType"/>
         <xsl:param name="relationType"/>
-        <datacite:relatedIdentifier>
-            <xsl:attribute name="relatedIdentifierType">
+        <datacite:alternateIdentifier>
+            <xsl:attribute name="alternateIdentifierType">
                     <xsl:value-of select="$relatedIdentifierType"/>
-                </xsl:attribute>
-            <xsl:attribute name="relationType">
-                    <xsl:value-of select="$relationType"/>
-                </xsl:attribute>
+            </xsl:attribute>
             <xsl:value-of select="normalize-space($value)"/>
-        </datacite:relatedIdentifier>
+        </datacite:alternateIdentifier>
     </xsl:template>
 
+    <!-- template for all identifier -->
+    <xsl:template name="identifierTemplate">
+        <xsl:param name="value"/>
+        <xsl:param name="relatedIdentifierType"/>
+        <xsl:param name="relationType"/>
+        <datacite:identifier>
+            <xsl:attribute name="identifierType">
+                <xsl:value-of select="$relatedIdentifierType"/>
+            </xsl:attribute>
+            <xsl:value-of select="normalize-space($value)"/>
+        </datacite:identifier>
+    </xsl:template>
+
+    <xsl:template match="doc:element[@name='dc']/doc:element[@name='identifier']/doc:element[@name='doi']" mode="datacite">
+        <xsl:for-each select=".//doc:field[@name='value']">
+            <xsl:call-template name="identifierTemplate">
+                <xsl:with-param name="value" select="text()"/>
+                <xsl:with-param name="relatedIdentifierType" select="'DOI'"/>
+            </xsl:call-template>
+        </xsl:for-each>
+    </xsl:template>
+
+    <xsl:template match="doc:element[@name='dc']/doc:element[@name='identifier']/doc:element[@name='url']" mode="datacite">
+        <xsl:for-each select=".//doc:field[@name='value']">
+            <xsl:call-template name="identifierTemplate">
+                <xsl:with-param name="value" select="text()"/>
+                <xsl:with-param name="relatedIdentifierType" select="'Handle'"/>
+            </xsl:call-template>
+        </xsl:for-each>
+    </xsl:template>
 
    <!--  datacite:identifier  -->
    <!-- In the repository context Resource Identifier will be the Handle or the generated DOI that is present in dc.identifier.uri. -->
@@ -714,22 +856,94 @@
    <!-- datacite:subjects -->
    <!-- https://openaire-guidelines-for-literature-repository-managers.readthedocs.io/en/v4.0.0/field_subject.html -->
     <xsl:template match="doc:element[@name='dc']/doc:element[@name='subject']" mode="datacite">
-        <datacite:subjects>
-            <xsl:for-each select="./doc:element">
-                <xsl:apply-templates select="." mode="datacite"/>
-            </xsl:for-each>
-        </datacite:subjects>
+         <xsl:apply-templates select="." mode="subject"/>
+    </xsl:template>
+    <xsl:template match="doc:element[@name='datacite']/doc:element[@name='subject']" mode="datacite">
+        <xsl:apply-templates select="." mode="subject"/>
     </xsl:template>
 
    <!-- datacite:subject -->
-    <xsl:template match="doc:element[@name='dc']/doc:element[@name='subject']/doc:element" mode="datacite">
-        <xsl:for-each select="./doc:field[@name='value']">
+    <xsl:template match="doc:element[@name='subject']" mode="subject">
+        <xsl:for-each select="./doc:element/doc:field[@name='value']">
             <datacite:subject>
-                <xsl:value-of select="./text()"/>
+                <xsl:value-of select="."/>
+            </datacite:subject>
+        </xsl:for-each>
+        <!-- datacite.subject.* -->
+        <xsl:for-each select="./doc:element/doc:element/doc:field[@name='value']">
+            <datacite:subject>
+                <xsl:attribute name="subjectScheme">
+                    <xsl:call-template name="getSubjectType">
+                        <xsl:with-param name="elementName" select="../../@name"/>
+                    </xsl:call-template>
+                </xsl:attribute>
+                <xsl:attribute name="schemeURI">
+                    <xsl:call-template name="getSubjectURI">
+                        <xsl:with-param name="elementName" select="../../@name"/>
+                    </xsl:call-template>
+                </xsl:attribute>
+                <xsl:value-of select="."/>
             </datacite:subject>
         </xsl:for-each>
     </xsl:template>
 
+    <!-- dc:description.edition to oaire:citationEdition -->
+    <xsl:template match="doc:element[@name='dc']/doc:element[@name='description']/doc:element[@name='edition']" mode="oaire">
+        <oaire:citationEditions>
+            <xsl:for-each select="./doc:element">
+                <xsl:apply-templates select="." mode="oaire"/>
+            </xsl:for-each>
+        </oaire:citationEditions>
+    </xsl:template>
+
+    <!-- oaire:citationEdition -->
+    <xsl:template match="doc:element[@name='dc']/doc:element[@name='description']/doc:element[@name='edition']/doc:element" mode="oaire">
+        <xsl:for-each select="./doc:field[@name='value']">
+            <oaire:citationEdition>
+                <xsl:value-of select="./text()"/>
+            </oaire:citationEdition>
+        </xsl:for-each>
+    </xsl:template>
+
+    <xsl:template match="doc:element[@name='dc']/doc:element[@name='description']/doc:element[@name='issue']/doc:element" mode="oaire">
+        <xsl:for-each select="./doc:field[@name='value']">
+            <oaire:citationIssue>
+                <xsl:value-of select="./text()"/>
+            </oaire:citationIssue>
+        </xsl:for-each>
+    </xsl:template>
+
+    <xsl:template match="doc:element[@name='dc']/doc:element[@name='coverage']/doc:element[@name='temporal']/doc:element" mode="dc">
+        <xsl:for-each select="./doc:field[@name='value']">
+            <dc:coverage>
+                <xsl:value-of select="./text()"/>
+            </dc:coverage>
+        </xsl:for-each>
+    </xsl:template>
+
+    <xsl:template match="doc:element[@name='dc']/doc:element[@name='relation']/doc:element[@name='ispartof']/doc:element" mode="oaire">
+        <xsl:for-each select="./doc:field[@name='value']">
+            <oaire:citationTitle>
+                <xsl:value-of select="./text()"/>
+            </oaire:citationTitle>
+        </xsl:for-each>
+    </xsl:template>
+
+    <xsl:template match="doc:element[@name='dc']/doc:element[@name='relation']/doc:element[@name='ispartofseries']/doc:element" mode="oaire">
+        <xsl:for-each select="./doc:field[@name='value']">
+            <oaire:citationTitle>
+                <xsl:value-of select="./text()"/>
+            </oaire:citationTitle>
+        </xsl:for-each>
+    </xsl:template>
+
+    <xsl:template match="doc:element[@name='dc']/doc:element[@name='relation']/doc:element[@name='conference']/doc:element" mode="oaire">
+        <xsl:for-each select="./doc:field[@name='value']">
+            <oaire:citationTitle>
+                <xsl:value-of select="./text()"/>
+            </oaire:citationTitle>
+        </xsl:for-each>
+    </xsl:template>
 
     <!-- datacite.dates -->
     <!-- https://openaire-guidelines-for-literature-repository-managers.readthedocs.io/en/v4.0.0/field_embargoenddate.html -->
@@ -749,9 +963,6 @@
         match="doc:element[@name='dc']/doc:element[@name='date']/doc:element[@name='issued']"
         mode="datacite">
         <xsl:variable name="dc_date_value" select="doc:element/doc:field[@name='value']/text()"/>
-        <datacite:date dateType="Accepted">
-            <xsl:value-of select="$dc_date_value"/>
-        </datacite:date>
         <!-- 
             datacite.date issued is different from dc.date.issued
             please check - https://openaire-guidelines-for-literature-repository-managers.readthedocs.io/en/v4.0.0/field_publicationdate.html
@@ -759,7 +970,16 @@
         <datacite:date dateType="Issued">
             <xsl:value-of select="$dc_date_value"/>
         </datacite:date>
-    </xsl:template> 
+    </xsl:template>
+
+    <xsl:template
+         match="doc:element[@name='dc']/doc:element[@name='date']/doc:element[@name='available']"
+         mode="datacite">
+        <xsl:variable name="dc_date_value" select="doc:element/doc:field[@name='value']/text()"/>
+        <datacite:date dateType="Available">
+            <xsl:value-of select="$dc_date_value"/>
+        </datacite:date>
+    </xsl:template>
 
     <!-- datacite.date @name=accessioned -->
     <xsl:template
@@ -785,6 +1005,18 @@
         </xsl:if>
     </xsl:template>
 
+    <!-- datacite:relatedIdentifier -->
+    <xsl:template
+          match="doc:element[@name='dc']/doc:element[@name='relation']/doc:element[@name='opac']"
+          mode="datacite">
+        <xsl:for-each select="./doc:element/doc:field[@name='value']">
+            <datacite:relatedIdentifier>
+                <xsl:attribute name="relatedIdentifierType">URL</xsl:attribute>
+                <xsl:attribute name="relationType">IsIdenticalTo</xsl:attribute>
+                <xsl:value-of select="."/>
+            </datacite:relatedIdentifier>
+        </xsl:for-each>
+    </xsl:template>
 
     <!-- dc:language -->
     <!-- https://openaire-guidelines-for-literature-repository-managers.readthedocs.io/en/v4.0.0/field_language.html -->
@@ -807,7 +1039,6 @@
 	       </dc:publisher>
         </xsl:for-each>
     </xsl:template>
-
 
     <!-- oaire:resourceType -->
     <!-- https://openaire-guidelines-for-literature-repository-managers.readthedocs.io/en/v4.0.0/field_publicationtype.html -->
@@ -833,18 +1064,96 @@
         </oaire:resourceType>
     </xsl:template>
 
+    <xsl:template match="doc:element[@name='dc']/doc:element[@name='publisher']/doc:element[@name='place']" mode="datacite">
+        <datacite:geoLocation>
+            <xsl:for-each select="./doc:element/doc:field[@name='value']">
+                <datacite:geoLocationPlace>
+                    <xsl:value-of select="./text()"/>
+                </datacite:geoLocationPlace>
+            </xsl:for-each>
+        </datacite:geoLocation>
+    </xsl:template>
 
-    <!-- dc:description -->
+    <xsl:template match="doc:element[@name='dc']/doc:element[@name='coverage']/doc:element[@name='spatial']" mode="datacite">
+        <datacite:geoLocation>
+            <xsl:for-each select="./doc:element/doc:field[@name='value']">
+                <datacite:geoLocationPlace>
+                    <xsl:value-of select="./text()"/>
+                </datacite:geoLocationPlace>
+            </xsl:for-each>
+        </datacite:geoLocation>
+    </xsl:template>
+
+    <xsl:template match="doc:element[@name='dc']/doc:element[@name='relation']/doc:element[@name='place']" mode="datacite">
+        <datacite:geoLocation>
+            <xsl:for-each select="./doc:element/doc:field[@name='value']">
+                <datacite:geoLocationPlace>
+                    <xsl:value-of select="./text()"/>
+                </datacite:geoLocationPlace>
+            </xsl:for-each>
+        </datacite:geoLocation>
+    </xsl:template>
+
+    <!-- datacite:description -->
     <!-- https://openaire-guidelines-for-literature-repository-managers.readthedocs.io/en/v4.0.0/field_description.html -->
     <xsl:template
-        match="doc:element[@name='dc']/doc:element[@name='description']/doc:element[@name='abstract']/doc:element"
-        mode="dc">
-        <dc:description>
-            <xsl:call-template name="xmlLanguage">
-                <xsl:with-param name="name" select="@name"/>
-            </xsl:call-template>
-            <xsl:value-of select="./doc:field[@name='value']"/>
-        </dc:description>
+        match="doc:element[@name='dc']/doc:element[@name='description']"
+        mode="datacite">
+        <xsl:for-each select="./doc:element/doc:field[@name='value']">
+            <datacite:description>
+                <xsl:value-of select="./text()"/>
+            </datacite:description>
+        </xsl:for-each>
+    </xsl:template>
+
+    <xsl:template
+         match="doc:element[@name='dc']/doc:element[@name='description']/doc:element[@name='abstract']"
+         mode="datacite">
+        <xsl:for-each select="./doc:element/doc:field[@name='value']">
+            <datacite:description>
+                <xsl:value-of select="./text()"/>
+            </datacite:description>
+        </xsl:for-each>
+    </xsl:template>
+
+    <xsl:template
+         match="doc:element[@name='dc']/doc:element[@name='description']/doc:element[@name='tableofcontents']"
+         mode="datacite">
+        <xsl:for-each select="./doc:element/doc:field[@name='value']">
+            <datacite:description>
+                <xsl:value-of select="./text()"/>
+            </datacite:description>
+        </xsl:for-each>
+    </xsl:template>
+
+    <xsl:template
+         match="doc:element[@name='dc']/doc:element[@name='description']/doc:element[@name='uri']"
+         mode="datacite">
+        <xsl:for-each select="./doc:element/doc:field[@name='value']">
+            <datacite:description>
+                <xsl:value-of select="./text()"/>
+            </datacite:description>
+        </xsl:for-each>
+    </xsl:template>
+
+    <xsl:template
+         match="doc:element[@name='dc']/doc:element[@name='description']/doc:element[@name='note']"
+         mode="datacite">
+        <xsl:for-each select="./doc:element/doc:field[@name='value']">
+            <datacite:description>
+                <xsl:value-of select="./text()"/>
+            </datacite:description>
+        </xsl:for-each>
+    </xsl:template>
+
+    <xsl:template
+         match="doc:element[@name='dc']/doc:element[@name='description']/doc:element[@name='bibliography']"
+         mode="datacite">
+        <xsl:for-each select="./doc:element/doc:field[@name='value']">
+            <datacite:description>
+                <xsl:value-of select="./text()"/>
+            </datacite:description>
+        </xsl:for-each>
     </xsl:template>
 
     <!-- dc:format -->
@@ -1182,7 +1491,85 @@
         </xsl:choose>
     </xsl:template>
 
+    <!-- This template will retrieve the type of a Subject element -->
+    <xsl:template name="getSubjectType">
+        <xsl:param name="elementName"/>
+        <xsl:variable name="lc_subject_type">
+            <xsl:call-template name="lowercase">
+                <xsl:with-param name="value" select="$elementName"/>
+            </xsl:call-template>
+        </xsl:variable>
+        <xsl:choose>
+            <xsl:when test="$lc_subject_type = 'jel'">
+                <xsl:text>JEL</xsl:text>
+            </xsl:when>
+            <xsl:when test="$lc_subject_type = 'ddc'">
+                <xsl:text>DDC</xsl:text>
+            </xsl:when>
+            <xsl:when test="$lc_subject_type = 'lcc'">
+                <xsl:text>LCC</xsl:text>
+            </xsl:when>
+            <xsl:when test="$lc_subject_type = 'fast'">
+                <xsl:text>FAST</xsl:text>
+            </xsl:when>
+            <xsl:when test="$lc_subject_type = 'lcsh'">
+                <xsl:text>LCSH</xsl:text>
+            </xsl:when>
+            <xsl:when test="$lc_subject_type = 'bncf'">
+                <xsl:text>BNCF</xsl:text>
+            </xsl:when>
+            <xsl:when test="$lc_subject_type = 'rvm'">
+                <xsl:text>RVM</xsl:text>
+            </xsl:when>
+            <xsl:when test="$lc_subject_type = 'sdg'">
+                <xsl:text>SDG</xsl:text>
+            </xsl:when>
+            <xsl:when test="$lc_subject_type = 'fos'">
+                <xsl:text>FOS</xsl:text>
+            </xsl:when>
+            <xsl:when test="$lc_subject_type = 'bnch1956'">
+                <xsl:text>Soggettario per i cataloghi delle biblioteche italiane (1956)</xsl:text>
+            </xsl:when>
+        </xsl:choose>
+    </xsl:template>
 
+    <xsl:template name="getSubjectURI">
+        <xsl:param name="elementName"/>
+        <xsl:variable name="lc_subject_url">
+            <xsl:call-template name="lowercase">
+                <xsl:with-param name="value" select="$elementName"/>
+            </xsl:call-template>
+        </xsl:variable>
+        <xsl:choose>
+            <xsl:when test="$lc_subject_url = 'jel'">
+                <xsl:text>https://www.aeaweb.org/jel/guide/jel.php</xsl:text>
+            </xsl:when>
+            <xsl:when test="$lc_subject_url = 'ddc'">
+                <xsl:text>https://www.oclc.org/en/dewey.html</xsl:text>
+            </xsl:when>
+            <xsl:when test="$lc_subject_url = 'lcc'">
+                <xsl:text>https://www.loc.gov/catdir/cpso/lcc.html</xsl:text>
+            </xsl:when>
+            <xsl:when test="$lc_subject_url = 'fast'">
+                <xsl:text>https://www.oclc.org/research/areas/data-science/fast.html</xsl:text>
+            </xsl:when>
+            <xsl:when test="$lc_subject_url = 'lcsh'">
+                <xsl:text>https://www.loc.gov/aba/publications/FreeLCSH/freelcsh.html</xsl:text>
+            </xsl:when>
+            <xsl:when test="$lc_subject_url = 'bncf'">
+                <xsl:text>https://thes.bncf.firenze.sbn.it</xsl:text>
+            </xsl:when>
+            <xsl:when test="$lc_subject_url = 'rvm'">
+                <xsl:text>https://rvmweb.bibl.ulaval.ca/rvmweb/accueil.do?locale=en</xsl:text>
+            </xsl:when>
+            <xsl:when test="$lc_subject_url = 'fos'">
+                <xsl:text>https://interoperable-europe.ec.europa.eu/collection/eu-semantic-interoperability-catalogue/solution/field-science-and-technology-classification</xsl:text>
+            </xsl:when>
+            <xsl:when test="$lc_subject_url = 'sdg'">
+                <xsl:text>https://unstats.un.org/sdgs/iaeg-sdgs/tier-classification/</xsl:text>
+            </xsl:when>
+        </xsl:choose>
+    </xsl:template>
 
    <!--  -->
    <!-- Auxiliary templates - get global values -->
