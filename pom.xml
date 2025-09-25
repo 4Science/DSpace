@@ -26,6 +26,7 @@
         <hibernate-validator.version>6.2.5.Final</hibernate-validator.version>
         <postgresql.driver.version>42.7.5</postgresql.driver.version>
         <solr.client.version>8.11.4</solr.client.version>
+        <fop.version>2.8</fop.version>
 
         <ehcache.version>3.10.8</ehcache.version>
         <errorprone.version>2.31.0</errorprone.version>
@@ -61,7 +62,7 @@
         <jersey.version>2.46</jersey.version>
 
         <!--=== ADDON DEPENDENCIES ===-->
-        <addons.version>[cris-2023.02.08-SNAPSHOT,cris-2023.02.08.999-SNAPSHOT)</addons.version>
+        <addons.version>[cris-2023.02.08-SNAPSHOT,cris-2023.02.08.9999-SNAPSHOT)</addons.version>
         <addon-iiif.version>${addons.version}</addon-iiif.version>
         <addon-ocr.version>${addons.version}</addon-ocr.version>
         <addon-docviewer.version>${addons.version}</addon-docviewer.version>
@@ -2091,10 +2092,10 @@
                 <version>1.16.1</version>
             </dependency>
             <dependency>
-                <groupId>org.apache.xmlgraphics</groupId>
-                <artifactId>xmlgraphics-commons</artifactId>
-                <version>2.6</version>
-            </dependency>
+	            <groupId>org.apache.xmlgraphics</groupId>
+	            <artifactId>xmlgraphics-commons</artifactId>
+	            <version>${fop.version}</version>
+          </dependency>
             <!-- Made provided in order to be excluded globally since conflicts with commons-logging -->
             <dependency>
                 <groupId>org.springframework</groupId>
