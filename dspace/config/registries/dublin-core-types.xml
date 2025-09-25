@@ -1110,6 +1110,13 @@
 
   <dc-type>
     <schema>dc</schema>
+    <element>identifier</element>
+    <qualifier>oclc</qualifier>
+    <scope_note></scope_note>
+  </dc-type>
+
+  <dc-type>
+    <schema>dc</schema>
     <element>contributor</element>
     <qualifier>authorrole</qualifier>
     <scope_note></scope_note>
