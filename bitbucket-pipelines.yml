@@ -8,8 +8,10 @@ definitions:
     gradlewrapper-java17: ~/.gradle/wrapper
     maven-java17: ~/.m2/repository
   mvnVars:
+    # Please mind to start with a comma if you add one or more addon profiles
     &setEnv export MAVEN_OPTS="-Xmx4096M" &&
-    export MAVEN_ARGS="-Dorg.slf4j.simpleLogger.showDateTime=true -Dorg.slf4j.simpleLogger.dateTimeFormat=HH:mm:ss,SSS"
+    export MAVEN_ARGS="-Dorg.slf4j.simpleLogger.showDateTime=true -Dorg.slf4j.simpleLogger.dateTimeFormat=HH:mm:ss,SSS" &&
+    export ADDON_PROFILES=",addon-iiif,addon-ocr,addon-video,addon-document-viewer,addon-analytics,addon-dataquality,addon-networklab,addon-orchestrator,addon-loginmiur,addon-importplus"
   steps:
     - step: &install
         runs-on:
@@ -26,7 +28,7 @@ definitions:
           - maven-java17
         script:
           - *setEnv
-          - mvn install -ntp -T 1C -B -P-assembly,pipeline $MAVEN_ARGS
+          - mvn install -ntp -T 1C -B -P-assembly,pipeline${ADDON_PROFILES} -s settings.xml $MAVEN_ARGS
         artifacts:
           - target/local-repo/**
           - dspace-server-webapp/target/**
@@ -141,6 +143,7 @@ definitions:
           - pip3 install awscli
           - export HASH_COMMIT=${BITBUCKET_COMMIT:0:8}
           - export BRANCH_NAME=$(echo "$BITBUCKET_BRANCH" | tr '[:upper:]' '[:lower:]' | sed 's|/|--|g')
+          - aws ecr get-login-password --region eu-west-1 | docker login --username AWS --password-stdin 891377365430.dkr.ecr.eu-west-1.amazonaws.com
           - docker build -f Dockerfile.build -t dspace-cris:${BRANCH_NAME}-${HASH_COMMIT} -t dspace-cris:${BRANCH_NAME}-latest .
           - pipe: atlassian/aws-ecr-push-image:2.5.0
             variables:
