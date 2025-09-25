@@ -5,22 +5,32 @@ ARG DOCKER_REGISTRY=docker.io
 # Stage 1 - Copy artifacts
 FROM ${DOCKER_REGISTRY}/eclipse-temurin:${JDK_VERSION}-jre AS install
 EXPOSE 8080
-ENV DSPACE_INSTALL=/dspace \
-    DATA_FOLDER=/data
+ENV DATA_FOLDER=/data \
+    DSPACE_INSTALL=/dspace \
+    ASSETSTORE=/dspace/assetstore \
+    HANDLE_DIR=/dspace/handle-server \
+    TRIPLESTORE_DIR=/dspace/triplestore \
+    DOWNLOAD_DIR=/dspace/download \
+    UPLOAD_DIR=/dspace/upload \
+    VAR_DIR=/dspace/var \
+    OAI_DIR=/dspace/var/oai
+
 RUN useradd -m -d /home/dspace -s /bin/bash dspace
 
-RUN mkdir -p $DSPACE_INSTALL $DATA_FOLDER
+COPY --chown=dspace ./dspace/modules/server-boot/target/server-boot-*.jar /home/dspace/server-boot.jar
+RUN java -Djarmode=tools -jar /home/dspace/server-boot.jar extract --destination $DSPACE_INSTALL --libraries lib
+
+RUN install -g dspace -o dspace -d $DATA_FOLDER $ASSETSTORE $DSPACE_INSTALL $HANDLE_DIR $TRIPLESTORE_DIR $DOWNLOAD_DIR $UPLOAD_DIR $VAR_DIR $OAI_DIR
 
 COPY --chown=dspace ./dspace/config/ $DSPACE_INSTALL/config/
+COPY --chown=dspace ./dspace/etc/conftool $DSPACE_INSTALL/config/conftool
 COPY --chown=dspace --chmod=0754 ./dspace/bin/ $DSPACE_INSTALL/bin/
-COPY --chown=dspace ./dspace/modules/server-boot/target/server-boot-*.jar $DSPACE_INSTALL/server-boot.jar
 
 RUN install -g dspace -o dspace -m 664 /dev/null $DATA_FOLDER/local.cfg && \
     ln -s $DATA_FOLDER/local.cfg $DSPACE_INSTALL/config/local.cfg
 
 WORKDIR $DSPACE_INSTALL
 USER dspace
-ENV JAVA_OPTS="-XX:InitialRAMPercentage:50 -XX:MaxRAMPercentage=75 \
-    -XX:+UseG1GC -XX:+PrintGCDetails \
-    -XX:+PrintGCDateStamps -Xloggc:/logs/gc.log"
-ENTRYPOINT [ "java", "-jar", "server-boot.jar", "--dspace.dir=${DSPACE_INSTALL}", "--logging.config=${DSPACE_INSTALL}/config/log4j2-eks.xml"]
+ENV JAVA_TOOL_OPTIONS="-XX:MinRAMPercentage=20.0 -XX:MaxRAMPercentage=75.0 -XX:+HeapDumpOnOutOfMemoryError -XX:+UseG1GC"
+ENTRYPOINT ["java", "-XX:+PrintVMOptions", "-jar", "server-boot.jar", \
+    "--dspace.dir=${DSPACE_INSTALL}", "--logging.config=${DSPACE_INSTALL}/config/log4j2-eks.xml"]
