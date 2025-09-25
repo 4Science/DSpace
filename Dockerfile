@@ -31,35 +31,41 @@ COPY --chown=dspace --parents **/src /app/
 # These flags speed up this compilation as much as reasonably possible.
 ENV MAVEN_FLAGS="-P-assembly -P-test-environment -Denforcer.skip=true -Dcheckstyle.skip=true -Dlicense.skip=true -Dxml.skip=true"
 RUN mvn -nsu -ntp package ${MAVEN_FLAGS}
-RUN mv /app/dspace/modules/server-boot/target/server-boot-*.jar /install/server-boot.jar && \
-  java -Djarmode=layertools -jar /install/server-boot.jar extract --destination /install/server-boot
+# RUN java -Djarmode=layertools -jar /install/server-boot.jar extract --destination /install/server-boot
+RUN mv /app/dspace/modules/server-boot/target/server-boot.jar /install/ && \
+    mv /app/dspace/modules/server-boot/target/lib /install/
 
 # Step 2 - Run installation
 # Create a new tomcat image that does not retain the thze build directory contents
 FROM ${DOCKER_REGISTRY}/eclipse-temurin:${JDK_VERSION}-jre AS install
-# Expose Tomcat port (8080) and AJP port (8009) and Handle Server HTTP port (8000)
-EXPOSE 8080 8000 8009
+# Expose Tomcat port (8080) and debug port (8000)
+EXPOSE 8080 8000
 # NOTE: DSPACE_INSTALL must align with the "dspace.dir" default configuration.
 ENV DSPACE_INSTALL=/dspace
 WORKDIR $DSPACE_INSTALL
 
 RUN useradd dspace
 
-COPY --from=build --chown=dspace /install/server-boot/dependencies/ /app/server-boot/
-COPY --from=build --chown=dspace /install/server-boot/spring-boot-loader/ /app/server-boot/
-COPY --from=build --chown=dspace /install/server-boot/snapshot-dependencies/ /app/server-boot/
-COPY --from=build --chown=dspace /install/server-boot/application/ /app/server-boot/
+#COPY --from=build --chown=dspace /install/server-boot/application/ /app/server-boot/
+#COPY --from=build --chown=dspace /install/server-boot/spring-boot-loader/ /app/server-boot/
+#COPY --from=build --chown=dspace /install/server-boot/snapshot-dependencies/ /app/server-boot/
+#COPY --from=build --chown=dspace /install/server-boot/lib/ /app/server-boot/
+COPY --from=build --chown=dspace /install/server-boot.jar /app/server-boot/
+COPY --from=build --chown=dspace /install/lib/ /app/server-boot/lib/
 
 COPY --chown=dspace dspace/config/ $DSPACE_INSTALL/config/
 COPY --chown=dspace dspace/bin/ $DSPACE_INSTALL/bin/
 RUN install -d -m 0755 -o dspace -g dspace $DSPACE_INSTALL/assetstore/ $DSPACE_INSTALL/log/ \
-    && ln -s /app/server-boot/BOOT-INF/lib $DSPACE_INSTALL/lib \
+    && ln -s /app/server-boot/lib $DSPACE_INSTALL/lib \
     && chown -h dspace:dspace $DSPACE_INSTALL/lib \
     && chmod +x $DSPACE_INSTALL/bin/*
 
 WORKDIR /app/server-boot
 USER dspace
-ENV dspace.dir="$DSPACE_INSTALL"
-ENV JAVA_OPTS="-Xmx2000m -Ddspace.dir=$DSPACE_INSTALL"
 ENV JAVA_TOOL_OPTIONS="-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:8000"
-ENTRYPOINT [ "java", "-XX:+UseParallelGC", "-XX:MaxRAMPercentage=75", "org.springframework.boot.loader.JarLauncher", "--dspace.dir=/dspace", "--logging.config=/dspace/config/log4j2-container.xml" ]
+# java org.springframework.boot.loader.PropertiesLauncher
+ENTRYPOINT [\
+    "java", "-XX:MinRAMPercentage=20.0","-XX:MaxRAMPercentage=75.0","-XX:+HeapDumpOnOutOfMemoryError", "-XX:+UseG1GC",\
+    "-jar", "server-boot.jar",\
+    "--dspace.dir=$DSPACE_INSTALL", "--logging.config=$DSPACE_INSTALL/config/log4j2-container.xml"\
+]

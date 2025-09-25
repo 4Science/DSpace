@@ -61,7 +61,7 @@ services:
     - '-c'
     - |
       /dspace/bin/dspace database migrate
-      java -XX:+UseParallelGC -XX:MaxRAMPercentage=75 org.springframework.boot.loader.JarLauncher
+      java -XX:MinRAMPercentage=20.0 -XX:MaxRAMPercentage=75.0 -XX:+HeapDumpOnOutOfMemoryError -XX:+UseG1GC -jar server-boot.jar
   dspacedb:
     container_name: dspacedb
     # Uses a custom Postgres image with pgcrypto installed

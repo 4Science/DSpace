@@ -18,6 +18,9 @@ TIKACFG=$DSPACEDIR/config/tika-config.xml
 # Get the JARs in $DSPACEDIR/lib
 JARS="$DSPACEDIR/lib/*"
 
+echo "Using DSpace installation: $DSPACEDIR"
+echo "Using CLASSPATH: $CLASSPATH"
+
 # Class path for DSpace will be:
 #   Any existing classpath
 #   The JARs (lib/*.jar)
@@ -33,6 +36,13 @@ if [ "$1" = "classpath" ]; then
   echo $FULLPATH
   exit 0
 fi
+
+# Unset JAVA_TOOL_OPTIONS (exported by Dockerfile) so that any debug ports don't conflict
+unset JAVA_TOOL_OPTIONS
+# Note, if you wish to also debug the CLI launcher, the following line is an
+# example of how to do so - note the different port number and 'suspend=y' which
+# means the JVM will not begin execution until a debugger is attached.
+#JAVA_TOOL_OPTIONS="-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=*:1043"
 
 #Allow user to specify java options through JAVA_OPTS variable
 if [ "$JAVA_OPTS" = "" ]; then
