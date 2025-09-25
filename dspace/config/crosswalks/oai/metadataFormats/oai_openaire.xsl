@@ -34,6 +34,9 @@
                     mode="datacite"/>
                 <xsl:apply-templates select="//doc:metadata/doc:element[@name='repository']"
                     mode="contributor"/>
+                <xsl:apply-templates
+                    select="doc:metadata/doc:element[@name='dc']/doc:element[@name='rights']/doc:element[@name='holder']"
+                    mode="datacite"/>
             </datacite:contributors>
             <!-- oaire:fundingRefence -->
             <xsl:apply-templates
@@ -189,6 +192,16 @@
         </xsl:for-each>
     </xsl:template>
 
+    <xsl:template match="doc:element[@name='dc']/doc:element[@name='rights']/doc:element[@name='holder']/doc:element" mode="datacite">
+        <xsl:for-each select="./doc:field[@name='value']">
+            <datacite:contributor>
+                <datacite:contributorName>
+                    <xsl:attribute name="contributorType">RightsHolder</xsl:attribute>
+                    <xsl:value-of select="./text()"/>
+                </datacite:contributorName>
+            </datacite:contributor>
+        </xsl:for-each>
+    </xsl:template>
 
     <!-- datacite.creators -->
     <!-- https://openaire-guidelines-for-literature-repository-managers.readthedocs.io/en/v4.0.0/field_creator.html -->
@@ -972,6 +985,7 @@
         </datacite:date>
     </xsl:template>
 
+    <!--
     <xsl:template
          match="doc:element[@name='dc']/doc:element[@name='date']/doc:element[@name='available']"
          mode="datacite">
@@ -980,6 +994,7 @@
             <xsl:value-of select="$dc_date_value"/>
         </datacite:date>
     </xsl:template>
+    -->
 
     <!-- datacite.date @name=accessioned -->
     <xsl:template
