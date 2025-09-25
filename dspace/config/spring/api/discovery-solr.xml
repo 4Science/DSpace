@@ -48,4 +48,41 @@
         </property>
     </bean>
 
+    <bean name="org.dspace.util.SolrMultiFormatDateParser"
+          class="org.dspace.util.SolrMultiFormatDateParser">
+        <property name="patterns">
+            <map>
+                <entry key="\d{8}" value="uuuuMMdd"/>
+                <entry key="\d{1,2}-\d{1,2}-\d{4}" value="dd-MM-uuuu"/>
+                <entry key="\d{4}-\d{1,2}-\d{1,2}" value="uuuu-MM-dd"/>
+                <entry key="\d{4}-\d{1,2}" value="uuuu-MM"/>
+                <entry key='\d{1,2}-\d{1,4}' value='MM-uuuu'/>
+                <entry key="\d{1,2}/\d{1,2}/\d{4}" value="MM/dd/uuuu"/>
+                <entry key="\d{4}/\d{1,2}/\d{1,2}" value="uuuu/MM/dd"/>
+                <entry key="\d{1,2}\s[a-z]{3}\s\d{4}" value="dd MMM uuuu"/>
+                <entry key="\d{1,2}\s[a-z]{4,}\s\d{4}" value="dd MMMM uuuu"/>
+                <entry key="\d{12}" value="uuuuMMddHHmm"/>
+                <entry key="\d{8}\s\d{4}" value="uuuuMMdd HHmm"/>
+                <entry key="\d{1,2}-\d{1,2}-\d{4}\s\d{1,2}:\d{2}" value="dd-MM-uuuu HH:mm"/>
+                <entry key="\d{4}-\d{1,2}-\d{1,2}\s\d{1,2}:\d{2}" value="uuuu-MM-dd HH:mm"/>
+                <entry key="\d{1,2}/\d{1,2}/\d{4}\s\d{1,2}:\d{2}" value="MM/dd/uuuu HH:mm"/>
+                <entry key="\d{4}/\d{1,2}/\d{1,2}\s\d{1,2}:\d{2}" value="uuuu/MM/dd HH:mm"/>
+                <entry key="\d{1,2}\s[a-z]{3}\s\d{4}\s\d{1,2}:\d{2}" value="dd MMM uuuu HH:mm"/>
+                <entry key="\d{1,2}\s[a-z]{4,}\s\d{4}\s\d{1,2}:\d{2}" value="dd MMMM uuuu HH:mm"/>
+                <entry key="\d{4}\s[a-z]{3}\s\d{1,2}" value="uuuu MMM dd"/>
+                <entry key="\d{14}" value="uuuuMMddHHmmss"/>
+                <entry key="\d{6}" value="uuuuMM"/>
+                <entry key="\d{1,4}" value="uuuu"/>
+                <entry key="\d{8}\s\d{6}" value="uuuuMMdd HHmmss"/>
+                <entry key="\d{1,2}-\d{1,2}-\d{4}\s\d{1,2}:\d{2}:\d{2}" value="dd-MM-uuuu HH:mm:ss"/>
+                <entry key="\d{4}-\d{1,2}-\d{1,2}\s\d{1,2}:\d{2}:\d{2}" value="uuuu-MM-dd HH:mm:ss"/>
+                <entry key="\d{1,2}/\d{1,2}/\d{4}\s\d{1,2}:\d{2}:\d{2}" value="MM/dd/uuuu HH:mm:ss"/>
+                <entry key="\d{4}/\d{1,2}/\d{1,2}\s\d{1,2}:\d{2}:\d{2}" value="uuuu/MM/dd HH:mm:ss"/>
+                <entry key="\d{1,2}\s[a-z]{3}\s\d{4}\s\d{1,2}:\d{2}:\d{2}" value="dd MMM uuuu HH:mm:ss"/>
+                <entry key="\d{1,2}\s[a-z]{4,}\s\d{4}\s\d{1,2}:\d{2}:\d{2}" value="dd MMMM uuuu HH:mm:ss"/>
+                <entry key="\d{4}-\d{1,2}-\d{1,2}T\d{1,2}:\d{2}:\d{2}Z" value="uuuu-MM-dd'T'HH:mm:ss'Z'"/>
+                <entry key="\d{4}-\d{1,2}-\d{1,2}T\d{1,2}:\d{2}:\d{2}\.\d{3}Z" value="uuuu-MM-dd'T'HH:mm:ss.SSS'Z'"/>
+            </map>
+        </property>
+    </bean>
 </beans>

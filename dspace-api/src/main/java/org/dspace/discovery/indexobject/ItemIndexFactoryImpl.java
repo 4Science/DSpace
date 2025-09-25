@@ -11,24 +11,26 @@ import static org.dspace.discovery.SolrServiceImpl.SOLR_FIELD_SUFFIX_FACET_PREFI
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
-import org.apache.commons.lang3.time.DateFormatUtils;
 import org.apache.logging.log4j.Logger;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.common.SolrInputDocument;
@@ -70,7 +72,7 @@ import org.dspace.discovery.indexobject.factory.WorkspaceItemIndexFactory;
 import org.dspace.eperson.EPerson;
 import org.dspace.handle.service.HandleService;
 import org.dspace.services.factory.DSpaceServicesFactory;
-import org.dspace.util.MultiFormatDateParser;
+import org.dspace.util.SolrMultiFormatDateParser;
 import org.dspace.util.SolrUtils;
 import org.dspace.xmlworkflow.storedcomponents.XmlWorkflowItem;
 import org.dspace.xmlworkflow.storedcomponents.service.XmlWorkflowItemService;
@@ -259,17 +261,38 @@ public class ItemIndexFactoryImpl extends DSpaceObjectIndexFactoryImpl<Indexable
                     }
 
                     if (!metadataValueList.isEmpty() && shouldExposeMinMax) {
-                        metadataValueList.sort((mdv1, mdv2) -> mdv1.getValue().compareTo(mdv2.getValue()));
-                        MetadataValue firstMetadataValue = metadataValueList.get(0);
-                        MetadataValue lastMetadataValue = metadataValueList.get(metadataValueList.size() - 1);
+                        List<String> metadataValues;
+                        if (discoverySearchFilter.getType().equals(DiscoveryConfigurationParameters.TYPE_DATE)) {
+                            metadataValues = metadataValueList
+                                                .stream()
+                                                .map(
+                                                    e -> SolrMultiFormatDateParser.parse(
+                                                        e.getValue()))
+                                                .filter(Objects::nonNull)
+                                                .sorted()
+                                                .map(ZonedDateTime::getYear)
+                                                .map(String::valueOf)
+                                                .collect(Collectors.toList());
+                        } else {
+                            metadataValues = metadataValueList
+                                                            .stream()
+                                                            .map(MetadataValue::getValue)
+                                                            .filter(Objects::nonNull)
+                                                            .sorted()
+                                                            .map(String::valueOf)
+                                                            .collect(Collectors.toList());
+                        }
 
-                        doc.addField(discoverySearchFilter.getIndexFieldName() + "_min", firstMetadataValue.getValue());
-                        doc.addField(discoverySearchFilter.getIndexFieldName()
-                                + "_min_sort", firstMetadataValue.getValue());
-                        doc.addField(discoverySearchFilter.getIndexFieldName() + "_max", lastMetadataValue.getValue());
-                        doc.addField(discoverySearchFilter.getIndexFieldName()
-                                + "_max_sort", lastMetadataValue.getValue());
-
+                        if (!metadataValues.isEmpty()) {
+                            String firstMetadataValue = metadataValues.get(0);
+                            String lastMetadataValue = metadataValues.get(metadataValues.size() - 1);
+                            doc.addField(discoverySearchFilter.getIndexFieldName() + "_min", firstMetadataValue);
+                            doc.addField(discoverySearchFilter.getIndexFieldName()
+                                             + "_min_sort", firstMetadataValue);
+                            doc.addField(discoverySearchFilter.getIndexFieldName() + "_max", lastMetadataValue);
+                            doc.addField(discoverySearchFilter.getIndexFieldName()
+                                             + "_max_sort", lastMetadataValue);
+                        }
                     }
                 }
 
@@ -438,7 +461,7 @@ public class ItemIndexFactoryImpl extends DSpaceObjectIndexFactoryImpl<Indexable
                     }
 
                     for (DiscoverySearchFilter searchFilter : searchFilterConfigs) {
-                        Date date = null;
+                        ZonedDateTime date = null;
                         String separator = DSpaceServicesFactory.getInstance().getConfigurationService()
                                 .getProperty("discovery.solr.facets.split.char");
                         // GEOPOINT fields are configured using the additionalPlugin
@@ -451,10 +474,10 @@ public class ItemIndexFactoryImpl extends DSpaceObjectIndexFactoryImpl<Indexable
                         }
                         if (searchFilter.getType().equals(DiscoveryConfigurationParameters.TYPE_DATE)) {
                             //For our search filters that are dates we format them properly
-                            date = MultiFormatDateParser.parse(value);
+                            date = SolrMultiFormatDateParser.parse(value);
                             if (date != null) {
                                 //TODO: make this date format configurable !
-                                value = DateFormatUtils.formatUTC(date, "yyyy-MM-dd");
+                                value = DateTimeFormatter.ISO_LOCAL_DATE.format(date);
                             }
                         }
                         doc.addField(searchFilter.getIndexFieldName(), value);
@@ -531,7 +554,7 @@ public class ItemIndexFactoryImpl extends DSpaceObjectIndexFactoryImpl<Indexable
                             } else if (searchFilter.getType().equals(DiscoveryConfigurationParameters.TYPE_DATE)) {
                                 if (date != null) {
                                     String indexField = searchFilter.getIndexFieldName() + ".year";
-                                    String yearUTC = DateFormatUtils.formatUTC(date, "yyyy");
+                                    String yearUTC = String.valueOf(date.getYear());
                                     doc.addField(searchFilter.getIndexFieldName() + "_keyword", yearUTC);
                                     // add the year to the autocomplete index
                                     doc.addField(searchFilter.getIndexFieldName() + "_ac", yearUTC);
@@ -607,9 +630,9 @@ public class ItemIndexFactoryImpl extends DSpaceObjectIndexFactoryImpl<Indexable
                                 }
                                 String facetValue = value;
                                 if (graphFacet.isDate()) {
-                                    Date parsedValue = MultiFormatDateParser.parse(value);
+                                    ZonedDateTime parsedValue = SolrMultiFormatDateParser.parse(value);
                                     if (parsedValue != null) {
-                                        facetValue = DateFormatUtils.formatUTC(parsedValue, "yyyy");
+                                        facetValue = String.valueOf(parsedValue.getYear());
                                     }
                                 } else if (StringUtils.isNotBlank(graphFacet.getSplitter())) {
                                     String[] split = value.split(graphFacet.getSplitter());
@@ -655,9 +678,11 @@ public class ItemIndexFactoryImpl extends DSpaceObjectIndexFactoryImpl<Indexable
                     }
 
                     if (type.equals(DiscoveryConfigurationParameters.TYPE_DATE)) {
-                        Date date = MultiFormatDateParser.parse(value);
+                        ZonedDateTime date = SolrMultiFormatDateParser.parseAdjusted(value);
                         if (date != null) {
-                            String stringDate = SolrUtils.getDateFormatter().format(date);
+                            String stringDate = SolrUtils
+                                .getDateTimeFormatter()
+                                .format(date);
                             doc.addField(field + "_dt", stringDate);
                         } else {
                             log.warn("Error while indexing sort date field, item: " + item
@@ -855,7 +880,7 @@ public class ItemIndexFactoryImpl extends DSpaceObjectIndexFactoryImpl<Indexable
      * @param separator the separator being used to separate lowercase and regular case
      */
     private void indexIfFilterTypeFacet(SolrInputDocument doc, DiscoverySearchFilter searchFilter, String value,
-                                   Date date, String authority, String preferedLabel, String separator) {
+                                        ZonedDateTime date, String authority, String preferedLabel, String separator) {
         if (searchFilter.getType().equals(DiscoveryConfigurationParameters.TYPE_TEXT)) {
             //Add a special filter
             //We use a separator to split up the lowercase and regular case, this is needed to
@@ -875,7 +900,7 @@ public class ItemIndexFactoryImpl extends DSpaceObjectIndexFactoryImpl<Indexable
         } else if (searchFilter.getType().equals(DiscoveryConfigurationParameters.TYPE_DATE)) {
             if (date != null) {
                 String indexField = searchFilter.getIndexFieldName() + ".year";
-                String yearUTC = DateFormatUtils.formatUTC(date, "yyyy");
+                String yearUTC = String.valueOf(date.getYear());
                 doc.addField(searchFilter.getIndexFieldName() + "_keyword", yearUTC);
                 // add the year to the autocomplete index
                 doc.addField(searchFilter.getIndexFieldName() + "_ac", yearUTC);

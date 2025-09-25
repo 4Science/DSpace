@@ -56,7 +56,7 @@
     </bean>
     <bean id="crossrefTypeValueMapping" class="org.dspace.importer.external.metadatamapping.transform.StringJsonValueMappingMetadataProcessorService">
         <property name="valueMapConverter" ref="mapConverterCrossRefToCoarPublicationType"/>
-        <property name="path" value="/type"/>
+        <property name="query" value="/type"/>
     </bean>
     <bean id="crossrefDoiTypeContrib" class="org.dspace.importer.external.metadatamapping.contributor.SimpleJsonPathMetadataContributor">
         <property name="field" ref="crossref.type"/>
@@ -72,7 +72,7 @@
         <property name="metadataProcessor" ref="crossrefEditorMetadataProcessor"></property>
     </bean>
     <bean name="crossrefEditorMetadataProcessor" class="org.dspace.importer.external.crossref.CrossRefAuthorMetadataProcessor">
-        <property name="pathToArray" value="/editor"></property>
+        <property name="query" value="/editor"></property>
 	</bean>
     <bean id="crossref.editors" class="org.dspace.importer.external.metadatamapping.MetadataFieldConfig">
         <constructor-arg value="dc.contributor.editor"/>
@@ -83,7 +83,7 @@
         <property name="metadataProcessor" ref="crossrefDateMetadataProcessor"></property>
     </bean>
 	<bean name="crossrefDateMetadataProcessor" class="org.dspace.importer.external.crossref.CrossRefDateMetadataProcessor">
-	    <property name="pathToArray" value="/issued/date-parts"></property>
+	    <property name="query" value="/issued/date-parts"></property>
 	</bean>
     <bean id="crossref.year" class="org.dspace.importer.external.metadatamapping.MetadataFieldConfig">
         <constructor-arg value="dc.date.issued"/>
@@ -102,7 +102,7 @@
         <property name="metadataProcessor" ref="crossrefAuthorMetadataProcessor"></property>
     </bean>
 	<bean name="crossrefAuthorMetadataProcessor" class="org.dspace.importer.external.crossref.CrossRefAuthorMetadataProcessor">
-	    <property name="pathToArray" value="/author"></property>
+	    <property name="query" value="/author"></property>
 	</bean>
     <bean id="crossref.authors" class="org.dspace.importer.external.metadatamapping.MetadataFieldConfig">
         <constructor-arg value="dc.contributor.author"/>
@@ -145,7 +145,7 @@
         <property name="metadataProcessor" ref="crossrefAbstractMetadataProcessor"></property>
     </bean>
     <bean name="crossrefAbstractMetadataProcessor" class="org.dspace.importer.external.crossref.CrossRefAbstractProcessor">
-        <property name="path" value="/abstract"></property>
+        <property name="query" value="/abstract"></property>
     </bean>	
     <bean id="crossref.abstract" class="org.dspace.importer.external.metadatamapping.MetadataFieldConfig">
         <constructor-arg value="dc.description.abstract"/>

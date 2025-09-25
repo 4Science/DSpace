@@ -2,7 +2,7 @@
 <!DOCTYPE item-submission SYSTEM "item-submission.dtd">
 <item-submission>
     <submission-map>
-        <name-map collection-handle="default" submission-name="archival_material" />
+        <name-map collection-handle="default" submission-name="archival_material"/>
     </submission-map>
     <step-definitions>
         <step-definition id="collection" mandatory="true">
@@ -244,244 +244,244 @@
     </step-definitions>
     <submission-definitions>
         <submission-process name="archival_material">
-            <step id="collection" />
-            <step id="archival_material" />
-            <step id="archival_material_indexing" />
-            <step id="archival_material_references" />
-            <step id="upload" />
-            <step id="license" />
+            <step id="collection"/>
+            <step id="archival_material"/>
+            <step id="archival_material_indexing"/>
+            <step id="archival_material_references"/>
+            <step id="upload"/>
+            <step id="license"/>
         </submission-process>
         <submission-process name="archival_material-edit">
-            <step id="archival_material" />
-            <step id="archival_material_indexing" />
-            <step id="archival_material_references" />
-            <step id="upload" />
+            <step id="archival_material"/>
+            <step id="archival_material_indexing"/>
+            <step id="archival_material_references"/>
+            <step id="upload"/>
         </submission-process>
         <submission-process name="publication">
-            <step id="collection" />
-            <step id="extractionstep" />
-            <step id="publication" />
-            <step id="publication_indexing" />
-            <step id="publication_references" />
-            <step id="upload" />
-            <step id="license" />
+            <step id="collection"/>
+            <step id="extractionstep"/>
+            <step id="publication"/>
+            <step id="publication_indexing"/>
+            <step id="publication_references"/>
+            <step id="upload"/>
+            <step id="license"/>
         </submission-process>
         <submission-process name="publication-edit">
-            <step id="extractionstep" />
-            <step id="publication" />
-            <step id="publication_indexing" />
-            <step id="publication_references" />
-            <step id="upload" />
+            <step id="extractionstep"/>
+            <step id="publication"/>
+            <step id="publication_indexing"/>
+            <step id="publication_references"/>
+            <step id="upload"/>
         </submission-process>
         <submission-process name="person">
-            <step id="collection" />
-            <step id="person" />
-            <step id="upload" />
-            <step id="license" />
+            <step id="collection"/>
+            <step id="person"/>
+            <step id="upload"/>
+            <step id="license"/>
         </submission-process>
         <submission-process name="person-edit">
-            <step id="person" />
-            <step id="upload" />
+            <step id="person"/>
+            <step id="upload"/>
         </submission-process>
         <submission-process name="event">
-            <step id="collection" />
-            <step id="event" />
-            <step id="upload" />
+            <step id="collection"/>
+            <step id="event"/>
+            <step id="upload"/>
         </submission-process>
         <submission-process name="event-edit">
-            <step id="event" />
-            <step id="upload" />
+            <step id="event"/>
+            <step id="upload"/>
         </submission-process>
         <submission-process name="orgunit">
-            <step id="collection" />
-            <step id="orgunit" />
-            <step id="upload" />
-            <step id="license" />
+            <step id="collection"/>
+            <step id="orgunit"/>
+            <step id="upload"/>
+            <step id="license"/>
         </submission-process>
         <submission-process name="orgunit-edit">
-            <step id="orgunit" />
-            <step id="upload" />
+            <step id="orgunit"/>
+            <step id="upload"/>
         </submission-process>
         <submission-process name="project">
-            <step id="collection" />
-            <step id="project" />
-            <step id="upload" />
-            <step id="license" />
+            <step id="collection"/>
+            <step id="project"/>
+            <step id="upload"/>
+            <step id="license"/>
         </submission-process>
         <submission-process name="project-edit">
-            <step id="project" />
-            <step id="upload" />
+            <step id="project"/>
+            <step id="upload"/>
         </submission-process>
         <submission-process name="fonds">
-            <step id="collection" />
-            <step id="fonds" />
-            <step id="upload" />
-            <step id="license" />
+            <step id="collection"/>
+            <step id="fonds"/>
+            <step id="upload"/>
+            <step id="license"/>
         </submission-process>
         <submission-process name="fonds-edit">
-            <step id="fonds" />
-            <step id="upload" />
+            <step id="fonds"/>
+            <step id="upload"/>
         </submission-process>
         <submission-process name="place">
-            <step id="collection" />
-            <step id="place" />
-            <step id="upload" />
+            <step id="collection"/>
+            <step id="place"/>
+            <step id="upload"/>
         </submission-process>
         <submission-process name="place-edit">
-            <step id="place" />
-            <step id="upload" />
+            <step id="place"/>
+            <step id="upload"/>
         </submission-process>
         <submission-process name="family">
-            <step id="collection" />
-            <step id="family" />
-            <step id="upload" />
+            <step id="collection"/>
+            <step id="family"/>
+            <step id="upload"/>
         </submission-process>
         <submission-process name="family-edit">
-            <step id="family" />
-            <step id="upload" />
+            <step id="family"/>
+            <step id="upload"/>
         </submission-process>
         <submission-process name="aggregation">
-            <step id="collection" />
-            <step id="aggregation" />
-            <step id="upload" />
+            <step id="collection"/>
+            <step id="aggregation"/>
+            <step id="upload"/>
         </submission-process>
         <submission-process name="aggregation-edit">
-            <step id="aggregation" />
-            <step id="upload" />
+            <step id="aggregation"/>
+            <step id="upload"/>
         </submission-process>
         <submission-process name="news">
-            <step id="news" />
-            <step id="upload" />
+            <step id="news"/>
+            <step id="upload"/>
         </submission-process>
         <submission-process name="staticpage">
-            <step id="staticpage" />
-            <step id="staticpage-url" />
+            <step id="staticpage"/>
+            <step id="staticpage-url"/>
         </submission-process>
         <submission-process name="path">
-            <step id="path" />
-            <step id="upload" />
+            <step id="path"/>
+            <step id="upload"/>
         </submission-process>
         <submission-process name="news-edit">
-            <step id="news" />
-            <step id="upload" />
+            <step id="news"/>
+            <step id="upload"/>
         </submission-process>
         <submission-process name="staticpage-edit">
-            <step id="staticpage" />
-            <step id="staticpage-url" />
+            <step id="staticpage"/>
+            <step id="staticpage-url"/>
         </submission-process>
         <submission-process name="path-edit">
-            <step id="path" />
-            <step id="upload" />
+            <step id="path"/>
+            <step id="upload"/>
         </submission-process>
         <submission-process name="journal_file">
-            <step id="collection" />
-            <step id="journal_file" />
-            <step id="upload" />
-            <step id="license" />
+            <step id="collection"/>
+            <step id="journal_file"/>
+            <step id="upload"/>
+            <step id="license"/>
         </submission-process>
         <submission-process name="journal_file-edit">
-            <step id="journal_file" />
-            <step id="upload" />
+            <step id="journal_file"/>
+            <step id="upload"/>
         </submission-process>
         <submission-process name="journal_fonds">
-            <step id="collection" />
-            <step id="journal_fonds" />
-            <step id="upload" />
-            <step id="license" />
+            <step id="collection"/>
+            <step id="journal_fonds"/>
+            <step id="upload"/>
+            <step id="license"/>
         </submission-process>
         <submission-process name="journal_fonds-edit">
-            <step id="journal_fonds" />
-            <step id="upload" />
+            <step id="journal_fonds"/>
+            <step id="upload"/>
         </submission-process>
         <submission-process name="picture">
-            <step id="collection" />
-            <step id="picture" />
-            <step id="upload" />
-            <step id="license" />
+            <step id="collection"/>
+            <step id="picture"/>
+            <step id="upload"/>
+            <step id="license"/>
         </submission-process>
         <submission-process name="picture-edit">
-            <step id="picture" />
-            <step id="upload" />
+            <step id="picture"/>
+            <step id="upload"/>
         </submission-process>
         <submission-process name="audiovideo">
-            <step id="collection" />
-            <step id="audiovideo" />
-            <step id="audiovideo-file" />
-            <step id="upload" />
-            <step id="license" />
+            <step id="collection"/>
+            <step id="audiovideo"/>
+            <step id="audiovideo-file"/>
+            <step id="upload"/>
+            <step id="license"/>
         </submission-process>
         <submission-process name="audiovideo-edit">
-            <step id="audiovideo" />
-            <step id="audiovideo-file" />
-            <step id="upload" />
+            <step id="audiovideo"/>
+            <step id="audiovideo-file"/>
+            <step id="upload"/>
         </submission-process>
         <submission-process name="opera">
-            <step id="collection" />
-            <step id="opera" />
-            <step id="upload" />
-            <step id="license" />
+            <step id="collection"/>
+            <step id="opera"/>
+            <step id="upload"/>
+            <step id="license"/>
         </submission-process>
         <submission-process name="opera-edit">
-            <step id="opera" />
-            <step id="upload" />
+            <step id="opera"/>
+            <step id="upload"/>
         </submission-process>
         <submission-process name="coin">
-            <step id="collection" />
-            <step id="coin" />
-            <step id="upload" />
-            <step id="license" />
+            <step id="collection"/>
+            <step id="coin"/>
+            <step id="upload"/>
+            <step id="license"/>
         </submission-process>
         <submission-process name="coin-edit">
-            <step id="coin" />
-            <step id="upload" />
+            <step id="coin"/>
+            <step id="upload"/>
         </submission-process>
         <submission-process name="musical_librettos">
-            <step id="collection" />
-            <step id="musical_librettos" />
-            <step id="upload" />
-            <step id="license" />
+            <step id="collection"/>
+            <step id="musical_librettos"/>
+            <step id="upload"/>
+            <step id="license"/>
         </submission-process>
         <submission-process name="musical_librettos-edit">
-            <step id="musical_librettos" />
-            <step id="upload" />
+            <step id="musical_librettos"/>
+            <step id="upload"/>
         </submission-process>
         <submission-process name="scientific_materials">
-            <step id="collection" />
-            <step id="scientific_materials" />
-            <step id="upload" />
-            <step id="license" />
+            <step id="collection"/>
+            <step id="scientific_materials"/>
+            <step id="upload"/>
+            <step id="license"/>
         </submission-process>
         <submission-process name="scientific_materials-edit">
-            <step id="scientific_materials" />
-            <step id="upload" />
+            <step id="scientific_materials"/>
+            <step id="upload"/>
         </submission-process>
         <submission-process name="artworks">
-            <step id="collection" />
-            <step id="artworks" />
-            <step id="upload" />
-            <step id="license" />
+            <step id="collection"/>
+            <step id="artworks"/>
+            <step id="upload"/>
+            <step id="license"/>
         </submission-process>
         <submission-process name="artworks-edit">
-            <step id="artworks" />
-            <step id="upload" />
+            <step id="artworks"/>
+            <step id="upload"/>
         </submission-process>
         <submission-process name="web_annotation">
-            <step id="collection" />
-            <step id="web_annotation" />
-            <step id="license" />
+            <step id="collection"/>
+            <step id="web_annotation"/>
+            <step id="license"/>
         </submission-process>
         <submission-process name="web_annotation-edit">
-            <step id="web_annotation" />
-            <step id="license" />
+            <step id="web_annotation"/>
+            <step id="license"/>
         </submission-process>
         <submission-process name="personal_annotation">
-            <step id="collection" />
-            <step id="personal_annotation" />
-            <step id="license" />
+            <step id="collection"/>
+            <step id="personal_annotation"/>
+            <step id="license"/>
         </submission-process>
         <submission-process name="personal_annotation-edit">
-            <step id="personal_annotation" />
-            <step id="license" />
+            <step id="personal_annotation"/>
+            <step id="license"/>
         </submission-process>
     </submission-definitions>
 </item-submission>

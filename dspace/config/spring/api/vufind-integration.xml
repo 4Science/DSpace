@@ -73,7 +73,7 @@
         <property name="metadataProcessor" ref="vufindSubjectsProcessor"></property>
     </bean>
     <bean name="vufindSubjectsProcessor" class="org.dspace.importer.external.metadatamapping.contributor.MatrixElementProcessor">
-        <property name="pathToMatrix" value="/subjects"></property>
+        <property name="query" value="/subjects"></property>
 	</bean>
     <bean id="vufind.dc.subject" class="org.dspace.importer.external.metadatamapping.MetadataFieldConfig">
         <constructor-arg value="dc.subject"/>

@@ -1,0 +1,285 @@
+{
+  "ns1:VIAFCluster": {
+    "ns1:viafID": 7646174414001308700008,
+    "ns1:creationtime": "2025-08-02T08:30:09.672645+00:00",
+    "ns1:nationalityOfEntity": {
+      "ns1:data": {
+        "ns1:sources": {
+          "ns1:s": "DE633"
+        },
+        "ns1:text": "IT"
+      }
+    },
+    "ns1:nameType": "Personal",
+    "ns1:x400s": {
+      "ns1:x400": [
+        {
+          "ns1:sources": {
+            "ns1:s": "DE633",
+            "ns1:sid": "DE633|people30010079"
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": [
+              {
+                "code": "a",
+                "content": "Farina, Carlo (I)"
+              },
+              {
+                "code": "j",
+                "content": "xx"
+              }
+            ],
+            "ind1": 1,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "farina carlo i xx"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "DE633",
+            "ns1:sid": "DE633|people30010079"
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": [
+              {
+                "code": "a",
+                "content": "Farina, Carlo I"
+              },
+              {
+                "code": "j",
+                "content": "dv"
+              }
+            ],
+            "ind1": 1,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "farina carlo i dv"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "DE633",
+            "ns1:sid": "DE633|people30010079"
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": [
+              {
+                "code": "a",
+                "content": "Farini, Carlo"
+              },
+              {
+                "code": "j",
+                "content": "xx"
+              }
+            ],
+            "ind1": 1,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "farini carlo xx"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "DE633",
+            "ns1:sid": "DE633|people30010079"
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": [
+              {
+                "code": "a",
+                "content": "Farino, Carlo"
+              },
+              {
+                "code": "j",
+                "content": "xx"
+              }
+            ],
+            "ind1": 1,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "farino carlo xx"
+          }
+        }
+      ]
+    },
+    "ns1:x500s": {
+      "ns1:x500": [
+        {
+          "ns1:sources": {
+            "ns1:s": "DE633",
+            "ns1:sid": "DE633|people30010079"
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": {
+              "code": "a",
+              "content": "Dresden"
+            },
+            "ind1": " ",
+            "dtype": "MARC21",
+            "tag": 551,
+            "ns1:normalized": "dresden"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "DE633",
+            "ns1:sid": "DE633|people30010079"
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": {
+              "code": "a",
+              "content": "Gdańsk"
+            },
+            "ind1": " ",
+            "dtype": "MARC21",
+            "tag": 551,
+            "ns1:normalized": "gdansk"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "DE633",
+            "ns1:sid": "DE633|people30010079"
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": {
+              "code": "a",
+              "content": "Mantova"
+            },
+            "ind1": " ",
+            "dtype": "MARC21",
+            "tag": 551,
+            "ns1:normalized": "mantova"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "DE633",
+            "ns1:sid": "DE633|people30010079"
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": {
+              "code": "a",
+              "content": "Parma"
+            },
+            "ind1": " ",
+            "dtype": "MARC21",
+            "tag": 551,
+            "ns1:normalized": "parma"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "DE633",
+            "ns1:sid": "DE633|people30010079"
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": {
+              "code": "a",
+              "content": "Praha"
+            },
+            "ind1": " ",
+            "dtype": "MARC21",
+            "tag": 551,
+            "ns1:normalized": "praha"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "DE633",
+            "ns1:sid": "DE633|people30010079"
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": {
+              "code": "a",
+              "content": "Wien"
+            },
+            "ind1": " ",
+            "dtype": "MARC21",
+            "tag": 551,
+            "ns1:normalized": "wien"
+          }
+        }
+      ]
+    },
+    "ns1:length": 20,
+    "ns1:deathDate": 1639,
+    "ns1:dateType": "lived",
+    "xmlns:rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+    "ns1:mainHeadings": {
+      "ns1:data": {
+        "ns1:sources": {
+          "ns1:s": "DE633",
+          "ns1:sid": "DE633|people30010079"
+        },
+        "ns1:text": "Farina, Carlo 1604c-1639"
+      },
+      "ns1:mainHeadingEl": {
+        "ns1:sources": {
+          "ns1:s": "DE633",
+          "ns1:sid": "DE633|people30010079"
+        },
+        "ns1:id": "DE633|people30010079",
+        "ns1:datafield": {
+          "ind2": " ",
+          "ns1:subfield": [
+            {
+              "code": "a",
+              "content": "Farina, Carlo"
+            },
+            {
+              "code": "d",
+              "content": "1604c-1639"
+            }
+          ],
+          "ind1": 1,
+          "dtype": "MARC21",
+          "tag": 100
+        }
+      }
+    },
+    "ns1:fixed": {
+      "ns1:gender": "b"
+    },
+    "xmlns:void": "http://rdfs.org/ns/void#",
+    "ns1:Document": {
+      "ns1:inDataset": {
+        "resource": "http://viaf.org/viaf/data"
+      },
+      "ns1:primaryTopic": {
+        "resource": "http://viaf.org/viaf/7646174414001308700008"
+      },
+      "about": "http://viaf.org/viaf/7646174414001308700008/"
+    },
+    "xmlns": "http://viaf.org/viaf/terms#",
+    "xmlns:ns1": "http://viaf.org/viaf/terms#",
+    "ns1:sources": {
+      "ns1:source": {
+        "nsid": "people/30010079",
+        "content": "DE633|people30010079"
+      }
+    },
+    "ns1:titles": "",
+    "xmlns:foaf": "http://xmlns.com/foaf/0.1/",
+    "ns1:history": {
+      "ns1:ht": {
+        "time": "2025-08-02T08:30:09.665360+00:00",
+        "type": "add",
+        "recid": "DE633|people30010079"
+      }
+    },
+    "ns1:birthDate": 0,
+    "xmlns:owl": "http://www.w3.org/2002/07/owl#"
+  }
+}

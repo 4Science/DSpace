@@ -47,7 +47,6 @@ import org.dspace.core.service.PluginService;
 import org.dspace.services.ConfigurationService;
 import org.dspace.services.factory.DSpaceServicesFactory;
 import org.hamcrest.Matchers;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -160,7 +159,6 @@ public class VocabularyRestRepositoryIT extends AbstractControllerIntegrationTes
     }
 
     @Override
-    @After
     // We need to cleanup the authorities cache once than the configuration has been restored
     public void destroy() throws Exception {
         super.destroy();

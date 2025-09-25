@@ -79,7 +79,7 @@ public class MetadataExportSearchIT extends AbstractIntegrationTestWithDatabase 
             itemsSubject1[i] = ItemBuilder.createItem(context, collection)
                 .withTitle(String.format("%s item %d", subject1, i))
                 .withSubject(subject1)
-                .withIssueDate("2020-09-" + i)
+                .withIssueDate("2020-09-" + String.format("%02d", i + 1 % 31))
                 .build();
         }
 
@@ -87,7 +87,7 @@ public class MetadataExportSearchIT extends AbstractIntegrationTestWithDatabase 
             itemsSubject2[i] = ItemBuilder.createItem(context, collection)
                 .withTitle(String.format("%s item %d", subject2, i))
                 .withSubject(subject2)
-                .withIssueDate("2021-09-" + i)
+                .withIssueDate("2021-09-" + String.format("%02d", i + 1 % 31))
                 .build();
         }
         context.restoreAuthSystemState();
@@ -173,7 +173,9 @@ public class MetadataExportSearchIT extends AbstractIntegrationTestWithDatabase 
     @Test
     public void exportMetadataSearchFilterDate() throws Exception {
         int result = runDSpaceScript(
-            "metadata-export-search", "-f", "dateIssued,equals=[2000 TO 2020]", "-n", filename
+            "metadata-export-search",
+            "-f", "dateIssued,equals=[2000 TO 2020]",
+            "-n", filename
         );
 
         assertEquals(0, result);
