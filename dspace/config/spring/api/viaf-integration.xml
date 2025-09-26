@@ -1,0 +1,207 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:util="http://www.springframework.org/schema/util"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+           http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+           http://www.springframework.org/schema/context
+           http://www.springframework.org/schema/context/spring-context-2.5.xsd http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd"
+       default-autowire-candidates="*Service,*DAO,javax.sql.DataSource">
+
+    <context:annotation-config/>
+    <!-- allows us to use spring annotations in beans -->
+
+    <bean id="viafIdExtractorImpl" class="org.dspace.importer.external.viaf.contributors.ViafIdExtractorImpl"/>
+
+    <util:map id="viafMetadataFieldMap"
+              key-type="org.dspace.importer.external.metadatamapping.MetadataFieldConfig"
+              value-type="org.dspace.importer.external.metadatamapping.contributor.MetadataContributor">
+        <description>Defines which metadatum is mapped on which metadatum.
+                     Note that while the key must be unique it only matters here for postprocessing of the value.
+                     The mapped MetadatumContributor has full control over what metadatafield is generated.
+        </description>
+        <entry key-ref="viaf.id" value-ref="viafIDContrib"/>
+        <entry key-ref="viaf.dc.title" value-ref="viafTitle"/>
+        <entry key-ref="viaf.glamperson.gender" value-ref="viafGender"/>
+        <entry key-ref="viaf.person.birthDate" value-ref="viafPersonBirthDate"/>
+        <entry key-ref="viaf.glamperson.birthYear" value-ref="viafPersonBirthYear"/>
+        <entry key-ref="viaf.glamperson.deathDate" value-ref="viafGlampersonDeathDate"/>
+        <entry key-ref="viaf.glamperson.deathYear" value-ref="viafGlampersonDeathYear"/>
+        <entry key-ref="viaf.glam.link.viaf" value-ref="viafGlamLink"/>
+        <entry key-ref="viaf.glam.link.wikipedia" value-ref="viafGlamWikipedia"/>
+        <entry key-ref="viaf.person.nationality" value-ref="viafNationality"/>
+        <entry key-ref="viaf.glamperson.role" value-ref="viafGlampersonRole"/>
+        <entry key-ref="viaf.dc.subject.lcsh" value-ref="viafSubjectLcsh"/>
+        <entry key-ref="viaf.crisrp.name.variant" value-ref="viafVariantNames"/>
+    </util:map>
+
+    <bean id="viafIDContrib" class="org.dspace.importer.external.metadatamapping.contributor.SimpleJsonPathMetadataContributor">
+        <property name="field" ref="viaf.id"/>
+        <property name="query" value="/ns1:VIAFCluster/ns1:viafID"/>
+    </bean>
+    <bean id="viaf.id" class="org.dspace.importer.external.metadatamapping.MetadataFieldConfig">
+        <constructor-arg value="person.identifier"/>
+    </bean>
+
+    <bean id="viafTitle" class="org.dspace.importer.external.metadatamapping.contributor.SimpleJsonPathMetadataContributor">
+        <property name="field" ref="vufind.dc.title"/>
+        <property name="metadataProcessor" ref="viafTitleProcessor"/>
+    </bean>
+    <bean id="viaf.dc.title" class="org.dspace.importer.external.metadatamapping.MetadataFieldConfig">
+        <constructor-arg value="dc.title"/>
+    </bean>
+    <bean id="viafTitleProcessor" class="org.dspace.importer.external.viaf.contributors.ViafTitleProcessor">
+        <property name="separetor" value=" "/>
+        <property name="marc21codes" ref="title-marc21codes"/>
+        <property name="unimarcCodes" ref="title-unimarcCodes"/>
+    </bean>
+
+    <util:list id="title-marc21codes" value-type="java.lang.String">
+        <value>a</value>
+        <value>b</value>
+    </util:list>
+    <util:list id="title-unimarcCodes" value-type="java.lang.String">
+        <value>a</value>
+        <value>b</value>
+        <value>d</value>
+    </util:list>
+
+    <bean id="viafGender" class="org.dspace.importer.external.metadatamapping.contributor.SimpleJsonPathMetadataContributor">
+        <property name="field" ref="viaf.glamperson.gender"/>
+        <property name="metadataProcessor" ref="viafGenderMetadataProcessor"/>
+    </bean>
+    <bean id="viafGenderMetadataProcessor" class="org.dspace.importer.external.metadatamapping.transform.StringJsonValueMappingMetadataProcessorService">
+        <property name="valueMapConverter" ref="mapConverterViafGenderType"/>
+        <property name="query" value="/ns1:VIAFCluster/ns1:fixed/ns1:gender"/>
+    </bean>
+    <bean name="mapConverterViafGenderType" class="org.dspace.util.SimpleMapConverter" init-method="init">
+        <property name="converterNameFile" value="mapConverter-viaf-gender-type.properties" />
+        <property name="configurationService" ref="org.dspace.services.ConfigurationService" />
+        <property name="defaultValue" value="undefined"/>
+    </bean>
+    <bean id="viaf.glamperson.gender" class="org.dspace.importer.external.metadatamapping.MetadataFieldConfig">
+        <constructor-arg value="glamperson.gender"/>
+    </bean>
+
+    <bean id="viafPersonBirthDate" class="org.dspace.importer.external.metadatamapping.contributor.SimpleJsonPathMetadataContributor">
+        <property name="field" ref="viaf.person.birthDate"/>
+        <property name="metadataProcessor" ref="viafPersonBirthDateMetadataProcessor"/>
+    </bean>
+    <bean id="viafPersonBirthDateMetadataProcessor" class="org.dspace.importer.external.viaf.contributors.ViafDateProcessor">
+        <property name="query" value="/ns1:VIAFCluster/ns1:birthDate"/>
+    </bean>
+    <bean id="viaf.person.birthDate" class="org.dspace.importer.external.metadatamapping.MetadataFieldConfig">
+        <constructor-arg value="person.birthDate"/>
+    </bean>
+
+    <bean id="viafPersonBirthYear" class="org.dspace.importer.external.metadatamapping.contributor.SimpleJsonPathMetadataContributor">
+        <property name="field" ref="viaf.glamperson.birthYear"/>
+        <property name="metadataProcessor" ref="viafPersonBirthYearMetadataProcessor"/>
+    </bean>
+    <bean id="viafPersonBirthYearMetadataProcessor" class="org.dspace.importer.external.viaf.contributors.ViafDateProcessor">
+        <property name="query" value="/ns1:VIAFCluster/ns1:birthDate"/>
+        <property name="takeOnlyYear" value="true"/>
+    </bean>
+    <bean id="viaf.glamperson.birthYear" class="org.dspace.importer.external.metadatamapping.MetadataFieldConfig">
+        <constructor-arg value="glamperson.birthYear"/>
+    </bean>
+
+    <bean id="viafGlampersonDeathDate" class="org.dspace.importer.external.metadatamapping.contributor.SimpleJsonPathMetadataContributor">
+        <property name="field" ref="viaf.glamperson.deathDate"/>
+        <property name="metadataProcessor" ref="viafGlampersonDeathDateMetadataProcessor"/>
+    </bean>
+    <bean id="viafGlampersonDeathDateMetadataProcessor" class="org.dspace.importer.external.viaf.contributors.ViafDateProcessor">
+        <property name="query" value="/ns1:VIAFCluster/ns1:deathDate"/>
+    </bean>
+    <bean id="viaf.glamperson.deathDate" class="org.dspace.importer.external.metadatamapping.MetadataFieldConfig">
+        <constructor-arg value="glamperson.deathDate"/>
+    </bean>
+
+    <bean id="viafGlampersonDeathYear" class="org.dspace.importer.external.metadatamapping.contributor.SimpleJsonPathMetadataContributor">
+        <property name="field" ref="viaf.glamperson.deathYear"/>
+        <property name="metadataProcessor" ref="viafPersonDeathYearMetadataProcessor"/>
+    </bean>
+    <bean id="viafPersonDeathYearMetadataProcessor" class="org.dspace.importer.external.viaf.contributors.ViafDateProcessor">
+        <property name="query" value="/ns1:VIAFCluster/ns1:deathDate"/>
+        <property name="takeOnlyYear" value="true"/>
+    </bean>
+    <bean id="viaf.glamperson.deathYear" class="org.dspace.importer.external.metadatamapping.MetadataFieldConfig">
+        <constructor-arg value="glamperson.deathYear"/>
+    </bean>
+
+    <bean id="viafGlamLink" class="org.dspace.importer.external.metadatamapping.contributor.SimpleJsonPathMetadataContributor">
+        <property name="field" ref="viaf.glam.link.viaf"/>
+        <property name="metadataProcessor" ref="viafGlamLinkMetadataProcessor"/>
+    </bean>
+    <bean id="viafGlamLinkMetadataProcessor" class="org.dspace.importer.external.viaf.contributors.ViafSimplePrefixProcessor">
+        <property name="query" value="/ns1:VIAFCluster/ns1:viafID"/>
+        <property name="prefix" value="http://viaf.org/viaf/"/>
+    </bean>
+    <bean id="viaf.glam.link.viaf" class="org.dspace.importer.external.metadatamapping.MetadataFieldConfig">
+        <constructor-arg value="glam.link.viaf"/>
+    </bean>
+
+    <bean id="viafGlamWikipedia" class="org.dspace.importer.external.metadatamapping.contributor.SimpleJsonPathMetadataContributor">
+        <property name="field" ref="viaf.glam.link.wikipedia"/>
+        <property name="metadataProcessor" ref="viafGlamWikipediaMetadataProcessor"/>
+    </bean>
+    <bean id="viafGlamWikipediaMetadataProcessor" class="org.dspace.importer.external.viaf.contributors.ViafWikipediaProcessor">
+        <property name="query" value="/ns1:VIAFCluster/ns1:xLinks/ns1:xLink"/>
+    </bean>
+    <bean id="viaf.glam.link.wikipedia" class="org.dspace.importer.external.metadatamapping.MetadataFieldConfig">
+        <constructor-arg value="glam.link.wikipedia"/>
+    </bean>
+
+    <bean id="viafNationality" class="org.dspace.importer.external.metadatamapping.contributor.SimpleJsonPathMetadataContributor">
+        <property name="field" ref="viaf.person.nationality"/>
+        <property name="metadataProcessor" ref="viafNationalityMetadataProcessor"/>
+    </bean>
+    <bean id="viafNationalityMetadataProcessor" class="org.dspace.importer.external.viaf.contributors.ViafNationalityProcessor">
+        <property name="query" value="/ns1:VIAFCluster/ns1:nationalityOfEntity/ns1:data"/>
+    </bean>
+    <bean id="viaf.person.nationality" class="org.dspace.importer.external.metadatamapping.MetadataFieldConfig">
+        <constructor-arg value="person.nationality"/>
+    </bean>
+
+    <bean id="viafGlampersonRole" class="org.dspace.importer.external.metadatamapping.contributor.SimpleJsonPathMetadataContributor">
+        <property name="field" ref="viaf.glamperson.role"/>
+        <property name="metadataProcessor" ref="viafGlampersonRoleMetadataProcessor"/>
+    </bean>
+    <bean id="viafGlampersonRoleMetadataProcessor" class="org.dspace.importer.external.viaf.contributors.ViafTitleProcessor">
+        <property name="separetor" value=""/>
+        <property name="marc21codes" ref="role-codes"/>
+        <property name="unimarcCodes" ref="role-codes"/>
+    </bean>
+    <bean id="viaf.glamperson.role" class="org.dspace.importer.external.metadatamapping.MetadataFieldConfig">
+        <constructor-arg value="glamperson.role"/>
+    </bean>
+
+    <util:list id="role-codes" value-type="java.lang.String">
+        <value>c</value>
+    </util:list>
+
+    <bean id="viafSubjectLcsh" class="org.dspace.importer.external.metadatamapping.contributor.SimpleJsonPathMetadataContributor">
+        <property name="field" ref="viaf.dc.subject.lcsh"/>
+        <property name="metadataProcessor" ref="viafSubjectLcshMetadataProcessor"/>
+    </bean>
+    <bean id="viafSubjectLcshMetadataProcessor" class="org.dspace.importer.external.viaf.contributors.ViafSubjectIcshProcessor">
+        <property name="query" value="/ns1:VIAFCluster/ns1:occupation/ns1:data"/>
+    </bean>
+    <bean id="viaf.dc.subject.lcsh" class="org.dspace.importer.external.metadatamapping.MetadataFieldConfig">
+        <constructor-arg value="dc.subject.lcsh"/>
+    </bean>
+
+    <bean id="viafVariantNames" class="org.dspace.importer.external.metadatamapping.contributor.SimpleJsonPathMetadataContributor">
+        <property name="field" ref="viaf.crisrp.name.variant"/>
+        <property name="metadataProcessor" ref="viafVariantNamesMetadataProcessor"/>
+    </bean>
+    <bean id="viafVariantNamesMetadataProcessor" class="org.dspace.importer.external.viaf.contributors.ViafVariantNameProcessor">
+        <property name="separetor" value=" "/>
+        <property name="marc21codes" ref="title-marc21codes"/>
+        <property name="unimarcCodes" ref="title-unimarcCodes"/>
+    </bean>
+    <bean id="viaf.crisrp.name.variant" class="org.dspace.importer.external.metadatamapping.MetadataFieldConfig">
+        <constructor-arg value="crisrp.name.variant"/>
+    </bean>
+
+</beans>

@@ -998,6 +998,17 @@
       </row>
       <row>
         <field>
+          <dc-schema>person</dc-schema>
+          <dc-element>nationality</dc-element>
+          <label>Nazione</label>
+          <input-type value-pairs-name="common_iso_countries">dropdown</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint>Inserire la nazione della persona</hint>
+        </field>
+      </row>
+      <row>
+        <field>
           <dc-schema>glamperson</dc-schema>
           <dc-element>nationality</dc-element>
           <label>Nazionalità della Persona</label>
@@ -1088,6 +1099,18 @@
       <row>
         <field>
           <dc-schema>dc</dc-schema>
+          <dc-element>subject</dc-element>
+          <dc-qualifier>lcsh</dc-qualifier>
+          <label>Interessi/Attività</label>
+          <input-type>tag</input-type>
+          <repeatable>true</repeatable>
+          <required />
+          <hint>Inserire gli interessi o le attività della persona attingendo ai Library of Congress Subject Headings (https://www.loc.gov/aba/publications/FreeLCSH/freelcsh.html)</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>dc</dc-schema>
           <dc-element>relation</dc-element>
           <dc-qualifier>event</dc-qualifier>
           <label>Ha partecipato a</label>
@@ -1117,6 +1140,17 @@
           <repeatable>false</repeatable>
           <required />
           <hint>Inserire la biografia della Persona</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>person</dc-schema>
+          <dc-element>identifier</dc-element>
+          <label>VIAF ID</label>
+          <input-type>onebox</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint>Inserire il VIAF ID della persona</hint>
         </field>
       </row>
       <row>

@@ -28,8 +28,11 @@ import org.dspace.builder.WorkspaceItemBuilder;
 import org.dspace.content.Collection;
 import org.dspace.content.Item;
 import org.dspace.content.WorkspaceItem;
+import org.dspace.content.authority.DCInputAuthority;
+import org.dspace.content.authority.factory.ContentAuthorityServiceFactory;
 import org.dspace.content.factory.ContentServiceFactory;
 import org.dspace.content.service.InstallItemService;
+import org.dspace.core.factory.CoreServiceFactory;
 import org.dspace.eperson.EPerson;
 import org.dspace.services.ConfigurationService;
 import org.junit.Before;
@@ -57,6 +60,10 @@ public class ItemReferenceResolverConsumerIT extends AbstractControllerIntegrati
 
     @Before
     public void setup() throws Exception {
+
+        DCInputAuthority.reset();
+        CoreServiceFactory.getInstance().getPluginService().clearNamedPluginClasses();
+        ContentAuthorityServiceFactory.getInstance().getChoiceAuthorityService().clearCache();
 
         installItemService = ContentServiceFactory.getInstance().getInstallItemService();
 
@@ -110,7 +117,6 @@ public class ItemReferenceResolverConsumerIT extends AbstractControllerIntegrati
 
         Item itemWithOrcid = ItemBuilder.createItem(context, personCollection)
             .withTitle("Author")
-            .withEntityType("Person")
             .withOrcidIdentifier("0000-0002-1825-0097")
             .build();
 
@@ -158,7 +164,6 @@ public class ItemReferenceResolverConsumerIT extends AbstractControllerIntegrati
 
         Item itemWithOrcid = ItemBuilder.createItem(context, personCollection)
             .withTitle("Stephen King")
-            .withEntityType("Person")
             .withOrcidIdentifier("0000-0002-1825-0097")
             .build();
 
@@ -209,7 +214,6 @@ public class ItemReferenceResolverConsumerIT extends AbstractControllerIntegrati
 
         Item itemWithOrcid = ItemBuilder.createItem(context, personCollection)
             .withTitle("Howard Phillips Lovecraft")
-            .withEntityType("Person")
             .withOrcidIdentifier("0000-0002-1825-0097")
             .build();
 
@@ -259,7 +263,6 @@ public class ItemReferenceResolverConsumerIT extends AbstractControllerIntegrati
 
         Item itemWithRid = ItemBuilder.createItem(context, personCollection)
             .withTitle("Author")
-            .withEntityType("Person")
             .withResearcherIdentifier("0000-1111")
             .build();
 
@@ -306,7 +309,6 @@ public class ItemReferenceResolverConsumerIT extends AbstractControllerIntegrati
 
         Item itemWithIsni = ItemBuilder.createItem(context, personCollection)
             .withTitle("Author")
-            .withEntityType("Person")
             .withIsniIdentifier("AAA-BBB")
             .build();
 
@@ -354,7 +356,6 @@ public class ItemReferenceResolverConsumerIT extends AbstractControllerIntegrati
 
         Item itemWithRid = ItemBuilder.createItem(context, personCollection)
             .withTitle("Author")
-            .withEntityType("Person")
             .withOrcidIdentifier("0000-0002-1825-0097")
             .withResearcherIdentifier("0000-1111")
             .build();
@@ -403,7 +404,6 @@ public class ItemReferenceResolverConsumerIT extends AbstractControllerIntegrati
 
         Item itemWithRid = ItemBuilder.createItem(context, personCollection)
             .withTitle("Author")
-            .withEntityType("Person")
             .withResearcherIdentifier("0000-1111")
             .withResearcherIdentifier("2222-3333")
             .build();
@@ -440,7 +440,6 @@ public class ItemReferenceResolverConsumerIT extends AbstractControllerIntegrati
 
         WorkspaceItem author = WorkspaceItemBuilder.createWorkspaceItem(context, personCollection)
             .withTitle("Author")
-            .withEntityType("Person")
             .withOrcidIdentifier("0000-0002-1825-0097")
             .build();
 
@@ -484,7 +483,6 @@ public class ItemReferenceResolverConsumerIT extends AbstractControllerIntegrati
 
         Item author = ItemBuilder.createItem(context, personCollection)
             .withTitle("Author")
-            .withEntityType("Person")
             .withOrcidIdentifier("0000-0002-1825-0097")
             .build();
 
@@ -546,19 +544,16 @@ public class ItemReferenceResolverConsumerIT extends AbstractControllerIntegrati
 
         Item authorA = ItemBuilder.createItem(context, personCollection)
             .withTitle("Author A")
-            .withEntityType("Person")
             .withOrcidIdentifier("0000-0000-0000-0001")
             .build();
 
         Item authorB = ItemBuilder.createItem(context, personCollection)
             .withTitle("Author B")
-            .withEntityType("Person")
             .withOrcidIdentifier("0000-0000-0000-0002")
             .build();
 
         Item authorD = ItemBuilder.createItem(context, personCollection)
             .withTitle("Author D")
-            .withEntityType("Person")
             .withResearcherIdentifier("RID-01")
             .build();
 

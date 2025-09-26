@@ -39,6 +39,7 @@ import org.dspace.content.MetadataSchema;
 import org.dspace.content.MetadataValue;
 import org.dspace.content.WorkspaceItem;
 import org.dspace.content.authority.Choices;
+import org.dspace.content.authority.DCInputAuthority;
 import org.dspace.content.authority.factory.ContentAuthorityServiceFactory;
 import org.dspace.content.authority.service.ChoiceAuthorityService;
 import org.dspace.content.authority.service.MetadataAuthorityService;
@@ -940,6 +941,7 @@ public class ItemEnhancerConsumerIT extends AbstractIntegrationTestWithDatabase 
 
         // These clears have to happen so that the config is actually reloaded in those classes. This is needed for
         // the properties that we're altering above and this is only used within the tests
+        DCInputAuthority.reset();
         pluginService.clearNamedPluginClasses();
         choiceAuthorityService.clearCache();
         metadataAuthorityService.clearCache();

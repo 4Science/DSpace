@@ -11,13 +11,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Optional;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.JsonNodeType;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.dspace.importer.external.metadatamapping.contributor.JsonPathMetadataProcessor;
+import org.dspace.importer.external.metadatamapping.contributor.AbstractJsonPathMetadataProcessor;
 import org.dspace.util.SimpleMapConverter;
 
 /**
@@ -30,20 +26,18 @@ import org.dspace.util.SimpleMapConverter;
  * @author paulo-graca
  *
  */
-public class StringJsonValueMappingMetadataProcessorService implements JsonPathMetadataProcessor {
+public class StringJsonValueMappingMetadataProcessorService extends AbstractJsonPathMetadataProcessor {
 
-    private final static Logger log = LogManager.getLogger();
     /**
      * The value map converter.
      * a list of values to map from
      */
     private SimpleMapConverter valueMapConverter;
-    private String path;
 
     @Override
     public Collection<String> processMetadata(String json) {
         JsonNode rootNode = convertStringJsonToJsonNode(json);
-        Optional<JsonNode> abstractNode = Optional.ofNullable(rootNode.at(path));
+        Optional<JsonNode> abstractNode = Optional.ofNullable(rootNode.at(query));
         Collection<String> values = new ArrayList<>(1);
 
         if (abstractNode.isPresent() && abstractNode.get().getNodeType().equals(JsonNodeType.STRING)) {
@@ -56,17 +50,6 @@ public class StringJsonValueMappingMetadataProcessorService implements JsonPathM
         return values;
     }
 
-    private JsonNode convertStringJsonToJsonNode(String json) {
-        ObjectMapper mapper = new ObjectMapper();
-        JsonNode body = null;
-        try {
-            body = mapper.readTree(json);
-        } catch (JsonProcessingException e) {
-            log.error("Unable to process json response.", e);
-        }
-        return body;
-    }
-
     /* Getters and Setters */
 
     public String convertType(String type) {
@@ -75,10 +58,6 @@ public class StringJsonValueMappingMetadataProcessorService implements JsonPathM
 
     public void setValueMapConverter(SimpleMapConverter valueMapConverter) {
         this.valueMapConverter = valueMapConverter;
-    }
-
-    public void setPath(String path) {
-        this.path = path;
     }
 
 }

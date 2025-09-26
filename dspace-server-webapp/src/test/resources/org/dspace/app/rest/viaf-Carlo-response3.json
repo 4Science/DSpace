@@ -1,0 +1,5394 @@
+{
+  "ns1:VIAFCluster": {
+    "ns1:viafID": 7196150325547210090003,
+    "ns1:nationalityOfEntity": {
+      "ns1:data": [
+        {
+          "ns1:sources": {
+            "ns1:s": [
+              "BNF",
+              "WKP",
+              "DNB",
+              "ISNI"
+            ]
+          },
+          "ns1:text": "FR"
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "ISNI"
+          },
+          "ns1:text": "fr"
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "ICCU"
+          },
+          "ns1:text": "IT"
+        }
+      ]
+    },
+    "ns1:nameType": "Personal",
+    "ns1:x400s": {
+      "ns1:x400": [
+        {
+          "ns1:sources": {
+            "ns1:s": "DNB",
+            "ns1:sid": "DNB|119145383"
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": [
+              {
+                "code": "a",
+                "content": "Bonaparte, Léon"
+              },
+              {
+                "code": "d",
+                "content": "1806-1881"
+              }
+            ],
+            "ind1": 1,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "bonaparte leon 1806 1881"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "ISNI",
+            "ns1:sid": "ISNI|0000000122762688"
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": {
+              "code": "a",
+              "content": "Carlo Leone Denuelle"
+            },
+            "ind1": 0,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "carlo leone denuelle"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "WKP",
+            "ns1:sid": "WKP|Q1390993"
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": [
+              {
+                "code": "a",
+                "content": "Carlo Leone Denuelle"
+              },
+              {
+                "code": "c",
+                "content": "nobile e politico francese"
+              }
+            ],
+            "ind1": 0,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "carlo leone denuelle nobile e politico francese"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "WKP",
+            "ns1:sid": "WKP|Q1390993"
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": {
+              "code": "a",
+              "content": "Charles Léon Denuelle"
+            },
+            "ind1": 0,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "charles leon denuelle"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "WKP",
+            "ns1:sid": "WKP|Q1390993"
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": [
+              {
+                "code": "a",
+                "content": "Charles Léon Denuelle"
+              },
+              {
+                "code": "c",
+                "content": "Biologische zoon van Napoleon (1806-1881)"
+              }
+            ],
+            "ind1": 0,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "charles leon denuelle biologische zoon van napoleon 1806 1881"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "ISNI",
+            "ns1:sid": "ISNI|0000000122762688"
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": [
+              {
+                "code": "a",
+                "content": "Charles Léon Denuelle"
+              },
+              {
+                "code": "c",
+                "content": "Frans politicus (1806-1881)"
+              }
+            ],
+            "ind1": 0,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "charles leon denuelle frans politicus 1806 1881"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "WKP",
+            "ns1:sid": "WKP|Q1390993"
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": [
+              {
+                "code": "a",
+                "content": "Charles Léon"
+              },
+              {
+                "code": "c",
+                "content": "Napóleon császár és Éléonore Denuelle de La Plaigne természetes fia (1806-1881)"
+              }
+            ],
+            "ind1": 0,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "charles leon napoleon csaszar es eleonore denuelle de la plaigne termeszetes fia 1806 1881"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "WKP",
+            "ns1:sid": "WKP|Q1390993"
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": [
+              {
+                "code": "a",
+                "content": "Charles Léon"
+              },
+              {
+                "code": "c",
+                "content": "fils illégitime de Napoléon Ier"
+              }
+            ],
+            "ind1": 0,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "charles leon fils illegitime de napoleon ier"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "WKP",
+            "ns1:sid": "WKP|Q1390993"
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": [
+              {
+                "code": "a",
+                "content": "Charles Léon"
+              },
+              {
+                "code": "c",
+                "content": "fiu nelegitim al lui Napoleon I"
+              }
+            ],
+            "ind1": 0,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "charles leon fiu nelegitim al lui napoleon i"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "WKP",
+            "ns1:sid": "WKP|Q1390993"
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": [
+              {
+                "code": "a",
+                "content": "Charles Léon"
+              },
+              {
+                "code": "c",
+                "content": "gwleidydd (1806-1881)"
+              }
+            ],
+            "ind1": 0,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "charles leon gwleidydd 1806 1881"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "ISNI",
+            "ns1:sid": "ISNI|0000000122762688"
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": [
+              {
+                "code": "a",
+                "content": "Charles Léon"
+              },
+              {
+                "code": "c",
+                "content": "illegitimate son of Napolean I"
+              }
+            ],
+            "ind1": 0,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "charles leon illegitimate son of napolean i"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "WKP",
+            "ns1:sid": "WKP|Q1390993"
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": [
+              {
+                "code": "a",
+                "content": "Charles Léon"
+              },
+              {
+                "code": "c",
+                "content": "illegitimate son of Napoleon I (1806-1881)"
+              }
+            ],
+            "ind1": 0,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "charles leon illegitimate son of napoleon i 1806 1881"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "ISNI",
+            "ns1:sid": "ISNI|0000000122762688"
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": [
+              {
+                "code": "a",
+                "content": "Charles Léon"
+              },
+              {
+                "code": "c",
+                "content": "nelegitimní syn Napoleona Bonaparte"
+              }
+            ],
+            "ind1": 0,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "charles leon nelegitimni syn napoleona bonaparte"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "WKP",
+            "ns1:sid": "WKP|Q1390993"
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": [
+              {
+                "code": "a",
+                "content": "Charles Léon"
+              },
+              {
+                "code": "c",
+                "content": "politiko franses"
+              }
+            ],
+            "ind1": 0,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "charles leon politiko franses"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "WKP",
+            "ns1:sid": "WKP|Q1390993"
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": [
+              {
+                "code": "a",
+                "content": "Charles Léon"
+              },
+              {
+                "code": "c",
+                "content": "polític francès"
+              }
+            ],
+            "ind1": 0,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "charles leon politic frances"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "WKP",
+            "ns1:sid": "WKP|Q1390993"
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": [
+              {
+                "code": "a",
+                "content": "Charles Léon"
+              },
+              {
+                "code": "c",
+                "content": "político francés"
+              }
+            ],
+            "ind1": 0,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "charles leon politico frances"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "WKP",
+            "ns1:sid": "WKP|Q1390993"
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": [
+              {
+                "code": "a",
+                "content": "Charles Léon"
+              },
+              {
+                "code": "c",
+                "content": "político francês"
+              }
+            ],
+            "ind1": 0,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "charles leon politico frances"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": [
+              "J9U",
+              "LC"
+            ],
+            "ns1:sid": [
+              "J9U|987007451523905171",
+              "LC|no 89020567"
+            ]
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": [
+              {
+                "code": "a",
+                "content": "Denuelle de La Plaigne, Charles Léon,"
+              },
+              {
+                "code": "c",
+                "content": "comte Léon,"
+              },
+              {
+                "code": "d",
+                "content": "1806-1881"
+              }
+            ],
+            "ind1": 1,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "denuelle de la plaigne charles leon comte leon 1806 1881"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "N6I",
+            "ns1:sid": "N6I|vtls002832330"
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": [
+              {
+                "code": "a",
+                "content": "Denuelle de La Plaigne, Charles Léon,‏ ‎"
+              },
+              {
+                "code": "c",
+                "content": "comte Léon,‏"
+              },
+              {
+                "code": "d",
+                "content": "1806-1881‏"
+              }
+            ],
+            "ind1": 1,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "denuelle de la plaigne charles leon comte leon 1806 1881"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "ISNI",
+            "ns1:sid": "ISNI|0000000122762688"
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": [
+              {
+                "code": "a",
+                "content": "Denuelle de La Plaigne, Charles Léon"
+              },
+              {
+                "code": "d",
+                "content": "1806-1881"
+              },
+              {
+                "code": "c",
+                "content": "comte Léon"
+              }
+            ],
+            "ind1": 1,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "denuelle de la plaigne charles leon 1806 1881 comte leon"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "DNB",
+            "ns1:sid": "DNB|119145383"
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": [
+              {
+                "code": "a",
+                "content": "Denuelle de la Plaigne, Charles Léon"
+              },
+              {
+                "code": "d",
+                "content": "1806-1881"
+              }
+            ],
+            "ind1": 1,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "denuelle de la plaigne charles leon 1806 1881"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "ISNI",
+            "ns1:sid": "ISNI|0000000122762688"
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": [
+              {
+                "code": "a",
+                "content": "Denuelle de la Plaigne, Charles Léon"
+              },
+              {
+                "code": "d",
+                "content": "1806-1881"
+              }
+            ],
+            "ind1": 1,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "denuelle de la plaigne charles leon 1806 1881"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "ISNI",
+            "ns1:sid": "ISNI|0000000122762688"
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": {
+              "code": "a",
+              "content": "Denuelle, Charles"
+            },
+            "ind1": 1,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "denuelle charles"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "NTA",
+            "ns1:sid": "NTA|394359437"
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": [
+              {
+                "code": "a",
+                "content": "Denuelle, Charles Léon,"
+              },
+              {
+                "code": "d",
+                "content": "1806-1881"
+              }
+            ],
+            "ind1": 1,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "denuelle charles leon 1806 1881"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "DNB",
+            "ns1:sid": "DNB|119145383"
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": [
+              {
+                "code": "a",
+                "content": "Denuelle, Charles Léon"
+              },
+              {
+                "code": "d",
+                "content": "1806-1881"
+              }
+            ],
+            "ind1": 1,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "denuelle charles leon 1806 1881"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "ISNI",
+            "ns1:sid": "ISNI|0000000122762688"
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": [
+              {
+                "code": "a",
+                "content": "Denuelle, Charles Léon"
+              },
+              {
+                "code": "d",
+                "content": "1806-1881"
+              }
+            ],
+            "ind1": 1,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "denuelle charles leon 1806 1881"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "BNF",
+            "ns1:sid": "BNF|10661431"
+          },
+          "ns1:datafield": {
+            "ind2": "|",
+            "ns1:subfield": [
+              {
+                "code": "a",
+                "content": "Denuelle"
+              },
+              {
+                "code": "b",
+                "content": "Charles"
+              },
+              {
+                "code": "f",
+                "content": "1806-1881"
+              }
+            ],
+            "ind1": " ",
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "denuelle charles 1806 1881"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "ISNI",
+            "ns1:sid": "ISNI|0000000122762688"
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": {
+              "code": "a",
+              "content": "Giáo hoàng Lêô I"
+            },
+            "ind1": 0,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "giao hoang leo i"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "ISNI",
+            "ns1:sid": "ISNI|0000000122762688"
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": {
+              "code": "a",
+              "content": "I Лео"
+            },
+            "ind1": 0,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "i лео"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "ISNI",
+            "ns1:sid": "ISNI|0000000122762688"
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": {
+              "code": "a",
+              "content": "I. Leo"
+            },
+            "ind1": 0,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "i leo"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "ISNI",
+            "ns1:sid": "ISNI|0000000122762688"
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": {
+              "code": "a",
+              "content": "I. Leó pápa"
+            },
+            "ind1": 0,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "i leo papa"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "WKP",
+            "ns1:sid": "WKP|Q1390993"
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": [
+              {
+                "code": "a",
+                "content": "Karel Leon Denuelle"
+              },
+              {
+                "code": "c",
+                "content": "nelegitimní syn Napoleona Bonaparte"
+              }
+            ],
+            "ind1": 0,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "karel leon denuelle nelegitimni syn napoleona bonaparte"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": [
+              "ISNI",
+              "WKP"
+            ],
+            "ns1:sid": [
+              "ISNI|0000000122762688",
+              "WKP|Q1390993"
+            ]
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": {
+              "code": "a",
+              "content": "Karol de Leon"
+            },
+            "ind1": 0,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "karol de leon"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "WKP",
+            "ns1:sid": "WKP|Q1390993"
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": [
+              {
+                "code": "a",
+                "content": "Karolo Leono"
+              },
+              {
+                "code": "c",
+                "content": "bastarda filo de Napoleono Bonaparto"
+              }
+            ],
+            "ind1": 0,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "karolo leono bastarda filo de napoleono bonaparto"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "DNB",
+            "ns1:sid": "DNB|119145383"
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": [
+              {
+                "code": "a",
+                "content": "L'Aiglon des boulevards"
+              },
+              {
+                "code": "d",
+                "content": "1806-1881"
+              }
+            ],
+            "ind1": 0,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "laiglon des boulevards 1806 1881"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": [
+              "J9U",
+              "LC"
+            ],
+            "ns1:sid": [
+              "J9U|987007451523905171",
+              "LC|no 89020567"
+            ]
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": [
+              {
+                "code": "a",
+                "content": "La Plaigne, Charles Léon Denuelle de,"
+              },
+              {
+                "code": "c",
+                "content": "comte Léon,"
+              },
+              {
+                "code": "d",
+                "content": "1806-1881"
+              }
+            ],
+            "ind1": 1,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "la plaigne charles leon denuelle de comte leon 1806 1881"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "N6I",
+            "ns1:sid": "N6I|vtls002832330"
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": [
+              {
+                "code": "a",
+                "content": "La Plaigne, Charles Léon Denuelle de,‏ ‎"
+              },
+              {
+                "code": "c",
+                "content": "omte Léon,‏"
+              },
+              {
+                "code": "d",
+                "content": "1806-1881‏"
+              }
+            ],
+            "ind1": 1,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "la plaigne charles leon denuelle de omte leon 1806 1881"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "DNB",
+            "ns1:sid": "DNB|119145383"
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": [
+              {
+                "code": "a",
+                "content": "La Plaigne, Charles Léon"
+              },
+              {
+                "code": "d",
+                "content": "1806-1881"
+              }
+            ],
+            "ind1": 1,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "la plaigne charles leon 1806 1881"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "ISNI",
+            "ns1:sid": "ISNI|0000000122762688"
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": [
+              {
+                "code": "a",
+                "content": "La Plaigne, Charles Léon Denuelle de"
+              },
+              {
+                "code": "d",
+                "content": "1806-1881"
+              },
+              {
+                "code": "c",
+                "content": "comte Léon"
+              }
+            ],
+            "ind1": 1,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "la plaigne charles leon denuelle de 1806 1881 comte leon"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "ISNI",
+            "ns1:sid": "ISNI|0000000122762688"
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": [
+              {
+                "code": "a",
+                "content": "La Plaigne, Charles Léon"
+              },
+              {
+                "code": "d",
+                "content": "1806-1881"
+              }
+            ],
+            "ind1": 1,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "la plaigne charles leon 1806 1881"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "ISNI",
+            "ns1:sid": "ISNI|0000000122762688"
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": [
+              {
+                "code": "a",
+                "content": "Lav I"
+              },
+              {
+                "code": "c",
+                "content": "papa"
+              }
+            ],
+            "ind1": 0,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "lav i papa"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "DNB",
+            "ns1:sid": "DNB|119145383"
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": [
+              {
+                "code": "a",
+                "content": "Le bâtard infernal"
+              },
+              {
+                "code": "d",
+                "content": "1806-1881"
+              }
+            ],
+            "ind1": 0,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "le batard infernal 1806 1881"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "ICCU",
+            "ns1:sid": "ICCU|MILV033623"
+          },
+          "ns1:datafield": {
+            "ind2": 0,
+            "ns1:subfield": [
+              {
+                "code": "a",
+                "content": "Leo : Magnus"
+              },
+              {
+                "code": "c",
+                "content": "<santo>"
+              }
+            ],
+            "ind1": " ",
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "leo magnus santo"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "ISNI",
+            "ns1:sid": "ISNI|0000000122762688"
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": {
+              "code": "a",
+              "content": "Leo I"
+            },
+            "ind1": 0,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "leo i"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "ISNI",
+            "ns1:sid": "ISNI|0000000122762688"
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": [
+              {
+                "code": "a",
+                "content": "Leo I"
+              },
+              {
+                "code": "c",
+                "content": "Pope from 440 to 461"
+              }
+            ],
+            "ind1": 0,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "leo i pope from 440 to 461"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "ISNI",
+            "ns1:sid": "ISNI|0000000122762688"
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": [
+              {
+                "code": "a",
+                "content": "Leo I"
+              },
+              {
+                "code": "c",
+                "content": "romersk prest"
+              }
+            ],
+            "ind1": 0,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "leo i romersk prest"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "ISNI",
+            "ns1:sid": "ISNI|0000000122762688"
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": [
+              {
+                "code": "a",
+                "content": "Leo I"
+              },
+              {
+                "code": "c",
+                "content": "romersk präst"
+              }
+            ],
+            "ind1": 0,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "leo i romersk prast"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "ISNI",
+            "ns1:sid": "ISNI|0000000122762688"
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": [
+              {
+                "code": "a",
+                "content": "Leo der Große"
+              },
+              {
+                "code": "c",
+                "content": "Papst"
+              }
+            ],
+            "ind1": 0,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "leo der grosse papst"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "ISNI",
+            "ns1:sid": "ISNI|0000000122762688"
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": {
+              "code": "a",
+              "content": "Leon I.a"
+            },
+            "ind1": 0,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "leon i a"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "ISNI",
+            "ns1:sid": "ISNI|0000000122762688"
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": {
+              "code": "a",
+              "content": "Leon Iañ"
+            },
+            "ind1": 0,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "leon ian"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "ISNI",
+            "ns1:sid": "ISNI|0000000122762688"
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": [
+              {
+                "code": "a",
+                "content": "Leon I"
+              },
+              {
+                "code": "c",
+                "content": "papież, Doktor Kościoła, święty w Kościele katolickim i prawosławnym"
+              }
+            ],
+            "ind1": 0,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "leon i papiez doktor kosciola swiety w kosciele katolickim i prawoslawnym"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "ICCU",
+            "ns1:sid": "ICCU|MILV033623"
+          },
+          "ns1:datafield": {
+            "ind2": 0,
+            "ns1:subfield": [
+              {
+                "code": "a",
+                "content": "Leone : Magno"
+              },
+              {
+                "code": "c",
+                "content": "<papa>"
+              }
+            ],
+            "ind1": " ",
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "leone magno papa"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "ICCU",
+            "ns1:sid": "ICCU|MILV033623"
+          },
+          "ns1:datafield": {
+            "ind2": 0,
+            "ns1:subfield": [
+              {
+                "code": "a",
+                "content": "Leone I"
+              },
+              {
+                "code": "c",
+                "content": "<papa>"
+              }
+            ],
+            "ind1": " ",
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "leone i papa"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "ICCU",
+            "ns1:sid": "ICCU|MILV033623"
+          },
+          "ns1:datafield": {
+            "ind2": 0,
+            "ns1:subfield": [
+              {
+                "code": "a",
+                "content": "Leone Magno"
+              },
+              {
+                "code": "c",
+                "content": "<Santo>"
+              }
+            ],
+            "ind1": " ",
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "leone magno santo"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "ISNI",
+            "ns1:sid": "ISNI|0000000122762688"
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": {
+              "code": "a",
+              "content": "Leone Su Mannu"
+            },
+            "ind1": 0,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "leone su mannu"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "ICCU",
+            "ns1:sid": "ICCU|MILV033623"
+          },
+          "ns1:datafield": {
+            "ind2": 0,
+            "ns1:subfield": [
+              {
+                "code": "a",
+                "content": "Leone"
+              },
+              {
+                "code": "c",
+                "content": "<papa"
+              },
+              {
+                "code": "d",
+                "content": "; 1.>"
+              }
+            ],
+            "ind1": " ",
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "leone papa 1"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "ISNI",
+            "ns1:sid": "ISNI|0000000122762688"
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": {
+              "code": "a",
+              "content": "Leono la 1-a"
+            },
+            "ind1": 0,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "leono la 1 a"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "ISNI",
+            "ns1:sid": "ISNI|0000000122762688"
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": {
+              "code": "a",
+              "content": "Leons I"
+            },
+            "ind1": 0,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "leons i"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "ICCU",
+            "ns1:sid": "ICCU|MILV033623"
+          },
+          "ns1:datafield": {
+            "ind2": 0,
+            "ns1:subfield": [
+              {
+                "code": "a",
+                "content": "Leo"
+              },
+              {
+                "code": "c",
+                "content": "<papa"
+              },
+              {
+                "code": "d",
+                "content": "; 1.>"
+              }
+            ],
+            "ind1": " ",
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "leo papa 1"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "ISNI",
+            "ns1:sid": "ISNI|0000000122762688"
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": {
+              "code": "a",
+              "content": "Lev I"
+            },
+            "ind1": 0,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "lev i"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "ISNI",
+            "ns1:sid": "ISNI|0000000122762688"
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": [
+              {
+                "code": "a",
+                "content": "Lev I. Veliký"
+              },
+              {
+                "code": "c",
+                "content": "45. papež římskokatolické církve"
+              }
+            ],
+            "ind1": 0,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "lev i veliky 45 papez rimskokatolicke cirkve"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "ISNI",
+            "ns1:sid": "ISNI|0000000122762688"
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": {
+              "code": "a",
+              "content": "León I"
+            },
+            "ind1": 0,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "leon i"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "ISNI",
+            "ns1:sid": "ISNI|0000000122762688"
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": {
+              "code": "a",
+              "content": "León I Magno"
+            },
+            "ind1": 0,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "leon i magno"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "ISNI",
+            "ns1:sid": "ISNI|0000000122762688"
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": {
+              "code": "a",
+              "content": "León I el Magno"
+            },
+            "ind1": 0,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "leon i el magno"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "ICCU",
+            "ns1:sid": "ICCU|MILV033623"
+          },
+          "ns1:datafield": {
+            "ind2": 0,
+            "ns1:subfield": {
+              "code": "a",
+              "content": "Léon : le Grand"
+            },
+            "ind1": " ",
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "leon le grand"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": [
+              "J9U",
+              "LC"
+            ],
+            "ns1:sid": [
+              "J9U|987007451523905171",
+              "LC|no 89020567"
+            ]
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": [
+              {
+                "code": "a",
+                "content": "Léon, Charles Léon,"
+              },
+              {
+                "code": "c",
+                "content": "comte,"
+              },
+              {
+                "code": "d",
+                "content": "1806-1881"
+              }
+            ],
+            "ind1": 1,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "leon charles leon comte 1806 1881"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "N6I",
+            "ns1:sid": "N6I|vtls002832330"
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": [
+              {
+                "code": "a",
+                "content": "Léon, Charles Léon,‏ ‎"
+              },
+              {
+                "code": "c",
+                "content": "comte,‏"
+              },
+              {
+                "code": "d",
+                "content": "1806-1881‏"
+              }
+            ],
+            "ind1": 1,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "leon charles leon comte 1806 1881"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "DNB",
+            "ns1:sid": "DNB|119145383"
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": [
+              {
+                "code": "a",
+                "content": "Léon, Charles"
+              },
+              {
+                "code": "d",
+                "content": "1806-1881"
+              }
+            ],
+            "ind1": 1,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "leon charles 1806 1881"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": [
+              "J9U",
+              "LC"
+            ],
+            "ns1:sid": [
+              "J9U|987007451523905171",
+              "LC|no 89020567"
+            ]
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": [
+              {
+                "code": "a",
+                "content": "Léon, Léon-Charles de La Plaigne,"
+              },
+              {
+                "code": "c",
+                "content": "comte,"
+              },
+              {
+                "code": "d",
+                "content": "1806-1881"
+              }
+            ],
+            "ind1": 1,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "leon leon charles de la plaigne comte 1806 1881"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "N6I",
+            "ns1:sid": "N6I|vtls002832330"
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": [
+              {
+                "code": "a",
+                "content": "Léon, Léon-Charles de La Plaigne,‏ ‎"
+              },
+              {
+                "code": "c",
+                "content": "comte,‏ ‎"
+              },
+              {
+                "code": "d",
+                "content": "1806-1881‏"
+              }
+            ],
+            "ind1": 1,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "leon leon charles de la plaigne comte 1806 1881"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "NTA",
+            "ns1:sid": "NTA|394359437"
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": [
+              {
+                "code": "a",
+                "content": "Léon,"
+              },
+              {
+                "code": "c",
+                "content": "Comte,"
+              },
+              {
+                "code": "d",
+                "content": "1806-1881"
+              }
+            ],
+            "ind1": 1,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "leon comte 1806 1881"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "BNF",
+            "ns1:sid": "BNF|10661431"
+          },
+          "ns1:datafield": {
+            "ind2": "|",
+            "ns1:subfield": [
+              {
+                "code": "a",
+                "content": "Léon"
+              },
+              {
+                "code": "b",
+                "content": "Comte"
+              },
+              {
+                "code": "f",
+                "content": "1806-1881"
+              }
+            ],
+            "ind1": " ",
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "leon comte 1806 1881"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "DNB",
+            "ns1:sid": "DNB|119145383"
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": [
+              {
+                "code": "a",
+                "content": "Léon"
+              },
+              {
+                "code": "c",
+                "content": "Comte"
+              },
+              {
+                "code": "d",
+                "content": "1806-1881"
+              }
+            ],
+            "ind1": 0,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "leon comte 1806 1881"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "DNB",
+            "ns1:sid": "DNB|119145383"
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": [
+              {
+                "code": "a",
+                "content": "Léon"
+              },
+              {
+                "code": "c",
+                "content": "Graf"
+              },
+              {
+                "code": "d",
+                "content": "1806-1881"
+              }
+            ],
+            "ind1": 0,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "leon graf 1806 1881"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "ISNI",
+            "ns1:sid": "ISNI|0000000122762688"
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": {
+              "code": "a",
+              "content": "Liuni I"
+            },
+            "ind1": 0,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "liuni i"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "ISNI",
+            "ns1:sid": "ISNI|0000000122762688"
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": {
+              "code": "a",
+              "content": "Liyun I"
+            },
+            "ind1": 0,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "liyun i"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "DNB",
+            "ns1:sid": "DNB|119145383"
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": [
+              {
+                "code": "a",
+                "content": "Luxburg, Léon"
+              },
+              {
+                "code": "c",
+                "content": "Graf von"
+              },
+              {
+                "code": "d",
+                "content": "1806-1881"
+              }
+            ],
+            "ind1": 1,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "luxburg leon graf von 1806 1881"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": [
+              "ISNI",
+              "WKP"
+            ],
+            "ns1:sid": [
+              "ISNI|0000000122762688",
+              "WKP|Q1390993"
+            ]
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": [
+              {
+                "code": "a",
+                "content": "Léon Denuelle"
+              },
+              {
+                "code": "c",
+                "content": "Sohn Napoleons und seiner Mätresse Eleonore Denuelle"
+              }
+            ],
+            "ind1": 0,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "leon denuelle sohn napoleons und seiner matresse eleonore denuelle"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "ISNI",
+            "ns1:sid": "ISNI|0000000122762688"
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": [
+              {
+                "code": "a",
+                "content": "Léon Ier"
+              },
+              {
+                "code": "c",
+                "content": "pape"
+              }
+            ],
+            "ind1": 0,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "leon ier pape"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "ISNI",
+            "ns1:sid": "ISNI|0000000122762688"
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": [
+              {
+                "code": "a",
+                "content": "Léon, Charles Léon"
+              },
+              {
+                "code": "d",
+                "content": "1806-1881"
+              },
+              {
+                "code": "c",
+                "content": "comte"
+              }
+            ],
+            "ind1": 1,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "leon charles leon 1806 1881 comte"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "ISNI",
+            "ns1:sid": "ISNI|0000000122762688"
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": [
+              {
+                "code": "a",
+                "content": "Léon, Charles"
+              },
+              {
+                "code": "d",
+                "content": "1806-1881"
+              }
+            ],
+            "ind1": 1,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "leon charles 1806 1881"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "ISNI",
+            "ns1:sid": "ISNI|0000000122762688"
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": {
+              "code": "a",
+              "content": "Léon, Comte"
+            },
+            "ind1": 1,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "leon comte"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "ISNI",
+            "ns1:sid": "ISNI|0000000122762688"
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": [
+              {
+                "code": "a",
+                "content": "Léon, Léon-Charles de La Plaigne"
+              },
+              {
+                "code": "d",
+                "content": "1806-1881"
+              },
+              {
+                "code": "c",
+                "content": "comte"
+              }
+            ],
+            "ind1": 1,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "leon leon charles de la plaigne 1806 1881 comte"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "PLWABN",
+            "ns1:sid": "PLWABN|9810545524405606"
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": [
+              {
+                "code": "a",
+                "content": "Léon"
+              },
+              {
+                "code": "d",
+                "content": "(1806-1881)"
+              }
+            ],
+            "ind1": 1,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "leon 1806 1881"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "ISNI",
+            "ns1:sid": "ISNI|0000000122762688"
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": [
+              {
+                "code": "a",
+                "content": "Léon"
+              },
+              {
+                "code": "d",
+                "content": "1806-1881"
+              }
+            ],
+            "ind1": 0,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "leon 1806 1881"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "ISNI",
+            "ns1:sid": "ISNI|0000000122762688"
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": [
+              {
+                "code": "a",
+                "content": "Léon"
+              },
+              {
+                "code": "d",
+                "content": "1806-1881"
+              },
+              {
+                "code": "c",
+                "content": "Comte"
+              }
+            ],
+            "ind1": 0,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "leon 1806 1881 comte"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "ISNI",
+            "ns1:sid": "ISNI|0000000122762688"
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": [
+              {
+                "code": "a",
+                "content": "Léon"
+              },
+              {
+                "code": "d",
+                "content": "1806-1881"
+              },
+              {
+                "code": "c",
+                "content": "Graf"
+              }
+            ],
+            "ind1": 0,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "leon 1806 1881 graf"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "ISNI",
+            "ns1:sid": "ISNI|0000000122762688"
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": {
+              "code": "a",
+              "content": "Papa Lav I"
+            },
+            "ind1": 0,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "papa lav i"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "ISNI",
+            "ns1:sid": "ISNI|0000000122762688"
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": {
+              "code": "a",
+              "content": "Papa Leo I"
+            },
+            "ind1": 0,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "papa leo i"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "ISNI",
+            "ns1:sid": "ISNI|0000000122762688"
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": {
+              "code": "a",
+              "content": "Papa Leon I cel Mare"
+            },
+            "ind1": 0,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "papa leon i cel mare"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "ISNI",
+            "ns1:sid": "ISNI|0000000122762688"
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": [
+              {
+                "code": "a",
+                "content": "Papa Leon I"
+              },
+              {
+                "code": "c",
+                "content": "Papa ti Katoliko a Simbaan"
+              }
+            ],
+            "ind1": 0,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "papa leon i papa ti katoliko a simbaan"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "ISNI",
+            "ns1:sid": "ISNI|0000000122762688"
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": {
+              "code": "a",
+              "content": "Papa Leoni I"
+            },
+            "ind1": 0,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "papa leoni i"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "ISNI",
+            "ns1:sid": "ISNI|0000000122762688"
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": {
+              "code": "a",
+              "content": "Papa Leão I"
+            },
+            "ind1": 0,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "papa leao i"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "ISNI",
+            "ns1:sid": "ISNI|0000000122762688"
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": {
+              "code": "a",
+              "content": "Papa Lleó I"
+            },
+            "ind1": 0,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "papa lleo i"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "ISNI",
+            "ns1:sid": "ISNI|0000000122762688"
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": {
+              "code": "a",
+              "content": "Papež Leon I"
+            },
+            "ind1": 0,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "papez leon i"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "ISNI",
+            "ns1:sid": "ISNI|0000000122762688"
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": {
+              "code": "a",
+              "content": "Paus Leo I"
+            },
+            "ind1": 0,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "paus leo i"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "ISNI",
+            "ns1:sid": "ISNI|0000000122762688"
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": [
+              {
+                "code": "a",
+                "content": "Paus Leo I"
+              },
+              {
+                "code": "c",
+                "content": "priester uit Oude Rome (390-461)"
+              }
+            ],
+            "ind1": 0,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "paus leo i priester uit oude rome 390 461"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "ISNI",
+            "ns1:sid": "ISNI|0000000122762688"
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": [
+              {
+                "code": "a",
+                "content": "Pave Leo 1"
+              },
+              {
+                "code": "c",
+                "content": "romersk præst"
+              }
+            ],
+            "ind1": 0,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "pave leo 1 romersk praest"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "ISNI",
+            "ns1:sid": "ISNI|0000000122762688"
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": [
+              {
+                "code": "a",
+                "content": "Pave Leo I"
+              },
+              {
+                "code": "c",
+                "content": "romersk prest"
+              }
+            ],
+            "ind1": 0,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "pave leo i romersk prest"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": [
+              "J9U",
+              "LC"
+            ],
+            "ns1:sid": [
+              "J9U|987007451523905171",
+              "LC|no 89020567"
+            ]
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": [
+              {
+                "code": "a",
+                "content": "Plaigne, Charles Léon Denuelle de La,"
+              },
+              {
+                "code": "c",
+                "content": "comte Léon,"
+              },
+              {
+                "code": "d",
+                "content": "1806-1881"
+              }
+            ],
+            "ind1": 1,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "plaigne charles leon denuelle de la comte leon 1806 1881"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "N6I",
+            "ns1:sid": "N6I|vtls002832330"
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": [
+              {
+                "code": "a",
+                "content": "Plaigne, Charles Léon Denuelle de La,"
+              },
+              {
+                "code": "c",
+                "content": "comte Léon,‏ ‎"
+              },
+              {
+                "code": "d",
+                "content": "1806-1881‏"
+              }
+            ],
+            "ind1": 1,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "plaigne charles leon denuelle de la comte leon 1806 1881"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "ISNI",
+            "ns1:sid": "ISNI|0000000122762688"
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": [
+              {
+                "code": "a",
+                "content": "Plaigne, Charles Léon Denuelle de La"
+              },
+              {
+                "code": "d",
+                "content": "1806-1881"
+              },
+              {
+                "code": "c",
+                "content": "comte Léon"
+              }
+            ],
+            "ind1": 1,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "plaigne charles leon denuelle de la 1806 1881 comte leon"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "DNB",
+            "ns1:sid": "DNB|119145383"
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": [
+              {
+                "code": "a",
+                "content": "Plaigne, Léon"
+              },
+              {
+                "code": "c",
+                "content": "Comte de la"
+              },
+              {
+                "code": "d",
+                "content": "1806-1881"
+              }
+            ],
+            "ind1": 1,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "plaigne leon comte de la 1806 1881"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "ISNI",
+            "ns1:sid": "ISNI|0000000122762688"
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": {
+              "code": "a",
+              "content": "Pope Leo I"
+            },
+            "ind1": 0,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "pope leo i"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "ISNI",
+            "ns1:sid": "ISNI|0000000122762688"
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": {
+              "code": "a",
+              "content": "Popiežius Leonas I"
+            },
+            "ind1": 0,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "popiezius leonas i"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "ISNI",
+            "ns1:sid": "ISNI|0000000122762688"
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": {
+              "code": "a",
+              "content": "Pous Leo I"
+            },
+            "ind1": 0,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "pous leo i"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "ISNI",
+            "ns1:sid": "ISNI|0000000122762688"
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": {
+              "code": "a",
+              "content": "Pyhä Leo I"
+            },
+            "ind1": 0,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "pyha leo i"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "ISNI",
+            "ns1:sid": "ISNI|0000000122762688"
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": {
+              "code": "a",
+              "content": "Pópù Leo 1k"
+            },
+            "ind1": 0,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "popu leo 1k"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "ISNI",
+            "ns1:sid": "ISNI|0000000122762688"
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": [
+              {
+                "code": "a",
+                "content": "papa Leone I"
+              },
+              {
+                "code": "c",
+                "content": "45° vescovo di Roma e papa della Chiesa cattolica"
+              }
+            ],
+            "ind1": 0,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "papa leone i 45 vescovo di roma e papa della chiesa cattolica"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "WKP",
+            "ns1:sid": "WKP|Q1390993"
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": {
+              "code": "a",
+              "content": "Çarlz Leon"
+            },
+            "ind1": 0,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "carlz leon"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "ISNI",
+            "ns1:sid": "ISNI|0000000122762688"
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": {
+              "code": "a",
+              "content": "Πάπας Λέων Α΄"
+            },
+            "ind1": 0,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "παπασ λεων α"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": [
+              "ISNI",
+              "WKP"
+            ],
+            "ns1:sid": [
+              "ISNI|0000000122762688",
+              "WKP|Q1390993"
+            ]
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": {
+              "code": "a",
+              "content": "Σαρλ Λεόν"
+            },
+            "ind1": 0,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "σαρλ λεον"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "ISNI",
+            "ns1:sid": "ISNI|0000000122762688"
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": [
+              {
+                "code": "a",
+                "content": "Лев I"
+              },
+              {
+                "code": "c",
+                "content": "папа римский 440-461 гг"
+              }
+            ],
+            "ind1": 0,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "лев i папа римскии 440 461 гг"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "ISNI",
+            "ns1:sid": "ISNI|0000000122762688"
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": {
+              "code": "a",
+              "content": "Леў I, Папа Рымскі"
+            },
+            "ind1": 1,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "леу i папа рымскі"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "ISNI",
+            "ns1:sid": "ISNI|0000000122762688"
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": {
+              "code": "a",
+              "content": "Лъв I"
+            },
+            "ind1": 0,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "лъв i"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "ISNI",
+            "ns1:sid": "ISNI|0000000122762688"
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": {
+              "code": "a",
+              "content": "Лявон I"
+            },
+            "ind1": 0,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "лявон i"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "ISNI",
+            "ns1:sid": "ISNI|0000000122762688"
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": {
+              "code": "a",
+              "content": "Папа Лав I"
+            },
+            "ind1": 0,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "папа лав i"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "ISNI",
+            "ns1:sid": "ISNI|0000000122762688"
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": {
+              "code": "a",
+              "content": "Шарль Леон"
+            },
+            "ind1": 0,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "шарль леон"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "WKP",
+            "ns1:sid": "WKP|Q1390993"
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": [
+              {
+                "code": "a",
+                "content": "Шарль Леон"
+              },
+              {
+                "code": "c",
+                "content": "Незаконнорожденный сын Наполеона I"
+              }
+            ],
+            "ind1": 0,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "шарль леон незаконнорожденныи сын наполеона i"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "ISNI",
+            "ns1:sid": "ISNI|0000000122762688"
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": [
+              {
+                "code": "a",
+                "content": "Լևոն առաջին"
+              },
+              {
+                "code": "c",
+                "content": "Հռոմի պապ 440-461"
+              }
+            ],
+            "ind1": 0,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "լեւոն առաջին հռոմի պապ 440 461"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "WKP",
+            "ns1:sid": "WKP|Q1390993"
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": {
+              "code": "a",
+              "content": "Շառլ Լեոն"
+            },
+            "ind1": 0,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "շառլ լեոն"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "ISNI",
+            "ns1:sid": "ISNI|0000000122762688"
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": {
+              "code": "a",
+              "content": "לאו הראשון"
+            },
+            "ind1": 0,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "לאו הראשון"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "WKP",
+            "ns1:sid": "WKP|Q1390993"
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": {
+              "code": "a",
+              "content": "שארל לאון"
+            },
+            "ind1": 0,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "שארל לאון"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "WKP",
+            "ns1:sid": "WKP|Q1390993"
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": [
+              {
+                "code": "a",
+                "content": "تشارلز ليون"
+              },
+              {
+                "code": "c",
+                "content": "سياسى من فرنسا"
+              }
+            ],
+            "ind1": 0,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "تشارلز ليون سياسى من فرنسا"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "WKP",
+            "ns1:sid": "WKP|Q1390993"
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": [
+              {
+                "code": "a",
+                "content": "تشارلز ليون"
+              },
+              {
+                "code": "c",
+                "content": "سياسي فرنسي"
+              }
+            ],
+            "ind1": 0,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "تشارلز ليون سياسي فرنسي"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": [
+              "ISNI",
+              "WKP"
+            ],
+            "ns1:sid": [
+              "ISNI|0000000122762688",
+              "WKP|Q1390993"
+            ]
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": {
+              "code": "a",
+              "content": "شارل لئون"
+            },
+            "ind1": 0,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "شارل ليون"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "ISNI",
+            "ns1:sid": "ISNI|0000000122762688"
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": {
+              "code": "a",
+              "content": "لئون اول"
+            },
+            "ind1": 0,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "ليون اول"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "ISNI",
+            "ns1:sid": "ISNI|0000000122762688"
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": [
+              {
+                "code": "a",
+                "content": "لئون یکم"
+              },
+              {
+                "code": "c",
+                "content": "کشیش در روم باستان"
+              }
+            ],
+            "ind1": 0,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "ليون یکم کشیش در روم باستان"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "ISNI",
+            "ns1:sid": "ISNI|0000000122762688"
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": {
+              "code": "a",
+              "content": "لاون"
+            },
+            "ind1": 0,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "لاون"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "ISNI",
+            "ns1:sid": "ISNI|0000000122762688"
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": {
+              "code": "a",
+              "content": "ليون الأول بابا روما"
+            },
+            "ind1": 0,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "ليون الاول بابا روما"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "ISNI",
+            "ns1:sid": "ISNI|0000000122762688"
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": {
+              "code": "a",
+              "content": "முதலாம் லியோ"
+            },
+            "ind1": 0,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "மதலம லய"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "WKP",
+            "ns1:sid": "WKP|Q1390993"
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": {
+              "code": "a",
+              "content": "ชาร์ล เลอง"
+            },
+            "ind1": 0,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "ชารล เลอง"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "ISNI",
+            "ns1:sid": "ISNI|0000000122762688"
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": {
+              "code": "a",
+              "content": "สมเด็จพระสันตะปาปาลีโอที่ 1"
+            },
+            "ind1": 0,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "สมเดจพระสนตะปาปาลโอท 1"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "ISNI",
+            "ns1:sid": "ISNI|0000000122762688"
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": {
+              "code": "a",
+              "content": "ლეო I"
+            },
+            "ind1": 0,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "ლეო i"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "ISNI",
+            "ns1:sid": "ISNI|0000000122762688"
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": {
+              "code": "a",
+              "content": "レオ1世"
+            },
+            "ind1": 0,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "レオ1世"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": [
+              "ISNI",
+              "WKP"
+            ],
+            "ns1:sid": [
+              "ISNI|0000000122762688",
+              "WKP|Q1390993"
+            ]
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": {
+              "code": "a",
+              "content": "レオン伯シャルル"
+            },
+            "ind1": 0,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "レオン伯シャルル"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "WKP",
+            "ns1:sid": "WKP|Q1390993"
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": {
+              "code": "a",
+              "content": "夏爾·萊昂"
+            },
+            "ind1": 0,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "夏尒 莱昂"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "ISNI",
+            "ns1:sid": "ISNI|0000000122762688"
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": {
+              "code": "a",
+              "content": "教宗良一世"
+            },
+            "ind1": 0,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "敎宗良一世"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "ISNI",
+            "ns1:sid": "ISNI|0000000122762688"
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": {
+              "code": "a",
+              "content": "교황레오1세"
+            },
+            "ind1": 0,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "교황레오1세"
+          }
+        }
+      ]
+    },
+    "ns1:length": 2012,
+    "ns1:deathDate": "1881-04-14",
+    "ns1:dateType": "lived",
+    "ns1:publishers": {
+      "ns1:data": [
+        {
+          "ns1:sources": {
+            "ns1:s": [
+              "BNF",
+              "ISNI"
+            ],
+            "ns1:sid": [
+              "BNF|10661431",
+              "ISNI|0000000122762688"
+            ]
+          },
+          "count": 8,
+          "ns1:text": "impr. de Mme de Lacombe"
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": [
+              "ISNI",
+              "BNF",
+              "PLWABN"
+            ],
+            "ns1:sid": [
+              "ISNI|0000000122762688",
+              "BNF|10661431",
+              "PLWABN|9810545524405606"
+            ]
+          },
+          "count": 4,
+          "ns1:text": "E. Dentu"
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": [
+              "BNF",
+              "ISNI"
+            ],
+            "ns1:sid": [
+              "BNF|10661431",
+              "ISNI|0000000122762688"
+            ]
+          },
+          "count": 3,
+          "ns1:text": "impr. de Renou et Maulde"
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": [
+              "ISNI",
+              "BNF"
+            ],
+            "ns1:sid": [
+              "ISNI|0000000122762688",
+              "BNF|10661431"
+            ]
+          },
+          "count": 3,
+          "ns1:text": "galerie Richer, 9"
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": [
+              "BNF",
+              "ISNI"
+            ],
+            "ns1:sid": [
+              "BNF|10661431",
+              "ISNI|0000000122762688"
+            ]
+          },
+          "count": 2,
+          "ns1:text": "impr. de P. Dupont"
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": [
+              "BNF",
+              "ISNI"
+            ],
+            "ns1:sid": [
+              "BNF|10661431",
+              "ISNI|0000000122762688"
+            ]
+          },
+          "count": 2,
+          "ns1:text": "impr. de P. Baudouin"
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": [
+              "BNF",
+              "ISNI"
+            ],
+            "ns1:sid": [
+              "BNF|10661431",
+              "ISNI|0000000122762688"
+            ]
+          },
+          "count": 2,
+          "ns1:text": "Chez tous les libraires"
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": [
+              "BNF",
+              "ISNI"
+            ],
+            "ns1:sid": [
+              "BNF|10661431",
+              "ISNI|0000000122762688"
+            ]
+          },
+          "count": 2,
+          "ns1:text": "Chatet"
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "SUDOC",
+            "ns1:sid": "SUDOC|165606924"
+          },
+          "count": 1,
+          "ns1:text": "Thomson Gale"
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "BNF",
+            "ns1:sid": "BNF|10661431"
+          },
+          "count": 1,
+          "ns1:text": "chez l'auteur"
+        }
+      ]
+    },
+    "ns1:languageOfEntity": {
+      "ns1:data": [
+        {
+          "ns1:sources": {
+            "ns1:s": "ICCU"
+          },
+          "ns1:text": "lat"
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "BNF"
+          },
+          "ns1:text": "fre"
+        }
+      ]
+    },
+    "xmlns:void": "http://rdfs.org/ns/void#",
+    "ns1:RecFormats": {
+      "ns1:data": [
+        {
+          "ns1:sources": {
+            "ns1:s": [
+              "BNF",
+              "PLWABN"
+            ],
+            "ns1:sid": [
+              "BNF|10661431",
+              "PLWABN|9810545524405606"
+            ]
+          },
+          "count": 18,
+          "ns1:text": "am"
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "BNF",
+            "ns1:sid": "BNF|10661431"
+          },
+          "count": 1,
+          "ns1:text": "as"
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "SUDOC",
+            "ns1:sid": "SUDOC|165606924"
+          },
+          "count": 1,
+          "ns1:text": "mm"
+        }
+      ]
+    },
+    "xmlns": "http://viaf.org/viaf/terms#",
+    "xmlns:ns1": "http://viaf.org/viaf/terms#",
+    "ns1:sources": {
+      "ns1:source": [
+        {
+          "nsid": "FRBNF106614312",
+          "content": "BNF|10661431"
+        },
+        {
+          "nsid": "Q1390993",
+          "content": "WKP|Q1390993"
+        },
+        {
+          "nsid": "IT\\ICCU\\MILV\\033623",
+          "content": "ICCU|MILV033623"
+        },
+        {
+          "nsid": 165606924,
+          "content": "SUDOC|165606924"
+        },
+        {
+          "nsid": "http://d-nb.info/gnd/119145383",
+          "content": "DNB|119145383"
+        },
+        {
+          "nsid": 9810545524405606,
+          "content": "PLWABN|9810545524405606"
+        },
+        {
+          "nsid": "no89020567",
+          "content": "LC|no 89020567"
+        },
+        {
+          "nsid": 394359437,
+          "content": "NTA|394359437"
+        },
+        {
+          "nsid": 987007451523905171,
+          "content": "J9U|987007451523905171"
+        },
+        {
+          "nsid": "0000000122762688",
+          "content": "ISNI|0000000122762688"
+        },
+        {
+          "nsid": "vtls002832330",
+          "content": "N6I|vtls002832330"
+        }
+      ]
+    },
+    "xmlns:foaf": "http://xmlns.com/foaf/0.1/",
+    "xmlns:owl": "http://www.w3.org/2002/07/owl#",
+    "ns1:dates": {
+      "min": 183,
+      "max": 200,
+      "ns1:date": [
+        {
+          "scaled": 0,
+          "count": 1,
+          "content": 183
+        },
+        {
+          "scaled": 2.32,
+          "count": 5,
+          "content": 184
+        },
+        {
+          "scaled": 2,
+          "count": 4,
+          "content": 185
+        },
+        {
+          "scaled": 0,
+          "count": 1,
+          "content": 186
+        },
+        {
+          "scaled": 0,
+          "count": 1,
+          "content": 187
+        },
+        {
+          "scaled": 0,
+          "count": 1,
+          "content": 188
+        },
+        {
+          "scaled": 0,
+          "count": 1,
+          "content": 189
+        },
+        {
+          "scaled": 0,
+          "count": 1,
+          "content": 190
+        },
+        {
+          "scaled": 1,
+          "count": 2,
+          "content": 191
+        },
+        {
+          "scaled": 1,
+          "count": 2,
+          "content": 192
+        },
+        {
+          "scaled": 0,
+          "count": 1,
+          "content": 193
+        },
+        {
+          "scaled": 1,
+          "count": 2,
+          "content": 194
+        },
+        {
+          "scaled": 1,
+          "count": 2,
+          "content": 195
+        },
+        {
+          "scaled": 2.32,
+          "count": 5,
+          "content": 196
+        },
+        {
+          "scaled": 0,
+          "count": 1,
+          "content": 197
+        },
+        {
+          "scaled": 0,
+          "count": 1,
+          "content": 198
+        },
+        {
+          "scaled": 0,
+          "count": 1,
+          "content": 199
+        },
+        {
+          "scaled": 1,
+          "count": 2,
+          "content": 200
+        }
+      ]
+    },
+    "ns1:creationtime": "2025-08-02T15:05:01.103261+00:00",
+    "ns1:x500s": {
+      "ns1:x500": [
+        {
+          "ns1:sources": {
+            "ns1:s": "DNB",
+            "ns1:sid": "DNB|119145383"
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": [
+              {
+                "code": "a",
+                "content": "Denuelle, Éléonore"
+              },
+              {
+                "code": "d",
+                "content": "1787-1868"
+              },
+              {
+                "code": 4,
+                "content": "bezf"
+              },
+              {
+                "code": 4,
+                "content": "https://d-nb.info/standards/elementset/gnd#familialRelationship"
+              },
+              {
+                "code": "e",
+                "content": "Beziehung familiaer"
+              }
+            ],
+            "ind1": 1,
+            "dtype": "MARC21",
+            "tag": 500,
+            "ns1:normalized": "denuelle eleonore 1787 1868"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "DNB",
+            "ns1:sid": "DNB|119145383"
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": [
+              {
+                "code": "a",
+                "content": "Luxburg, Karl August von"
+              },
+              {
+                "code": "d",
+                "content": "1782-1849"
+              },
+              {
+                "code": 4,
+                "content": "bezf"
+              },
+              {
+                "code": 4,
+                "content": "https://d-nb.info/standards/elementset/gnd#familialRelationship"
+              },
+              {
+                "code": "e",
+                "content": "Beziehung familiaer"
+              }
+            ],
+            "ind1": 1,
+            "dtype": "MARC21",
+            "tag": 500,
+            "ns1:normalized": "luxburg karl august von 1782 1849"
+          }
+        },
+        {
+          "viafLink": 135518763,
+          "ns1:sources": {
+            "ns1:s": "DNB",
+            "ns1:sid": "DNB|119145383"
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": [
+              {
+                "code": "a",
+                "content": "Mannheim"
+              },
+              {
+                "code": 4,
+                "content": "ortw"
+              },
+              {
+                "code": 4,
+                "content": "https://d-nb.info/standards/elementset/gnd#placeOfActivity"
+              }
+            ],
+            "ind1": " ",
+            "dtype": "MARC21",
+            "tag": 551,
+            "ns1:normalized": "mannheim"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "DNB",
+            "ns1:sid": "DNB|119145383"
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": [
+              {
+                "code": "a",
+                "content": "Napoleon"
+              },
+              {
+                "code": "b",
+                "content": "I."
+              },
+              {
+                "code": "c",
+                "content": "Frankreich, Kaiser"
+              },
+              {
+                "code": "d",
+                "content": "1769-1821"
+              },
+              {
+                "code": 4,
+                "content": "bezf"
+              },
+              {
+                "code": 4,
+                "content": "https://d-nb.info/standards/elementset/gnd#familialRelationship"
+              },
+              {
+                "code": "e",
+                "content": "Beziehung familiaer"
+              }
+            ],
+            "ind1": 0,
+            "dtype": "MARC21",
+            "tag": 500,
+            "ns1:normalized": "napoleon i frankreich kaiser 1769 1821"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "ISNI",
+            "ns1:sid": "ISNI|0000000122762688"
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": [
+              {
+                "code": "a",
+                "content": "Napoléon"
+              },
+              {
+                "code": "d",
+                "content": "1769-1821"
+              },
+              {
+                "code": "c",
+                "content": "Frankreich, Kaiser"
+              }
+            ],
+            "ind1": 0,
+            "dtype": "MARC21",
+            "tag": 500,
+            "ns1:normalized": "napoleon 1769 1821 frankreich kaiser"
+          }
+        },
+        {
+          "viafLink": 246557047,
+          "ns1:sources": {
+            "ns1:s": "DNB",
+            "ns1:sid": "DNB|119145383"
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": [
+              {
+                "code": "a",
+                "content": "Neckarhausen"
+              },
+              {
+                "code": "g",
+                "content": "Rhein-Neckar-Kreis"
+              },
+              {
+                "code": 4,
+                "content": "ortw"
+              },
+              {
+                "code": 4,
+                "content": "https://d-nb.info/standards/elementset/gnd#placeOfActivity"
+              }
+            ],
+            "ind1": " ",
+            "dtype": "MARC21",
+            "tag": 551,
+            "ns1:normalized": "neckarhausen rhein neckar kreis"
+          }
+        },
+        {
+          "viafLink": 138460917,
+          "ns1:sources": {
+            "ns1:s": "DNB",
+            "ns1:sid": "DNB|119145383"
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": [
+              {
+                "code": "a",
+                "content": "Paris"
+              },
+              {
+                "code": 4,
+                "content": "ortg"
+              },
+              {
+                "code": 4,
+                "content": "https://d-nb.info/standards/elementset/gnd#placeOfBirth"
+              }
+            ],
+            "ind1": " ",
+            "dtype": "MARC21",
+            "tag": 551,
+            "ns1:normalized": "paris"
+          }
+        },
+        {
+          "viafLink": 145384455,
+          "ns1:sources": {
+            "ns1:s": "DNB",
+            "ns1:sid": "DNB|119145383"
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": [
+              {
+                "code": "a",
+                "content": "Pontoise"
+              },
+              {
+                "code": 4,
+                "content": "orts"
+              },
+              {
+                "code": 4,
+                "content": "https://d-nb.info/standards/elementset/gnd#placeOfDeath"
+              }
+            ],
+            "ind1": " ",
+            "dtype": "MARC21",
+            "tag": 551,
+            "ns1:normalized": "pontoise"
+          }
+        }
+      ]
+    },
+    "ns1:countries": {
+      "ns1:data": {
+        "scaled": 4,
+        "ns1:sources": {
+          "ns1:s": [
+            "SUDOC",
+            "BNF",
+            "PLWABN"
+          ],
+          "ns1:sid": [
+            "SUDOC|165606924",
+            "BNF|10661431",
+            "PLWABN|9810545524405606"
+          ]
+        },
+        "count": 19,
+        "ns1:text": "FR"
+      }
+    },
+    "xmlns:rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+    "ns1:mainHeadings": {
+      "ns1:data": [
+        {
+          "ns1:sources": {
+            "ns1:s": [
+              "ISNI",
+              "WKP"
+            ],
+            "ns1:sid": [
+              "ISNI|0000000122762688",
+              "WKP|Q1390993"
+            ]
+          },
+          "ns1:text": "Charles Léon"
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": [
+              "SUDOC",
+              "BNF"
+            ],
+            "ns1:sid": [
+              "SUDOC|165606924",
+              "BNF|10661431"
+            ]
+          },
+          "ns1:text": "Léon, Charles, 1806-1881, comte"
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": [
+              "J9U",
+              "LC",
+              "N6I"
+            ],
+            "ns1:sid": [
+              "J9U|987007451523905171",
+              "LC|no 89020567",
+              "N6I|vtls002832330"
+            ]
+          },
+          "ns1:text": "Léon, comte,‏ ‎ 1806-1881‏"
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": [
+              "NTA",
+              "PLWABN"
+            ],
+            "ns1:sid": [
+              "NTA|394359437",
+              "PLWABN|9810545524405606"
+            ]
+          },
+          "ns1:text": "Léon, Charles (1806-1881)"
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "DNB",
+            "ns1:sid": "DNB|119145383"
+          },
+          "ns1:text": "Denuelle, Léon 1806-1881"
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "ICCU",
+            "ns1:sid": "ICCU|MILV033623"
+          },
+          "ns1:text": "Leo I  <papa>"
+        }
+      ],
+      "ns1:mainHeadingEl": [
+        {
+          "ns1:sources": {
+            "ns1:s": "ISNI",
+            "ns1:sid": "ISNI|0000000122762688"
+          },
+          "ns1:links": {
+            "ns1:link": [
+              {
+                "ns1:match": {
+                  "type": "suggested"
+                },
+                "content": "BNF|10661431"
+              },
+              {
+                "ns1:match": {
+                  "type": "suggested"
+                },
+                "content": "WKP|Q1390993"
+              },
+              {
+                "ns1:match": {
+                  "type": "suggested"
+                },
+                "content": "ICCU|MILV033623"
+              },
+              {
+                "ns1:match": {
+                  "type": "suggested"
+                },
+                "content": "SUDOC|165606924"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "DNB|119145383"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "N6I|vtls002832330"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "PLWABN|9810545524405606"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "LC|no 89020567"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "NTA|394359437"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "J9U|987007451523905171"
+              }
+            ]
+          },
+          "ns1:id": "ISNI|0000000122762688",
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": {
+              "code": "a",
+              "content": "Charles Léon"
+            },
+            "ind1": 0,
+            "dtype": "MARC21",
+            "tag": 100
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "WKP",
+            "ns1:sid": "WKP|Q1390993"
+          },
+          "ns1:links": {
+            "ns1:link": [
+              {
+                "ns1:match": {
+                  "type": "suggested"
+                },
+                "content": "BNF|10661431"
+              },
+              {
+                "ns1:match": {
+                  "type": "suggested"
+                },
+                "content": "SUDOC|165606924"
+              },
+              {
+                "ns1:match": {
+                  "type": "suggested"
+                },
+                "content": "DNB|119145383"
+              },
+              {
+                "ns1:match": {
+                  "type": "forced single date"
+                },
+                "content": "PLWABN|9810545524405606"
+              },
+              {
+                "ns1:match": {
+                  "type": "suggested"
+                },
+                "content": "LC|no 89020567"
+              },
+              {
+                "ns1:match": {
+                  "type": "suggested"
+                },
+                "content": "NTA|394359437"
+              },
+              {
+                "ns1:match": {
+                  "type": "suggested"
+                },
+                "content": "J9U|987007451523905171"
+              },
+              {
+                "ns1:match": {
+                  "type": "suggested"
+                },
+                "content": "ISNI|0000000122762688"
+              },
+              {
+                "ns1:match": {
+                  "type": "suggested"
+                },
+                "content": "ISNI|0000000122762688"
+              },
+              {
+                "ns1:match": {
+                  "type": "suggested"
+                },
+                "content": "ISNI|0000000122762688"
+              },
+              {
+                "ns1:match": {
+                  "type": "suggested"
+                },
+                "content": "ISNI|0000000122762688"
+              },
+              {
+                "ns1:match": {
+                  "type": "suggested"
+                },
+                "content": "ISNI|0000000122762688"
+              },
+              {
+                "ns1:match": {
+                  "type": "suggested"
+                },
+                "content": "ISNI|0000000122762688"
+              },
+              {
+                "ns1:match": {
+                  "type": "suggested"
+                },
+                "content": "ISNI|0000000122762688"
+              },
+              {
+                "ns1:match": {
+                  "type": "suggested"
+                },
+                "content": "ISNI|0000000122762688"
+              }
+            ]
+          },
+          "ns1:id": "WKP|Q1390993",
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": {
+              "code": "a",
+              "content": "Charles Léon"
+            },
+            "ind1": 0,
+            "dtype": "MARC21",
+            "tag": 100
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "DNB",
+            "ns1:sid": "DNB|119145383"
+          },
+          "ns1:links": {
+            "ns1:link": [
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "BNF|10661431"
+              },
+              {
+                "ns1:match": {
+                  "type": "suggested"
+                },
+                "content": "WKP|Q1390993"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "N6I|vtls002832330"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "LC|no 89020567"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "NTA|394359437"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "J9U|987007451523905171"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "ISNI|0000000122762688"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "ISNI|0000000122762688"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "ISNI|0000000122762688"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "ISNI|0000000122762688"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "ISNI|0000000122762688"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "ISNI|0000000122762688"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "ISNI|0000000122762688"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "ISNI|0000000122762688"
+              }
+            ]
+          },
+          "ns1:id": "DNB|119145383",
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": [
+              {
+                "code": "a",
+                "content": "Denuelle, Léon"
+              },
+              {
+                "code": "d",
+                "content": "1806-1881"
+              }
+            ],
+            "ind1": 1,
+            "dtype": "MARC21",
+            "tag": 100
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "ICCU",
+            "ns1:sid": "ICCU|MILV033623"
+          },
+          "ns1:links": {
+            "ns1:link": [
+              {
+                "ns1:match": {
+                  "type": "suggested"
+                },
+                "content": "ISNI|0000000122762688"
+              },
+              {
+                "ns1:match": {
+                  "type": "suggested"
+                },
+                "content": "ISNI|0000000122762688"
+              },
+              {
+                "ns1:match": {
+                  "type": "suggested"
+                },
+                "content": "ISNI|0000000122762688"
+              },
+              {
+                "ns1:match": {
+                  "type": "suggested"
+                },
+                "content": "ISNI|0000000122762688"
+              },
+              {
+                "ns1:match": {
+                  "type": "suggested"
+                },
+                "content": "ISNI|0000000122762688"
+              },
+              {
+                "ns1:match": {
+                  "type": "suggested"
+                },
+                "content": "ISNI|0000000122762688"
+              },
+              {
+                "ns1:match": {
+                  "type": "suggested"
+                },
+                "content": "ISNI|0000000122762688"
+              },
+              {
+                "ns1:match": {
+                  "type": "suggested"
+                },
+                "content": "ISNI|0000000122762688"
+              }
+            ]
+          },
+          "ns1:id": "ICCU|MILV033623",
+          "ns1:datafield": {
+            "ind2": 0,
+            "ns1:subfield": [
+              {
+                "code": "a",
+                "content": "Leo I"
+              },
+              {
+                "code": "c",
+                "content": "<papa>"
+              }
+            ],
+            "ind1": " ",
+            "dtype": "UNIMARC",
+            "tag": 200
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "BNF",
+            "ns1:sid": "BNF|10661431"
+          },
+          "ns1:links": {
+            "ns1:link": [
+              {
+                "ns1:match": {
+                  "type": "suggested"
+                },
+                "content": "WKP|Q1390993"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "SUDOC|165606924"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "DNB|119145383"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "N6I|vtls002832330"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "PLWABN|9810545524405606"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "LC|no 89020567"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "NTA|394359437"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "J9U|987007451523905171"
+              },
+              {
+                "ns1:match": {
+                  "type": "suggested"
+                },
+                "content": "ISNI|0000000122762688"
+              },
+              {
+                "ns1:match": {
+                  "type": "suggested"
+                },
+                "content": "ISNI|0000000122762688"
+              },
+              {
+                "ns1:match": {
+                  "type": "suggested"
+                },
+                "content": "ISNI|0000000122762688"
+              },
+              {
+                "ns1:match": {
+                  "type": "suggested"
+                },
+                "content": "ISNI|0000000122762688"
+              },
+              {
+                "ns1:match": {
+                  "type": "suggested"
+                },
+                "content": "ISNI|0000000122762688"
+              },
+              {
+                "ns1:match": {
+                  "type": "suggested"
+                },
+                "content": "ISNI|0000000122762688"
+              },
+              {
+                "ns1:match": {
+                  "type": "suggested"
+                },
+                "content": "ISNI|0000000122762688"
+              },
+              {
+                "ns1:match": {
+                  "type": "suggested"
+                },
+                "content": "ISNI|0000000122762688"
+              }
+            ]
+          },
+          "ns1:id": "BNF|10661431",
+          "ns1:datafield": {
+            "ind2": "|",
+            "ns1:subfield": [
+              {
+                "code": 7,
+                "content": "ba0yba0y"
+              },
+              {
+                "code": 8,
+                "content": "fre"
+              },
+              {
+                "code": 9,
+                "content": 0
+              },
+              {
+                "code": "a",
+                "content": "Léon"
+              },
+              {
+                "code": "b",
+                "content": "Charles"
+              },
+              {
+                "code": "f",
+                "content": "1806-1881"
+              },
+              {
+                "code": "c",
+                "content": "comte"
+              }
+            ],
+            "ind1": " ",
+            "dtype": "UNIMARC",
+            "tag": 200
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "NTA",
+            "ns1:sid": "NTA|394359437"
+          },
+          "ns1:links": {
+            "ns1:link": [
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "BNF|10661431"
+              },
+              {
+                "ns1:match": {
+                  "type": "suggested"
+                },
+                "content": "WKP|Q1390993"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "DNB|119145383"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "N6I|vtls002832330"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "LC|no 89020567"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "J9U|987007451523905171"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "ISNI|0000000122762688"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "ISNI|0000000122762688"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "ISNI|0000000122762688"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "ISNI|0000000122762688"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "ISNI|0000000122762688"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "ISNI|0000000122762688"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "ISNI|0000000122762688"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "ISNI|0000000122762688"
+              }
+            ]
+          },
+          "ns1:id": "NTA|394359437",
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": [
+              {
+                "code": "a",
+                "content": "Léon, Charles,"
+              },
+              {
+                "code": "d",
+                "content": "1806-1881"
+              }
+            ],
+            "ind1": 1,
+            "dtype": "MARC21",
+            "tag": 100
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "SUDOC",
+            "ns1:sid": "SUDOC|165606924"
+          },
+          "ns1:links": {
+            "ns1:link": [
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "BNF|10661431"
+              },
+              {
+                "ns1:match": {
+                  "type": "suggested"
+                },
+                "content": "WKP|Q1390993"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "N6I|vtls002832330"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "PLWABN|9810545524405606"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "LC|no 89020567"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "J9U|987007451523905171"
+              },
+              {
+                "ns1:match": {
+                  "type": "suggested"
+                },
+                "content": "ISNI|0000000122762688"
+              },
+              {
+                "ns1:match": {
+                  "type": "suggested"
+                },
+                "content": "ISNI|0000000122762688"
+              },
+              {
+                "ns1:match": {
+                  "type": "suggested"
+                },
+                "content": "ISNI|0000000122762688"
+              },
+              {
+                "ns1:match": {
+                  "type": "suggested"
+                },
+                "content": "ISNI|0000000122762688"
+              },
+              {
+                "ns1:match": {
+                  "type": "suggested"
+                },
+                "content": "ISNI|0000000122762688"
+              },
+              {
+                "ns1:match": {
+                  "type": "suggested"
+                },
+                "content": "ISNI|0000000122762688"
+              },
+              {
+                "ns1:match": {
+                  "type": "suggested"
+                },
+                "content": "ISNI|0000000122762688"
+              },
+              {
+                "ns1:match": {
+                  "type": "suggested"
+                },
+                "content": "ISNI|0000000122762688"
+              }
+            ]
+          },
+          "ns1:id": "SUDOC|165606924",
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": [
+              {
+                "code": "a",
+                "content": "Léon, Charles,"
+              },
+              {
+                "code": "d",
+                "content": "1806-1881,"
+              },
+              {
+                "code": "c",
+                "content": "comte"
+              }
+            ],
+            "ind1": 1,
+            "dtype": "MARC21",
+            "tag": 100
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "LC",
+            "ns1:sid": "LC|no 89020567"
+          },
+          "ns1:links": {
+            "ns1:link": [
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "BNF|10661431"
+              },
+              {
+                "ns1:match": {
+                  "type": "suggested"
+                },
+                "content": "WKP|Q1390993"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "SUDOC|165606924"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "DNB|119145383"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "N6I|vtls002832330"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "PLWABN|9810545524405606"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "NTA|394359437"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "J9U|987007451523905171"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "ISNI|0000000122762688"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "ISNI|0000000122762688"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "ISNI|0000000122762688"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "ISNI|0000000122762688"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "ISNI|0000000122762688"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "ISNI|0000000122762688"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "ISNI|0000000122762688"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "ISNI|0000000122762688"
+              }
+            ]
+          },
+          "ns1:id": "LC|no 89020567",
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": [
+              {
+                "code": "a",
+                "content": "Léon,"
+              },
+              {
+                "code": "c",
+                "content": "comte,"
+              },
+              {
+                "code": "d",
+                "content": "1806-1881"
+              }
+            ],
+            "ind1": 1,
+            "dtype": "MARC21",
+            "tag": 100
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "J9U",
+            "ns1:sid": "J9U|987007451523905171"
+          },
+          "ns1:links": {
+            "ns1:link": [
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "BNF|10661431"
+              },
+              {
+                "ns1:match": {
+                  "type": "suggested"
+                },
+                "content": "WKP|Q1390993"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "SUDOC|165606924"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "DNB|119145383"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "N6I|vtls002832330"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "PLWABN|9810545524405606"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "LC|no 89020567"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "NTA|394359437"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "ISNI|0000000122762688"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "ISNI|0000000122762688"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "ISNI|0000000122762688"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "ISNI|0000000122762688"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "ISNI|0000000122762688"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "ISNI|0000000122762688"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "ISNI|0000000122762688"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "ISNI|0000000122762688"
+              }
+            ]
+          },
+          "ns1:id": "J9U|987007451523905171",
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": [
+              {
+                "code": "a",
+                "content": "Léon,"
+              },
+              {
+                "code": "c",
+                "content": "comte,"
+              },
+              {
+                "code": "d",
+                "content": "1806-1881"
+              },
+              {
+                "code": 9,
+                "content": "lat"
+              }
+            ],
+            "ind1": 1,
+            "dtype": "MARC21",
+            "tag": 100
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "PLWABN",
+            "ns1:sid": "PLWABN|9810545524405606"
+          },
+          "ns1:links": {
+            "ns1:link": [
+              {
+                "ns1:match": {
+                  "type": "forced single date"
+                },
+                "content": "WKP|Q1390993"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "SUDOC|165606924"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "J9U|987007451523905171"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "N6I|vtls002832330"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "BNF|10661431"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "LC|no 89020567"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "ISNI|0000000122762688"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "ISNI|0000000122762688"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "ISNI|0000000122762688"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "ISNI|0000000122762688"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "ISNI|0000000122762688"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "ISNI|0000000122762688"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "ISNI|0000000122762688"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "ISNI|0000000122762688"
+              }
+            ]
+          },
+          "ns1:id": "PLWABN|9810545524405606",
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": [
+              {
+                "code": "a",
+                "content": "Léon, Charles"
+              },
+              {
+                "code": "d",
+                "content": "(1806-1881)"
+              }
+            ],
+            "ind1": 1,
+            "dtype": "MARC21",
+            "tag": 100
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "N6I",
+            "ns1:sid": "N6I|vtls002832330"
+          },
+          "ns1:links": {
+            "ns1:link": [
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "BNF|10661431"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "SUDOC|165606924"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "DNB|119145383"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "PLWABN|9810545524405606"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "LC|no 89020567"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "NTA|394359437"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "J9U|987007451523905171"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "ISNI|0000000122762688"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "ISNI|0000000122762688"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "ISNI|0000000122762688"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "ISNI|0000000122762688"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "ISNI|0000000122762688"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "ISNI|0000000122762688"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "ISNI|0000000122762688"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "ISNI|0000000122762688"
+              }
+            ]
+          },
+          "ns1:id": "N6I|vtls002832330",
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": [
+              {
+                "code": "a",
+                "content": "Léon,"
+              },
+              {
+                "code": "c",
+                "content": "comte,‏ ‎"
+              },
+              {
+                "code": "d",
+                "content": "1806-1881‏"
+              }
+            ],
+            "ind1": 1,
+            "dtype": "MARC21",
+            "tag": 100
+          }
+        }
+      ]
+    },
+    "ns1:fixed": {
+      "ns1:gender": "b"
+    },
+    "ns1:RelatorCodes": {
+      "ns1:data": [
+        {
+          "ns1:sources": {
+            "ns1:s": "BNF",
+            "ns1:sid": "BNF|10661431"
+          },
+          "count": 17,
+          "ns1:text": "070"
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "BNF",
+            "ns1:sid": "BNF|10661431"
+          },
+          "count": 1,
+          "ns1:text": 651
+        }
+      ]
+    },
+    "ns1:Document": {
+      "ns1:inDataset": {
+        "resource": "http://viaf.org/viaf/data"
+      },
+      "ns1:primaryTopic": {
+        "resource": "http://viaf.org/viaf/7196150325547210090003"
+      },
+      "about": "http://viaf.org/viaf/7196150325547210090003/"
+    },
+    "ns1:titles": {
+      "ns1:work": [
+        {
+          "ns1:sources": {
+            "ns1:s": "ICCU",
+            "ns1:sid": "ICCU|MILV033623"
+          },
+          "ns1:title": "56: Sancti Leonis Magni romani pontificis opera omnia : post Paschasii Quesnelli recensionem : ad complures et praestantissimos mss. codices ab illo non consultos exacta, emendata, et ineditis aucta: praefationibus, admonitionibus et annotationibus illustrata : accedunt quaecumque in quesnelliana editione inveniuntur eaque ad crisin revocantur : tomus tertius / curantibus Petro et Hieronymo fratribus Balleriniis, presbyteris veronensibus; manum autem ultiman adhibente J.P. Migne qui superadditit exercitationes in universa opera S. Leonis Magni auctore Petro Thoma Cacciari [...]"
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "BNF",
+            "ns1:sid": "BNF|10661431"
+          },
+          "ns1:title": "Aigle (Paris. 1852)"
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "LC",
+            "ns1:sid": "LC|no 89020567"
+          },
+          "ns1:title": "The Bonapartes, 1966:"
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "BNF",
+            "ns1:sid": "BNF|10661431"
+          },
+          "ns1:title": "citoyen Léon, ex-comte Léon, fils de l'empereur Napoléon,... à l'Assemblée législative sur l'urgente nécessité d'accorder un sursis d'un an aux poursuites de saisies immobilières"
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "BNF",
+            "ns1:sid": "BNF|10661431"
+          },
+          "ns1:title": "citoyen Léon, ex-comte Léon, fils de l'empereur Napoléon... à M. Louis-Napoléon Bonaparte,... sur la nécessité de faire déposer aux Archives nationales tous les testaments et codiciles publics et secrets de... l'empereur Napoléon"
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": [
+              "SUDOC",
+              "BNF",
+              "LC"
+            ],
+            "ns1:sid": [
+              "SUDOC|165606924",
+              "BNF|10661431",
+              "LC|no 89020567"
+            ]
+          },
+          "ns1:title": "citoyen Léon, ex-comte Léon, fils de l'empereur Napoléon, directeur de la Société pacifique, au peuple français"
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "SUDOC",
+            "ns1:sid": "SUDOC|165606924"
+          },
+          "ns1:title": "Le comte Léon, bâtard infernal de Napoléon"
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "BNF",
+            "ns1:sid": "BNF|10661431"
+          },
+          "ns1:title": "Cte Léon, chef du bataillon communal de Saint-Denis, au Conseil d'État et à la garde nationale de France"
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "ICCU",
+            "ns1:sid": "ICCU|MILV033623"
+          },
+          "ns1:title": "D. Leonis papae huius nominis primi, ... Opera, quae quidem extant, omnia. Nunc primum in unum veluti fascem collecta, & ab infinitis foedisque mendis repurgata. Accessit & copiosus index unà cum sermonum, homiliarum & epistolarum catalogo"
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "ICCU",
+            "ns1:sid": "ICCU|MILV033623"
+          },
+          "ns1:title": "I diuini sermoni di San Leon papa primo nuouamente di latina in volgar lingua tradotti per Gabriel Foresto da Brescia"
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "BNF",
+            "ns1:sid": "BNF|10661431"
+          },
+          "ns1:title": "Journal des hommes libres en Jésus-Christ paraissant tous les mardis, jeudis et samedis, les jours solennellement fêtés par l'Église exceptés"
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "BNF",
+            "ns1:sid": "BNF|10661431"
+          },
+          "ns1:title": "Lettre de M. le Cte Léon, à M. le général comte Excelmans, pair de France"
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "BNF",
+            "ns1:sid": "BNF|10661431"
+          },
+          "ns1:title": "M. le comte Léon à S. É. Mgr le cardinal Morlot, archevêque de Paris, grand aumônier de l'Empereur. [Signé : Cte Léon.]"
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "BNF",
+            "ns1:sid": "BNF|10661431"
+          },
+          "ns1:title": "M. le Cte Léon,... à S. E. M. Delangle, garde des sceaux... 5 juillet 1861"
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "ICCU",
+            "ns1:sid": "ICCU|MILV033623"
+          },
+          "ns1:title": "Il mistero pasquale : sermoni / S. Leone Magno ; versione, introduzione e note a cura di Andrea Valeriani"
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "BNF",
+            "ns1:sid": "BNF|10661431"
+          },
+          "ns1:title": "Oeuvre des enfants de Dieu réunis en familles spirituelles. Fondé à Paris, par M. François-Guillaume Coëssin, le 29 septembre 1829, et autorisé... par une lettre du Saint-Siège apostolique, datée de Rome, le 26 juin 1850... [Signé : Cte Léon.]"
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": [
+              "SUDOC",
+              "BNF",
+              "PLWABN"
+            ],
+            "ns1:sid": [
+              "SUDOC|165606924",
+              "BNF|10661431",
+              "PLWABN|9810545524405606"
+            ]
+          },
+          "ns1:title": "La Paix, solution de la question italienne"
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "BNF",
+            "ns1:sid": "BNF|10661431"
+          },
+          "ns1:title": "Réponse de M. le Cte Léon,... au gérant du journal \"le Capitole\""
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "BNF",
+            "ns1:sid": "BNF|10661431"
+          },
+          "ns1:title": "Société pacifique. Projets de lois sur un impôt unique et sur les emprunts d'État. [Signé : Léon, ex-comte Léon.]"
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "ICCU",
+            "ns1:sid": "ICCU|MILV033623"
+          },
+          "ns1:title": "Ss. Pp. Leonis Magni ... Maximi taurinensis episcopi, et Petri chrisologi ... Opera omnia quae reperiri potuerunt. Cum inducibus nouis"
+        }
+      ]
+    },
+    "ns1:history": {
+      "ns1:ht": [
+        {
+          "time": "2020-04-12T15:01:13.599033+00:00",
+          "type": "delete",
+          "recid": "NLI|004118347"
+        },
+        {
+          "time": "2024-02-23T01:07:14.287193+00:00",
+          "type": "add",
+          "recid": "BNF|10661431"
+        },
+        {
+          "time": "2024-02-23T01:07:14.318870+00:00",
+          "type": "add",
+          "recid": "WKP|Q1390993"
+        },
+        {
+          "time": "2024-02-23T01:07:14.353015+00:00",
+          "type": "add",
+          "recid": "ICCU|MILV033623"
+        },
+        {
+          "time": "2024-02-23T01:07:14.360656+00:00",
+          "type": "add",
+          "recid": "SUDOC|165606924"
+        },
+        {
+          "time": "2024-02-23T01:07:14.385316+00:00",
+          "type": "add",
+          "recid": "DNB|119145383"
+        },
+        {
+          "time": "2024-02-23T01:07:14.394575+00:00",
+          "type": "add",
+          "recid": "PLWABN|9810545524405606"
+        },
+        {
+          "time": "2024-02-23T01:07:22.194533+00:00",
+          "type": "add",
+          "recid": "LC|no 89020567"
+        },
+        {
+          "time": "2024-02-23T01:07:22.219614+00:00",
+          "type": "add",
+          "recid": "NTA|394359437"
+        },
+        {
+          "time": "2024-02-23T01:07:22.239543+00:00",
+          "type": "add",
+          "recid": "J9U|987007451523905171"
+        },
+        {
+          "time": "2024-02-23T01:07:22.250945+00:00",
+          "type": "add",
+          "recid": "ISNI|0000000122762688"
+        },
+        {
+          "time": "2024-09-25T11:30:49.888194+00:00",
+          "type": "add",
+          "recid": "N6I|vtls002832330"
+        }
+      ]
+    },
+    "ns1:coauthors": {
+      "ns1:data": [
+        {
+          "ns1:sources": {
+            "ns1:s": "BNF",
+            "ns1:sid": "BNF|10661431"
+          },
+          "count": 1,
+          "ns1:text": "Société pacifique",
+          "tag": 951
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "BNF",
+            "ns1:sid": "BNF|10661431"
+          },
+          "count": 1,
+          "ns1:text": "France, Assemblée nationale constituante 1848-1849",
+          "tag": 951
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "ISNI",
+            "ns1:sid": "ISNI|0000000122762688"
+          },
+          "count": 1,
+          "ns1:text": "Fleischmann, Hector",
+          "tag": 950
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "BNF",
+            "ns1:sid": "BNF|10661431"
+          },
+          "count": 1,
+          "ns1:text": "Coëssin, François-Guillaume 1779-1843",
+          "tag": 950
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "BNF",
+            "ns1:sid": "BNF|10661431"
+          },
+          "count": 1,
+          "ns1:text": "Charbonnel, Joseph-Jean-Baptiste 1786?-1870",
+          "tag": 950
+        }
+      ]
+    },
+    "ns1:xLinks": {
+      "ns1:xLink": [
+        {
+          "ns1:sources": {
+            "ns1:s": "WKP",
+            "ns1:sid": "WKP|Q1390993"
+          },
+          "type": "Wikipedia",
+          "content": "https://af.wikipedia.org/wiki/Charles_Léon_Denuelle"
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "WKP",
+            "ns1:sid": "WKP|Q1390993"
+          },
+          "type": "Wikipedia",
+          "content": "https://ar.wikipedia.org/wiki/تشارلز_ليون_(سياسي)"
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "WKP",
+            "ns1:sid": "WKP|Q1390993"
+          },
+          "type": "Wikipedia",
+          "content": "https://arz.wikipedia.org/wiki/تشارلز_ليون_(سياسى_من_فرنسا)"
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "WKP",
+            "ns1:sid": "WKP|Q1390993"
+          },
+          "type": "Wikipedia",
+          "content": "https://cs.wikipedia.org/wiki/Charles_Léon"
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "WKP",
+            "ns1:sid": "WKP|Q1390993"
+          },
+          "type": "Wikipedia",
+          "content": "https://de.wikipedia.org/wiki/Léon_Denuelle"
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "WKP",
+            "ns1:sid": "WKP|Q1390993"
+          },
+          "type": "Wikipedia",
+          "content": "https://en.wikipedia.org/wiki/Charles_Léon"
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "WKP",
+            "ns1:sid": "WKP|Q1390993"
+          },
+          "type": "Wikipedia",
+          "content": "https://fr.wikipedia.org/wiki/Charles_Léon"
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "WKP",
+            "ns1:sid": "WKP|Q1390993"
+          },
+          "type": "Wikipedia",
+          "content": "https://id.wikipedia.org/wiki/Charles_Léon"
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "WKP",
+            "ns1:sid": "WKP|Q1390993"
+          },
+          "type": "Wikipedia",
+          "content": "https://it.wikipedia.org/wiki/Carlo_Leone_Denuelle"
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "WKP",
+            "ns1:sid": "WKP|Q1390993"
+          },
+          "type": "Wikipedia",
+          "content": "https://ja.wikipedia.org/wiki/レオン伯シャルル"
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "WKP",
+            "ns1:sid": "WKP|Q1390993"
+          },
+          "type": "Wikipedia",
+          "content": "https://nl.wikipedia.org/wiki/Charles_Léon_Denuelle"
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "WKP",
+            "ns1:sid": "WKP|Q1390993"
+          },
+          "type": "Wikipedia",
+          "content": "https://pl.wikipedia.org/wiki/Karol_de_Leon"
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "WKP",
+            "ns1:sid": "WKP|Q1390993"
+          },
+          "type": "Wikipedia",
+          "content": "https://ru.wikipedia.org/wiki/Леон,_Шарль"
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "WKP",
+            "ns1:sid": "WKP|Q1390993"
+          },
+          "type": "Wikipedia",
+          "content": "https://th.wikipedia.org/wiki/ชาร์ล_เลอง"
+        }
+      ]
+    },
+    "ns1:birthDate": "1806-12-13"
+  }
+}
