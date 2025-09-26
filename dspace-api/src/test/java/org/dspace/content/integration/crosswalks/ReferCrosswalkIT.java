@@ -120,7 +120,10 @@ public class ReferCrosswalkIT extends AbstractIntegrationTestWithDatabase {
         this.crosswalkMapper = new DSpace().getSingletonService(StreamDisseminationCrosswalkMapper.class);
         assertThat(crosswalkMapper, notNullValue());
 
-        this.virtualFieldMapper = new DSpace().getSingletonService(VirtualFieldMapper.class);
+        this.virtualFieldMapper =
+            DSpaceServicesFactory.getInstance()
+                                 .getServiceManager()
+                                 .getServiceByName("virtualFieldMapper", VirtualFieldMapper.class);
         assertThat(crosswalkMapper, notNullValue());
 
         this.itemService = new DSpace().getSingletonService(ItemServiceImpl.class);
@@ -2667,17 +2670,21 @@ public class ReferCrosswalkIT extends AbstractIntegrationTestWithDatabase {
     }
 
     @Test
+
     public void testReferCrosswalkPublicationDataciteXmlWithoutTypeAndAuthor() throws Exception {
 
+
         ReferCrosswalk referCrosswalk = new DSpace().getServiceManager()
-            .getServiceByName("referCrosswalkPublicationDataciteXml", ReferCrosswalk.class);
+                                                    .getServiceByName("referCrosswalkPublicationDataciteXml",
+                                                                      ReferCrosswalk.class);
         assertThat(referCrosswalk, notNullValue());
 
         Item publisher = createItem(context, collection)
-                .withEntityType("OrgUnit")
-                .withTitle("Publisher Name")
-                .withOrgUnitRORIdentifier("rorID2")
-                .build();
+            .withEntityType("OrgUnit")
+            .withTitle("Publisher Name")
+            .withOrgUnitRORIdentifier("rorID2")
+            .build();
+
         Item item = createItem(context, collection)
             .withEntityType("Publication")
             .withTitle("Publication title")
@@ -2697,8 +2704,9 @@ public class ReferCrosswalkIT extends AbstractIntegrationTestWithDatabase {
             String expectedXml = IOUtils.toString(fis, Charset.defaultCharset());
             compareEachLine(byteArrayOutputStream.toString(), expectedXml);
         }
-
     }
+
+
 
     @Test
     public void testReferCrosswalkPublicationDataciteXmlWithVirtualPlace() throws Exception {
@@ -3031,7 +3039,6 @@ public class ReferCrosswalkIT extends AbstractIntegrationTestWithDatabase {
             DCInputAuthority.getPluginNames();
         }
     }
-
 
     private void createSelectedRelationship(Item author, Item publication, RelationshipType selectedRelationshipType) {
         createRelationshipBuilder(context, publication, author, selectedRelationshipType, -1, -1).build();
