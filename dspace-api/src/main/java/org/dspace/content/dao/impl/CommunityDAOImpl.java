@@ -189,6 +189,60 @@ public class CommunityDAOImpl extends AbstractHibernateDSODAO<Community> impleme
     }
 
     @Override
+    public List<Community> findAncestorTree(Context context, Community community) throws SQLException {
+        if (community == null) {
+            return new LinkedList<>();
+        }
+
+        String sql = """
+            WITH RECURSIVE ancestor_tree AS (
+                SELECT c.uuid, c.community_id, 0 as level
+                FROM community c
+                WHERE c.uuid = :communityId
+                UNION ALL
+                SELECT p.uuid, p.community_id, at.level + 1 as level
+                FROM community p
+                INNER JOIN community2community c2c ON p.uuid = c2c.parent_comm_id
+                INNER JOIN ancestor_tree at ON c2c.child_comm_id = at.uuid
+            )
+            SELECT c.uuid
+            FROM ancestor_tree at
+            INNER JOIN community c ON c.uuid = at.uuid
+            WHERE at.level > 0
+            ORDER BY at.level DESC""";
+
+        // First get the UUIDs in the correct order
+        Query uuidQuery = getHibernateSession(context)
+            .createNativeQuery(sql)
+            .setParameter("communityId", community.getID());
+
+        @SuppressWarnings("unchecked")
+        List<Object> uuidResults = uuidQuery.getResultList();
+
+        // Convert to UUIDs and fetch full Community objects
+        List<Community> result = new LinkedList<>();
+        for (Object uuidObj : uuidResults) {
+            java.util.UUID uuid;
+            if (uuidObj instanceof String) {
+                uuid = java.util.UUID.fromString((String) uuidObj);
+            } else if (uuidObj instanceof java.util.UUID) {
+                uuid = (java.util.UUID) uuidObj;
+            } else {
+                // Handle byte array case (PostgreSQL sometimes returns UUIDs as byte arrays)
+                uuid = java.util.UUID.fromString(uuidObj.toString());
+            }
+
+            // Load the full Community entity with all its metadata and relationships
+            Community fullCommunity = findByID(context, Community.class, uuid);
+            if (fullCommunity != null) {
+                result.add(fullCommunity);
+            }
+        }
+
+        return result;
+    }
+
+    @Override
     public int countRows(Context context) throws SQLException {
         return count(createQuery(context, "SELECT count(*) FROM Community"));
     }

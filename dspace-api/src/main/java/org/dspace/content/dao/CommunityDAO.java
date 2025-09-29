@@ -40,5 +40,16 @@ public interface CommunityDAO extends DSpaceObjectLegacySupportDAO<Community> {
     public List<Community> findAuthorizedByGroup(Context context, EPerson currentUser, List<Integer> actions)
         throws SQLException;
 
+    /**
+     * Find all ancestor communities of the given community organized as a hierarchical path.
+     * Uses a recursive query to traverse the community hierarchy from the given community up to the root(s).
+     * 
+     * @param context the DSpace context
+     * @param community the community whose ancestors should be fetched
+     * @return a list of ancestor communities ordered from root to immediate parent
+     * @throws SQLException if database error occurs
+     */
+    public List<Community> findAncestorTree(Context context, Community community) throws SQLException;
+
     int countRows(Context context) throws SQLException;
 }
