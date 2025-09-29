@@ -411,6 +411,11 @@ public class CommunityServiceImpl extends DSpaceObjectServiceImpl<Community> imp
     }
 
     @Override
+    public List<Community> getAncestorTree(Context context, Community community) throws SQLException {
+        return communityDAO.findAncestorTree(context, community);
+    }
+
+    @Override
     public List<Collection> getAllCollections(Context context, Community community) throws SQLException {
         List<Collection> collectionList = new ArrayList<>();
         List<Community> subCommunities = community.getSubcommunities();
