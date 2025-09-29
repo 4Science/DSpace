@@ -39,6 +39,7 @@ import org.dspace.content.MetadataSchema;
 import org.dspace.content.MetadataValue;
 import org.dspace.content.WorkspaceItem;
 import org.dspace.content.authority.Choices;
+import org.dspace.content.authority.DCInputAuthority;
 import org.dspace.content.authority.factory.ContentAuthorityServiceFactory;
 import org.dspace.content.authority.service.ChoiceAuthorityService;
 import org.dspace.content.authority.service.MetadataAuthorityService;
@@ -940,6 +941,7 @@ public class ItemEnhancerConsumerIT extends AbstractIntegrationTestWithDatabase 
 
         // These clears have to happen so that the config is actually reloaded in those classes. This is needed for
         // the properties that we're altering above and this is only used within the tests
+        DCInputAuthority.reset();
         pluginService.clearNamedPluginClasses();
         choiceAuthorityService.clearCache();
         metadataAuthorityService.clearCache();
@@ -1118,6 +1120,10 @@ public class ItemEnhancerConsumerIT extends AbstractIntegrationTestWithDatabase 
         return with("cris.virtual.rootFondTitle", title, uuid, 0, 600);
     }
 
+    private MetadataValueMatcher withSourceRootFondsTitle(String uuid) {
+        return with("cris.virtualsource.rootFondTitle", uuid, null, 0, -1);
+    }
+
     @Test
     public void testVirtualRootFondTitleSetCorrectly() throws Exception {
         context.turnOffAuthorisationSystem();
@@ -1159,9 +1165,11 @@ public class ItemEnhancerConsumerIT extends AbstractIntegrationTestWithDatabase 
 
         // Assert rootFond has the virtual metadata
         List<MetadataValue> metadataValues = rootFond.getMetadata();
-        assertThat(metadataValues, hasSize(7));
+        assertThat(metadataValues, hasSize(8));
         MetadataValueMatcher rootFondMatcher = withRootFondTitle(rootFond.getName(), rootFond.getID().toString());
+        MetadataValueMatcher sourceRootFondsMatcher = withSourceRootFondsTitle(rootFond.getID().toString());
         assertThat(metadataValues, hasItem(rootFondMatcher));
+        assertThat(metadataValues, hasItem(sourceRootFondsMatcher));
 
         // Assert childFond does NOT contain "cris.virtual.rootFondTitle"
         List<MetadataValue> metadataValues2 = childFond.getMetadata();
@@ -1194,15 +1202,17 @@ public class ItemEnhancerConsumerIT extends AbstractIntegrationTestWithDatabase 
 
         // Assert rootFond has the virtual metadata
         List<MetadataValue> metadataValues = rootFond.getMetadata();
-        assertThat(metadataValues, hasSize(7));
+        assertThat(metadataValues, hasSize(8));
 
         MetadataValueMatcher rootFondsTitleMatcher = withRootFondTitle("Root Fonds", rootFond.getID().toString());
+        MetadataValueMatcher sourceRootFondsMatcher = withSourceRootFondsTitle(rootFond.getID().toString());
         assertThat(
             metadataValues.stream()
                           .filter(rootFondsTitleMatcher::matches)
                           .count(),
             equalTo(1L)
         );
+        assertThat(metadataValues, hasItem(sourceRootFondsMatcher));
 
 
         context.turnOffAuthorisationSystem();
@@ -1213,6 +1223,7 @@ public class ItemEnhancerConsumerIT extends AbstractIntegrationTestWithDatabase 
         context.restoreAuthSystemState();
         rootFond = commitAndReload(rootFond);
         rootFondsTitleMatcher = withRootFondTitle("Root Fonds Updated", rootFond.getID().toString());
+        sourceRootFondsMatcher = withSourceRootFondsTitle(rootFond.getID().toString());
 
         // Assert rootFond contains "cris.virtual.rootFondTitle"
         metadataValues = rootFond.getMetadata();
@@ -1222,6 +1233,7 @@ public class ItemEnhancerConsumerIT extends AbstractIntegrationTestWithDatabase 
                           .count(),
             equalTo(1L)
         );
+        assertThat(metadataValues, hasItem(sourceRootFondsMatcher));
     }
 
     @Test
@@ -1266,7 +1278,7 @@ public class ItemEnhancerConsumerIT extends AbstractIntegrationTestWithDatabase 
 
         // Assert rootFond has the virtual metadata
         List<MetadataValue> metadataValues = rootJournalFond.getMetadata();
-        assertThat(metadataValues, hasSize(7));
+        assertThat(metadataValues, hasSize(8));
         assertThat(metadataValues, hasItem(with("cris.virtual.rootJournalFondTitle", rootJournalFond.getName(),
                                                 rootJournalFond.getID().toString(), 0, 600)));
 

@@ -29,6 +29,7 @@ import org.dspace.builder.GroupBuilder;
 import org.dspace.builder.ItemBuilder;
 import org.dspace.content.Collection;
 import org.dspace.content.Item;
+import org.dspace.content.authority.DCInputAuthority;
 import org.dspace.content.authority.ItemAuthority;
 import org.dspace.content.authority.service.ChoiceAuthorityService;
 import org.dspace.core.service.PluginService;
@@ -1042,11 +1043,11 @@ public class ItemAuthorityIT extends AbstractControllerIntegrationTest {
     }
 
     @Override
-    @After
     // We need to cleanup the authorities cache once than the configuration has been restored
     public void destroy() throws Exception {
-        super.destroy();
+        DCInputAuthority.reset();
         pluginService.clearNamedPluginClasses();
         choiceAuthorityService.clearCache();
+        super.destroy();
     }
 }

@@ -4,7 +4,9 @@ definitions:
   docker:
     memory: 4096  # increase memory for docker-in-docker from 1GB to 4GB
   caches:
-    gradlewrapper: ~/.gradle/wrapper
+    gradle-java17: ~/.gradle/caches
+    gradlewrapper-java17: ~/.gradle/wrapper
+    maven-java17: ~/.m2/repository
   mvnVars:
     &setEnv export MAVEN_OPTS="-Xmx4096M" &&
     export MAVEN_ARGS="-Dorg.slf4j.simpleLogger.showDateTime=true -Dorg.slf4j.simpleLogger.dateTimeFormat=HH:mm:ss,SSS"
@@ -16,9 +18,9 @@ definitions:
         clone:
           depth: 2
         caches:
-          - gradle
-          - gradlewrapper
-          - maven
+          - gradle-java17
+          - gradlewrapper-java17
+          - maven-java17
         script:
           - *setEnv
           - mvn install -T 1C -B -P-assembly,pipeline $MAVEN_ARGS
@@ -34,13 +36,13 @@ definitions:
         name: unit-test-code-checks
         size: 2x
         caches:
-          - gradle
-          - gradlewrapper
-          - maven
+          - gradle-java17
+          - gradlewrapper-java17
+          - maven-java17
         script:
           - *setEnv
           - cp -rf target/local-repo/** ~/.m2/repository/
-          - mvn -T 1C test -B -pl dspace-api,dspace-server-webapp,dspace-services,dspace-oai -P-assembly -nsu -Dmaven.main.skip -DuseIncrementalCompilation=false -Dtest.argLine=-Xmx4096M -DskipUnitTests=false $MAVEN_ARGS
+          - mvn -T 1C test -B -pl dspace-api,dspace-server-webapp,dspace-services,dspace-oai -P-assembly -nsu -ntp -Dmaven.main.skip -DuseIncrementalCompilation=false -Dtest.argLine="-XX:MaxRAMPercentage=75 -XX:InitialRAMPercentage=60 -XX:+UseG1GC -XX:+HeapDumpOnOutOfMemoryError" -DskipUnitTests=false $MAVEN_ARGS
         artifacts:
           - dspace-api/target/surefire-reports/*-output.txt
           - dspace-server-webapp/target/surefire-reports/*-output.txt
@@ -50,19 +52,21 @@ definitions:
           - dspace-server-webapp/target/failsafe-reports/*-output.txt
           - dspace-services/target/failsafe-reports/*-output.txt
           - dspace-oai/target/failsafe-reports/*-output.txt
+          - ./*.dump
+          - ./*.dumpstream
 
     - step: &integration-tests-dspace-api
         runs-on: self.hosted
         name: integration-tests-dspace-api
         size: 2x
         caches:
-          - gradle
-          - gradlewrapper
-          - maven
+          - gradle-java17
+          - gradlewrapper-java17
+          - maven-java17
         script:
           - *setEnv
           - cp -rf target/local-repo/** ~/.m2/repository/
-          - mvn verify -pl dspace-api -nsu -Dmaven.main.skip -DuseIncrementalCompilation=true -DskipUnitTests=true -DskipIntegrationTests=false -B -Dsurefire.rerunFailingTestsCount=2 -Dtest.argLine=-Xmx4096M $MAVEN_ARGS
+          - mvn verify -pl dspace-api -nsu -ntp -Dmaven.main.skip -DuseIncrementalCompilation=true -DskipUnitTests=true -DskipIntegrationTests=false -B -Dsurefire.rerunFailingTestsCount=2 -Dtest.argLine="-XX:MaxRAMPercentage=75 -XX:InitialRAMPercentage=60 -XX:+UseG1GC -XX:+HeapDumpOnOutOfMemoryError" $MAVEN_ARGS
         artifacts:
           - dspace-api/target/surefire-reports/*-output.txt
           - dspace-api/target/failsafe-reports/*-output.txt
@@ -72,9 +76,9 @@ definitions:
         name: integration-tests-with-test-jars
         size: 2x
         caches:
-          - gradle
-          - gradlewrapper
-          - maven
+          - gradle-java17
+          - gradlewrapper-java17
+          - maven-java17
         script:
           - *setEnv
 #          - ./dspace-api/src/test/data/dspaceFolder/bin/install_grobid.sh
@@ -89,13 +93,13 @@ definitions:
         name: integration-tests-slow
         size: 1x
         caches:
-          - gradle
-          - gradlewrapper
-          - maven
+          - gradle-java17
+          - gradlewrapper-java17
+          - maven-java17
         script:
           - *setEnv
           - cp -rf target/local-repo/** ~/.m2/repository/
-          - mvn verify -pl dspace-server-webapp -nsu -Dmaven.main.skip -Dit.test=GenericAuthorizationFeatureIT,WorkspaceItemRestRepositoryIT,ItemImportIT,ItemRestRepositoryIT,LeftTiltedRelationshipRestRepositoryIT,RelationshipRestRepositoryIT,StatisticsRestRepositoryIT,DiscoveryRestControllerIT,PatchMetadataIT,VersionRestRepositoryIT,CollectionRestRepositoryIT,DiscoveryScopeBasedRestControllerIT,BrowsesResourceControllerIT,BitstreamRestRepositoryIT,RightTiltedRelationshipRestRepositoryIT,ResearcherProfileRestRepositoryIT,StatisticsRestSearchByCategoryRepositoryIT,TaskRestRepositoriesIT -DskipUnitTests=true -DskipIntegrationTests=false -B -Dsurefire.rerunFailingTestsCount=2 -Dtest.argLine=-Xmx4096M $MAVEN_ARGS
+          - mvn verify -pl dspace-server-webapp -nsu -ntp -Dmaven.main.skip -Dit.test=GenericAuthorizationFeatureIT,WorkspaceItemRestRepositoryIT,ItemImportIT,ItemRestRepositoryIT,LeftTiltedRelationshipRestRepositoryIT,RelationshipRestRepositoryIT,StatisticsRestRepositoryIT,DiscoveryRestControllerIT,PatchMetadataIT,VersionRestRepositoryIT,CollectionRestRepositoryIT,DiscoveryScopeBasedRestControllerIT,BrowsesResourceControllerIT,BitstreamRestRepositoryIT,RightTiltedRelationshipRestRepositoryIT,ResearcherProfileRestRepositoryIT,StatisticsRestSearchByCategoryRepositoryIT,TaskRestRepositoriesIT -DskipUnitTests=true -DskipIntegrationTests=false -B -Dsurefire.rerunFailingTestsCount=2 -Dtest.argLine="-XX:MaxRAMPercentage=75 -XX:InitialRAMPercentage=60 -XX:+UseG1GC -XX:+HeapDumpOnOutOfMemoryError" $MAVEN_ARGS
         artifacts:
           - dspace-server-webapp/target/surefire-reports/*-output.txt
           - dspace-server-webapp/target/failsafe-reports/*-output.txt
@@ -109,9 +113,6 @@ pipelines:
           - step: *integration-tests-with-test-jars
           - step: *integration-tests-slow
           - step: *integration-tests-dspace-api
-    'dspace-cris-2023_02_x':
-      - step: *install
-      - parallel: *parallel-pipeline
     'prod/**':
       - step: *install
       - parallel: *parallel-pipeline

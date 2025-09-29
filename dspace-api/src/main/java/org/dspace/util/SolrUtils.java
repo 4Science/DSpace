@@ -12,6 +12,7 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.TimeZone;
 
@@ -30,7 +31,10 @@ public class SolrUtils {
     /** Restricted ISO 8601 format used by Solr. */
     public static final String SOLR_DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
 
+    public static final String SOLR_BC_DATE_FORMAT = "uuuu-MM-dd'T'HH:mm:ss.SSS'Z'";
+
     public static final String DATE_FORMAT_DCDATE = "yyyy-MM-dd'T'HH:mm:ss'Z'";
+
 
     /** Do not instantiate. */
     private SolrUtils() {
@@ -39,7 +43,7 @@ public class SolrUtils {
     /**
      * Create a formatter configured for Solr-style date strings and the UTC time
      * zone.
-     * 
+     *
      * @see SOLR_DATE_FORMAT
      *
      * @return date formatter compatible with Solr.
@@ -52,7 +56,7 @@ public class SolrUtils {
 
     /**
      * Maps target type into a string format.
-     * 
+     *
      * @param type a {@code String} that represents the date format style
      * @return {@code String} pattern for that type
      */
@@ -71,7 +75,7 @@ public class SolrUtils {
     /**
      * This method tries to convert a target string into a Date using the possible
      * SOLR date format used in DSpace.
-     * 
+     *
      * @param context    The Dspace context
      * @param dateString The date formatted as a string
      * @return {@code Date} parsed date
@@ -93,5 +97,9 @@ public class SolrUtils {
             }
         }
         return date;
+    }
+
+    public static DateTimeFormatter getDateTimeFormatter() {
+        return DateTimeFormatter.ofPattern(SOLR_BC_DATE_FORMAT).withZone(ZoneOffset.UTC);
     }
 }
