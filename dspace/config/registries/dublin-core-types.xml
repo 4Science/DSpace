@@ -1557,4 +1557,11 @@
     <scope_note>The longitude metadata with decimal value</scope_note>
   </dc-type>
 
+  <dc-type>
+    <schema>dc</schema>
+    <element>relation</element>
+    <qualifier>haspartofpath</qualifier>
+    <scope_note></scope_note>
+  </dc-type>
+
 </dspace-dc-types>
