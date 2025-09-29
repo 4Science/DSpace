@@ -203,7 +203,7 @@ definitions:
           - export BRANCH_FILE=$(echo "$BITBUCKET_BRANCH" | awk -F'/' '{if(NF==1)val=$1;else if(NF==2)val=$2;else if(NF==3)val=$2;else val=$3;gsub(/_/, "-", val);print tolower(val)}')
           - git clone https://x-token-auth:${DSPACE_VALUES_ACCESS_TOKEN}@${DSPACE_VALUES_REPO}
           - cd dspace-values
-          - '[ -f "dev/${BRANCH_FILE}" ] && sed -i "/^rest:/,/^[^ ]/s/\(tag: \).*/\1${BRANCH_NAME}-${HASH_COMMIT}/" "dev/${BRANCH_FILE}"'
+          - '[ -f "dev/${BRANCH_FILE}" ] && sed -i "/^rest:/,/^[^ ]/s/\(tag: \).*/\1${BRANCH_NAME}-${HASH_COMMIT}/" "dev/${BRANCH_FILE}" && sed -i "s/^\([[:space:]]*replicaCount:\) 0/\1 1/" "dev/${BRANCH_FILE}"'
           - git config --global user.email "${BB_USER}"
           - git config --global user.name "${BB_EMAIL}"
           - git commit -am "Update TAG with ${BRANCH_NAME}-${HASH_COMMIT}"
@@ -218,10 +218,40 @@ definitions:
           - export BRANCH_FILE=$(echo "$BITBUCKET_BRANCH" | awk -F'/' '{if(NF==1)val=$1;else if(NF==2)val=$2;else if(NF==3)val=$2;else val=$3;gsub(/_/, "-", val);print tolower(val)}')
           - git clone https://x-token-auth:${DSPACE_VALUES_ACCESS_TOKEN}@${DSPACE_VALUES_REPO}
           - cd dspace-values
-          - '[ -f "staging/${BRANCH_FILE}" ] && sed -i "/^rest:/,/^[^ ]/s/\(tag: \).*/\1${BRANCH_NAME}-${HASH_COMMIT}/" "staging/${BRANCH_FILE}"'
+          - '[ -f "staging/${BRANCH_FILE}" ] && sed -i "/^rest:/,/^[^ ]/s/\(tag: \).*/\1${BRANCH_NAME}-${HASH_COMMIT}/" "staging/${BRANCH_FILE}" && sed -i "s/^\([[:space:]]*replicaCount:\) 0/\1 1/" "staging/${BRANCH_FILE}"'
           - git config --global user.email "${BB_USER}"
           - git config --global user.name "${BB_EMAIL}"
           - git commit -am "Update TAG with ${BRANCH_NAME}-${HASH_COMMIT}"
+          - git push
+
+    - step: &turn-on-dev
+        name: Turn On Dev environment
+        image: alpine/git:latest
+        script:
+          - export HASH_COMMIT=${BITBUCKET_COMMIT:0:8}
+          - export BRANCH_NAME=$(echo "$BITBUCKET_BRANCH" | tr '[:upper:]' '[:lower:]' | sed 's|/|--|g')
+          - export BRANCH_FILE=$(echo "$BITBUCKET_BRANCH" | awk -F'/' '{if(NF==1)val=$1;else if(NF==2)val=$2;else if(NF==3)val=$2;else val=$3;gsub(/_/, "-", val);print tolower(val)}')
+          - git clone https://x-token-auth:${DSPACE_VALUES_ACCESS_TOKEN}@${DSPACE_VALUES_REPO}
+          - cd dspace-values
+          - '[ -f "dev/${BRANCH_FILE}" ] && sed -i "s/^\([[:space:]]*replicaCount:\) 0/\1 1/" "dev/${BRANCH_FILE}"'
+          - git config --global user.email "${BB_USER}"
+          - git config --global user.name "${BB_EMAIL}"
+          - git commit -am "Enable dev environment for ${BRANCH_NAME}"
+          - git push
+
+    - step: &turn-on-staging
+        name: Turn On Staging environment
+        image: alpine/git:latest
+        script:
+          - export HASH_COMMIT=${BITBUCKET_COMMIT:0:8}
+          - export BRANCH_NAME=$(echo "$BITBUCKET_BRANCH" | tr '[:upper:]' '[:lower:]' | sed 's|/|--|g')
+          - export BRANCH_FILE=$(echo "$BITBUCKET_BRANCH" | awk -F'/' '{if(NF==1)val=$1;else if(NF==2)val=$2;else if(NF==3)val=$2;else val=$3;gsub(/_/, "-", val);print tolower(val)}')
+          - git clone https://x-token-auth:${DSPACE_VALUES_ACCESS_TOKEN}@${DSPACE_VALUES_REPO}
+          - cd dspace-values
+          - '[ -f "staging/${BRANCH_FILE}" ] && sed -i "s/^\([[:space:]]*replicaCount:\) 0/\1 1/" "staging/${BRANCH_FILE}"'
+          - git config --global user.email "${BB_USER}"
+          - git config --global user.name "${BB_EMAIL}"
+          - git commit -am "Enable staging environment for ${BRANCH_NAME}"
           - git push
 
 pipelines:
@@ -273,3 +303,7 @@ pipelines:
       - step: *install
       - step: *build-and-push
       - step: *build-and-push-solr8
+    turn-on-dev:
+      - step: *turn-on-dev
+    turn-on-staging:
+      - step: *turn-on-staging
