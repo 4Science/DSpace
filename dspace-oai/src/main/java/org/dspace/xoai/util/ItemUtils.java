@@ -12,12 +12,15 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 import com.lyncode.xoai.dataprovider.xml.xoai.Element;
 import com.lyncode.xoai.dataprovider.xml.xoai.Metadata;
 import com.lyncode.xoai.util.Base64Utils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.dspace.app.util.factory.UtilServiceFactory;
@@ -28,6 +31,8 @@ import org.dspace.authorize.factory.AuthorizeServiceFactory;
 import org.dspace.authorize.service.AuthorizeService;
 import org.dspace.content.Bitstream;
 import org.dspace.content.Bundle;
+import org.dspace.content.Collection;
+import org.dspace.content.Community;
 import org.dspace.content.Item;
 import org.dspace.content.MetadataField;
 import org.dspace.content.MetadataValue;
@@ -53,6 +58,9 @@ import org.dspace.xoai.data.DSpaceItem;
  */
 @SuppressWarnings("deprecation")
 public class ItemUtils {
+
+    public static final String BITSTREAM_METADATA_EXCLUDED = "oai.harvester.bitstream.metadata.excluded";
+
     private static final Logger log = LogManager.getLogger(ItemUtils.class);
 
     private static final MetadataExposureService metadataExposureService
@@ -245,7 +253,7 @@ public class ItemUtils {
                     bitstream.getField().add(createValue("name", name));
                 }
                 if (oname != null) {
-                    bitstream.getField().add(createValue("originalName", name));
+                    bitstream.getField().add(createValue("originalName", oname));
                 }
                 if (description != null) {
                     bitstream.getField().add(createValue("description", description));
@@ -261,10 +269,31 @@ public class ItemUtils {
                 bitstream.getField().add(createValue("sid", bit.getSequenceID() + ""));
                 // Add primary bitstream field to allow locating easily the primary bitstream information
                 bitstream.getField().add(createValue("primary", primary + ""));
+
+                Set<String> technicalMetadataToSkip =
+                    Collections.singleton(configurationService.getProperty(BITSTREAM_METADATA_EXCLUDED));
+
+                bit.getMetadata().stream()
+                   .filter(metadataValue -> isNotExcluded(metadataValue, technicalMetadataToSkip))
+                   .forEach(metadataValue -> writeTechnicalMetadata(bitstream, metadataValue));
+
             }
         }
 
         return bundles;
+    }
+
+    protected static void writeTechnicalMetadata(Element bitstream, MetadataValue metadataValue) {
+        Element bSchema = getElement(bitstream.getElement(), metadataValue.getSchema());
+        if (bSchema == null) {
+            bSchema = create(metadataValue.getSchema());
+            bitstream.getElement().add(bSchema);
+        }
+        writeMetadata(bSchema, metadataValue);
+    }
+
+    protected static boolean isNotExcluded(MetadataValue metadataValue, Set<String> technicalMetadataToSkip) {
+        return !technicalMetadataToSkip.contains(metadataValue.getMetadataField().toString('.'));
     }
 
     /**
@@ -398,7 +427,7 @@ public class ItemUtils {
      * @param item
      * @return Structured XML Metadata in XOAI format
      */
-    public static Metadata retrieveMetadata(Context context, Item item) {
+    public static Metadata retrieveMetadata(Context context, Item item) throws SQLException {
         Metadata metadata;
 
         // read all metadata into Metadata Object
@@ -441,6 +470,14 @@ public class ItemUtils {
         other.getField().add(createValue("handle", item.getHandle()));
         other.getField().add(createValue("identifier", DSpaceItem.buildIdentifier(item.getHandle())));
         other.getField().add(createValue("lastModifyDate", item.getLastModified().toString()));
+
+        try {
+            other.getElement().add(createCommunitiesElement(context, item));
+        } catch (SQLException e) {
+            log.warn(e.getMessage(), e);
+        }
+
+        other.getElement().add(createCollectionElement(context, item));
         metadata.getElement().add(other);
 
         // Repository Info
@@ -459,5 +496,60 @@ public class ItemUtils {
         }
 
         return metadata;
+    }
+
+    private static Element createCommunitiesElement(Context context, Item item) throws SQLException {
+        Element comElement = create("communities");
+        List<Community> communities = item.getOwningCollection().getCommunities();
+        if (communities == null || communities.size() > 1) {
+            return comElement;
+        }
+        Community itemCommunity = communities.get(0);
+        getAncestorCommunities(context, itemCommunity)
+                             .stream()
+                             .map(community -> createCommunityElement(context, community))
+                             .forEach(el -> comElement.getElement().add(el));
+
+        comElement.getElement().add(createCommunityElement(context, itemCommunity));
+        return comElement;
+    }
+
+    protected static List<Community> getAncestorCommunities(Context context, Community itemCommunity)
+        throws SQLException {
+        return ContentServiceFactory.getInstance()
+                                    .getCommunityService()
+                                    .getAncestorTree(context, itemCommunity);
+    }
+
+    private static Element createCommunityElement(Context context, Community community) {
+        Element comElement = create("community");
+        String name = community.getName();
+        String handle = community.getHandle();
+
+        if (StringUtils.isNotEmpty(name)) {
+            comElement.getField().add(createValue("name", name));
+        }
+        if (StringUtils.isNotEmpty(handle)) {
+            comElement.getField().add(createValue("handle", handle));
+        }
+        return comElement;
+    }
+
+    private static Element createCollectionElement(Context context, Item item) {
+        Element colElement = create("owningCollection");
+
+        Collection owningCollection = item.getOwningCollection();
+        String name = owningCollection.getName();
+        String handle = owningCollection.getHandle();
+
+        if (StringUtils.isNotEmpty(name)) {
+            colElement.getField().add(createValue("name", name));
+        }
+
+        if (StringUtils.isNotEmpty(handle)) {
+            colElement.getField().add(createValue("handle", handle));
+        }
+
+        return colElement;
     }
 }
