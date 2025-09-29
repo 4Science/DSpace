@@ -19,6 +19,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.dspace.importer.external.datamodel.ImportRecord;
 import org.dspace.importer.external.exception.MetadataSourceException;
+import org.dspace.importer.external.metadatamapping.MetadatumDTO;
 import org.dspace.importer.external.openaire.service.OpenAireImportMetadataSourceServiceImpl;
 import org.dspace.services.factory.DSpaceServicesFactory;
 import org.slf4j.Logger;
@@ -46,7 +47,10 @@ public class OpenAIREPublicationAuthority extends ItemAuthority {
             return new Choices(choices, start, total, calculateConfidence(choices), total > (start + limit), 0);
 
         } catch (Exception ex) {
-            log.error("An error occurs performing projects search on OpenAIRE", ex);
+            log.error(
+                "Error performing OpenAIRE projects search with text='{}', start={}, limit={}",
+                text, start, limit, ex
+            );
             return itemChoices;
         }
     }
@@ -68,9 +72,10 @@ public class OpenAIREPublicationAuthority extends ItemAuthority {
     private List<ImportRecord> importOpenAIREPublications(String text, int start, int limit) {
         try {
             return (List<ImportRecord>) getOpenAireService().getRecords(text, start, limit);
+
         } catch (MetadataSourceException e) {
             log.error(e.getMessage(), e);
-            throw new RuntimeException(e.getMessage(), e);
+            throw new RuntimeException("Failed to import OpenAIRE publications", e);
         }
     }
 
@@ -85,12 +90,16 @@ public class OpenAIREPublicationAuthority extends ItemAuthority {
     private String getMetadataValue(ImportRecord record, String schema, String element, String qualifier) {
         return record.getValueList()
                      .stream()
-                     .filter(metadatum -> StringUtils.equals(metadatum.getSchema(), schema))
-                     .filter(metadatum -> StringUtils.equals(metadatum.getElement(), element))
-                     .filter(metadatum -> StringUtils.equals(metadatum.getQualifier(), qualifier))
-                     .map(metadatum -> metadatum.getValue())
+                     .filter(metadatum -> matchMetadatum(metadatum, schema, element, qualifier))
+                     .map(MetadatumDTO::getValue)
                      .findFirst()
                      .orElse("");
+    }
+
+    protected static boolean matchMetadatum( MetadatumDTO metadatum, String schema, String element, String qualifier) {
+        return StringUtils.equals(metadatum.getSchema(), schema) &&
+            StringUtils.equals(metadatum.getElement(), element) &&
+            StringUtils.equals(metadatum.getQualifier(), qualifier);
     }
 
     private String getAuthorityPrefix() {
