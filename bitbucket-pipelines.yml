@@ -206,7 +206,7 @@ definitions:
           - '[ -f "dev/${BRANCH_FILE}" ] && sed -i "/^rest:/,/^[^ ]/s/\(tag: \).*/\1${BRANCH_NAME}-${HASH_COMMIT}/" "dev/${BRANCH_FILE}" && sed -i "s/^\([[:space:]]*replicaCount:\) 0/\1 1/" "dev/${BRANCH_FILE}"'
           - git config --global user.email "${BB_USER}"
           - git config --global user.name "${BB_EMAIL}"
-          - git commit -am "Update TAG with ${BRANCH_NAME}-${HASH_COMMIT}"
+          - git commit -am "Update TAG with ${BRANCH_NAME}-${HASH_COMMIT}" || echo "No changes to commit"
           - git push
 
     - step: &deploy-on-staging
@@ -221,7 +221,7 @@ definitions:
           - '[ -f "staging/${BRANCH_FILE}" ] && sed -i "/^rest:/,/^[^ ]/s/\(tag: \).*/\1${BRANCH_NAME}-${HASH_COMMIT}/" "staging/${BRANCH_FILE}" && sed -i "s/^\([[:space:]]*replicaCount:\) 0/\1 1/" "staging/${BRANCH_FILE}"'
           - git config --global user.email "${BB_USER}"
           - git config --global user.name "${BB_EMAIL}"
-          - git commit -am "Update TAG with ${BRANCH_NAME}-${HASH_COMMIT}"
+          - git commit -am "Update TAG with ${BRANCH_NAME}-${HASH_COMMIT}" || echo "No changes to commit"
           - git push
 
     - step: &turn-on-dev
@@ -236,7 +236,7 @@ definitions:
           - '[ -f "dev/${BRANCH_FILE}" ] && sed -i "s/^\([[:space:]]*replicaCount:\) 0/\1 1/" "dev/${BRANCH_FILE}"'
           - git config --global user.email "${BB_USER}"
           - git config --global user.name "${BB_EMAIL}"
-          - git commit -am "Enable dev environment for ${BRANCH_NAME}"
+          - git commit -am "Enable dev environment for ${BRANCH_NAME}" || echo "No changes to commit"
           - git push
 
     - step: &turn-on-staging
@@ -251,7 +251,7 @@ definitions:
           - '[ -f "staging/${BRANCH_FILE}" ] && sed -i "s/^\([[:space:]]*replicaCount:\) 0/\1 1/" "staging/${BRANCH_FILE}"'
           - git config --global user.email "${BB_USER}"
           - git config --global user.name "${BB_EMAIL}"
-          - git commit -am "Enable staging environment for ${BRANCH_NAME}"
+          - git commit -am "Enable staging environment for ${BRANCH_NAME}" || echo "No changes to commit"
           - git push
 
 pipelines:
