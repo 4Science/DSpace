@@ -609,6 +609,11 @@
         <!-- Solr Core is only needed for Integration Tests (to run a MockSolrServer) -->
         <!-- The following Solr / Lucene dependencies also support integration tests -->
         <dependency>
+            <groupId>org.antlr</groupId>
+            <artifactId>antlr4-runtime</artifactId>
+            <version>4.12.0</version>
+        </dependency>
+        <dependency>
             <groupId>org.apache.solr</groupId>
             <artifactId>solr-core</artifactId>
             <scope>test</scope>
@@ -617,6 +622,10 @@
                 <exclusion>
                     <groupId>com.google.j2objc</groupId>
                     <artifactId>j2objc-annotations</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.antlr</groupId>
+                    <artifactId>antlr4-runtime</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>
@@ -883,11 +892,10 @@
 		    <artifactId>fop-pdf-images</artifactId>
 		    <version>${fop.version}</version>
 		</dependency>
-
         <dependency>
 	        <groupId>de.undercouch</groupId>
 	        <artifactId>citeproc-java</artifactId>
-	        <version>1.0.1</version>
+	        <version>3.3.0</version>
 	        <exclusions>
 	            <exclusion>
 	               <groupId>org.apache.commons</groupId>
@@ -897,22 +905,22 @@
 	               <groupId>org.jbibtex</groupId>
 	               <artifactId>jbibtex</artifactId>
 	            </exclusion>
-	            <exclusion>
-	               <groupId>org.antlr</groupId>
-	               <artifactId>antlr4-runtime</artifactId>
-	            </exclusion>
+                <exclusion>
+                    <groupId>org.antlr</groupId>
+                    <artifactId>antlr4-runtime</artifactId>
+                </exclusion>
          	</exclusions>
       </dependency>
-      <dependency>
-	      <groupId>org.citationstyles</groupId>
-	      <artifactId>locales</artifactId>
-	      <version>1.0</version>
-      </dependency>
-      <dependency>
-	      <groupId>org.citationstyles</groupId>
-	      <artifactId>styles</artifactId>
-	      <version>1.0</version>
-      </dependency>
+        <dependency>
+            <groupId>org.citationstyles</groupId>
+            <artifactId>styles</artifactId>
+            <version>25.4</version>
+        </dependency>
+        <dependency>
+            <groupId>org.citationstyles</groupId>
+            <artifactId>locales</artifactId>
+            <version>25.4</version>
+        </dependency>
 
         <!-- required for openaire api integration -->
         <dependency>
@@ -1028,6 +1036,11 @@
             <version>2.13.16</version>
             <scope>test</scope>
           </dependency>
+            <dependency>
+                <groupId>org.antlr</groupId>
+                <artifactId>antlr4-runtime</artifactId>
+                <version>4.12.0</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
