@@ -134,4 +134,9 @@
         <property name="dspaceRunnableClass" value="org.dspace.app.submission.SubmissionXmlToXls"/>
     </bean>
 
+    <bean id="metadata-update" class="org.dspace.app.metadataupdate.MetadataUpdateScriptConfiguration" primary="true">
+        <property name="description" value="update metadata values"/>
+        <property name="dspaceRunnableClass" value="org.dspace.app.metadataupdate.MetadataUpdateScript"/>
+    </bean>
+
 </beans>
