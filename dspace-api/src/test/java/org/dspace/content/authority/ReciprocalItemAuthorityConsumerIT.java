@@ -77,6 +77,10 @@ public class ReciprocalItemAuthorityConsumerIT extends AbstractIntegrationTestWi
                 "dc.relation.product");
         configurationService.setProperty("ItemAuthority.reciprocalMetadata.WebAnnotation.dc.relation.annotation",
                                          "dc.relation.annotation");
+        configurationService.setProperty(
+            "ItemAuthority.reciprocalMetadata.Publication.dc.relation.path",
+            "dc.relation.haspartofpath"
+        );
         metadataAuthorityService.clearCache();
 
         initializeReciprocalConfiguration();
@@ -100,7 +104,6 @@ public class ReciprocalItemAuthorityConsumerIT extends AbstractIntegrationTestWi
                     .withPersonIdentifierLastName("test_second_name")
                     .withScopusAuthorIdentifier("test_author_identifier")
                     .withMetadata(MetadataSchemaEnum.DC.getName(), "title", null, productTitle)
-                    .withType("product")
                     .build();
 
             Collection publicationItemCollection = CollectionBuilder.createCollection(context, parentCommunity)
@@ -113,7 +116,6 @@ public class ReciprocalItemAuthorityConsumerIT extends AbstractIntegrationTestWi
                     .withMetadata(MetadataSchemaEnum.DC.getName(), "title", null, "publicationTitle")
                     .withMetadata(MetadataSchemaEnum.DC.getName(), "relation",
                             "product", null, productTitle, productItem.getID().toString(), Choices.CF_ACCEPTED)
-                    .withType("publication")
                     .build();
 
             List<MetadataValue> metadataValues = itemService.getMetadataByMetadataString(
@@ -155,7 +157,6 @@ public class ReciprocalItemAuthorityConsumerIT extends AbstractIntegrationTestWi
                     .withPersonIdentifierLastName("test_second_name")
                     .withScopusAuthorIdentifier("test_author_identifier")
                     .withMetadata(MetadataSchemaEnum.DC.getName(), "title", null, publicationTitle)
-                    .withType("publication")
                     .build();
 
             Collection productItemCollection = CollectionBuilder.createCollection(context, parentCommunity)
@@ -168,7 +169,6 @@ public class ReciprocalItemAuthorityConsumerIT extends AbstractIntegrationTestWi
                     .withMetadata(MetadataSchemaEnum.DC.getName(), "title", null, "productTitle")
                     .withMetadata(MetadataSchemaEnum.DC.getName(), "relation", "publication",
                             null, publicationTitle, publicationItem.getID().toString(), Choices.CF_ACCEPTED)
-                    .withType("product")
                     .build();
 
             List<MetadataValue> metadataValues = itemService.getMetadataByMetadataString(
@@ -211,7 +211,6 @@ public class ReciprocalItemAuthorityConsumerIT extends AbstractIntegrationTestWi
                     .withPersonIdentifierLastName("test_second_name")
                     .withScopusAuthorIdentifier("test_author_identifier")
                     .withMetadata(MetadataSchemaEnum.DC.getName(), "title", null, "publicationTitle")
-                    .withType("publication")
                     .build();
 
             Collection productItemCollection = CollectionBuilder.createCollection(context, parentCommunity)
@@ -224,7 +223,6 @@ public class ReciprocalItemAuthorityConsumerIT extends AbstractIntegrationTestWi
                     .withMetadata(MetadataSchemaEnum.DC.getName(), "title", null, "productTitle")
                     .withMetadata(MetadataSchemaEnum.DC.getName(), "relation", "product",
                             null, "notExistingPublicationTitle", notExistingItemId.toString(), Choices.CF_ACCEPTED)
-                    .withType("product")
                     .build();
 
             List<MetadataValue> metadataValues = itemService.getMetadataByMetadataString(
@@ -265,7 +263,6 @@ public class ReciprocalItemAuthorityConsumerIT extends AbstractIntegrationTestWi
                     .withMetadata(MetadataSchemaEnum.DC.getName(), "title", null, "productTitle")
                     .withMetadata(MetadataSchemaEnum.DC.getName(), "relation", "product",
                             null, "notExistingPublicationTitle", "invalidAuthorityUUID", Choices.CF_ACCEPTED)
-                    .withType("product")
                     .build();
 
             SolrDocumentList solrDocumentList = getSolrDocumentList(productItem);
@@ -300,7 +297,6 @@ public class ReciprocalItemAuthorityConsumerIT extends AbstractIntegrationTestWi
                     .withPersonIdentifierLastName("test_second_name")
                     .withScopusAuthorIdentifier("test_author_identifier")
                     .withMetadata(MetadataSchemaEnum.DC.getName(), "title", null, publicationTitle)
-                    .withType("publication")
                     .build();
 
             Collection productItemCollection = CollectionBuilder.createCollection(context, parentCommunity)
@@ -312,7 +308,6 @@ public class ReciprocalItemAuthorityConsumerIT extends AbstractIntegrationTestWi
                     .withScopusAuthorIdentifier("test_author_identifier")
                     .withMetadata(MetadataSchemaEnum.DC.getName(), "title", null, "productTitle")
                     .withMetadata(MetadataSchemaEnum.DC.getName(), "relation", "publication", publicationTitle)
-                    .withType("product")
                     .build();
 
             List<MetadataValue> metadataValues = itemService.getMetadataByMetadataString(
@@ -351,7 +346,6 @@ public class ReciprocalItemAuthorityConsumerIT extends AbstractIntegrationTestWi
                     .withPersonIdentifierLastName("test_second_name")
                     .withScopusAuthorIdentifier("test_author_identifier")
                     .withMetadata(MetadataSchemaEnum.DC.getName(), "title", null, "productTitle")
-                    .withType("product")
                     .build();
 
             List<MetadataValue> productItemMetadataValues = itemService.getMetadataByMetadataString(
@@ -392,13 +386,11 @@ public class ReciprocalItemAuthorityConsumerIT extends AbstractIntegrationTestWi
             Item annotationItem =
                 ItemBuilder.createItem(context, annotationCollection)
                            .withTitle(firstAnnotation)
-                           .withType("Annotation")
                            .build();
             String relatedAnnotation = "Related Annotation";
             Item annotationWithRelation =
                 ItemBuilder.createItem(context, annotationCollection)
                            .withTitle(relatedAnnotation)
-                           .withType("Related Annotation")
                            .withMetadata(
                                "dc", "relation", "annotation", null, relatedAnnotation,
                                annotationItem.getID().toString(), Choices.CF_ACCEPTED
@@ -436,6 +428,74 @@ public class ReciprocalItemAuthorityConsumerIT extends AbstractIntegrationTestWi
             Item foundRelatedAnnotation =
                 itemService.findByIdOrLegacyId(new Context(), annotationWithRelation.getID().toString());
             Assert.assertEquals(annotationWithRelation.getID(), foundRelatedAnnotation.getID());
+        } finally {
+            metadataAuthorityService.clearCache();
+        }
+    }
+
+    @Test
+    public void testRelationPathItemWithReciprocal() throws Exception {
+        try {
+            configurationService.setProperty("authority.controlled.dc.relation.path", "true");
+            metadataAuthorityService.clearCache();
+
+            context.turnOffAuthorisationSystem();
+            Collection pathCollection =
+                CollectionBuilder.createCollection(context, parentCommunity)
+                                 .withEntityType("Path")
+                                 .withName("Path collection")
+                                 .build();
+            Collection publicationCollection =
+                CollectionBuilder.createCollection(context, parentCommunity)
+                                 .withEntityType("Path")
+                                 .withName("Path collection")
+                                 .build();
+            String firstPath = "First Annotation";
+            Item pathItem =
+                ItemBuilder.createItem(context, pathCollection)
+                           .withTitle(firstPath)
+                           .build();
+            String relatedPath = "Linked Path";
+            Item publication =
+                ItemBuilder.createItem(context, publicationCollection)
+                           .withTitle(relatedPath)
+                           .withMetadata(
+                               "dc", "relation", "path", null, relatedPath,
+                               pathItem.getID().toString(), Choices.CF_ACCEPTED
+                           )
+                           .build();
+            context.commit();
+
+            List<MetadataValue> metadataValues =
+                itemService.getMetadataByMetadataString(publication, "dc.relation.path");
+            Assert.assertEquals(1, metadataValues.size());
+
+            List<MetadataValue> pathMetadataValues =
+                itemService.getMetadataByMetadataString(pathItem, "dc.relation.haspartofpath");
+            Assert.assertEquals(1, pathMetadataValues.size());
+
+            assertThat(pathMetadataValues, hasItem(
+                MetadataValueMatcher.with(
+                    "dc.relation.haspartofpath",
+                    relatedPath,
+                    publication.getID().toString(),
+                    Choices.CF_ACCEPTED
+                )
+            ));
+
+            SolrDocumentList solrDocumentList = getSolrDocumentList(pathItem);
+            Assert.assertEquals(1, solrDocumentList.size());
+            SolrDocument solrDoc = solrDocumentList.get(0);
+
+            List<String> relationPath = (List<String>) solrDoc.get("dc.relation.path");
+            assertThat(relationPath, hasItem(relatedPath));
+
+            List<String> hasPartOf = (List<String>) solrDoc.get("dc.relation.haspartofpath");
+            assertThat(hasPartOf, hasItem(publication.getID().toString()));
+
+            Item foundRelatedPublication =
+                itemService.findByIdOrLegacyId(new Context(), publication.getID().toString());
+            Assert.assertEquals(publication.getID(), foundRelatedPublication.getID());
         } finally {
             metadataAuthorityService.clearCache();
         }
