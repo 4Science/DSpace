@@ -18,4 +18,24 @@
     <!-- ItemsImport reader beans -->
     <bean class="org.dspace.app.marcxml2item.reader.ItemsImportSimpleReader" />
 
+    <bean class="org.dspace.epfl.script.reader.ItemsImportNestedMetadataFieldReader" >
+        <property name="readerName" value="author" />
+        <property name="skipDateConversion" value="true"/>
+        <property name="metadataFieldsPaths">
+            <util:map>
+                <entry key="dc.contributor.author" value="./subfield[@code = 'a']"/>
+            </util:map>
+        </property>
+        <property name="authorityPaths">
+            <util:map>
+                <entry key="dc.contributor.author" value="./subfield[@code = 'g']"/>
+            </util:map>
+        </property>
+        <property name="authorityPrefixes">
+            <util:map>
+                <entry key="dc.contributor.author" value="will be generated::SCIPER-ID::"/>
+            </util:map>
+        </property>
+    </bean>
+
 </beans>

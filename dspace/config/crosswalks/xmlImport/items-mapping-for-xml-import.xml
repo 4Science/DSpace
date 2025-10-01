@@ -56,7 +56,66 @@
             <field>dc.relation.place</field>
             <xpath>./datafield[@tag = '711' and @ind1 = '2']/subfield[@code = 'c']</xpath>
         </metadata-field>
+        <metadata-field>
+            <field>dc.subject.lcc</field>
+            <xpath>./datafield[@tag = '050']/subfield[@code = 'a']</xpath>
+        </metadata-field>
+        <!-- simpleStringValue -->
+        <metadata-field>
+            <field>dc.subject</field>
+            <xpath>./datafield[@tag = '653']/subfield[@code = 'a']</xpath>
+        </metadata-field>
+        <metadata-field>
+            <field>dc.subject.other</field>
+            <xpath>./datafield[@tag = '084']/subfield[@code = 'a']</xpath>
+        </metadata-field>
+        <metadata-field>
+            <field>dc.identifier.isbn</field>
+            <xpath>./datafield[@tag = '020']/subfield[@code = 'a']</xpath>
+        </metadata-field>
+        <metadata-field>
+            <field>dc.identifier.issn</field>
+            <xpath>./datafield[@tag = '022']/subfield[@code = 'a']</xpath>
+        </metadata-field>
+        <metadata-field>
+            <field>dc.identifier.oclc</field>
+            <xpath>./datafield[@tag = '035']/subfield[@code = 'a']</xpath>
+        </metadata-field>
+        <metadata-field>
+            <field>dc.description.notes</field>
+            <xpath>./datafield[@tag = '500']/subfield[@code = 'a']</xpath>
+        </metadata-field>
+        <metadata-field>
+            <field>dc.relation.hasversion</field>
+            <xpath>./datafield[@tag = '775']/subfield[@code = 't']</xpath>
+        </metadata-field>
+        <metadata-field>
+            <field>dc.relation.journalfonds</field>
+            <xpath>./datafield[@tag = '773']/subfield[@code = 't']</xpath>
+        </metadata-field>
+        <metadata-field>
+            <field>glamjournalfonds.parent</field>
+            <xpath>./datafield[@tag = '773']/subfield[@code = 't']</xpath>
+        </metadata-field>
+        <metadata-field>
+            <field>dc.relation.isbn</field>
+            <xpath>./datafield[@tag = '773']/subfield[@code = 'z']</xpath>
+        </metadata-field>
+        <metadata-field>
+            <field>dc.relation.references</field>
+            <xpath>./datafield[@tag = '787']/subfield[@code = 'a']</xpath>
+        </metadata-field>
         <!-- mapping with riders -->
+        <metadata-field>
+            <field>dc.contributor.author</field>
+            <xpath>./datafield[@tag = '700'][not(subfield[@code='e'][contains(., 'editor')])]</xpath>
+            <reader>author</reader>
+        </metadata-field>
+        <metadata-field>
+            <field>dc.contributor.editor</field>
+            <xpath>./datafield[@tag = '700'][subfield[@code='e'][contains(., 'editor')]]</xpath>
+            <reader>author</reader>
+        </metadata-field>
     </metadata-fields>
 
 </mapping>
