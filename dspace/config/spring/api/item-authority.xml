@@ -227,9 +227,53 @@
 		</property>
 	</bean>
 
-	<bean name="itemAuthorityCustomSolrFilter" class="org.dspace.content.authority.ItemAuthorityCustomSolrFilterImpl" />
-	<bean name="personAuthoritySolrFilter" class="org.dspace.content.authority.PersonAuthoritySolrFilterImpl" />
-	<bean name="personStrictCustomSolrFilter" class="org.dspace.content.authority.PersonStrictCustomSolrFilterImpl" />
-	<bean name="personCoarseCustomSolrFilter" class="org.dspace.content.authority.PersonCoarseCustomSolrFilterImpl" />
+    <bean name="uuidAuthoritySolrFilter" class="org.dspace.content.authority.UUIDAuthoritySolrFilter" />
+    <bean name="handleAuthoritySolrFilter" class="org.dspace.content.authority.HandleAuthoritySolrFilter" />
+
+    <bean name="itemAuthorityIdentifiersSolrFilter" class="org.dspace.content.authority.CompositeAuthorityFilter">
+        <constructor-arg>
+            <list>
+                <ref bean="uuidAuthoritySolrFilter" />
+                <ref bean="handleAuthoritySolrFilter" />
+            </list>
+        </constructor-arg>
+    </bean>
+
+    <bean name="itemAuthorityCustomSolrFilter" class="org.dspace.content.authority.CompositeAuthorityFilter">
+        <constructor-arg name="filters">
+            <list>
+                <bean class="org.dspace.content.authority.ItemAuthorityCustomSolrFilterImpl" />
+                <ref bean="uuidAuthoritySolrFilter" />
+                <ref bean="handleAuthoritySolrFilter" />
+            </list>
+        </constructor-arg>
+    </bean>
+	<bean name="personAuthoritySolrFilter" class="org.dspace.content.authority.CompositeAuthorityFilter">
+        <constructor-arg name="filters">
+            <list>
+                <bean class="org.dspace.content.authority.PersonAuthoritySolrFilterImpl"/>
+                <ref bean="uuidAuthoritySolrFilter" />
+                <ref bean="handleAuthoritySolrFilter" />
+            </list>
+        </constructor-arg>
+    </bean>
+	<bean name="personStrictCustomSolrFilter" class="org.dspace.content.authority.CompositeAuthorityFilter">
+        <constructor-arg name="filters">
+            <list>
+                <bean class="org.dspace.content.authority.PersonStrictCustomSolrFilterImpl" />
+                <ref bean="uuidAuthoritySolrFilter" />
+                <ref bean="handleAuthoritySolrFilter" />
+            </list>
+        </constructor-arg>
+    </bean>
+	<bean name="personCoarseCustomSolrFilter" class="org.dspace.content.authority.CompositeAuthorityFilter">
+        <constructor-arg name="filters">
+            <list>
+                <bean class="org.dspace.content.authority.PersonCoarseCustomSolrFilterImpl" />
+                <ref bean="uuidAuthoritySolrFilter" />
+                <ref bean="handleAuthoritySolrFilter" />
+            </list>
+        </constructor-arg>
+    </bean>
 
 </beans>
