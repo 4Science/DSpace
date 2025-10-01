@@ -158,7 +158,7 @@ jobs:
     if: github.repository == '4science/dspace'
     runs-on: ubuntu-latest
     # Must run after all major images are built
-    needs: [dspace, dspace-test, dspace-cli, dspace-postgres-pgcrypto, dspace-solr]
+    needs: [dspace-cris, dspace-cris-test, dspace-cris-cli, dspace-cris-postgres-pgcrypto, dspace-cris-solr]
     env:
       # Override defaults dspace.server.url because backend starts at http://127.0.0.1:8080
       dspace__P__server__P__url: http://127.0.0.1:8080/server
