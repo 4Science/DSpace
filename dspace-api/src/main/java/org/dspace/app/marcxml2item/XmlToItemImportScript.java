@@ -210,7 +210,7 @@ public class XmlToItemImportScript extends DSpaceRunnable<XmlToItemImportScriptC
         try {
             collection = collectionService.find(context, collectionUUID);
             if (Objects.isNull(collection)) {
-                throw new RuntimeException("Collection with uuid" + collectionUUID + "does not exist!");
+                throw new RuntimeException("Collection with uuid: " + collectionUUID + " does not exist!");
             }
             if (!authorizeService.isAdmin(context, collection)) {
                 throw new RuntimeException("User " + context.getCurrentUser().getEmail()
