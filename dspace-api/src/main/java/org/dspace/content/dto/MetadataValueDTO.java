@@ -117,6 +117,16 @@ public class MetadataValueDTO {
         this.value = metadata.getValue();
     }
 
+    public MetadataValueDTO(String metadataField, String value, String authority, int confidence) {
+        MetadataFieldName fieldName = new MetadataFieldName(metadataField);
+        this.schema = fieldName.schema;
+        this.element = fieldName.element;
+        this.qualifier = fieldName.qualifier;
+        this.authority = authority;
+        this.value = value;
+        this.confidence = confidence;
+    }
+
     public String getMetadataField() {
         return new MetadataFieldName(schema, element, qualifier).toString();
     }
