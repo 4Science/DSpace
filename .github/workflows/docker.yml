@@ -41,7 +41,7 @@ jobs:
     # Ensure this job never runs on forked repos. It's only executed for '4science/dspace'
     if: github.repository == '4science/dspace'
     # Must run after 'dspace-dependencies' job above
-    needs: dspace-dependencies
+    needs: dspace-cris-dependencies
     uses: ./.github/workflows/reusable-docker-build.yml
     with:
       build_id: dspace-cris-prod
@@ -62,7 +62,7 @@ jobs:
     # Ensure this job never runs on forked repos. It's only executed for '4science/dspace'
     if: github.repository == '4science/dspace'
     # Must run after 'dspace-dependencies' job above
-    needs: dspace-dependencies
+    needs: dspace-cris-dependencies
     uses: ./.github/workflows/reusable-docker-build.yml
     with:
       build_id: dspace-cris-test
@@ -82,7 +82,7 @@ jobs:
     # Ensure this job never runs on forked repos. It's only executed for '4science/dspace'
     if: github.repository == '4science/dspace'
     # Must run after 'dspace-dependencies' job above
-    needs: dspace-dependencies
+    needs: dspace-cris-dependencies
     uses: ./.github/workflows/reusable-docker-build.yml
     with:
       build_id: dspace-cris-cli
