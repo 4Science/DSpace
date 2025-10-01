@@ -1,0 +1,62 @@
+<?xml version='1.0' encoding='utf-8'?>
+<mapping>
+    <item-xpath>//record</item-xpath>
+
+    <metadata-fields>
+        <!-- mapping without riders -->
+        <metadata-field>
+            <field>cris.legacyId</field>
+            <xpath>./controlfield[@tag = '001']</xpath>
+        </metadata-field>
+        <metadata-field>
+            <field>dc.date.modified</field>
+            <xpath>./controlfield[@tag = '005']</xpath>
+        </metadata-field>
+        <metadata-field>
+            <field>dc.subject.ddc</field>
+            <xpath>./datafield[@tag = '082']/subfield[@code = 'a']</xpath>
+        </metadata-field>
+        <metadata-field>
+            <field>dc.format.extent</field>
+            <xpath>./datafield[@tag = '300']/subfield[@code = 'a']</xpath>
+        </metadata-field>
+        <metadata-field>
+            <field>dc.format</field>
+            <xpath>./datafield[@tag = '340']/subfield[@code = 'a']</xpath>
+        </metadata-field>
+        <metadata-field>
+            <field>dc.description.bibliography</field>
+            <xpath>./datafield[@tag = '504']/subfield[@code = 'a']</xpath>
+        </metadata-field>
+        <metadata-field>
+            <field>dc.description.tableofcontents</field>
+            <xpath>./datafield[@tag = '505']/subfield[@code = 'a']</xpath>
+        </metadata-field>
+        <metadata-field>
+            <field>dc.description.abstract</field>
+            <xpath>./datafield[@tag = '520']/subfield[@code = 'a']</xpath>
+        </metadata-field>
+        <metadata-field>
+            <field>dc.subject.lcsh</field>
+            <xpath>./datafield[@tag = '650' and @ind2 = '0']/subfield[@code = 'a']</xpath>
+        </metadata-field>
+        <metadata-field>
+            <field>dc.subject.rvm</field>
+            <xpath>./datafield[@tag = '650' and @ind2 = '6']/subfield[@code = 'a']</xpath>
+        </metadata-field>
+        <metadata-field>
+            <field>dc.subject</field>
+            <xpath>./datafield[@tag='650'][@ind2 != '0'][@ind2 != '6']/subfield[@code='a']</xpath>
+        </metadata-field>
+        <metadata-field>
+            <field>dc.relation.conference</field>
+            <xpath>./datafield[@tag = '711' and @ind1 = '2']/subfield[@code = 'a']</xpath>
+        </metadata-field>
+        <metadata-field>
+            <field>dc.relation.place</field>
+            <xpath>./datafield[@tag = '711' and @ind1 = '2']/subfield[@code = 'c']</xpath>
+        </metadata-field>
+        <!-- mapping with riders -->
+    </metadata-fields>
+
+</mapping>

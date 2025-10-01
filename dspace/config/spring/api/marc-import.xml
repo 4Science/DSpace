@@ -15,4 +15,7 @@
 
     <bean class="org.dspace.app.marcxml2item.parser.MarcXmlParserImpl"/>
 
+    <!-- ItemsImport reader beans -->
+    <bean class="org.dspace.app.marcxml2item.reader.ItemsImportSimpleReader" />
+
 </beans>
