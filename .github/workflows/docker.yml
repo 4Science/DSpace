@@ -22,7 +22,7 @@ jobs:
   # Build/Push the '4science/dspace-cris-dependencies' image.
   # This image is used by all other DSpace build jobs.
   ####################################################
-  dspace-dependencies:
+  dspace-crisdependencies:
     # Ensure this job never runs on forked repos. It's only executed for '4science/dspace'
     if: github.repository == '4science/dspace'
     uses: ./.github/workflows/reusable-docker-build.yml
@@ -37,7 +37,7 @@ jobs:
   #######################################
   # Build/Push the '4science/dspace-cris' image
   #######################################
-  dspace:
+  dspace-cris:
     # Ensure this job never runs on forked repos. It's only executed for '4science/dspace'
     if: github.repository == '4science/dspace'
     # Must run after 'dspace-dependencies' job above
@@ -58,7 +58,7 @@ jobs:
   #############################################################
   # Build/Push the '4science/dspace-cris' image ('-test' tag)
   #############################################################
-  dspace-test:
+  dspace-cris-test:
     # Ensure this job never runs on forked repos. It's only executed for '4science/dspace'
     if: github.repository == '4science/dspace'
     # Must run after 'dspace-dependencies' job above
@@ -78,7 +78,7 @@ jobs:
   ###########################################
   # Build/Push the '4science/dspace-cli' image
   ###########################################
-  dspace-cli:
+  dspace-cris-cli:
     # Ensure this job never runs on forked repos. It's only executed for '4science/dspace'
     if: github.repository == '4science/dspace'
     # Must run after 'dspace-dependencies' job above
@@ -95,7 +95,7 @@ jobs:
   ###########################################
   # Build/Push the '4science/dspace-cris-solr' image
   ###########################################
-  dspace-solr:
+  dspace-cris-solr:
     # Ensure this job never runs on forked repos. It's only executed for '4science/dspace'
     if: github.repository == '4science/dspace'
     uses: ./.github/workflows/reusable-docker-build.yml
@@ -116,7 +116,7 @@ jobs:
   ###########################################################
   # Build/Push the '4science/dspace-cris-postgres-pgcrypto' image
   ###########################################################
-  dspace-postgres-pgcrypto:
+  dspace-cris-postgres-pgcrypto:
     # Ensure this job never runs on forked repos. It's only executed for '4science/dspace'
     if: github.repository == '4science/dspace'
     uses: ./.github/workflows/reusable-docker-build.yml
@@ -133,7 +133,7 @@ jobs:
   ########################################################################
   # Build/Push the '4science/dspace-cris-postgres-pgcrypto' image (-loadsql tag)
   ########################################################################
-  dspace-postgres-pgcrypto-loadsql:
+  dspace-cris-postgres-pgcrypto-loadsql:
     # Ensure this job never runs on forked repos. It's only executed for '4science/dspace'
     if: github.repository == '4science/dspace'
     uses: ./.github/workflows/reusable-docker-build.yml
