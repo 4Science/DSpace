@@ -59,8 +59,8 @@ import org.xml.sax.SAXException;
  **/
 public class MarcXmlParserImpl implements MarcXmlParser {
 
-    public static final String TYPE_FILTER_PROPERTY_PREFIX = "epfl.items-import.types";
-    public static final String TYPE_VOCABULARY_PROPERTY_PREFIX = "epfl.items-import.vocabulary";
+    public static final String TYPE_FILTER_PROPERTY_PREFIX = "marc-xml.items-import.types";
+    public static final String TYPE_VOCABULARY_PROPERTY_PREFIX = "marc-xml.items-import.vocabulary";
 
     @Autowired
     private ConfigurationService configurationService;
@@ -202,10 +202,12 @@ public class MarcXmlParserImpl implements MarcXmlParser {
     }
 
     private void validateMapping(ItemsImportMapping importMapping) {
-        List<String> unknownReaders = importMapping.getMetadataFields().getMetadataFields().stream()
-            .map(MetadataField::getReader)
-            .filter(reader -> !readers.containsKey(reader))
-            .collect(Collectors.toList());
+        List<String> unknownReaders = importMapping.getMetadataFields()
+                                                   .getMetadataFields()
+                                                   .stream()
+                                                   .map(MetadataField::getReader)
+                                                   .filter(reader -> !readers.containsKey(reader))
+                                                   .collect(Collectors.toList());
 
         if (CollectionUtils.isNotEmpty(unknownReaders)) {
             throw new IllegalStateException("The following configured readers are not defined: " + unknownReaders);

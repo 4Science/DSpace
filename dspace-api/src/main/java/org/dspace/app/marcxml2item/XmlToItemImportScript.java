@@ -58,11 +58,11 @@ public class XmlToItemImportScript extends DSpaceRunnable<XmlToItemImportScriptC
 
     public static final String XML_TO_ITEM_SCRIPT_NAME = "import-xml-to-item";
 
-    private static final String XML_MAPPING_PATH = "/config/crosswalks/epfl/epfl-items-mapping-for-xml-import.xml";
+    private static final String XML_MAPPING_PATH = "/config/crosswalks/xmlImport/items-mapping-for-xml-import.xml";
     private static final String DSPACE_DIR_PROPERTY_NAME = "dspace.dir";
     private static final String ITEMS_XPATH = "//record";
 
-    private String xmlFile;
+    private String xmlFileName;
     private String collectionUuid;
 
     private Context context;
@@ -80,17 +80,17 @@ public class XmlToItemImportScript extends DSpaceRunnable<XmlToItemImportScriptC
     @Override
     public void setup() throws ParseException {
         ServiceManager sm = new DSpace().getServiceManager();
-        configurationService = DSpaceServicesFactory.getInstance().getConfigurationService();
         authorizeService = AuthorizeServiceFactory.getInstance().getAuthorizeService();
+        installItemService = ContentServiceFactory.getInstance().getInstallItemService();
         workspaceItemService = ContentServiceFactory.getInstance().getWorkspaceItemService();
         metadataFieldService = ContentServiceFactory.getInstance().getMetadataFieldService();
+        configurationService = DSpaceServicesFactory.getInstance().getConfigurationService();
         metadataSchemaService = ContentServiceFactory.getInstance().getMetadataSchemaService();
-        installItemService = ContentServiceFactory.getInstance().getInstallItemService();
         itemService = sm.getServiceByName(ItemServiceImpl.class.getName(), ItemServiceImpl.class);
+        xmlParser = sm.getServiceByName(MarcXmlParserImpl.class.getName(), MarcXmlParserImpl.class);
         collectionService = sm.getServiceByName(CollectionServiceImpl.class.getName(), CollectionServiceImpl.class);
-        xmlParser = sm.getServiceByName("org.dspace.app.marcxml2item.parser.MarcXmlParserImpl", MarcXmlParserImpl.class);
 
-        xmlFile = commandLine.getOptionValue('f');
+        xmlFileName = commandLine.getOptionValue('f');
         collectionUuid = commandLine.getOptionValue('c');
     }
 
@@ -99,9 +99,13 @@ public class XmlToItemImportScript extends DSpaceRunnable<XmlToItemImportScriptC
         assignCurrentUserInContext();
         assignSpecialGroupsInContext();
         getCollection();
+        if (!this.authorizeService.isAdmin(context)) {
+            throw new IllegalArgumentException("The user cannot run the import XML to item");
+        }
         try {
             context.turnOffAuthorisationSystem();
-            importItemsFromXML();
+            InputStream inputStream = getInputStream();
+            importItemsFromXML(inputStream);
             context.complete();
         } catch (Exception e) {
             log.error(e.getMessage(), e);
@@ -112,8 +116,14 @@ public class XmlToItemImportScript extends DSpaceRunnable<XmlToItemImportScriptC
         }
     }
 
-    private void importItemsFromXML() {
-        List<List<MetadataValueDTO>> parsedItemsFields = parseXmlFromFile();
+    private InputStream getInputStream() throws IOException, AuthorizeException {
+        var errorMessage = "Error reading file, the file couldn't be found for filename: " + xmlFileName;
+        return handler.getFileStream(context, xmlFileName)
+                      .orElseThrow(() -> new IllegalArgumentException(errorMessage));
+    }
+
+    private void importItemsFromXML(InputStream inputStream) {
+        List<List<MetadataValueDTO>> parsedItemsFields = parseXmlFromFile(inputStream);
         handler.logInfo("XML is parsed");
 
         for (List<MetadataValueDTO> parsedItemField : parsedItemsFields) {
@@ -189,16 +199,7 @@ public class XmlToItemImportScript extends DSpaceRunnable<XmlToItemImportScriptC
         }
     }
 
-    private List<List<MetadataValueDTO>> parseXmlFromFile() {
-        InputStream inputStream;
-        try {
-            inputStream = handler.getFileStream(context, xmlFile).orElseThrow(() -> new IllegalArgumentException(
-                                            "Error reading file, the file couldn't be found for filename: " + xmlFile));
-        } catch (IOException | AuthorizeException e) {
-            handler.logInfo("ERROR: xml parsing failed");
-            throw new RuntimeException(e);
-        }
-
+    private List<List<MetadataValueDTO>> parseXmlFromFile(InputStream inputStream) {
         var dspaceDir = configurationService.getProperty(DSPACE_DIR_PROPERTY_NAME);
         ItemsImportMapping itemsImportMapping = xmlParser.parseMapping(dspaceDir + XML_MAPPING_PATH);
         return xmlParser.readItems(context, inputStream, itemsImportMapping, ITEMS_XPATH);
