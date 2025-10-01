@@ -73,7 +73,7 @@
 	</bean>
 	
 	<bean class="org.dspace.content.integration.crosswalks.CSLItemDataCrosswalk" id="cslItemDataCrosswalkBibtex">
-		<property name="style" value="bibtex.csl"/>
+		<property name="style" value="bibtex"/>
 		<property name="mimeType" value="application/x-bibtex; charset=UTF-8"/>
 		<property name="format" value="text"/>
 		<property name="fileName" value="references.bib"/>
@@ -89,7 +89,7 @@
 	</bean>
 	
 	<bean class="org.dspace.content.integration.crosswalks.CSLItemDataCrosswalk" id="cslItemDataCrosswalkChicago">
-		<property name="style" value="chicago-library-list.csl"/>
+		<property name="style" value="chicago-library-list"/>
 		<property name="mimeType" value="text/plain"/>
 		<property name="format" value="text"/>
 		<property name="fileName" value="publications.txt"/>
@@ -501,7 +501,7 @@
 	</bean>
 
 	<bean class="org.dspace.content.integration.crosswalks.CSLItemDataCrosswalk" id="referCrosswalkPublicationIeeeHtml">
-		<property name="style" value="ieee.csl"/>
+		<property name="style" value="ieee"/>
 		<property name="mimeType" value="text/html; charset=UTF-8"/>
 		<property name="format" value="html"/>
 		<property name="fileName" value="publications-ieee.html"/>
