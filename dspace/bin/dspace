@@ -13,7 +13,7 @@
 # Assume that this script is in the bin subdirectory of the DSpace installation directory.
 BINDIR=`dirname $0`
 DSPACEDIR=`cd "$BINDIR/.." ; pwd`
-TIKACFG=$DSPACEDIR/config/tika-config.xml
+TIKACFG=file://$DSPACEDIR/config/tika-config.xml
 
 # Check if exists the setenv script it can be also a symbolic link inside the bin directory, if so we need to execute it first
 if [ -r "$DSPACEDIR/bin/setenv.sh" ]
@@ -50,7 +50,13 @@ unset JAVA_TOOL_OPTIONS
 # Allow user to specify java options through JAVA_OPTS variable
 if [ "$JAVA_OPTS" = "" ]; then
   #Default Java to use 1024MB of memory
-  JAVA_OPTS="-Xmx1024m -Dfile.encoding=UTF-8 -Dtika.config=$TIKACFG"
+  JAVA_OPTS="-Xmx1024m -Dfile.encoding=UTF-8"
+fi
+
+# Check if TIKA_CONFIG env variable is set, use that value as tika configuration
+# If not set, use the default tika-config.xml file in the config directory
+if [ "$TIKA_CONFIG" = "" ]; then
+  JAVA_OPTS="$JAVA_OPTS -Dtika.config=$TIKACFG"
 fi
 
 # Check if LOGGING_CONFIG env variable is set, use that value as log4j2 configuration
