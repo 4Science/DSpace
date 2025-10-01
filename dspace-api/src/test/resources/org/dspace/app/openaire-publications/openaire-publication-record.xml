@@ -1,0 +1,369 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<response>
+    <header>
+        <query>(oaftype exact result) and (resulttypeid exact publication) and (resulttitle exact "covid")</query>
+        <locale>en_US</locale>
+        <size>1</size>
+        <page>1</page>
+        <total>1</total>
+        <fields>
+        </fields>
+    </header>
+    <results>
+        <result xmlns:dri="http://www.driver-repository.eu/namespace/dri">
+            <header xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+                <dri:objIdentifier>doi_dedup___::a987394eee2a5e9e43704a164fb11202</dri:objIdentifier>
+                <dri:dateOfCollection>2025-08-08T09:59:35.205</dri:dateOfCollection>
+                <dri:dateOfTransformation/>
+            </header>
+            <metadata>
+                <oaf:entity xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                            xmlns:oaf="http://namespace.openaire.eu/oaf"
+                            xsi:schemaLocation="http://namespace.openaire.eu/oaf https://www.openaire.eu/schema/1.0/oaf-1.0.xsd">
+                    <oaf:result>
+                        <collectedfrom name="WHO Global literature on coronavirus disease"
+                                       id="who_________::53d670af9bb16ea82e7ef41ee23ec6df"/>
+                        <collectedfrom name="UnpayWall" id="openaire____::8ac8380272269217cb09a928c8caa993"/>
+                        <collectedfrom name="Crossref" id="openaire____::081b82f96300b6a6e3d282bad31cb6e2"/>
+                        <collectedfrom name="Europe PubMed Central"
+                                       id="opendoar____::8b6dd7db9af49e67306feb59a8bdc52c"/>
+                        <collectedfrom name="PubMed Central" id="opendoar____::eda80a3d5b344bc40f3bc04f65b7a357"/>
+                        <originalId>S2405799121000025</originalId>
+                        <originalId>10.1016/j.cpha.2021.01.002</originalId>
+                        <originalId>50|doiboost____|a987394eee2a5e9e43704a164fb11202</originalId>
+                        <originalId>od_______267::a92ca5b3b9c8b8adacfa301d19db17f7</originalId>
+                        <originalId>33655081</originalId>
+                        <originalId>PMC7906009</originalId>
+                        <originalId>50|od_______267::a92ca5b3b9c8b8adacfa301d19db17f7</originalId>
+                        <originalId>oai:pubmedcentral.nih.gov:7906009</originalId>
+                        <originalId>50|who_________::a987394eee2a5e9e43704a164fb11202</originalId>
+                        <pid classid="doi" classname="Digital Object Identifier" schemeid="dnet:pid_types"
+                             schemename="dnet:pid_types">10.1016/j.cpha.2021.01.002</pid>
+                        <pid classid="pmid" classname="PubMed ID" schemeid="dnet:pid_types"
+                             schemename="dnet:pid_types"
+                             inferred="false"
+                             provenanceaction="sysimport:actionset"
+                             trust="0.9">33655081</pid>
+                        <pid classid="pmc" classname="PubMed Central ID" schemeid="dnet:pid_types"
+                             schemename="dnet:pid_types"
+                             inferred="false"
+                             provenanceaction="sysimport:actionset"
+                             trust="0.9">PMC7906009</pid>
+                        <measure id="influence" score="2.76154E-9" class="C5"/>
+                        <measure id="popularity" score="3.8052623E-9" class="C5"/>
+                        <measure id="influence_alt" score="2" class="C5"/>
+                        <measure id="popularity_alt" score="1.2" class="C5"/>
+                        <measure id="impulse" score="2" class="C5"/>
+                        <title classid="main title" classname="main title" schemeid="dnet:dataCite_title"
+                               schemename="dnet:dataCite_title">COVID</title>
+                        <title classid="main title" classname="main title" schemeid="dnet:dataCite_title"
+                               schemename="dnet:dataCite_title"
+                               inferred="false"
+                               provenanceaction="sysimport:actionset"
+                               trust="0.9">COVID.</title>
+                        <bestaccessright classid="OPEN" classname="Open Access" schemeid="dnet:access_modes"
+                                         schemename="dnet:access_modes"/>
+                        <creator rank="1" name="James A." surname="Rhee">Van Rhee, James A.</creator>
+                        <dateofacceptance>2021-04-01</dateofacceptance>
+                        <subject classid="FOS" classname="Fields of Science and Technology classification"
+                                 schemeid="dnet:subject_classification_typologies"
+                                 schemename="dnet:subject_classification_typologies"
+                                 inferred="true"
+                                 inferenceprovenance="update"
+                                 provenanceaction="subject:fos">03 medical and health sciences</subject>
+                        <subject classid="FOS" classname="Fields of Science and Technology classification"
+                                 schemeid="dnet:subject_classification_typologies"
+                                 schemename="dnet:subject_classification_typologies"
+                                 inferred="true"
+                                 inferenceprovenance="update"
+                                 provenanceaction="subject:fos">0302 clinical medicine</subject>
+                        <subject classid="FOS" classname="Fields of Science and Technology classification"
+                                 schemeid="dnet:subject_classification_typologies"
+                                 schemename="dnet:subject_classification_typologies"
+                                 inferred="true"
+                                 inferenceprovenance="update"
+                                 provenanceaction="subject:fos">0502 economics and business</subject>
+                        <subject classid="FOS" classname="Fields of Science and Technology classification"
+                                 schemeid="dnet:subject_classification_typologies"
+                                 schemename="dnet:subject_classification_typologies"
+                                 inferred="true"
+                                 inferenceprovenance="update"
+                                 provenanceaction="subject:fos">05 social sciences</subject>
+                        <subject classid="keyword" classname="keyword"
+                                 schemeid="dnet:subject_classification_typologies"
+                                 schemename="dnet:subject_classification_typologies"
+                                 inferred="false"
+                                 provenanceaction="sysimport:crosswalk:repository"
+                                 trust="0.9">Foreword</subject>
+                        <subject classid="keyword" classname="keyword"
+                                 schemeid="dnet:subject_classification_typologies"
+                                 schemename="dnet:subject_classification_typologies"
+                                 inferred="false"
+                                 provenanceaction="sysimport:crosswalk:repository"
+                                 trust="0.9">General Medicine</subject>
+                        <language classid="und" classname="Undetermined" schemeid="dnet:languages"
+                                  schemename="dnet:languages"/>
+                        <relevantdate classid="created" classname="created" schemeid="dnet:dataCite_date"
+                                      schemename="dnet:dataCite_date">2021-02-26</relevantdate>
+                        <relevantdate classid="published-print" classname="published-print"
+                                      schemeid="dnet:dataCite_date"
+                                      schemename="dnet:dataCite_date">2021-04-01</relevantdate>
+                        <publisher>Elsevier BV</publisher>
+                        <source>Physician Assistant Clinics</source>
+                        <source>Crossref</source>
+                        <source>Physician Assist Clin</source>
+                        <resulttype classid="publication" classname="publication" schemeid="dnet:result_typologies"
+                                    schemename="dnet:result_typologies"/>
+                        <resourcetype classid="publication" classname="publication" schemeid="dnet:result_typologies"
+                                      schemename="dnet:result_typologies"/>
+                        <isgreen>true</isgreen>
+                        <openaccesscolor>hybrid</openaccesscolor>
+                        <isindiamondjournal>false</isindiamondjournal>
+                        <publiclyfunded>false</publiclyfunded>
+                        <journal issn="2405-7991" ep="xiv" sp="xiii" vol="6">Physician Assistant Clinics</journal>
+                        <context id="gotriple"
+                                 label="GOTRIPLE - Social Sciences and Humanities Discovery service"
+                                 type="community"/>
+                        <context id="covid-19" label="Corona Virus Disease" type="community"/>
+                        <datainfo>
+                            <inferred>true</inferred>
+                            <deletedbyinference>false</deletedbyinference>
+                            <trust>0.8</trust>
+                            <inferenceprovenance>dedup-result-decisiontree-v4</inferenceprovenance>
+                            <provenanceaction classid="sysimport:dedup" classname="Inferred by OpenAIRE"
+                                              schemeid="dnet:provenanceActions"
+                                              schemename="dnet:provenanceActions"/>
+                        </datainfo>
+                        <rels>
+                            <rel inferred="true" trust="1.0" inferenceprovenance="openaire:affiliation:graph"
+                                 provenanceaction="result:organization:openaireinference">
+                                <to class="hasAuthorInstitution" scheme="dnet:result_organization_relations"
+                                    type="organization">openorgs____::293e60068d63e17e20f2de54944cae01</to>
+                                <legalname>Yale University</legalname>
+                                <country classid="US" classname="United States" schemeid="dnet:countries"
+                                         schemename="dnet:countries"/>
+                                <legalshortname>Yale University</legalshortname>
+                                <websiteurl>http://www.yale.edu</websiteurl>
+                            </rel>
+                        </rels>
+                        <children>
+                            <result objidentifier="od_______267::a92ca5b3b9c8b8adacfa301d19db17f7">
+                                <dateofacceptance>2021-04-01</dateofacceptance>
+                                <collectedfrom name="PubMed Central" id="opendoar____::eda80a3d5b344bc40f3bc04f65b7a357"/>
+                                <title classid="main title" classname="main title" schemeid="dnet:dataCite_title"
+                                       schemename="dnet:dataCite_title"
+                                       inferred="false"
+                                       provenanceaction="sysimport:crosswalk:repository"
+                                       trust="0.9">COVID</title>
+                                <creator>Van Rhee, James A.</creator>
+                                <resulttype classid="publication" classname="publication" schemeid="dnet:result_typologies"
+                                            schemename="dnet:result_typologies"/>
+                                <publisher>Published by Elsevier Inc.</publisher>
+                                <instance>
+                                    <accessright classid="OPEN" classname="Open Access" schemeid="dnet:access_modes"
+                                                 schemename="dnet:access_modes"/>
+                                    <hostedby name="PubMed Central" id="opendoar____::eda80a3d5b344bc40f3bc04f65b7a357"/>
+                                    <dateofacceptance>2021-04-01</dateofacceptance>
+                                    <instancetype classid="0038" classname="Other literature type"
+                                                  schemeid="dnet:publication_resource"
+                                                  schemename="dnet:publication_resource"/>
+                                    <refereed classid="0002" classname="nonPeerReviewed" schemeid="dnet:review_levels"
+                                              schemename="dnet:review_levels"/>
+                                    <url>http://dx.doi.org/10.1016/j.cpha.2021.01.002</url>
+                                    <webresource>
+                                        <url>http://dx.doi.org/10.1016/j.cpha.2021.01.002</url>
+                                    </webresource>
+                                </instance>
+                            </result>
+                            <result objidentifier="pmid________::ae30b0e3fa768d1e95d9ba1e76aef486">
+                                <pid classid="pmid" classname="PubMed ID" schemeid="dnet:pid_types"
+                                     schemename="dnet:pid_types"
+                                     inferred="false"
+                                     provenanceaction="sysimport:actionset"
+                                     trust="0.9">33655081</pid>
+                                <pid classid="pmc" classname="PubMed Central ID" schemeid="dnet:pid_types"
+                                     schemename="dnet:pid_types"
+                                     inferred="false"
+                                     provenanceaction="sysimport:actionset"
+                                     trust="0.9">PMC7906009</pid>
+                                <instance>
+                                    <accessright classid="UNKNOWN" classname="unspecified" schemeid="dnet:access_modes"
+                                                 schemename="dnet:access_modes"/>
+                                    <hostedby name="Unknown Repository" id="openaire____::55045bd2a65019fd8e6741a755395c8c"/>
+                                    <instancetype classid="0038" classname="Other literature type"
+                                                  schemeid="dnet:publication_resource"
+                                                  schemename="dnet:publication_resource"/>
+                                    <refereed classid="0002" classname="nonPeerReviewed" schemeid="dnet:review_levels"
+                                              schemename="dnet:review_levels"/>
+                                    <url>https://pubmed.ncbi.nlm.nih.gov/33655081</url>
+                                    <webresource>
+                                        <url>https://pubmed.ncbi.nlm.nih.gov/33655081</url>
+                                    </webresource>
+                                </instance>
+                                <creator>James A, Van Rhee</creator>
+                                <resulttype classid="publication" classname="publication" schemeid="dnet:result_typologies"
+                                            schemename="dnet:result_typologies"/>
+                                <collectedfrom name="Europe PubMed Central"
+                                               id="opendoar____::8b6dd7db9af49e67306feb59a8bdc52c"/>
+                                <title classid="main title" classname="main title" schemeid="dnet:dataCite_title"
+                                       schemename="dnet:dataCite_title"
+                                       inferred="false"
+                                       provenanceaction="sysimport:actionset"
+                                       trust="0.9">COVID.</title>
+                            </result>
+                            <result objidentifier="who_________::a987394eee2a5e9e43704a164fb11202">
+                                <dateofacceptance>2021-04-01</dateofacceptance>
+                                <title classid="main title" classname="main title" schemeid="dnet:dataCite_title"
+                                       schemename="dnet:dataCite_title"
+                                       inferred="false"
+                                       provenanceaction="sysimport:crosswalk:repository"
+                                       trust="0.9">COVID</title>
+                                <creator>Van Rhee, James A.</creator>
+                                <resulttype classid="publication" classname="publication" schemeid="dnet:result_typologies"
+                                            schemename="dnet:result_typologies"/>
+                                <instance>
+                                    <accessright classid="OPEN" classname="Open Access" schemeid="dnet:access_modes"
+                                                 schemename="dnet:access_modes"/>
+                                    <hostedby name="Physician Assistant Clinics"
+                                              id="issn___print::5818f5e57f5ea050cfe38e8b69f5181e"/>
+                                    <dateofacceptance>2021-04-01</dateofacceptance>
+                                    <instancetype classid="0001" classname="Article" schemeid="dnet:publication_resource"
+                                                  schemename="dnet:publication_resource"/>
+                                    <refereed classid="0002" classname="nonPeerReviewed" schemeid="dnet:review_levels"
+                                              schemename="dnet:review_levels"/>
+                                    <license>Elsevier TDM</license>
+                                    <url>http://dx.doi.org/10.1016/j.cpha.2021.01.002</url>
+                                    <webresource>
+                                        <url>http://dx.doi.org/10.1016/j.cpha.2021.01.002</url>
+                                    </webresource>
+                                </instance>
+                                <collectedfrom name="WHO Global literature on coronavirus disease"
+                                               id="who_________::53d670af9bb16ea82e7ef41ee23ec6df"/>
+                                <publisher>Elsevier BV</publisher>
+                            </result>
+                            <result objidentifier="doi_________::a987394eee2a5e9e43704a164fb11202">
+                                <dateofacceptance>2021-04-01</dateofacceptance>
+                                <instance>
+                                    <accessright classid="CLOSED" classname="Closed Access" schemeid="dnet:access_modes"
+                                                 schemename="dnet:access_modes"/>
+                                    <hostedby name="Physician Assistant Clinics"
+                                              id="issn___print::5818f5e57f5ea050cfe38e8b69f5181e"/>
+                                    <dateofacceptance>2021-04-01</dateofacceptance>
+                                    <instancetype classid="0001" classname="Article" schemeid="dnet:publication_resource"
+                                                  schemename="dnet:publication_resource"/>
+                                    <refereed classid="0001" classname="peerReviewed" schemeid="dnet:review_levels"
+                                              schemename="dnet:review_levels"/>
+                                    <license>Elsevier TDM</license>
+                                    <url>https://doi.org/10.1016/j.cpha.2021.01.002</url>
+                                    <webresource>
+                                        <url>https://doi.org/10.1016/j.cpha.2021.01.002</url>
+                                    </webresource>
+                                </instance>
+                                <title classid="main title" classname="main title" schemeid="dnet:dataCite_title"
+                                       schemename="dnet:dataCite_title">COVID</title>
+                                <pid classid="doi" classname="Digital Object Identifier" schemeid="dnet:pid_types"
+                                     schemename="dnet:pid_types">10.1016/j.cpha.2021.01.002</pid>
+                                <resulttype classid="publication" classname="publication" schemeid="dnet:result_typologies"
+                                            schemename="dnet:result_typologies"/>
+                                <collectedfrom name="Crossref" id="openaire____::081b82f96300b6a6e3d282bad31cb6e2"/>
+                                <collectedfrom name="UnpayWall" id="openaire____::8ac8380272269217cb09a928c8caa993"/>
+                                <instance>
+                                    <accessright classid="OPEN" classname="Open Access" schemeid="dnet:access_modes"
+                                                 schemename="dnet:access_modes"/>
+                                    <hostedby name="Physician Assistant Clinics"
+                                              id="issn___print::5818f5e57f5ea050cfe38e8b69f5181e"/>
+                                    <instancetype classid="0001" classname="Article" schemeid="dnet:publication_resource"
+                                                  schemename="dnet:publication_resource"/>
+                                    <refereed classid="0002" classname="nonPeerReviewed" schemeid="dnet:review_levels"
+                                              schemename="dnet:review_levels"/>
+                                    <url>http://physicianassistant.theclinics.com/article/S2405799121000025/pdf</url>
+                                    <webresource>
+                                        <url>http://physicianassistant.theclinics.com/article/S2405799121000025/pdf</url>
+                                    </webresource>
+                                </instance>
+                                <publisher>Elsevier BV</publisher>
+                                <creator>James A. Van Rhee</creator>
+                            </result>
+                            <instance>
+                                <accessright classid="UNKNOWN" classname="unspecified" schemeid="dnet:access_modes"
+                                             schemename="dnet:access_modes"/>
+                                <collectedfrom name="Europe PubMed Central"
+                                               id="opendoar____::8b6dd7db9af49e67306feb59a8bdc52c"/>
+                                <hostedby name="Unknown Repository" id="openaire____::55045bd2a65019fd8e6741a755395c8c"/>
+                                <instancetype classid="0038" classname="Other literature type"
+                                              schemeid="dnet:publication_resource"
+                                              schemename="dnet:publication_resource"/>
+                                <pid classid="pmc" classname="PubMed Central ID" schemeid="dnet:pid_types"
+                                     schemename="dnet:pid_types"
+                                     inferred="false"
+                                     provenanceaction="sysimport:actionset"
+                                     trust="0.9">PMC7906009</pid>
+                                <pid classid="pmid" classname="PubMed ID" schemeid="dnet:pid_types"
+                                     schemename="dnet:pid_types"
+                                     inferred="false"
+                                     provenanceaction="sysimport:actionset"
+                                     trust="0.9">33655081</pid>
+                                <alternateidentifier classid="doi" classname="Digital Object Identifier" schemeid="dnet:pid_types"
+                                                     schemename="dnet:pid_types">10.1016/j.cpha.2021.01.002</alternateidentifier>
+                                <refereed classid="0002" classname="nonPeerReviewed" schemeid="dnet:review_levels"
+                                          schemename="dnet:review_levels"/>
+                                <webresource>
+                                    <url>https://pubmed.ncbi.nlm.nih.gov/33655081</url>
+                                </webresource>
+                            </instance>
+                            <instance>
+                                <accessright classid="OPEN" classname="Open Access" schemeid="dnet:access_modes"
+                                             schemename="dnet:access_modes"/>
+                                <collectedfrom name="WHO Global literature on coronavirus disease"
+                                               id="who_________::53d670af9bb16ea82e7ef41ee23ec6df"/>
+                                <collectedfrom name="PubMed Central" id="opendoar____::eda80a3d5b344bc40f3bc04f65b7a357"/>
+                                <collectedfrom name="Crossref" id="openaire____::081b82f96300b6a6e3d282bad31cb6e2"/>
+                                <hostedby name="Physician Assistant Clinics"
+                                          id="issn___print::5818f5e57f5ea050cfe38e8b69f5181e"/>
+                                <hostedby name="PubMed Central" id="opendoar____::eda80a3d5b344bc40f3bc04f65b7a357"/>
+                                <hostedby name="Physician Assistant Clinics"
+                                          id="issn___print::5818f5e57f5ea050cfe38e8b69f5181e"/>
+                                <dateofacceptance>2021-04-01</dateofacceptance>
+                                <instancetype classid="0001" classname="Article" schemeid="dnet:publication_resource"
+                                              schemename="dnet:publication_resource"/>
+                                <instancetype classid="0038" classname="Other literature type"
+                                              schemeid="dnet:publication_resource"
+                                              schemename="dnet:publication_resource"/>
+                                <pid classid="doi" classname="Digital Object Identifier" schemeid="dnet:pid_types"
+                                     schemename="dnet:pid_types">10.1016/j.cpha.2021.01.002</pid>
+                                <alternateidentifier classid="doi" classname="Digital Object Identifier" schemeid="dnet:pid_types"
+                                                     schemename="dnet:pid_types">10.1016/j.cpha.2021.01.002</alternateidentifier>
+                                <alternateidentifier classid="doi" classname="Digital Object Identifier" schemeid="dnet:pid_types"
+                                                     schemename="dnet:pid_types">10.1016/j.cpha.2021.01.002</alternateidentifier>
+                                <refereed classid="0001" classname="peerReviewed" schemeid="dnet:review_levels"
+                                          schemename="dnet:review_levels"/>
+                                <license>Elsevier TDM</license>
+                                <webresource>
+                                    <url>https://doi.org/10.1016/j.cpha.2021.01.002</url>
+                                </webresource>
+                            </instance>
+                            <instance>
+                                <accessright classid="OPEN" classname="Open Access" schemeid="dnet:access_modes"
+                                             schemename="dnet:access_modes"/>
+                                <collectedfrom name="UnpayWall" id="openaire____::8ac8380272269217cb09a928c8caa993"/>
+                                <hostedby name="Physician Assistant Clinics"
+                                          id="issn___print::5818f5e57f5ea050cfe38e8b69f5181e"/>
+                                <instancetype classid="0001" classname="Article" schemeid="dnet:publication_resource"
+                                              schemename="dnet:publication_resource"/>
+                                <pid classid="doi" classname="Digital Object Identifier" schemeid="dnet:pid_types"
+                                     schemename="dnet:pid_types">10.1016/j.cpha.2021.01.002</pid>
+                                <refereed classid="0002" classname="nonPeerReviewed" schemeid="dnet:review_levels"
+                                          schemename="dnet:review_levels"/>
+                                <webresource>
+                                    <url>http://physicianassistant.theclinics.com/article/S2405799121000025/pdf</url>
+                                </webresource>
+                            </instance>
+                        </children>
+                    </oaf:result>
+                </oaf:entity>
+            </metadata>
+        </result>
+    </results>
+    <browseResults>
+    </browseResults>
+</response>
