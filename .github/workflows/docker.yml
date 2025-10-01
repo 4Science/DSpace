@@ -22,7 +22,7 @@ jobs:
   # Build/Push the '4science/dspace-cris-dependencies' image.
   # This image is used by all other DSpace build jobs.
   ####################################################
-  dspace-crisdependencies:
+  dspace-cris-dependencies:
     # Ensure this job never runs on forked repos. It's only executed for '4science/dspace'
     if: github.repository == '4science/dspace'
     uses: ./.github/workflows/reusable-docker-build.yml
