@@ -7,10 +7,10 @@ name: Docker images
 on:
   push:
     branches:
-      - main
-      - 'dspace-**'
+      - main-cris
+      - 'dspace-cris-*_02_x'
     tags:
-      - 'dspace-**'
+      - 'dspace-cris-*.*.*'
   pull_request:
 
 permissions:
@@ -19,33 +19,33 @@ permissions:
 
 jobs:
   ####################################################
-  # Build/Push the 'dspace/dspace-dependencies' image.
+  # Build/Push the '4science/dspace-cris-dependencies' image.
   # This image is used by all other DSpace build jobs.
   ####################################################
-  dspace-dependencies:
-    # Ensure this job never runs on forked repos. It's only executed for 'dspace/dspace'
-    if: github.repository == 'dspace/dspace'
+  dspace-cris-dependencies:
+    # Ensure this job never runs on forked repos. It's only executed for '4science/dspace'
+    if: github.repository == '4science/dspace'
     uses: ./.github/workflows/reusable-docker-build.yml
     with:
-      build_id: dspace-dependencies
-      image_name: dspace/dspace-dependencies
+      build_id: dspace-cris-dependencies
+      image_name: 4science/dspace-cris-dependencies
       dockerfile_path: ./Dockerfile.dependencies
     secrets:
       DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
       DOCKER_ACCESS_TOKEN: ${{ secrets.DOCKER_ACCESS_TOKEN }}
 
   #######################################
-  # Build/Push the 'dspace/dspace' image
+  # Build/Push the '4science/dspace-cris' image
   #######################################
-  dspace:
-    # Ensure this job never runs on forked repos. It's only executed for 'dspace/dspace'
-    if: github.repository == 'dspace/dspace'
+  dspace-cris:
+    # Ensure this job never runs on forked repos. It's only executed for '4science/dspace'
+    if: github.repository == '4science/dspace'
     # Must run after 'dspace-dependencies' job above
-    needs: dspace-dependencies
+    needs: dspace-cris-dependencies
     uses: ./.github/workflows/reusable-docker-build.yml
     with:
-      build_id: dspace-prod
-      image_name: dspace/dspace
+      build_id: dspace-cris-prod
+      image_name: 4science/dspace-cris
       dockerfile_path: ./Dockerfile
     secrets:
       DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
@@ -56,52 +56,52 @@ jobs:
       REDEPLOY_DEMO_URL: ${{ secrets.REDEPLOY_DEMO_URL }}
 
   #############################################################
-  # Build/Push the 'dspace/dspace' image ('-test' tag)
+  # Build/Push the '4science/dspace-cris' image ('-test' tag)
   #############################################################
-  dspace-test:
-    # Ensure this job never runs on forked repos. It's only executed for 'dspace/dspace'
-    if: github.repository == 'dspace/dspace'
+  dspace-cris-test:
+    # Ensure this job never runs on forked repos. It's only executed for '4science/dspace'
+    if: github.repository == '4science/dspace'
     # Must run after 'dspace-dependencies' job above
-    needs: dspace-dependencies
+    needs: dspace-cris-dependencies
     uses: ./.github/workflows/reusable-docker-build.yml
     with:
-      build_id: dspace-test
-      image_name: dspace/dspace
+      build_id: dspace-cris-test
+      image_name: 4science/dspace-cris
       dockerfile_path: ./Dockerfile.test
       # As this is a test/development image, its tags are all suffixed with "-test". Otherwise, it uses the same
-      # tagging logic as the primary 'dspace/dspace' image above.
+      # tagging logic as the primary '4science/dspace-cris' image above.
       tags_flavor: suffix=-test
     secrets:
       DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
       DOCKER_ACCESS_TOKEN: ${{ secrets.DOCKER_ACCESS_TOKEN }}
 
   ###########################################
-  # Build/Push the 'dspace/dspace-cli' image
+  # Build/Push the '4science/dspace-cli' image
   ###########################################
-  dspace-cli:
-    # Ensure this job never runs on forked repos. It's only executed for 'dspace/dspace'
-    if: github.repository == 'dspace/dspace'
+  dspace-cris-cli:
+    # Ensure this job never runs on forked repos. It's only executed for '4science/dspace'
+    if: github.repository == '4science/dspace'
     # Must run after 'dspace-dependencies' job above
-    needs: dspace-dependencies
+    needs: dspace-cris-dependencies
     uses: ./.github/workflows/reusable-docker-build.yml
     with:
-      build_id: dspace-cli
-      image_name: dspace/dspace-cli
+      build_id: dspace-cris-cli
+      image_name: 4science/dspace-cris-cli
       dockerfile_path: ./Dockerfile.cli
     secrets:
       DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
       DOCKER_ACCESS_TOKEN: ${{ secrets.DOCKER_ACCESS_TOKEN }}
 
   ###########################################
-  # Build/Push the 'dspace/dspace-solr' image
+  # Build/Push the '4science/dspace-cris-solr' image
   ###########################################
-  dspace-solr:
-    # Ensure this job never runs on forked repos. It's only executed for 'dspace/dspace'
-    if: github.repository == 'dspace/dspace'
+  dspace-cris-solr:
+    # Ensure this job never runs on forked repos. It's only executed for '4science/dspace'
+    if: github.repository == '4science/dspace'
     uses: ./.github/workflows/reusable-docker-build.yml
     with:
-      build_id: dspace-solr
-      image_name: dspace/dspace-solr
+      build_id: dspace-cris-solr
+      image_name: 4science/dspace-cris-solr
       dockerfile_path: ./dspace/src/main/docker/dspace-solr/Dockerfile
       # Must pass solrconfigs to the Dockerfile so that it can find the required Solr config files
       dockerfile_additional_contexts: 'solrconfigs=./dspace/solr/'
@@ -109,20 +109,20 @@ jobs:
       DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
       DOCKER_ACCESS_TOKEN: ${{ secrets.DOCKER_ACCESS_TOKEN }}
       # Enable redeploy of sandbox & demo SOLR instance whenever dspace-solr image changes for deployed branch.
-      # These URLs MUST use different secrets than 'dspace/dspace' image build above as they are deployed separately.
+      # These URLs MUST use different secrets than '4science/dspace-cris' image build above as they are deployed separately.
       REDEPLOY_SANDBOX_URL: ${{ secrets.REDEPLOY_SANDBOX_SOLR_URL }}
       REDEPLOY_DEMO_URL: ${{ secrets.REDEPLOY_DEMO_SOLR_URL }}
 
   ###########################################################
-  # Build/Push the 'dspace/dspace-postgres-pgcrypto' image
+  # Build/Push the '4science/dspace-cris-postgres-pgcrypto' image
   ###########################################################
-  dspace-postgres-pgcrypto:
-    # Ensure this job never runs on forked repos. It's only executed for 'dspace/dspace'
-    if: github.repository == 'dspace/dspace'
+  dspace-cris-postgres-pgcrypto:
+    # Ensure this job never runs on forked repos. It's only executed for '4science/dspace'
+    if: github.repository == '4science/dspace'
     uses: ./.github/workflows/reusable-docker-build.yml
     with:
-      build_id: dspace-postgres-pgcrypto-prod
-      image_name: dspace/dspace-postgres-pgcrypto
+      build_id: dspace-cris-postgres-pgcrypto-prod
+      image_name: 4science/dspace-cris-postgres-pgcrypto
       # Must build out of subdirectory to have access to install script for pgcrypto.
       # NOTE: this context will build the image based on the Dockerfile in the specified directory
       dockerfile_context: ./dspace/src/main/docker/dspace-postgres-pgcrypto/
@@ -131,20 +131,20 @@ jobs:
       DOCKER_ACCESS_TOKEN: ${{ secrets.DOCKER_ACCESS_TOKEN }}
 
   ########################################################################
-  # Build/Push the 'dspace/dspace-postgres-pgcrypto' image (-loadsql tag)
+  # Build/Push the '4science/dspace-cris-postgres-pgcrypto' image (-loadsql tag)
   ########################################################################
-  dspace-postgres-pgcrypto-loadsql:
-    # Ensure this job never runs on forked repos. It's only executed for 'dspace/dspace'
-    if: github.repository == 'dspace/dspace'
+  dspace-cris-postgres-pgcrypto-loadsql:
+    # Ensure this job never runs on forked repos. It's only executed for '4science/dspace'
+    if: github.repository == '4science/dspace'
     uses: ./.github/workflows/reusable-docker-build.yml
     with:
-      build_id: dspace-postgres-pgcrypto-loadsql
-      image_name: dspace/dspace-postgres-pgcrypto
+      build_id: dspace-cris-postgres-pgcrypto-loadsql
+      image_name: 4science/dspace-cris-postgres-pgcrypto
       # Must build out of subdirectory to have access to install script for pgcrypto.
       # NOTE: this context will build the image based on the Dockerfile in the specified directory
       dockerfile_context: ./dspace/src/main/docker/dspace-postgres-pgcrypto-curl/
       # Suffix all tags with "-loadsql". Otherwise, it uses the same
-      # tagging logic as the primary 'dspace/dspace-postgres-pgcrypto' image above.
+      # tagging logic as the primary '4science/dspace-cris-postgres-pgcrypto' image above.
       tags_flavor: suffix=-loadsql
     secrets:
       DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
@@ -154,11 +154,11 @@ jobs:
   # Test Deployment via Docker to ensure newly built images are working properly
   #################################################################################
   docker-deploy:
-    # Ensure this job never runs on forked repos. It's only executed for 'dspace/dspace'
-    if: github.repository == 'dspace/dspace'
+    # Ensure this job never runs on forked repos. It's only executed for '4science/dspace'
+    if: github.repository == '4science/dspace'
     runs-on: ubuntu-latest
     # Must run after all major images are built
-    needs: [dspace, dspace-test, dspace-cli, dspace-postgres-pgcrypto, dspace-solr]
+    needs: [dspace-cris, dspace-cris-test, dspace-cris-cli, dspace-cris-postgres-pgcrypto, dspace-cris-solr]
     env:
       # Override defaults dspace.server.url because backend starts at http://127.0.0.1:8080
       dspace__P__server__P__url: http://127.0.0.1:8080/server
@@ -216,7 +216,7 @@ jobs:
         run: |
           result=$(wget -O- -q http://127.0.0.1:8080/server/api)
           echo "$result"
-          echo "$result" |  grep -oE "\"DSpace Started with Docker Compose\","
+          echo "$result" |  grep -oE "\"DSpace-CRIS Started with Docker Compose\","
           result=$(wget -O- -q http://127.0.0.1:8080/server/api/core/collections)
           echo "$result"
           echo "$result" |  grep -oE "\"Dog in Yard\","
