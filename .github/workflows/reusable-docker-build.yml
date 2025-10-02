@@ -77,7 +77,7 @@ env:
   DEPLOY_ARCH: 'linux/amd64'
   # Registry used during building of Docker images. (All images are later copied to docker.io registry)
   # We use GitHub's Container Registry to avoid aggressive rate limits at DockerHub.
-  DOCKER_BUILD_REGISTRY: ghcr.io
+  DOCKER_BUILD_REGISTRY: docker.io
 
 jobs:
   docker-build:
