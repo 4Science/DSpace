@@ -37,7 +37,7 @@ RUN mv /app/dspace/modules/server-boot/target/server-boot-*.jar /install/server-
 
 # Step 2 - Run installation
 # Create a new tomcat image that does not retain the thze build directory contents
-FROM ${DOCKER_REGISTRY}/eclipse-temurin:${JDK_VERSION}-jre AS install
+FROM docker.io/eclipse-temurin:${JDK_VERSION}-jre AS install
 # Install unzip for AIPs
 RUN apt-get update \
     && apt-get install -y --no-install-recommends unzip \
