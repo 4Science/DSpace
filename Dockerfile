@@ -8,7 +8,7 @@
 # To build with other versions, use "--build-arg JDK_VERSION=[value]"
 ARG JDK_VERSION=17
 # The Docker version tag to build from
-ARG DSPACE_VERSION=2024_02_x
+ARG DSPACE_VERSION=dspace-cris-2024_02_x
 # The Docker registry to use for DSpace images. Defaults to "docker.io"
 # NOTE: non-DSpace images are hardcoded to use "docker.io" and are not impacted by this build argument
 ARG DOCKER_REGISTRY=docker.io
@@ -36,7 +36,7 @@ RUN mv /app/dspace/modules/server-boot/target/server-boot-*.jar /install/server-
 
 # Step 2 - Run installation
 # Create a new tomcat image that does not retain the thze build directory contents
-FROM ${DOCKER_REGISTRY}/eclipse-temurin:${JDK_VERSION}-jre AS install
+FROM docker.io/eclipse-temurin:${JDK_VERSION}-jre AS install
 # Expose Tomcat port (8080) and AJP port (8009) and Handle Server HTTP port (8000)
 EXPOSE 8080 8000 8009
 # NOTE: DSPACE_INSTALL must align with the "dspace.dir" default configuration.
