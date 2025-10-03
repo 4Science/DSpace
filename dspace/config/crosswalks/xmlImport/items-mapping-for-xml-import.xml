@@ -105,7 +105,41 @@
             <field>dc.relation.references</field>
             <xpath>./datafield[@tag = '787']/subfield[@code = 'a']</xpath>
         </metadata-field>
+        <metadata-field>
+            <field>dc.contributor.corporatebody</field>
+            <xpath>./datafield[@tag = '110']/subfield[@code = 'a'] | ./datafield[@tag = '710']/subfield[@code = 'a']</xpath>
+        </metadata-field>
+        <metadata-field>
+            <field>dc.publisher.place</field>
+            <xpath>(./datafield[@tag='260']/subfield[@code='a'][string-length(normalize-space()) > 0] | ./datafield[@tag='264']/subfield[@code='a'])[1]</xpath>
+        </metadata-field>
+        <metadata-field>
+            <field>dc.publisher</field>
+            <xpath>(./datafield[@tag='260']/subfield[@code='b'][string-length(normalize-space()) > 0] | ./datafield[@tag='264']/subfield[@code='b'])[1]</xpath>
+        </metadata-field>
+        <metadata-field>
+            <field>oaire.citation.volume</field>
+            <xpath>(./datafield[@tag='490']/subfield[@code='v'][string-length(normalize-space()) > 0] | ./datafield[@tag='773']/subfield[@code='g'])[1] </xpath>
+        </metadata-field>
+        <metadata-field>
+            <field>dc.relation.stpieceperother</field>
+            <xpath>(./datafield[@tag='490']/subfield[@code='v'][string-length(normalize-space()) > 0] | ./datafield[@tag='773']/subfield[@code='g'])[1] </xpath>
+        </metadata-field>
+        <metadata-field>
+            <field>dc.relation.issn</field>
+            <xpath>(./datafield[@tag='490']/subfield[@code='x'][string-length(normalize-space()) > 0] | ./datafield[@tag='773']/subfield[@code='x'])[1] </xpath>
+        </metadata-field>
         <!-- mapping with riders -->
+        <metadata-field>
+            <field>dc.title</field>
+            <xpath>./datafield[@tag = '245']</xpath>
+            <reader>title</reader>
+        </metadata-field>
+        <metadata-field>
+            <field>dc.title.alternative</field>
+            <xpath>./datafield[@tag = '246']</xpath>
+            <reader>title</reader>
+        </metadata-field>
         <metadata-field>
             <field>dc.contributor.author</field>
             <xpath>./datafield[@tag = '700'][not(subfield[@code='e'][contains(., 'editor')])]</xpath>
@@ -115,6 +149,31 @@
             <field>dc.contributor.editor</field>
             <xpath>./datafield[@tag = '700'][subfield[@code='e'][contains(., 'editor')]]</xpath>
             <reader>author</reader>
+        </metadata-field>
+        <metadata-field>
+            <field>dc.language.iso</field>
+            <xpath>./datafield[@tag = '041']/subfield[@code = 'a']</xpath>
+            <reader>language</reader>
+        </metadata-field>
+        <metadata-field>
+            <field>dc.relation.ispartof</field>
+            <xpath>./datafield[@tag = '490']</xpath>
+            <reader>serie</reader>
+        </metadata-field>
+        <metadata-field>
+            <field>dc.identifier</field>
+            <xpath>./datafield[@tag = '024' and @ind1 = '7' and ( @ind2 = ' ' or @ind2 = '0')]</xpath>
+            <reader>identifier</reader>
+        </metadata-field>
+        <metadata-field>
+            <field>dc.identifier.ismn</field>
+            <xpath>./datafield[@tag = '024' and @ind1 = '2' and ( @ind2 = ' ' or @ind2 = '0')]</xpath>
+            <reader>identifier</reader>
+        </metadata-field>
+        <metadata-field>
+            <field>dc.date.issued</field>
+            <xpath>./datafield[@tag = '260']/subfield[@code = 'c'] | ./datafield[@tag = '264']/subfield[@code = 'c']</xpath>
+            <reader>dateIssued</reader>
         </metadata-field>
     </metadata-fields>
 

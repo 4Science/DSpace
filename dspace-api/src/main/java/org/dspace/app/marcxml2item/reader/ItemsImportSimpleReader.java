@@ -23,11 +23,11 @@ import org.w3c.dom.NodeList;
  **/
 public class ItemsImportSimpleReader implements ItemsImportMetadataFieldReader {
 
-    public static final String DEFAULT_METADATAFIELDS_READER = "default";
+    public static final String DEFAULT_METADATA_FIELDS_READER = "default";
 
     @Override
     public List<MetadataValueDTO> readValues(Context context, String metadataField, String type, NodeList nodeList) {
-        List<MetadataValueDTO> metadataValues = new ArrayList<MetadataValueDTO>();
+        List<MetadataValueDTO> metadataValues = new ArrayList<>();
         for (int i = 0; i < nodeList.getLength(); i++) {
             Node node = nodeList.item(i);
             String nodeValue = node.getTextContent();
@@ -41,7 +41,7 @@ public class ItemsImportSimpleReader implements ItemsImportMetadataFieldReader {
 
     @Override
     public String getReaderName() {
-        return DEFAULT_METADATAFIELDS_READER;
+        return DEFAULT_METADATA_FIELDS_READER;
     }
 
 }

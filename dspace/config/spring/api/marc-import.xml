@@ -17,8 +17,9 @@
 
     <!-- ItemsImport reader beans -->
     <bean class="org.dspace.app.marcxml2item.reader.ItemsImportSimpleReader" />
+    <bean class="org.dspace.app.marcxml2item.reader.ItemsImportDateIssuedReader" />
 
-    <bean class="org.dspace.epfl.script.reader.ItemsImportNestedMetadataFieldReader" >
+    <bean class="org.dspace.app.marcxml2item.reader.ItemsImportNestedMetadataFieldReader" >
         <property name="readerName" value="author" />
         <property name="skipDateConversion" value="true"/>
         <property name="metadataFieldsPaths">
@@ -36,6 +37,33 @@
                 <entry key="dc.contributor.author" value="will be generated::SCIPER-ID::"/>
             </util:map>
         </property>
+    </bean>
+
+    <bean class="org.dspace.app.marcxml2item.reader.ItemsImportTitleReader" >
+        <property name="titleXPath" value="./subfield[@code = 'a']" />
+        <property name="subTitleXPath" value="./subfield[@code = 'b']" />
+    </bean>
+
+    <bean class="org.dspace.app.marcxml2item.reader.ItemsImportPropertiesReader">
+        <property name="readerName" value="language" />
+        <property name="propertiesPath" value="crosswalks/mapConverter-languages.properties" />
+        <property name="defaultValue" value="other" />
+    </bean>
+
+    <bean class="org.dspace.app.marcxml2item.reader.ItemsImportSeriesReader">
+        <property name="isPartOfSeriesMetadataField" value="dc.relation.ispartofseries" />
+        <property name="titleXPath" value="./subfield[@code = 'a']"/>
+        <property name="numberXPath" value="./subfield[@code = 'v']"/>
+    </bean>
+
+    <bean class="org.dspace.app.marcxml2item.reader.ItemsImportIdentifierReader">
+        <property name="qualifierXPath" value="./subfield[@code = '2']"/>
+        <property name="valueXPath" value="./subfield[@code = 'a']"/>
+        <property name="importIdentifierValueProcessor" ref="isiValueProcessor"/>
+    </bean>
+
+    <bean id="isiValueProcessor" class="org.dspace.app.marcxml2item.reader.IsiValueProcessor" >
+        <property name="metadataField" value="dc.identifier.isi"/>
     </bean>
 
 </beans>

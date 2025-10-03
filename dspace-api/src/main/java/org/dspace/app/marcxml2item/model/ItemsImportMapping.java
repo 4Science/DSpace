@@ -7,7 +7,7 @@
  */
 package org.dspace.app.marcxml2item.model;
 
-import static org.dspace.app.marcxml2item.reader.ItemsImportSimpleReader.DEFAULT_METADATAFIELDS_READER;
+import static org.dspace.app.marcxml2item.reader.ItemsImportSimpleReader.DEFAULT_METADATA_FIELDS_READER;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -83,7 +83,7 @@ public class ItemsImportMapping {
         }
 
         public String getReader() {
-            return StringUtils.isNotBlank(reader) ? reader : DEFAULT_METADATAFIELDS_READER;
+            return StringUtils.isNotBlank(reader) ? reader : DEFAULT_METADATA_FIELDS_READER;
         }
 
         public void setReader(String reader) {
