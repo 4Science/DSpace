@@ -23,6 +23,8 @@ services:
           curl $${AIPZIP} -L -s --output aip.zip
           unzip aip.zip
           cd $${AIPDIR}
+          pwd
+          ls -la
 
           /dspace/bin/dspace packager -r -a -t AIP -e $${ADMIN_EMAIL} -f -u SITE*.zip
           /dspace/bin/dspace database update-sequences
