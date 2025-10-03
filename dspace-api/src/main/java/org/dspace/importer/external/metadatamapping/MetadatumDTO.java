@@ -105,4 +105,14 @@ public class MetadatumDTO {
     public void setValue(String value) {
         this.value = value;
     }
+
+    /**
+     * Return a string representing the field of this object
+     *
+     * @return The field that is set to this object, in the form of schema.element.qualifier
+     */
+    public String getField() {
+        return schema + "." + element + (qualifier == null ? "" : ("." + qualifier));
+    }
+
 }

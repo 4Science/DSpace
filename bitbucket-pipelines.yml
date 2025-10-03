@@ -91,7 +91,7 @@ definitions:
     - step: &integration-tests-slow
         runs-on: self.hosted
         name: integration-tests-slow
-        size: 1x
+        size: 2x
         caches:
           - gradle-java17
           - gradlewrapper-java17
