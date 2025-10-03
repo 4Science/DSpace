@@ -52,7 +52,7 @@ COPY --from=build --chown=dspace /install/server-boot/application/ /app/server-b
 
 COPY --chown=dspace dspace/config/ $DSPACE_INSTALL/config/
 COPY --chown=dspace dspace/bin/ $DSPACE_INSTALL/bin/
-RUN install -d -m 0755 -o dspace -g dspace $DSPACE_INSTALL/assetstore/ $DSPACE_INSTALL/upload/ $DSPACE_INSTALL/log/ \
+RUN install -d -m 0755 -o dspace -g dspace $DSPACE_INSTALL/assetstore/ $DSPACE_INSTALL/upload/ $DSPACE_INSTALL/handle-server/ $DSPACE_INSTALL/log/ \
     && ln -s /app/server-boot/BOOT-INF/lib $DSPACE_INSTALL/lib \
     && chown -h dspace:dspace $DSPACE_INSTALL/lib \
     && chmod +x $DSPACE_INSTALL/bin/*
