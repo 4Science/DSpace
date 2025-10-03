@@ -57,12 +57,20 @@ COPY --from=build --chown=dspace /install/server-boot/application/ /app/server-b
 
 COPY --chown=dspace dspace/config/ $DSPACE_INSTALL/config/
 COPY --chown=dspace dspace/bin/ $DSPACE_INSTALL/bin/
-RUN install -d -m 0755 -o dspace -g dspace $DSPACE_INSTALL/assetstore/ $DSPACE_INSTALL/upload/ $DSPACE_INSTALL/handle-server/ $DSPACE_INSTALL/log/ \
+RUN install -d -m 0755 -o dspace -g dspace $DSPACE_INSTALL/assetstore/ $DSPACE_INSTALL/upload/ \
+    $DSPACE_INSTALL/handle-server/ $DSPACE_INSTALL/log/ \
     && ln -s /app/server-boot/BOOT-INF/lib $DSPACE_INSTALL/lib \
     && chown -h dspace:dspace $DSPACE_INSTALL/lib \
     && chmod +x $DSPACE_INSTALL/bin/*
 
 WORKDIR /app/server-boot
+
+# Need host command for "[dspace]/bin/make-handle-config"
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends host \
+    && apt-get purge -y --auto-remove \
+    && rm -rf /var/lib/apt/lists/*
+
 USER dspace
 ENV JAVA_OPTS="-Xmx2000m -Ddspace.dir=$DSPACE_INSTALL"
 ENV JAVA_TOOL_OPTIONS="-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:8000"
