@@ -29,9 +29,9 @@ import org.w3c.dom.NodeList;
  **/
 public interface ItemsImportMetadataFieldReader {
 
-    public static DateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
-    public static DateFormat YYYY_DATE_FORMAT = new SimpleDateFormat("yyyy");
-    public static DateFormat YYYY_MM_DATE_FORMAT = new SimpleDateFormat("yyyy-MM");
+    DateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
+    DateFormat YYYY_DATE_FORMAT = new SimpleDateFormat("yyyy");
+    DateFormat YYYY_MM_DATE_FORMAT = new SimpleDateFormat("yyyy-MM");
 
     String getReaderName();
 

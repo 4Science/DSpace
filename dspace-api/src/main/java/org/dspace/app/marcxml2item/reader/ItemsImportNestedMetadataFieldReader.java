@@ -36,9 +36,9 @@ public class ItemsImportNestedMetadataFieldReader implements ItemsImportMetadata
 
     private String readerName;
     private boolean skipDateConversion = false;
-    private Map<String, String> authorityPaths = new HashMap<String, String>();
-    private Map<String, String> authorityPrefixes = new HashMap<String, String>();
-    private Map<String, String> metadataFieldsPaths = new HashMap<String, String>();
+    private Map<String, String> authorityPaths = new HashMap<>();
+    private Map<String, String> authorityPrefixes = new HashMap<>();
+    private Map<String, String> metadataFieldsPaths = new HashMap<>();
 
     @Override
     public List<MetadataValueDTO> readValues(Context context, String metadataField, String type, NodeList nodeList) {
