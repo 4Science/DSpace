@@ -46,6 +46,9 @@ import org.dspace.scripts.DSpaceRunnable;
 import org.dspace.services.ConfigurationService;
 import org.dspace.services.factory.DSpaceServicesFactory;
 import org.dspace.utils.DSpace;
+import org.dspace.workflow.WorkflowException;
+import org.dspace.workflow.WorkflowService;
+import org.dspace.workflow.factory.WorkflowServiceFactory;
 
 /**
  * Script to import items from XML file.
@@ -62,6 +65,7 @@ public class XmlToItemImportScript extends DSpaceRunnable<XmlToItemImportScriptC
     private static final String DSPACE_DIR_PROPERTY_NAME = "dspace.dir";
     private static final String ITEMS_XPATH = "//record";
 
+    private String finalStatus;
     private String xmlFileName;
     private String collectionUuid;
 
@@ -69,6 +73,7 @@ public class XmlToItemImportScript extends DSpaceRunnable<XmlToItemImportScriptC
     private Collection collection;
     private MarcXmlParser xmlParser;
     private ItemService itemService;
+    private WorkflowService workflowService;
     private AuthorizeService authorizeService;
     private CollectionService collectionService;
     private InstallItemService installItemService;
@@ -80,6 +85,7 @@ public class XmlToItemImportScript extends DSpaceRunnable<XmlToItemImportScriptC
     @Override
     public void setup() throws ParseException {
         ServiceManager sm = new DSpace().getServiceManager();
+        workflowService = WorkflowServiceFactory.getInstance().getWorkflowService();
         authorizeService = AuthorizeServiceFactory.getInstance().getAuthorizeService();
         installItemService = ContentServiceFactory.getInstance().getInstallItemService();
         workspaceItemService = ContentServiceFactory.getInstance().getWorkspaceItemService();
@@ -91,6 +97,7 @@ public class XmlToItemImportScript extends DSpaceRunnable<XmlToItemImportScriptC
         collectionService = sm.getServiceByName(CollectionServiceImpl.class.getName(), CollectionServiceImpl.class);
 
         xmlFileName = commandLine.getOptionValue('f');
+        finalStatus = commandLine.getOptionValue("fs", "ARCHIVED");
         collectionUuid = commandLine.getOptionValue('c');
     }
 
@@ -144,8 +151,33 @@ public class XmlToItemImportScript extends DSpaceRunnable<XmlToItemImportScriptC
         handler.logInfo("All metadata is added");
 
         addItemToCollection(item);
-        depositItem(workspaceItem);
+        manageFInalStatus(workspaceItem);
         handler.logInfo("Item is created");
+    }
+
+    private void manageFInalStatus(WorkspaceItem workspaceItem) {
+        switch (finalStatus) {
+            case "ARCHIVED":
+                depositItem(workspaceItem);
+                handler.logInfo("Item is archived");
+                break;
+            case "WORKSPACE":
+                handler.logInfo("Item is in workspace");
+                break;
+            case "WORKFLOW":
+                try {
+                    workflowService.start(context, workspaceItem);
+                    handler.logInfo("Item started workflow");
+                } catch (SQLException | AuthorizeException | WorkflowException | IOException e) {
+                    handler.logInfo("ERROR: moving item to pool failed");
+                    throw new RuntimeException(e);
+                }
+                break;
+            default:
+                depositItem(workspaceItem);
+                handler.logInfo("Final status:" + finalStatus + " isn't recognized, item was archived!");
+                break;
+        }
     }
 
     private WorkspaceItem createWorkspaceItem() {

@@ -49,6 +49,11 @@ public class XmlToItemImportScriptConfiguration<T extends XmlToItemImportScript>
             options.addOption("c", "collection-uuid", true, "collection-uuid into which to make import");
             options.getOption("c").setType(String.class);
             options.getOption("c").setRequired(true);
+
+            options.addOption("fs", "final-status", true, "Final status of imported items" +
+                              "possible values: ARCHIVED, WORKFLOW, WORKSPACE (default: ARCHIVED) if not specified, ");
+            options.getOption("fs").setType(String.class);
+            options.getOption("fs").setRequired(false);
             super.options = options;
         }
         return options;

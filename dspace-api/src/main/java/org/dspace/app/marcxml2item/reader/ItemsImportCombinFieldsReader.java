@@ -10,17 +10,16 @@ package org.dspace.app.marcxml2item.reader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpressionException;
+import javax.xml.xpath.XPathFactory;
 
 import org.apache.commons.lang3.StringUtils;
 import org.dspace.content.dto.MetadataValueDTO;
 import org.dspace.core.Context;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathConstants;
-import javax.xml.xpath.XPathExpressionException;
-import javax.xml.xpath.XPathFactory;
 
 /**
  * Implementation of {@link ItemsImportMetadataFieldReader}
