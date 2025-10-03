@@ -175,6 +175,26 @@
             <xpath>./datafield[@tag = '260']/subfield[@code = 'c'] | ./datafield[@tag = '264']/subfield[@code = 'c']</xpath>
             <reader>dateIssued</reader>
         </metadata-field>
+        <metadata-field>
+            <field>dc.description.edition</field>
+            <xpath>./datafield[@tag = '250']</xpath>
+            <reader>edition</reader>
+        </metadata-field>
+        <metadata-field>
+            <field>dc.relation.edition</field>
+            <xpath>./datafield[@tag = '250']</xpath>
+            <reader>edition</reader>
+        </metadata-field>
+        <metadata-field>
+            <field>dc.relation.isreferencedby</field>
+            <xpath>./datafield[@tag = '510']</xpath>
+            <reader>citation</reader>
+        </metadata-field>
+        <metadata-field>
+            <field>dc.rights</field>
+            <xpath>./datafield[@tag = '540']</xpath>
+            <reader>rights</reader>
+        </metadata-field>
     </metadata-fields>
 
 </mapping>

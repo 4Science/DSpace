@@ -66,4 +66,34 @@
         <property name="metadataField" value="dc.identifier.isi"/>
     </bean>
 
+    <bean class="org.dspace.app.marcxml2item.reader.ItemsImportCombinFieldsReader" >
+        <property name="readerName" value="edition" />
+        <property name="fieldsToCombine" ref="edition-fields" />
+    </bean>
+
+    <util:list id="edition-fields" value-type="java.lang.String">
+        <value>./subfield[@code = 'a']</value>
+        <value>./subfield[@code = 'b']</value>
+    </util:list>
+
+    <bean class="org.dspace.app.marcxml2item.reader.ItemsImportCombinFieldsReader" >
+        <property name="readerName" value="citation" />
+        <property name="fieldsToCombine" ref="citation-fields" />
+    </bean>
+
+    <util:list id="citation-fields" value-type="java.lang.String">
+        <value>./subfield[@code = 'a']</value>
+        <value>./subfield[@code = 'c']</value>
+    </util:list>
+
+    <bean class="org.dspace.app.marcxml2item.reader.ItemsImportCombinFieldsReader" >
+        <property name="readerName" value="rights" />
+        <property name="fieldsToCombine" ref="rights-fields" />
+    </bean>
+
+    <util:list id="rights-fields" value-type="java.lang.String">
+        <value>./subfield[@code = 'a']</value>
+        <value>./subfield[@code = 'f']</value>
+    </util:list>
+
 </beans>
