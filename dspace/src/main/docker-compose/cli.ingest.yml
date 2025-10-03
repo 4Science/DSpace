@@ -10,7 +10,7 @@ services:
   dspace-cli:
     environment:
       - AIPZIP=https://github.com/DSpace-Labs/AIP-Files/raw/main/dogAndReport.zip
-      - ADMIN_EMAIL=admin@admin.com
+      - ADMIN_EMAIL=test@test.edu
       - AIPDIR=/tmp/cris-files
     entrypoint:
       - /bin/bash
