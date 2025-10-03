@@ -11,7 +11,7 @@ services:
     environment:
       - AIPZIP=https://github.com/DSpace-Labs/AIP-Files/raw/main/dogAndReport.zip
       - ADMIN_EMAIL=test@test.edu
-      - AIPDIR=/tmp/cris-files
+      - AIPDIR=/tmp/aip-dir
     entrypoint:
       - /bin/bash
       - '-c'
@@ -23,8 +23,6 @@ services:
           curl $${AIPZIP} -L -s --output aip.zip
           unzip aip.zip
           cd $${AIPDIR}
-          pwd
-          ls -la
 
           /dspace/bin/dspace packager -r -a -t AIP -e $${ADMIN_EMAIL} -f -u SITE*.zip
           /dspace/bin/dspace database update-sequences
