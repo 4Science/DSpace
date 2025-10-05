@@ -453,10 +453,12 @@ public class ReciprocalItemAuthorityConsumerIT extends AbstractIntegrationTestWi
                                           .build();
             context.commit();
 
-            List<MetadataValue> metadataValues = itemService.getMetadataByMetadataString(publication, "dc.relation.path");
+            List<MetadataValue> metadataValues =
+                    itemService.getMetadataByMetadataString(publication, "dc.relation.path");
             Assert.assertEquals(1, metadataValues.size());
 
-            List<MetadataValue> pathMetadataValues = itemService.getMetadataByMetadataString(pathItem, "dc.relation.haspartofpath");
+            List<MetadataValue> pathMetadataValues =
+                    itemService.getMetadataByMetadataString(pathItem, "dc.relation.haspartofpath");
             Assert.assertEquals(1, pathMetadataValues.size());
 
             assertThat(pathMetadataValues, hasItem(
@@ -473,7 +475,7 @@ public class ReciprocalItemAuthorityConsumerIT extends AbstractIntegrationTestWi
             SolrDocument publicationItemSolrDoc = solrDocumentList.get(0);
 
             List<String> relationPathValue = (List<String>) publicationItemSolrDoc.get("dc.relation.path");
-            List<String> relationPathAuthority = (List<String>) publicationItemSolrDoc.get("dc.relation.path_authority");
+            List<String> relationPathAuthority = (List<String>)publicationItemSolrDoc.get("dc.relation.path_authority");
             assertThat(relationPathValue, hasItem(pathItem.getName()));
             assertThat(relationPathAuthority, hasItem(pathItem.getID().toString()));
 
