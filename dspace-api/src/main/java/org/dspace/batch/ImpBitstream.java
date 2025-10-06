@@ -7,20 +7,20 @@
  */
 package org.dspace.batch;
 
+import java.sql.Types;
 import java.util.UUID;
-import javax.persistence.Cacheable;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.Lob;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
-import javax.persistence.Transient;
 
+import jakarta.persistence.Cacheable;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.hibernate.annotations.Type;
+import org.hibernate.annotations.JdbcTypeCode;
 
 /***
  * Contains all the information related to bitstreams to attach / replace in the
@@ -77,9 +77,8 @@ public class ImpBitstream {
     @Column(name = "name", length = 512)
     private String name;
 
-    @Lob
     @Column(name = "imp_blob")
-    @Type(type = "org.hibernate.type.BinaryType")
+    @JdbcTypeCode(Types.VARBINARY)
     private byte[] impBlob;
 
     @Column(name = "embargo_policy")

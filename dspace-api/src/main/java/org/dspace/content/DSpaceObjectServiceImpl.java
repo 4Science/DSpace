@@ -195,11 +195,11 @@ public abstract class DSpaceObjectServiceImpl<T extends DSpaceObject> implements
                                            String authority) {
         List<MetadataValue> metadata = getMetadata(dso, schema, element, qualifier, lang);
         List<MetadataValue> result = new ArrayList<>(metadata);
-        if (!authority.equals(Item.ANY)) {
+        if (!Item.ANY.equals(authority)) {
             Iterator<MetadataValue> iterator = result.iterator();
             while (iterator.hasNext()) {
                 MetadataValue metadataValue = iterator.next();
-                if (!authority.equals(metadataValue.getAuthority())) {
+                if (!StringUtils.equals(authority, metadataValue.getAuthority())) {
                     iterator.remove();
                 }
             }
@@ -296,6 +296,13 @@ public abstract class DSpaceObjectServiceImpl<T extends DSpaceObject> implements
 
         boolean authorityRequired = metadataAuthorityService.isAuthorityRequired(metadataField, dso.getType(),
                 collection);
+        // Throw an error if we are attempting to add empty values
+        if (values == null || values.isEmpty()) {
+            throw new IllegalArgumentException("Cannot add empty values to a new metadata field " +
+                                                   metadataField.toString() + " on object with uuid = " +
+                                                   dso.getID().toString() + " and type = " + getTypeText(dso));
+        }
+
         List<MetadataValue> newMetadata = new ArrayList<>();
         // We will not verify that they are valid entries in the registry
         // until update() is called.
@@ -625,7 +632,7 @@ public abstract class DSpaceObjectServiceImpl<T extends DSpaceObject> implements
         MetadataField metadataField = metadataValue.getMetadataField();
         MetadataSchema metadataSchema = metadataField.getMetadataSchema();
         // We will attempt to disprove a match - if we can't we have a match
-        if (!element.equals(Item.ANY) && !element.equals(metadataField.getElement())) {
+        if (!Item.ANY.equals(element) && !StringUtils.equals(element, metadataField.getElement())) {
             // Elements do not match, no wildcard
             return false;
         }
@@ -636,9 +643,9 @@ public abstract class DSpaceObjectServiceImpl<T extends DSpaceObject> implements
                 // Value is qualified, so no match
                 return false;
             }
-        } else if (!qualifier.equals(Item.ANY)) {
+        } else if (!Item.ANY.equals(qualifier)) {
             // Not a wildcard, so qualifier must match exactly
-            if (!qualifier.equals(metadataField.getQualifier())) {
+            if (!StringUtils.equals(qualifier, metadataField.getQualifier())) {
                 return false;
             }
         }
@@ -649,15 +656,15 @@ public abstract class DSpaceObjectServiceImpl<T extends DSpaceObject> implements
                 // Value is qualified, so no match
                 return false;
             }
-        } else if (!language.equals(Item.ANY)) {
+        } else if (!Item.ANY.equals(language)) {
             // Not a wildcard, so language must match exactly
-            if (!language.equals(metadataValue.getLanguage())) {
+            if (!StringUtils.equals(language, metadataValue.getLanguage())) {
                 return false;
             }
         }
 
-        if (!schema.equals(Item.ANY)) {
-            if (metadataSchema != null && !metadataSchema.getName().equals(schema)) {
+        if (!Item.ANY.equals(schema)) {
+            if (!StringUtils.equals(schema, metadataSchema.getName())) {
                 // The namespace doesn't match
                 return false;
             }
@@ -827,6 +834,7 @@ public abstract class DSpaceObjectServiceImpl<T extends DSpaceObject> implements
                     // E.g. for an Author relationship,
                     //   the place should be updated using the same principle as dc.contributor.author.
                     StringUtils.startsWith(metadataValue.getAuthority(), Constants.VIRTUAL_AUTHORITY_PREFIX)
+                        && metadataValue instanceof RelationshipMetadataValue
                         && ((RelationshipMetadataValue) metadataValue).isUseForPlace()
                 ) {
                     int mvPlace = getMetadataValuePlace(fieldToLastPlace, metadataValue);

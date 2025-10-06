@@ -23,8 +23,8 @@ public class FacetYearRange {
 
     private final DiscoverySearchFilterFacet facet;
     private String dateFacet;
-    private int oldestYear = -1;
-    private int newestYear = -1;
+    private Integer oldestYear;
+    private Integer newestYear;
 
     public FacetYearRange(DiscoverySearchFilterFacet facet) {
         this.facet = facet;
@@ -35,15 +35,21 @@ public class FacetYearRange {
     }
 
     public int getOldestYear() {
+        if (oldestYear == null) {
+            return Integer.MIN_VALUE;
+        }
         return oldestYear;
     }
 
     public int getNewestYear() {
+        if (newestYear == null) {
+            return Integer.MAX_VALUE;
+        }
         return newestYear;
     }
 
     public boolean isValid() {
-        return oldestYear != -1 && newestYear != -1;
+        return oldestYear != null && newestYear != null;
     }
 
     public void calculateRange(Context context, List<String> filterQueries, IndexableObject scope,
@@ -54,7 +60,7 @@ public class FacetYearRange {
         lookupPreviousRangeInFilterQueries(filterQueries);
 
         //Check if we have found a range, if not then retrieve our first & last year using Solr
-        if (oldestYear == -1 && newestYear == -1) {
+        if (oldestYear == null && newestYear == null) {
             calculateNewRangeBasedOnSearchIndex(context, filterQueries, scope, searchService, parentQuery);
         }
     }
@@ -72,8 +78,16 @@ public class FacetYearRange {
                     int tempOldYear = Integer.parseInt(filterQuery.split(" TO ")[0].replace("[", "").trim());
                     int tempNewYear = Integer.parseInt(filterQuery.split(" TO ")[1].replace("]", "").trim());
 
+                    if (newestYear == null) {
+                        newestYear = tempNewYear;
+                    }
+
+                    if (oldestYear == null) {
+                        oldestYear = tempOldYear;
+                    }
+
                     //Check if we have a further filter (or a first one found)
-                    if (tempNewYear < newestYear || oldestYear < tempOldYear || newestYear == -1) {
+                    if (tempNewYear < newestYear || oldestYear < tempOldYear) {
                         oldestYear = tempOldYear;
                         newestYear = tempNewYear;
                     }
@@ -102,7 +116,7 @@ public class FacetYearRange {
         //Set our query to anything that has this value
         yearRangeQuery.addFieldPresentQueries(dateFacet);
         //Set sorting so our last value will appear on top
-        yearRangeQuery.setSortField(dateFacet + "_sort", DiscoverQuery.SORT_ORDER.asc);
+        yearRangeQuery.setSortField(dateFacet, DiscoverQuery.SORT_ORDER.asc);
         yearRangeQuery.addFilterQueries(filterQueries.toArray(new String[filterQueries.size()]));
         yearRangeQuery.addSearchField(dateFacet);
         boolean isRelatedEntity =
@@ -123,7 +137,7 @@ public class FacetYearRange {
             }
         }
         //Now get the first year
-        yearRangeQuery.setSortField(dateFacet + "_sort", DiscoverQuery.SORT_ORDER.desc);
+        yearRangeQuery.setSortField(dateFacet, DiscoverQuery.SORT_ORDER.desc);
         DiscoverResult firstYearResult = null;
         if (isRelatedEntity) {
             firstYearResult = searchService.search(context, yearRangeQuery);

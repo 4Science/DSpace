@@ -98,7 +98,8 @@ public class SolrDatabaseResyncCli extends DSpaceRunnable<SolrDatabaseResyncCliS
 
     private void performStatusUpdate(Context context) throws SearchServiceException, SolrServerException, IOException {
         SolrQuery solrQuery = new SolrQuery();
-        solrQuery.setQuery(STATUS_FIELD + ":" + STATUS_FIELD_PREDB);
+        solrQuery.setQuery("*:*");
+        solrQuery.addFilterQuery(STATUS_FIELD + ":" + STATUS_FIELD_PREDB);
         solrQuery.addFilterQuery(SearchUtils.RESOURCE_TYPE_FIELD + ":" + IndexableItem.TYPE);
         String dateRangeFilter = SearchUtils.LAST_INDEXED_FIELD + ":[* TO " + maxTime + "]";
         logDebugAndOut("Date range filter used; " + dateRangeFilter);
@@ -124,7 +125,7 @@ public class SolrDatabaseResyncCli extends DSpaceRunnable<SolrDatabaseResyncCliS
     }
 
     private void performStatusUpdateOnNextBatch(Context context, SolrQuery solrQuery)
-        throws SolrServerException, IOException {
+            throws SolrServerException, IOException {
         QueryResponse response = solrSearchCore.getSolr().query(solrQuery, solrSearchCore.REQUEST_METHOD);
 
         logInfoAndOut(response.getResults().size() + " items found to process");
@@ -136,8 +137,8 @@ public class SolrDatabaseResyncCli extends DSpaceRunnable<SolrDatabaseResyncCliS
 
             Optional<IndexableObject> indexableObject = Optional.empty();
             try {
-                indexableObject =
-                    indexObjectServiceFactory.getIndexableObjectFactory(uniqueId).findIndexableObject(context, uuid);
+                indexableObject = indexObjectServiceFactory
+                    .getIndexableObjectFactory(uniqueId).findIndexableObject(context, uuid);
             } catch (SQLException e) {
                 log.warn("An exception occurred when attempting to retrieve item with UUID \"" + uuid +
                         "\" from the database, removing related solr document", e);

@@ -12,10 +12,8 @@
 
     <context:annotation-config /> <!-- allows us to use spring annotations in beans -->
 
-    <!-- This is defined in the solr-services.xml
-	<bean id="org.dspace.app.nbevent.service.NBEventService" 
-	   class="org.dspace.app.nbevent.service.impl.NBEventServiceImpl" /> -->
- 
+    <!-- This is defined in the solr-services.xml -->
+
 	 <util:map id="suggestionProviders" map-class="java.util.HashMap" 
 	          key-type="java.lang.String" value-type="org.dspace.app.suggestion.SuggestionProvider">
 	    <entry key="scopus">

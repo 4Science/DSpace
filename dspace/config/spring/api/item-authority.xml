@@ -81,7 +81,12 @@
 		<property name="childrenQuery" value="glamfonds.parent_authority:{0} OR dc.relation.fonds_authority:{0}"/>
 		<!-- Value mapping -->
 		<property name="parentMetadata" value="glamfonds.parent"/>
-		<property name="selectableMetadata" value=""/>
+		<property name="selectableMetadata" value="glam.leaf"/>
+		<property name="storedMetadata">
+			<list>
+				<value>dc.title</value>
+			</list>
+		</property>
 		<property name="labelMetadata">
 			<list>
 				<value>glamfonds.index</value>
@@ -106,7 +111,12 @@
 		<property name="childrenQuery" value="glamjournalfonds.parent_authority:{0} OR dc.relation.journalfonds_authority:{0}"/>
 		<!-- Value mapping -->
 		<property name="parentMetadata" value="glamjournalfonds.parent"/>
-		<property name="selectableMetadata" value=""/>
+		<property name="selectableMetadata" value="glam.leaf"/>
+		<property name="storedMetadata">
+			<list>
+				<value>dc.title</value>
+			</list>
+		</property>
 		<property name="labelMetadata">
 			<list>
 				<value>glamfonds.index</value>
@@ -131,11 +141,16 @@
 		<property name="childrenQuery" value="glamaggregation.parent_authority:{0} OR dc.relation.aggregation_authority:{0}"/>
 		<!-- Value mapping -->
 		<property name="parentMetadata" value="glamaggregation.parent"/>
-		<property name="selectableMetadata" value=""/>
+		<property name="selectableMetadata" value="glam.leaf"/>
 		<property name="labelMetadata">
 			<list>
 				<value>glamfonds.index</value>
 				<value>glamjournalfonds.index</value>
+				<value>dc.title</value>
+			</list>
+		</property>
+		<property name="storedMetadata">
+			<list>
 				<value>dc.title</value>
 			</list>
 		</property>
@@ -151,14 +166,29 @@
 
 	<bean name="fondsTree" parent="fondsControlledVocabulary">
 		<property name="childrenQuery" value="entityType_keyword:Fonds AND (glamfonds.parent_authority:{0} OR dc.relation.fonds_authority:{0})"/>
+		<property name="storedMetadata">
+			<list>
+				<value>dc.title</value>
+			</list>
+		</property>
 	</bean>
 
 	<bean name="journalfondsTree" parent="journalfondsControlledVocabulary">
 		<property name="childrenQuery" value="entityType_keyword:JournalFonds AND (glamjournalfonds.parent_authority:{0} OR dc.relation.journalfonds_authority:{0})"/>
+		<property name="storedMetadata">
+			<list>
+				<value>dc.title</value>
+			</list>
+		</property>
 	</bean>
 
 	<bean name="aggregationsTree" parent="aggregationsControlledVocabulary">
 		<property name="childrenQuery" value="entityType_keyword:Aggregation AND (glamaggregation.parent_authority:{0} OR dc.relation.aggregation_authority:{0})"/>
+		<property name="storedMetadata">
+			<list>
+				<value>dc.title</value>
+			</list>
+		</property>
 	</bean>
 
 	<bean name="orgunitsExtraValuesMapper" class="org.dspace.content.authority.mapper.impl.SimpleMetadataMapper">
@@ -197,9 +227,53 @@
 		</property>
 	</bean>
 
-	<bean name="itemAuthorityCustomSolrFilter" class="org.dspace.content.authority.ItemAuthorityCustomSolrFilterImpl" />
-	<bean name="personAuthoritySolrFilter" class="org.dspace.content.authority.PersonAuthoritySolrFilterImpl" />
-	<bean name="personStrictCustomSolrFilter" class="org.dspace.content.authority.PersonStrictCustomSolrFilterImpl" />
-	<bean name="personCoarseCustomSolrFilter" class="org.dspace.content.authority.PersonCoarseCustomSolrFilterImpl" />
+    <bean name="uuidAuthoritySolrFilter" class="org.dspace.content.authority.UUIDAuthoritySolrFilter" />
+    <bean name="handleAuthoritySolrFilter" class="org.dspace.content.authority.HandleAuthoritySolrFilter" />
+
+    <bean name="itemAuthorityIdentifiersSolrFilter" class="org.dspace.content.authority.CompositeAuthorityFilter">
+        <constructor-arg>
+            <list>
+                <ref bean="uuidAuthoritySolrFilter" />
+                <ref bean="handleAuthoritySolrFilter" />
+            </list>
+        </constructor-arg>
+    </bean>
+
+    <bean name="itemAuthorityCustomSolrFilter" class="org.dspace.content.authority.CompositeAuthorityFilter">
+        <constructor-arg name="filters">
+            <list>
+                <bean class="org.dspace.content.authority.ItemAuthorityCustomSolrFilterImpl" />
+                <ref bean="uuidAuthoritySolrFilter" />
+                <ref bean="handleAuthoritySolrFilter" />
+            </list>
+        </constructor-arg>
+    </bean>
+	<bean name="personAuthoritySolrFilter" class="org.dspace.content.authority.CompositeAuthorityFilter">
+        <constructor-arg name="filters">
+            <list>
+                <bean class="org.dspace.content.authority.PersonAuthoritySolrFilterImpl"/>
+                <ref bean="uuidAuthoritySolrFilter" />
+                <ref bean="handleAuthoritySolrFilter" />
+            </list>
+        </constructor-arg>
+    </bean>
+	<bean name="personStrictCustomSolrFilter" class="org.dspace.content.authority.CompositeAuthorityFilter">
+        <constructor-arg name="filters">
+            <list>
+                <bean class="org.dspace.content.authority.PersonStrictCustomSolrFilterImpl" />
+                <ref bean="uuidAuthoritySolrFilter" />
+                <ref bean="handleAuthoritySolrFilter" />
+            </list>
+        </constructor-arg>
+    </bean>
+	<bean name="personCoarseCustomSolrFilter" class="org.dspace.content.authority.CompositeAuthorityFilter">
+        <constructor-arg name="filters">
+            <list>
+                <bean class="org.dspace.content.authority.PersonCoarseCustomSolrFilterImpl" />
+                <ref bean="uuidAuthoritySolrFilter" />
+                <ref bean="handleAuthoritySolrFilter" />
+            </list>
+        </constructor-arg>
+    </bean>
 
 </beans>

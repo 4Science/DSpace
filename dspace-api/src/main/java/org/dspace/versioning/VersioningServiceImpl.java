@@ -12,8 +12,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
-import javax.ws.rs.NotAuthorizedException;
 
+import jakarta.ws.rs.NotAuthorizedException;
 import org.dspace.content.DCDate;
 import org.dspace.content.Item;
 import org.dspace.content.MetadataValue;
@@ -229,8 +229,8 @@ public class VersioningServiceImpl implements VersioningService {
             return false;
         }
         return history.getVersions().stream().filter(v -> v.getVersionNumber() == versionNumber)
-                                    .findFirst()
-                                    .isPresent();
+                      .findFirst()
+                      .isPresent();
     }
 
     @Override
@@ -241,7 +241,7 @@ public class VersioningServiceImpl implements VersioningService {
 
     @Override
     public List<Version> getVersionsByHistoryWithItems(Context c, VersionHistory vh, int offset, int limit)
-           throws SQLException {
+        throws SQLException {
         return versionDAO.findVersionsWithItems(c, vh, offset, limit);
     }
 

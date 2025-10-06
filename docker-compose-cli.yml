@@ -6,7 +6,7 @@ networks:
     external: true
 services:
   dspace-cli:
-    image: "${DOCKER_OWNER:-dspace}/dspace-cli:${DSPACE_VER:-dspace-7_x}"
+    image: "${DOCKER_REGISTRY:-docker.io}/${DOCKER_OWNER:-dspace}/dspace-cli:${DSPACE_VER:-dspace-8_x}"
     container_name: dspace-cli
     build:
       context: .
@@ -23,11 +23,11 @@ services:
       # solr.server: Ensure we are using the 'dspacesolr' image for Solr
       solr__P__server: http://dspacesolr:8983/solr
     volumes:
-    # Keep DSpace assetstore directory between reboots
-    - assetstore:/dspace/assetstore
-    # Mount local [src]/dspace/config/ to container. This syncs your local configs with container
-    # NOTE: Environment variables specified above will OVERRIDE any configs in local.cfg or dspace.cfg
-    - ./dspace/config:/dspace/config
+      # Keep DSpace assetstore directory between reboots
+      - assetstore:/dspace/assetstore
+      # Mount local [src]/dspace/config/ to container. This syncs your local configs with container
+      # NOTE: Environment variables specified above will OVERRIDE any configs in local.cfg or dspace.cfg
+      - ./dspace/config:/dspace/config
     entrypoint: /dspace/bin/dspace
     command: help
     tty: true

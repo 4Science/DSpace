@@ -34,6 +34,11 @@
         <property name="name" value="cclicense"/>
     </bean>
 
+    <bean name="accessConditionValidation" class="org.dspace.validation.AccessConditionValidator">
+        <property name="name" value="accessCondition"/>
+        <property name="accessConditionConfigurationService" ref="accessConditionConfigurationService"/>
+    </bean>
+
     <bean name="licenseValidation" class="org.dspace.validation.LicenseValidator">
         <property name="name" value="license"/>
     </bean>
@@ -86,6 +91,14 @@
             </bean>
         </property>
    </bean>
-    
-    
+
+    <bean name="COARNotifyValidation" class="org.dspace.validation.NotifyValidation" scope="prototype">
+        <property name="name" value="coarnotify"/>
+        <property name="coarNotifyConfigurationService" ref="org.dspace.coarnotify.NotifyConfigurationService"/>
+        <property name="notifyPatternToTriggerService" ref="org.dspace.app.ldn.service.impl.NotifyPatternToTriggerImpl"/>
+    </bean>
+
+    <bean name="org.dspace.validation.service.impl.GeoJsonValidationServiceImpl" class="org.dspace.validation.service.impl.GeoJsonValidationServiceImpl" />
+    <bean name="geoJsonValidationServiceFactory" class="org.dspace.validation.service.factory.impl.GeoJsonValidationServiceFactoryImpl" />
+
 </beans>

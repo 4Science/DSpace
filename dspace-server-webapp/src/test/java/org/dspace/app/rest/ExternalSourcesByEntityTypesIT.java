@@ -44,10 +44,10 @@ public class ExternalSourcesByEntityTypesIT extends AbstractControllerIntegratio
                                 ExternalSourceMatcher.matchExternalSource("mock2", "mock2", false),
                                 ExternalSourceMatcher.matchExternalSource("mock3", "mock3", false),
                                 ExternalSourceMatcher.matchExternalSource("pubmed", "pubmed", false),
+                                ExternalSourceMatcher.matchExternalSource("scopus", "scopus", false),
                                 ExternalSourceMatcher.matchExternalSource("suggestion", "suggestion", false),
                                 ExternalSourceMatcher.matchExternalSource("crossref", "crossref", false),
-                                ExternalSourceMatcher.matchExternalSource("orcidWorks", "orcidWorks", false),
-                                ExternalSourceMatcher.matchExternalSource("scopus", "scopus", false)
+                                ExternalSourceMatcher.matchExternalSource("orcidWorks", "orcidWorks", false)
                                 )))
                             .andExpect(jsonPath("$.page.totalElements", Matchers.is(8)));
         // mock and ORCID are configured without any entity type

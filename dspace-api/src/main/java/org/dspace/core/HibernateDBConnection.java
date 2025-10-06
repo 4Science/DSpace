@@ -28,7 +28,6 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.hibernate.engine.spi.SessionFactoryImplementor;
-import org.hibernate.proxy.HibernateProxyHelper;
 import org.hibernate.resource.transaction.spi.TransactionStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -247,6 +246,11 @@ public class HibernateDBConnection implements DBConnection<Session> {
         } else {
             getSession().setHibernateFlushMode(FlushMode.AUTO);
         }
+    }
+
+    @Override
+    public void uncacheEntities() throws SQLException {
+        getSession().clear();
     }
 
     /**

@@ -486,8 +486,52 @@
 
     <dc-type>
         <schema>cris</schema>
+        <element>virtualsource</element>
+        <qualifier>rootFondTitle</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>cris</schema>
         <element>virtual</element>
         <qualifier>rootJournalFondTitle</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>cris</schema>
+        <element>virtualsource</element>
+        <qualifier>rootJournalFondTitle</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>cris</schema>
+        <element>virtual</element>
+        <qualifier>latitude</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+
+    <dc-type>
+        <schema>cris</schema>
+        <element>virtualsource</element>
+        <qualifier>latitude</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>cris</schema>
+        <element>virtual</element>
+        <qualifier>longitude</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+
+    <dc-type>
+        <schema>cris</schema>
+        <element>virtualsource</element>
+        <qualifier>longitude</qualifier>
         <scope_note></scope_note>
     </dc-type>
 

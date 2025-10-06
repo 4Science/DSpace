@@ -758,7 +758,7 @@ public class AnnotationRestControllerIT extends AbstractControllerIntegrationTes
     }
 
     @Test
-    public void testPersonalAnnotaionCreate() throws Exception {
+    public void testPersonalAnnotationCreate() throws Exception {
 
         context.turnOffAuthorisationSystem();
 

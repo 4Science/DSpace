@@ -64,6 +64,8 @@ public class WorkspaceItemFromTemplateIT extends AbstractControllerIntegrationTe
                                          .param("embed", "item")
                                          .param("embed", "collection")
                                          .param("owningCollection", col1.getID().toString())
+                                         .param("embed", "item")
+                                         .param("embed", "collection")
                                          .contentType(org.springframework.http.MediaType.APPLICATION_JSON))
                             .andExpect(status().isCreated())
                             .andExpect(jsonPath("$._embedded.item.metadata['dc.title'][0].value", is("SimpleTitle")))

@@ -1,6 +1,5 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <groupId>org.dspace</groupId>
     <artifactId>dspace-iiif</artifactId>
     <packaging>jar</packaging>
     <name>DSpace IIIF</name>
@@ -15,7 +14,7 @@
     <parent>
         <groupId>org.dspace</groupId>
         <artifactId>dspace-parent</artifactId>
-        <version>cris-2023.02.07-SNAPSHOT</version>
+        <version>cris-2024.02.02</version>
         <relativePath>..</relativePath>
     </parent>
 
@@ -28,6 +27,12 @@
 
     <dependencies>
 
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-api</artifactId>
+            <version>${log4j.version}</version>
+        </dependency>
+
         <!-- Needed to support Spring @Configuration classes (to register servlets/beans with Spring Boot webapp) -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -37,6 +42,11 @@
                 <exclusion>
                     <groupId>org.springframework.boot</groupId>
                     <artifactId>spring-boot-starter-logging</artifactId>
+                </exclusion>
+                <!-- Spring JCL is unnecessary and conflicts with commons-logging when both are on classpath -->
+                <exclusion>
+                    <groupId>org.springframework</groupId>
+                    <artifactId>spring-jcl</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>
@@ -69,6 +79,13 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-security</artifactId>
             <version>${spring-boot.version}</version>
+            <exclusions>
+                <!-- Later version brought in by spring-boot-starter-web above -->
+                <exclusion>
+                    <groupId>io.micrometer</groupId>
+                    <artifactId>micrometer-observation</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <!-- https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-cache
              Caching dependencies for iiif endpoint. -->
@@ -99,7 +116,7 @@
         <dependency>
             <groupId>de.digitalcollections.iiif</groupId>
             <artifactId>iiif-apis</artifactId>
-            <version>0.3.10</version>
+            <version>0.3.11</version>
             <exclusions>
                 <exclusion>
                     <groupId>org.javassist</groupId>

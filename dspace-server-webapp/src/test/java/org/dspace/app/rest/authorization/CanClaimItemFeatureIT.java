@@ -24,6 +24,7 @@ import org.dspace.builder.CommunityBuilder;
 import org.dspace.builder.ItemBuilder;
 import org.dspace.content.Collection;
 import org.dspace.content.Item;
+import org.dspace.services.ConfigurationService;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,6 +46,9 @@ public class CanClaimItemFeatureIT extends AbstractControllerIntegrationTest {
 
     @Autowired
     private AuthorizationFeatureService authorizationFeatureService;
+
+    @Autowired
+    private ConfigurationService configurationService;
 
     private AuthorizationFeature canClaimProfileFeature;
 
@@ -75,6 +79,8 @@ public class CanClaimItemFeatureIT extends AbstractControllerIntegrationTest {
         context.restoreAuthSystemState();
 
         canClaimProfileFeature = authorizationFeatureService.find(CanClaimItemFeature.NAME);
+
+        configurationService.setProperty("claimable.entityType", "Person");
 
     }
 

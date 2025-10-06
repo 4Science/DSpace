@@ -1,0 +1,5664 @@
+{
+  "ns1:VIAFCluster": {
+    "ns1:viafID": 24658555,
+    "ns1:nationalityOfEntity": {
+      "ns1:data": [
+        {
+          "ns1:sources": {
+            "ns1:s": [
+              "ISNI",
+              "J9U",
+              "DNB",
+              "ICCU",
+              "LC",
+              "BNF"
+            ]
+          },
+          "ns1:text": "IT"
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "WKP"
+          },
+          "ns1:text": "Papal States"
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "NYNYRILM"
+          },
+          "ns1:text": "Italian"
+        }
+      ]
+    },
+    "ns1:nameType": "Personal",
+    "ns1:x400s": {
+      "ns1:x400": [
+        {
+          "ns1:sources": {
+            "ns1:s": "BNCHL",
+            "ns1:sid": "BNCHL|10000000000000000146228"
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": {
+              "code": "a",
+              "content": "Albergati C., Francesco"
+            },
+            "ind1": 1,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "albergati c francesco"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "ISNI",
+            "ns1:sid": "ISNI|0000000108796160"
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": {
+              "code": "a",
+              "content": "Albergati Capacelli"
+            },
+            "ind1": 0,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "albergati capacelli"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": [
+              "ISNI",
+              "NUKAT"
+            ],
+            "ns1:sid": [
+              "ISNI|0000000108796160",
+              "NUKAT|n 2007010837"
+            ]
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": {
+              "code": "a",
+              "content": "Albergati Capacelli, F."
+            },
+            "ind1": 1,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "albergati capacelli f"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "ISNI",
+            "ns1:sid": "ISNI|0000000108796160"
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": {
+              "code": "a",
+              "content": "Albergati Capacelli, Fr"
+            },
+            "ind1": 1,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "albergati capacelli fr"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "NUKAT",
+            "ns1:sid": "NUKAT|n 2007010837"
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": {
+              "code": "a",
+              "content": "Albergati Capacelli, Fr."
+            },
+            "ind1": 1,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "albergati capacelli fr"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": [
+              "ISNI",
+              "DNB"
+            ],
+            "ns1:sid": [
+              "ISNI|0000000108796160",
+              "DNB|119193256"
+            ]
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": [
+              {
+                "code": "a",
+                "content": "Albergati Capacelli, Franz"
+              },
+              {
+                "code": "d",
+                "content": "1728-1804"
+              }
+            ],
+            "ind1": 1,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "albergati capacelli franz 1728 1804"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "PTBNP",
+            "ns1:sid": "PTBNP|192009"
+          },
+          "ns1:datafield": {
+            "ind2": 1,
+            "ns1:subfield": [
+              {
+                "code": "a",
+                "content": "Albergati Capacelli,"
+              },
+              {
+                "code": "c",
+                "content": "Marquês de"
+              }
+            ],
+            "ind1": " ",
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "albergati capacelli marques de"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "NUKAT",
+            "ns1:sid": "NUKAT|n 2007010837"
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": {
+              "code": "a",
+              "content": "Albergati Capacelli."
+            },
+            "ind1": 1,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "albergati capacelli"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": [
+              "ISNI",
+              "DNB"
+            ],
+            "ns1:sid": [
+              "ISNI|0000000108796160",
+              "DNB|119193256"
+            ]
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": [
+              {
+                "code": "a",
+                "content": "Albergati Cappaceli, Francesco"
+              },
+              {
+                "code": "d",
+                "content": "1728-1804"
+              }
+            ],
+            "ind1": 1,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "albergati cappaceli francesco 1728 1804"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "ICCU",
+            "ns1:sid": "ICCU|RAVV020606"
+          },
+          "ns1:datafield": {
+            "ind2": 1,
+            "ns1:subfield": [
+              {
+                "code": "a",
+                "content": "Albergati Cappacelli"
+              },
+              {
+                "code": "b",
+                "content": ", Francesco"
+              }
+            ],
+            "ind1": " ",
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "albergati cappacelli francesco"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "ISNI",
+            "ns1:sid": "ISNI|0000000108796160"
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": [
+              {
+                "code": "a",
+                "content": "Albergati Cappacelli"
+              },
+              {
+                "code": "c",
+                "content": ", Francesco"
+              }
+            ],
+            "ind1": 0,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "albergati cappacelli francesco"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": [
+              "ISNI",
+              "BNCHL",
+              "SUDOC"
+            ],
+            "ns1:sid": [
+              "ISNI|0000000108796160",
+              "BNCHL|10000000000000000146228",
+              "SUDOC|031291147"
+            ]
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": {
+              "code": "a",
+              "content": "Albergati, Francesco"
+            },
+            "ind1": 1,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "albergati francesco"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "BAV",
+            "ns1:sid": "BAV|495_21530"
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": [
+              {
+                "code": "a",
+                "content": "Albergati, Francesco,"
+              },
+              {
+                "code": "c",
+                "content": "marchese,"
+              },
+              {
+                "code": "d",
+                "content": "1728-1804"
+              }
+            ],
+            "ind1": 1,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "albergati francesco marchese 1728 1804"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": [
+              "ISNI",
+              "DNB"
+            ],
+            "ns1:sid": [
+              "ISNI|0000000108796160",
+              "DNB|119193256"
+            ]
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": [
+              {
+                "code": "a",
+                "content": "Albergati, Francesco"
+              },
+              {
+                "code": "d",
+                "content": "1728-1804"
+              }
+            ],
+            "ind1": 1,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "albergati francesco 1728 1804"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "ISNI",
+            "ns1:sid": "ISNI|0000000108796160"
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": [
+              {
+                "code": "a",
+                "content": "Albergati, Francesco"
+              },
+              {
+                "code": "d",
+                "content": "1728-1804"
+              },
+              {
+                "code": "c",
+                "content": "marchese"
+              }
+            ],
+            "ind1": 1,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "albergati francesco 1728 1804 marchese"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "NKC",
+            "ns1:sid": "NKC|ola2002142477"
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": [
+              {
+                "code": "a",
+                "content": "Albergati-Capacelli, Francesco,"
+              },
+              {
+                "code": "d",
+                "content": "1728-1804"
+              }
+            ],
+            "ind1": 1,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "albergati capacelli francesco 1728 1804"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": [
+              "ISNI",
+              "DNB"
+            ],
+            "ns1:sid": [
+              "ISNI|0000000108796160",
+              "DNB|119193256"
+            ]
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": [
+              {
+                "code": "a",
+                "content": "Albergati-Capacelli, Francesco"
+              },
+              {
+                "code": "d",
+                "content": "1728-1804"
+              }
+            ],
+            "ind1": 1,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "albergati capacelli francesco 1728 1804"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "LC",
+            "ns1:sid": "LC|n  85017531"
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": [
+              {
+                "code": "a",
+                "content": "Albergatis, Francesco de,"
+              },
+              {
+                "code": "d",
+                "content": "1728-1804"
+              }
+            ],
+            "ind1": 1,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "albergatis francesco de 1728 1804"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "LC",
+            "ns1:sid": "LC|n  85017531"
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": [
+              {
+                "code": "a",
+                "content": "Albergatis, Franciscus de,"
+              },
+              {
+                "code": "d",
+                "content": "1728-1804"
+              }
+            ],
+            "ind1": 1,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "albergatis franciscus de 1728 1804"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "ICCU",
+            "ns1:sid": "ICCU|RAVV020606"
+          },
+          "ns1:datafield": {
+            "ind2": 1,
+            "ns1:subfield": [
+              {
+                "code": "a",
+                "content": "Albergati"
+              },
+              {
+                "code": "b",
+                "content": ", Francesco"
+              }
+            ],
+            "ind1": " ",
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "albergati francesco"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "ISNI",
+            "ns1:sid": "ISNI|0000000108796160"
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": [
+              {
+                "code": "a",
+                "content": "Albergati"
+              },
+              {
+                "code": "c",
+                "content": ", Francesco"
+              }
+            ],
+            "ind1": 0,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "albergati francesco"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "BNF",
+            "ns1:sid": "BNF|12253497"
+          },
+          "ns1:datafield": {
+            "ind2": "|",
+            "ns1:subfield": [
+              {
+                "code": "a",
+                "content": "Albergati"
+              },
+              {
+                "code": "b",
+                "content": "Francesco"
+              },
+              {
+                "code": "f",
+                "content": "1728-1804"
+              }
+            ],
+            "ind1": " ",
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "albergati francesco 1728 1804"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "ISNI",
+            "ns1:sid": "ISNI|0000000108796160"
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": {
+              "code": "a",
+              "content": "Albergatti, Francesco"
+            },
+            "ind1": 1,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "albergatti francesco"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "NUKAT",
+            "ns1:sid": "NUKAT|n 2007010837"
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": {
+              "code": "a",
+              "content": "Albergatti, Francesco."
+            },
+            "ind1": 1,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "albergatti francesco"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": [
+              "ISNI",
+              "DNB"
+            ],
+            "ns1:sid": [
+              "ISNI|0000000108796160",
+              "DNB|119193256"
+            ]
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": [
+              {
+                "code": "a",
+                "content": "Alberghati Capacelli, Francesco"
+              },
+              {
+                "code": "d",
+                "content": "1728-1804"
+              }
+            ],
+            "ind1": 1,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "alberghati capacelli francesco 1728 1804"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "DE633",
+            "ns1:sid": "DE633|pe30017008"
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": {
+              "code": "a",
+              "content": "Capacelli, Francesco"
+            },
+            "ind1": 1,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "capacelli francesco"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": [
+              "ISNI",
+              "PLWABN",
+              "SUDOC"
+            ],
+            "ns1:sid": [
+              "ISNI|0000000108796160",
+              "PLWABN|9810682495105606",
+              "SUDOC|031291147"
+            ]
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": {
+              "code": "a",
+              "content": "Capacelli, Francesco Albergati"
+            },
+            "ind1": 1,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "capacelli francesco albergati"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": [
+              "NKC",
+              "J9U",
+              "CAOONL",
+              "LC"
+            ],
+            "ns1:sid": [
+              "NKC|ola2002142477",
+              "J9U|987007599016005171",
+              "CAOONL|ncf10671313",
+              "LC|n  85017531"
+            ]
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": [
+              {
+                "code": "a",
+                "content": "Capacelli, Francesco Albergati,"
+              },
+              {
+                "code": "d",
+                "content": "1728-1804"
+              }
+            ],
+            "ind1": 1,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "capacelli francesco albergati 1728 1804"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "NUKAT",
+            "ns1:sid": "NUKAT|n 2007010837"
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": {
+              "code": "a",
+              "content": "Capacelli, Francesco Albergati."
+            },
+            "ind1": 1,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "capacelli francesco albergati"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": [
+              "ISNI",
+              "DNB"
+            ],
+            "ns1:sid": [
+              "ISNI|0000000108796160",
+              "DNB|119193256"
+            ]
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": [
+              {
+                "code": "a",
+                "content": "Capacelli, Francesco Albergati"
+              },
+              {
+                "code": "d",
+                "content": "1728-1804"
+              }
+            ],
+            "ind1": 1,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "capacelli francesco albergati 1728 1804"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "DNB",
+            "ns1:sid": "DNB|119193256"
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": [
+              {
+                "code": "a",
+                "content": "Capacelli, Francesco"
+              },
+              {
+                "code": "d",
+                "content": "1728-1804"
+              }
+            ],
+            "ind1": 1,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "capacelli francesco 1728 1804"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "PTBNP",
+            "ns1:sid": "PTBNP|192009"
+          },
+          "ns1:datafield": {
+            "ind2": 1,
+            "ns1:subfield": [
+              {
+                "code": "a",
+                "content": "Capacelli,"
+              },
+              {
+                "code": "b",
+                "content": "Francesco Albergati"
+              }
+            ],
+            "ind1": " ",
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "capacelli francesco albergati"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "BNF",
+            "ns1:sid": "BNF|12253497"
+          },
+          "ns1:datafield": {
+            "ind2": "|",
+            "ns1:subfield": [
+              {
+                "code": "a",
+                "content": "Capacelli"
+              },
+              {
+                "code": "b",
+                "content": "Francesco Albergati"
+              },
+              {
+                "code": "f",
+                "content": "1728-1804"
+              }
+            ],
+            "ind1": " ",
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "capacelli francesco albergati 1728 1804"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": [
+              "ISNI",
+              "DNB"
+            ],
+            "ns1:sid": [
+              "ISNI|0000000108796160",
+              "DNB|119193256"
+            ]
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": [
+              {
+                "code": "a",
+                "content": "Cappaceli, Francesco Albergati"
+              },
+              {
+                "code": "d",
+                "content": "1728-1804"
+              }
+            ],
+            "ind1": 1,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "cappaceli francesco albergati 1728 1804"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "DNB",
+            "ns1:sid": "DNB|119193256"
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": [
+              {
+                "code": "a",
+                "content": "F. A. C."
+              },
+              {
+                "code": "d",
+                "content": "1728-1804"
+              }
+            ],
+            "ind1": 0,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "f a c 1728 1804"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": [
+              "ISNI",
+              "WKP"
+            ],
+            "ns1:sid": [
+              "ISNI|0000000108796160",
+              "WKP|Q371439"
+            ]
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": [
+              {
+                "code": "a",
+                "content": "Francesco Albergati Capacelli"
+              },
+              {
+                "code": "c",
+                "content": "Italiaans schrijver (1728-1804)"
+              }
+            ],
+            "ind1": 0,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "francesco albergati capacelli italiaans schrijver 1728 1804"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "ISNI",
+            "ns1:sid": "ISNI|0000000108796160"
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": [
+              {
+                "code": "a",
+                "content": "Francesco Albergati Capacelli"
+              },
+              {
+                "code": "c",
+                "content": "Italian writer"
+              }
+            ],
+            "ind1": 0,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "francesco albergati capacelli italian writer"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "WKP",
+            "ns1:sid": "WKP|Q371439"
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": [
+              {
+                "code": "a",
+                "content": "Francesco Albergati Capacelli"
+              },
+              {
+                "code": "c",
+                "content": "Italian writer (1728-1804)"
+              }
+            ],
+            "ind1": 0,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "francesco albergati capacelli italian writer 1728 1804"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "WKP",
+            "ns1:sid": "WKP|Q371439"
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": [
+              {
+                "code": "a",
+                "content": "Francesco Albergati Capacelli"
+              },
+              {
+                "code": "c",
+                "content": "escritor italiano"
+              }
+            ],
+            "ind1": 0,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "francesco albergati capacelli escritor italiano"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": [
+              "ISNI",
+              "WKP"
+            ],
+            "ns1:sid": [
+              "ISNI|0000000108796160",
+              "WKP|Q371439"
+            ]
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": [
+              {
+                "code": "a",
+                "content": "Francesco Albergati Capacelli"
+              },
+              {
+                "code": "c",
+                "content": "scrittore, politico e commediografo italiano"
+              }
+            ],
+            "ind1": 0,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "francesco albergati capacelli scrittore politico e commediografo italiano"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "WKP",
+            "ns1:sid": "WKP|Q371439"
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": [
+              {
+                "code": "a",
+                "content": "Francesco Albergati Capacelli"
+              },
+              {
+                "code": "c",
+                "content": "shkrimtar italian"
+              }
+            ],
+            "ind1": 0,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "francesco albergati capacelli shkrimtar italian"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "DNB",
+            "ns1:sid": "DNB|119193256"
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": [
+              {
+                "code": "a",
+                "content": "Kapacelli, Albergati"
+              },
+              {
+                "code": "d",
+                "content": "1728-1804"
+              }
+            ],
+            "ind1": 1,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "kapacelli albergati 1728 1804"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": [
+              "ISNI",
+              "DNB"
+            ],
+            "ns1:sid": [
+              "ISNI|0000000108796160",
+              "DNB|119193256"
+            ]
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": [
+              {
+                "code": "a",
+                "content": "Lottich, K."
+              },
+              {
+                "code": "d",
+                "content": "1728-1804"
+              }
+            ],
+            "ind1": 1,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "lottich k 1728 1804"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": [
+              "ISNI",
+              "WKP"
+            ],
+            "ns1:sid": [
+              "ISNI|0000000108796160",
+              "WKP|Q371439"
+            ]
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": {
+              "code": "a",
+              "content": "Франческо Альбергати"
+            },
+            "ind1": 0,
+            "dtype": "MARC21",
+            "tag": 400,
+            "ns1:normalized": "франческо альбергати"
+          }
+        }
+      ]
+    },
+    "ns1:length": 3328,
+    "ns1:deathDate": "1804-03-16",
+    "ns1:dateType": "lived",
+    "ns1:ISBNs": {
+      "ns1:data": [
+        {
+          "ns1:sources": {
+            "ns1:s": "SUDOC",
+            "ns1:sid": "SUDOC|031291147"
+          },
+          "count": 1,
+          "ns1:text": 9788897339205
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "SUDOC",
+            "ns1:sid": "SUDOC|031291147"
+          },
+          "count": 1,
+          "ns1:text": 9788806598822
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "SUDOC",
+            "ns1:sid": "SUDOC|031291147"
+          },
+          "count": 1,
+          "ns1:text": 9788806113926
+        }
+      ],
+      "unique": 3
+    },
+    "ns1:publishers": {
+      "ns1:data": [
+        {
+          "ns1:sources": {
+            "ns1:s": [
+              "ISNI",
+              "BAV",
+              "BNF"
+            ],
+            "ns1:sid": [
+              "ISNI|0000000108796160",
+              "BAV|495_21530",
+              "BNF|12253497"
+            ]
+          },
+          "count": 8,
+          "ns1:text": "nella Stamperia di San Tommaso d'Aquino"
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": [
+              "ISNI",
+              "SUDOC",
+              "BAV",
+              "BNF"
+            ],
+            "ns1:sid": [
+              "ISNI|0000000108796160",
+              "SUDOC|031291147",
+              "BAV|495_21530",
+              "BNF|12253497"
+            ]
+          },
+          "count": 7,
+          "ns1:text": "per G. Pasquali"
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": [
+              "ISNI",
+              "SUDOC"
+            ],
+            "ns1:sid": [
+              "ISNI|0000000108796160",
+              "SUDOC|031291147"
+            ]
+          },
+          "count": 4,
+          "ns1:text": "typografia Cardinali e Frulli"
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": [
+              "ISNI",
+              "SUDOC",
+              "BNF"
+            ],
+            "ns1:sid": [
+              "ISNI|0000000108796160",
+              "SUDOC|031291147",
+              "BNF|12253497"
+            ]
+          },
+          "count": 4,
+          "ns1:text": "stamp. di C. Palese, a spese dell' autore"
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": [
+              "ISNI",
+              "PLWABN"
+            ],
+            "ns1:sid": [
+              "ISNI|0000000108796160",
+              "PLWABN|9810682495105606"
+            ]
+          },
+          "count": 3,
+          "ns1:text": "Tip. Marsiglj ai Celestini"
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": [
+              "SUDOC",
+              "BNF"
+            ],
+            "ns1:sid": [
+              "SUDOC|031291147",
+              "BNF|12253497"
+            ]
+          },
+          "count": 3,
+          "ns1:text": "Luigi Pavini"
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": [
+              "ISNI",
+              "BAV"
+            ],
+            "ns1:sid": [
+              "ISNI|0000000108796160",
+              "BAV|495_21530"
+            ]
+          },
+          "count": 2,
+          "ns1:text": "Visai"
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": [
+              "ISNI",
+              "BAV"
+            ],
+            "ns1:sid": [
+              "ISNI|0000000108796160",
+              "BAV|495_21530"
+            ]
+          },
+          "count": 2,
+          "ns1:text": "Stamperia reale"
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": [
+              "ISNI",
+              "BNF"
+            ],
+            "ns1:sid": [
+              "ISNI|0000000108796160",
+              "BNF|12253497"
+            ]
+          },
+          "count": 2,
+          "ns1:text": "Stamp. reale"
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "RERO",
+            "ns1:sid": "RERO|A002915209"
+          },
+          "count": 1,
+          "ns1:text": "U. Bortoli"
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "DNB",
+            "ns1:sid": "DNB|119193256"
+          },
+          "count": 1,
+          "ns1:text": "da'torchj di Giuseppe Cooper. Si vende presso Molini, No. 28, Hay Market"
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "NTA",
+            "ns1:sid": "NTA|35198805X"
+          },
+          "count": 1,
+          "ns1:text": "Carlo Palese"
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "NUKAT",
+            "ns1:sid": "NUKAT|n 2007010837"
+          },
+          "count": 1,
+          "ns1:text": "A.M.I.S."
+        }
+      ]
+    },
+    "ns1:languageOfEntity": {
+      "ns1:data": {
+        "ns1:sources": {
+          "ns1:s": [
+            "J9U",
+            "LC",
+            "BNF"
+          ]
+        },
+        "ns1:text": "ita"
+      }
+    },
+    "xmlns:void": "http://rdfs.org/ns/void#",
+    "ns1:RecFormats": {
+      "ns1:data": [
+        {
+          "ns1:sources": {
+            "ns1:s": [
+              "NTA",
+              "PTBNP",
+              "BAV",
+              "PLWABN",
+              "BNF",
+              "RERO",
+              "SUDOC",
+              "NUKAT"
+            ],
+            "ns1:sid": [
+              "NTA|35198805X",
+              "PTBNP|192009",
+              "BAV|495_21530",
+              "PLWABN|9810682495105606",
+              "BNF|12253497",
+              "RERO|A002915209",
+              "SUDOC|031291147",
+              "NUKAT|n 2007010837"
+            ]
+          },
+          "count": 115,
+          "ns1:text": "am"
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "PTBNP",
+            "ns1:sid": "PTBNP|192009"
+          },
+          "count": 1,
+          "ns1:text": "bm"
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": [
+              "SUDOC",
+              "DNB"
+            ],
+            "ns1:sid": [
+              "SUDOC|031291147",
+              "DNB|119193256"
+            ]
+          },
+          "count": 2,
+          "ns1:text": "mm"
+        }
+      ]
+    },
+    "xmlns": "http://viaf.org/viaf/terms#",
+    "xmlns:ns1": "http://viaf.org/viaf/terms#",
+    "ns1:sources": {
+      "ns1:source": [
+        {
+          "nsid": "0000000108796160",
+          "content": "ISNI|0000000108796160"
+        },
+        {
+          "nsid": 987007599016005171,
+          "content": "J9U|987007599016005171"
+        },
+        {
+          "nsid": "35198805X",
+          "content": "NTA|35198805X"
+        },
+        {
+          "nsid": "http://d-nb.info/gnd/119193256",
+          "content": "DNB|119193256"
+        },
+        {
+          "nsid": 192009,
+          "content": "PTBNP|192009"
+        },
+        {
+          "nsid": "IT\\ICCU\\RAVV\\020606",
+          "content": "ICCU|RAVV020606"
+        },
+        {
+          "nsid": "495/21530",
+          "content": "BAV|495_21530"
+        },
+        {
+          "nsid": "ncf10671313",
+          "content": "CAOONL|ncf10671313"
+        },
+        {
+          "nsid": "Q371439",
+          "content": "WKP|Q371439"
+        },
+        {
+          "nsid": "n85017531",
+          "content": "LC|n  85017531"
+        },
+        {
+          "nsid": "ola2002142477",
+          "content": "NKC|ola2002142477"
+        },
+        {
+          "nsid": 9810682495105606,
+          "content": "PLWABN|9810682495105606"
+        },
+        {
+          "nsid": "BNC10000000000000000146228",
+          "content": "BNCHL|10000000000000000146228"
+        },
+        {
+          "nsid": "http://catalogue.bnf.fr/ark:/12148/cb12253497v",
+          "content": "BNF|12253497"
+        },
+        {
+          "nsid": "A002915209",
+          "content": "RERO|A002915209"
+        },
+        {
+          "nsid": 387693,
+          "content": "NYNYRILM|387693"
+        },
+        {
+          "nsid": "pe30017008",
+          "content": "DE633|pe30017008"
+        },
+        {
+          "nsid": "031291147",
+          "content": "SUDOC|031291147"
+        },
+        {
+          "nsid": "vtls004793337",
+          "content": "NUKAT|n 2007010837"
+        },
+        {
+          "nsid": 156401,
+          "content": "GRATEVE|156401"
+        },
+        {
+          "nsid": "495/21531",
+          "content": "BAV|495_21531"
+        }
+      ]
+    },
+    "xmlns:foaf": "http://xmlns.com/foaf/0.1/",
+    "xmlns:owl": "http://www.w3.org/2002/07/owl#",
+    "ns1:dates": {
+      "min": 175,
+      "max": 201,
+      "ns1:date": [
+        {
+          "scaled": 1.58,
+          "count": 3,
+          "content": 175
+        },
+        {
+          "scaled": 2.32,
+          "count": 5,
+          "content": 176
+        },
+        {
+          "scaled": 3,
+          "count": 8,
+          "content": 177
+        },
+        {
+          "scaled": 3.32,
+          "count": 10,
+          "content": 178
+        },
+        {
+          "scaled": 4.95,
+          "count": 31,
+          "content": 179
+        },
+        {
+          "scaled": 3.7,
+          "count": 13,
+          "content": 180
+        },
+        {
+          "scaled": 1.58,
+          "count": 3,
+          "content": 181
+        },
+        {
+          "scaled": 3.17,
+          "count": 9,
+          "content": 182
+        },
+        {
+          "scaled": 3,
+          "count": 8,
+          "content": 183
+        },
+        {
+          "scaled": 2,
+          "count": 4,
+          "content": 184
+        },
+        {
+          "scaled": 2.32,
+          "count": 5,
+          "content": 185
+        },
+        {
+          "scaled": 1.58,
+          "count": 3,
+          "content": 186
+        },
+        {
+          "scaled": 1.58,
+          "count": 3,
+          "content": 187
+        },
+        {
+          "scaled": 1.58,
+          "count": 3,
+          "content": 188
+        },
+        {
+          "scaled": 1.58,
+          "count": 3,
+          "content": 189
+        },
+        {
+          "scaled": 1.58,
+          "count": 3,
+          "content": 190
+        },
+        {
+          "scaled": 1.58,
+          "count": 3,
+          "content": 191
+        },
+        {
+          "scaled": 2,
+          "count": 4,
+          "content": 192
+        },
+        {
+          "scaled": 1.58,
+          "count": 3,
+          "content": 193
+        },
+        {
+          "scaled": 1.58,
+          "count": 3,
+          "content": 194
+        },
+        {
+          "scaled": 1.58,
+          "count": 3,
+          "content": 195
+        },
+        {
+          "scaled": 1.58,
+          "count": 3,
+          "content": 196
+        },
+        {
+          "scaled": 2,
+          "count": 4,
+          "content": 197
+        },
+        {
+          "scaled": 2,
+          "count": 4,
+          "content": 198
+        },
+        {
+          "scaled": 1.58,
+          "count": 3,
+          "content": 199
+        },
+        {
+          "scaled": 2,
+          "count": 4,
+          "content": 200
+        },
+        {
+          "scaled": 0,
+          "count": 1,
+          "content": 201
+        }
+      ]
+    },
+    "ns1:creationtime": "2025-08-02T15:58:11.366394+00:00",
+    "ns1:x500s": {
+      "ns1:x500": [
+        {
+          "ns1:sources": {
+            "ns1:s": "DNB",
+            "ns1:sid": "DNB|119193256"
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": [
+              {
+                "code": "a",
+                "content": "Bologna"
+              },
+              {
+                "code": 4,
+                "content": "ortg"
+              },
+              {
+                "code": 4,
+                "content": "https://d-nb.info/standards/elementset/gnd#placeOfBirth"
+              }
+            ],
+            "ind1": " ",
+            "dtype": "MARC21",
+            "tag": 551,
+            "ns1:normalized": "bologna"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "DNB",
+            "ns1:sid": "DNB|119193256"
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": [
+              {
+                "code": "a",
+                "content": "Bologna"
+              },
+              {
+                "code": 4,
+                "content": "orts"
+              },
+              {
+                "code": 4,
+                "content": "https://d-nb.info/standards/elementset/gnd#placeOfDeath"
+              }
+            ],
+            "ind1": " ",
+            "dtype": "MARC21",
+            "tag": 551,
+            "ns1:normalized": "bologna"
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "DNB",
+            "ns1:sid": "DNB|119193256"
+          },
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": [
+              {
+                "code": "a",
+                "content": "Grassi, Anna"
+              },
+              {
+                "code": "c",
+                "content": "Comtesse de Morcone"
+              },
+              {
+                "code": 4,
+                "content": "bezf"
+              },
+              {
+                "code": 4,
+                "content": "https://d-nb.info/standards/elementset/gnd#familialRelationship"
+              },
+              {
+                "code": "e",
+                "content": "Beziehung familiaer"
+              }
+            ],
+            "ind1": 1,
+            "dtype": "MARC21",
+            "tag": 500,
+            "ns1:normalized": "grassi anna comtesse de morcone"
+          }
+        }
+      ]
+    },
+    "ns1:countries": {
+      "ns1:data": [
+        {
+          "scaled": 6,
+          "ns1:sources": {
+            "ns1:s": [
+              "NTA",
+              "BAV",
+              "PLWABN",
+              "BNF",
+              "RERO",
+              "SUDOC",
+              "NUKAT"
+            ],
+            "ns1:sid": [
+              "NTA|35198805X",
+              "BAV|495_21530",
+              "PLWABN|9810682495105606",
+              "BNF|12253497",
+              "RERO|A002915209",
+              "SUDOC|031291147",
+              "NUKAT|n 2007010837"
+            ]
+          },
+          "count": 96,
+          "ns1:text": "IT"
+        },
+        {
+          "scaled": 3,
+          "ns1:sources": {
+            "ns1:s": [
+              "SUDOC",
+              "BNF",
+              "RERO"
+            ],
+            "ns1:sid": [
+              "SUDOC|031291147",
+              "BNF|12253497",
+              "RERO|A002915209"
+            ]
+          },
+          "count": 7,
+          "ns1:text": "FR"
+        },
+        {
+          "scaled": 2,
+          "ns1:sources": {
+            "ns1:s": [
+              "SUDOC",
+              "RERO",
+              "DNB"
+            ],
+            "ns1:sid": [
+              "SUDOC|031291147",
+              "RERO|A002915209",
+              "DNB|119193256"
+            ]
+          },
+          "count": 3,
+          "ns1:text": "GB"
+        },
+        {
+          "scaled": 1,
+          "ns1:sources": {
+            "ns1:s": "PTBNP",
+            "ns1:sid": "PTBNP|192009"
+          },
+          "count": 2,
+          "ns1:text": "PT"
+        },
+        {
+          "scaled": 1,
+          "ns1:sources": {
+            "ns1:s": "BNF",
+            "ns1:sid": "BNF|12253497"
+          },
+          "count": 1,
+          "ns1:text": "SV"
+        },
+        {
+          "scaled": 1,
+          "ns1:sources": {
+            "ns1:s": "SUDOC",
+            "ns1:sid": "SUDOC|031291147"
+          },
+          "count": 1,
+          "ns1:text": "CH"
+        }
+      ]
+    },
+    "xmlns:rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+    "ns1:mainHeadings": {
+      "ns1:data": [
+        {
+          "ns1:sources": {
+            "ns1:s": [
+              "J9U",
+              "NTA",
+              "DNB",
+              "PTBNP",
+              "CAOONL",
+              "LC",
+              "NKC",
+              "PLWABN",
+              "BNF",
+              "SUDOC",
+              "NUKAT"
+            ],
+            "ns1:sid": [
+              "J9U|987007599016005171",
+              "NTA|35198805X",
+              "DNB|119193256",
+              "PTBNP|192009",
+              "CAOONL|ncf10671313",
+              "LC|n  85017531",
+              "NKC|ola2002142477",
+              "PLWABN|9810682495105606",
+              "BNF|12253497",
+              "SUDOC|031291147",
+              "NUKAT|n 2007010837"
+            ]
+          },
+          "ns1:text": "Albergati Capacelli, Francesco, 1728-1804"
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": [
+              "BAV",
+              "GRATEVE"
+            ],
+            "ns1:sid": [
+              "BAV|495_21530",
+              "GRATEVE|156401"
+            ]
+          },
+          "ns1:text": "Albergati Capacelli, Francesco, marchese, 1728-1804"
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": [
+              "DE633",
+              "ICCU",
+              "BNCHL",
+              "RERO"
+            ],
+            "ns1:sid": [
+              "DE633|pe30017008",
+              "ICCU|RAVV020606",
+              "BNCHL|10000000000000000146228",
+              "RERO|A002915209"
+            ]
+          },
+          "ns1:text": "Albergati Capacelli, Francesco"
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "ISNI",
+            "ns1:sid": "ISNI|0000000108796160"
+          },
+          "ns1:text": "Albergati Capacelli, Francesco 1728-1804 marchese"
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "WKP",
+            "ns1:sid": "WKP|Q371439"
+          },
+          "ns1:text": "Francesco Albergati Capacelli auteur dramatique, théoricien du théâtre, Mécène"
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "NYNYRILM",
+            "ns1:sid": "NYNYRILM|387693"
+          },
+          "ns1:text": "Capacelli, Francesco Albergati"
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "BAV",
+            "ns1:sid": "BAV|495_21531"
+          },
+          "ns1:text": "Albergati, Francesco, marchese, 1728-1804"
+        }
+      ],
+      "ns1:mainHeadingEl": [
+        {
+          "ns1:sources": {
+            "ns1:s": "ICCU",
+            "ns1:sid": "ICCU|RAVV020606"
+          },
+          "ns1:links": {
+            "ns1:link": [
+              {
+                "ns1:match": {
+                  "type": "suggested"
+                },
+                "content": "ISNI|0000000108796160"
+              },
+              {
+                "ns1:match": {
+                  "type": "suggested"
+                },
+                "content": "ISNI|0000000108796160"
+              },
+              {
+                "ns1:match": {
+                  "type": "suggested"
+                },
+                "content": "ISNI|0000000108796160"
+              },
+              {
+                "ns1:match": {
+                  "type": "suggested"
+                },
+                "content": "ISNI|0000000108796160"
+              },
+              {
+                "ns1:match": {
+                  "type": "suggested"
+                },
+                "content": "ISNI|0000000108796160"
+              },
+              {
+                "ns1:match": {
+                  "type": "exact title"
+                },
+                "content": "BAV|495_21530"
+              },
+              {
+                "ns1:match": {
+                  "type": "viafid"
+                },
+                "content": "LC|n  85017531"
+              },
+              {
+                "ns1:match": {
+                  "type": "viafid"
+                },
+                "content": "PLWABN|9810682495105606"
+              },
+              {
+                "ns1:match": {
+                  "type": "exact name"
+                },
+                "content": "BNCHL|10000000000000000146228"
+              },
+              {
+                "ns1:match": {
+                  "type": "exact title"
+                },
+                "content": "BNF|12253497"
+              },
+              {
+                "ns1:match": {
+                  "type": "exact name"
+                },
+                "content": "RERO|A002915209"
+              },
+              {
+                "ns1:match": {
+                  "type": "viafid"
+                },
+                "content": "NYNYRILM|387693"
+              }
+            ]
+          },
+          "ns1:id": "ICCU|RAVV020606",
+          "ns1:datafield": {
+            "ind2": 1,
+            "ns1:subfield": [
+              {
+                "code": "a",
+                "content": "Albergati Capacelli"
+              },
+              {
+                "code": "b",
+                "content": ", Francesco"
+              }
+            ],
+            "ind1": " ",
+            "dtype": "UNIMARC",
+            "tag": 200
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "BNF",
+            "ns1:sid": "BNF|12253497"
+          },
+          "ns1:links": {
+            "ns1:link": [
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "ISNI|0000000108796160"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "ISNI|0000000108796160"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "ISNI|0000000108796160"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "ISNI|0000000108796160"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "ISNI|0000000108796160"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "J9U|987007599016005171"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "NTA|35198805X"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "GRATEVE|156401"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "DNB|119193256"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "PTBNP|192009"
+              },
+              {
+                "ns1:match": {
+                  "type": "exact title"
+                },
+                "content": "ICCU|RAVV020606"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "BAV|495_21530"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "CAOONL|ncf10671313"
+              },
+              {
+                "ns1:match": {
+                  "type": "viafid"
+                },
+                "content": "LC|n  85017531"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "NKC|ola2002142477"
+              },
+              {
+                "ns1:match": {
+                  "type": "forced single date"
+                },
+                "content": "PLWABN|9810682495105606"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "NUKAT|n 2007010837"
+              },
+              {
+                "ns1:match": {
+                  "type": "forced single date"
+                },
+                "content": "NYNYRILM|387693"
+              },
+              {
+                "ns1:match": {
+                  "type": "suggested"
+                },
+                "content": "WKP|Q371439"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "SUDOC|031291147"
+              }
+            ]
+          },
+          "ns1:id": "BNF|12253497",
+          "ns1:datafield": {
+            "ind2": "|",
+            "ns1:subfield": [
+              {
+                "code": 7,
+                "content": "ba0yba0y"
+              },
+              {
+                "code": 8,
+                "content": "fre"
+              },
+              {
+                "code": 9,
+                "content": 0
+              },
+              {
+                "code": "a",
+                "content": "Albergati Capacelli"
+              },
+              {
+                "code": "b",
+                "content": "Francesco"
+              },
+              {
+                "code": "f",
+                "content": "1728-1804"
+              }
+            ],
+            "ind1": " ",
+            "dtype": "UNIMARC",
+            "tag": 200
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "RERO",
+            "ns1:sid": "RERO|A002915209"
+          },
+          "ns1:links": {
+            "ns1:link": [
+              {
+                "ns1:match": {
+                  "type": "title"
+                },
+                "content": "J9U|987007599016005171"
+              },
+              {
+                "ns1:match": {
+                  "type": "exact title"
+                },
+                "content": "DNB|119193256"
+              },
+              {
+                "ns1:match": {
+                  "type": "exact name"
+                },
+                "content": "ICCU|RAVV020606"
+              },
+              {
+                "ns1:match": {
+                  "type": "viafid"
+                },
+                "content": "NYNYRILM|387693"
+              },
+              {
+                "ns1:match": {
+                  "type": "exact title"
+                },
+                "content": "BAV|495_21530"
+              },
+              {
+                "ns1:match": {
+                  "type": "viafid"
+                },
+                "content": "LC|n  85017531"
+              },
+              {
+                "ns1:match": {
+                  "type": "viafid"
+                },
+                "content": "PLWABN|9810682495105606"
+              },
+              {
+                "ns1:match": {
+                  "type": "exact name"
+                },
+                "content": "BNCHL|10000000000000000146228"
+              },
+              {
+                "ns1:match": {
+                  "type": "exact title"
+                },
+                "content": "SUDOC|031291147"
+              }
+            ]
+          },
+          "ns1:id": "RERO|A002915209",
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": {
+              "code": "a",
+              "content": "Albergati Capacelli, Francesco"
+            },
+            "ind1": 1,
+            "dtype": "MARC21",
+            "tag": 100
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "BNCHL",
+            "ns1:sid": "BNCHL|10000000000000000146228"
+          },
+          "ns1:links": {
+            "ns1:link": [
+              {
+                "ns1:match": {
+                  "type": "exact name"
+                },
+                "content": "ICCU|RAVV020606"
+              },
+              {
+                "ns1:match": {
+                  "type": "viafid"
+                },
+                "content": "LC|n  85017531"
+              },
+              {
+                "ns1:match": {
+                  "type": "viafid"
+                },
+                "content": "PLWABN|9810682495105606"
+              },
+              {
+                "ns1:match": {
+                  "type": "exact name"
+                },
+                "content": "RERO|A002915209"
+              },
+              {
+                "ns1:match": {
+                  "type": "viafid"
+                },
+                "content": "NYNYRILM|387693"
+              }
+            ]
+          },
+          "ns1:id": "BNCHL|10000000000000000146228",
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": {
+              "code": "a",
+              "content": "Albergati Capacelli, Francesco"
+            },
+            "ind1": 1,
+            "dtype": "MARC21",
+            "tag": 100
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "DE633",
+            "ns1:sid": "DE633|pe30017008"
+          },
+          "ns1:links": {
+            "ns1:link": [
+              {
+                "ns1:match": {
+                  "type": "exact name"
+                },
+                "content": "ICCU|RAVV020606"
+              },
+              {
+                "ns1:match": {
+                  "type": "viafid"
+                },
+                "content": "LC|n  85017531"
+              },
+              {
+                "ns1:match": {
+                  "type": "viafid"
+                },
+                "content": "PLWABN|9810682495105606"
+              },
+              {
+                "ns1:match": {
+                  "type": "exact name"
+                },
+                "content": "BNCHL|10000000000000000146228"
+              },
+              {
+                "ns1:match": {
+                  "type": "exact name"
+                },
+                "content": "RERO|A002915209"
+              },
+              {
+                "ns1:match": {
+                  "type": "viafid"
+                },
+                "content": "NYNYRILM|387693"
+              }
+            ]
+          },
+          "ns1:id": "DE633|pe30017008",
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": {
+              "code": "a",
+              "content": "Albergati Capacelli, Francesco"
+            },
+            "ind1": 1,
+            "dtype": "MARC21",
+            "tag": 100
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "PLWABN",
+            "ns1:sid": "PLWABN|9810682495105606"
+          },
+          "ns1:links": {
+            "ns1:link": [
+              {
+                "ns1:match": {
+                  "type": "forced single date"
+                },
+                "content": "ISNI|0000000108796160"
+              },
+              {
+                "ns1:match": {
+                  "type": "forced single date"
+                },
+                "content": "ISNI|0000000108796160"
+              },
+              {
+                "ns1:match": {
+                  "type": "forced single date"
+                },
+                "content": "ISNI|0000000108796160"
+              },
+              {
+                "ns1:match": {
+                  "type": "forced single date"
+                },
+                "content": "ISNI|0000000108796160"
+              },
+              {
+                "ns1:match": {
+                  "type": "forced single date"
+                },
+                "content": "ISNI|0000000108796160"
+              },
+              {
+                "ns1:match": {
+                  "type": "viafid"
+                },
+                "content": "J9U|987007599016005171"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "NTA|35198805X"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "GRATEVE|156401"
+              },
+              {
+                "ns1:match": {
+                  "type": "viafid"
+                },
+                "content": "DNB|119193256"
+              },
+              {
+                "ns1:match": {
+                  "type": "forced single date"
+                },
+                "content": "PTBNP|192009"
+              },
+              {
+                "ns1:match": {
+                  "type": "viafid"
+                },
+                "content": "ICCU|RAVV020606"
+              },
+              {
+                "ns1:match": {
+                  "type": "viafid"
+                },
+                "content": "BAV|495_21531"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "BAV|495_21530"
+              },
+              {
+                "ns1:match": {
+                  "type": "forced single date"
+                },
+                "content": "CAOONL|ncf10671313"
+              },
+              {
+                "ns1:match": {
+                  "type": "viafid"
+                },
+                "content": "LC|n  85017531"
+              },
+              {
+                "ns1:match": {
+                  "type": "viafid"
+                },
+                "content": "NKC|ola2002142477"
+              },
+              {
+                "ns1:match": {
+                  "type": "viafid"
+                },
+                "content": "BNCHL|10000000000000000146228"
+              },
+              {
+                "ns1:match": {
+                  "type": "viafid"
+                },
+                "content": "BNF|12253497"
+              },
+              {
+                "ns1:match": {
+                  "type": "viafid"
+                },
+                "content": "RERO|A002915209"
+              },
+              {
+                "ns1:match": {
+                  "type": "forced single date"
+                },
+                "content": "NYNYRILM|387693"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "WKP|Q371439"
+              },
+              {
+                "ns1:match": {
+                  "type": "viafid"
+                },
+                "content": "SUDOC|031291147"
+              },
+              {
+                "ns1:match": {
+                  "type": "viafid"
+                },
+                "content": "DE633|pe30017008"
+              },
+              {
+                "ns1:match": {
+                  "type": "viafid"
+                },
+                "content": "NUKAT|n 2007010837"
+              }
+            ]
+          },
+          "ns1:id": "PLWABN|9810682495105606",
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": [
+              {
+                "code": "a",
+                "content": "Albergati Capacelli, Francesco"
+              },
+              {
+                "code": "d",
+                "content": "(1728-1804)"
+              }
+            ],
+            "ind1": 1,
+            "dtype": "MARC21",
+            "tag": 100
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "NUKAT",
+            "ns1:sid": "NUKAT|n 2007010837"
+          },
+          "ns1:links": {
+            "ns1:link": [
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "ISNI|0000000108796160"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "ISNI|0000000108796160"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "ISNI|0000000108796160"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "ISNI|0000000108796160"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "ISNI|0000000108796160"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "J9U|987007599016005171"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "NTA|35198805X"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "GRATEVE|156401"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "DNB|119193256"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "PTBNP|192009"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "BAV|495_21530"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "CAOONL|ncf10671313"
+              },
+              {
+                "ns1:match": {
+                  "type": "viafid"
+                },
+                "content": "LC|n  85017531"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "NKC|ola2002142477"
+              },
+              {
+                "ns1:match": {
+                  "type": "viafid"
+                },
+                "content": "PLWABN|9810682495105606"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "BNF|12253497"
+              },
+              {
+                "ns1:match": {
+                  "type": "forced single date"
+                },
+                "content": "NYNYRILM|387693"
+              },
+              {
+                "ns1:match": {
+                  "type": "suggested"
+                },
+                "content": "WKP|Q371439"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "SUDOC|031291147"
+              }
+            ]
+          },
+          "ns1:id": "NUKAT|n 2007010837",
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": [
+              {
+                "code": "a",
+                "content": "Albergati Capacelli, Francesco"
+              },
+              {
+                "code": "d",
+                "content": "(1728-1804)."
+              }
+            ],
+            "ind1": 1,
+            "dtype": "MARC21",
+            "tag": 100
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "DNB",
+            "ns1:sid": "DNB|119193256"
+          },
+          "ns1:links": {
+            "ns1:link": [
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "ISNI|0000000108796160"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "ISNI|0000000108796160"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "ISNI|0000000108796160"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "ISNI|0000000108796160"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "ISNI|0000000108796160"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "J9U|987007599016005171"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "NTA|35198805X"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "GRATEVE|156401"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "PTBNP|192009"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "BAV|495_21530"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "CAOONL|ncf10671313"
+              },
+              {
+                "ns1:match": {
+                  "type": "viafid"
+                },
+                "content": "LC|n  85017531"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "NKC|ola2002142477"
+              },
+              {
+                "ns1:match": {
+                  "type": "forced single date"
+                },
+                "content": "PLWABN|9810682495105606"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "BNF|12253497"
+              },
+              {
+                "ns1:match": {
+                  "type": "exact title"
+                },
+                "content": "RERO|A002915209"
+              },
+              {
+                "ns1:match": {
+                  "type": "forced single date"
+                },
+                "content": "NYNYRILM|387693"
+              },
+              {
+                "ns1:match": {
+                  "type": "suggested"
+                },
+                "content": "WKP|Q371439"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "SUDOC|031291147"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "BAV|495_21531"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "NUKAT|n 2007010837"
+              }
+            ]
+          },
+          "ns1:id": "DNB|119193256",
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": [
+              {
+                "code": "a",
+                "content": "Albergati Capacelli, Francesco"
+              },
+              {
+                "code": "d",
+                "content": "1728-1804"
+              }
+            ],
+            "ind1": 1,
+            "dtype": "MARC21",
+            "tag": 100
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "ISNI",
+            "ns1:sid": "ISNI|0000000108796160"
+          },
+          "ns1:links": {
+            "ns1:link": [
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "J9U|987007599016005171"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "NTA|35198805X"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "GRATEVE|156401"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "DNB|119193256"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "PTBNP|192009"
+              },
+              {
+                "ns1:match": {
+                  "type": "suggested"
+                },
+                "content": "ICCU|RAVV020606"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "BAV|495_21530"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "CAOONL|ncf10671313"
+              },
+              {
+                "ns1:match": {
+                  "type": "viafid"
+                },
+                "content": "LC|n  85017531"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "NKC|ola2002142477"
+              },
+              {
+                "ns1:match": {
+                  "type": "forced single date"
+                },
+                "content": "PLWABN|9810682495105606"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "BNF|12253497"
+              },
+              {
+                "ns1:match": {
+                  "type": "forced single date"
+                },
+                "content": "NYNYRILM|387693"
+              },
+              {
+                "ns1:match": {
+                  "type": "suggested"
+                },
+                "content": "WKP|Q371439"
+              },
+              {
+                "ns1:match": {
+                  "type": "suggested"
+                },
+                "content": "SUDOC|031291147"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "BAV|495_21531"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "NUKAT|n 2007010837"
+              }
+            ]
+          },
+          "ns1:id": "ISNI|0000000108796160",
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": [
+              {
+                "code": "a",
+                "content": "Albergati Capacelli, Francesco"
+              },
+              {
+                "code": "d",
+                "content": "1728-1804"
+              },
+              {
+                "code": "c",
+                "content": "marchese"
+              }
+            ],
+            "ind1": 1,
+            "dtype": "MARC21",
+            "tag": 100
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "GRATEVE",
+            "ns1:sid": "GRATEVE|156401"
+          },
+          "ns1:links": {
+            "ns1:link": [
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "ISNI|0000000108796160"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "ISNI|0000000108796160"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "ISNI|0000000108796160"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "ISNI|0000000108796160"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "ISNI|0000000108796160"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "J9U|987007599016005171"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "NTA|35198805X"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "DNB|119193256"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "PTBNP|192009"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "BAV|495_21530"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "CAOONL|ncf10671313"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "LC|n  85017531"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "NKC|ola2002142477"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "PLWABN|9810682495105606"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "NUKAT|n 2007010837"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "NYNYRILM|387693"
+              },
+              {
+                "ns1:match": {
+                  "type": "suggested"
+                },
+                "content": "WKP|Q371439"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "SUDOC|031291147"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "BAV|495_21531"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "BNF|12253497"
+              }
+            ]
+          },
+          "ns1:id": "GRATEVE|156401",
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": [
+              {
+                "code": "a",
+                "content": "Albergati Capacelli, Francesco,"
+              },
+              {
+                "code": "c",
+                "content": "Marchese,"
+              },
+              {
+                "code": "d",
+                "content": "1728-1804"
+              },
+              {
+                "code": 0,
+                "content": "urn:nbn:gr:nlg:01-A094251"
+              }
+            ],
+            "ind1": 1,
+            "dtype": "MARC21",
+            "tag": 100
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "BAV",
+            "ns1:sid": "BAV|495_21530"
+          },
+          "ns1:links": {
+            "ns1:link": [
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "ISNI|0000000108796160"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "ISNI|0000000108796160"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "ISNI|0000000108796160"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "ISNI|0000000108796160"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "ISNI|0000000108796160"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "J9U|987007599016005171"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "NTA|35198805X"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "GRATEVE|156401"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "DNB|119193256"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "PTBNP|192009"
+              },
+              {
+                "ns1:match": {
+                  "type": "exact title"
+                },
+                "content": "ICCU|RAVV020606"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "CAOONL|ncf10671313"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "LC|n  85017531"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "NKC|ola2002142477"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "PLWABN|9810682495105606"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "NUKAT|n 2007010837"
+              },
+              {
+                "ns1:match": {
+                  "type": "exact title"
+                },
+                "content": "RERO|A002915209"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "NYNYRILM|387693"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "WKP|Q371439"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "SUDOC|031291147"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "BNF|12253497"
+              }
+            ]
+          },
+          "ns1:id": "BAV|495_21530",
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": [
+              {
+                "code": "a",
+                "content": "Albergati Capacelli, Francesco,"
+              },
+              {
+                "code": "c",
+                "content": "marchese,"
+              },
+              {
+                "code": "d",
+                "content": "1728-1804"
+              }
+            ],
+            "ind1": 1,
+            "dtype": "MARC21",
+            "tag": 100
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "LC",
+            "ns1:sid": "LC|n  85017531"
+          },
+          "ns1:links": {
+            "ns1:link": [
+              {
+                "ns1:match": {
+                  "type": "viafid"
+                },
+                "content": "ISNI|0000000108796160"
+              },
+              {
+                "ns1:match": {
+                  "type": "viafid"
+                },
+                "content": "ISNI|0000000108796160"
+              },
+              {
+                "ns1:match": {
+                  "type": "viafid"
+                },
+                "content": "ISNI|0000000108796160"
+              },
+              {
+                "ns1:match": {
+                  "type": "viafid"
+                },
+                "content": "ISNI|0000000108796160"
+              },
+              {
+                "ns1:match": {
+                  "type": "viafid"
+                },
+                "content": "ISNI|0000000108796160"
+              },
+              {
+                "ns1:match": {
+                  "type": "viafid"
+                },
+                "content": "J9U|987007599016005171"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "NTA|35198805X"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "GRATEVE|156401"
+              },
+              {
+                "ns1:match": {
+                  "type": "viafid"
+                },
+                "content": "DNB|119193256"
+              },
+              {
+                "ns1:match": {
+                  "type": "forced single date"
+                },
+                "content": "PTBNP|192009"
+              },
+              {
+                "ns1:match": {
+                  "type": "viafid"
+                },
+                "content": "ICCU|RAVV020606"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "BAV|495_21530"
+              },
+              {
+                "ns1:match": {
+                  "type": "forced single date"
+                },
+                "content": "CAOONL|ncf10671313"
+              },
+              {
+                "ns1:match": {
+                  "type": "viafid"
+                },
+                "content": "BAV|495_21531"
+              },
+              {
+                "ns1:match": {
+                  "type": "viafid"
+                },
+                "content": "NKC|ola2002142477"
+              },
+              {
+                "ns1:match": {
+                  "type": "forced single date"
+                },
+                "content": "PLWABN|9810682495105606"
+              },
+              {
+                "ns1:match": {
+                  "type": "viafid"
+                },
+                "content": "BNCHL|10000000000000000146228"
+              },
+              {
+                "ns1:match": {
+                  "type": "viafid"
+                },
+                "content": "BNF|12253497"
+              },
+              {
+                "ns1:match": {
+                  "type": "viafid"
+                },
+                "content": "RERO|A002915209"
+              },
+              {
+                "ns1:match": {
+                  "type": "forced single date"
+                },
+                "content": "NYNYRILM|387693"
+              },
+              {
+                "ns1:match": {
+                  "type": "suggested"
+                },
+                "content": "WKP|Q371439"
+              },
+              {
+                "ns1:match": {
+                  "type": "viafid"
+                },
+                "content": "SUDOC|031291147"
+              },
+              {
+                "ns1:match": {
+                  "type": "viafid"
+                },
+                "content": "DE633|pe30017008"
+              },
+              {
+                "ns1:match": {
+                  "type": "viafid"
+                },
+                "content": "NUKAT|n 2007010837"
+              }
+            ]
+          },
+          "ns1:id": "LC|n  85017531",
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": [
+              {
+                "code": "a",
+                "content": "Albergati Capacelli, Francesco,"
+              },
+              {
+                "code": "d",
+                "content": "1728-1804"
+              }
+            ],
+            "ind1": 1,
+            "dtype": "MARC21",
+            "tag": 100
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "NTA",
+            "ns1:sid": "NTA|35198805X"
+          },
+          "ns1:links": {
+            "ns1:link": [
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "ISNI|0000000108796160"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "ISNI|0000000108796160"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "ISNI|0000000108796160"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "ISNI|0000000108796160"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "ISNI|0000000108796160"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "J9U|987007599016005171"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "GRATEVE|156401"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "DNB|119193256"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "PTBNP|192009"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "BAV|495_21530"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "CAOONL|ncf10671313"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "LC|n  85017531"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "NKC|ola2002142477"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "PLWABN|9810682495105606"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "NUKAT|n 2007010837"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "NYNYRILM|387693"
+              },
+              {
+                "ns1:match": {
+                  "type": "suggested"
+                },
+                "content": "WKP|Q371439"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "SUDOC|031291147"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "BAV|495_21531"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "BNF|12253497"
+              }
+            ]
+          },
+          "ns1:id": "NTA|35198805X",
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": [
+              {
+                "code": "a",
+                "content": "Albergati Capacelli, Francesco,"
+              },
+              {
+                "code": "d",
+                "content": "1728-1804"
+              }
+            ],
+            "ind1": 1,
+            "dtype": "MARC21",
+            "tag": 100
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "NKC",
+            "ns1:sid": "NKC|ola2002142477"
+          },
+          "ns1:links": {
+            "ns1:link": [
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "ISNI|0000000108796160"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "ISNI|0000000108796160"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "ISNI|0000000108796160"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "ISNI|0000000108796160"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "ISNI|0000000108796160"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "J9U|987007599016005171"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "NTA|35198805X"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "GRATEVE|156401"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "DNB|119193256"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "PTBNP|192009"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "BAV|495_21530"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "CAOONL|ncf10671313"
+              },
+              {
+                "ns1:match": {
+                  "type": "viafid"
+                },
+                "content": "LC|n  85017531"
+              },
+              {
+                "ns1:match": {
+                  "type": "forced single date"
+                },
+                "content": "PLWABN|9810682495105606"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "BNF|12253497"
+              },
+              {
+                "ns1:match": {
+                  "type": "forced single date"
+                },
+                "content": "NYNYRILM|387693"
+              },
+              {
+                "ns1:match": {
+                  "type": "suggested"
+                },
+                "content": "WKP|Q371439"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "SUDOC|031291147"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "NUKAT|n 2007010837"
+              }
+            ]
+          },
+          "ns1:id": "NKC|ola2002142477",
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": [
+              {
+                "code": "a",
+                "content": "Albergati Capacelli, Francesco,"
+              },
+              {
+                "code": "d",
+                "content": "1728-1804"
+              },
+              {
+                "code": 7,
+                "content": "ola2002142477"
+              }
+            ],
+            "ind1": 1,
+            "dtype": "MARC21",
+            "tag": 100
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "J9U",
+            "ns1:sid": "J9U|987007599016005171"
+          },
+          "ns1:links": {
+            "ns1:link": [
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "ISNI|0000000108796160"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "ISNI|0000000108796160"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "ISNI|0000000108796160"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "ISNI|0000000108796160"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "ISNI|0000000108796160"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "NTA|35198805X"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "GRATEVE|156401"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "DNB|119193256"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "PTBNP|192009"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "BAV|495_21530"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "CAOONL|ncf10671313"
+              },
+              {
+                "ns1:match": {
+                  "type": "viafid"
+                },
+                "content": "LC|n  85017531"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "NKC|ola2002142477"
+              },
+              {
+                "ns1:match": {
+                  "type": "forced single date"
+                },
+                "content": "PLWABN|9810682495105606"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "BNF|12253497"
+              },
+              {
+                "ns1:match": {
+                  "type": "title"
+                },
+                "content": "RERO|A002915209"
+              },
+              {
+                "ns1:match": {
+                  "type": "forced single date"
+                },
+                "content": "NYNYRILM|387693"
+              },
+              {
+                "ns1:match": {
+                  "type": "suggested"
+                },
+                "content": "WKP|Q371439"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "SUDOC|031291147"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "NUKAT|n 2007010837"
+              }
+            ]
+          },
+          "ns1:id": "J9U|987007599016005171",
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": [
+              {
+                "code": "a",
+                "content": "Albergati Capacelli, Francesco,"
+              },
+              {
+                "code": "d",
+                "content": "1728-1804"
+              },
+              {
+                "code": 9,
+                "content": "lat"
+              }
+            ],
+            "ind1": 1,
+            "dtype": "MARC21",
+            "tag": 100
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "SUDOC",
+            "ns1:sid": "SUDOC|031291147"
+          },
+          "ns1:links": {
+            "ns1:link": [
+              {
+                "ns1:match": {
+                  "type": "suggested"
+                },
+                "content": "ISNI|0000000108796160"
+              },
+              {
+                "ns1:match": {
+                  "type": "suggested"
+                },
+                "content": "ISNI|0000000108796160"
+              },
+              {
+                "ns1:match": {
+                  "type": "suggested"
+                },
+                "content": "ISNI|0000000108796160"
+              },
+              {
+                "ns1:match": {
+                  "type": "suggested"
+                },
+                "content": "ISNI|0000000108796160"
+              },
+              {
+                "ns1:match": {
+                  "type": "suggested"
+                },
+                "content": "ISNI|0000000108796160"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "J9U|987007599016005171"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "NTA|35198805X"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "GRATEVE|156401"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "DNB|119193256"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "PTBNP|192009"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "BAV|495_21530"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "CAOONL|ncf10671313"
+              },
+              {
+                "ns1:match": {
+                  "type": "viafid"
+                },
+                "content": "LC|n  85017531"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "NKC|ola2002142477"
+              },
+              {
+                "ns1:match": {
+                  "type": "forced single date"
+                },
+                "content": "PLWABN|9810682495105606"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "BNF|12253497"
+              },
+              {
+                "ns1:match": {
+                  "type": "exact title"
+                },
+                "content": "RERO|A002915209"
+              },
+              {
+                "ns1:match": {
+                  "type": "forced single date"
+                },
+                "content": "NYNYRILM|387693"
+              },
+              {
+                "ns1:match": {
+                  "type": "suggested"
+                },
+                "content": "WKP|Q371439"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "NUKAT|n 2007010837"
+              }
+            ]
+          },
+          "ns1:id": "SUDOC|031291147",
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": [
+              {
+                "code": "a",
+                "content": "Albergati Capacelli, Francesco,"
+              },
+              {
+                "code": "d",
+                "content": "1728-1804"
+              }
+            ],
+            "ind1": 1,
+            "dtype": "MARC21",
+            "tag": 100
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "CAOONL",
+            "ns1:sid": "CAOONL|ncf10671313"
+          },
+          "ns1:links": {
+            "ns1:link": [
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "ISNI|0000000108796160"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "ISNI|0000000108796160"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "ISNI|0000000108796160"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "ISNI|0000000108796160"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "ISNI|0000000108796160"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "J9U|987007599016005171"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "NTA|35198805X"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "GRATEVE|156401"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "DNB|119193256"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "PTBNP|192009"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "BAV|495_21530"
+              },
+              {
+                "ns1:match": {
+                  "type": "viafid"
+                },
+                "content": "LC|n  85017531"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "NKC|ola2002142477"
+              },
+              {
+                "ns1:match": {
+                  "type": "forced single date"
+                },
+                "content": "PLWABN|9810682495105606"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "BNF|12253497"
+              },
+              {
+                "ns1:match": {
+                  "type": "forced single date"
+                },
+                "content": "NYNYRILM|387693"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "WKP|Q371439"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "SUDOC|031291147"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "NUKAT|n 2007010837"
+              }
+            ]
+          },
+          "ns1:id": "CAOONL|ncf10671313",
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": [
+              {
+                "code": "a",
+                "content": "Albergati Capacelli, Francesco,"
+              },
+              {
+                "code": "d",
+                "content": "1728-1804"
+              }
+            ],
+            "ind1": 1,
+            "dtype": "MARC21",
+            "tag": 100
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "PTBNP",
+            "ns1:sid": "PTBNP|192009"
+          },
+          "ns1:links": {
+            "ns1:link": [
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "ISNI|0000000108796160"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "ISNI|0000000108796160"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "ISNI|0000000108796160"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "ISNI|0000000108796160"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "ISNI|0000000108796160"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "J9U|987007599016005171"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "NTA|35198805X"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "GRATEVE|156401"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "DNB|119193256"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "BAV|495_21530"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "CAOONL|ncf10671313"
+              },
+              {
+                "ns1:match": {
+                  "type": "viafid"
+                },
+                "content": "LC|n  85017531"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "NKC|ola2002142477"
+              },
+              {
+                "ns1:match": {
+                  "type": "forced single date"
+                },
+                "content": "PLWABN|9810682495105606"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "BNF|12253497"
+              },
+              {
+                "ns1:match": {
+                  "type": "forced single date"
+                },
+                "content": "NYNYRILM|387693"
+              },
+              {
+                "ns1:match": {
+                  "type": "suggested"
+                },
+                "content": "WKP|Q371439"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "SUDOC|031291147"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "NUKAT|n 2007010837"
+              }
+            ]
+          },
+          "ns1:id": "PTBNP|192009",
+          "ns1:datafield": {
+            "ind2": 1,
+            "ns1:subfield": [
+              {
+                "code": "a",
+                "content": "Albergati Capacelli,"
+              },
+              {
+                "code": "b",
+                "content": "Francesco,"
+              },
+              {
+                "code": "f",
+                "content": "1728-1804"
+              }
+            ],
+            "ind1": " ",
+            "dtype": "UNIMARC",
+            "tag": 200
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "BAV",
+            "ns1:sid": "BAV|495_21531"
+          },
+          "ns1:links": {
+            "ns1:link": [
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "ISNI|0000000108796160"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "ISNI|0000000108796160"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "ISNI|0000000108796160"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "ISNI|0000000108796160"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "ISNI|0000000108796160"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "NTA|35198805X"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "GRATEVE|156401"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "DNB|119193256"
+              },
+              {
+                "ns1:match": {
+                  "type": "viafid"
+                },
+                "content": "LC|n  85017531"
+              },
+              {
+                "ns1:match": {
+                  "type": "viafid"
+                },
+                "content": "PLWABN|9810682495105606"
+              },
+              {
+                "ns1:match": {
+                  "type": "viafid"
+                },
+                "content": "NYNYRILM|387693"
+              }
+            ]
+          },
+          "ns1:id": "BAV|495_21531",
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": [
+              {
+                "code": "a",
+                "content": "Albergati, Francesco,"
+              },
+              {
+                "code": "c",
+                "content": "marchese,"
+              },
+              {
+                "code": "d",
+                "content": "1728-1804"
+              }
+            ],
+            "ind1": 1,
+            "dtype": "MARC21",
+            "tag": 100
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "NYNYRILM",
+            "ns1:sid": "NYNYRILM|387693"
+          },
+          "ns1:links": {
+            "ns1:link": [
+              {
+                "ns1:match": {
+                  "type": "forced single date"
+                },
+                "content": "ISNI|0000000108796160"
+              },
+              {
+                "ns1:match": {
+                  "type": "forced single date"
+                },
+                "content": "ISNI|0000000108796160"
+              },
+              {
+                "ns1:match": {
+                  "type": "forced single date"
+                },
+                "content": "ISNI|0000000108796160"
+              },
+              {
+                "ns1:match": {
+                  "type": "forced single date"
+                },
+                "content": "ISNI|0000000108796160"
+              },
+              {
+                "ns1:match": {
+                  "type": "forced single date"
+                },
+                "content": "ISNI|0000000108796160"
+              },
+              {
+                "ns1:match": {
+                  "type": "viafid"
+                },
+                "content": "J9U|987007599016005171"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "NTA|35198805X"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "GRATEVE|156401"
+              },
+              {
+                "ns1:match": {
+                  "type": "viafid"
+                },
+                "content": "DNB|119193256"
+              },
+              {
+                "ns1:match": {
+                  "type": "forced single date"
+                },
+                "content": "PTBNP|192009"
+              },
+              {
+                "ns1:match": {
+                  "type": "viafid"
+                },
+                "content": "ICCU|RAVV020606"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "BAV|495_21530"
+              },
+              {
+                "ns1:match": {
+                  "type": "forced single date"
+                },
+                "content": "CAOONL|ncf10671313"
+              },
+              {
+                "ns1:match": {
+                  "type": "viafid"
+                },
+                "content": "LC|n  85017531"
+              },
+              {
+                "ns1:match": {
+                  "type": "viafid"
+                },
+                "content": "NKC|ola2002142477"
+              },
+              {
+                "ns1:match": {
+                  "type": "forced single date"
+                },
+                "content": "PLWABN|9810682495105606"
+              },
+              {
+                "ns1:match": {
+                  "type": "viafid"
+                },
+                "content": "BNCHL|10000000000000000146228"
+              },
+              {
+                "ns1:match": {
+                  "type": "viafid"
+                },
+                "content": "BNF|12253497"
+              },
+              {
+                "ns1:match": {
+                  "type": "viafid"
+                },
+                "content": "RERO|A002915209"
+              },
+              {
+                "ns1:match": {
+                  "type": "viafid"
+                },
+                "content": "DE633|pe30017008"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "WKP|Q371439"
+              },
+              {
+                "ns1:match": {
+                  "type": "viafid"
+                },
+                "content": "SUDOC|031291147"
+              },
+              {
+                "ns1:match": {
+                  "type": "viafid"
+                },
+                "content": "BAV|495_21531"
+              },
+              {
+                "ns1:match": {
+                  "type": "viafid"
+                },
+                "content": "NUKAT|n 2007010837"
+              }
+            ]
+          },
+          "ns1:id": "NYNYRILM|387693",
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": {
+              "code": "a",
+              "content": "Capacelli, Francesco Albergati"
+            },
+            "ind1": 1,
+            "dtype": "MARC21",
+            "tag": 100
+          }
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "WKP",
+            "ns1:sid": "WKP|Q371439"
+          },
+          "ns1:links": {
+            "ns1:link": [
+              {
+                "ns1:match": {
+                  "type": "suggested"
+                },
+                "content": "ISNI|0000000108796160"
+              },
+              {
+                "ns1:match": {
+                  "type": "suggested"
+                },
+                "content": "ISNI|0000000108796160"
+              },
+              {
+                "ns1:match": {
+                  "type": "suggested"
+                },
+                "content": "ISNI|0000000108796160"
+              },
+              {
+                "ns1:match": {
+                  "type": "suggested"
+                },
+                "content": "ISNI|0000000108796160"
+              },
+              {
+                "ns1:match": {
+                  "type": "suggested"
+                },
+                "content": "ISNI|0000000108796160"
+              },
+              {
+                "ns1:match": {
+                  "type": "suggested"
+                },
+                "content": "J9U|987007599016005171"
+              },
+              {
+                "ns1:match": {
+                  "type": "suggested"
+                },
+                "content": "NTA|35198805X"
+              },
+              {
+                "ns1:match": {
+                  "type": "suggested"
+                },
+                "content": "GRATEVE|156401"
+              },
+              {
+                "ns1:match": {
+                  "type": "suggested"
+                },
+                "content": "DNB|119193256"
+              },
+              {
+                "ns1:match": {
+                  "type": "suggested"
+                },
+                "content": "PTBNP|192009"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "BAV|495_21530"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "CAOONL|ncf10671313"
+              },
+              {
+                "ns1:match": {
+                  "type": "suggested"
+                },
+                "content": "LC|n  85017531"
+              },
+              {
+                "ns1:match": {
+                  "type": "suggested"
+                },
+                "content": "NKC|ola2002142477"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "PLWABN|9810682495105606"
+              },
+              {
+                "ns1:match": {
+                  "type": "suggested"
+                },
+                "content": "BNF|12253497"
+              },
+              {
+                "ns1:match": {
+                  "type": "double date"
+                },
+                "content": "NYNYRILM|387693"
+              },
+              {
+                "ns1:match": {
+                  "type": "suggested"
+                },
+                "content": "SUDOC|031291147"
+              },
+              {
+                "ns1:match": {
+                  "type": "suggested"
+                },
+                "content": "NUKAT|n 2007010837"
+              }
+            ]
+          },
+          "ns1:id": "WKP|Q371439",
+          "ns1:datafield": {
+            "ind2": " ",
+            "ns1:subfield": [
+              {
+                "code": "a",
+                "content": "Francesco Albergati Capacelli"
+              },
+              {
+                "code": "c",
+                "content": "auteur dramatique, théoricien du théâtre, Mécène"
+              },
+              {
+                "code": 9,
+                "content": "fr"
+              }
+            ],
+            "ind1": 0,
+            "dtype": "MARC21",
+            "tag": 100
+          }
+        }
+      ]
+    },
+    "ns1:fixed": {
+      "ns1:gender": "b"
+    },
+    "ns1:RelatorCodes": {
+      "ns1:data": [
+        {
+          "ns1:sources": {
+            "ns1:s": "BNF",
+            "ns1:sid": "BNF|12253497"
+          },
+          "count": 1,
+          "ns1:text": "010"
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "BNF",
+            "ns1:sid": "BNF|12253497"
+          },
+          "count": 29,
+          "ns1:text": "070"
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "BNF",
+            "ns1:sid": "BNF|12253497"
+          },
+          "count": 2,
+          "ns1:text": 570
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": [
+              "PTBNP",
+              "BNF"
+            ],
+            "ns1:sid": [
+              "PTBNP|192009",
+              "BNF|12253497"
+            ]
+          },
+          "count": 11,
+          "ns1:text": 730
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "SUDOC",
+            "ns1:sid": "SUDOC|031291147"
+          },
+          "count": 3,
+          "ns1:text": "auteur"
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "SUDOC",
+            "ns1:sid": "SUDOC|031291147"
+          },
+          "count": 1,
+          "ns1:text": "dedicataire"
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "SUDOC",
+            "ns1:sid": "SUDOC|031291147"
+          },
+          "count": 1,
+          "ns1:text": "destinataire"
+        }
+      ]
+    },
+    "ns1:Document": {
+      "ns1:inDataset": {
+        "resource": "http://viaf.org/viaf/data"
+      },
+      "ns1:primaryTopic": {
+        "resource": "http://viaf.org/viaf/24658555"
+      },
+      "about": "http://viaf.org/viaf/24658555/"
+    },
+    "ns1:titles": {
+      "ns1:work": [
+        {
+          "ns1:sources": {
+            "ns1:s": [
+              "ICCU",
+              "XR",
+              "BAV",
+              "BNF"
+            ],
+            "ns1:sid": [
+              "ICCU|RAVV020606",
+              "XR|VIAFWORKNUKATn 2010125741",
+              "BAV|495_21530",
+              "BNF|12253497"
+            ]
+          },
+          "ns1:title": "Accademia di musica",
+          "id": "VIAF|2968165326470616290004"
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "BNF",
+            "ns1:sid": "BNF|12253497"
+          },
+          "ns1:title": "amor finto e l'amor vers commedia d'un atto solo del"
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "NUKAT",
+            "ns1:sid": "NUKAT|n 2007010837"
+          },
+          "ns1:title": "Ape comica italiana dopo il Goldoni. Vol. 5. - Venezia, 1832."
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "BAV",
+            "ns1:sid": "BAV|495_21530"
+          },
+          "ns1:title": "Burbero di buon cuore."
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "BAV",
+            "ns1:sid": "BAV|495_21530"
+          },
+          "ns1:title": "Capriccio."
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": [
+              "XR",
+              "BAV",
+              "BNF"
+            ],
+            "ns1:sid": [
+              "XR|VIAFWORKNUKATn 2010125742",
+              "BAV|495_21530",
+              "BNF|12253497"
+            ]
+          },
+          "ns1:title": "Ciarlatani per mestiere",
+          "id": "VIAF|470165326443816290005"
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": [
+              "ICCU",
+              "BAV",
+              "XR",
+              "BNF"
+            ],
+            "ns1:sid": [
+              "ICCU|RAVV020606",
+              "BAV|495_21530",
+              "XR|VIAFWORKNUKATn 2010160973",
+              "BNF|12253497"
+            ]
+          },
+          "ns1:title": "Ciarlatore maldicente",
+          "id": "VIAF|3958165326493916290007"
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "BAV",
+            "ns1:sid": "BAV|495_21530"
+          },
+          "ns1:title": "Clementina e Dorvignì"
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "RERO",
+            "ns1:sid": "RERO|A002915209"
+          },
+          "ns1:title": "Collezione completa delle commedie"
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": [
+              "BAV",
+              "ICCU",
+              "BNF"
+            ],
+            "ns1:sid": [
+              "BAV|10495_20008",
+              "ICCU|RAVV020606",
+              "BAV|495_21530",
+              "BNF|12253497"
+            ]
+          },
+          "ns1:title": "Convulsioni",
+          "id": "VIAF|10159474323527662748"
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": [
+              "BAV",
+              "RERO"
+            ],
+            "ns1:sid": [
+              "BAV|495_21530",
+              "RERO|A002915209"
+            ]
+          },
+          "ns1:title": "Del governo de' costumi"
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": [
+              "BAV",
+              "NUKAT",
+              "BNF"
+            ],
+            "ns1:sid": [
+              "BAV|495_21530",
+              "NUKAT|n 2007010837",
+              "BNF|12253497"
+            ]
+          },
+          "ns1:title": "Della drammatica"
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "BAV",
+            "ns1:sid": "BAV|495_21530"
+          },
+          "ns1:title": "Du gouvernement des moeurs"
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "RERO",
+            "ns1:sid": "RERO|A002915209"
+          },
+          "ns1:title": "Educazione morale"
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": [
+              "BAV",
+              "BNF"
+            ],
+            "ns1:sid": [
+              "BAV|495_21530",
+              "BNF|12253497"
+            ]
+          },
+          "ns1:title": "Emilia e Franval, dramma in cinque atti in prosa..."
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "BAV",
+            "ns1:sid": "BAV|495_21530"
+          },
+          "ns1:title": "Gazzettiere"
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": [
+              "PTBNP",
+              "BAV"
+            ],
+            "ns1:sid": [
+              "PTBNP|192009",
+              "BAV|495_21530"
+            ]
+          },
+          "ns1:title": "Ines di Castro"
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "BAV",
+            "ns1:sid": "BAV|495_21530"
+          },
+          "ns1:title": "Intrigants"
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "BAV",
+            "ns1:sid": "BAV|495_21530"
+          },
+          "ns1:title": "Lettere"
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "BAV",
+            "ns1:sid": "BAV|495_21530"
+          },
+          "ns1:title": "Li Gauri."
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "BAV",
+            "ns1:sid": "BAV|495_21530"
+          },
+          "ns1:title": "L'Idomeneo."
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "SUDOC",
+            "ns1:sid": "SUDOC|031291147"
+          },
+          "ns1:title": "La lingua di Arlecchino"
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "PTBNP",
+            "ns1:sid": "PTBNP|192009"
+          },
+          "ns1:title": "marquês de Grimacei ou Pascoal"
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "BAV",
+            "ns1:sid": "BAV|495_21530"
+          },
+          "ns1:title": "matrimonio improvviso."
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "BAV",
+            "ns1:sid": "BAV|495_21530"
+          },
+          "ns1:title": "Morto vivo commedia"
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": [
+              "BAV",
+              "BNF",
+              "XR"
+            ],
+            "ns1:sid": [
+              "BAV|495_21530",
+              "BNF|12253497",
+              "XR|VIAFWORK27281847"
+            ]
+          },
+          "ns1:title": "Notte",
+          "id": "VIAF|308609586"
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "SUDOC",
+            "ns1:sid": "SUDOC|031291147"
+          },
+          "ns1:title": "Nuova scelta di lettere : tratte dai più celebri autori antichi e moderni"
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": [
+              "BAV",
+              "BNF"
+            ],
+            "ns1:sid": [
+              "BAV|495_21530",
+              "BNF|12253497"
+            ]
+          },
+          "ns1:title": "Oh! che bel caso! Commedia d'un atto solo in prosa."
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": [
+              "NTA",
+              "SUDOC"
+            ],
+            "ns1:sid": [
+              "NTA|35198805X",
+              "SUDOC|031291147"
+            ]
+          },
+          "ns1:title": "Opere"
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": [
+              "BNF",
+              "RERO",
+              "ICCU",
+              "SUDOC",
+              "BAV"
+            ],
+            "ns1:sid": [
+              "BNF|12253497",
+              "RERO|A002915209",
+              "ICCU|RAVV020606",
+              "SUDOC|031291147",
+              "BAV|495_21530"
+            ]
+          },
+          "ns1:title": "Opere di Francesco Albergati Capacelli."
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "SUDOC",
+            "ns1:sid": "SUDOC|031291147"
+          },
+          "ns1:title": "Opere drammatiche complete e scelte prose"
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "BAV",
+            "ns1:sid": "BAV|495_21530"
+          },
+          "ns1:title": "Ottimista ossia L'uomo contento di tutto"
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": [
+              "BAV",
+              "BNF"
+            ],
+            "ns1:sid": [
+              "BAV|495_21530",
+              "BNF|12253497"
+            ]
+          },
+          "ns1:title": "Pasquale commedia"
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "BAV",
+            "ns1:sid": "BAV|495_21530"
+          },
+          "ns1:title": "Per la solenne distribuzione de' premj agli studiosi di pittura, scultura e architettura dell'Accademia Clementina. Orazione recitata nell'Istituto delle Scienze di Bologna il dí 27. giugno l'anno 1772."
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "BAV",
+            "ns1:sid": "BAV|495_21530"
+          },
+          "ns1:title": "Phèdre"
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "BAV",
+            "ns1:sid": "BAV|495_21530"
+          },
+          "ns1:title": "I pregiudizj del falso onore. Commedia in tre atti in prosa."
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": [
+              "XR",
+              "SUDOC",
+              "BAV",
+              "BNF"
+            ],
+            "ns1:sid": [
+              "XR|VIAFWORK1152797346",
+              "SUDOC|031291147",
+              "BAV|495_21530",
+              "BNF|12253497"
+            ]
+          },
+          "ns1:title": "Prigioniero: commedia",
+          "id": "VIAF|787158915915150000007"
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "BAV",
+            "ns1:sid": "BAV|495_21530"
+          },
+          "ns1:title": "raggiratori"
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "BAV",
+            "ns1:sid": "BAV|495_21530"
+          },
+          "ns1:title": "Rodolfo"
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": [
+              "XR",
+              "SUDOC",
+              "BNF"
+            ],
+            "ns1:sid": [
+              "XR|VIAFWORKNUKATn 2010160974",
+              "SUDOC|031291147",
+              "BNF|12253497"
+            ]
+          },
+          "ns1:title": "Saggio amico",
+          "id": "VIAF|6809165326520916290005"
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": [
+              "J9U",
+              "DNB",
+              "RERO",
+              "PLWABN",
+              "SUDOC",
+              "LC"
+            ],
+            "ns1:sid": [
+              "J9U|987007599016005171",
+              "DNB|119193256",
+              "RERO|A002915209",
+              "PLWABN|9810682495105606",
+              "SUDOC|031291147",
+              "LC|n  85017531"
+            ]
+          },
+          "ns1:title": "Scelta di commedie e novelle morali del Marchese Albergati Capacelli : in due tomi. Dedicata, con permissione, a sua maestà la Regina della Gran Brettagna, dall' editore Antonio Ravelli."
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "BAV",
+            "ns1:sid": "BAV|495_21530"
+          },
+          "ns1:title": "Serata alla moda"
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "BNF",
+            "ns1:sid": "BNF|12253497"
+          },
+          "ns1:title": "Sofa, commedia di cinque atti..."
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "BAV",
+            "ns1:sid": "BAV|495_21530"
+          },
+          "ns1:title": "Sonnambulo farsa"
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "SUDOC",
+            "ns1:sid": "SUDOC|031291147"
+          },
+          "ns1:title": "Tancrede, tragedie."
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": [
+              "XR",
+              "SUDOC",
+              "BAV",
+              "BNF"
+            ],
+            "ns1:sid": [
+              "XR|VIAFWORKNUKATn 2010162675",
+              "SUDOC|031291147",
+              "BAV|495_21530",
+              "BNF|12253497"
+            ]
+          },
+          "ns1:title": "Tarantola",
+          "id": "VIAF|9999165326378416290007"
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": [
+              "SUDOC",
+              "NUKAT"
+            ],
+            "ns1:sid": [
+              "SUDOC|031291147",
+              "NUKAT|n 2007010837"
+            ]
+          },
+          "ns1:title": "Teatro italiano scelto : commedie di Carlo Goldoni, Albergati Capacelli, Giovanni Giraud ed Alberto Nota scelte ad uso degli studiosi della lingua italiana. - Parigi, 1855."
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "BAV",
+            "ns1:sid": "BAV|495_21530"
+          },
+          "ns1:title": "Il teatro moderno applaudito ossia raccolta di tragedie, commedie, drammi e farse che godono presentemente del più alto favore sui pubblici teatri, cosi italiani, come stranieri; corredata di notizie storico critiche e del Giornale dei teatri di Venezia."
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "PTBNP",
+            "ns1:sid": "PTBNP|192009"
+          },
+          "ns1:title": "Teatro Português"
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "XR",
+            "ns1:sid": "XR|VIAFWORKNUKATn 2010125743"
+          },
+          "ns1:title": "Uomo di garbo",
+          "id": "VIAF|8282165326503116290006"
+        }
+      ]
+    },
+    "ns1:history": {
+      "ns1:ht": [
+        {
+          "time": "2009-03-03T12:03:18+00:00",
+          "type": "add",
+          "recid": "BNF|12253497"
+        },
+        {
+          "time": "2009-03-03T12:03:26+00:00",
+          "type": "add",
+          "recid": "DNB|119193256"
+        },
+        {
+          "time": "2009-03-03T12:03:33+00:00",
+          "type": "add",
+          "recid": "LC|n  85017531"
+        },
+        {
+          "time": "2009-05-07T09:10:53+00:00",
+          "type": "add",
+          "recid": "NKC|ola2002142477"
+        },
+        {
+          "time": "2009-09-21T11:33:07+00:00",
+          "type": "add",
+          "recid": "PTBNP|192009"
+        },
+        {
+          "time": "2011-12-15T07:58:55+00:00",
+          "type": "add",
+          "recid": "SUDOC|031291147"
+        },
+        {
+          "time": "2012-11-27T04:00:16+00:00",
+          "type": "delete",
+          "recid": "BIBSYS|x97007711"
+        },
+        {
+          "time": "2012-12-19T19:11:18+00:00",
+          "type": "add",
+          "recid": "NTA|35198805X"
+        },
+        {
+          "time": "2013-11-23T21:33:28+00:00",
+          "type": "add",
+          "recid": "ICCU|RAVV020606"
+        },
+        {
+          "time": "2014-05-14T22:19:01+00:00",
+          "type": "add",
+          "recid": "ISNI|0000000108796160"
+        },
+        {
+          "time": "2014-10-27T16:17:29+00:00",
+          "type": "add",
+          "recid": "NUKAT|n 2007010837"
+        },
+        {
+          "time": "2015-04-14T18:56:54+00:00",
+          "type": "add",
+          "recid": "WKP|Q371439"
+        },
+        {
+          "time": "2015-04-14T18:56:54+00:00",
+          "type": "delete",
+          "recid": "WKP|Francesco_Albergati_Capacelli"
+        },
+        {
+          "time": "2019-05-29T17:43:02.141737+00:00",
+          "type": "add",
+          "recid": "BNCHL|10000000000000000146228"
+        },
+        {
+          "time": "2019-06-09T13:39:21.411688+00:00",
+          "type": "add",
+          "recid": "PLWABN|9810682495105606"
+        },
+        {
+          "time": "2019-07-14T13:05:55.231847+00:00",
+          "type": "delete",
+          "recid": "NLP|a17421780"
+        },
+        {
+          "time": "2020-02-02T17:38:59.070760+00:00",
+          "type": "add",
+          "recid": "J9U|987007599016005171"
+        },
+        {
+          "time": "2020-04-12T12:59:09.238923+00:00",
+          "type": "delete",
+          "recid": "NLI|002078714"
+        },
+        {
+          "time": "2020-06-16T20:50:26.766361+00:00",
+          "type": "delete",
+          "recid": "RERO|vtls002915209"
+        },
+        {
+          "time": "2020-06-17T22:49:15.594427+00:00",
+          "type": "add",
+          "recid": "RERO|A002915209"
+        },
+        {
+          "time": "2020-07-14T11:34:33.843263+00:00",
+          "type": "delete",
+          "recid": "BAV|ADV10223396"
+        },
+        {
+          "time": "2020-07-14T12:41:54.061554+00:00",
+          "type": "delete",
+          "recid": "BAV|ADV12303127"
+        },
+        {
+          "time": "2020-07-14T14:48:54.451539+00:00",
+          "type": "add",
+          "recid": "CAOONL|ncf10671313"
+        },
+        {
+          "time": "2021-04-18T21:37:48.278182+00:00",
+          "type": "add",
+          "recid": "BAV|495_21530"
+        },
+        {
+          "time": "2023-07-04T11:11:28.364575+00:00",
+          "type": "add",
+          "recid": "DE633|pe30017008"
+        },
+        {
+          "time": "2023-07-31T02:19:50.940633+00:00",
+          "type": "delete",
+          "recid": "DE663|pe30017008"
+        },
+        {
+          "time": "2024-02-22T20:12:47.012714+00:00",
+          "type": "add",
+          "recid": "NYNYRILM|387693"
+        },
+        {
+          "time": "2025-03-17T21:36:57.093685+00:00",
+          "type": "add",
+          "recid": "GRATEVE|156401"
+        },
+        {
+          "time": "2025-03-17T21:36:57.098433+00:00",
+          "type": "add",
+          "recid": "BAV|495_21531"
+        },
+        {
+          "time": "2025-04-20T01:11:59.375661+00:00",
+          "type": "delete",
+          "recid": "DE633|people30017008"
+        }
+      ]
+    },
+    "ns1:coauthors": {
+      "ns1:data": [
+        {
+          "ns1:sources": {
+            "ns1:s": [
+              "ISNI",
+              "PTBNP",
+              "BAV",
+              "BNF"
+            ],
+            "ns1:sid": [
+              "ISNI|0000000108796160",
+              "PTBNP|192009",
+              "BAV|495_21530",
+              "BNF|12253497"
+            ]
+          },
+          "count": 5,
+          "ns1:text": "La Motte, Antoine Houdar de 1672-1731",
+          "tag": 950
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": [
+              "ISNI",
+              "SUDOC"
+            ],
+            "ns1:sid": [
+              "ISNI|0000000108796160",
+              "SUDOC|031291147"
+            ]
+          },
+          "count": 2,
+          "ns1:text": "Zacchiroli, francesco 1750-1826)",
+          "tag": 950
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": [
+              "ISNI",
+              "SUDOC"
+            ],
+            "ns1:sid": [
+              "ISNI|0000000108796160",
+              "SUDOC|031291147"
+            ]
+          },
+          "count": 2,
+          "ns1:text": "Trovato, Roberto",
+          "tag": 950
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": [
+              "ISNI",
+              "BAV"
+            ],
+            "ns1:sid": [
+              "ISNI|0000000108796160",
+              "BAV|495_21530"
+            ]
+          },
+          "count": 2,
+          "ns1:text": "Racine, Jean Baptiste 1639-1699",
+          "tag": 950
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": [
+              "ISNI",
+              "BNF"
+            ],
+            "ns1:sid": [
+              "ISNI|0000000108796160",
+              "BNF|12253497"
+            ]
+          },
+          "count": 2,
+          "ns1:text": "Pont-de-Veyle, Antoine de Fériol 1697-1774 comte de",
+          "tag": 950
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": [
+              "SUDOC",
+              "BNF"
+            ],
+            "ns1:sid": [
+              "SUDOC|031291147",
+              "BNF|12253497"
+            ]
+          },
+          "count": 2,
+          "ns1:text": "Pepoli, Alessandro 1757-1796",
+          "tag": 950
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "SUDOC",
+            "ns1:sid": "SUDOC|031291147"
+          },
+          "count": 2,
+          "ns1:text": "Gozzi, Carlo (1720-1806).",
+          "tag": 950
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "RERO",
+            "ns1:sid": "RERO|A002915209"
+          },
+          "count": 2,
+          "ns1:text": "Comparet, Jean-Antoine",
+          "tag": 950
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "BNF",
+            "ns1:sid": "BNF|12253497"
+          },
+          "count": 1,
+          "ns1:text": "Sellent, Juan 17..-18.. libraire",
+          "tag": 950
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "BAV",
+            "ns1:sid": "BAV|495_21530"
+          },
+          "count": 1,
+          "ns1:text": "Monvel, 1745-1812",
+          "tag": 950
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "BAV",
+            "ns1:sid": "BAV|495_21530"
+          },
+          "count": 1,
+          "ns1:text": "Grassi, Giuseppe, 1779-1831",
+          "tag": 950
+        }
+      ]
+    },
+    "ns1:xLinks": {
+      "ns1:xLink": [
+        {
+          "ns1:sources": {
+            "ns1:s": "WKP",
+            "ns1:sid": "WKP|Q371439"
+          },
+          "type": "Wikipedia",
+          "content": "https://en.wikipedia.org/wiki/Francesco_Albergati_Capacelli"
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "WKP",
+            "ns1:sid": "WKP|Q371439"
+          },
+          "type": "Wikipedia",
+          "content": "https://fr.wikipedia.org/wiki/Francesco_Albergati_Capacelli"
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "WKP",
+            "ns1:sid": "WKP|Q371439"
+          },
+          "type": "Wikipedia",
+          "content": "https://it.wikipedia.org/wiki/Francesco_Albergati_Capacelli"
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "WKP",
+            "ns1:sid": "WKP|Q371439"
+          },
+          "type": "Wikipedia",
+          "content": "https://ru.wikipedia.org/wiki/Альбергати,_Франческо"
+        }
+      ]
+    },
+    "ns1:birthDate": "1728-04-19",
+    "ns1:occupation": {
+      "ns1:data": [
+        {
+          "ns1:sources": {
+            "ns1:s": [
+              "J9U",
+              "LC"
+            ]
+          },
+          "ns1:text": "translators"
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": [
+              "J9U",
+              "LC"
+            ]
+          },
+          "ns1:text": "senators"
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "LC"
+          },
+          "ns1:text": "writers"
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "NYNYRILM"
+          },
+          "ns1:text": "writer"
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "J9U"
+          },
+          "ns1:text": "politicians"
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "LC"
+          },
+          "ns1:text": "playwrights"
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "NYNYRILM"
+          },
+          "ns1:text": "playwright"
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "J9U"
+          },
+          "ns1:text": "dramatists"
+        },
+        {
+          "ns1:sources": {
+            "ns1:s": "J9U"
+          },
+          "ns1:text": "authors"
+        }
+      ]
+    }
+  }
+}

@@ -13,8 +13,8 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.UUID;
-import javax.servlet.http.HttpServletRequest;
 
+import jakarta.servlet.http.HttpServletRequest;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.dspace.app.rest.Parameter;
@@ -67,10 +67,11 @@ import org.springframework.web.multipart.MultipartFile;
  * @author Andrea Bollini (andrea.bollini at 4science.it)
  */
 
-@Component(WorkflowItemRest.CATEGORY + "." + WorkflowItemRest.NAME)
+@Component(WorkflowItemRest.CATEGORY + "." + WorkflowItemRest.PLURAL_NAME)
 public class WorkflowItemRestRepository extends DSpaceRestRepository<WorkflowItemRest, Integer> {
 
     public static final String OPERATION_PATH_SECTIONS = "sections";
+    public static final String REQUESTPARAMETER_EXPUNGE = "expunge";
 
     private static final Logger log = LogManager.getLogger();
 
@@ -257,13 +258,25 @@ public class WorkflowItemRestRepository extends DSpaceRestRepository<WorkflowIte
      * move the workflowitem back to the submitter workspace regardless to how the workflow is designed
      */
     protected void delete(Context context, Integer id) {
+        String expungeParam = getRequestService()
+            .getCurrentRequest()
+            .getServletRequest()
+            .getParameter(REQUESTPARAMETER_EXPUNGE);
+        boolean expunge = false;
+        if (expungeParam != null) {
+            expunge = Boolean.parseBoolean(expungeParam);
+        }
         XmlWorkflowItem witem = null;
         try {
             witem = wis.find(context, id);
             if (witem == null) {
                 throw new ResourceNotFoundException("WorkflowItem ID " + id + " not found");
             }
-            wfs.abort(context, witem, context.getCurrentUser());
+            if (expunge) {
+                wis.delete(context, witem);
+            } else {
+                wfs.abort(context, witem, context.getCurrentUser());
+            }
         } catch (AuthorizeException e) {
             throw new RESTAuthorizationException(e);
         } catch (SQLException e) {

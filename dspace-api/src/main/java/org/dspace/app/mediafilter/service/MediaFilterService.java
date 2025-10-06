@@ -8,6 +8,7 @@
 package org.dspace.app.mediafilter.service;
 
 import java.sql.SQLException;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 
@@ -36,7 +37,8 @@ public interface MediaFilterService {
     public static final String FILTER_PLUGIN_SEPARATOR = "\034";
 
 
-    public void applyFiltersAllItems(Context context) throws Exception;
+    public void applyFiltersAllItems(Context context, int sinceLastDays, String[] skipBundles)
+        throws Exception;
 
     public void applyFiltersCommunity(Context context, Community community)
         throws Exception;
@@ -149,4 +151,6 @@ public interface MediaFilterService {
      * @param handler
      */
     public void setLogHandler(DSpaceRunnableHandler handler);
+
+    public void setFromDate(LocalDate fromDate);
 }

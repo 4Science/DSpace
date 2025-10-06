@@ -9,18 +9,22 @@ package org.dspace.xmlworkflow;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.MissingResourceException;
+import java.util.TimeZone;
 import java.util.UUID;
-import javax.mail.MessagingException;
-import javax.servlet.http.HttpServletRequest;
 
+import jakarta.mail.MessagingException;
+import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.Logger;
@@ -225,6 +229,7 @@ public class XmlWorkflowServiceImpl implements XmlWorkflowService {
             grantSubmitterReadPolicies(context, myitem);
 
             context.turnOffAuthorisationSystem();
+            addStartDateMetadata(context, myitem);
             Step firstStep = wf.getFirstStep();
             if (firstStep.isValidStep(context, wfi)) {
                 activateFirstStep(context, wf, firstStep, wfi);
@@ -249,12 +254,19 @@ public class XmlWorkflowServiceImpl implements XmlWorkflowService {
                     itemService.getIdentifiers(context, wfi.getItem())));
 
             }
-
             context.restoreAuthSystemState();
             return wfi;
         } catch (WorkflowConfigurationException e) {
             throw new WorkflowException(e);
         }
+    }
+
+    private void addStartDateMetadata(Context context, Item myitem) throws SQLException, AuthorizeException {
+        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+        dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+        String date = dateFormat.format(new Date());
+        itemService.addMetadata(context, myitem,"dspace", "workflow","startDateTime", null, date);
+        itemService.update(context, myitem);
     }
 
     //TODO: this is currently not used in our notifications. Look at the code used by the original WorkflowManager
@@ -502,8 +514,7 @@ public class XmlWorkflowServiceImpl implements XmlWorkflowService {
                     workflowRequirementsService.addFinishedUser(c, wfi, user);
                     c.turnOffAuthorisationSystem();
                     //Check if our requirements have been met
-                    if ((currentStep.isFinished(c, wfi) && currentOutcome
-                        .getResult() == ActionResult.OUTCOME_COMPLETE) || currentOutcome
+                    if (currentStep.isFinished(c, wfi) || currentOutcome
                         .getResult() != ActionResult.OUTCOME_COMPLETE) {
                         //Delete all the table rows containing the users who performed this task
                         workflowRequirementsService.clearInProgressUsers(c, wfi);
@@ -1145,7 +1156,7 @@ public class XmlWorkflowServiceImpl implements XmlWorkflowService {
 
         // Here's what happened
         String provDescription =
-            provenance + " Declined by " + getEPersonName(decliner) + " on " + DCDate.getCurrent().toString() +
+            provenance + " Declined by " + getEPersonName(decliner) + " on " + DCDate.getCurrent() +
                 " (GMT) ";
 
         // Add to item as a DC field
@@ -1250,14 +1261,20 @@ public class XmlWorkflowServiceImpl implements XmlWorkflowService {
         // Create provenance description
         StringBuffer provmessage = new StringBuffer();
 
-        if (myitem.getSubmitter() != null) {
+        //behavior to generate provenance message, if set true, personal data (e.g. email) of submitter will be hidden
+        //default value false, personal data of submitter will be shown in provenance message
+        String isProvenancePrivacyActiveProperty =
+                configurationService.getProperty("metadata.privacy.dc.description.provenance", "false");
+        boolean isProvenancePrivacyActive = Boolean.parseBoolean(isProvenancePrivacyActiveProperty);
+
+        if (myitem.getSubmitter() != null && !isProvenancePrivacyActive) {
             provmessage.append("Submitted by ").append(myitem.getSubmitter().getFullName())
-                .append(" (").append(myitem.getSubmitter().getEmail()).append(") on ")
-                .append(now.toString());
+                    .append(" (").append(myitem.getSubmitter().getEmail()).append(") on ")
+                    .append(now);
         } else {
             // else, null submitter
-            provmessage.append("Submitted by unknown (probably automated) on")
-                .append(now.toString());
+            provmessage.append("Submitted by unknown (probably automated or submitter hidden) on ")
+                    .append(now);
         }
         if (action != null) {
             provmessage.append(" workflow start=").append(action.getProvenanceStartId()).append("\n");

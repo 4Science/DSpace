@@ -7,7 +7,7 @@
     <parent>
         <artifactId>modules</artifactId>
         <groupId>org.dspace</groupId>
-        <version>cris-2023.02.07-SNAPSHOT</version>
+        <version>cris-2024.02.02</version>
         <relativePath>..</relativePath>
     </parent>
 
@@ -26,7 +26,7 @@
                 <artifactId>maven-dependency-plugin</artifactId>
                 <executions>
                     <execution>
-                        <id>unpack</id>
+                        <id>unpack-additions</id>
                         <phase>prepare-package</phase>
                         <goals>
                             <goal>unpack-dependencies</goal>
@@ -41,6 +41,20 @@
                             <excludes>META-INF/**</excludes>
                         </configuration>
                     </execution>
+                    <execution>
+                        <id>unpack-server</id>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>unpack-dependencies</goal>
+                        </goals>
+                        <configuration>
+                            <includeScope>runtime</includeScope>
+                            <includeGroupIds>org.dspace</includeGroupIds>
+                            <includeArtifactIds>dspace-server-webapp</includeArtifactIds>
+                            <includes>**/static/**,**/*.properties</includes>
+                            <outputDirectory>${project.build.directory}/additions</outputDirectory>
+                        </configuration>
+                    </execution>
                 </executions>
             </plugin>
             <plugin>
@@ -48,6 +62,7 @@
                 <artifactId>maven-war-plugin</artifactId>
                 <configuration>
                     <archiveClasses>false</archiveClasses>
+                    <attachClasses>true</attachClasses>
                     <!-- Filter the web.xml (needed for IDE compatibility/debugging) -->
                     <filteringDeploymentDescriptors>true</filteringDeploymentDescriptors>
                     <!-- Copy any 'additions' (see m-dependency-p above) into WEB-INF/classes.
@@ -64,26 +79,6 @@
                 <executions>
                     <execution>
                         <phase>prepare-package</phase>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-dependency-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>unpack</id>
-                        <phase>prepare-package</phase>
-                        <goals>
-                            <goal>unpack-dependencies</goal>
-                        </goals>
-                        <configuration>
-                            <includeScope>runtime</includeScope>
-                            <includeGroupIds>org.dspace</includeGroupIds>
-                            <includeArtifactIds>dspace-server-webapp</includeArtifactIds>
-                            <includes>**/static/**,**/*.properties</includes>
-                            <outputDirectory>${project.build.directory}/additions</outputDirectory>
-                        </configuration>
                     </execution>
                 </executions>
             </plugin>
@@ -290,6 +285,24 @@
                 </dependency>
             </dependencies>
         </profile>
+
+        <!-- Builds Orchestrator addon for DSpace -->
+        <profile>
+            <id>addon-orchestrator</id>
+            <activation>
+                <property>
+                    <name>orchestrator.on</name>
+                </property>
+            </activation>
+            <dependencies>
+                <dependency>
+                    <groupId>it.4science.dspace</groupId>
+                    <artifactId>addon-orchestrator-rest</artifactId>
+                    <version>${addon-orchestrator.version}</version>
+                    <type>jar</type>
+                </dependency>
+            </dependencies>
+        </profile>
     </profiles>
 
     <dependencies>
@@ -307,11 +320,6 @@
             <artifactId>spring-boot-starter-tomcat</artifactId>
             <scope>provided</scope>
             <version>${spring-boot.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.solr</groupId>
-            <artifactId>solr-solrj</artifactId>
-            <version>${solr.client.version}</version>
         </dependency>
 
         <!-- Test Dependencies -->
@@ -366,6 +374,13 @@
             <artifactId>solr-core</artifactId>
             <version>${solr.client.version}</version>
             <scope>test</scope>
+            <exclusions>
+                <!-- Later version provided by Hibernate -->
+                <exclusion>
+                    <groupId>org.antlr</groupId>
+                    <artifactId>antlr4-runtime</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.apache.lucene</groupId>

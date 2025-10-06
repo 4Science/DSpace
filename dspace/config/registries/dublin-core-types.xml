@@ -309,13 +309,14 @@
     <qualifier>other</qualifier>
     <scope_note>A known identifier type common to a local collection.</scope_note>
   </dc-type>
-  
+
   <dc-type>
     <schema>dc</schema>
     <element>identifier</element>
     <qualifier>doi</qualifier>
+    <scope_note>The doi identifier minted by this repository.</scope_note>
   </dc-type>
-  
+
   <dc-type>
     <schema>dc</schema>
     <element>identifier</element>
@@ -325,28 +326,14 @@
 
   <!-- Used by system: do not remove -->
   <dc-type>
-	<schema>dc</schema>
+	  <schema>dc</schema>
     <element>identifier</element>
     <qualifier>uri</qualifier>
     <scope_note>Uniform Resource Identifier</scope_note>
   </dc-type>
 
   <dc-type>
-	<schema>dc</schema>
-    <element>identifier</element>
-    <qualifier>doi</qualifier>
-    <scope_note>Digital object identifier</scope_note>
-  </dc-type>
-
-  <dc-type>
-	<schema>dc</schema>
-    <element>identifier</element>
-    <qualifier>scopus</qualifier>
-    <scope_note>Scopus Identifier</scope_note>
-  </dc-type>
-
-  <dc-type>
-	<schema>dc</schema>
+	  <schema>dc</schema>
     <element>identifier</element>
     <qualifier>isi</qualifier>
     <scope_note>Web of Knowledge Identifier</scope_note>
@@ -371,6 +358,13 @@
         <element>identifier</element>
         <qualifier>arxiv</qualifier>
         <scope_note>arXiv Identifier</scope_note>
+  </dc-type>
+
+  <dc-type>
+        <schema>dc</schema>
+        <element>identifier</element>
+        <qualifier>viaf</qualifier>
+        <scope_note>VIAF Identifier</scope_note>
   </dc-type>
   <!-- Used by system: do not remove -->
   <dc-type>
@@ -501,6 +495,12 @@
     <element>publisher</element>
     <!-- unqualified -->
     <scope_note>Entity responsible for publication, distribution, or imprint.</scope_note>
+  </dc-type>
+
+  <dc-type>
+    <schema>dc</schema>
+    <element>publisher</element>
+    <qualifier>place</qualifier>
   </dc-type>
 
   <dc-type>
@@ -854,7 +854,14 @@
     <qualifier>endpage</qualifier>
     <scope_note></scope_note>
   </dc-type>
-  
+
+  <dc-type>
+    <schema>dc</schema>
+    <element>description</element>
+    <qualifier>edition</qualifier>
+    <scope_note></scope_note>
+  </dc-type>
+
   <dc-type>
 	<schema>dc</schema>
     <element>identifier</element>
@@ -904,6 +911,41 @@
     <scope_note></scope_note>
   </dc-type>
 
+  <dc-type>
+    <schema>dc</schema>
+    <element>subject</element>
+    <qualifier>jel</qualifier>
+    <scope_note></scope_note>
+  </dc-type>
+
+  <dc-type>
+    <schema>dc</schema>
+    <element>subject</element>
+    <qualifier>fast</qualifier>
+    <scope_note></scope_note>
+  </dc-type>
+
+  <dc-type>
+    <schema>dc</schema>
+    <element>subject</element>
+    <qualifier>bncf</qualifier>
+    <scope_note></scope_note>
+  </dc-type>
+
+  <dc-type>
+    <schema>dc</schema>
+    <element>subject</element>
+    <qualifier>rvm</qualifier>
+    <scope_note></scope_note>
+  </dc-type>
+
+  <dc-type>
+    <schema>dc</schema>
+    <element>subject</element>
+    <qualifier>bnch1956</qualifier>
+    <scope_note></scope_note>
+  </dc-type>
+
 <!-- GLAM additions -->
   <dc-type>
     <schema>dc</schema>
@@ -911,7 +953,7 @@
     <qualifier>otherlinks</qualifier>
     <scope_note></scope_note>
   </dc-type>
-  
+
   <dc-type>
     <schema>dc</schema>
     <element>description</element>
@@ -953,35 +995,35 @@
     <qualifier>note</qualifier>
     <scope_note></scope_note>
   </dc-type>
-  
+
   <dc-type>
     <schema>dc</schema>
     <element>date</element>
     <qualifier>note</qualifier>
     <scope_note></scope_note>
   </dc-type>
-  
+
   <dc-type>
     <schema>dc</schema>
     <element>type</element>
     <qualifier>physical</qualifier>
     <scope_note></scope_note>
   </dc-type>
-  
+
   <dc-type>
     <schema>dc</schema>
     <element>rights</element>
     <qualifier>note</qualifier>
     <scope_note></scope_note>
   </dc-type>
-  
+
   <dc-type>
     <schema>dc</schema>
     <element>description</element>
     <qualifier>archivist</qualifier>
     <scope_note></scope_note>
   </dc-type>
-  
+
   <dc-type>
     <schema>dc</schema>
     <element>description</element>
@@ -995,14 +1037,14 @@
     <qualifier>note</qualifier>
     <scope_note></scope_note>
   </dc-type>
-  
+
   <dc-type>
     <schema>dc</schema>
     <element>date</element>
     <qualifier>preservationnote</qualifier>
     <scope_note></scope_note>
   </dc-type>
-  
+
   <dc-type>
     <schema>dc</schema>
     <element>date</element>
@@ -1021,13 +1063,6 @@
     <schema>dc</schema>
     <element>relation</element>
     <qualifier>opac</qualifier>
-    <scope_note></scope_note>
-  </dc-type>
-
-  <dc-type>
-    <schema>dc</schema>
-    <element>relation</element>
-    <qualifier>place</qualifier>
     <scope_note></scope_note>
   </dc-type>
 
@@ -1070,6 +1105,13 @@
     <schema>dc</schema>
     <element>identifier</element>
     <qualifier>bid</qualifier>
+    <scope_note></scope_note>
+  </dc-type>
+
+  <dc-type>
+    <schema>dc</schema>
+    <element>identifier</element>
+    <qualifier>oclc</qualifier>
     <scope_note></scope_note>
   </dc-type>
 
@@ -1231,6 +1273,13 @@
     <schema>dc</schema>
     <element>description</element>
     <qualifier>preservationspecifications</qualifier>
+    <scope_note></scope_note>
+  </dc-type>
+
+  <dc-type>
+    <schema>dc</schema>
+    <element>description</element>
+    <qualifier>bibliography</qualifier>
     <scope_note></scope_note>
   </dc-type>
 
@@ -1499,21 +1548,21 @@
     <qualifier>hasPicture</qualifier>
     <scope_note></scope_note>
   </dc-type>
-  
+
   <dc-type>
     <schema>dc</schema>
     <element>relation</element>
     <qualifier>otherlinkslabel</qualifier>
     <scope_note></scope_note>
   </dc-type>
-    
+
   <dc-type>
     <schema>dc</schema>
     <element>identifier</element>
     <qualifier>urilabel</qualifier>
     <scope_note></scope_note>
   </dc-type>
-    
+
   <dc-type>
     <schema>dc</schema>
     <element>relation</element>
@@ -1554,6 +1603,20 @@
     <element>relation</element>
     <qualifier>annotation</qualifier>
     <scope_note></scope_note>
+  </dc-type>
+
+  <dc-type>
+    <schema>dc</schema>
+    <element>coverage</element>
+    <qualifier>spatialgpdpy</qualifier>
+    <scope_note>The latitude metadata with decimal value</scope_note>
+  </dc-type>
+
+  <dc-type>
+    <schema>dc</schema>
+    <element>coverage</element>
+    <qualifier>spatialgpdpx</qualifier>
+    <scope_note>The longitude metadata with decimal value</scope_note>
   </dc-type>
 
 </dspace-dc-types>

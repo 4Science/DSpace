@@ -9,9 +9,9 @@ package org.dspace.app.rest;
 
 import java.util.List;
 import java.util.UUID;
-import javax.servlet.http.HttpServletRequest;
-import javax.validation.constraints.NotNull;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.constraints.NotNull;
 import org.dspace.app.rest.converter.ConverterService;
 import org.dspace.app.rest.model.EPersonRest;
 import org.dspace.app.rest.model.hateoas.EPersonResource;

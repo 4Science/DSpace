@@ -9,7 +9,7 @@ package org.dspace.xoai.app;
 
 import static com.lyncode.xoai.dataprovider.core.Granularity.Second;
 import static java.util.Objects.nonNull;
-import static org.apache.commons.lang.StringUtils.EMPTY;
+import static org.apache.commons.lang3.StringUtils.EMPTY;
 import static org.apache.solr.common.params.CursorMarkParams.CURSOR_MARK_PARAM;
 import static org.apache.solr.common.params.CursorMarkParams.CURSOR_MARK_START;
 import static org.dspace.xoai.util.ItemUtils.retrieveMetadata;
@@ -111,7 +111,7 @@ public class XOAI {
         try {
             for (Bundle b : itemService.getBundles(item, "ORIGINAL")) {
                 for (Bitstream bs : b.getBitstreams()) {
-                    if (!formats.contains(bs.getFormat(context).getMIMEType())) {
+                    if (bs != null && !formats.contains(bs.getFormat(context).getMIMEType())) {
                         formats.add(bs.getFormat(context).getMIMEType());
                     }
                 }
@@ -335,6 +335,11 @@ public class XOAI {
                     server.add(list);
                     server.commit();
                     list.clear();
+                    try {
+                        context.uncacheEntities();
+                    } catch (SQLException ex) {
+                        log.error("Error uncaching entities", ex);
+                    }
                 }
             }
             System.out.println("Total: " + i + " items");
@@ -453,6 +458,16 @@ public class XOAI {
         for (Community com : collectionsService.flatParentCommunities(context, item)) {
             doc.addField("item.communities", "com_" + com.getHandle().replace("/", "_"));
         }
+
+        boolean hasBitstream = false;
+
+        for (Bundle b : item.getBundles("ORIGINAL")) {
+            if (b.getBitstreams().size() > 0) {
+                hasBitstream = true;
+            }
+        }
+
+        doc.addField("item.hasbitstream", hasBitstream);
 
         List<MetadataValue> allData = itemService.getMetadata(item, Item.ANY, Item.ANY, Item.ANY, Item.ANY);
         for (MetadataValue dc : allData) {
@@ -585,6 +600,7 @@ public class XOAI {
             options.addOption("v", "verbose", false, "Verbose output");
             options.addOption("h", "help", false, "Shows some help");
             options.addOption("n", "number", true, "FOR DEVELOPMENT MUST DELETE");
+            options.addOption("i", "identifier", true, "Imports only the given identifier");
             CommandLine line = parser.parse(options, argv);
 
             String[] validSolrCommands = { COMMAND_IMPORT, COMMAND_CLEAN_CACHE };
@@ -616,9 +632,34 @@ public class XOAI {
                     ctx = new Context(Context.Mode.READ_ONLY);
                     XOAI indexer = new XOAI(ctx, line.hasOption('c'), line.hasOption('v'));
 
+                    String itemIdentifier = line.getOptionValue('i');
+
                     applicationContext.getAutowireCapableBeanFactory().autowireBean(indexer);
 
-                    int imported = indexer.index();
+                    int imported = -1;
+                    if (StringUtils.isNotEmpty(itemIdentifier)) {
+                        Item item = null;
+                        try {
+                            item = ContentServiceFactory.getInstance().getItemService()
+                                                        .find(ctx, UUID.fromString(itemIdentifier));
+                            if (item == null) {
+                                log.error("Cannot find any item with identifier: {}", itemIdentifier);
+                                System.out.println("Cannot find any item with identifier: " + itemIdentifier);
+                            } else {
+                                log.info("Trying to process item: {}", itemIdentifier);
+                                System.out.println("Trying to process item: " + itemIdentifier);
+                                imported = indexer.index(createSingleItemIterator(item));
+                            }
+                        } catch (Exception e) {
+                            log.error("Cannot find any item with identifier: " + itemIdentifier, e);
+                            System.out.println("Cannot find any item with identifier: " + itemIdentifier);
+                            e.printStackTrace();
+                        }
+
+                    } else {
+                        imported = indexer.index();
+                    }
+
                     if (imported > 0) {
                         cleanCache(itemCacheService, cacheService);
                     }
@@ -689,6 +730,21 @@ public class XOAI {
         System.out.println("Items compiled");
     }
 
+    /**
+     * Creates an iterator containing a single item.
+     * This is useful when you need to process a single item using methods
+     * that expect an Iterator<Item> parameter.
+     *
+     * @param item The single item to include in the iterator
+     * @return An iterator containing only the specified item
+     */
+    public static Iterator<Item> createSingleItemIterator(Item item) {
+        if (item == null) {
+            return Collections.emptyIterator();
+        }
+        return Collections.singletonList(item).iterator();
+    }
+
     private static void usage() {
         boolean solr = true; // Assuming solr by default
         solr = !("database").equals(configurationService.getProperty("oai.storage", "solr"));
@@ -701,6 +757,7 @@ public class XOAI {
             System.out.println("     " + COMMAND_CLEAN_CACHE + " - Cleans the OAI cached responses");
             System.out.println("> Parameters:");
             System.out.println("     -c Clear index (" + COMMAND_IMPORT + " only)");
+            System.out.println("     -i Identifier of the item to import (" + COMMAND_IMPORT + " only)");
             System.out.println("     -v Verbose output");
             System.out.println("     -h Shows this text");
         } else {

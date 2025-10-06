@@ -639,9 +639,8 @@
       </row>
       <row>
         <field>
-          <dc-schema>dc</dc-schema>
-          <dc-element>identifier</dc-element>
-          <dc-qualifier>archivalunit</dc-qualifier>
+          <dc-schema>glamfonds</dc-schema>
+          <dc-element>index</dc-element>
           <label>Numero di corda</label>
           <input-type>number</input-type>
           <repeatable>false</repeatable>
@@ -999,6 +998,17 @@
       </row>
       <row>
         <field>
+          <dc-schema>person</dc-schema>
+          <dc-element>nationality</dc-element>
+          <label>Nazione</label>
+          <input-type value-pairs-name="common_iso_countries">dropdown</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint>Inserire la nazione della persona</hint>
+        </field>
+      </row>
+      <row>
+        <field>
           <dc-schema>glamperson</dc-schema>
           <dc-element>nationality</dc-element>
           <label>Nazionalità della Persona</label>
@@ -1089,6 +1099,18 @@
       <row>
         <field>
           <dc-schema>dc</dc-schema>
+          <dc-element>subject</dc-element>
+          <dc-qualifier>lcsh</dc-qualifier>
+          <label>Interessi/Attività</label>
+          <input-type>tag</input-type>
+          <repeatable>true</repeatable>
+          <required />
+          <hint>Inserire gli interessi o le attività della persona attingendo ai Library of Congress Subject Headings (https://www.loc.gov/aba/publications/FreeLCSH/freelcsh.html)</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>dc</dc-schema>
           <dc-element>relation</dc-element>
           <dc-qualifier>event</dc-qualifier>
           <label>Ha partecipato a</label>
@@ -1118,6 +1140,17 @@
           <repeatable>false</repeatable>
           <required />
           <hint>Inserire la biografia della Persona</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>person</dc-schema>
+          <dc-element>identifier</dc-element>
+          <label>VIAF ID</label>
+          <input-type>onebox</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint>Inserire il VIAF ID della persona</hint>
         </field>
       </row>
       <row>
@@ -2862,17 +2895,6 @@
           <hint>Inserire l'ordine</hint>
         </field>
       </row>
-      <row>
-        <field>
-          <dc-schema>glam</dc-schema>
-          <dc-element>index</dc-element>
-          <label>Numero di corda</label>
-          <input-type>number</input-type>
-          <repeatable>false</repeatable>
-          <required />
-          <hint>Inserire il numero di corda della risorsa</hint>
-        </field>
-      </row>
     </form>
     <form name="news">
       <row>
@@ -3982,6 +4004,17 @@
           <repeatable>false</repeatable>
           <required />
           <hint>Indicare il tipo di scheda ICCD utilizzato per la catalogazione dell'oggetto.</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>dc</dc-schema>
+          <dc-element>type</dc-element>
+          <label>Tipologia della fotografia</label>
+          <input-type value-pairs-name="picture_types">dropdown</input-type>
+          <repeatable>false</repeatable>
+          <required>Inserire la tipologia della fotografia</required>
+          <hint>In questo campo si definisce l'oggetto fotografico in base alla funzione assolta nel processo creativo. Le opere fotografiche, che corrispondono a momenti diversi dell'elaborazione di un'immagine, si possono distinguere tipologicamente in base alla funzione</hint>
         </field>
       </row>
       <row>
@@ -9707,6 +9740,36 @@
       <pair>
         <displayed-value>Poster</displayed-value>
         <stored-value>poster</stored-value>
+      </pair>
+    </value-pairs>
+    <value-pairs value-pairs-name="picture_types" dc-term="picture_types">
+      <pair>
+        <displayed-value>N/A</displayed-value>
+        <stored-value>N/A</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>negativo</displayed-value>
+        <stored-value>negativo</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>positivo</displayed-value>
+        <stored-value>positivo</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>diapositiva</displayed-value>
+        <stored-value>diapositiva</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>unicum</displayed-value>
+        <stored-value>unicum</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>fotografia virtuale</displayed-value>
+        <stored-value>fotografia virtuale</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>materiale vario</displayed-value>
+        <stored-value>materiale vario</stored-value>
       </pair>
     </value-pairs>
   </form-value-pairs>

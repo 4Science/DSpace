@@ -38,8 +38,22 @@
                 <ref bean="tsvImportService" />
                 <ref bean="endnoteImportService" />
                 <ref bean="grobidImportMetadataSourceService" />
+                <ref bean="DoiImportService" />
             </list>
          </property>
+    </bean>
+
+    <bean id="DoiImportService"
+          class="org.dspace.importer.external.MultipleParallelImportMetadataSourceServiceImpl" scope="singleton">
+        <constructor-arg name="innerProviders">
+            <list>
+                <ref bean="CrossRefImportService"/>
+                <ref bean="DataCiteImportService"/>
+            </list>
+        </constructor-arg>
+        <constructor-arg name="sourceName">
+            <value>doi</value>
+        </constructor-arg>
     </bean>
 
     <bean id="DataCiteImportService"
@@ -53,7 +67,7 @@
     <bean id="ArXivImportService"
           class="org.dspace.importer.external.arxiv.service.ArXivImportMetadataSourceServiceImpl" scope="singleton">
         <property name="metadataFieldMapping" ref="ArXivMetadataFieldMapping"/>
-        <property name="baseAddress" value="http://export.arxiv.org/api/query"/>
+        <property name="baseAddress" value="https://export.arxiv.org/api/query"/>
     </bean>
     <bean id="ArXivMetadataFieldMapping"
           class="org.dspace.importer.external.arxiv.metadatamapping.ArXivFieldMapping">
@@ -129,6 +143,20 @@
                      <value>enw</value>
                </list>
           </property>
+    </bean>
+
+    <bean id="openaireImportServiceByAuthor"
+          class="org.dspace.importer.external.openaire.service.OpenAireImportMetadataSourceServiceImpl" scope="singleton">
+        <property name="metadataFieldMapping" ref="openairePublicationMetadataFieldMapping"/>
+        <property name="queryParam" value="author"/>
+    </bean>
+    <bean id="openaireImportServiceByTitle"
+          class="org.dspace.importer.external.openaire.service.OpenAireImportMetadataSourceServiceImpl" scope="singleton">
+        <property name="metadataFieldMapping" ref="openairePublicationMetadataFieldMapping"/>
+        <property name="queryParam" value="title"/>
+    </bean>
+    <bean id="openairePublicationMetadataFieldMapping"
+          class="org.dspace.importer.external.openaire.metadatamapping.OpenAIREPublicationFieldMapping">
     </bean>
 
     <bean id="CrossRefImportService" class="org.dspace.importer.external.crossref.CrossRefImportMetadataSourceServiceImpl" scope="singleton">
@@ -210,6 +238,14 @@
     </bean>
     <bean id="ADSMetadataFieldMapping" class="org.dspace.importer.external.ads.ADSFieldMapping"/>
 
+    <bean id="ViafImportService" class="org.dspace.importer.external.viaf.ViafImportMetadataSourceServiceImpl" scope="singleton">
+        <property name="metadataFieldMapping" ref="viafMetadataFieldMapping"/>
+        <property name="url" value="${viaf.url}"/>
+        <property name="searchUrl" value="${viaf.searchUrl}"/>
+        <property name="viafIdExtractor" ref="viafIdExtractorImpl"/>
+    </bean>
+    <bean id="viafMetadataFieldMapping" class="org.dspace.importer.external.viaf.ViafFieldMapping"/>
+
     <!-- Metadatafield used to check against if it's already imported or not during the JSONLookupSearcher-->
     <bean id="lookupID" class="org.dspace.importer.external.metadatamapping.MetadataFieldConfig">
         <constructor-arg value="dc.identifier.other"/>
@@ -221,20 +257,6 @@
     </bean>
     <bean id="openaireProjectMetadataFieldMapping"
           class="org.dspace.importer.external.openaire.metadatamapping.OpenAIREProjectFieldMapping">
-    </bean>
-
-    <bean id="openaireImportServiceByAuthor"
-          class="org.dspace.importer.external.openaire.service.OpenAireImportMetadataSourceServiceImpl" scope="singleton">
-        <property name="metadataFieldMapping" ref="openairePublicationMetadataFieldMapping"/>
-        <property name="queryParam" value="author"/>
-    </bean>
-    <bean id="openaireImportServiceByTitle"
-          class="org.dspace.importer.external.openaire.service.OpenAireImportMetadataSourceServiceImpl" scope="singleton">
-        <property name="metadataFieldMapping" ref="openairePublicationMetadataFieldMapping"/>
-        <property name="queryParam" value="title"/>
-    </bean>
-    <bean id="openairePublicationMetadataFieldMapping"
-          class="org.dspace.importer.external.openaire.metadatamapping.OpenAIREPublicationFieldMapping">
     </bean>
 
     <bean id="grobidImportMetadataSourceService" class="org.dspace.submit.extraction.GrobidImportMetadataSourceServiceImpl">

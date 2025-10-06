@@ -14,9 +14,10 @@ import static org.dspace.content.Item.ANY;
 
 import java.text.MessageFormat;
 import java.util.List;
-import javax.servlet.http.HttpServletRequest;
 
-import org.apache.log4j.Logger;
+import jakarta.servlet.http.HttpServletRequest;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.dspace.app.rest.signposting.model.LinksetNode;
 import org.dspace.app.rest.signposting.model.LinksetRelationType;
 import org.dspace.content.Item;
@@ -37,7 +38,7 @@ public class ItemAuthorProcessor extends ItemSignpostingProcessor {
     /**
      * log4j category
      */
-    private static final Logger log = Logger.getLogger(ItemAuthorProcessor.class);
+    private static final Logger log = LogManager.getLogger(ItemAuthorProcessor.class);
 
     private final ItemService itemService;
 
@@ -63,17 +64,17 @@ public class ItemAuthorProcessor extends ItemSignpostingProcessor {
                                 Item item, List<LinksetNode> linksetNodes) {
         try {
             String authorId = itemService.getMetadataFirstValue(item, MetadataSchemaEnum.RELATION.getName(),
-                    "isAuthorOfPublication", null, ANY);
+                                                                "isAuthorOfPublication", null, ANY);
             if (isNotBlank(authorId)) {
                 Item author = itemService.findByIdOrLegacyId(context, authorId);
                 if (nonNull(author)) {
                     String authorOrcid = itemService.getMetadataFirstValue(
-                            author, new MetadataFieldName(getOrcidMetadata()), ANY
+                        author, new MetadataFieldName(getOrcidMetadata()), ANY
                     );
                     if (isNotBlank(authorOrcid)) {
                         String authorLink = isBlank(getPattern())
-                                ? authorOrcid
-                                : MessageFormat.format(getPattern(), authorOrcid);
+                            ? authorOrcid
+                            : MessageFormat.format(getPattern(), authorOrcid);
                         linksetNodes.add(new LinksetNode(authorLink, getRelation(), buildAnchor(context, item)));
                     }
                 }

@@ -882,18 +882,20 @@ public class OAIHarvester {
             return null;
         }
 
-        for (MetadataValue value : values) {
-            //     0   1       2         3   4
-            //   http://hdl.handle.net/1234/12
-            String[] urlPieces = value.getValue().split("/");
-            if (urlPieces.length != 5) {
-                continue;
-            }
+        if (!values.isEmpty() && acceptedHandleServers != null) {
+            for (MetadataValue value : values) {
+                //     0   1       2         3   4
+                //   https://hdl.handle.net/1234/12
+                String[] urlPieces = value.getValue().split("/");
+                if (urlPieces.length != 5) {
+                    continue;
+                }
 
-            for (String server : acceptedHandleServers) {
-                if (urlPieces[2].equals(server)) {
-                    if (Arrays.stream(rejectedHandlePrefixes).noneMatch(prefix -> prefix.equals(urlPieces[3]))) {
-                        return urlPieces[3] + "/" + urlPieces[4];
+                for (String server : acceptedHandleServers) {
+                    if (urlPieces[2].equals(server)) {
+                        if (Arrays.stream(rejectedHandlePrefixes).noneMatch(prefix -> prefix.equals(urlPieces[3]))) {
+                            return urlPieces[3] + "/" + urlPieces[4];
+                        }
                     }
                 }
             }

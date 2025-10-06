@@ -50,15 +50,4 @@ public class ItemAuthorityCustomSolrFilterImpl implements CustomAuthoritySolrFil
         searchTerm = StringUtils.normalizeSpace(searchTerm.replaceAll(PUNCT_CHARS_REGEX, " "));
         return SolrServiceBestMatchIndexingPlugin.BEST_MATCH_INDEX + ":" + escapeQueryChars(searchTerm);
     }
-
-    @Override
-    public int getConfidenceForChoices(Choice... choices) {
-        if (choices.length == 0) {
-            return Choices.CF_UNSET;
-        }
-        if (choices.length == 1) {
-            return Choices.CF_UNCERTAIN;
-        }
-        return Choices.CF_AMBIGUOUS;
-    }
 }

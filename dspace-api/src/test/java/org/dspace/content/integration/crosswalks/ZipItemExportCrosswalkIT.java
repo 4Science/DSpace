@@ -22,6 +22,7 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 import java.time.LocalDate;
+import java.time.Period;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
@@ -78,7 +79,7 @@ public class ZipItemExportCrosswalkIT extends AbstractIntegrationTestWithDatabas
         Item item3 = createItem("Test Item 3", "2020-01-01", "Andrea Bollini");
 
         Bitstream bitstream1 = createBitstream(item1, "test.txt", "This is a test");
-        Bitstream bitstream2 = createBitstream(item3, "test.pdf", "Last test", "6 months");
+        Bitstream bitstream2 = createBitstream(item3, "test.pdf", "Last test", Period.ofMonths(6));
 
         String expectedEmbargo = LocalDate.now().plus(6, ChronoUnit.MONTHS).format(DateTimeFormatter.ISO_DATE);
 
@@ -233,7 +234,7 @@ public class ZipItemExportCrosswalkIT extends AbstractIntegrationTestWithDatabas
             .build();
     }
 
-    private Bitstream createBitstream(Item item, String name, String content, String embargoPeriod) throws Exception {
+    private Bitstream createBitstream(Item item, String name, String content, Period embargoPeriod) throws Exception {
         return BitstreamBuilder.createBitstream(context, item, getInputStream(content))
             .withName(name)
             .withEmbargoPeriod(embargoPeriod)

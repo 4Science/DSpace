@@ -9,9 +9,9 @@ package org.dspace.app.rest.repository;
 
 import java.sql.SQLException;
 import java.util.UUID;
-import javax.annotation.Nullable;
-import javax.servlet.http.HttpServletRequest;
 
+import jakarta.annotation.Nullable;
+import jakarta.servlet.http.HttpServletRequest;
 import org.dspace.app.audit.AuditEvent;
 import org.dspace.app.audit.AuditService;
 import org.dspace.app.rest.model.AuditEventRest;
@@ -29,7 +29,7 @@ import org.springframework.stereotype.Component;
 /**
  * Link repository for "subject" subresource of an audit event.
  */
-@Component(AuditEventRest.CATEGORY + "." + AuditEventRest.NAME + "." + AuditEventRest.SUBJECT)
+@Component(AuditEventRest.CATEGORY + "." + AuditEventRest.NAME_PLURAL + "." + AuditEventRest.SUBJECT)
 public class AuditEventSubjectLinkRepository extends AbstractDSpaceRestRepository
         implements LinkRestRepository {
 

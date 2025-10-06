@@ -17,16 +17,18 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Stream;
-import javax.persistence.Column;
-import javax.persistence.Id;
-import javax.persistence.Query;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Expression;
-import javax.persistence.criteria.Path;
-import javax.persistence.criteria.Root;
 
 import com.google.common.collect.AbstractIterator;
+import jakarta.persistence.Column;
+import jakarta.persistence.Id;
+import jakarta.persistence.Query;
+import jakarta.persistence.Tuple;
+import jakarta.persistence.TypedQuery;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Expression;
+import jakarta.persistence.criteria.Path;
+import jakarta.persistence.criteria.Root;
 import org.apache.commons.collections.CollectionUtils;
 import org.hibernate.Session;
 
@@ -128,20 +130,36 @@ public abstract class AbstractHibernateDAO<T> implements GenericDAO<T> {
 
         Field idField = optionalField.get();
         CriteriaBuilder criteriaBuilder = getCriteriaBuilder(context);
-        CriteriaQuery criteriaQuery = getCriteriaQuery(criteriaBuilder, clazz);
+        CriteriaQuery<Tuple> criteriaQuery = criteriaBuilder.createTupleQuery();
 
-        Root root = criteriaQuery.from(clazz);
-        Path idColumn = root.get(idField.getName());
-        criteriaQuery.select(idColumn);
-        criteriaQuery.where(criteriaBuilder.equal(idColumn, id));
+        Root<T> root = criteriaQuery.from(clazz);
+        Path<?> idPath = root.get(idField.getName());
+        criteriaQuery.multiselect(idPath);
+        criteriaQuery.where(
+            criteriaBuilder.equal(
+                idPath,
+                id
+            )
+        );
 
-        org.hibernate.query.Query query = getHibernateSession(context).createQuery(criteriaQuery);
+        TypedQuery<Tuple> query =
+            getHibernateSession(context).createQuery(criteriaQuery);
         query.setMaxResults(1);
-        return query.uniqueResult() != null;
+        return !query.getResultList().isEmpty();
     }
 
     @Override
     public T findByID(Context context, Class clazz, int id) throws SQLException {
+        @SuppressWarnings("unchecked")
+        T result = (T) getHibernateSession(context).get(clazz, id);
+        return result;
+    }
+
+    @Override
+    public T findByID(Context context, Class clazz, String id) throws SQLException {
+        if (id == null) {
+            return null;
+        }
         @SuppressWarnings("unchecked")
         T result = (T) getHibernateSession(context).get(clazz, id);
         return result;
@@ -348,7 +366,7 @@ public abstract class AbstractHibernateDAO<T> implements GenericDAO<T> {
         org.hibernate.query.Query hquery = query.unwrap(org.hibernate.query.Query.class);
         Stream<T> stream = hquery.stream();
         Iterator<T> iter = stream.iterator();
-        return new AbstractIterator<T> () {
+        return new AbstractIterator<T>() {
             @Override
             protected T computeNext() {
                 return iter.hasNext() ? iter.next() : endOfData();
@@ -504,6 +522,17 @@ public abstract class AbstractHibernateDAO<T> implements GenericDAO<T> {
             criteria.where(criteriaBuilder.equal(root.get(entry.getKey()), entry.getValue()));
         }
         return executeCriteriaQuery(context, criteria, cacheable, maxResults, offset);
+    }
+
+    /**
+     * Create a Query object from a CriteriaQuery
+     * @param context current Context
+     * @param criteriaQuery CriteriaQuery built via CriteriaBuilder
+     * @return corresponding Query
+     * @throws SQLException if error occurs
+     */
+    public Query createQuery(Context context, CriteriaQuery criteriaQuery) throws SQLException {
+        return this.getHibernateSession(context).createQuery(criteriaQuery);
     }
 
 }

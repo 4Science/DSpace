@@ -104,6 +104,11 @@
         <property name="description" value="Perform the bulk synchronization of all the BATCH configured ORCID entities placed in the ORCID queue"/>
         <property name="dspaceRunnableClass" value="org.dspace.orcid.script.OrcidBulkPush"/>
     </bean>
+    
+    <bean id="import-openaire-events" class="org.dspace.qaevent.script.OpenaireEventsImportCliScriptConfiguration" primary="true">
+        <property name="description" value="Import new openaire quality assurance broker events"/>
+        <property name="dspaceRunnableClass" value="org.dspace.qaevent.script.OpenaireEventsImportCli"/>
+    </bean>
 
     <bean id="orcid-bulk-pull" class="org.dspace.orcid.script.OrcidBulkPullScriptConfiguration">
         <property name="description" value="Perform a bulk pull from the ORCID registry for all the profiles with an ORCID id set"/>
@@ -169,6 +174,16 @@
     <bean id="bulk-access-control" class="org.dspace.app.bulkaccesscontrol.BulkAccessControlCliScriptConfiguration" primary="true">
         <property name="description" value="Bulk access control"/>
         <property name="dspaceRunnableClass" value="org.dspace.app.bulkaccesscontrol.BulkAccessControlCli"/>
+    </bean>
+
+    <bean id="submission-xml-to-xls" class="org.dspace.app.submission.SubmissionXmlToXlsScriptConfigurationCLI" primary="true">
+        <property name="description" value="Generate XLS submission form from XML"/>
+        <property name="dspaceRunnableClass" value="org.dspace.app.submission.SubmissionXmlToXlsCLI"/>
+    </bean>
+
+    <bean id="metadata-update" class="org.dspace.app.metadataupdate.MetadataUpdateCliScriptConfiguration" primary="true">
+        <property name="description" value="update metadata values"/>
+        <property name="dspaceRunnableClass" value="org.dspace.app.metadataupdate.MetadataUpdateScriptCli"/>
     </bean>
 
 </beans>

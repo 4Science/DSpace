@@ -141,20 +141,10 @@ public abstract class IndexFactoryImpl<T extends IndexableObject, S> implements 
         ParseContext tikaContext = new ParseContext();
 
         // Use Apache Tika to parse the full text stream(s)
+        boolean extractionSucceeded = false;
         try {
             tikaParser.parse(stream, tikaHandler, tikaMetadata, tikaContext);
-
-            // Write Tika metadata to "tika_meta_*" fields.
-            // This metadata is not very useful right now,
-            // but we'll keep it just in case it becomes more useful.
-            for (String name : tikaMetadata.names()) {
-                for (String value : tikaMetadata.getValues(name)) {
-                    doc.addField("tika_meta_" + name, value);
-                }
-            }
-
-            // Save (parsed) full text to the provided field
-            doc.addField(field, tikaHandler.toString());
+            extractionSucceeded = true;
         } catch (SAXException saxe) {
             // Check if this SAXException is just a notice that this file was longer than the character limit.
             // Unfortunately there is not a unique, public exception type to catch here. This error is thrown
@@ -164,6 +154,7 @@ public abstract class IndexFactoryImpl<T extends IndexableObject, S> implements 
                 // log that we only indexed up to that configured limit
                 log.info("Full text is larger than the configured limit (discovery.solr.fulltext.charLimit)."
                     + " Only the first {} characters were indexed.", charLimit);
+                extractionSucceeded = true;
             } else {
                 log.error("Tika parsing error. Could not index full text.", saxe);
                 throw new IOException("Tika parsing error. Could not index full text.", saxe);
@@ -176,7 +167,18 @@ public abstract class IndexFactoryImpl<T extends IndexableObject, S> implements 
                 stream.close();
             }
         }
-
+        if (extractionSucceeded) {
+            // Write Tika metadata to "tika_meta_*" fields.
+            // This metadata is not very useful right now,
+            // but we'll keep it just in case it becomes more useful.
+            for (String name : tikaMetadata.names()) {
+                for (String value : tikaMetadata.getValues(name)) {
+                    doc.addField("tika_meta_" + name, value);
+                }
+            }
+            // Save (parsed) full text to the provided field
+            doc.addField(field, tikaHandler.toString());
+        }
     }
 
 
