@@ -186,4 +186,9 @@
         <property name="dspaceRunnableClass" value="org.dspace.app.metadataupdate.MetadataUpdateScriptCli"/>
     </bean>
 
+    <bean id="import-xml-to-item" class="org.dspace.app.marcxml2item.XmlToItemImportScriptConfiguration" primary="true">
+        <property name="description" value="Script to import items from XML file"/>
+        <property name="dspaceRunnableClass" value="org.dspace.app.marcxml2item.XmlToItemImportScript"/>
+    </bean>
+
 </beans>
