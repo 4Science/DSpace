@@ -43,7 +43,7 @@ EXPOSE 8080 8000 8009
 ENV DSPACE_INSTALL=/dspace
 WORKDIR $DSPACE_INSTALL
 
-RUN useradd dspace
+RUN useradd -m -d /home/dspace -s /bin/bash dspace
 
 COPY --from=build --chown=dspace /install/server-boot/dependencies/ /app/server-boot/
 COPY --from=build --chown=dspace /install/server-boot/spring-boot-loader/ /app/server-boot/
