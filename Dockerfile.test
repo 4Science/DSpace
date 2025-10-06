@@ -48,7 +48,7 @@ EXPOSE 8080 8000 8009
 ENV DSPACE_INSTALL=/dspace
 WORKDIR $DSPACE_INSTALL
 
-RUN useradd dspace
+RUN useradd -m -d /home/dspace -s /bin/bash dspace
 
 COPY --from=build --chown=dspace /install/server-boot/dependencies/ /app/server-boot/
 COPY --from=build --chown=dspace /install/server-boot/spring-boot-loader/ /app/server-boot/
@@ -73,5 +73,5 @@ RUN apt-get update \
 
 USER dspace
 ENV JAVA_OPTS="-Xmx2000m -Ddspace.dir=$DSPACE_INSTALL"
-ENV JAVA_TOOL_OPTIONS="-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:8000"
+ENV JAVA_TOOL_OPTIONS="-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005"
 ENTRYPOINT [ "java", "-XX:+UseParallelGC", "-XX:MaxRAMPercentage=75", "org.springframework.boot.loader.launch.JarLauncher", "--dspace.dir=/dspace", "--logging.config=/dspace/config/log4j2-container.xml" ]
