@@ -7,6 +7,20 @@
  */
 package org.dspace.app.marcxml2item;
 
+import static org.dspace.app.launcher.ScriptLauncher.handleScript;
+import static org.dspace.app.marcxml2item.XmlToItemImportScript.XML_TO_ITEM_SCRIPT_NAME;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.empty;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
+import java.io.File;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
+
+import org.apache.commons.lang3.StringUtils;
 import org.dspace.AbstractIntegrationTestWithDatabase;
 import org.dspace.app.launcher.ScriptLauncher;
 import org.dspace.app.scripts.handler.impl.TestDSpaceRunnableHandler;
@@ -19,24 +33,6 @@ import org.dspace.content.factory.ContentServiceFactory;
 import org.dspace.content.service.ItemService;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.io.File;
-import java.net.URL;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import static org.dspace.app.launcher.ScriptLauncher.handleScript;
-import static org.dspace.app.marcxml2item.XmlToItemImportScript.XML_TO_ITEM_SCRIPT_NAME;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.empty;
-import static org.hamcrest.Matchers.not;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 
 /**
  * Integration tests for {@link XmlToItemImportScript}
@@ -90,7 +86,7 @@ public class XmlToItemImportScriptIT extends AbstractIntegrationTestWithDatabase
                 "dc.relation.edition : 1st ed.",
                 "cris.legacyId : 92005291",
                 "dspace.entity.type : Publication",
-                "dc.date.modified : 19930521155141.9",
+                "dc.date.modified : 1993-05-21",
                 "dc.description.notes : One Mylar sheet included in pocket."
         );
 
@@ -106,22 +102,104 @@ public class XmlToItemImportScriptIT extends AbstractIntegrationTestWithDatabase
         assertTrue("Expected at least one item in the collection after import.", items.hasNext());
         Item importedItem = items.next();
         List<MetadataValue> metadataValues = importedItem.getMetadata();
-        for (MetadataValue metadataValue : metadataValues) {
-            System.out.println(metadataValue.getMetadataField().toString('.') + " : " + metadataValue.getValue());
-        }
-
         assertEquals(25, metadataValues.size());
 
+        checkMetadata(metadataValues, expectedMetadata);
+        assertFalse("There should be only one imported item, but more were found.", items.hasNext());
+    }
+
+    @Test
+    public void importMultipleItemsFromXmlTest() throws Exception {
+        Set<String> expectedMetadataItem1 = Set.of(
+            "dc.contributor.author : Oberli, D. Y.",
+            "dc.contributor.author : Byszewski, M.",
+            "dc.contributor.author : Chalupar, B.",
+            "dc.contributor.author : Pelucchi, E.",
+            "dc.contributor.author : Rudra, A.",
+            "dc.contributor.author : Kapon, E.",
+            "dc.date.issued : 2009",
+            "dc.identifier.doi : 10.1103/PhysRevB.80.165312",
+            "dc.identifier.isi : WOS:000271352100087",
+            "dc.description.abstract : The emission pattern of charged excitons in a semiconductor quantum dot (QD).",
+            "dc.subject : Fine Structure Splitting",
+            "dc.subject : Spin",
+            "dc.subject : Excitons",
+            "dc.subject : Semiconductor nanostructures",
+            "dc.title : Coulomb correlations of charged excitons in semiconductor quantum dots",
+            "cris.legacyId : 147853",
+            "dspace.entity.type : Publication",
+            "dc.date.modified : 2023-05-05"
+            );
+
+        Set<String> expectedMetadataItem2 = Set.of(
+                "dc.contributor.author : Clua Longas, Angela",
+                "dc.contributor.author : Rey, Emmanuel",
+                "dc.date.issued : 2017-09-01",
+                "dc.format : BIPV panels",
+                "dc.format : BIPV panel fastening system",
+                "dc.format : Fibrociment panels",
+                "dc.format : Blown cellulose insultation",
+                "dc.format : Timber substructure",
+                "dc.format : OSB panels",
+                "dc.format : Wood fiber insulation",
+                "dc.format : Plaster board",
+                "dc.format : Window façade module",
+                "dc.format : Translucent BIPV panel (balustrade)",
+                "dc.title : Advanced Active Facade - Demonstrator",
+                "dc.contributor.corporatebody : Swiss Centre for Electronics and Microtechnology (CSEM)",
+                "dc.contributor.corporatebody : H.Glass",
+                "cris.legacyId : 293489",
+                "dspace.entity.type : Publication",
+                "dc.date.modified : 2023-05-06"
+                );
+
+        String fileLocation = getXmlFilePath("marc-xml-multiple-records.xml");
+        String[] args = new String[]{ XML_TO_ITEM_SCRIPT_NAME, "-c", publicationCol.getID().toString(),
+                                                               "-f", fileLocation };
+        TestDSpaceRunnableHandler handler = new TestDSpaceRunnableHandler();
+        int status = handleScript(args, ScriptLauncher.getConfig(kernelImpl), handler, kernelImpl, admin);
+        assertEquals(0, status);
+        assertThat(handler.getErrorMessages(), empty());
+
+
+        Iterator<Item> items = itemService.findAll(context);
+        assertTrue("Expected first item in the collection after import.", items.hasNext());
+        Item tempFirstImportedItem = items.next();
+        assertTrue("Expected second item in the collection after import.", items.hasNext());
+        Item tempSecondImportedItem = items.next();
+        assertFalse("There should be only two imported items, but more were found.", items.hasNext());
+
+        Item firstImportedItem;
+        Item secondImportedItem;
+        var legacyId = itemService.getMetadataFirstValue(tempFirstImportedItem, "cris", "legacyId", null, Item.ANY);
+        if (StringUtils.equals("147853", legacyId)) {
+            firstImportedItem = tempFirstImportedItem;
+            secondImportedItem = tempSecondImportedItem;
+        } else {
+            firstImportedItem = tempSecondImportedItem;
+            secondImportedItem = tempFirstImportedItem;
+        }
+
+        // check first item
+        List<MetadataValue> firstItemMetadataValues = firstImportedItem.getMetadata();
+        assertEquals(22, firstItemMetadataValues.size());
+        checkMetadata(firstItemMetadataValues, expectedMetadataItem1);
+        // check second item
+        List<MetadataValue> secondItemMetadataValues = secondImportedItem.getMetadata();
+        assertEquals(23, secondItemMetadataValues.size());
+        checkMetadata(secondItemMetadataValues, expectedMetadataItem2);
+    }
+
+    private void checkMetadata(List<MetadataValue> metadataValues, Set<String> expectedItemMetadata) {
         for (MetadataValue metadataValue : metadataValues) {
             var field = metadataValue.getMetadataField().toString('.');
             var value = metadataValue.getValue();
             if (isTecnicalMetadata(field)) {
                 continue;
             }
-            assertTrue(expectedMetadata.contains(field + " : " + value));
+            var valueToCheck = field + " : " + value;
+            assertTrue("Missing value:" + valueToCheck, expectedItemMetadata.contains(valueToCheck));
         }
-
-        assertFalse("There should be only one imported item, but more were found.", items.hasNext());
     }
 
     private boolean isTecnicalMetadata(String field) {

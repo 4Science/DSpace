@@ -1,0 +1,523 @@
+<collection xmlns="http://www.loc.gov/MARC21/slim">
+    <record>
+        <controlfield tag="001">147853</controlfield>
+        <controlfield tag="005">20230505223521.0</controlfield>
+        <datafield tag="024" ind1="7" ind2=" ">
+            <subfield code="2">doi</subfield>
+            <subfield code="a">10.1103/PhysRevB.80.165312</subfield>
+        </datafield>
+        <datafield tag="024" ind1="7" ind2="0">
+            <subfield code="2">ISI</subfield>
+            <subfield code="a">000271352100087</subfield>
+        </datafield>
+        <datafield tag="037" ind1=" " ind2=" ">
+            <subfield code="a">ARTICLE</subfield>
+        </datafield>
+        <datafield tag="039" ind1=" " ind2="9">
+            <subfield code="a">2023-05-05 22:35:21</subfield>
+            <subfield code="b">0</subfield>
+            <subfield code="c">2023-01-13 19:24:17</subfield>
+            <subfield code="d">0</subfield>
+            <subfield code="c">2020-11-02 21:41:58</subfield>
+            <subfield code="d">0</subfield>
+            <subfield code="c">2020-10-28 23:09:11</subfield>
+            <subfield code="d">0</subfield>
+            <subfield code="c">2020-10-27 09:14:47</subfield>
+            <subfield code="d">0</subfield>
+            <subfield code="c">2020-10-27 04:29:38</subfield>
+            <subfield code="d">0</subfield>
+            <subfield code="c">2020-10-26 12:06:34</subfield>
+            <subfield code="d">0</subfield>
+            <subfield code="c">2020-10-26 05:44:36</subfield>
+            <subfield code="d">0</subfield>
+            <subfield code="c">2020-10-25 22:36:09</subfield>
+            <subfield code="d">0</subfield>
+            <subfield code="c">2020-10-25 11:49:46</subfield>
+            <subfield code="d">0</subfield>
+            <subfield code="c">2020-10-25 09:35:14</subfield>
+            <subfield code="d">0</subfield>
+            <subfield code="c">2020-10-25 04:24:07</subfield>
+            <subfield code="d">0</subfield>
+            <subfield code="c">2020-10-25 01:22:45</subfield>
+            <subfield code="d">0</subfield>
+            <subfield code="c">2020-10-24 21:36:00</subfield>
+            <subfield code="d">0</subfield>
+            <subfield code="c">2020-10-24 10:11:26</subfield>
+            <subfield code="d">0</subfield>
+            <subfield code="c">2020-10-24 01:25:35</subfield>
+            <subfield code="d">0</subfield>
+            <subfield code="c">2020-10-23 15:28:59</subfield>
+            <subfield code="d">0</subfield>
+            <subfield code="c">2020-07-30 02:12:28</subfield>
+            <subfield code="d">273092026</subfield>
+            <subfield code="c">2020-05-19 10:40:49</subfield>
+            <subfield code="d">273092026</subfield>
+            <subfield code="c">2020-04-20 08:19:44</subfield>
+            <subfield code="d">0</subfield>
+            <subfield code="c">2020-04-20 05:57:49</subfield>
+            <subfield code="d">0</subfield>
+            <subfield code="c">2019-12-05 13:54:38</subfield>
+            <subfield code="d">0</subfield>
+            <subfield code="c">2019-03-16 23:47:43</subfield>
+            <subfield code="d">0</subfield>
+            <subfield code="c">2019-03-05 17:54:08</subfield>
+            <subfield code="d">0</subfield>
+            <subfield code="c">2018-12-03 02:18:45</subfield>
+            <subfield code="d">0</subfield>
+            <subfield code="c">2018-12-03 00:10:43</subfield>
+            <subfield code="d">0</subfield>
+            <subfield code="c">2018-11-14 20:22:23</subfield>
+            <subfield code="d">0</subfield>
+            <subfield code="c">2018-11-14 18:21:43</subfield>
+            <subfield code="d">0</subfield>
+            <subfield code="c">2018-09-13 05:57:30</subfield>
+            <subfield code="d">0</subfield>
+            <subfield code="c">2018-09-13 03:15:02</subfield>
+            <subfield code="d">0</subfield>
+            <subfield code="c">2018-03-17 09:52:35</subfield>
+            <subfield code="d">0</subfield>
+            <subfield code="c">2018-01-28 02:17:20</subfield>
+            <subfield code="d">0</subfield>
+            <subfield code="c">2018-01-27 02:17:59</subfield>
+            <subfield code="d">0</subfield>
+            <subfield code="c">2017-05-12 14:16:57</subfield>
+            <subfield code="d">0</subfield>
+            <subfield code="c">2016-08-08 23:46:59</subfield>
+            <subfield code="d">0</subfield>
+            <subfield code="c">2016-05-30 13:47:18</subfield>
+            <subfield code="d">0</subfield>
+            <subfield code="c">2012-11-08 15:24:34</subfield>
+            <subfield code="d">0</subfield>
+            <subfield code="c">2012-11-07 15:13:07</subfield>
+            <subfield code="d">0</subfield>
+            <subfield code="c">2012-04-27 11:19:05</subfield>
+            <subfield code="d">0</subfield>
+            <subfield code="c">2012-04-26 11:13:46</subfield>
+            <subfield code="d">0</subfield>
+            <subfield code="c">2012-04-26 08:46:16</subfield>
+            <subfield code="d">0</subfield>
+            <subfield code="c">2012-03-21 18:09:29</subfield>
+            <subfield code="d">0</subfield>
+            <subfield code="c">2012-03-20 18:05:31</subfield>
+            <subfield code="d">0</subfield>
+            <subfield code="c">2012-03-20 00:07:52</subfield>
+            <subfield code="d">0</subfield>
+            <subfield code="c">2012-03-13 17:31:57</subfield>
+            <subfield code="d">0</subfield>
+            <subfield code="c">2012-03-13 16:29:09</subfield>
+            <subfield code="d">0</subfield>
+            <subfield code="c">2012-03-13 00:07:41</subfield>
+            <subfield code="d">0</subfield>
+            <subfield code="c">2012-03-07 15:59:41</subfield>
+            <subfield code="d">0</subfield>
+            <subfield code="c">2012-03-06 15:52:59</subfield>
+            <subfield code="d">0</subfield>
+            <subfield code="c">2012-03-06 00:07:03</subfield>
+            <subfield code="d">0</subfield>
+            <subfield code="c">2012-02-29 15:24:50</subfield>
+            <subfield code="d">0</subfield>
+            <subfield code="c">2012-02-28 15:19:34</subfield>
+            <subfield code="d">0</subfield>
+            <subfield code="c">2012-02-28 00:08:56</subfield>
+            <subfield code="d">0</subfield>
+            <subfield code="c">2012-02-24 14:54:40</subfield>
+            <subfield code="d">0</subfield>
+            <subfield code="c">2012-02-23 14:50:10</subfield>
+            <subfield code="d">0</subfield>
+            <subfield code="c">2012-02-21 00:04:22</subfield>
+            <subfield code="d">0</subfield>
+            <subfield code="c">2012-02-14 00:03:40</subfield>
+            <subfield code="d">0</subfield>
+            <subfield code="c">2012-02-07 00:02:48</subfield>
+            <subfield code="d">0</subfield>
+            <subfield code="c">2011-12-16 13:41:49</subfield>
+            <subfield code="d">0</subfield>
+            <subfield code="c">2011-09-01 18:41:06</subfield>
+            <subfield code="d">0</subfield>
+            <subfield code="c">2011-08-31 16:51:03</subfield>
+            <subfield code="d">0</subfield>
+            <subfield code="c">2011-08-24 18:41:15</subfield>
+            <subfield code="d">0</subfield>
+            <subfield code="c">2011-08-23 15:59:14</subfield>
+            <subfield code="d">0</subfield>
+            <subfield code="c">2011-08-05 15:42:10</subfield>
+            <subfield code="d">0</subfield>
+            <subfield code="c">2011-08-04 15:39:13</subfield>
+            <subfield code="d">0</subfield>
+            <subfield code="c">2011-07-15 15:00:14</subfield>
+            <subfield code="d">0</subfield>
+            <subfield code="y">2011-07-09 12:02:09</subfield>
+            <subfield code="z">0</subfield>
+        </datafield>
+        <datafield tag="245" ind1=" " ind2=" ">
+            <subfield code="a">Coulomb correlations of charged excitons in semiconductor quantum dots</subfield>
+        </datafield>
+        <datafield tag="260" ind1=" " ind2=" ">
+            <subfield code="c">2009</subfield>
+        </datafield>
+        <datafield tag="269" ind1=" " ind2=" ">
+            <subfield code="a">2009</subfield>
+        </datafield>
+        <datafield tag="336" ind1=" " ind2=" ">
+            <subfield code="a">Journal Articles</subfield>
+        </datafield>
+        <datafield tag="520" ind1=" " ind2=" ">
+            <subfield code="a">The emission pattern of charged excitons in a semiconductor quantum dot (QD).</subfield>
+        </datafield>
+        <datafield tag="653" ind1="1" ind2=" ">
+            <subfield code="a">Fine Structure Splitting</subfield>
+        </datafield>
+        <datafield tag="653" ind1="1" ind2=" ">
+            <subfield code="a">Spin</subfield>
+        </datafield>
+        <datafield tag="653" ind1="1" ind2=" ">
+            <subfield code="a">Excitons</subfield>
+        </datafield>
+        <datafield tag="653" ind1="1" ind2=" ">
+            <subfield code="a">Semiconductor nanostructures</subfield>
+        </datafield>
+        <datafield tag="700" ind1=" " ind2=" ">
+            <subfield code="0">241869</subfield>
+            <subfield code="a">Oberli, D. Y.</subfield>
+            <subfield code="g">106001</subfield>
+        </datafield>
+        <datafield tag="700" ind1=" " ind2=" ">
+            <subfield code="a">Byszewski, M.</subfield>
+        </datafield>
+        <datafield tag="700" ind1=" " ind2=" ">
+            <subfield code="a">Chalupar, B.</subfield>
+        </datafield>
+        <datafield tag="700" ind1=" " ind2=" ">
+            <subfield code="0">240544</subfield>
+            <subfield code="a">Pelucchi, E.</subfield>
+            <subfield code="g">148133</subfield>
+        </datafield>
+        <datafield tag="700" ind1=" " ind2=" ">
+            <subfield code="0">240082</subfield>
+            <subfield code="a">Rudra, A.</subfield>
+            <subfield code="g">106305</subfield>
+        </datafield>
+        <datafield tag="700" ind1=" " ind2=" ">
+            <subfield code="0">240239</subfield>
+            <subfield code="a">Kapon, E.</subfield>
+            <subfield code="g">105530</subfield>
+        </datafield>
+        <datafield tag="773" ind1=" " ind2=" ">
+            <subfield code="j">80</subfield>
+            <subfield code="q">165312-(1-7)</subfield>
+        </datafield>
+        <datafield tag="856" ind1="4" ind2=" ">
+            <subfield code="9">4ccc1711-88b7-4c8a-8384-60c5687db241</subfield>
+            <subfield code="e">RESTRICTED</subfield>
+            <subfield code="s">127739</subfield>
+            <subfield code="u">https://test/record/147853</subfield>
+            <subfield code="2">947ce7eec5e7897e93ff7aa59fa8f7a7</subfield>
+        </datafield>
+        <datafield tag="856" ind1="4" ind2=" ">
+            <subfield code="9">71c26b89-d689-4c59-ab96-35b5f0f44fe1</subfield>
+            <subfield code="e">RESTRICTED</subfield>
+            <subfield code="s">48233</subfield>
+            <subfield code="z">n/a</subfield>
+            <subfield code="u">https://test.it/record/147853</subfield>
+            <subfield code="2">439245e19b68c144ae57d64f0d00c0a3</subfield>
+        </datafield>
+        <datafield tag="856" ind1="4" ind2=" ">
+            <subfield code="9">042dfd30-2fad-488a-86b0-c6e2dd25aea9</subfield>
+            <subfield code="e">RESTRICTED</subfield>
+            <subfield code="s">38242</subfield>
+            <subfield code="u">https://test.ch/record/14785</subfield>
+            <subfield code="2">1c6192a35ac1bd30b507bf0004254095</subfield>
+        </datafield>
+        <datafield tag="856" ind1="4" ind2=" ">
+            <subfield code="9">fd8ef127-45c1-4b7a-ab82-759b17339ce3</subfield>
+            <subfield code="e">RESTRICTED</subfield>
+            <subfield code="s">49948</subfield>
+            <subfield code="z">n/a</subfield>
+            <subfield code="u">https://test.ch/record/14785</subfield>
+            <subfield code="2">09c4410b6cd8d3b39ad11fb92fd527d6</subfield>
+        </datafield>
+        <datafield tag="856" ind1="4" ind2=" ">
+            <subfield code="9">e1ad9822-1168-41d2-a5e6-f6962ea7f5c4</subfield>
+            <subfield code="e">RESTRICTED</subfield>
+            <subfield code="s">253229</subfield>
+            <subfield code="u">https://test.ch/record/14785</subfield>
+            <subfield code="2">6731d5e9fd20f72a23b00b41deb4c0d7</subfield>
+        </datafield>
+        <datafield tag="856" ind1="4" ind2=" ">
+            <subfield code="9">a1da6241-5679-4494-8316-6b03f7cd2a24</subfield>
+            <subfield code="e">RESTRICTED</subfield>
+            <subfield code="s">56460</subfield>
+            <subfield code="u">https://test.ch/record/1478</subfield>
+            <subfield code="2">07060d1ba849c9176cf4fa545f42fcd0</subfield>
+        </datafield>
+        <datafield tag="856" ind1="4" ind2=" ">
+            <subfield code="9">b0673119-9292-403b-86e2-7bee1e699340</subfield>
+            <subfield code="e">RESTRICTED</subfield>
+            <subfield code="s">51857</subfield>
+            <subfield code="z">n/a</subfield>
+            <subfield code="2">5216a51ea1a363a3236d44cd3fd01a74</subfield>
+        </datafield>
+        <datafield tag="856" ind1="4" ind2=" ">
+            <subfield code="9">13369d59-b316-40e8-a2cd-7958c1d3bf9a</subfield>
+            <subfield code="e">RESTRICTED</subfield>
+            <subfield code="s">38300</subfield>
+            <subfield code="2">8d91470aa0710465ac959942bc868ca2</subfield>
+        </datafield>
+        <datafield tag="856" ind1="4" ind2=" ">
+            <subfield code="9">249f2569-9d7f-4c60-8c89-7b9f1d25ee5d</subfield>
+            <subfield code="e">RESTRICTED</subfield>
+            <subfield code="s">43548</subfield>
+            <subfield code="2">ae9b61e0846ce543723e08ecdd3332f5</subfield>
+        </datafield>
+        <datafield tag="856" ind1="4" ind2=" ">
+            <subfield code="9">95c56773-2fb4-414f-8a6c-0a77b67f7587</subfield>
+            <subfield code="e">RESTRICTED</subfield>
+            <subfield code="s">25847</subfield>
+            <subfield code="z">n/a</subfield>
+            <subfield code="2">ac8de713dce80c7ddd528f53ee76c327</subfield>
+        </datafield>
+        <datafield tag="856" ind1="4" ind2=" ">
+            <subfield code="9">67f9a53c-7591-4095-9a0f-c316552f19a7</subfield>
+            <subfield code="e">RESTRICTED</subfield>
+            <subfield code="s">123214</subfield>
+            <subfield code="2">eca743e46c7f441102897ba8830b4628</subfield>
+        </datafield>
+        <datafield tag="856" ind1="4" ind2=" ">
+            <subfield code="9">e3dfdeaf-d08e-4ebd-9394-835a46cd525a</subfield>
+            <subfield code="e">RESTRICTED</subfield>
+            <subfield code="s">56297</subfield>
+            <subfield code="2">023b73647b42b092cdb64d51ac81f140</subfield>
+        </datafield>
+        <datafield tag="856" ind1="4" ind2=" ">
+            <subfield code="9">be3eb707-a823-436f-b323-198b1992467c</subfield>
+            <subfield code="e">RESTRICTED</subfield>
+            <subfield code="s">127236</subfield>
+            <subfield code="2">ef87f04720d0d301fbd9401c67391811</subfield>
+        </datafield>
+        <datafield tag="856" ind1="4" ind2=" ">
+            <subfield code="e">Public</subfield>
+            <subfield code="0">Publisher's version</subfield>
+            <subfield code="9">2113dd3d-a89b-4730-8ae4-a74acb10cd23</subfield>
+            <subfield code="s">225987</subfield>
+            <subfield code="y">Publisher's version</subfield>
+            <subfield code="2">7678a81243ddc6ccf0231fd5ffd1b821</subfield>
+        </datafield>
+        <datafield tag="909" ind1="C" ind2="0">
+            <subfield code="0">252035</subfield>
+            <subfield code="p">LPN</subfield>
+            <subfield code="x">U10158</subfield>
+        </datafield>
+        <datafield tag="909" ind1="C" ind2="O">
+            <subfield code="o">oai:test.tind.io:147853</subfield>
+            <subfield code="p">SB</subfield>
+            <subfield code="p">OpenAIREv4</subfield>
+            <subfield code="p">article</subfield>
+            <subfield code="q">GLOBAL_SET</subfield>
+        </datafield>
+        <datafield tag="917" ind1="Z" ind2="8">
+            <subfield code="x">106001</subfield>
+        </datafield>
+        <datafield tag="973" ind1=" " ind2=" ">
+            <subfield code="a">TEST</subfield>
+            <subfield code="r">REVIEWED</subfield>
+            <subfield code="s">PUBLISHED</subfield>
+        </datafield>
+        <datafield tag="980" ind1=" " ind2=" ">
+            <subfield code="a">ARTICLE</subfield>
+        </datafield>
+    </record>
+    <record>
+        <controlfield tag="001">293489</controlfield>
+        <controlfield tag="005">20230506061353.0</controlfield>
+        <datafield tag="037" ind1=" " ind2=" ">
+            <subfield code="a">OBJECTS</subfield>
+        </datafield>
+        <datafield tag="039" ind1=" " ind2="9">
+            <subfield code="a">2023-05-06 06:13:53</subfield>
+            <subfield code="b">0</subfield>
+            <subfield code="c">2023-01-13 20:16:01</subfield>
+            <subfield code="d">0</subfield>
+            <subfield code="c">2022-04-22 22:31:17</subfield>
+            <subfield code="d">0</subfield>
+            <subfield code="c">2022-04-22 14:23:48</subfield>
+            <subfield code="d">273096332</subfield>
+            <subfield code="c">2022-04-22 14:23:43</subfield>
+            <subfield code="d">0</subfield>
+            <subfield code="c">2022-04-21 09:55:53</subfield>
+            <subfield code="d">273092769</subfield>
+            <subfield code="c">2022-04-21 09:39:21</subfield>
+            <subfield code="d">273092769</subfield>
+            <subfield code="y">2022-04-21 09:39:16</subfield>
+            <subfield code="z">0</subfield>
+        </datafield>
+        <datafield tag="245" ind1=" " ind2=" ">
+            <subfield code="a">Advanced Active Facade - Demonstrator</subfield>
+        </datafield>
+        <datafield tag="260" ind1=" " ind2=" ">
+            <subfield code="c">2017-09-01</subfield>
+        </datafield>
+        <datafield tag="269" ind1=" " ind2=" ">
+            <subfield code="a">2017-09-01</subfield>
+        </datafield>
+        <datafield tag="300" ind1=" " ind2=" ">
+            <subfield code="c">300x300x300 cm</subfield>
+        </datafield>
+        <datafield tag="336" ind1=" " ind2=" ">
+            <subfield code="a">Physical Objects</subfield>
+        </datafield>
+        <datafield tag="340" ind1=" " ind2=" ">
+            <subfield code="a">BIPV panels</subfield>
+        </datafield>
+        <datafield tag="340" ind1=" " ind2=" ">
+            <subfield code="a">BIPV panel fastening system</subfield>
+        </datafield>
+        <datafield tag="340" ind1=" " ind2=" ">
+            <subfield code="a">Fibrociment panels</subfield>
+        </datafield>
+        <datafield tag="340" ind1=" " ind2=" ">
+            <subfield code="a">Blown cellulose insultation</subfield>
+        </datafield>
+        <datafield tag="340" ind1=" " ind2=" ">
+            <subfield code="a">Timber substructure</subfield>
+        </datafield>
+        <datafield tag="340" ind1=" " ind2=" ">
+            <subfield code="a">OSB panels</subfield>
+        </datafield>
+        <datafield tag="340" ind1=" " ind2=" ">
+            <subfield code="a">Wood fiber insulation</subfield>
+        </datafield>
+        <datafield tag="340" ind1=" " ind2=" ">
+            <subfield code="a">Plaster board</subfield>
+        </datafield>
+        <datafield tag="340" ind1=" " ind2=" ">
+            <subfield code="a">Window façade module</subfield>
+        </datafield>
+        <datafield tag="340" ind1=" " ind2=" ">
+            <subfield code="a">Translucent BIPV panel (balustrade)</subfield>
+        </datafield>
+        <datafield tag="700" ind1=" " ind2=" ">
+            <subfield code="0">249126</subfield>
+            <subfield code="a">Clua Longas, Angela</subfield>
+            <subfield code="g">259949</subfield>
+        </datafield>
+        <datafield tag="700" ind1=" " ind2=" ">
+            <subfield code="0">244344</subfield>
+            <subfield code="a">Rey, Emmanuel</subfield>
+            <subfield code="g">103324</subfield>
+        </datafield>
+        <datafield tag="710" ind1=" " ind2=" ">
+            <subfield code="a">Swiss Centre for Electronics and Microtechnology (CSEM)</subfield>
+        </datafield>
+        <datafield tag="710" ind1=" " ind2=" ">
+            <subfield code="a">H.Glass</subfield>
+        </datafield>
+        <datafield tag="787" ind1=" " ind2=" ">
+            <subfield code="e">Is Part Of</subfield>
+            <subfield code="w">https://test/record/27272</subfield>
+        </datafield>
+        <datafield tag="856" ind1="4" ind2=" ">
+            <subfield code="e">Public</subfield>
+            <subfield code="0">n/a</subfield>
+            <subfield code="1">CC BY-NC-ND</subfield>
+            <subfield code="9">ba67bdf1-7d3b-4a9c-8f2f-6236276f713b</subfield>
+            <subfield code="s">249162</subfield>
+            <subfield code="y">AAF Demonstrator</subfield>
+            <subfield code="2">071d0e1d1f3ec34ec1bf24d5a1845ebf</subfield>
+        </datafield>
+        <datafield tag="856" ind1="4" ind2=" ">
+            <subfield code="e">Public</subfield>
+            <subfield code="0">n/a</subfield>
+            <subfield code="1">CC BY-NC-ND</subfield>
+            <subfield code="9">f57f9220-6446-406e-8a3f-980d5a23e5a4</subfield>
+            <subfield code="s">277845</subfield>
+            <subfield code="y">AAF Demonstrator</subfield>
+            <subfield code="2">20b8a4d2e50f2f74fad0342c5a7a283c</subfield>
+        </datafield>
+        <datafield tag="856" ind1="4" ind2=" ">
+            <subfield code="e">Public</subfield>
+            <subfield code="0">n/a</subfield>
+            <subfield code="1">CC BY-NC-ND</subfield>
+            <subfield code="9">84f5c21d-aa4b-455c-9612-39d90b4da6f4</subfield>
+            <subfield code="s">230946</subfield>
+            <subfield code="y">AAF Demonstrator</subfield>
+            <subfield code="2">992f768f47fb04f8f9a431e4c2c564b1</subfield>
+        </datafield>
+        <datafield tag="856" ind1="4" ind2=" ">
+            <subfield code="e">Public</subfield>
+            <subfield code="0">n/a</subfield>
+            <subfield code="1">CC BY-NC-ND</subfield>
+            <subfield code="9">605917fb-64b0-452e-8e0b-be04495d91a7</subfield>
+            <subfield code="s">211641</subfield>
+            <subfield code="y">AAF Demonstrator</subfield>
+            <subfield code="2">475ee2ba92aa81747ba3052efd4ea707</subfield>
+        </datafield>
+        <datafield tag="856" ind1="4" ind2=" ">
+            <subfield code="e">Public</subfield>
+            <subfield code="0">n/a</subfield>
+            <subfield code="1">CC BY-NC-ND</subfield>
+            <subfield code="9">61ffcd37-075c-4ebd-ad3f-e4e554efadf7</subfield>
+            <subfield code="s">164136</subfield>
+            <subfield code="y">AAF Demonstrator</subfield>
+            <subfield code="2">5825d6a0dcb2aa7cf63af1e53ee23896</subfield>
+        </datafield>
+        <datafield tag="856" ind1="4" ind2=" ">
+            <subfield code="e">Public</subfield>
+            <subfield code="0">n/a</subfield>
+            <subfield code="1">CC BY-NC-ND</subfield>
+            <subfield code="9">e64a1da9-4fc1-4e19-932f-67464067a7c8</subfield>
+            <subfield code="s">162924</subfield>
+            <subfield code="y">AAF Demonstrator</subfield>
+            <subfield code="2">69e58fc81af29e5112ea6616c783c138</subfield>
+        </datafield>
+        <datafield tag="856" ind1="4" ind2=" ">
+            <subfield code="e">Public</subfield>
+            <subfield code="0">n/a</subfield>
+            <subfield code="1">CC BY-NC-ND</subfield>
+            <subfield code="9">0b18bf3b-d1f4-4231-b29a-0eb6dc306fcb</subfield>
+            <subfield code="s">140171</subfield>
+            <subfield code="y">AAF Demonstrator</subfield>
+            <subfield code="2">689aa15349d8344735c1ce10f9876ffb</subfield>
+        </datafield>
+        <datafield tag="856" ind1="4" ind2=" ">
+            <subfield code="e">Public</subfield>
+            <subfield code="0">n/a</subfield>
+            <subfield code="1">CC BY-NC-ND</subfield>
+            <subfield code="9">50b76070-7364-435a-88b6-df7186f3f7bb</subfield>
+            <subfield code="s">199974</subfield>
+            <subfield code="y">AAF Demonstrator</subfield>
+            <subfield code="2">4c9de148dce84162ecaee31fa6dbf1c1</subfield>
+        </datafield>
+        <datafield tag="856" ind1="0" ind2=" ">
+            <subfield code="f">martin.lapri@test.it</subfield>
+        </datafield>
+        <datafield tag="856" ind1="4" ind2="1">
+            <subfield code="u">https://www.test.ch/lab/pv-2050-en/</subfield>
+        </datafield>
+        <datafield tag="909" ind1="C" ind2="0">
+            <subfield code="0">252299</subfield>
+            <subfield code="m">sandr.bott@test.it</subfield>
+            <subfield code="p">LAST</subfield>
+            <subfield code="x">U12329</subfield>
+            <subfield code="z">Blanc, Chantal</subfield>
+        </datafield>
+        <datafield tag="909" ind1="C" ind2="O">
+            <subfield code="o">oai:test:293489</subfield>
+            <subfield code="p">ENAC</subfield>
+        </datafield>
+        <datafield tag="960" ind1=" " ind2=" ">
+            <subfield code="a">martine@test.ch</subfield>
+        </datafield>
+        <datafield tag="961" ind1=" " ind2=" ">
+            <subfield code="a">r.rodriguesdematos@test.ua</subfield>
+        </datafield>
+        <datafield tag="973" ind1=" " ind2=" ">
+            <subfield code="a">TEST</subfield>
+        </datafield>
+        <datafield tag="980" ind1=" " ind2=" ">
+            <subfield code="a">OBJECTS</subfield>
+        </datafield>
+        <datafield tag="981" ind1=" " ind2=" ">
+            <subfield code="a">overwrite</subfield>
+        </datafield>
+    </record>
+</collection>
