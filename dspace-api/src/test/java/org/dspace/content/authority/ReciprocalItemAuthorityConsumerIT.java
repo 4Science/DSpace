@@ -74,6 +74,8 @@ public class ReciprocalItemAuthorityConsumerIT extends AbstractIntegrationTestWi
                                          "dc.relation.annotation");
         configurationService.setProperty("ItemAuthority.reciprocalMetadata.Publication.dc.relation.path",
                                          "dc.relation.haspartofpath");
+        configurationService.setProperty("ItemAuthority.reciprocalMetadata.Person.dc.relation.path",
+                                         "dc.relation.haspartofpath");
         metadataAuthorityService.clearCache();
         initializeReciprocalConfiguration();
 
@@ -490,6 +492,76 @@ public class ReciprocalItemAuthorityConsumerIT extends AbstractIntegrationTestWi
 
             Item relatedPublication = itemService.findByIdOrLegacyId(new Context(), hasPartOfAuthority.get(0));
             Assert.assertEquals(publication.getID(), relatedPublication.getID());
+        } finally {
+            metadataAuthorityService.clearCache();
+        }
+    }
+
+    @Test
+    public void reciprocalRelationbetweenPersonAndPathTest() throws Exception {
+        try {
+            configurationService.setProperty("authority.controlled.dc.relation.haspartofpath", "true");
+            configurationService.setProperty("authority.controlled.dc.relation.path", "true");
+            metadataAuthorityService.clearCache();
+
+            context.turnOffAuthorisationSystem();
+            Collection pathCollection = CollectionBuilder.createCollection(context, parentCommunity)
+                                                         .withEntityType("Path")
+                                                         .withName("Path collection")
+                                                         .build();
+            Collection personCollection = CollectionBuilder.createCollection(context, parentCommunity)
+                                                           .withEntityType("Person")
+                                                           .withName("Person collection")
+                                                           .build();
+            Item pathItem = ItemBuilder.createItem(context, pathCollection)
+                                       .withTitle("Path Item title")
+                                       .build();
+            Item personItem = ItemBuilder.createItem(context, personCollection)
+                                         .withTitle("Misha, Boychuk")
+                                         .withLanguage("ua")
+                                         .withBirthDate("05-09-1940")
+                                         .withMetadata("dc", "relation", "path", null,
+                                              pathItem.getName(), pathItem.getID().toString(), Choices.CF_ACCEPTED)
+                                         .build();
+            context.commit();
+
+            List<MetadataValue> metadataValues =
+                    itemService.getMetadataByMetadataString(personItem, "dc.relation.path");
+            Assert.assertEquals(1, metadataValues.size());
+
+            List<MetadataValue> pathMetadataValues =
+                    itemService.getMetadataByMetadataString(pathItem, "dc.relation.haspartofpath");
+            Assert.assertEquals(1, pathMetadataValues.size());
+
+            assertThat(pathMetadataValues, hasItem(
+                    MetadataValueMatcher.with(
+                            "dc.relation.haspartofpath",
+                            personItem.getName(),
+                            personItem.getID().toString(),
+                            Choices.CF_ACCEPTED
+                    )
+            ));
+
+            SolrDocumentList solrDocumentList = getSolrDocumentList(personItem);
+            Assert.assertEquals(1, solrDocumentList.size());
+            SolrDocument personItemSolrDoc = solrDocumentList.get(0);
+
+            List<String> relationPathValue = (List<String>) personItemSolrDoc.get("dc.relation.path");
+            List<String> relationPathAuthority = (List<String>)personItemSolrDoc.get("dc.relation.path_authority");
+            assertThat(relationPathValue, hasItem(pathItem.getName()));
+            assertThat(relationPathAuthority, hasItem(pathItem.getID().toString()));
+
+            SolrDocumentList solrDocumentList2 = getSolrDocumentList(pathItem);
+            Assert.assertEquals(1, solrDocumentList2.size());
+            SolrDocument pathItemSolrDoc = solrDocumentList2.get(0);
+
+            List<String> hasPartOfValue = (List<String>) pathItemSolrDoc.get("dc.relation.haspartofpath");
+            List<String> hasPartOfAuthority = (List<String>) pathItemSolrDoc.get("dc.relation.haspartofpath_authority");
+            assertThat(hasPartOfValue, hasItem(personItem.getName()));
+            assertThat(hasPartOfAuthority, hasItem(personItem.getID().toString()));
+
+            Item relatedPerson = itemService.findByIdOrLegacyId(new Context(), hasPartOfAuthority.get(0));
+            Assert.assertEquals(personItem.getID(), relatedPerson.getID());
         } finally {
             metadataAuthorityService.clearCache();
         }
