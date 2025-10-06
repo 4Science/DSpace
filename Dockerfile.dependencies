@@ -12,9 +12,8 @@ FROM docker.io/maven:3.9.9-eclipse-temurin-${JDK_VERSION} AS build
 ARG TARGET_DIR=dspace-installer
 WORKDIR /app
 # Create the 'dspace' user account & home directory
-RUN useradd dspace \
-    && mkdir -p /home/dspace /app/dspace \
-    && chown -Rv dspace: /home/dspace
+RUN useradd -m -d /home/dspace -s /bin/bash dspace \
+    && mkdir -p /app/dspace
 RUN chown -Rv dspace: /app
 
 # Switch to dspace user & run below commands as that user
