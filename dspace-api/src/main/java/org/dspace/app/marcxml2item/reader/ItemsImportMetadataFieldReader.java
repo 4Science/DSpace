@@ -11,6 +11,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.regex.Pattern;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
@@ -29,6 +30,7 @@ import org.w3c.dom.NodeList;
  **/
 public interface ItemsImportMetadataFieldReader {
 
+    String REGEX_NUMERIC_TIMESTAMP = "^\\d{14}\\.\\d$";
     DateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
     DateFormat YYYY_DATE_FORMAT = new SimpleDateFormat("yyyy");
     DateFormat YYYY_MM_DATE_FORMAT = new SimpleDateFormat("yyyy-MM");
@@ -48,6 +50,9 @@ public interface ItemsImportMetadataFieldReader {
     default String convertIfDate(String value) {
         if (StringUtils.isBlank(value)) {
             return value;
+        }
+        if (Pattern.matches(REGEX_NUMERIC_TIMESTAMP, value)) {
+            value = value.substring(0, 8);
         }
         Date date = MultiFormatDateParser.parse(value);
         if (date != null) {
