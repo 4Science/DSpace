@@ -89,6 +89,7 @@
             <field>dc.relation.hasversion</field>
             <xpath>./datafield[@tag = '775']/subfield[@code = 't']</xpath>
         </metadata-field>
+        <!--
         <metadata-field>
             <field>dc.relation.journalfonds</field>
             <xpath>./datafield[@tag = '773']/subfield[@code = 't']</xpath>
@@ -97,6 +98,7 @@
             <field>glamjournalfonds.parent</field>
             <xpath>./datafield[@tag = '773']/subfield[@code = 't']</xpath>
         </metadata-field>
+        -->
         <metadata-field>
             <field>dc.relation.isbn</field>
             <xpath>./datafield[@tag = '773']/subfield[@code = 'z']</xpath>
