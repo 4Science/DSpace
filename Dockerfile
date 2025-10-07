@@ -38,8 +38,8 @@ RUN mv /app/dspace/modules/server-boot/target/server-boot.jar /install/ && \
 # Step 2 - Run installation
 # Create a new tomcat image that does not retain the thze build directory contents
 FROM docker.io/eclipse-temurin:${JDK_VERSION}-jre AS install
-# Expose Tomcat port (8080) and debug port (8000)
-EXPOSE 8080 5005
+# Expose Tomcat port (8080) and Handle Server HTTP port (8000)
+EXPOSE 8080 8000 5005
 # NOTE: DSPACE_INSTALL must align with the "dspace.dir" default configuration.
 ENV DSPACE_INSTALL=/dspace
 WORKDIR $DSPACE_INSTALL
