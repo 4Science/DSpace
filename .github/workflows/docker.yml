@@ -214,6 +214,8 @@ jobs:
       # 2. Also check /collections endpoint to ensure the test data loaded properly (check for a collection name in AIPs)
       - name: Verify backend is responding properly
         run: |
+          docker logs dspace
+          docker ps
           result=$(wget -O- -q http://127.0.0.1:8080/server/api)
           echo "$result"
           echo "$result" |  grep -oE "\"DSpace-CRIS Started with Docker Compose\","
