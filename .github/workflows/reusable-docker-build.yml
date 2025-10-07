@@ -34,6 +34,10 @@ on:
       tags_flavor:
         required: false
         type: string
+      custom_tag:
+        required: false
+        type: string
+        description: 'Custom tag for a dspace image (overrides default branch-based tagging)'
     secrets:
       # Requires that Docker login info be passed in as secrets.
       DOCKER_USERNAME:
@@ -138,7 +142,8 @@ jobs:
         uses: docker/metadata-action@v5
         with:
           images: ${{ env.DOCKER_BUILD_REGISTRY }}/${{ env.IMAGE_NAME }}
-          tags: ${{ env.IMAGE_TAGS }}
+          tags: |
+            ${{ inputs.custom_tag && format('type=raw,value={0}', inputs.custom_tag) || env.IMAGE_TAGS }}
           flavor: ${{ env.TAGS_FLAVOR }}
 
       #--------------------------------------------------------------------

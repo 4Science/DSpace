@@ -30,6 +30,7 @@ jobs:
       build_id: dspace-cris-dependencies
       image_name: 4science/dspace-cris-dependencies
       dockerfile_path: ./Dockerfile.dependencies
+      custom_tag: 'dspace-cris-2023_02_x'
     secrets:
       DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
       DOCKER_ACCESS_TOKEN: ${{ secrets.DOCKER_ACCESS_TOKEN }}
