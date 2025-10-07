@@ -43,13 +43,18 @@ RUN mv /app/dspace/modules/server-boot/target/server-boot.jar /install/ && \
 # Step 2 - Run installation
 # Create a new tomcat image that does not retain the thze build directory contents
 FROM docker.io/eclipse-temurin:${JDK_VERSION}-jre AS install
+# Need host command for "[dspace]/bin/make-handle-config"
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends host \
+    && apt-get purge -y --auto-remove \
+    && rm -rf /var/lib/apt/lists/*
 # Expose Tomcat port (8080) and Handle Server HTTP port (8000)
 EXPOSE 8080 8000 5005
 # NOTE: DSPACE_INSTALL must align with the "dspace.dir" default configuration.
 ENV DSPACE_INSTALL=/dspace
 WORKDIR $DSPACE_INSTALL
 
-RUN useradd -m -d /home/dspace -s /bin/bash dspace
+RUN useradd -m -d /dspace -s /bin/bash dspace
 
 #COPY --from=build --chown=dspace /install/server-boot/application/ /app/server-boot/
 #COPY --from=build --chown=dspace /install/server-boot/spring-boot-loader/ /app/server-boot/
@@ -67,12 +72,6 @@ RUN install -d -m 0755 -o dspace -g dspace $DSPACE_INSTALL/assetstore/ $DSPACE_I
     && chmod +x $DSPACE_INSTALL/bin/*
 
 WORKDIR /app/server-boot
-
-# Need host command for "[dspace]/bin/make-handle-config"
-RUN apt-get update \
-    && apt-get install -y --no-install-recommends host \
-    && apt-get purge -y --auto-remove \
-    && rm -rf /var/lib/apt/lists/*
 
 USER dspace
 ENV JAVA_TOOL_OPTIONS="-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005"

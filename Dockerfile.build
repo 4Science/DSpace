@@ -15,7 +15,7 @@ ENV DATA_FOLDER=/data \
     VAR_DIR=/dspace/var \
     OAI_DIR=/dspace/var/oai
 
-RUN useradd -m -d /home/dspace -s /bin/bash dspace
+RUN useradd -m -d /dspace -s /bin/bash dspace
 
 COPY --chown=dspace ./dspace/modules/server-boot/target/server-boot-*.jar $DSPACE_INSTALL/server-boot.jar
 COPY --chown=dspace ./dspace/modules/server-boot/target/lib/ $DSPACE_INSTALL/lib/
