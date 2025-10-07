@@ -8,7 +8,7 @@ on:
   push:
     branches:
       - main-cris
-      - 'dspace-cris-*_02_x'
+      - 'fix_CRIS_docker_build-push-docker'
     tags:
       - 'dspace-cris-*.*.*'
   pull_request:
