@@ -49,7 +49,7 @@ EXPOSE 8080 8000 5005
 ENV DSPACE_INSTALL=/dspace
 WORKDIR $DSPACE_INSTALL
 
-RUN useradd -m -d /dspace -s /bin/bash dspace
+RUN useradd -m -d $DSPACE_INSTALL -s /bin/bash dspace
 
 #COPY --from=build --chown=dspace /install/server-boot/application/ /app/server-boot/
 #COPY --from=build --chown=dspace /install/server-boot/spring-boot-loader/ /app/server-boot/
@@ -62,6 +62,7 @@ COPY --chown=dspace dspace/config/ $DSPACE_INSTALL/config/
 COPY --chown=dspace dspace/bin/ $DSPACE_INSTALL/bin/
 RUN install -d -m 0755 -o dspace -g dspace $DSPACE_INSTALL/assetstore/ $DSPACE_INSTALL/log/ \
     $DSPACE_INSTALL/handle-server/ $DSPACE_INSTALL/upload/ \
+    $DSPACE_INSTALL/var/oai $DSPACE_INSTALL/download $DSPACE_INSTALL/triplestore \
     && ln -s /app/server-boot/lib $DSPACE_INSTALL/lib \
     && chown -h dspace:dspace $DSPACE_INSTALL/lib \
     && chmod +x $DSPACE_INSTALL/bin/*
