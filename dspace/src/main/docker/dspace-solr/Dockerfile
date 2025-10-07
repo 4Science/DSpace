@@ -19,7 +19,7 @@ ENV AUDIT_CONFIGSET_PATH=/opt/solr/server/solr/configsets/audit/conf \
     DEDUP_CONFIGSET_PATH=/opt/solr/server/solr/configsets/dedup/conf \
     OAI_CONFIGSET_PATH=/opt/solr/server/solr/configsets/oai/conf \
     OCR_CONFIGSET_PATH=/opt/solr/server/solr/configsets/ocr/conf \
-    QAEVENT_CONFIGSET_PATH=/opt/solr/server/solr/configsets/qaevent/conf \
+    NBEVENT_CONFIGSET_PATH=/opt/solr/server/solr/configsets/nbevent/conf \
     SEARCH_CONFIGSET_PATH=/opt/solr/server/solr/configsets/search/conf \
     STATISTICS_CONFIGSET_PATH=/opt/solr/server/solr/configsets/statistics/conf \
     SUGGESTION_CONFIGSET_PATH=/opt/solr/server/solr/configsets/suggestion/conf \
@@ -28,18 +28,17 @@ ENV AUDIT_CONFIGSET_PATH=/opt/solr/server/solr/configsets/audit/conf \
 USER root
 
 RUN mkdir -p $AUDIT_CONFIGSET_PATH $AUTHORITY_CONFIGSET_PATH $DEDUP_CONFIGSET_PATH $OAI_CONFIGSET_PATH \
-    $OCR_CONFIGSET_PATH $QAEVENT_CONFIGSET_PATH $SEARCH_CONFIGSET_PATH \
-    $STATISTICS_CONFIGSET_PATH $SUGGESTION_CONFIGSET_PATH \
-    $OCR_LIB_PATH $JTS_CORE_LIB_PATH
+    $OCR_CONFIGSET_PATH $NBEVENT_CONFIGSET_PATH $SEARCH_CONFIGSET_PATH \
+    $STATISTICS_CONFIGSET_PATH $SUGGESTION_CONFIGSET_PATH
 
-COPY --chown=solr:solr ./dspace/solr/ocr/lib/* /opt/solr-${SOLR_VERSION}/server/solr-webapp/webapp/WEB-INF/lib
+COPY --chown=solr:solr ./dspace/solr/ocr/lib/* $SOLR_LIB_PATH
 
 COPY --chown=solr:solr ./dspace/solr/audit/conf/* $AUDIT_CONFIGSET_PATH/
 COPY --chown=solr:solr ./dspace/solr/authority/conf/* $AUTHORITY_CONFIGSET_PATH/
 COPY --chown=solr:solr ./dspace/solr/dedup/conf/* $DEDUP_CONFIGSET_PATH/
 COPY --chown=solr:solr ./dspace/solr/oai/conf/* $OAI_CONFIGSET_PATH/
 COPY --chown=solr:solr ./dspace/solr/ocr/conf/* $OCR_CONFIGSET_PATH/
-COPY --chown=solr:solr ./dspace/solr/qaevent/conf/* $QAEVENT_CONFIGSET_PATH/
+COPY --chown=solr:solr ./dspace/solr/nbevent/conf/* $NBEVENT_CONFIGSET_PATH/
 COPY --chown=solr:solr ./dspace/solr/search/conf/* $SEARCH_CONFIGSET_PATH/
 COPY --chown=solr:solr ./dspace/solr/statistics/conf/* $STATISTICS_CONFIGSET_PATH/
 COPY --chown=solr:solr ./dspace/solr/suggestion/conf/* $SUGGESTION_CONFIGSET_PATH/
