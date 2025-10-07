@@ -54,7 +54,7 @@ definitions:
     - step: &integration-tests-dspace-api
         runs-on: self.hosted
         name: integration-tests-dspace-api
-        size: 1x
+        size: 2x
         caches:
           - gradle
           - gradlewrapper

@@ -39,7 +39,7 @@
   >@dc.publisher@</publisher>
   @if.metadata.dc-publisher.end@
   @if.metadata.dc-date-issued.start@
-  		<publicationYear>@virtual.date.dc-date-issued.YYYY@</publicationYear>
+  		<publicationYear>@virtual.date.dc-date-issued.yyyy@</publicationYear>
   @if.metadata.dc-date-issued.end@
   @if.not.metadata.dc-date-issued.start@
   		<publicationYear>(:unav)</publicationYear>
