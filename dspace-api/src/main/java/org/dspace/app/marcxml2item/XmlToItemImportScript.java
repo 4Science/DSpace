@@ -20,6 +20,8 @@ import org.apache.logging.log4j.Logger;
 import org.dspace.app.marcxml2item.model.ItemsImportMapping;
 import org.dspace.app.marcxml2item.parser.MarcXmlParser;
 import org.dspace.app.marcxml2item.parser.MarcXmlParserImpl;
+import org.dspace.app.marcxml2item.validator.MarcXmlValidator;
+import org.dspace.app.marcxml2item.validator.XMLValidator;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.authorize.factory.AuthorizeServiceFactory;
 import org.dspace.authorize.service.AuthorizeService;
@@ -67,12 +69,14 @@ public class XmlToItemImportScript extends DSpaceRunnable<XmlToItemImportScriptC
 
     private String finalStatus;
     private String xmlFileName;
+    private boolean validateXML;
     private String collectionUuid;
 
     private Context context;
     private Collection collection;
     private MarcXmlParser xmlParser;
     private ItemService itemService;
+    private XMLValidator xmlValidator;
     private WorkflowService workflowService;
     private AuthorizeService authorizeService;
     private CollectionService collectionService;
@@ -94,11 +98,17 @@ public class XmlToItemImportScript extends DSpaceRunnable<XmlToItemImportScriptC
         metadataSchemaService = ContentServiceFactory.getInstance().getMetadataSchemaService();
         itemService = sm.getServiceByName(ItemServiceImpl.class.getName(), ItemServiceImpl.class);
         xmlParser = sm.getServiceByName(MarcXmlParserImpl.class.getName(), MarcXmlParserImpl.class);
+        xmlValidator = sm.getServiceByName(MarcXmlValidator.class.getName(), MarcXmlValidator.class);
         collectionService = sm.getServiceByName(CollectionServiceImpl.class.getName(), CollectionServiceImpl.class);
 
-        xmlFileName = commandLine.getOptionValue('f');
-        finalStatus = commandLine.getOptionValue("fs", "ARCHIVED");
-        collectionUuid = commandLine.getOptionValue('c');
+        parseCommandLineOptions();
+    }
+
+    private void parseCommandLineOptions() {
+        this.validateXML = commandLine.hasOption('v');
+        this.xmlFileName = commandLine.getOptionValue('f');
+        this.collectionUuid = commandLine.getOptionValue('c');
+        this.finalStatus = commandLine.getOptionValue("fs", "ARCHIVED");
     }
 
     @Override
@@ -112,7 +122,11 @@ public class XmlToItemImportScript extends DSpaceRunnable<XmlToItemImportScriptC
         try {
             context.turnOffAuthorisationSystem();
             InputStream inputStream = getInputStream();
-            importItemsFromXML(inputStream);
+            if (validateXML) {
+                validation(inputStream);
+            } else {
+                importItemsFromXML(inputStream);
+            }
             context.complete();
         } catch (Exception e) {
             log.error(e.getMessage(), e);
@@ -121,6 +135,15 @@ public class XmlToItemImportScript extends DSpaceRunnable<XmlToItemImportScriptC
         } finally {
             context.restoreAuthSystemState();
         }
+    }
+
+    private void validation(InputStream inputStream) {
+        handler.logInfo("Start XML validation!");
+        boolean isValid = xmlValidator.validate(inputStream, this.handler);
+        if (!isValid) {
+            throw new IllegalArgumentException("The XML file is not well-formed or valid");
+        }
+        handler.logInfo("End validation: the XML file is well-formed and valid");
     }
 
     private InputStream getInputStream() throws IOException, AuthorizeException {

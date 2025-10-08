@@ -54,6 +54,8 @@ public class XmlToItemImportScriptConfiguration<T extends XmlToItemImportScript>
                               "possible values: ARCHIVED, WORKFLOW, WORKSPACE (default: ARCHIVED) if not specified, ");
             options.getOption("fs").setType(String.class);
             options.getOption("fs").setRequired(false);
+
+            options.addOption("v", "validate", false, "Validate if the XML file is well-formed and valid");
             super.options = options;
         }
         return options;
