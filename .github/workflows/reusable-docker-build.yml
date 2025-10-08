@@ -61,12 +61,10 @@ env:
   # For a pull request, use the name of the base branch that the PR was created against or "latest" (for main).
   #   e.g. PR against 'main' will use "latest". a PR against 'dspace-7_x' will use 'dspace-7_x'.
   IMAGE_TAGS: |
-    type=raw,value=${{ inputs.custom_tag }},enable=${{ inputs.custom_tag != '' }}
-    type=raw,value=latest,enable=${{ inputs.custom_tag == '' && github.ref_name == github.event.repository.default_branch }}
-    type=ref,event=branch,enable=${{ inputs.custom_tag == '' && github.ref_name != github.event.repository.default_branch }}
+    type=raw,value=latest,enable=${{ github.ref_name == github.event.repository.default_branch }}
+    type=ref,event=branch,enable=${{ github.ref_name != github.event.repository.default_branch }}
     type=ref,event=tag
     type=raw,value=${{ (github.event.pull_request.base.ref == github.event.repository.default_branch && 'latest') || github.event.pull_request.base.ref }},enable=${{ github.event_name == 'pull_request' }}
-
   # Define default tag "flavor" for docker/metadata-action per
   # https://github.com/docker/metadata-action#flavor-input
   # We manage the 'latest' tag ourselves to the 'main' branch (see settings above)
@@ -144,7 +142,8 @@ jobs:
         uses: docker/metadata-action@v5
         with:
           images: ${{ env.DOCKER_BUILD_REGISTRY }}/${{ env.IMAGE_NAME }}
-          tags: ${{ env.IMAGE_TAGS }}
+          tags: |
+            ${{ inputs.custom_tag && format('type=raw,value={0}', inputs.custom_tag) || env.IMAGE_TAGS }}
           flavor: ${{ env.TAGS_FLAVOR }}
 
       #--------------------------------------------------------------------
