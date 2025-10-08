@@ -69,11 +69,10 @@ RUN install -d -m 0755 -o dspace -g dspace $DSPACE_INSTALL/assetstore/ $DSPACE_I
 
 WORKDIR /app/server-boot
 
+
 USER dspace
 ENV JAVA_TOOL_OPTIONS="-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005"
 # java org.springframework.boot.loader.PropertiesLauncher
-ENTRYPOINT [\
-    "java", "-XX:MinRAMPercentage=20.0","-XX:MaxRAMPercentage=75.0","-XX:+HeapDumpOnOutOfMemoryError", "-XX:+UseG1GC",\
-    "-jar", "server-boot.jar",\
-    "--dspace.dir=$DSPACE_INSTALL", "--logging.config=$DSPACE_INSTALL/config/log4j2-container.xml"\
-]
+ENV JAVA_OPTS="-XX:MinRAMPercentage=20.0 -XX:MaxRAMPercentage=75.0 -XX:+HeapDumpOnOutOfMemoryError -XX:+UseG1GC"
+# java org.springframework.boot.loader.PropertiesLauncher
+ENTRYPOINT exec sh -c 'java $JAVA_OPTS -jar server-boot.jar --dspace.dir="${DSPACE_INSTALL}" --logging.config="${DSPACE_INSTALL}/config/log4j2-container.xml"'
