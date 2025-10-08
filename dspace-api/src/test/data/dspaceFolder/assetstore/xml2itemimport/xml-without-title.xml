@@ -1,0 +1,61 @@
+<collection xmlns="http://www.loc.gov/MARC21/slim">
+    <record>
+        <controlfield tag="001">293489</controlfield>
+        <controlfield tag="005">20230506061353.0</controlfield>
+        <datafield tag="037" ind1=" " ind2=" ">
+            <subfield code="a">OBJECTS</subfield>
+        </datafield>
+        <datafield tag="260" ind1=" " ind2=" ">
+            <subfield code="c">2017-09-01</subfield>
+        </datafield>
+        <datafield tag="340" ind1=" " ind2=" ">
+            <subfield code="a">Timber substructure</subfield>
+        </datafield>
+        <datafield tag="340" ind1=" " ind2=" ">
+            <subfield code="a">OSB panels</subfield>
+        </datafield>
+        <datafield tag="340" ind1=" " ind2=" ">
+            <subfield code="a">Wood fiber insulation</subfield>
+        </datafield>
+        <datafield tag="340" ind1=" " ind2=" ">
+            <subfield code="a">Plaster board</subfield>
+        </datafield>
+        <datafield tag="340" ind1=" " ind2=" ">
+            <subfield code="a">Window façade module</subfield>
+        </datafield>
+        <datafield tag="340" ind1=" " ind2=" ">
+            <subfield code="a">Translucent BIPV panel (balustrade)</subfield>
+        </datafield>
+        <datafield tag="710" ind1=" " ind2=" ">
+            <subfield code="a">Swiss Centre for Electronics and Microtechnology (CSEM)</subfield>
+        </datafield>
+        <datafield tag="710" ind1=" " ind2=" ">
+            <subfield code="a">H.Glass</subfield>
+        </datafield>
+        <datafield tag="787" ind1=" " ind2=" ">
+            <subfield code="e">Is Part Of</subfield>
+            <subfield code="w">https://test/record/27272</subfield>
+        </datafield>
+        <datafield tag="856" ind1="0" ind2=" ">
+            <subfield code="f">martin.lapri@test.it</subfield>
+        </datafield>
+        <datafield tag="856" ind1="4" ind2="1">
+            <subfield code="u">https://www.test.ch/lab/pv-2050-en/</subfield>
+        </datafield>
+        <datafield tag="960" ind1=" " ind2=" ">
+            <subfield code="a">martine@test.ch</subfield>
+        </datafield>
+        <datafield tag="961" ind1=" " ind2=" ">
+            <subfield code="a">r.rodriguesdematos@test.ua</subfield>
+        </datafield>
+        <datafield tag="973" ind1=" " ind2=" ">
+            <subfield code="a">TEST</subfield>
+        </datafield>
+        <datafield tag="980" ind1=" " ind2=" ">
+            <subfield code="a">OBJECTS</subfield>
+        </datafield>
+        <datafield tag="981" ind1=" " ind2=" ">
+            <subfield code="a">overwrite</subfield>
+        </datafield>
+    </record>
+</collection>

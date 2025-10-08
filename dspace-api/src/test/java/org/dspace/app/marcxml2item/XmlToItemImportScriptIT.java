@@ -90,7 +90,7 @@ public class XmlToItemImportScriptIT extends AbstractIntegrationTestWithDatabase
                 "dc.description.notes : One Mylar sheet included in pocket."
         );
 
-        String fileLocation = getXmlFilePath("marc-xml-example.xml");
+        String fileLocation = getXmlFilePath(BASE_XLS_DIR_PATH,"marc-xml-example.xml");
         String[] args = new String[]{ XML_TO_ITEM_SCRIPT_NAME, "-c", publicationCol.getID().toString(),
                                                                "-f", fileLocation };
         TestDSpaceRunnableHandler handler = new TestDSpaceRunnableHandler();
@@ -153,7 +153,7 @@ public class XmlToItemImportScriptIT extends AbstractIntegrationTestWithDatabase
                 "dc.date.modified : 2023-05-06"
                 );
 
-        String fileLocation = getXmlFilePath("marc-xml-multiple-records.xml");
+        String fileLocation = getXmlFilePath(BASE_XLS_DIR_PATH,"marc-xml-multiple-records.xml");
         String[] args = new String[]{ XML_TO_ITEM_SCRIPT_NAME, "-c", publicationCol.getID().toString(),
                                                                "-f", fileLocation };
         TestDSpaceRunnableHandler handler = new TestDSpaceRunnableHandler();
@@ -190,6 +190,46 @@ public class XmlToItemImportScriptIT extends AbstractIntegrationTestWithDatabase
         checkMetadata(secondItemMetadataValues, expectedMetadataItem2);
     }
 
+    @Test
+    public void valitadeBadXmlFileTest() throws Exception {
+        var dir = "./target/testing/dspace/assetstore/scopusFilesForTests";
+        String fileLocation = getXmlFilePath(dir, "scopusMetrics.xml");
+        String[] args = new String[]{ XML_TO_ITEM_SCRIPT_NAME, "-c", publicationCol.getID().toString(),
+                                                               "-f", fileLocation,
+                                                               "-v" };
+        TestDSpaceRunnableHandler handler = new TestDSpaceRunnableHandler();
+        int status = handleScript(args, ScriptLauncher.getConfig(kernelImpl), handler, kernelImpl, admin);
+        assertEquals(0, status);
+        assertTrue("Contains 2 error messages", handler.getErrorMessages().size() == 2);
+        var error1 = "Marc XML validation failed with error: cvc-elt.1.a: " +
+                     "Cannot find the declaration of element 'search-results'.";
+        var error2 = "IllegalArgumentException: The XML file is not well-formed or valid";
+        assertEquals(handler.getErrorMessages().get(0), error1);
+        assertEquals(handler.getErrorMessages().get(1), error2);
+
+        Iterator<Item> items = itemService.findAll(context);
+        assertFalse("Expected zero item!", items.hasNext());
+    }
+
+    @Test
+    public void valitadeXmlWithoutTitleTest() throws Exception {
+        String fileLocation = getXmlFilePath(BASE_XLS_DIR_PATH, "xml-without-title.xml");
+        String[] args = new String[]{ XML_TO_ITEM_SCRIPT_NAME, "-c", publicationCol.getID().toString(),
+                                                               "-f", fileLocation,
+                                                               "-v" };
+        TestDSpaceRunnableHandler handler = new TestDSpaceRunnableHandler();
+        int status = handleScript(args, ScriptLauncher.getConfig(kernelImpl), handler, kernelImpl, admin);
+        assertEquals(0, status);
+        assertTrue("Contains 2 error messages", handler.getErrorMessages().size() == 2);
+        var error1 = "Required field: ./datafield[@tag = '245'] not found in record";
+        var error2 = "IllegalArgumentException: The XML file is not well-formed or valid";
+        assertEquals(handler.getErrorMessages().get(0), error1);
+        assertEquals(handler.getErrorMessages().get(1), error2);
+
+        Iterator<Item> items = itemService.findAll(context);
+        assertFalse("Expected zero item!", items.hasNext());
+    }
+
     private void checkMetadata(List<MetadataValue> metadataValues, Set<String> expectedItemMetadata) {
         for (MetadataValue metadataValue : metadataValues) {
             var field = metadataValue.getMetadataField().toString('.');
@@ -211,8 +251,8 @@ public class XmlToItemImportScriptIT extends AbstractIntegrationTestWithDatabase
         return tecnicalMetadata.contains(field);
     }
 
-    private String getXmlFilePath(String name) {
-        return new File(BASE_XLS_DIR_PATH, name).getAbsolutePath();
+    private String getXmlFilePath(String dir, String name) {
+        return new File(dir, name).getAbsolutePath();
     }
 
 }
