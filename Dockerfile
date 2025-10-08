@@ -8,7 +8,7 @@
 # To build with other versions, use "--build-arg JDK_VERSION=[value]"
 ARG JDK_VERSION=17
 # The Docker version tag to build from
-ARG DSPACE_VERSION=2024_02_x
+ARG DSPACE_VERSION=dspace-cris-2024_02_x
 # The Docker registry to use for DSpace images. Defaults to "docker.io"
 # NOTE: non-DSpace images are hardcoded to use "docker.io" and are not impacted by this build argument
 ARG DOCKER_REGISTRY=docker.io
@@ -36,14 +36,14 @@ RUN mv /app/dspace/modules/server-boot/target/server-boot-*.jar /install/server-
 
 # Step 2 - Run installation
 # Create a new tomcat image that does not retain the thze build directory contents
-FROM ${DOCKER_REGISTRY}/eclipse-temurin:${JDK_VERSION}-jre AS install
-# Expose Tomcat port (8080) and AJP port (8009) and Handle Server HTTP port (8000)
-EXPOSE 8080 8000 8009
+FROM docker.io/eclipse-temurin:${JDK_VERSION}-jre AS install
+# Expose Tomcat port (8080) and Handle Server HTTP port (8000)
+EXPOSE 8080 8000 5005
 # NOTE: DSPACE_INSTALL must align with the "dspace.dir" default configuration.
 ENV DSPACE_INSTALL=/dspace
 WORKDIR $DSPACE_INSTALL
 
-RUN useradd dspace
+RUN useradd -m -d /home/dspace -s /bin/bash dspace
 
 COPY --from=build --chown=dspace /install/server-boot/dependencies/ /app/server-boot/
 COPY --from=build --chown=dspace /install/server-boot/spring-boot-loader/ /app/server-boot/
@@ -52,14 +52,21 @@ COPY --from=build --chown=dspace /install/server-boot/application/ /app/server-b
 
 COPY --chown=dspace dspace/config/ $DSPACE_INSTALL/config/
 COPY --chown=dspace dspace/bin/ $DSPACE_INSTALL/bin/
-RUN install -d -m 0755 -o dspace -g dspace $DSPACE_INSTALL/assetstore/ $DSPACE_INSTALL/log/ \
+RUN install -d -m 0755 -o dspace -g dspace $DSPACE_INSTALL/assetstore/ $DSPACE_INSTALL/upload/ \
+    $DSPACE_INSTALL/handle-server/ $DSPACE_INSTALL/log/ \
     && ln -s /app/server-boot/BOOT-INF/lib $DSPACE_INSTALL/lib \
     && chown -h dspace:dspace $DSPACE_INSTALL/lib \
     && chmod +x $DSPACE_INSTALL/bin/*
 
 WORKDIR /app/server-boot
+# Need host command for "[dspace]/bin/make-handle-config"
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends host \
+    && apt-get purge -y --auto-remove \
+    && rm -rf /var/lib/apt/lists/*
+
 USER dspace
 ENV dspace.dir="$DSPACE_INSTALL"
 ENV JAVA_OPTS="-Xmx2000m -Ddspace.dir=$DSPACE_INSTALL"
-ENV JAVA_TOOL_OPTIONS="-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:8000"
+ENV JAVA_TOOL_OPTIONS="-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005"
 ENTRYPOINT [ "java", "-XX:+UseParallelGC", "-XX:MaxRAMPercentage=75", "org.springframework.boot.loader.launch.JarLauncher", "--dspace.dir=/dspace", "--logging.config=/dspace/config/log4j2-container.xml" ]
