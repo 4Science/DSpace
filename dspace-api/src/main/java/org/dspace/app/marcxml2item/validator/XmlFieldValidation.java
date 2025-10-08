@@ -1,0 +1,108 @@
+/**
+ * The contents of this file are subject to the license and copyright
+ * detailed in the LICENSE and NOTICE files at the root of the source
+ * tree and available online at
+ *
+ * http://www.dspace.org/license/
+ */
+package org.dspace.app.marcxml2item.validator;
+
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpressionException;
+import javax.xml.xpath.XPathFactory;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.dspace.scripts.handler.DSpaceRunnableHandler;
+import org.w3c.dom.Document;
+import org.w3c.dom.NodeList;
+
+/**
+ * A generic XML validator that checks for the presence of specific XML elements or attributes
+ * using XPath expressions. This validator ensures that all records in an XML document contain
+ * the required elements specified by the XPath query.
+ *
+ * @author Mykhaylo Boychuk (mykhaylo.boychuk at 4science.com)
+ */
+public class XmlFieldValidation implements XMLValidator {
+
+    private static final Logger log = LogManager.getLogger(XmlFieldValidation.class);
+
+    /** XPath expression to select record elements in the document */
+    private static final String RECORD_XPATH = "//record";
+
+    /** XPath query to validate against each record */
+    private String query;
+
+    /**
+     * Validates the XML content by checking if each element matching the record path
+     * contains the elements or attributes specified by the XPath query.
+     *
+     * @param xmlContent the XML content to validate as a byte array
+     * @param handler the handler for logging validation errors and information
+     * @return true if all matching elements contain the required field, false otherwise
+     */
+    @Override
+    public boolean validate(byte[] xmlContent, DSpaceRunnableHandler handler) {
+        InputStream xmlInputStream = new ByteArrayInputStream(xmlContent);
+        if (xmlInputStream == null) {
+            log.error("Provided XML is null!");
+            return false;
+        }
+
+        try {
+            XPath xPath = XPathFactory.newInstance().newXPath();
+            DocumentBuilder documentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+            Document document = documentBuilder.parse(xmlInputStream);
+
+            NodeList nodeList = getNodeList(xPath, document, RECORD_XPATH);
+            if (nodeList.getLength() == 0) {
+                log.error("No elements found matching path: {}", RECORD_XPATH);
+                if (handler != null) {
+                    handler.logError("No elements found matching path: " + RECORD_XPATH);
+                }
+                return false;
+            }
+
+            for (int i = 0; i < nodeList.getLength(); i++) {
+                NodeList result = getNodeList(xPath, nodeList.item(i), query);
+                if (result.getLength() == 0) {
+                    log.error("Required field: {} not found in record", query);
+                    if (handler != null) {
+                        handler.logError("Required field: " + query + " not found in record");
+                    }
+                    return false;
+                }
+            }
+            return true;
+        } catch (Exception e) {
+            log.error("Error validating XML content: {}", e.getMessage(), e);
+            if (handler != null) {
+                handler.logError("Error validating XML content: " + e.getMessage());
+            }
+            return false;
+        }
+    }
+
+    private NodeList getNodeList(XPath xPath, Object item, String expression) {
+        try {
+            return (NodeList) xPath.compile(expression).evaluate(item, XPathConstants.NODESET);
+        } catch (XPathExpressionException e) {
+            throw new RuntimeException("An error occurs evaluating path " + expression, e);
+        }
+    }
+
+    public String getQuery() {
+        return query;
+    }
+
+    public void setQuery(String query) {
+        this.query = query;
+    }
+
+}

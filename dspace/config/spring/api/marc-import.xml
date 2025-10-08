@@ -14,7 +14,6 @@
     <!-- allows us to use spring annotations in beans -->
 
     <bean class="org.dspace.app.marcxml2item.parser.MarcXmlParserImpl"/>
-    <bean class="org.dspace.app.marcxml2item.validator.MarcXmlValidator"/>
 
     <!-- ItemsImport reader beans -->
     <bean class="org.dspace.app.marcxml2item.reader.ItemsImportSimpleReader" />
@@ -96,5 +95,11 @@
         <value>./subfield[@code = 'a']</value>
         <value>./subfield[@code = 'f']</value>
     </util:list>
+
+    <!-- XML Validator beans -->
+    <bean class="org.dspace.app.marcxml2item.validator.SimpleXmlValidator"/>
+    <bean class="org.dspace.app.marcxml2item.validator.XmlFieldValidation">
+        <property name="query" value="./datafield[@tag = '245']" />
+    </bean>
 
 </beans>

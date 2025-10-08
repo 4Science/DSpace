@@ -7,8 +7,6 @@
  */
 package org.dspace.app.marcxml2item.validator;
 
-import java.io.InputStream;
-
 import org.dspace.scripts.handler.DSpaceRunnableHandler;
 
 /**
@@ -18,6 +16,6 @@ import org.dspace.scripts.handler.DSpaceRunnableHandler;
  **/
 public interface XMLValidator {
 
-    boolean validate(InputStream xml, DSpaceRunnableHandler handler);
+    boolean validate(byte[] xmlContent, DSpaceRunnableHandler handler);
 
 }

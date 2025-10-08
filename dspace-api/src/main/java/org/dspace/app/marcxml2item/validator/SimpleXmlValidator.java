@@ -7,6 +7,7 @@
  */
 package org.dspace.app.marcxml2item.validator;
 
+import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import javax.xml.XMLConstants;
 import javax.xml.transform.stream.StreamSource;
@@ -20,16 +21,19 @@ import org.dspace.scripts.handler.DSpaceRunnableHandler;
 import org.xml.sax.SAXException;
 
 /**
- * Implementation of {@link XMLValidator} for MARC XML validation.
+ * Implementation of {@link XMLValidator} for Simple XML validation.
  *
  * @author Mykhaylo Boychuk (mykhaylo.boychuk at 4science.it)
  */
-public class MarcXmlValidator implements XMLValidator {
+public class SimpleXmlValidator implements XMLValidator {
 
-    private static final Logger log = LogManager.getLogger(MarcXmlValidator.class);
+    private static final Logger log = LogManager.getLogger(SimpleXmlValidator.class);
+
+    private static final String XSD_FILE_NAME = "simple-xml.xsd";
 
     @Override
-    public boolean validate(InputStream xmlInputStream, DSpaceRunnableHandler handler) {
+    public boolean validate(byte[] xmlContent, DSpaceRunnableHandler handler) {
+        InputStream xmlInputStream = new ByteArrayInputStream(xmlContent);
         if (xmlInputStream == null) {
             log.error("Provided XML is null!");
             return false;
@@ -50,7 +54,7 @@ public class MarcXmlValidator implements XMLValidator {
     }
 
     private Validator getValidator() throws SAXException {
-        try (InputStream inputStream = MarcXmlValidator.class.getResourceAsStream("MARC21slim.xsd")) {
+        try (InputStream inputStream = SimpleXmlValidator.class.getResourceAsStream(XSD_FILE_NAME)) {
             SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
             Schema schema = factory.newSchema(new StreamSource(inputStream));
             return schema.newValidator();

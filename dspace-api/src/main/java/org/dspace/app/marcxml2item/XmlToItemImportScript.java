@@ -15,12 +15,12 @@ import java.util.Objects;
 import java.util.UUID;
 
 import org.apache.commons.cli.ParseException;
+import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.dspace.app.marcxml2item.model.ItemsImportMapping;
 import org.dspace.app.marcxml2item.parser.MarcXmlParser;
 import org.dspace.app.marcxml2item.parser.MarcXmlParserImpl;
-import org.dspace.app.marcxml2item.validator.MarcXmlValidator;
 import org.dspace.app.marcxml2item.validator.XMLValidator;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.authorize.factory.AuthorizeServiceFactory;
@@ -69,15 +69,16 @@ public class XmlToItemImportScript extends DSpaceRunnable<XmlToItemImportScriptC
 
     private String finalStatus;
     private String xmlFileName;
-    private boolean validateXML;
+
     private String collectionUuid;
+    private boolean onlyValidateXML;
 
     private Context context;
     private Collection collection;
     private MarcXmlParser xmlParser;
     private ItemService itemService;
-    private XMLValidator xmlValidator;
     private WorkflowService workflowService;
+    private List<XMLValidator> xmlValidators;
     private AuthorizeService authorizeService;
     private CollectionService collectionService;
     private InstallItemService installItemService;
@@ -89,6 +90,7 @@ public class XmlToItemImportScript extends DSpaceRunnable<XmlToItemImportScriptC
     @Override
     public void setup() throws ParseException {
         ServiceManager sm = new DSpace().getServiceManager();
+        xmlValidators = sm.getServicesByType(XMLValidator.class);
         workflowService = WorkflowServiceFactory.getInstance().getWorkflowService();
         authorizeService = AuthorizeServiceFactory.getInstance().getAuthorizeService();
         installItemService = ContentServiceFactory.getInstance().getInstallItemService();
@@ -98,14 +100,13 @@ public class XmlToItemImportScript extends DSpaceRunnable<XmlToItemImportScriptC
         metadataSchemaService = ContentServiceFactory.getInstance().getMetadataSchemaService();
         itemService = sm.getServiceByName(ItemServiceImpl.class.getName(), ItemServiceImpl.class);
         xmlParser = sm.getServiceByName(MarcXmlParserImpl.class.getName(), MarcXmlParserImpl.class);
-        xmlValidator = sm.getServiceByName(MarcXmlValidator.class.getName(), MarcXmlValidator.class);
         collectionService = sm.getServiceByName(CollectionServiceImpl.class.getName(), CollectionServiceImpl.class);
 
         parseCommandLineOptions();
     }
 
     private void parseCommandLineOptions() {
-        this.validateXML = commandLine.hasOption('v');
+        this.onlyValidateXML = commandLine.hasOption('v');
         this.xmlFileName = commandLine.getOptionValue('f');
         this.collectionUuid = commandLine.getOptionValue('c');
         this.finalStatus = commandLine.getOptionValue("fs", "ARCHIVED");
@@ -115,17 +116,19 @@ public class XmlToItemImportScript extends DSpaceRunnable<XmlToItemImportScriptC
     public void internalRun() throws Exception {
         assignCurrentUserInContext();
         assignSpecialGroupsInContext();
-        getCollection();
+
         if (!this.authorizeService.isAdmin(context)) {
             throw new IllegalArgumentException("The user cannot run the import XML to item");
         }
+
         try {
             context.turnOffAuthorisationSystem();
-            InputStream inputStream = getInputStream();
-            if (validateXML) {
-                validation(inputStream);
+            if (onlyValidateXML) {
+                validation();
             } else {
-                importItemsFromXML(inputStream);
+                validation();
+                getCollection();
+                importItemsFromXML(getInputStream());
             }
             context.complete();
         } catch (Exception e) {
@@ -137,12 +140,15 @@ public class XmlToItemImportScript extends DSpaceRunnable<XmlToItemImportScriptC
         }
     }
 
-    private void validation(InputStream inputStream) {
+    private void validation() throws IOException, AuthorizeException {
         handler.logInfo("Start XML validation!");
-        boolean isValid = xmlValidator.validate(inputStream, this.handler);
-        if (!isValid) {
-            throw new IllegalArgumentException("The XML file is not well-formed or valid");
-        }
+        byte[] fileContent = IOUtils.toByteArray(getInputStream());
+        xmlValidators.stream()
+                     .filter(validator -> !validator.validate(fileContent, this.handler))
+                     .findFirst()
+                     .ifPresent(validator -> {
+                         throw new IllegalArgumentException("The XML file is not well-formed or valid");
+                     });
         handler.logInfo("End validation: the XML file is well-formed and valid");
     }
 
