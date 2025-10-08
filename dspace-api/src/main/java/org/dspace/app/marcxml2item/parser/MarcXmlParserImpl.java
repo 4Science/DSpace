@@ -108,7 +108,7 @@ public class MarcXmlParserImpl implements MarcXmlParser {
         try {
             Document document = documentBuilder.parse(source);
             NodeList nodeList = getNodeList(document, expression);
-            List<List<MetadataValueDTO>> records = new ArrayList<List<MetadataValueDTO>>();
+            List<List<MetadataValueDTO>> records = new ArrayList<>();
             for (int i = 0; i < nodeList.getLength(); i++) {
                 records.add(readItemMetadataValues(context, nodeList.item(i), mapping));
             }
