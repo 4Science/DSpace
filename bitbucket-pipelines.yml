@@ -113,7 +113,7 @@ definitions:
           - linux.arm64
           - arm64.group
         name: integration-tests-slow
-        size: 1x
+        size: 2x
         caches:
           - gradle-java17
           - gradlewrapper-java17

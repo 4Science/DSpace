@@ -150,12 +150,8 @@ public class SimpleXpathMetadatumContributor implements MetadataContributor<Elem
     @Override
     public Collection<MetadatumDTO> contributeMetadata(Element t) {
         List<MetadatumDTO> values = new LinkedList<>();
-
-        List<Namespace> namespaces = new ArrayList<>();
-        for (String ns : prefixToNamespaceMapping.keySet()) {
-            namespaces.add(Namespace.getNamespace(prefixToNamespaceMapping.get(ns), ns));
-        }
-        XPathExpression<Object> xpath = XPathFactory.instance().compile(query, Filters.fpassthrough(), null,namespaces);
+        XPathExpression<Object> xpath = XPathFactory.instance()
+                                                    .compile(query, Filters.fpassthrough(), null, getNamespaces());
         List<Object> nodes = xpath.evaluate(t);
         for (Object el : nodes) {
             if (el instanceof Element) {
@@ -173,7 +169,15 @@ public class SimpleXpathMetadatumContributor implements MetadataContributor<Elem
         return values;
     }
 
-    private String extractValue(Object el) {
+    protected List<Namespace> getNamespaces() {
+        List<Namespace> namespaces = new ArrayList<>();
+        for (String ns : prefixToNamespaceMapping.keySet()) {
+            namespaces.add(Namespace.getNamespace(prefixToNamespaceMapping.get(ns), ns));
+        }
+        return namespaces;
+    }
+
+    protected String extractValue(Object el) {
         String value = ((Element) el).getText();
         return StringUtils.isNotBlank(value) ? value : ((Element) el).getValue().trim();
     }

@@ -5,16 +5,14 @@
  *
  * http://www.dspace.org/license/
  */
-
 package org.dspace.content.authority;
 
 import org.dspace.content.authority.service.ItemAuthorityService;
 import org.dspace.services.ConfigurationService;
 import org.springframework.beans.factory.annotation.Autowired;
+
 /**
- * 
  * @author Stefano Maffei 4Science.com
- *
  */
 public class ItemAuthorityServiceImpl implements ItemAuthorityService {
 
