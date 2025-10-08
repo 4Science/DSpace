@@ -30,7 +30,6 @@ jobs:
       build_id: dspace-cris-dependencies
       image_name: 4science/dspace-cris-dependencies
       dockerfile_path: ./Dockerfile.dependencies
-      custom_tag: 'dspace-cris-2023_02_x'
     secrets:
       DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
       DOCKER_ACCESS_TOKEN: ${{ secrets.DOCKER_ACCESS_TOKEN }}
@@ -48,7 +47,6 @@ jobs:
       build_id: dspace-cris-prod
       image_name: 4science/dspace-cris
       dockerfile_path: ./Dockerfile
-      custom_tag: 'dspace-cris-2023_02_x'
     secrets:
       DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
       DOCKER_ACCESS_TOKEN: ${{ secrets.DOCKER_ACCESS_TOKEN }}
@@ -70,7 +68,6 @@ jobs:
       build_id: dspace-cris-test
       image_name: 4science/dspace-cris
       dockerfile_path: ./Dockerfile.test
-      custom_tag: 'dspace-cris-2023_02_x-test'
       # As this is a test/development image, its tags are all suffixed with "-test". Otherwise, it uses the same
       # tagging logic as the primary '4science/dspace-cris' image above.
       tags_flavor: suffix=-test
@@ -91,7 +88,6 @@ jobs:
       build_id: dspace-cris-cli
       image_name: 4science/dspace-cris-cli
       dockerfile_path: ./Dockerfile.cli
-      custom_tag: 'dspace-cris-2023_02_x'
     secrets:
       DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
       DOCKER_ACCESS_TOKEN: ${{ secrets.DOCKER_ACCESS_TOKEN }}
