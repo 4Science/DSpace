@@ -71,7 +71,7 @@ public class DefaultAccessStatusHelper implements AccessStatusHelper {
             return UNKNOWN;
         }
         String itemStatus = calculateAccessStatusForDso(context, item, threshold);
-        if (StringUtils.equals(itemStatus, RESTRICTED)) {
+        if (StringUtils.equals(itemStatus, EMBARGO) || StringUtils.equals(itemStatus, RESTRICTED)) {
             return itemStatus;
         }
         // Consider only the original bundles.
