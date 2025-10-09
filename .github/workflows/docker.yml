@@ -10,7 +10,7 @@ on:
       - main-cris
       - 'dspace-cris-*_02_x'
     tags:
-      - 'dspace-cris-*.*.*'
+      - 'dspace-cris-**'
   pull_request:
 
 permissions:
