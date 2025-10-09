@@ -8,7 +8,7 @@
 
 networks:
   # Default to using network named 'dspacenet' from docker-compose.yml.
-  # Its full name will be prepended with the project name (e.g. "-p d7" means it will be named "d7_dspacenet")
+  # Its full name will be prepended with the project name (e.g. "-p dcris24" means it will be named "dcris24_dspacenet")
   default:
     name: ${COMPOSE_PROJECT_NAME}_dspacenet
     external: true
