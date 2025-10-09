@@ -152,21 +152,21 @@ docker push 4science/dspace-cris-solr:latest
 
 You can then run it using the docker-compose file:
 ```bash
-docker compose -p dcris24 up -d dspacesolr
+docker compose -p dcris25 up -d dspacesolr
 ```
 
 Alternatively, you can use the `docker compose` tool directly to just build and/or run Solr:
 
 ```bash
 docker compose build dspacesolr
-docker compose -p dcris24 up -d dspacesolr
+docker compose -p dcris25 up -d dspacesolr
 ```
 
 If you're making iterative changes to the DSpace-CRIS Solr configsets you'll need to rebuild /
 restart the `dspacesolr` container for the changes to be deployed. From DSpace-CRIS root:
 
 ```bash
-docker compose -p dcris24 up --detach --build dspacesolr
+docker compose -p dcris25 up --detach --build dspacesolr
 ```
 
 ## ./test/ folder
