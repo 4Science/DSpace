@@ -13,6 +13,10 @@
 
 # Get the DSPACE/bin directory
 BINDIR=`dirname $0`
+LOGGING_CONFIG=log4j2-handle-plugin.xml
+LOG4J_CONFIGURATION_FILE=log4j2-handle-plugin.xml
+
+DSPACEDIR=`$BINDIR/dspace dsprop --property dspace.dir`
 
 echo "Writing simple Handle server configuration"
 
