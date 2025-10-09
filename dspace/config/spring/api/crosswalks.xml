@@ -77,7 +77,7 @@
 		<property name="mimeType" value="application/x-bibtex; charset=UTF-8"/>
 		<property name="format" value="text"/>
 		<property name="fileName" value="references.bib"/>
-		<property name="crosswalkMode" value="#{T(org.dspace.content.crosswalk.CrosswalkMode).SINGLE}"/>
+		<property name="crosswalkMode" value="#{T(org.dspace.content.crosswalk.CrosswalkMode).SINGLE_AND_MULTIPLE}"/>
 	</bean>
 	
 	<bean class="org.dspace.content.integration.crosswalks.CSLItemDataCrosswalk" id="cslItemDataCrosswalkApa">
