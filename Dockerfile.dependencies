@@ -9,11 +9,17 @@ ARG JDK_VERSION=11
 
 # Step 1 - Download all Dependencies
 FROM docker.io/maven:3.9.9-eclipse-temurin-${JDK_VERSION} AS build
+ENV JAVA_OPTS="-XX:+UseContainerSupport \
+    -XX:MaxRAMPercentage=75.0 \
+    -XX:InitialRAMPercentage=50.0 \
+    -XX:+UseG1GC \
+    -XX:+UseStringDeduplication" \
+    MAVEN_OPTS="-XX:+TieredCompilation -XX:TieredStopAtLevel=1"
 ARG TARGET_DIR=dspace-installer
 WORKDIR /app
 # Create the 'dspace' user account & home directory
-RUN useradd -m -d /dspace -s /bin/bash dspace \
-    && mkdir -p /app/dspace
+RUN groupadd -g 1001 dspace && \
+    useradd -u 1001 -g dspace -m -d /dspace -s /bin/bash dspace
 RUN chown -Rv dspace: /app
 
 # Switch to dspace user & run below commands as that user
@@ -26,8 +32,8 @@ USER dspace
 # Parent POM
 COPY --chown=dspace --parents pom.xml **/pom.xml /app/dspace/
 
-ENV MVN_FLAGS="-B -P-assembly -P-test-environment -Denforcer.skip=true -Dcheckstyle.skip=true -Dlicense.skip=true -Dxjc.skip=true -Dxml.skip=true"
-RUN --mount=type=cache,target=/root/.m2 mvn -f /app/dspace/pom.xml --fail-never -ntp verify ${MVN_FLAGS} -T1C -Daether.dependencyCollector.impl=bf
+ENV MVN_FLAGS="-T2C --fail-never -B -P-assembly -P-test-environment -Denforcer.skip=true -Dcheckstyle.skip=true -Dlicense.skip=true -Dxjc.skip=true -Dxml.skip=true"
+RUN mvn -f /app/dspace/pom.xml --fail-never dependency:go-offline ${MVN_FLAGS} -Daether.dependencyCollector.impl=bf
 
 # Clear the contents of the /app directory (including all maven target folders), so no artifacts remain.
 # This ensures when dspace:dspace is built, it will use the Maven local cache (~/.m2) for dependencies

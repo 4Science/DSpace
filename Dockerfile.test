@@ -20,6 +20,7 @@ ARG AWS_REGION=eu-west-1
 FROM ${DOCKER_REGISTRY}/4science/dspace-cris-dependencies:${DSPACE_VERSION} AS build
 ARG TARGET_DIR=dspace-installer
 WORKDIR /app
+ENV MAVEN_OPTS="-XX:+TieredCompilation -XX:TieredStopAtLevel=1"
 # The dspace-installer directory will be written to /install
 RUN mkdir -p /install /install/config /install/bin /install/solr /install/var \
     && chown -Rv dspace: /install \
@@ -34,8 +35,8 @@ COPY --chown=dspace --parents **/local.cfg /app/
 # Copy the dspace-installer directory to /install.  Clean up the build to keep the docker image small
 # Maven flags here ensure that we skip building test environment and skip all code verification checks.
 # These flags speed up this compilation as much as reasonably possible.
-ENV MAVEN_FLAGS="-P-assembly -P-test-environment -Denforcer.skip=true -Dcheckstyle.skip=true -Dlicense.skip=true -Dxml.skip=true"
-RUN mvn -nsu -ntp package ${MAVEN_FLAGS}
+ENV MAVEN_FLAGS="-T2C -B -P-assembly -P-test-environment -Denforcer.skip=true -Dcheckstyle.skip=true -Dlicense.skip=true -Dxml.skip=true"
+RUN mvn -nsu package -T2C ${MAVEN_FLAGS}
 # RUN java -Djarmode=layertools -jar /install/server-boot.jar extract --destination /install/server-boot
 RUN mv /app/dspace/modules/server-boot/target/server-boot.jar /install/ && \
     mv /app/dspace/modules/server-boot/target/lib /install/
@@ -74,7 +75,13 @@ RUN install -d -m 0755 -o dspace -g dspace $DSPACE_INSTALL/assetstore/ $DSPACE_I
 WORKDIR /app/server-boot
 
 USER dspace
-ENV JAVA_TOOL_OPTIONS="-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005"
-ENV JAVA_OPTS="-XX:MinRAMPercentage=20.0 -XX:MaxRAMPercentage=75.0 -XX:+HeapDumpOnOutOfMemoryError -XX:+UseG1GC"
+ENV JAVA_TOOL_OPTIONS="-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005" \
+    JAVA_OPTS="-server \
+        -XX:+UseContainerSupport \
+        -XX:MaxRAMPercentage=75.0 \
+        -XX:InitialRAMPercentage=20.0 \
+        -XX:+UseG1GC \
+        -XX:+UseStringDeduplication \
+        -XX:+HeapDumpOnOutOfMemoryError"
 # java org.springframework.boot.loader.PropertiesLauncher
 ENTRYPOINT exec sh -c 'java $JAVA_OPTS -jar server-boot.jar --dspace.dir="${DSPACE_INSTALL}" --logging.config="${DSPACE_INSTALL}/config/log4j2-container.xml"'
