@@ -64,7 +64,7 @@ services:
       java -server -XX:+UseContainerSupport -XX:MinRAMPercentage=20.0 -XX:MaxRAMPercentage=75.0 \
         -XX:+HeapDumpOnOutOfMemoryError -XX:+UseG1GC \
         -XX:+UseStringDeduplication \
-        -jar server-boot.jar
+        -jar server-boot.jar --dspace.dir=$dspace__P__dir
   dspacedb:
     container_name: dspacedb
     # Uses a custom Postgres image with pgcrypto installed
