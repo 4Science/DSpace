@@ -343,8 +343,9 @@ public abstract class DSpaceObjectServiceImpl<T extends DSpaceObject> implements
                         (metadataValue.getAuthority() == null || metadataValue.getAuthority().length() == 0) &&
                         isNotPlaceholderMetadataValue(values.get(i).trim())
                     ) {
-                        throw new IllegalArgumentException("The metadata field \"" + metadataField.toString('.') +
-                                 "\" requires an authority key but none was provided. Value=\"" + values.get(i) + "\"");
+                        throw new IllegalArgumentException("The metadata field \"" + metadataField
+                                .toString() + "\" requires an authority key but none was provided. Value=\"" + values
+                                .get(i) + "\"");
                     }
                 }
                 // remove control unicode char
