@@ -721,14 +721,14 @@ public class DocumentCrosswalkIT extends AbstractIntegrationTestWithDatabase {
                     "Publications",
                     "Article",
                     "Test User, & Walter White. (2023). Publication 1. http://localhost:4000/handle/123456789/111111",
-                    "Walter White, & Test User. (2022). Publication 4. http://localhost:4000/handle/123456789/444444",
+                    "Test User. (2019). Publication 2. http://localhost:4000/handle/123456789/222222",
                     "Book",
                     "Test User. (2022). Publication 5. http://localhost:4000/handle/123456789/555555",
-                    "Test User. (2019). Publication 2. http://localhost:4000/handle/123456789/222222",
+                    "Test User, & Another User. (2023, March 1). Publication 6. http://localhost:4000/handle/123456789/666666",
                     "Chapter",
                     "John Smith, & Test User. (2020). Publication 3. http://localhost:4000/handle/123456789/333333",
                     "Other",
-                    "Test User, & Another User. (2023). Publication 6. http://localhost:4000/handle/123456789/666666"));
+                    "Walter White, & Test User. (2022). Publication 4. http://localhost:4000/handle/123456789/444444"));
             });
         }
 

@@ -16,6 +16,7 @@ import java.nio.charset.Charset;
 import de.undercouch.citeproc.CSL;
 import de.undercouch.citeproc.output.Bibliography;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.dspace.services.ConfigurationService;
@@ -42,12 +43,12 @@ public class CSLNestedGenerator implements CSLGenerator {
             return null;
         }
         Bibliography bibliography = citeproc.makeBibliography();
-        return CSLResult.fromBibliography(format, bibliography);
+        return CSLResult.fromBibliography(format, bibliography, itemDataProvider.getIds());
     }
 
     private CSL createCitationProcessor(DSpaceListItemDataProvider itemDataProvider, String style, String format) {
         try {
-            CSL citeproc = new CSL(itemDataProvider, getStyle(style));
+            CSL citeproc = new CSL(itemDataProvider, getStyle(style), getLanguage(itemDataProvider));
             citeproc.setOutputFormat(format);
             citeproc.registerCitationItems(itemDataProvider.getIds());
             return citeproc;
@@ -57,8 +58,19 @@ public class CSLNestedGenerator implements CSLGenerator {
         }
     }
 
+    private String getLanguage(DSpaceListItemDataProvider itemDataProvider) {
+        String fixedLanguage = configurationService.getProperty("csl.fixedLanguage");
+        if (StringUtils.isNotBlank(fixedLanguage)) {
+            return fixedLanguage;
+        }
+        return StringUtils.isNotBlank(itemDataProvider.getCitationLanguage()) ?
+                itemDataProvider.getCitationLanguage() : "en-US";
+    }
+
     private String getStyle(String style) throws IOException {
-        return CSL.supportsStyle(style) ? style : readXmlStyleContent(style);
+        return CSL.supportsStyle(style) && !(StringUtils.startsWith(style, File.separator) ||
+        StringUtils.endsWith(style, ".csl")) ?
+                style : readXmlStyleContent(style);
     }
 
     private String readXmlStyleContent(String style) throws IOException {
