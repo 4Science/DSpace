@@ -4,7 +4,7 @@
     <groupId>org.dspace</groupId>
     <artifactId>dspace-parent</artifactId>
     <packaging>pom</packaging>
-    <version>cris-2024.02.03-SNAPSHOT</version>
+    <version>cris-2024.02.03</version>
     <name>DSpace Parent Project</name>
     <description>
    	DSpace-CRIS is an open source extension of DSpace (http://www.dspace.org) providing out of box support for the CRIS / RIMS and moder Institution Repository use cases with advanced features and optimized configurations
@@ -64,7 +64,7 @@
         <jena.version>4.10.0</jena.version>
 
         <!--=== ADDON DEPENDENCIES ===-->
-        <addons.version>[cris-2024.02.03-SNAPSHOT,cris-2024.02.03.9999-SNAPSHOT)</addons.version>
+        <addons.version>[cris-2024.02.03,cris-2024.02.03.9999)</addons.version>
         <addon-iiif.version>${addons.version}</addon-iiif.version>
         <addon-ocr.version>${addons.version}</addon-ocr.version>
         <addon-video.version>${addons.version}</addon-video.version>
@@ -1309,68 +1309,68 @@
             <dependency>
                 <groupId>org.dspace</groupId>
                 <artifactId>dspace-api</artifactId>
-                <version>cris-2024.02.03-SNAPSHOT</version>
+                <version>cris-2024.02.03</version>
             </dependency>
             <dependency>
                 <groupId>org.dspace</groupId>
                 <artifactId>dspace-api</artifactId>
                 <type>test-jar</type>
-                <version>cris-2024.02.03-SNAPSHOT</version>
+                <version>cris-2024.02.03</version>
                 <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>org.dspace.modules</groupId>
                 <artifactId>additions</artifactId>
-                <version>cris-2024.02.03-SNAPSHOT</version>
+                <version>cris-2024.02.03</version>
             </dependency>
             <dependency>
                 <groupId>org.dspace.modules</groupId>
                 <artifactId>server</artifactId>
                 <classifier>classes</classifier>
-                <version>cris-2024.02.03-SNAPSHOT</version>
+                <version>cris-2024.02.03</version>
             </dependency>
 
             <dependency>
                 <groupId>org.dspace</groupId>
                 <artifactId>dspace-sword</artifactId>
-                <version>cris-2024.02.03-SNAPSHOT</version>
+                <version>cris-2024.02.03</version>
             </dependency>
             <dependency>
                 <groupId>org.dspace</groupId>
                 <artifactId>dspace-swordv2</artifactId>
-                <version>cris-2024.02.03-SNAPSHOT</version>
+                <version>cris-2024.02.03</version>
             </dependency>
             <dependency>
                 <groupId>org.dspace</groupId>
                 <artifactId>dspace-oai</artifactId>
-                <version>cris-2024.02.03-SNAPSHOT</version>
+                <version>cris-2024.02.03</version>
             </dependency>
             <dependency>
                 <groupId>org.dspace</groupId>
                 <artifactId>dspace-services</artifactId>
-                <version>cris-2024.02.03-SNAPSHOT</version>
+                <version>cris-2024.02.03</version>
             </dependency>
             <dependency>
                 <groupId>org.dspace</groupId>
                 <artifactId>dspace-server-webapp</artifactId>
                 <type>test-jar</type>
-                <version>cris-2024.02.03-SNAPSHOT</version>
+                <version>cris-2024.02.03</version>
                 <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>org.dspace</groupId>
                 <artifactId>dspace-rdf</artifactId>
-                <version>cris-2024.02.03-SNAPSHOT</version>
+                <version>cris-2024.02.03</version>
             </dependency>
             <dependency>
                 <groupId>org.dspace</groupId>
                 <artifactId>dspace-iiif</artifactId>
-                <version>cris-2024.02.03-SNAPSHOT</version>
+                <version>cris-2024.02.03</version>
             </dependency>
             <dependency>
                 <groupId>org.dspace</groupId>
                 <artifactId>dspace-server-webapp</artifactId>
-                <version>cris-2024.02.03-SNAPSHOT</version>
+                <version>cris-2024.02.03</version>
             </dependency>
             <!-- DSpace API Localization Packages -->
             <dependency>
@@ -2297,7 +2297,7 @@
         <connection>scm:git:git@github.com:4Science/DSpace.git</connection>
         <developerConnection>scm:git:git@github.com:4Science/DSpace.git</developerConnection>
         <url>https://github.com:4Science/DSpace</url>
-        <tag>dspace-cris-2024.02.02</tag>
+        <tag>dspace-cris-2024.02.03</tag>
     </scm>
 
 
