@@ -202,7 +202,10 @@ public class OrcidProductWorkFactory implements OrcidEntityFactory {
     private ExternalID getSelfExternalId(MetadataValue metadataValue) {
         Map<String, String> externalIdentifierFields = fieldMapping.getExternalIdentifierFields();
         String metadataField = metadataValue.getMetadataField().toString('.');
-        return getExternalId(externalIdentifierFields.get(metadataField), metadataValue.getValue(), SELF);
+        if (isNotPlaceholder(metadataValue)) {
+            return getExternalId(externalIdentifierFields.get(metadataField), metadataValue.getValue(), SELF);
+        }
+        return null;
     }
 
     private List<ExternalID> getWorkFundedByExternalIds(Context context, Item item) {
