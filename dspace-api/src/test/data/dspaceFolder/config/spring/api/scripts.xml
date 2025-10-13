@@ -186,6 +186,15 @@
         <property name="dspaceRunnableClass" value="org.dspace.app.metadataupdate.MetadataUpdateScriptCli"/>
     </bean>
 
+    <bean id="dspace-object-deletion" class="org.dspace.deletion.process.DSpaceObjectDeletionProcessScriptConfiguration" primary="true">
+        <property name="description" value="DSpace object deletion process"/>
+        <property name="dspaceRunnableClass" value="org.dspace.deletion.process.DSpaceObjectDeletionProcess"/>
+    </bean>
+
+    <bean id="itemDeletionStrategy" class="org.dspace.deletion.process.strategies.ItemDeletionStrategy" />
+    <bean id="communityDeletionStrategy" class="org.dspace.deletion.process.strategies.CommunityDeletionStrategy" />
+    <bean id="collectionDeletionStrategy" class="org.dspace.deletion.process.strategies.CollectionDeletionStrategy" />
+
     <bean id="import-xml-to-item" class="org.dspace.app.marcxml2item.XmlToItemImportScriptConfiguration" primary="true">
         <property name="description" value="Script to import items from XML file"/>
         <property name="dspaceRunnableClass" value="org.dspace.app.marcxml2item.XmlToItemImportScript"/>

@@ -1,90 +1,89 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xmlns:util="http://www.springframework.org/schema/util"
-	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd" >
+	   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	   xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
 	<!-- STREAM DISSEMINATION CROSSWALKS CONFIGURATION -->
 	
 	<bean class="org.dspace.content.integration.crosswalks.StreamDisseminationCrosswalkMapper">
 		<constructor-arg>
 			<map>
-				<entry key="bibtex" value-ref="cslItemDataCrosswalkBibtex"></entry>
-				<entry key="endnote" value-ref="referCrosswalkEndnote"></entry>
+				<entry key="bibtex" value-ref="cslItemDataCrosswalkBibtex"/>
+				<entry key="endnote" value-ref="referCrosswalkEndnote"/>
 				
-				<entry key="publication-json" value-ref="cslItemDataCrosswalkJson"></entry>
-				<entry key="publication-xml" value-ref="referCrosswalkPublicationXml"></entry>
-				<entry key="publication-pdf" value-ref="pdfCrosswalkPublication"></entry>
-				<entry key="publication-csv" value-ref="csvCrosswalkPublication"></entry>
-				<entry key="publication-xls" value-ref="xlsCrosswalkPublication"></entry>
-				<entry key="publication-apa" value-ref="cslItemDataCrosswalkApa"></entry>
-				<entry key="publication-chicago" value-ref="cslItemDataCrosswalkChicago"></entry>
-				<entry key="publication-datacite-xml" value-ref="referCrosswalkPublicationDataciteXml"></entry>
+				<entry key="publication-json" value-ref="cslItemDataCrosswalkJson"/>
+				<entry key="publication-xml" value-ref="referCrosswalkPublicationXml"/>
+				<entry key="publication-pdf" value-ref="pdfCrosswalkPublication"/>
+				<entry key="publication-csv" value-ref="csvCrosswalkPublication"/>
+				<entry key="publication-xls" value-ref="xlsCrosswalkPublication"/>
+				<entry key="publication-apa" value-ref="cslItemDataCrosswalkApa"/>
+				<entry key="publication-chicago" value-ref="cslItemDataCrosswalkChicago"/>
+				<entry key="publication-datacite-xml" value-ref="referCrosswalkPublicationDataciteXml"/>
 
-				<entry key="person-xml" value-ref="referCrosswalkPersonXml"></entry>
-				<entry key="person-json" value-ref="referCrosswalkPersonJson"></entry>
-				<entry key="person-pdf" value-ref="pdfCrosswalkPerson"></entry>
-				<entry key="person-cv-pdf" value-ref="pdfCrosswalkPersonCv"></entry>
-				<entry key="person-rtf" value-ref="rtfCrosswalkPerson"></entry>
-				<entry key="person-csv" value-ref="csvCrosswalkPerson"></entry>
-				<entry key="person-xls" value-ref="xlsCrosswalkPerson"></entry>
+				<entry key="person-xml" value-ref="referCrosswalkPersonXml"/>
+				<entry key="person-json" value-ref="referCrosswalkPersonJson"/>
+				<entry key="person-pdf" value-ref="pdfCrosswalkPerson"/>
+				<entry key="person-cv-pdf" value-ref="pdfCrosswalkPersonCv"/>
+				<entry key="person-rtf" value-ref="rtfCrosswalkPerson"/>
+				<entry key="person-csv" value-ref="csvCrosswalkPerson"/>
+				<entry key="person-xls" value-ref="xlsCrosswalkPerson"/>
 
-				<entry key="project-json" value-ref="referCrosswalkProjectJson"></entry>
-				<entry key="project-pdf" value-ref="pdfCrosswalkProject"></entry>
-				<entry key="project-csv" value-ref="csvCrosswalkProject"></entry>
-				<entry key="project-xls" value-ref="xlsCrosswalkProject"></entry>
-				<entry key="project-xml" value-ref="referCrosswalkProjectXml"></entry>
+				<entry key="project-json" value-ref="referCrosswalkProjectJson"/>
+				<entry key="project-pdf" value-ref="pdfCrosswalkProject"/>
+				<entry key="project-csv" value-ref="csvCrosswalkProject"/>
+				<entry key="project-xls" value-ref="xlsCrosswalkProject"/>
+				<entry key="project-xml" value-ref="referCrosswalkProjectXml"/>
 
-				<entry key="orgUnit-xml" value-ref="referCrosswalkOrgUnitXml"></entry>
-				<entry key="orgUnit-json" value-ref="referCrosswalkOrgUnitJson"></entry>
-				<entry key="orgUnit-pdf" value-ref="pdfCrosswalkOrgUnit"></entry>
-				<entry key="orgUnit-csv" value-ref="csvCrosswalkOrgUnit"></entry>
-				<entry key="orgUnit-xls" value-ref="xlsCrosswalkOrgUnit"></entry>
+				<entry key="orgUnit-xml" value-ref="referCrosswalkOrgUnitXml"/>
+				<entry key="orgUnit-json" value-ref="referCrosswalkOrgUnitJson"/>
+				<entry key="orgUnit-pdf" value-ref="pdfCrosswalkOrgUnit"/>
+				<entry key="orgUnit-csv" value-ref="csvCrosswalkOrgUnit"/>
+				<entry key="orgUnit-xls" value-ref="xlsCrosswalkOrgUnit"/>
+
+				<entry key="event-xml" value-ref="referCrosswalkEventXml"/>
+				<entry key="event-json" value-ref="referCrosswalkEventJson"/>
+				<entry key="event-pdf" value-ref="pdfCrosswalkEvent"/>
+
+				<entry key="picture-xml" value-ref="referCrosswalkPictureXml"/>
+				<entry key="picture-json" value-ref="referCrosswalkPictureJson"/>
+				<entry key="picture-pdf" value-ref="pdfCrosswalkPicture"/>
+
+				<entry key="archival-xml" value-ref="referCrosswalkArchivalXml"/>
+				<entry key="archival-json" value-ref="referCrosswalkArchivalJson"/>
+				<entry key="archival-pdf" value-ref="pdfCrosswalkArchival"/>
+
+				<entry key="place-xml" value-ref="referCrosswalkPlaceXml"/>
+				<entry key="place-json" value-ref="referCrosswalkPlaceJson"/>
+				<entry key="place-pdf" value-ref="pdfCrosswalkPlace"/>
+
+				<entry key="fond-xml" value-ref="referCrosswalkFondXml"/>
+				<entry key="fond-json" value-ref="referCrosswalkFondJson"/>
+				<entry key="fond-pdf" value-ref="pdfCrosswalkFond"/>
+
+				<entry key="aggregation-xml" value-ref="referCrosswalkAggregationXml"/>
+				<entry key="aggregation-json" value-ref="referCrosswalkAggregationJson"/>
+				<entry key="aggregation-pdf" value-ref="pdfCrosswalkAggregation"/>
+
+				<entry key="family-xml" value-ref="referCrosswalkFamilyXml"/>
+				<entry key="family-json" value-ref="referCrosswalkFamilyJson"/>
+				<entry key="family-pdf" value-ref="pdfCrosswalkFamily"/>
+
+				<entry key="journalFile-xml" value-ref="referCrosswalkJournalFileXml"/>
+				<entry key="journalFile-json" value-ref="referCrosswalkJournalFileJson"/>
+				<entry key="journalFile-pdf" value-ref="pdfCrosswalkJournalFile"/>
+
+				<entry key="journalFond-xml" value-ref="referCrosswalkJournalFondXml"/>
+				<entry key="journalFond-json" value-ref="referCrosswalkJournalFondJson"/>
+				<entry key="journalFond-pdf" value-ref="pdfCrosswalkJournalFond"/>
 				
-				<entry key="event-xml" value-ref="referCrosswalkEventXml"></entry>
-				<entry key="event-json" value-ref="referCrosswalkEventJson"></entry>
-				<entry key="event-pdf" value-ref="pdfCrosswalkEvent"></entry>
-
-				<entry key="picture-xml" value-ref="referCrosswalkPictureXml"></entry>
-				<entry key="picture-json" value-ref="referCrosswalkPictureJson"></entry>
-				<entry key="picture-pdf" value-ref="pdfCrosswalkPicture"></entry>
-
-				<entry key="archival-xml" value-ref="referCrosswalkArchivalXml"></entry>
-				<entry key="archival-json" value-ref="referCrosswalkArchivalJson"></entry>
-				<entry key="archival-pdf" value-ref="pdfCrosswalkArchival"></entry>
-
-				<entry key="place-xml" value-ref="referCrosswalkPlaceXml"></entry>
-				<entry key="place-json" value-ref="referCrosswalkPlaceJson"></entry>
-				<entry key="place-pdf" value-ref="pdfCrosswalkPlace"></entry>
-
-				<entry key="fond-xml" value-ref="referCrosswalkFondXml"></entry>
-				<entry key="fond-json" value-ref="referCrosswalkFondJson"></entry>
-				<entry key="fond-pdf" value-ref="pdfCrosswalkFond"></entry>
-
-				<entry key="aggregation-xml" value-ref="referCrosswalkAggregationXml"></entry>
-				<entry key="aggregation-json" value-ref="referCrosswalkAggregationJson"></entry>
-				<entry key="aggregation-pdf" value-ref="pdfCrosswalkAggregation"></entry>
-
-				<entry key="family-xml" value-ref="referCrosswalkFamilyXml"></entry>
-				<entry key="family-json" value-ref="referCrosswalkFamilyJson"></entry>
-				<entry key="family-pdf" value-ref="pdfCrosswalkFamily"></entry>
-
-				<entry key="journalFile-xml" value-ref="referCrosswalkJournalFileXml"></entry>
-				<entry key="journalFile-json" value-ref="referCrosswalkJournalFileJson"></entry>
-				<entry key="journalFile-pdf" value-ref="pdfCrosswalkJournalFile"></entry>
-
-				<entry key="journalFond-xml" value-ref="referCrosswalkJournalFondXml"></entry>
-				<entry key="journalFond-json" value-ref="referCrosswalkJournalFondJson"></entry>
-				<entry key="journalFond-pdf" value-ref="pdfCrosswalkJournalFond"></entry>
-				
-				<entry key="collection-xls" value-ref="xlsCrosswalkCollection"></entry>
-                <entry key="item-zip" value-ref="zipCrosswalk"></entry>
+				<entry key="collection-xls" value-ref="xlsCrosswalkCollection"/>
+                <entry key="item-zip" value-ref="zipCrosswalk"/>
 			</map>
 		</constructor-arg>
 	</bean>
 	
 	<bean class="org.dspace.content.integration.crosswalks.CSLItemDataCrosswalk" id="cslItemDataCrosswalkBibtex">
-		<property name="style" value="bibtex.csl"/>
+		<property name="style" value="bibtex"/>
 		<property name="mimeType" value="application/x-bibtex; charset=UTF-8"/>
 		<property name="format" value="text"/>
 		<property name="fileName" value="references.bib"/>
@@ -100,7 +99,7 @@
 	</bean>
 	
 	<bean class="org.dspace.content.integration.crosswalks.CSLItemDataCrosswalk" id="cslItemDataCrosswalkChicago">
-		<property name="style" value="chicago-library-list.csl"/>
+		<property name="style" value="chicago-library-list"/>
 		<property name="mimeType" value="text/plain"/>
 		<property name="format" value="text"/>
 		<property name="fileName" value="publications.txt"/>
@@ -623,7 +622,7 @@
 	</bean>
 
 	<bean class="org.dspace.content.integration.crosswalks.CSLItemDataCrosswalk" id="referCrosswalkPublicationIeeeHtml">
-		<property name="style" value="ieee.csl"/>
+		<property name="style" value="ieee"/>
 		<property name="mimeType" value="text/html; charset=UTF-8"/>
 		<property name="format" value="html"/>
 		<property name="fileName" value="publications-ieee.html"/>
@@ -653,28 +652,33 @@
 	<bean class="org.dspace.content.integration.crosswalks.postprocessors.JsonPostProcessor" id="jsonPostProcessor" />
 	
 	<!-- VIRTUAL FIELDS CONFIGURATION -->
-	
-	<bean class="org.dspace.content.integration.crosswalks.virtualfields.VirtualFieldMapper">
-		<constructor-arg>
-			<map>
-				<entry key="id" value-ref="virtualFieldId" />
-				<entry key="authority" value-ref="virtualFieldAuthority" />
-				<entry key="primary-doi" value-ref="virtualFieldPrimaryDOI" />
-				<entry key="alternative-doi" value-ref="virtualFieldAlternativeDOI" />
-				<entry key="reftype" value-ref="virtualFieldRefererType" />
-				<entry key="authors" value-ref="virtualFieldAuthors" />
-				<entry key="fullpage" value-ref="virtualFieldPageNumber" />
-				<entry key="bitstream" value-ref="virtualFieldBitstream" />
-				<entry key="mapConverter" value-ref="virtualFieldMapConverter" />
-				<entry key="personName" value-ref="virtualFieldPersonName" />
-				<entry key="date" value-ref="virtualFieldDateFormatter" />
-				<entry key="vocabulary" value-ref="virtualFieldVocabulary" />
-				<entry key="vocabulary_i18n" value-ref="virtualFieldVocabularyI18n" />
+
+    <bean id="virtualFieldsMap" class="java.util.HashMap">
+        <constructor-arg>
+            <map>
+                <entry key="id" value-ref="virtualFieldId" />
+                <entry key="authority" value-ref="virtualFieldAuthority" />
+                <entry key="primary-doi" value-ref="virtualFieldPrimaryDOI" />
+                <entry key="alternative-doi" value-ref="virtualFieldAlternativeDOI" />
+                <entry key="reftype" value-ref="virtualFieldRefererType" />
+                <entry key="authors" value-ref="virtualFieldAuthors" />
+                <entry key="fullpage" value-ref="virtualFieldPageNumber" />
+                <entry key="bitstream" value-ref="virtualFieldBitstream" />
+                <entry key="mapConverter" value-ref="virtualFieldMapConverter" />
+                <entry key="personName" value-ref="virtualFieldPersonName" />
+                <entry key="date" value-ref="virtualFieldDateFormatter" />
+                <entry key="vocabulary" value-ref="virtualFieldVocabulary" />
+                <entry key="vocabulary_i18n" value-ref="virtualFieldVocabularyI18n" />
                 <entry key="metric" value-ref="virtualFieldMetric" />
                 <entry key="citations" value-ref="virtualFieldCitations" />
                 <entry key="place" value-ref="virtualFieldAtPlace" />
-			</map>
-		</constructor-arg>
+            </map>
+        </constructor-arg>
+    </bean>
+
+    <bean id="virtualFieldMapper"
+          class="org.dspace.content.integration.crosswalks.virtualfields.VirtualFieldMapper" lazy-init="true">
+		<constructor-arg ref="virtualFieldsMap"/>
 	</bean>
 
     <bean class="org.dspace.content.integration.crosswalks.virtualfields.VirtualFieldToEnhancedMetadata"
