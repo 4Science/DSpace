@@ -32,7 +32,6 @@ import org.dspace.content.Collection;
 import org.dspace.content.Item;
 import org.dspace.content.MetadataValue;
 import org.dspace.content.factory.ContentServiceFactory;
-import org.dspace.content.service.CollectionService;
 import org.dspace.content.service.ItemService;
 import org.junit.Before;
 import org.junit.Test;
@@ -47,7 +46,6 @@ public class XmlToItemImportScriptIT extends AbstractIntegrationTestWithDatabase
     private static final String BASE_XLS_DIR_PATH = "./target/testing/dspace/assetstore/xml2itemimport";
 
     private ItemService itemService = ContentServiceFactory.getInstance().getItemService();
-    private CollectionService collectionService = ContentServiceFactory.getInstance().getCollectionService();
 
     private Collection publicationCol;
 
