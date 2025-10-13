@@ -23,7 +23,8 @@ import java.util.List;
 import com.google.common.io.Files;
 import com.opencsv.CSVReader;
 import com.opencsv.exceptions.CsvException;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.dspace.AbstractIntegrationTestWithDatabase;
 import org.dspace.app.launcher.ScriptLauncher;
 import org.dspace.app.scripts.handler.impl.TestDSpaceRunnableHandler;
@@ -51,7 +52,7 @@ public class MetadataExportSearchIT extends AbstractIntegrationTestWithDatabase 
     private Item[] itemsSubject2 = new Item[numberItemsSubject2];
     private String filename;
     private Collection collection;
-    private Logger logger = Logger.getLogger(MetadataExportSearchIT.class);
+    private Logger logger = LogManager.getLogger(MetadataExportSearchIT.class);
     private ConfigurationService configurationService = DSpaceServicesFactory.getInstance().getConfigurationService();
     private SearchService searchService;
 
@@ -78,7 +79,7 @@ public class MetadataExportSearchIT extends AbstractIntegrationTestWithDatabase 
             itemsSubject1[i] = ItemBuilder.createItem(context, collection)
                 .withTitle(String.format("%s item %d", subject1, i))
                 .withSubject(subject1)
-                .withIssueDate("2020-09-" + i)
+                .withIssueDate("2020-09-" + String.format("%02d", i + 1 % 31))
                 .build();
         }
 
@@ -86,7 +87,7 @@ public class MetadataExportSearchIT extends AbstractIntegrationTestWithDatabase 
             itemsSubject2[i] = ItemBuilder.createItem(context, collection)
                 .withTitle(String.format("%s item %d", subject2, i))
                 .withSubject(subject2)
-                .withIssueDate("2021-09-" + i)
+                .withIssueDate("2021-09-" + String.format("%02d", i + 1 % 31))
                 .build();
         }
         context.restoreAuthSystemState();
@@ -172,7 +173,9 @@ public class MetadataExportSearchIT extends AbstractIntegrationTestWithDatabase 
     @Test
     public void exportMetadataSearchFilterDate() throws Exception {
         int result = runDSpaceScript(
-            "metadata-export-search", "-f", "dateIssued,equals=[2000 TO 2020]", "-n", filename
+            "metadata-export-search",
+            "-f", "dateIssued,equals=[2000 TO 2020]",
+            "-n", filename
         );
 
         assertEquals(0, result);

@@ -1,0 +1,117 @@
+{
+  "ns1:VIAFCluster": {
+    "ns1:viafID": 9999159477794927990009,
+    "ns1:creationtime": "2025-08-02T08:40:51.952439+00:00",
+    "ns1:nameType": "Personal",
+    "ns1:countries": {
+      "ns1:data": {
+        "scaled": 1,
+        "ns1:sources": {
+          "ns1:s": "BAV",
+          "ns1:sid": "BAV|495_251128"
+        },
+        "count": 1,
+        "ns1:text": "IT"
+      }
+    },
+    "ns1:length": 11,
+    "ns1:deathDate": 0,
+    "ns1:dateType": "lived",
+    "xmlns:rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+    "ns1:publishers": {
+      "ns1:data": {
+        "ns1:sources": {
+          "ns1:s": "BAV",
+          "ns1:sid": "BAV|495_251128"
+        },
+        "count": 1,
+        "ns1:text": "ex typ. Bizzoni"
+      }
+    },
+    "ns1:mainHeadings": {
+      "ns1:data": {
+        "ns1:sources": {
+          "ns1:s": "BAV",
+          "ns1:sid": "BAV|495_251128"
+        },
+        "ns1:text": "Sassi, Francesco"
+      },
+      "ns1:mainHeadingEl": {
+        "ns1:sources": {
+          "ns1:s": "BAV",
+          "ns1:sid": "BAV|495_251128"
+        },
+        "ns1:id": "BAV|495_251128",
+        "ns1:datafield": {
+          "ind2": " ",
+          "ns1:subfield": {
+            "code": "a",
+            "content": "Sassi, Francesco"
+          },
+          "ind1": 1,
+          "dtype": "MARC21",
+          "tag": 100
+        }
+      }
+    },
+    "ns1:fixed": {
+      "ns1:gender": "u"
+    },
+    "xmlns:void": "http://rdfs.org/ns/void#",
+    "ns1:Document": {
+      "ns1:inDataset": {
+        "resource": "http://viaf.org/viaf/data"
+      },
+      "ns1:primaryTopic": {
+        "resource": "http://viaf.org/viaf/9999159477794927990009"
+      },
+      "about": "http://viaf.org/viaf/9999159477794927990009/"
+    },
+    "ns1:RecFormats": {
+      "ns1:data": {
+        "ns1:sources": {
+          "ns1:s": "BAV",
+          "ns1:sid": "BAV|495_251128"
+        },
+        "count": 1,
+        "ns1:text": "am"
+      }
+    },
+    "xmlns": "http://viaf.org/viaf/terms#",
+    "xmlns:ns1": "http://viaf.org/viaf/terms#",
+    "ns1:sources": {
+      "ns1:source": {
+        "nsid": "495/251128",
+        "content": "BAV|495_251128"
+      }
+    },
+    "ns1:titles": {
+      "ns1:work": {
+        "ns1:sources": {
+          "ns1:s": "BAV",
+          "ns1:sid": "BAV|495_251128"
+        },
+        "ns1:title": "De neuralgiis; dissertatio inauguralis quam ..."
+      }
+    },
+    "xmlns:foaf": "http://xmlns.com/foaf/0.1/",
+    "ns1:history": {
+      "ns1:ht": {
+        "time": "2021-04-18T21:14:37.121930+00:00",
+        "type": "add",
+        "recid": "BAV|495_251128"
+      }
+    },
+    "ns1:birthDate": 0,
+    "xmlns:owl": "http://www.w3.org/2002/07/owl#",
+    "ns1:dates": {
+      "min": 183,
+      "max": 183,
+      "ns1:date": {
+        "scaled": 0,
+        "count": 1,
+        "content": 183
+      }
+    }
+  }
+}

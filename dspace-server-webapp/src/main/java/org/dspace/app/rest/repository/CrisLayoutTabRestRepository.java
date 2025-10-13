@@ -12,9 +12,9 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
-import javax.servlet.http.HttpServletRequest;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.collections.CollectionUtils;
 import org.dspace.app.metrics.CrisMetrics;
 import org.dspace.app.rest.Parameter;
@@ -51,7 +51,7 @@ import org.springframework.stereotype.Component;
  * @author Danilo Di Nuzzo (danilo dot dinuzzo at 4science dot it)
  *
  */
-@Component(CrisLayoutTabRest.CATEGORY + "." + CrisLayoutTabRest.NAME)
+@Component(CrisLayoutTabRest.CATEGORY + "." + CrisLayoutTabRest.NAME_PLURAL)
 public class CrisLayoutTabRestRepository extends DSpaceRestRepository<CrisLayoutTabRest, Integer>
     implements ReloadableEntityObjectRepository<CrisLayoutTab, Integer> {
 

@@ -1,34 +1,35 @@
+# syntax=docker/dockerfile:1.7-labs
 # This image will be published as dspace/dspace-dependencies
 # The purpose of this image is to make the build for dspace/dspace run faster
 #
 
-# This Dockerfile uses JDK11 by default, but has also been tested with JDK17.
-# To build with JDK17, use "--build-arg JDK_VERSION=17"
-ARG JDK_VERSION=11
+# This Dockerfile uses JDK17 by default.
+# To build with other versions, use "--build-arg JDK_VERSION=[value]"
+ARG JDK_VERSION=17
 
-# Step 1 - Run Maven Build
-FROM maven:3-eclipse-temurin-${JDK_VERSION} as build
+# Step 1 - Download all Dependencies
+FROM docker.io/maven:3-eclipse-temurin-${JDK_VERSION} AS build
 ARG TARGET_DIR=dspace-installer
 WORKDIR /app
 # Create the 'dspace' user account & home directory
-RUN useradd dspace \
-    && mkdir -p /home/dspace \
-    && chown -Rv dspace: /home/dspace
+RUN useradd -m -d /home/dspace -s /bin/bash dspace \
+    && mkdir -p /app/dspace
 RUN chown -Rv dspace: /app
 
 # Switch to dspace user & run below commands as that user
 USER dspace
 
-# Copy the DSpace source code (from local machine) into the workdir (excluding .dockerignore contents)
-ADD --chown=dspace . /app/
+# This next part may look odd, but it speeds up the build of this image *significantly*.
+# Copy ONLY the POMs to this image (from local machine). This will allow us to download all dependencies *without*
+# performing any code compilation steps.
 
-# Trigger the installation of all maven dependencies (hide download progress messages)
-# Maven flags here ensure that we skip final assembly, skip building test environment and skip all code verification checks.
-# These flags speed up this installation as much as reasonably possible.
-ENV MAVEN_FLAGS="-P-assembly -P-test-environment -Denforcer.skip=true -Dcheckstyle.skip=true -Dlicense.skip=true -Dxml.skip=true"
-RUN mvn --no-transfer-progress install ${MAVEN_FLAGS}
+# Parent POM
+COPY --chown=dspace --parents pom.xml **/pom.xml /app/dspace/
 
-# Clear the contents of the /app directory (including all maven builds), so no artifacts remain.
+ENV MVN_FLAGS="-B -P-assembly -P-test-environment -Denforcer.skip=true -Dcheckstyle.skip=true -Dlicense.skip=true -Dxjc.skip=true -Dxml.skip=true"
+RUN --mount=type=cache,target=/root/.m2 mvn -f /app/dspace/pom.xml --fail-never -ntp verify ${MVN_FLAGS}
+
+# Clear the contents of the /app directory (including all maven target folders), so no artifacts remain.
 # This ensures when dspace:dspace is built, it will use the Maven local cache (~/.m2) for dependencies
 USER root
 RUN rm -rf /app/*

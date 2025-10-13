@@ -35,15 +35,4 @@ public class PersonStrictCustomSolrFilterImpl implements CustomAuthoritySolrFilt
             .map(query -> SolrServiceStrictBestMatchIndexingPlugin.BEST_MATCH_INDEX + ":" + escapeQueryChars(query))
             .orElse(null);
     }
-
-    @Override
-    public int getConfidenceForChoices(Choice... choices) {
-        if (choices.length == 0) {
-            return Choices.CF_UNSET;
-        }
-        if (choices.length == 1) {
-            return Choices.CF_ACCEPTED;
-        }
-        return Choices.CF_UNCERTAIN;
-    }
 }

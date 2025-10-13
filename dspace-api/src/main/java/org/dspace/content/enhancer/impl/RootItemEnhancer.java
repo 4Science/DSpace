@@ -8,11 +8,14 @@
 package org.dspace.content.enhancer.impl;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.dspace.content.Item;
-import org.dspace.content.MetadataValue;
 import org.dspace.content.authority.Choices;
+import org.dspace.content.dto.MetadataValueDTO;
 import org.dspace.content.service.ItemService;
 import org.dspace.core.Context;
 import org.slf4j.Logger;
@@ -44,27 +47,13 @@ public class RootItemEnhancer extends RelatedEntityItemEnhancer {
     }
 
     @Override
-    protected boolean cleanObsoleteVirtualFields(Context context, Item item) throws SQLException {
-        List<MetadataValue> metadataValuesToDelete = getObsoleteVirtualFields(item);
-        if (!metadataValuesToDelete.isEmpty()) {
-            itemService.removeMetadataValues(context, item, metadataValuesToDelete);
-            return true;
-        }
-        return false;
-    }
-
-    private List<MetadataValue> getObsoleteVirtualFields(Item item) {
-        return itemService.getMetadataByMetadataString(item, getVirtualMetadataField());
-
-    }
-
-    @Override
     public boolean performEnhancement(Context context, Item item) {
         try {
             if (isRootItem(item)) {
                 String source = itemService.getMetadata(item, sourceItemMetadataField);
                 if (source != null && !source.isEmpty()) {
                     addVirtualField(context, item, source, item.getID().toString(), null, Choices.CF_ACCEPTED);
+                    addVirtualSourceField(context, item, item.getID().toString());
                     return true;
                 }
             }
@@ -72,6 +61,31 @@ public class RootItemEnhancer extends RelatedEntityItemEnhancer {
             log.error("Error enhancing item {}: {}", item.getID(), e.getMessage(), e);
         }
         return false;
+    }
+
+    @Override
+    protected Map<String, List<MetadataValueDTO>> getToBeVirtualMetadata(Context context, Item item) {
+        Map<String, List<MetadataValueDTO>> tobeVirtualMetadataMap = new HashMap<String, List<MetadataValueDTO>>();
+
+        if (isRootItem(item)) {
+            List<MetadataValueDTO> tobeVirtualMetadata = new ArrayList<>();
+            String source = itemService.getMetadata(item, sourceItemMetadataField);
+            if (source != null && !source.isEmpty()) {
+                MetadataValueDTO virtual = new MetadataValueDTO();
+                virtual.setSchema(VIRTUAL_METADATA_SCHEMA);
+                virtual.setElement(VIRTUAL_METADATA_ELEMENT);
+                virtual.setQualifier(getVirtualQualifier());
+                virtual.setValue(source);
+                virtual.setAuthority(item.getID().toString());
+                virtual.setConfidence(Choices.CF_ACCEPTED);
+                tobeVirtualMetadata.add(virtual);
+                tobeVirtualMetadataMap.put(item.getID().toString(), tobeVirtualMetadata);
+            }
+        } else {
+            return super.getToBeVirtualMetadata(context, item);
+        }
+
+        return tobeVirtualMetadataMap;
     }
 
     private boolean isRootItem(Item item) {

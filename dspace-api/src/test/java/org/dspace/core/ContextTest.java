@@ -34,6 +34,7 @@ import org.dspace.eperson.factory.EPersonServiceFactory;
 import org.dspace.eperson.service.EPersonService;
 import org.dspace.eperson.service.GroupService;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.test.util.ReflectionTestUtils;
 
@@ -558,4 +559,36 @@ public class ContextTest extends AbstractUnitTest {
         cleanupContext(instance);
     }
 
+    /**
+     * Ignored test because inside the DSpaceObject we have a fetch-type EAGER
+     * (org.dspace.content.DSpaceObject#metadata) on DSpace is set as LAZY.
+     * So the number of entities that will be loaded are strictly different.
+     * @throws Throwable
+     */
+    @Test
+    @Ignore
+    public void testUncacheEntities() throws Throwable {
+        // To set up the test, ensure the cache contains more than the current user entity
+        groupService.findByName(context, Group.ANONYMOUS);
+        assertTrue("Cache size should be greater than one", context.getDBConnection().getCacheSize() > 1);
+
+        context.uncacheEntities();
+
+        assertThat("Cache size should be one (current user)", context.getDBConnection().getCacheSize(), equalTo(1L));
+        context.reloadEntity(context.getCurrentUser());
+        assertThat("Cache should only contain the current user", context.getDBConnection().getCacheSize(), equalTo(1L));
+    }
+
+    @Test
+    public void testUncacheEntity() throws Throwable {
+        // Remember the cache size after loading an entity
+        Group group = groupService.findByName(context, Group.ANONYMOUS);
+        long oldCacheSize = context.getDBConnection().getCacheSize();
+
+        // Uncache the entity
+        context.uncacheEntity(group);
+
+        long newCacheSize = context.getDBConnection().getCacheSize();
+        assertThat("Cache size should be reduced by one", newCacheSize, equalTo(oldCacheSize - 1));
+    }
 }

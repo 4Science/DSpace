@@ -17,9 +17,9 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-import javax.annotation.PostConstruct;
-import javax.annotation.Resource;
 
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
 import org.dspace.app.util.DCInputSet;
 import org.dspace.app.util.DCInputsReader;

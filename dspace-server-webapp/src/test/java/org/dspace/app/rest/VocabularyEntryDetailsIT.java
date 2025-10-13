@@ -27,11 +27,16 @@ import org.dspace.builder.ItemBuilder;
 import org.dspace.content.Collection;
 import org.dspace.content.Community;
 import org.dspace.content.Item;
+import org.dspace.content.authority.DCInputAuthority;
+import org.dspace.content.authority.service.ChoiceAuthorityService;
+import org.dspace.core.service.PluginService;
+import org.dspace.services.ConfigurationService;
 import org.hamcrest.Matcher;
 import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * 
@@ -43,6 +48,15 @@ public class VocabularyEntryDetailsIT extends AbstractControllerIntegrationTest 
     private Community community;
 
     private Collection collection;
+
+    @Autowired
+    private ConfigurationService configurationService;
+
+    @Autowired
+    private PluginService pluginService;
+
+    @Autowired
+    private ChoiceAuthorityService choiceAuthorityService;
 
     @Before
     public void setup() {
@@ -1049,6 +1063,120 @@ public class VocabularyEntryDetailsIT extends AbstractControllerIntegrationTest 
                 get("/api/submission/vocabularyEntryDetails/orgunits:" + orgUnit1.getID() + "/parent"))
                 .andExpect(status().isNoContent());
         //
+    }
+
+    @Test
+    public void authorityFondsVocabularies() throws Exception {
+        context.turnOffAuthorisationSystem();
+
+        configurationService.setProperty("plugin.named.org.dspace.content.authority.ChoiceAuthority",
+                                         new String[] {
+                                             "org.dspace.content.authority.ItemAuthority = FondsAuthority"
+                                         });
+
+
+        configurationService.setProperty("cris.ItemAuthority.FondsAuthority.entityType", "Fonds");
+        configurationService.setProperty("cris.ItemAuthority.FondsAuthority.relationshipType", "Fonds");
+
+        configurationService.setProperty("choices.plugin.glamfonds.parent","FondsAuthority");
+        configurationService.setProperty("choices.presentation.glamfonds.parent","suggest");
+        configurationService.setProperty("authority.controlled.glamfonds.parent","true");
+        configurationService.setProperty("authority.required.glamfonds.parent","true");
+        configurationService.setProperty("choices.closed.glamfonds.parent","true");
+
+        configurationService.setProperty("item.controlled.vocabularies","fonds");
+        configurationService.setProperty("item.controlled.vocabularies.fonds.store-authority-in-metadata", "true");
+
+        // These clears have to happen so that the config is actually reloaded in those
+        // classes. This is needed for
+        // the properties that we're altering above and this is only used within the
+        // tests
+        DCInputAuthority.reset();
+        pluginService.clearNamedPluginClasses();
+        choiceAuthorityService.clearCache();
+
+        parentCommunity = CommunityBuilder.createCommunity(context).build();
+        Collection col1 = CollectionBuilder.createCollection(context, parentCommunity).build();
+
+        Item fonds1 =
+            ItemBuilder.createItem(context, col1)
+                       .withTitle("Fonds 1")
+                       .withType("fond type")
+                       .withEntityType("Fonds")
+                       .withMetadata("glamfonds", "index", null, "1")
+                       .build();
+
+        Item fonds2 =
+            ItemBuilder.createItem(context, col1)
+                       .withTitle("Fonds 2")
+                       .withType("fond type")
+                       .withEntityType("Fonds")
+                       .withMetadata("glamfonds", "index", null, "2")
+                       .build();
+
+        Item fonds3 =
+            ItemBuilder.createItem(context, col1)
+                       .withTitle("Fonds 3")
+                       .withType("fond type")
+                       .withEntityType("Fonds")
+                       .withMetadata("glamfonds", "index", null, "3")
+                       .build();
+        context.restoreAuthSystemState();
+
+        // all fonds should be loaded without the glamfonds.index
+        String token = getAuthToken(eperson.getEmail(), password);
+        getClient(token)
+            .perform(
+                get("/api/submission/vocabularyEntryDetails/search/top?vocabulary=fondsTree"))
+            .andExpect(status().isOk())
+            .andExpect(
+                jsonPath("$._embedded.vocabularyEntryDetails", Matchers.hasSize(3))
+            )
+            .andExpect(
+                jsonPath("$._embedded.vocabularyEntryDetails", Matchers.containsInAnyOrder(
+                    allOf(
+                        hasJsonPath("$.display", is("1 - Fonds 1")),
+                        hasJsonPath("$.value", is("Fonds 1"))
+                    ),
+                    allOf(
+                        hasJsonPath("$.display", is("2 - Fonds 2")),
+                        hasJsonPath("$.value", is("Fonds 2"))
+                    ),
+                    allOf(
+                        hasJsonPath("$.display", is("3 - Fonds 3")),
+                        hasJsonPath("$.value", is("Fonds 3"))
+                    )
+                ))
+
+            );
+
+
+        // for the Fonds vocabulary, the glamfonds.index should be shown
+        getClient(token)
+            .perform(
+                get("/api/submission/vocabularyEntryDetails/search/top?vocabulary=fonds"))
+            .andExpect(status().isOk())
+            .andExpect(
+                jsonPath("$._embedded.vocabularyEntryDetails", Matchers.hasSize(3))
+            )
+            .andExpect(
+                jsonPath("$._embedded.vocabularyEntryDetails", Matchers.containsInAnyOrder(
+                    allOf(
+                        hasJsonPath("$.display", is("1 - Fonds 1")),
+                        hasJsonPath("$.value", is("Fonds 1"))
+                    ),
+                    allOf(
+                        hasJsonPath("$.display", is("2 - Fonds 2")),
+                        hasJsonPath("$.value", is("Fonds 2"))
+                    ),
+                    allOf(
+                        hasJsonPath("$.display", is("3 - Fonds 3")),
+                        hasJsonPath("$.value", is("Fonds 3"))
+                    )
+                ))
+
+            );
+
     }
 
 }

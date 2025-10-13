@@ -35,8 +35,8 @@ import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import javax.annotation.PostConstruct;
 
+import jakarta.annotation.PostConstruct;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
@@ -104,8 +104,6 @@ public class ReferCrosswalk implements ItemExportCrosswalk {
 
     private Consumer<List<String>> linesPostProcessor;
 
-    private String multipleItemsTemplateFileName;
-
     private String templateFileName;
 
     private String mimeType;
@@ -116,24 +114,35 @@ public class ReferCrosswalk implements ItemExportCrosswalk {
 
     private boolean publiclyReadable = false;
 
-    private List<TemplateLine> templateLines;
+    protected String multipleItemsTemplateFileName;
 
-    private List<TemplateLine> multipleItemsTemplateLines;
+    protected List<TemplateLine> templateLines;
+
+    protected List<TemplateLine> multipleItemsTemplateLines;
 
     private CrosswalkMode crosswalkMode;
 
     private List<String> allowedGroups;
 
     @PostConstruct
-    private void postConstruct() throws IOException {
-        String parent = configurationService.getProperty("dspace.dir") + File.separator + "config" + File.separator;
-        File templateFile = new File(parent, templateFileName);
+    protected void postConstruct() throws IOException {
+        File templateFile = getTemplateFile();
         this.templateLines = readTemplateLines(templateFile);
 
         if (StringUtils.isNotBlank(multipleItemsTemplateFileName)) {
-            File multipleItemsTemplateFile = new File(parent, multipleItemsTemplateFileName);
+            File multipleItemsTemplateFile = getMultipleItemTemplateFile();
             this.multipleItemsTemplateLines = readTemplateLines(multipleItemsTemplateFile);
         }
+    }
+
+    protected File getTemplateFile() {
+        String parent = configurationService.getProperty("dspace.dir") + File.separator + "config" + File.separator;
+        return new File(parent, getTemplateFileName());
+    }
+
+    protected File getMultipleItemTemplateFile() {
+        String parent = configurationService.getProperty("dspace.dir") + File.separator + "config" + File.separator;
+        return new File(parent, getMultipleItemsTemplateFileName());
     }
 
     @Override
@@ -234,7 +243,7 @@ public class ReferCrosswalk implements ItemExportCrosswalk {
         return mimeType;
     }
 
-    private List<TemplateLine> readTemplateLines(File templateFile) throws IOException, FileNotFoundException {
+    protected List<TemplateLine> readTemplateLines(File templateFile) throws IOException, FileNotFoundException {
         try (BufferedReader templateReader = new BufferedReader(new FileReader(templateFile))) {
             return templateReader.lines()
                 .map(this::buildTemplateLine)
@@ -551,6 +560,10 @@ public class ReferCrosswalk implements ItemExportCrosswalk {
         this.multipleItemsTemplateFileName = multipleItemsTemplateFileName;
     }
 
+    public String getMultipleItemsTemplateFileName() {
+        return multipleItemsTemplateFileName;
+    }
+
     public String getTemplateFileName() {
         return templateFileName;
     }
@@ -606,4 +619,12 @@ public class ReferCrosswalk implements ItemExportCrosswalk {
         this.allowedGroups = allowedGroups;
     }
 
+    public VirtualFieldMapper getVirtualFieldMapper() {
+        return virtualFieldMapper;
+    }
+
+    public void setVirtualFieldMapper(
+        VirtualFieldMapper virtualFieldMapper) {
+        this.virtualFieldMapper = virtualFieldMapper;
+    }
 }

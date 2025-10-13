@@ -40,9 +40,9 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
-import javax.ws.rs.core.MediaType;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.ws.rs.core.MediaType;
 import org.dspace.app.rest.matcher.CrisLayoutTabMatcher;
 import org.dspace.app.rest.model.CrisLayoutTabRest;
 import org.dspace.app.rest.model.patch.Operation;

@@ -8,14 +8,15 @@
 package org.dspace.app.rest.repository;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import javax.servlet.http.HttpServletRequest;
 
+import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.Logger;
 import org.dspace.app.rest.Parameter;
@@ -45,12 +46,15 @@ import org.dspace.app.util.SubmissionConfigReaderException;
 import org.dspace.app.util.SubmissionStepConfig;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.authorize.service.AuthorizeService;
+import org.dspace.content.Bitstream;
+import org.dspace.content.Bundle;
 import org.dspace.content.Collection;
 import org.dspace.content.Item;
 import org.dspace.content.MetadataValue;
 import org.dspace.content.WorkspaceItem;
 import org.dspace.content.service.BitstreamFormatService;
 import org.dspace.content.service.BitstreamService;
+import org.dspace.content.service.BundleService;
 import org.dspace.content.service.CollectionService;
 import org.dspace.content.service.ItemService;
 import org.dspace.content.service.WorkspaceItemService;
@@ -86,7 +90,7 @@ import org.springframework.web.multipart.MultipartFile;
  * @author Andrea Bollini (andrea.bollini at 4science.it)
  * @author Pasquale Cavallo (pasquale.cavallo at 4science.it)
  */
-@Component(WorkspaceItemRest.CATEGORY + "." + WorkspaceItemRest.NAME)
+@Component(WorkspaceItemRest.CATEGORY + "." + WorkspaceItemRest.PLURAL_NAME)
 public class WorkspaceItemRestRepository extends DSpaceRestRepository<WorkspaceItemRest, Integer>
     implements ReloadableEntityObjectRepository<WorkspaceItem, Integer> {
 
@@ -140,6 +144,9 @@ public class WorkspaceItemRestRepository extends DSpaceRestRepository<WorkspaceI
     private UriListHandlerService uriListHandlerService;
 
     private SubmissionConfigService submissionConfigService;
+
+    @Autowired
+    private BundleService bundleService;
 
     public WorkspaceItemRestRepository() throws SubmissionConfigReaderException {
         submissionConfigService = SubmissionServiceFactory.getInstance().getSubmissionConfigService();
@@ -331,7 +338,70 @@ public class WorkspaceItemRestRepository extends DSpaceRestRepository<WorkspaceI
                     List<ImportRecord> recordsFound = importService.getRecords(file, mpFile.getOriginalFilename());
                     if (recordsFound != null && !recordsFound.isEmpty()) {
                         records.addAll(recordsFound);
-                        break;
+                    }
+                    result = new ArrayList<>(records.size());
+                    for (ImportRecord importRecord : records) {
+                        WorkspaceItem source = submissionService.
+                            createWorkspaceItem(context, getRequestService().getCurrentRequest());
+
+                        merge(context, importRecord, source);
+
+                        result.add(source);
+                    }
+
+                    //perform upload of bitstream if there is exact one result and convert workspaceitem to entity rest
+                    if (!result.isEmpty()) {
+                        for (WorkspaceItem wi : result) {
+                            List<ErrorRest> errors = new ArrayList<ErrorRest>();
+                            wi.setMultipleFiles(uploadfiles.size() > 1);
+                            //load bitstream into bundle ORIGINAL only if there is one result (approximately this is the
+                            // right behaviour for pdf file but not for other bibliographic format e.g. bibtex)
+                            if (result.size() == 1) {
+                                ClassLoader loader = this.getClass().getClassLoader();
+                                for (int i = 0; i < submissionConfig.getNumberOfSteps(); i++) {
+                                    SubmissionStepConfig stepConfig = submissionConfig.getStep(i);
+                                    try {
+                                        Class<?> stepClass = loader.loadClass(stepConfig.getProcessingClassName());
+                                        Object stepInstance = stepClass.getConstructor().newInstance();
+                                        if (UploadableStep.class.isAssignableFrom(stepClass)) {
+                                            UploadableStep uploadableStep = (UploadableStep) stepInstance;
+                                            for (MultipartFile uploadfile : uploadfiles) {
+                                                ErrorRest err = uploadableStep.upload(context, submissionService,
+                                                        stepConfig, wi, uploadfile);
+                                                if (err != null) {
+                                                    errors.add(err);
+                                                }
+                                            }
+
+                                        }
+                                    } catch (Exception e) {
+                                        log.error(e.getMessage(), e);
+                                    }
+                                }
+                            }
+                            WorkspaceItemRest wsi = converter.toRest(wi, utils.obtainProjection());
+                            if (result.size() == 1) {
+                                if (!errors.isEmpty()) {
+                                    wsi.getErrors().addAll(errors);
+                                }
+                            }
+                            results.add(wsi);
+                        }
+                    } else {
+                        // If no external record was found start a submission with the given files
+                        WorkspaceItem wsi = submissionService.
+                            createWorkspaceItem(context, getRequestService().getCurrentRequest());
+                        try (FileInputStream stream = new FileInputStream(file)) {
+                            Bundle bnd = bundleService.create(context, wsi.getItem(), Constants.CONTENT_BUNDLE_NAME);
+                            Bitstream bitstream = bitstreamService.create(context, bnd, stream);
+                            bitstream.setName(context, mpFile.getOriginalFilename());
+                            bitstream.setFormat(context, bitstreamFormatService.guessFormat(context, bitstream));
+                            bitstreamService.update(context, bitstream);
+                        } catch (Exception e) {
+                            log.error("Error processing data", e);
+                        }
+                        results.add(converter.toRest(wsi, utils.obtainProjection()));
+
                     }
                 } catch (Exception e) {
                     log.error("Error processing data", e);
@@ -345,54 +415,7 @@ public class WorkspaceItemRestRepository extends DSpaceRestRepository<WorkspaceI
         } catch (Exception e) {
             log.error("Error importing metadata", e);
         }
-        result = new ArrayList<>(records.size());
-        for (ImportRecord importRecord : records) {
-            WorkspaceItem source = submissionService.
-                createWorkspaceItem(context, getRequestService().getCurrentRequest());
 
-            merge(context, importRecord, source);
-
-            result.add(source);
-        }
-
-        //perform upload of bitstream if there is exact one result and convert workspaceitem to entity rest
-        if (!result.isEmpty()) {
-            for (WorkspaceItem wi : result) {
-                List<ErrorRest> errors = new ArrayList<ErrorRest>();
-                wi.setMultipleFiles(uploadfiles.size() > 1);
-                //load bitstream into bundle ORIGINAL only if there is one result (approximately this is the
-                // right behaviour for pdf file but not for other bibliographic format e.g. bibtex)
-                if (result.size() == 1) {
-                    ClassLoader loader = this.getClass().getClassLoader();
-                    for (int i = 0; i < submissionConfig.getNumberOfSteps(); i++) {
-                        SubmissionStepConfig stepConfig = submissionConfig.getStep(i);
-                        try {
-                            Class<?> stepClass = loader.loadClass(stepConfig.getProcessingClassName());
-                            Object stepInstance = stepClass.getConstructor().newInstance();
-                            if (UploadableStep.class.isAssignableFrom(stepClass)) {
-                                UploadableStep uploadableStep = (UploadableStep) stepInstance;
-                                for (MultipartFile mpFile : uploadfiles) {
-                                    ErrorRest err =
-                                        uploadableStep.upload(context, submissionService, stepConfig, wi, mpFile);
-                                    if (err != null) {
-                                        errors.add(err);
-                                    }
-                                }
-                            }
-                        } catch (Exception e) {
-                            log.error(e.getMessage(), e);
-                        }
-                    }
-                }
-                WorkspaceItemRest wsi = converter.toRest(wi, utils.obtainProjection());
-                if (result.size() == 1) {
-                    if (!errors.isEmpty()) {
-                        wsi.getErrors().addAll(errors);
-                    }
-                }
-                results.add(wsi);
-            }
-        }
         return results;
     }
 

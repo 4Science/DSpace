@@ -20,12 +20,13 @@ import org.dspace.app.rest.RestResourceController;
  * @author Andrea Bollini (andrea.bollini at 4science.it)
  */
 @LinksRest(links = {
-        @LinkRest(method = "getEperson", name = AuditEventRest.EPERSON),
-        @LinkRest(method = "getObject", name = AuditEventRest.OBJECT),
-        @LinkRest(method = "getSubject", name = AuditEventRest.SUBJECT)
+    @LinkRest(method = "getEperson", name = AuditEventRest.EPERSON),
+    @LinkRest(method = "getObject", name = AuditEventRest.OBJECT),
+    @LinkRest(method = "getSubject", name = AuditEventRest.SUBJECT)
 })
 public class AuditEventRest extends BaseObjectRest<UUID> {
     public static final String NAME = "auditevent";
+    public static final String NAME_PLURAL = "auditevents";
     public static final String CATEGORY = RestAddressableModel.SYSTEM;
 
     public static final String EPERSON = "eperson";
@@ -45,6 +46,11 @@ public class AuditEventRest extends BaseObjectRest<UUID> {
     @JsonProperty(access = Access.READ_ONLY)
     public String getType() {
         return NAME;
+    }
+
+    @Override
+    public String getTypePlural() {
+        return NAME_PLURAL;
     }
 
     @Override

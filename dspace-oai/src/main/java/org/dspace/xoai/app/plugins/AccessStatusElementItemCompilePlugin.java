@@ -12,6 +12,7 @@ import java.util.List;
 
 import com.lyncode.xoai.dataprovider.xml.xoai.Element;
 import com.lyncode.xoai.dataprovider.xml.xoai.Metadata;
+import org.apache.commons.lang3.StringUtils;
 import org.dspace.access.status.factory.AccessStatusServiceFactory;
 import org.dspace.access.status.service.AccessStatusService;
 import org.dspace.content.Item;
@@ -53,8 +54,14 @@ public class AccessStatusElementItemCompilePlugin implements XOAIExtensionItemCo
             String accessStatusType;
             accessStatusType = accessStatusService.getAccessStatus(context, item);
 
+            String embargoFromItem = accessStatusService.getEmbargoFromItem(context, item);
+
             Element accessStatus = ItemUtils.create("access-status");
             accessStatus.getField().add(ItemUtils.createValue("value", accessStatusType));
+
+            if (StringUtils.isNotEmpty(embargoFromItem)) {
+                accessStatus.getField().add(ItemUtils.createValue("embargo", embargoFromItem));
+            }
 
             Element others;
             List<Element> elements = metadata.getElement();

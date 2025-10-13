@@ -39,6 +39,7 @@ import org.dspace.builder.ItemBuilder;
 import org.dspace.builder.ProcessBuilder;
 import org.dspace.builder.RelationshipTypeBuilder;
 import org.dspace.content.Bitstream;
+import org.dspace.content.BitstreamFormat;
 import org.dspace.content.Bundle;
 import org.dspace.content.Collection;
 import org.dspace.content.EntityType;
@@ -46,12 +47,15 @@ import org.dspace.content.Item;
 import org.dspace.content.MetadataValue;
 import org.dspace.content.ProcessStatus;
 import org.dspace.content.packager.DSpaceMAGIngester;
+import org.dspace.content.packager.PackageUtils;
+import org.dspace.content.service.BitstreamFormatService;
 import org.dspace.content.service.BitstreamService;
 import org.dspace.content.service.EntityTypeService;
 import org.dspace.content.service.ItemService;
 import org.dspace.scripts.DSpaceCommandLineParameter;
 import org.dspace.scripts.Process;
 import org.dspace.scripts.service.ProcessService;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -76,6 +80,9 @@ public class MagIngesterIT extends AbstractEntityIntegrationTest {
     @Autowired
     private ProcessService processService;
     @Autowired
+    private BitstreamFormatService bitstreamFormatService;
+
+    @Autowired
     private DSpaceRunnableParameterConverter dSpaceRunnableParameterConverter;
 
     @Before
@@ -93,6 +100,16 @@ public class MagIngesterIT extends AbstractEntityIntegrationTest {
 
         context.restoreAuthSystemState();
     }
+
+    @After
+    public void tearDown() throws Exception {
+        context.turnOffAuthorisationSystem();
+        BitstreamFormat manifestFormat = PackageUtils
+            .findOrCreateBitstreamFormat(context, "MAG", "application/xml", "MAG package manifest");
+        bitstreamFormatService.delete(context, manifestFormat);
+        context.restoreAuthSystemState();
+    }
+
 
     @Test
     public void testIiifTocMetadataIsPresented() throws Exception {

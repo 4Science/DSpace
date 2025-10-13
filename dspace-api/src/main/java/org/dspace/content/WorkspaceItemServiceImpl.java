@@ -28,7 +28,6 @@ import org.dspace.content.service.ItemService;
 import org.dspace.content.service.MetadataFieldService;
 import org.dspace.content.service.MetadataValueService;
 import org.dspace.content.service.WorkspaceItemService;
-import org.dspace.content.template.TemplateItemValueService;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.core.LogHelper;
@@ -73,8 +72,7 @@ public class WorkspaceItemServiceImpl implements WorkspaceItemService {
     private MetadataFieldService metadataFieldService;
     @Autowired
     private MetadataValueService metadataValueService;
-    @Autowired
-    private TemplateItemValueService templateItemValueService;
+
 
     @Autowired(required = true)
     protected DOIService doiService;
@@ -185,6 +183,14 @@ public class WorkspaceItemServiceImpl implements WorkspaceItemService {
 
     @Override
     public WorkspaceItem create(Context c, WorkflowItem workflowItem) throws SQLException, AuthorizeException {
+        WorkspaceItem potentialDuplicate = findByItem(c, workflowItem.getItem());
+        if (potentialDuplicate != null) {
+            throw new IllegalArgumentException(String.format(
+                "A workspace item referring to item %s already exists (%d)",
+                workflowItem.getItem().getID(),
+                potentialDuplicate.getID()
+            ));
+        }
         WorkspaceItem workspaceItem = workspaceItemDAO.create(c, new WorkspaceItem());
         workspaceItem.setItem(workflowItem.getItem());
         workspaceItem.setCollection(workflowItem.getCollection());

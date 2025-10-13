@@ -103,6 +103,7 @@ public class AuthorMetadataContributor extends SimpleXpathMetadatumContributor {
      */
     private List<MetadatumDTO> getMetadataOfAuthors(Element element) throws JaxenException {
         List<MetadatumDTO> metadatums = new ArrayList<MetadatumDTO>();
+        Element authname = element.getChild("authname", NAMESPACE);
         Element surname = element.getChild("surname", NAMESPACE);
         Element givenName = element.getChild("given-name", NAMESPACE);
         Element scopusId = element.getChild("authid", NAMESPACE);

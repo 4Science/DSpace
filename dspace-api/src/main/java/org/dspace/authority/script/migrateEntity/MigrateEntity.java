@@ -130,7 +130,7 @@ public class MigrateEntity extends DSpaceRunnable<MigrateEntityScriptConfigurati
                 }
                 if (changeForm) {
                     collectionService.setMetadataSingleValue(context, collection, MetadataSchemaEnum.CRIS.getName(),
-                            "submission", "definition", Item.ANY,this.newFormName);
+                            "submission", "definition", null ,this.newFormName);
                 }
                 collection = context.reloadEntity(collection);
                 currentEt = collection.getEntityType();

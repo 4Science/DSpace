@@ -8,10 +8,11 @@
 package org.dspace.content.dao.impl;
 
 import java.sql.SQLException;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Root;
+import java.util.List;
 
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Root;
 import org.dspace.content.Site;
 import org.dspace.content.dao.SiteDAO;
 import org.dspace.core.AbstractHibernateDAO;
@@ -36,5 +37,21 @@ public class SiteDAOImpl extends AbstractHibernateDAO<Site> implements SiteDAO {
         Root<Site> siteRoot = criteriaQuery.from(Site.class);
         criteriaQuery.select(siteRoot);
         return uniqueResult(context, criteriaQuery, true, Site.class);
+    }
+
+
+    /**
+     * {@inheritDoc}
+     *
+     * @see SiteDAO#findAll(Context)
+     *
+     */
+    @Override
+    public List<Site> findAll(Context context) throws SQLException {
+        CriteriaBuilder criteriaBuilder = getCriteriaBuilder(context);
+        CriteriaQuery<Site> criteriaQuery = getCriteriaQuery(criteriaBuilder, Site.class);
+        Root<Site> siteRoot = criteriaQuery.from(Site.class);
+        criteriaQuery.select(siteRoot);
+        return list(context, criteriaQuery, false, Site.class, -1,-1);
     }
 }

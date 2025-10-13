@@ -23,8 +23,8 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
-import javax.ws.rs.core.MediaType;
 
+import jakarta.ws.rs.core.MediaType;
 import org.dspace.app.rest.matcher.VocabularyMatcher;
 import org.dspace.app.rest.model.patch.Operation;
 import org.dspace.app.rest.model.patch.ReplaceOperation;
@@ -33,6 +33,7 @@ import org.dspace.app.rest.test.AbstractControllerIntegrationTest;
 import org.dspace.authority.AuthorityValueServiceImpl;
 import org.dspace.authority.PersonAuthorityValue;
 import org.dspace.authority.factory.AuthorityServiceFactory;
+import org.dspace.authority.orcid.MockOrcid;
 import org.dspace.builder.CollectionBuilder;
 import org.dspace.builder.CommunityBuilder;
 import org.dspace.builder.ItemBuilder;
@@ -44,11 +45,12 @@ import org.dspace.content.authority.service.MetadataAuthorityService;
 import org.dspace.content.edit.EditItem;
 import org.dspace.core.service.PluginService;
 import org.dspace.services.ConfigurationService;
+import org.dspace.services.factory.DSpaceServicesFactory;
 import org.hamcrest.Matchers;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.test.web.servlet.MvcResult;
 
 /**
@@ -75,6 +77,17 @@ public class VocabularyRestRepositoryIT extends AbstractControllerIntegrationTes
     @Before
     public void setup() throws Exception {
         super.setUp();
+
+        // Explicitly set stubbing for the MockOrcid class. We don't do it in the init() or constructor
+        // of the MockOrcid class itself or Mockito will complain of unnecessary stubbing in certain other
+        // AbstractIntegrationTest implementations (depending on how config is (re)loaded)
+        ApplicationContext applicationContext = DSpaceServicesFactory.getInstance()
+                .getServiceManager().getApplicationContext();
+        MockOrcid mockOrcid = applicationContext.getBean(MockOrcid.class);
+        mockOrcid.setupNoResultsSearch();
+        mockOrcid.setupSingleSearch();
+        mockOrcid.setupSearchWithResults();
+
         configurationService.setProperty("plugin.named.org.dspace.content.authority.ChoiceAuthority",
                 new String[] {
                         "org.dspace.content.authority.SolrAuthority = SolrAuthorAuthority",
@@ -146,7 +159,6 @@ public class VocabularyRestRepositoryIT extends AbstractControllerIntegrationTes
     }
 
     @Override
-    @After
     // We need to cleanup the authorities cache once than the configuration has been restored
     public void destroy() throws Exception {
         super.destroy();

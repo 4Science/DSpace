@@ -11,7 +11,10 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
@@ -23,6 +26,9 @@ import java.io.InputStream;
 import java.sql.SQLException;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.Logger;
@@ -48,11 +54,15 @@ import org.dspace.content.Collection;
 import org.dspace.content.Community;
 import org.dspace.content.EntityType;
 import org.dspace.content.Item;
+import org.dspace.content.MetadataField;
+import org.dspace.content.MetadataSchema;
 import org.dspace.content.MetadataValue;
 import org.dspace.content.Relationship;
 import org.dspace.content.RelationshipType;
 import org.dspace.content.WorkspaceItem;
 import org.dspace.content.factory.ContentServiceFactory;
+import org.dspace.contentreport.QueryOperator;
+import org.dspace.contentreport.QueryPredicate;
 import org.dspace.core.Constants;
 import org.dspace.eperson.Group;
 import org.dspace.eperson.factory.EPersonServiceFactory;
@@ -80,26 +90,27 @@ public class ItemServiceIT extends AbstractIntegrationTestWithDatabase {
     protected ItemService itemService = ContentServiceFactory.getInstance().getItemService();
     protected InstallItemService installItemService = ContentServiceFactory.getInstance().getInstallItemService();
     protected WorkspaceItemService workspaceItemService = ContentServiceFactory.getInstance().getWorkspaceItemService();
+    protected MetadataSchemaService metadataSchemaService =
+        ContentServiceFactory.getInstance().getMetadataSchemaService();
+    protected MetadataFieldService metadataFieldService = ContentServiceFactory.getInstance().getMetadataFieldService();
     protected MetadataValueService metadataValueService = ContentServiceFactory.getInstance().getMetadataValueService();
     protected VersioningService versioningService = VersionServiceFactory.getInstance().getVersionService();
     protected AuthorizeService authorizeService = AuthorizeServiceFactory.getInstance().getAuthorizeService();
     protected GroupService groupService = EPersonServiceFactory.getInstance().getGroupService();
 
     protected OrcidClient orcidClient = OrcidServiceFactory.getInstance().getOrcidClient();
-
-    private OrcidClient orcidClientMock = mock(OrcidClient.class);
-
     Community community;
     Collection collection1;
-
+    MetadataSchema schemaDC;
+    MetadataField fieldAuthor;
     Item item;
-
     String authorQualifier = "author";
     String contributorElement = "contributor";
     String dcSchema = "dc";
     String subjectElement = "subject";
     String descriptionElement = "description";
     String abstractQualifier = "abstract";
+    private OrcidClient orcidClientMock = mock(OrcidClient.class);
 
     /**
      * This method will be run before every test as per @Before. It will
@@ -112,12 +123,15 @@ public class ItemServiceIT extends AbstractIntegrationTestWithDatabase {
         try {
             context.turnOffAuthorisationSystem();
 
+            schemaDC = metadataSchemaService.find(context, "dc");
+            fieldAuthor = metadataFieldService.findByElement(context, schemaDC, "contributor", "author");
+
             community = CommunityBuilder.createCommunity(context)
-                .build();
+                                        .build();
 
             collection1 = CollectionBuilder.createCollection(context, community)
-                .withEntityType("Publication")
-                .build();
+                                           .withEntityType("Publication")
+                                           .build();
 
             WorkspaceItem is = workspaceItemService.create(context, collection1, false);
 
@@ -163,9 +177,9 @@ public class ItemServiceIT extends AbstractIntegrationTestWithDatabase {
 
         // check the correct order using default method `getMetadata`
         List<MetadataValue> defaultMetadata =
-            this.itemService.getMetadata(item, dcSchema, contributorElement, authorQualifier, Item.ANY);
+            itemService.getMetadata(item, dcSchema, contributorElement, authorQualifier, Item.ANY);
 
-        assertThat(defaultMetadata,hasSize(3));
+        assertThat(defaultMetadata, hasSize(3));
 
         assertMetadataValue(
             authorQualifier, contributorElement, dcSchema, "test, two", null, 0, defaultMetadata.get(0)
@@ -179,12 +193,12 @@ public class ItemServiceIT extends AbstractIntegrationTestWithDatabase {
 
         // check the correct order using the method `getMetadata` without virtual fields
         List<MetadataValue> nonVirtualMetadatas =
-            this.itemService.getMetadata(item, dcSchema, contributorElement, authorQualifier, Item.ANY, false);
+            itemService.getMetadata(item, dcSchema, contributorElement, authorQualifier, Item.ANY, false);
 
         // if we don't reload the item the place order is not applied correctly
         // item = context.reloadEntity(item);
 
-        assertThat(nonVirtualMetadatas,hasSize(3));
+        assertThat(nonVirtualMetadatas, hasSize(3));
 
         assertMetadataValue(
             authorQualifier, contributorElement, dcSchema, "test, two", null, 0, nonVirtualMetadatas.get(0)
@@ -201,22 +215,22 @@ public class ItemServiceIT extends AbstractIntegrationTestWithDatabase {
         item = context.reloadEntity(item);
 
         // now just add one metadata to be the last
-        this.itemService.addMetadata(
-            context, item, dcSchema, contributorElement, authorQualifier, Item.ANY, "test, latest", null, 0
+        itemService.addMetadata(
+            context, item, dcSchema, contributorElement, authorQualifier, null, "test, latest", null, 0
         );
         // now just remove first metadata
-        this.itemService.removeMetadataValues(context, item, List.of(placeZero));
+        itemService.removeMetadataValues(context, item, List.of(placeZero));
         // now just add one metadata to place 0
-        this.itemService.addAndShiftRightMetadata(
+        itemService.addAndShiftRightMetadata(
             context, item, dcSchema, contributorElement, authorQualifier, Item.ANY, "test, new", null, 0, 0
         );
 
         // check the metadata using method `getMetadata`
         defaultMetadata =
-            this.itemService.getMetadata(item, dcSchema, contributorElement, authorQualifier, Item.ANY);
+            itemService.getMetadata(item, dcSchema, contributorElement, authorQualifier, Item.ANY);
 
         // check correct places
-        assertThat(defaultMetadata,hasSize(4));
+        assertThat(defaultMetadata, hasSize(4));
 
         assertMetadataValue(
             authorQualifier, contributorElement, dcSchema, "test, new", null, 0, defaultMetadata.get(0)
@@ -233,10 +247,10 @@ public class ItemServiceIT extends AbstractIntegrationTestWithDatabase {
 
         // check metadata using nonVirtualMethod
         nonVirtualMetadatas =
-            this.itemService.getMetadata(item, dcSchema, contributorElement, authorQualifier, Item.ANY, false);
+            itemService.getMetadata(item, dcSchema, contributorElement, authorQualifier, Item.ANY, false);
 
         // check correct places
-        assertThat(nonVirtualMetadatas,hasSize(4));
+        assertThat(nonVirtualMetadatas, hasSize(4));
 
         assertMetadataValue(
             authorQualifier, contributorElement, dcSchema, "test, new", null, 0, nonVirtualMetadatas.get(0)
@@ -265,10 +279,10 @@ public class ItemServiceIT extends AbstractIntegrationTestWithDatabase {
 
         // check after commit
         defaultMetadata =
-            this.itemService.getMetadata(item, dcSchema, contributorElement, authorQualifier, Item.ANY);
+            itemService.getMetadata(item, dcSchema, contributorElement, authorQualifier, Item.ANY);
 
         // check correct places
-        assertThat(defaultMetadata,hasSize(4));
+        assertThat(defaultMetadata, hasSize(4));
 
         assertMetadataValue(
             authorQualifier, contributorElement, dcSchema, "test, new", null, 0, defaultMetadata.get(0)
@@ -285,10 +299,10 @@ public class ItemServiceIT extends AbstractIntegrationTestWithDatabase {
 
         // check metadata using nonVirtualMethod
         nonVirtualMetadatas =
-            this.itemService.getMetadata(item, dcSchema, contributorElement, authorQualifier, Item.ANY, false);
+            itemService.getMetadata(item, dcSchema, contributorElement, authorQualifier, Item.ANY, false);
 
         // check correct places
-        assertThat(nonVirtualMetadatas,hasSize(4));
+        assertThat(nonVirtualMetadatas, hasSize(4));
 
         assertMetadataValue(
             authorQualifier, contributorElement, dcSchema, "test, new", null, 0, nonVirtualMetadatas.get(0)
@@ -638,32 +652,34 @@ public class ItemServiceIT extends AbstractIntegrationTestWithDatabase {
         context.turnOffAuthorisationSystem();
 
         EntityType publicationEntityType = EntityTypeBuilder.createEntityTypeBuilder(context, "Publication")
-            .build();
+                                                            .build();
 
         EntityType personEntityType = EntityTypeBuilder.createEntityTypeBuilder(context, "Person")
-            .build();
+                                                       .build();
 
         RelationshipType isAuthorOfPublication = RelationshipTypeBuilder.createRelationshipTypeBuilder(
-                context, publicationEntityType, personEntityType, "isAuthorOfPublication", "isPublicationOfAuthor",
-                null, null, null, null
-            )
-            .withCopyToLeft(false)
-            .withCopyToRight(false)
-            .build();
+                                                                            context, publicationEntityType,
+                                                                            personEntityType, "isAuthorOfPublication"
+                                                                            , "isPublicationOfAuthor",
+                                                                            null, null, null, null
+                                                                        )
+                                                                        .withCopyToLeft(false)
+                                                                        .withCopyToRight(false)
+                                                                        .build();
 
         Collection collection2 = CollectionBuilder.createCollection(context, community)
-            .withEntityType("Person")
-            .build();
+                                                  .withEntityType("Person")
+                                                  .build();
 
         Item publication1 = ItemBuilder.createItem(context, collection1)
-            .withTitle("publication 1")
-            // NOTE: entity type comes from collection
-            .build();
+                                       .withTitle("publication 1")
+                                       // NOTE: entity type comes from collection
+                                       .build();
 
         Item person1 = ItemBuilder.createItem(context, collection2)
-            .withTitle("person 2")
-            // NOTE: entity type comes from collection
-            .build();
+                                  .withTitle("person 2")
+                                  // NOTE: entity type comes from collection
+                                  .build();
 
         RelationshipBuilder.createRelationshipBuilder(context, publication1, person1, isAuthorOfPublication);
 
@@ -697,9 +713,9 @@ public class ItemServiceIT extends AbstractIntegrationTestWithDatabase {
     @Test
     public void testFindAndCountItemsWithEditEPerson() throws Exception {
         ResourcePolicy rp = ResourcePolicyBuilder.createResourcePolicy(context, eperson, null)
-            .withDspaceObject(item)
-            .withAction(Constants.WRITE)
-            .build();
+                                                 .withDspaceObject(item)
+                                                 .withAction(Constants.WRITE)
+                                                 .build();
         context.setCurrentUser(eperson);
         List<Item> result = itemService.findItemsWithEdit(context, 0, 10);
         int count = itemService.countItemsWithEdit(context);
@@ -709,10 +725,10 @@ public class ItemServiceIT extends AbstractIntegrationTestWithDatabase {
 
     @Test
     public void testFindAndCountItemsWithAdminEPerson() throws Exception {
-         ResourcePolicy rp = ResourcePolicyBuilder.createResourcePolicy(context, eperson, null)
-            .withDspaceObject(item)
-            .withAction(Constants.ADMIN)
-            .build();
+        ResourcePolicy rp = ResourcePolicyBuilder.createResourcePolicy(context, eperson, null)
+                                                 .withDspaceObject(item)
+                                                 .withAction(Constants.ADMIN)
+                                                 .build();
         context.setCurrentUser(eperson);
         List<Item> result = itemService.findItemsWithEdit(context, 0, 10);
         int count = itemService.countItemsWithEdit(context);
@@ -724,14 +740,14 @@ public class ItemServiceIT extends AbstractIntegrationTestWithDatabase {
     public void testFindAndCountItemsWithEditGroup() throws Exception {
         context.turnOffAuthorisationSystem();
         Group group = GroupBuilder.createGroup(context)
-            .addMember(eperson)
-            .build();
+                                  .addMember(eperson)
+                                  .build();
         context.restoreAuthSystemState();
 
         ResourcePolicy rp = ResourcePolicyBuilder.createResourcePolicy(context, null, group)
-            .withDspaceObject(item)
-            .withAction(Constants.WRITE)
-            .build();
+                                                 .withDspaceObject(item)
+                                                 .withAction(Constants.WRITE)
+                                                 .build();
         context.setCurrentUser(eperson);
         List<Item> result = itemService.findItemsWithEdit(context, 0, 10);
         int count = itemService.countItemsWithEdit(context);
@@ -743,14 +759,14 @@ public class ItemServiceIT extends AbstractIntegrationTestWithDatabase {
     public void testFindAndCountItemsWithAdminGroup() throws Exception {
         context.turnOffAuthorisationSystem();
         Group group = GroupBuilder.createGroup(context)
-            .addMember(eperson)
-            .build();
+                                  .addMember(eperson)
+                                  .build();
         context.restoreAuthSystemState();
 
         ResourcePolicy rp = ResourcePolicyBuilder.createResourcePolicy(context, null, group)
-            .withDspaceObject(item)
-            .withAction(Constants.ADMIN)
-            .build();
+                                                 .withDspaceObject(item)
+                                                 .withAction(Constants.ADMIN)
+                                                 .build();
         context.setCurrentUser(eperson);
         List<Item> result = itemService.findItemsWithEdit(context, 0, 10);
         int count = itemService.countItemsWithEdit(context);
@@ -762,8 +778,8 @@ public class ItemServiceIT extends AbstractIntegrationTestWithDatabase {
     public void testRemoveItemThatHasRequests() throws Exception {
         context.turnOffAuthorisationSystem();
         Item item = ItemBuilder.createItem(context, collection1)
-            .withTitle("Test")
-            .build();
+                               .withTitle("Test")
+                               .build();
         InputStream is = new ByteArrayInputStream(new byte[0]);
         Bitstream bitstream = BitstreamBuilder.createBitstream(context, item, is)
                                               .build();
@@ -806,7 +822,7 @@ public class ItemServiceIT extends AbstractIntegrationTestWithDatabase {
             .build();
 
         Bitstream bitstream = BitstreamBuilder.createBitstream(context, item, InputStream.nullInputStream())
-            .build();
+                                              .build();
 
         Bundle bundle = item.getBundles("ORIGINAL").get(0);
 
@@ -814,17 +830,17 @@ public class ItemServiceIT extends AbstractIntegrationTestWithDatabase {
         assertEquals(
             List.of(anonymous),
             authorizeService.getPoliciesActionFilter(context, item, Constants.READ)
-                .stream().map(ResourcePolicy::getGroup).collect(Collectors.toList())
+                            .stream().map(ResourcePolicy::getGroup).collect(Collectors.toList())
         );
         assertEquals(
             List.of(anonymous),
             authorizeService.getPoliciesActionFilter(context, bundle, Constants.READ)
-                .stream().map(ResourcePolicy::getGroup).collect(Collectors.toList())
+                            .stream().map(ResourcePolicy::getGroup).collect(Collectors.toList())
         );
         assertEquals(
             List.of(anonymous),
             authorizeService.getPoliciesActionFilter(context, bitstream, Constants.READ)
-                .stream().map(ResourcePolicy::getGroup).collect(Collectors.toList())
+                            .stream().map(ResourcePolicy::getGroup).collect(Collectors.toList())
         );
 
         // Move the item to the restrictive collection, making sure to inherit default policies.
@@ -834,17 +850,17 @@ public class ItemServiceIT extends AbstractIntegrationTestWithDatabase {
         assertEquals(
             List.of(admin),
             authorizeService.getPoliciesActionFilter(context, item, Constants.READ)
-                .stream().map(ResourcePolicy::getGroup).collect(Collectors.toList())
+                            .stream().map(ResourcePolicy::getGroup).collect(Collectors.toList())
         );
         assertEquals(
             List.of(admin),
             authorizeService.getPoliciesActionFilter(context, bundle, Constants.READ)
-                .stream().map(ResourcePolicy::getGroup).collect(Collectors.toList())
+                            .stream().map(ResourcePolicy::getGroup).collect(Collectors.toList())
         );
         assertEquals(
             List.of(anonymous),
             authorizeService.getPoliciesActionFilter(context, bitstream, Constants.READ)
-                .stream().map(ResourcePolicy::getGroup).collect(Collectors.toList())
+                            .stream().map(ResourcePolicy::getGroup).collect(Collectors.toList())
         );
 
         context.restoreAuthSystemState();
@@ -879,7 +895,7 @@ public class ItemServiceIT extends AbstractIntegrationTestWithDatabase {
             .build();
 
         Bitstream bitstream = BitstreamBuilder.createBitstream(context, item, InputStream.nullInputStream())
-            .build();
+                                              .build();
 
         Bundle bundle = item.getBundles("ORIGINAL").get(0);
 
@@ -887,17 +903,17 @@ public class ItemServiceIT extends AbstractIntegrationTestWithDatabase {
         assertEquals(
             List.of(anonymous),
             authorizeService.getPoliciesActionFilter(context, item, Constants.READ)
-                .stream().map(ResourcePolicy::getGroup).collect(Collectors.toList())
+                            .stream().map(ResourcePolicy::getGroup).collect(Collectors.toList())
         );
         assertEquals(
             List.of(anonymous),
             authorizeService.getPoliciesActionFilter(context, bundle, Constants.READ)
-                .stream().map(ResourcePolicy::getGroup).collect(Collectors.toList())
+                            .stream().map(ResourcePolicy::getGroup).collect(Collectors.toList())
         );
         assertEquals(
             List.of(anonymous),
             authorizeService.getPoliciesActionFilter(context, bitstream, Constants.READ)
-                .stream().map(ResourcePolicy::getGroup).collect(Collectors.toList())
+                            .stream().map(ResourcePolicy::getGroup).collect(Collectors.toList())
         );
 
         // Move the item to the restrictive collection, making sure to inherit default policies.
@@ -907,17 +923,17 @@ public class ItemServiceIT extends AbstractIntegrationTestWithDatabase {
         assertEquals(
             List.of(anonymous),
             authorizeService.getPoliciesActionFilter(context, item, Constants.READ)
-                .stream().map(ResourcePolicy::getGroup).collect(Collectors.toList())
+                            .stream().map(ResourcePolicy::getGroup).collect(Collectors.toList())
         );
         assertEquals(
             List.of(anonymous),
             authorizeService.getPoliciesActionFilter(context, bundle, Constants.READ)
-                .stream().map(ResourcePolicy::getGroup).collect(Collectors.toList())
+                            .stream().map(ResourcePolicy::getGroup).collect(Collectors.toList())
         );
         assertEquals(
             List.of(admin),
             authorizeService.getPoliciesActionFilter(context, bitstream, Constants.READ)
-                .stream().map(ResourcePolicy::getGroup).collect(Collectors.toList())
+                            .stream().map(ResourcePolicy::getGroup).collect(Collectors.toList())
         );
 
         context.restoreAuthSystemState();
@@ -933,4 +949,104 @@ public class ItemServiceIT extends AbstractIntegrationTestWithDatabase {
         assertThat(metadataValue.getAuthority(), equalTo(authority));
         assertThat(metadataValue.getPlace(), equalTo(place));
     }
+
+    @Test
+    public void testFindByMetadataQuery() throws Exception {
+        context.turnOffAuthorisationSystem();
+
+        // Here we add an author to the item
+        MetadataValue mv = itemService.addMetadata(context, item, dcSchema, contributorElement,
+                                                   authorQualifier, null, "test, one");
+        context.commit();
+
+        item = context.reloadEntity(item);
+
+        assertNotNull(mv);
+        MetadataField mf = mv.getMetadataField();
+        assertEquals(fieldAuthor, mf);
+        MetadataSchema ms = mf.getMetadataSchema();
+        assertNotNull(ms);
+        assertEquals(dcSchema, ms.getName());
+
+        // We check whether the author metadata was properly added.
+        List<MetadataValue> mvs = item.getMetadata();
+        MetadataValue mvAuthor1 = mvs.stream()
+                                     .filter(mv1 -> Objects.equals(mv1.getMetadataField().getElement(), "contributor"))
+                                     .filter(mv1 -> Objects.equals(mv1.getMetadataField().getQualifier(), "author"))
+                                     .findFirst()
+                                     .orElse(null);
+        assertNotNull(mvAuthor1);
+        assertEquals("test, one", mvAuthor1.getValue());
+
+        assertMetadataValue(
+            authorQualifier, contributorElement, dcSchema, "test, one", null, 0, mvAuthor1
+        );
+
+        assertEquals(collection1, item.getOwningCollection());
+
+        List<UUID> collectionUuids = List.of(collection1.getID());
+
+        // First test: we should not find anything.
+        QueryPredicate predicate = QueryPredicate.of(fieldAuthor, QueryOperator.MATCHES, ".*whatever.*");
+        List<Item> items = itemService.findByMetadataQuery(context, List.of(predicate), collectionUuids, 0, -1);
+        assertTrue(items.isEmpty());
+
+        // Second test: we search against the metadata value specified above.
+        predicate = QueryPredicate.of(fieldAuthor, QueryOperator.EQUALS, "test, one");
+        items = itemService.findByMetadataQuery(context, List.of(predicate), collectionUuids, 0, -1);
+        assertEquals(1, items.size());
+
+        Item item = items.get(0);
+        assertNotNull(item);
+        List<MetadataValue> allMetadata = item.getMetadata();
+        Optional<MetadataValue> mvAuthor = allMetadata.stream()
+                                                      .filter(md -> Objects.equals(dcSchema, md.getMetadataField()
+                                                                                               .getMetadataSchema()
+                                                                                               .getName()))
+                                                      .filter(md -> Objects.equals(contributorElement,
+                                                                                   md.getMetadataField().getElement()))
+                                                      .filter(md -> Objects.equals(authorQualifier,
+                                                                                   md.getMetadataField()
+                                                                                     .getQualifier()))
+                                                      .findFirst();
+        assertTrue(mvAuthor.isPresent());
+        assertEquals("test, one", mvAuthor.get().getValue());
+
+        context.restoreAuthSystemState();
+    }
+
+    @Test
+    public void testIsLatestVersion() throws Exception {
+        assertTrue("Original should be the latest version", this.itemService.isLatestVersion(context, item));
+
+        context.turnOffAuthorisationSystem();
+
+        Version firstVersion = versioningService.createNewVersion(context, item);
+        Item firstPublication = firstVersion.getItem();
+        WorkspaceItem firstPublicationWSI = workspaceItemService.findByItem(context, firstPublication);
+        installItemService.installItem(context, firstPublicationWSI);
+
+        context.commit();
+        context.restoreAuthSystemState();
+
+        assertTrue("First version should be valid", this.itemService.isLatestVersion(context, firstPublication));
+        assertFalse("Original version should not be valid", this.itemService.isLatestVersion(context, item));
+
+        context.turnOffAuthorisationSystem();
+
+        Version secondVersion = versioningService.createNewVersion(context, item);
+        Item secondPublication = secondVersion.getItem();
+        WorkspaceItem secondPublicationWSI = workspaceItemService.findByItem(context, secondPublication);
+        installItemService.installItem(context, secondPublicationWSI);
+
+        context.commit();
+        context.restoreAuthSystemState();
+
+        assertTrue("Second version should be valid", this.itemService.isLatestVersion(context, secondPublication));
+        assertFalse("First version should not be valid", this.itemService.isLatestVersion(context, firstPublication));
+        assertFalse("Original version should not be valid", this.itemService.isLatestVersion(context, item));
+
+        context.turnOffAuthorisationSystem();
+    }
+
 }

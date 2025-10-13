@@ -5,7 +5,6 @@
  *
  * http://www.dspace.org/license/
  */
-
 package org.dspace.content.authority;
 
 import java.sql.SQLException;
@@ -53,6 +52,7 @@ import org.dspace.web.ContextUtil;
  * @version $Revision $
  */
 public class ItemAuthority implements ChoiceAuthority, LinkableEntityAuthority {
+
     private static Logger log = LogManager.getLogger(ItemAuthority.class);
     final static String CHOICES_EXTERNALSOURCE_PREFIX = "choises.externalsource.";
 
@@ -132,6 +132,8 @@ public class ItemAuthority implements ChoiceAuthority, LinkableEntityAuthority {
         solrQuery.setStart(start);
         solrQuery.setRows(limit);
         solrQuery.addFilterQuery("search.resourcetype:" + Item.class.getSimpleName());
+        solrQuery.addFilterQuery("withdrawn:false");
+        solrQuery.addFilterQuery("NOT(discoverable:false)");
 
         if (StringUtils.isNotBlank(entityType)) {
             solrQuery.addFilterQuery("dspace.entity.type:" + entityType);

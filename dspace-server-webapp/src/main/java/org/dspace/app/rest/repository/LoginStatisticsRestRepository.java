@@ -38,7 +38,7 @@ import org.springframework.stereotype.Component;
  * @author Luca Giamminonni (luca.giamminonni at 4science.it)
  *
  */
-@Component(StatisticsSupportRest.CATEGORY + "." + LoginStatisticsRest.NAME)
+@Component(StatisticsSupportRest.CATEGORY + "." + LoginStatisticsRest.NAME_PLURAL)
 public class LoginStatisticsRestRepository extends DSpaceRestRepository<LoginStatisticsRest, UUID> {
 
     public static final DateFormat DATE_FORMATTER = new SimpleDateFormat("yyyy-MM-dd");

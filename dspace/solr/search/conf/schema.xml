@@ -50,6 +50,18 @@
     <fieldType name="sdouble" class="solr.DoublePointField" sortMissingLast="true" omitNorms="true" docValues="true"/>
 
     <fieldType name="random" class="solr.RandomSortField" indexed="true" />
+    <fieldType name="geojson_rptgeom"
+               class="solr.RptWithGeometrySpatialField"
+               spatialContextFactory="JTS"
+               geo="true"
+               format="GeoJSON"
+               autoIndex="true"
+               validationRule="repairBuffer0"
+               distErrPct="0.15"
+               maxDistErr="0.001"
+               distanceUnits="kilometers"
+    />
+
 
     <!-- A text field that only splits on whitespace for exact matching of words -->
     <fieldType name="text_ws" class="solr.TextField" positionIncrementGap="100">
@@ -280,6 +292,8 @@
    
     <field name="has_content_in_original_bundle" type="string" indexed="true" stored="true" omitNorms="true" multiValued="true" docValues="true" />
 
+    <field name="has_geospatial_metadata" type="string" indexed="true" stored="true" omitNorms="true" multiValued="true" docValues="true" />
+
     <!-- used to track which group(s) have submit permissions -->
     <field name="submit" type="string" indexed="true" stored="true" omitNorms="true" multiValued="true" docValues="true" />
 
@@ -346,7 +360,7 @@
     <dynamicField name="*_mlt" type="text" indexed="true" stored="true" multiValued="true" omitNorms="true" termVectors="true" termPositions="true" termOffsets="true"/>
 
     <!--Date matching-->
-<!--	<dynamicField name="*.year" type="sint" indexed="true" stored="true" multiValued="true" omitNorms="true" />	 -->
+    <dynamicField name="*.year" type="sint" indexed="true" stored="true" multiValued="true" omitNorms="true" />
     <dynamicField name="*_dt" type="date" indexed="true" stored="true" multiValued="false" omitNorms="true"  docValues="true"/>
 
     <!--Dynamic field used for update metrics in Solr doc-->
@@ -381,10 +395,12 @@
     <dynamicField name="attr_*" type="textgen" indexed="true" stored="true" multiValued="true"/>
 
     <dynamicField name="random_*" type="random" />
+    <dynamicField name="*geo_p" type="geojson_rptgeom" indexed="true" stored="true"/>
 
     <!-- Item authority lookup -->
      <field name="itemauthoritylookup" type="itemLookup" indexed="true" stored="true" multiValued="true"/>
      <field name="itemauthoritylookupexactmatch" type="text" indexed="true" stored="true" multiValued="true"/>
+     <field name="geo_p" type="geojson_rptgeom" indexed="true" multiValued="false"/>
 
     <field name="customurl" type="string" indexed="true" stored="true" required="false" multiValued="true"/>
 

@@ -12,8 +12,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
-import javax.ws.rs.NotAuthorizedException;
 
+import jakarta.ws.rs.NotAuthorizedException;
 import org.dspace.content.DCDate;
 import org.dspace.content.Item;
 import org.dspace.content.MetadataValue;
@@ -27,6 +27,7 @@ import org.dspace.versioning.service.VersioningService;
 import org.dspace.workflow.WorkflowItem;
 import org.dspace.workflow.WorkflowItemService;
 import org.springframework.beans.factory.annotation.Autowired;
+
 
 /**
  * @author Fabio Bolognesi (fabio at atmire dot com)
@@ -199,7 +200,7 @@ public class VersioningServiceImpl implements VersioningService {
 
     @Override
     public Version createNewVersion(Context context, VersionHistory history, Item item, String summary, Date date,
-                                    int versionNumber) {
+                                    int versionNumber) throws NotAuthorizedException {
         try {
             if (!itemService.canCreateNewVersion(context, item)) {
                 throw new NotAuthorizedException("Current User is not allowed to create a new version of this item");
@@ -229,8 +230,8 @@ public class VersioningServiceImpl implements VersioningService {
             return false;
         }
         return history.getVersions().stream().filter(v -> v.getVersionNumber() == versionNumber)
-                                    .findFirst()
-                                    .isPresent();
+                      .findFirst()
+                      .isPresent();
     }
 
     @Override
@@ -241,14 +242,14 @@ public class VersioningServiceImpl implements VersioningService {
 
     @Override
     public List<Version> getVersionsByHistoryWithItems(Context c, VersionHistory vh, int offset, int limit)
-           throws SQLException {
+        throws SQLException {
         return versionDAO.findVersionsWithItems(c, vh, offset, limit);
     }
 
 // **** PROTECTED METHODS!!
 
     protected Version createVersion(Context c, VersionHistory vh, Item item, String summary, Date date)
-        throws SQLException {
+        throws SQLException, NotAuthorizedException {
         return createNewVersion(c, vh, item, summary, date, getNextVersionNumer(c, vh));
     }
 

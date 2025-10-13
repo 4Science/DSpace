@@ -16,7 +16,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.Callable;
-import javax.el.MethodNotFoundException;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -112,7 +111,7 @@ public class CrossRefImportMetadataSourceServiceImpl extends AbstractImportMetad
 
     @Override
     public Collection<ImportRecord> findMatchingRecords(Item item) throws MetadataSourceException {
-        throw new MethodNotFoundException("This method is not implemented for CrossRef");
+        throw new UnsupportedOperationException("This method is not implemented for CrossRef");
     }
 
     public String getID(String id) {
@@ -157,7 +156,7 @@ public class CrossRefImportMetadataSourceServiceImpl extends AbstractImportMetad
                 uriBuilder.addParameter("offset", start.toString());
             }
             Map<String, Map<String, String>> params = new HashMap<String, Map<String,String>>();
-            String response = liveImportClient.executeHttpGetRequest(1000, uriBuilder.toString(), params);
+            String response = liveImportClient.executeHttpGetRequest(30000, uriBuilder.toString(), params);
             if (StringUtils.isEmpty(response)) {
                 return results;
             }

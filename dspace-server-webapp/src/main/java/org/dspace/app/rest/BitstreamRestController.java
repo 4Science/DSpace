@@ -15,10 +15,10 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.UUID;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.ws.rs.core.Response;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.ws.rs.core.Response;
 import org.apache.catalina.connector.ClientAbortException;
 import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -138,11 +138,16 @@ public class BitstreamRestController {
             Boolean citationEnabledForBitstream = citationDocumentService.isCitationEnabledForBitstream(bit, context);
             context.turnOffAuthorisationSystem();
 
+            var bitstreamResource =
+                    new org.dspace.app.rest.utils.BitstreamResource(name, uuid,
+                            currentUser != null ? currentUser.getID() : null,
+                            context.getSpecialGroupUuids(), citationEnabledForBitstream, true);
+
             HttpHeadersInitializer httpHeadersInitializer = new HttpHeadersInitializer()
                 .withBufferSize(BUFFER_SIZE)
                 .withFileName(name)
-                .withChecksum(bit.getChecksum())
-                .withLength(bit.getSizeBytes())
+                .withChecksum(bitstreamResource.getChecksum())
+                .withLength(bitstreamResource.contentLength())
                 .withMimetype(mimetype)
                 .with(request)
                 .with(response);
@@ -160,10 +165,6 @@ public class BitstreamRestController {
                 httpHeadersInitializer.withDisposition(HttpHeadersInitializer.CONTENT_DISPOSITION_ATTACHMENT);
             }
 
-            org.dspace.app.rest.utils.BitstreamResource bitstreamResource =
-                new org.dspace.app.rest.utils.BitstreamResource(name, uuid,
-                    currentUser != null ? currentUser.getID() : null,
-                    context.getSpecialGroupUuids(), citationEnabledForBitstream, true);
             //We have all the data we need, close the connection to the database so that it doesn't stay open during
             //download/streaming
             context.complete();

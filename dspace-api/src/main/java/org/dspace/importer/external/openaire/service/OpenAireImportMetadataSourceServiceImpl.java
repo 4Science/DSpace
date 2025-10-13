@@ -15,15 +15,15 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.Callable;
-import javax.el.MethodNotFoundException;
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
-import javax.ws.rs.client.Invocation;
-import javax.ws.rs.client.WebTarget;
-import javax.ws.rs.core.Response;
 
+import jakarta.ws.rs.client.Client;
+import jakarta.ws.rs.client.ClientBuilder;
+import jakarta.ws.rs.client.Invocation;
+import jakarta.ws.rs.client.WebTarget;
+import jakarta.ws.rs.core.Response;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.dspace.app.util.XMLUtils;
 import org.dspace.content.Item;
 import org.dspace.importer.external.datamodel.ImportRecord;
 import org.dspace.importer.external.datamodel.Query;
@@ -31,6 +31,7 @@ import org.dspace.importer.external.exception.MetadataSourceException;
 import org.dspace.importer.external.metadatamapping.MetadatumDTO;
 import org.dspace.importer.external.service.AbstractImportMetadataSourceService;
 import org.dspace.importer.external.service.components.QuerySource;
+import org.dspace.services.ConfigurationService;
 import org.jdom2.Document;
 import org.jdom2.Element;
 import org.jdom2.JDOMException;
@@ -39,6 +40,7 @@ import org.jdom2.filter.Filters;
 import org.jdom2.input.SAXBuilder;
 import org.jdom2.xpath.XPathExpression;
 import org.jdom2.xpath.XPathFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * Implements a data source for querying OpenAIRE
@@ -49,6 +51,9 @@ public class OpenAireImportMetadataSourceServiceImpl extends AbstractImportMetad
         implements QuerySource {
 
     private static Logger log = LogManager.getLogger(OpenAireImportMetadataSourceServiceImpl.class);
+
+    @Autowired(required = true)
+    protected ConfigurationService configurationService;
 
     private String baseAddress;
 
@@ -135,12 +140,12 @@ public class OpenAireImportMetadataSourceServiceImpl extends AbstractImportMetad
 
     @Override
     public Collection<ImportRecord> findMatchingRecords(Query query) throws MetadataSourceException {
-        throw new MethodNotFoundException("This method is not implemented for OpenAIRE");
+        throw new UnsupportedOperationException("This method is not implemented for OpenAIRE");
     }
 
     @Override
     public Collection<ImportRecord> findMatchingRecords(Item item) throws MetadataSourceException {
-        throw new MethodNotFoundException("This method is not implemented for OpenAIRE");
+        throw new UnsupportedOperationException("This method is not implemented for OpenAIRE");
     }
 
     /**
@@ -187,7 +192,8 @@ public class OpenAireImportMetadataSourceServiceImpl extends AbstractImportMetad
     public void init() throws Exception {
         Client client = ClientBuilder.newClient();
         if (baseAddress == null) {
-            baseAddress = "http://api.openaire.eu/search/publications";
+            baseAddress = configurationService.getProperty("openaire.search.url",
+                                                           "https://api.openaire.eu/search/publications");
         }
         if (queryParam == null) {
             queryParam = "title";
@@ -247,14 +253,16 @@ public class OpenAireImportMetadataSourceServiceImpl extends AbstractImportMetad
             Response response = invocationBuilder.get();
             if (response.getStatus() == 200) {
                 String responseString = response.readEntity(String.class);
-                SAXBuilder saxBuilder = new SAXBuilder();
+
+                SAXBuilder saxBuilder = XMLUtils.getSAXBuilder();
                 Document document = saxBuilder.build(new StringReader(responseString));
                 Element root = document.getRootElement();
                 XPathExpression<Element> xpath = XPathFactory.instance().compile("/response/header/total",
                     Filters.element(), null);
 
-                List<Element> recordsList = xpath.evaluate(root);
-                return recordsList.size();
+                Element totalItem = xpath.evaluateFirst(root);
+                return totalItem != null ? Integer.parseInt(totalItem.getText()) : null;
+
             } else {
                 return 0;
             }
@@ -326,7 +334,7 @@ public class OpenAireImportMetadataSourceServiceImpl extends AbstractImportMetad
 
     private List<Element> splitToRecords(String recordsSrc) {
         try {
-            SAXBuilder saxBuilder = new SAXBuilder();
+            SAXBuilder saxBuilder = XMLUtils.getSAXBuilder();
             Document document = saxBuilder.build(new StringReader(recordsSrc));
             Element root = document.getRootElement();
             List<Namespace> namespaces = Arrays.asList(

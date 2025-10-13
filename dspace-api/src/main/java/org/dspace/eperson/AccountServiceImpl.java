@@ -18,8 +18,8 @@ import java.util.UUID;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
-import javax.mail.MessagingException;
 
+import jakarta.mail.MessagingException;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
@@ -103,7 +103,7 @@ public class AccountServiceImpl implements AccountService {
      * @param email   Email address to send the registration email to
      * @throws java.sql.SQLException                   passed through.
      * @throws java.io.IOException                     passed through.
-     * @throws javax.mail.MessagingException           passed through.
+     * @throws jakarta.mail.MessagingException passed through.
      * @throws org.dspace.authorize.AuthorizeException passed through.
      */
     @Override
@@ -134,7 +134,7 @@ public class AccountServiceImpl implements AccountService {
      * @param email   Email address to send the forgot-password email to
      * @throws java.sql.SQLException                   passed through.
      * @throws java.io.IOException                     passed through.
-     * @throws javax.mail.MessagingException           passed through.
+     * @throws jakarta.mail.MessagingException passed through.
      * @throws org.dspace.authorize.AuthorizeException passed through.
      */
     @Override

@@ -7,32 +7,43 @@
 #
 
 # To build use root as context for (easier) access to solr cfgs
-# docker build --build-arg SOLR_VERSION=8.11 -f ./dspace/src/main/docker/dspace-solr/Dockerfile .
-# This will be published as dspace/dspace-solr:$DSPACE_VERSION
+# docker build --build-arg SOLR_VERSION=8.11.4 -f ./dspace/src/main/docker/dspace-solr/Dockerfile .
+# This will be published as 4science/dspace-cris-solr:$DSPACE_VERSION
 
-ARG SOLR_VERSION=8.11
+ARG SOLR_VERSION=8.11.4
 
-FROM solr:${SOLR_VERSION}-slim
-
-ENV AUTHORITY_CONFIGSET_PATH=/opt/solr/server/solr/configsets/authority/conf \
+FROM docker.io/solr:${SOLR_VERSION}-slim
+ARG SOLR_VERSION
+ENV AUDIT_CONFIGSET_PATH=/opt/solr/server/solr/configsets/audit/conf \
+    AUTHORITY_CONFIGSET_PATH=/opt/solr/server/solr/configsets/authority/conf \
+    DEDUP_CONFIGSET_PATH=/opt/solr/server/solr/configsets/dedup/conf \
     OAI_CONFIGSET_PATH=/opt/solr/server/solr/configsets/oai/conf \
+    OCR_CONFIGSET_PATH=/opt/solr/server/solr/configsets/ocr/conf \
+    QAEVENT_CONFIGSET_PATH=/opt/solr/server/solr/configsets/qaevent/conf \
     SEARCH_CONFIGSET_PATH=/opt/solr/server/solr/configsets/search/conf \
-    STATISTICS_CONFIGSET_PATH=/opt/solr/server/solr/configsets/statistics/conf
+    STATISTICS_CONFIGSET_PATH=/opt/solr/server/solr/configsets/statistics/conf \
+    SUGGESTION_CONFIGSET_PATH=/opt/solr/server/solr/configsets/suggestion/conf \
+    SOLR_LIB_PATH=/opt/solr-${SOLR_VERSION}/server/solr-webapp/webapp/WEB-INF/lib
 
 USER root
 
-RUN mkdir -p $AUTHORITY_CONFIGSET_PATH && \
-    mkdir -p $OAI_CONFIGSET_PATH && \
-    mkdir -p $SEARCH_CONFIGSET_PATH && \
-    mkdir -p $STATISTICS_CONFIGSET_PATH
+RUN mkdir -p $AUDIT_CONFIGSET_PATH $AUTHORITY_CONFIGSET_PATH $DEDUP_CONFIGSET_PATH $OAI_CONFIGSET_PATH \
+    $OCR_CONFIGSET_PATH $QAEVENT_CONFIGSET_PATH $SEARCH_CONFIGSET_PATH \
+    $STATISTICS_CONFIGSET_PATH $SUGGESTION_CONFIGSET_PATH \
+    $OCR_LIB_PATH $JTS_CORE_LIB_PATH
 
-# NOTE: "solrconfigs" MUST be passed in by docker-compose via "additional_contexts"
-# OR via "docker build --build-context solrconfigs=[path-to-dspace/solr]"
-COPY --from=solrconfigs authority/conf/* $AUTHORITY_CONFIGSET_PATH/
-COPY --from=solrconfigs oai/conf/* $OAI_CONFIGSET_PATH/
-COPY --from=solrconfigs search/conf/* $SEARCH_CONFIGSET_PATH/
-COPY --from=solrconfigs statistics/conf/* $STATISTICS_CONFIGSET_PATH/
+COPY --chown=solr:solr ./dspace/solr/ocr/lib/* /opt/solr-${SOLR_VERSION}/server/solr-webapp/webapp/WEB-INF/lib
 
-RUN chown -R solr:solr /opt/solr/server/solr/configsets
+COPY --chown=solr:solr ./dspace/solr/audit/conf/* $AUDIT_CONFIGSET_PATH/
+COPY --chown=solr:solr ./dspace/solr/authority/conf/* $AUTHORITY_CONFIGSET_PATH/
+COPY --chown=solr:solr ./dspace/solr/dedup/conf/* $DEDUP_CONFIGSET_PATH/
+COPY --chown=solr:solr ./dspace/solr/oai/conf/* $OAI_CONFIGSET_PATH/
+COPY --chown=solr:solr ./dspace/solr/ocr/conf/* $OCR_CONFIGSET_PATH/
+COPY --chown=solr:solr ./dspace/solr/qaevent/conf/* $QAEVENT_CONFIGSET_PATH/
+COPY --chown=solr:solr ./dspace/solr/search/conf/* $SEARCH_CONFIGSET_PATH/
+COPY --chown=solr:solr ./dspace/solr/statistics/conf/* $STATISTICS_CONFIGSET_PATH/
+COPY --chown=solr:solr ./dspace/solr/suggestion/conf/* $SUGGESTION_CONFIGSET_PATH/
 
 USER solr
+
+CMD ["solr-foreground"]

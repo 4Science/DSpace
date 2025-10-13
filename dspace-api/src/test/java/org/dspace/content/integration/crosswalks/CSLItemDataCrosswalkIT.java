@@ -75,6 +75,8 @@ public class CSLItemDataCrosswalkIT extends AbstractIntegrationTestWithDatabase 
             .withTitle("Publication title")
             .withEntityType("Publication")
             .withIssueDate("2018-05-17")
+            .withHandle("123456789/0004")
+            .withType("Controlled Vocabulary for Resource Type Genres::text::periodical::journal")
             .withAuthor("John Smith")
             .withAuthor("Edward Red")
             .build();
@@ -98,6 +100,7 @@ public class CSLItemDataCrosswalkIT extends AbstractIntegrationTestWithDatabase 
             .withTitle("Publication title")
             .withEntityType("Publication")
             .withIssueDate("2018-05-17")
+            .withType("Controlled Vocabulary for Resource Type Genres::text::periodical::journal")
             .withAuthor("John Smith")
             .withAuthor("Edward Red")
             .withHandle("123456789/0001")
@@ -107,6 +110,8 @@ public class CSLItemDataCrosswalkIT extends AbstractIntegrationTestWithDatabase 
             .withTitle("Test publication")
             .withEntityType("Publication")
             .withIssueDate("2020-01-31")
+            .withHandle("123456789/0003")
+            .withType("Controlled Vocabulary for Resource Type Genres::text::periodical::journal")
             .withAuthor("Walter White")
             .build();
 
@@ -136,7 +141,7 @@ public class CSLItemDataCrosswalkIT extends AbstractIntegrationTestWithDatabase 
             .withSubject("publication")
             .withPublisher("Publisher")
             .withVolume("V01")
-            .withIssue("03")
+            .withIssue("3")
             .withRelationConference("Conference")
             .withTitle("Publication title")
             .withIssueDate("2018-05-17")
@@ -261,7 +266,7 @@ public class CSLItemDataCrosswalkIT extends AbstractIntegrationTestWithDatabase 
             .withSubject("publication")
             .withPublisher("Publisher")
             .withVolume("V01")
-            .withIssue("03")
+            .withIssue("3")
             .withRelationConference("Conference")
             .withTitle("Publication title")
             .withIssueDate("2018-05-17")

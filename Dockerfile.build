@@ -1,0 +1,45 @@
+# Set the JDK version and DSpace version
+ARG JDK_VERSION=17
+ARG DOCKER_REGISTRY=docker.io
+ARG BASE_IMAGE_REGISTRY=891377365430.dkr.ecr.eu-west-1.amazonaws.com
+ARG BASE_IMAGE=dspace-cris/base:arm64
+
+# Stage 1 - Define base image and java one
+FROM ${BASE_IMAGE_REGISTRY}/${BASE_IMAGE} AS base
+FROM ${DOCKER_REGISTRY}/eclipse-temurin:${JDK_VERSION}-jre as jre
+
+# Stage 2 - Copy java from jre and artifacts from build
+FROM base as install
+EXPOSE 8080
+COPY --from=jre /opt/java/openjdk /usr/local/java
+ENV JAVA_HOME=/usr/local/java
+ENV PATH="$JAVA_HOME/bin:$PATH"
+ENV DATA_FOLDER=/data \
+    DSPACE_INSTALL=/dspace \
+    ASSETSTORE=/dspace/assetstore \
+    HANDLE_DIR=/dspace/handle-server \
+    TRIPLESTORE_DIR=/dspace/triplestore \
+    DOWNLOAD_DIR=/dspace/download \
+    UPLOAD_DIR=/dspace/upload \
+    VAR_DIR=/dspace/var \
+    OAI_DIR=/dspace/var/oai
+
+RUN useradd -m -d /home/dspace -s /bin/bash dspace
+
+COPY --chown=dspace ./dspace/modules/server-boot/target/server-boot-*.jar /home/dspace/server-boot.jar
+RUN java -Djarmode=tools -jar /home/dspace/server-boot.jar extract --destination $DSPACE_INSTALL --libraries lib
+
+RUN install -g dspace -o dspace -d $DATA_FOLDER $ASSETSTORE $DSPACE_INSTALL $HANDLE_DIR $TRIPLESTORE_DIR $DOWNLOAD_DIR $UPLOAD_DIR $VAR_DIR $OAI_DIR
+
+COPY --chown=dspace ./dspace/config/ $DSPACE_INSTALL/config/
+COPY --chown=dspace ./dspace/etc/conftool $DSPACE_INSTALL/config/conftool
+COPY --chown=dspace --chmod=0754 ./dspace/bin/ $DSPACE_INSTALL/bin/
+
+RUN install -g dspace -o dspace -m 664 /dev/null $DATA_FOLDER/local.cfg && \
+    ln -s $DATA_FOLDER/local.cfg $DSPACE_INSTALL/config/local.cfg
+
+WORKDIR $DSPACE_INSTALL
+USER dspace
+ENV JAVA_TOOL_OPTIONS="-XX:MinRAMPercentage=20.0 -XX:MaxRAMPercentage=75.0 -XX:+HeapDumpOnOutOfMemoryError -XX:+UseG1GC"
+ENTRYPOINT ["java", "-XX:+PrintVMOptions", "-jar", "server-boot.jar", \
+    "--dspace.dir=${DSPACE_INSTALL}", "--logging.config=${DSPACE_INSTALL}/config/log4j2-eks.xml"]

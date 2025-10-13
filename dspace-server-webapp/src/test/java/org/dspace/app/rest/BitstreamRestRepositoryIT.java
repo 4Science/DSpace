@@ -7,8 +7,9 @@
  */
 package org.dspace.app.rest;
 
-import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
-import static javax.servlet.http.HttpServletResponse.SC_OK;
+import static jakarta.servlet.http.HttpServletResponse.SC_NOT_FOUND;
+import static jakarta.servlet.http.HttpServletResponse.SC_OK;
+import static net.bytebuddy.matcher.ElementMatchers.anyOf;
 import static org.apache.commons.codec.CharEncoding.UTF_8;
 import static org.apache.commons.io.IOUtils.toInputStream;
 import static org.dspace.app.rest.matcher.MetadataMatcher.matchMetadata;
@@ -31,12 +32,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.io.InputStream;
+import java.time.Period;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
-import javax.ws.rs.core.MediaType;
 
+import jakarta.ws.rs.core.MediaType;
 import org.apache.commons.codec.CharEncoding;
 import org.apache.commons.io.IOUtils;
 import org.dspace.app.rest.matcher.BitstreamFormatMatcher;
@@ -55,6 +57,7 @@ import org.dspace.builder.BundleBuilder;
 import org.dspace.builder.CollectionBuilder;
 import org.dspace.builder.CommunityBuilder;
 import org.dspace.builder.EPersonBuilder;
+import org.dspace.builder.GroupBuilder;
 import org.dspace.builder.ItemBuilder;
 import org.dspace.builder.ResourcePolicyBuilder;
 import org.dspace.builder.WorkspaceItemBuilder;
@@ -87,25 +90,19 @@ import org.springframework.test.web.servlet.MvcResult;
 public class BitstreamRestRepositoryIT extends AbstractControllerIntegrationTest {
 
     @Autowired
-    private BitstreamService bitstreamService;
-
-    @Autowired
-    private ResourcePolicyService resourcePolicyService;
-
-    @Autowired
-    private BitstreamFormatService bitstreamFormatService;
-
-    @Autowired
-    private GroupService groupService;
-
-    @Autowired
-    private ItemService itemService;
-
-    @Autowired
     CollectionService collectionService;
-
     @Autowired
     CommunityService communityService;
+    @Autowired
+    private BitstreamService bitstreamService;
+    @Autowired
+    private ResourcePolicyService resourcePolicyService;
+    @Autowired
+    private BitstreamFormatService bitstreamFormatService;
+    @Autowired
+    private GroupService groupService;
+    @Autowired
+    private ItemService itemService;
 
     @Test
     public void findAllTest() throws Exception {
@@ -135,22 +132,22 @@ public class BitstreamRestRepositoryIT extends AbstractControllerIntegrationTest
         Bitstream bitstream = null;
         try (InputStream is = IOUtils.toInputStream(bitstreamContent, CharEncoding.UTF_8)) {
             bitstream = BitstreamBuilder.
-                                            createBitstream(context, publicItem1, is)
-                                        .withName("Bitstream")
-                                        .withDescription("description")
-                                        .withMimeType("text/plain")
-                                        .build();
+                createBitstream(context, publicItem1, is)
+                .withName("Bitstream")
+                .withDescription("description")
+                .withMimeType("text/plain")
+                .build();
         }
 
         //Add a bitstream to an item
         Bitstream bitstream1 = null;
         try (InputStream is = IOUtils.toInputStream(bitstreamContent, CharEncoding.UTF_8)) {
             bitstream1 = BitstreamBuilder.
-                                             createBitstream(context, publicItem1, is)
-                                         .withName("Bitstream1")
-                                         .withDescription("description123")
-                                         .withMimeType("text/plain")
-                                         .build();
+                createBitstream(context, publicItem1, is)
+                .withName("Bitstream1")
+                .withDescription("description123")
+                .withMimeType("text/plain")
+                .build();
         }
 
         context.restoreAuthSystemState();
@@ -158,7 +155,7 @@ public class BitstreamRestRepositoryIT extends AbstractControllerIntegrationTest
         String token = getAuthToken(admin.getEmail(), password);
 
         getClient(token).perform(get("/api/core/bitstreams/"))
-                   .andExpect(status().isMethodNotAllowed());
+                        .andExpect(status().isMethodNotAllowed());
     }
 
     //TODO Re-enable test after https://jira.duraspace.org/browse/DS-3774 is fixed
@@ -190,10 +187,10 @@ public class BitstreamRestRepositoryIT extends AbstractControllerIntegrationTest
         Bitstream bitstream = null;
         try (InputStream is = IOUtils.toInputStream(bitstreamContent, CharEncoding.UTF_8)) {
             bitstream = BitstreamBuilder.
-                                            createBitstream(context, publicItem1, is)
-                                        .withName("Bitstream")
-                                        .withMimeType("text/plain")
-                                        .build();
+                createBitstream(context, publicItem1, is)
+                .withName("Bitstream")
+                .withMimeType("text/plain")
+                .build();
         }
 
         //Add a bitstream to an item
@@ -201,10 +198,10 @@ public class BitstreamRestRepositoryIT extends AbstractControllerIntegrationTest
         Bitstream bitstream1 = null;
         try (InputStream is = IOUtils.toInputStream(bitstreamContent, CharEncoding.UTF_8)) {
             bitstream1 = BitstreamBuilder.
-                                             createBitstream(context, publicItem1, is)
-                                         .withName("Bitstream1")
-                                         .withMimeType("text/plain")
-                                         .build();
+                createBitstream(context, publicItem1, is)
+                .withName("Bitstream1")
+                .withMimeType("text/plain")
+                .build();
         }
 
         //Delete the last bitstream
@@ -251,29 +248,29 @@ public class BitstreamRestRepositoryIT extends AbstractControllerIntegrationTest
         Bitstream bitstream = null;
         try (InputStream is = IOUtils.toInputStream(bitstreamContent, CharEncoding.UTF_8)) {
             bitstream = BitstreamBuilder.
-                                            createBitstream(context, publicItem1, is)
-                                        .withName("Bitstream")
-                                        .withDescription("Description")
-                                        .withMimeType("text/plain")
-                                        .build();
+                createBitstream(context, publicItem1, is)
+                .withName("Bitstream")
+                .withDescription("Description")
+                .withMimeType("text/plain")
+                .build();
         }
 
         //Add a bitstream to an item
         Bitstream bitstream1 = null;
         try (InputStream is = IOUtils.toInputStream(bitstreamContent, CharEncoding.UTF_8)) {
             bitstream1 = BitstreamBuilder.
-                                             createBitstream(context, publicItem1, is)
-                                         .withName("Bitstream1")
-                                         .withDescription("Description1")
-                                         .withMimeType("text/plain")
-                                         .build();
+                createBitstream(context, publicItem1, is)
+                .withName("Bitstream1")
+                .withDescription("Description1")
+                .withMimeType("text/plain")
+                .build();
         }
 
         context.restoreAuthSystemState();
 
         // When full projection is requested, response should include expected properties, links, and embeds.
         getClient().perform(get("/api/core/bitstreams/" + bitstream.getID())
-                   .param("projection", "full"))
+                                .param("projection", "full"))
                    .andExpect(status().isOk())
                    .andExpect(content().contentType(contentType))
                    .andExpect(jsonPath("$", BitstreamMatcher.matchFullEmbeds()))
@@ -283,8 +280,8 @@ public class BitstreamRestRepositoryIT extends AbstractControllerIntegrationTest
 
         // When no projection is requested, response should include expected properties, links, and no embeds.
         getClient().perform(get("/api/core/bitstreams/" + bitstream.getID()))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$", HalMatcher.matchNoEmbeds()))
+                   .andExpect(status().isOk())
+                   .andExpect(jsonPath("$", HalMatcher.matchNoEmbeds()))
         ;
 
     }
@@ -302,16 +299,16 @@ public class BitstreamRestRepositoryIT extends AbstractControllerIntegrationTest
                                            .withName("Sub Community")
                                            .build();
         Collection publications = CollectionBuilder.createCollection(context, child1)
-                                           .withEntityType("Publication")
-                                           .withName("Publications").build();
+                                                   .withEntityType("Publication")
+                                                   .withName("Publications").build();
 
         Collection researchers = CollectionBuilder.createCollection(context, child1)
-                                           .withEntityType("Person")
-                                           .withName("Researchers").build();
+                                                  .withEntityType("Person")
+                                                  .withName("Researchers").build();
 
         EPerson coauthor = EPersonBuilder.createEPerson(context)
-            .withPassword(password)
-            .withEmail("coauthor@example.com").build();
+                                         .withPassword(password)
+                                         .withEmail("coauthor@example.com").build();
 
         Item publicationCoauthor = ItemBuilder.createItem(context, researchers)
                                               .withDspaceObjectOwner(coauthor)
@@ -377,7 +374,7 @@ public class BitstreamRestRepositoryIT extends AbstractControllerIntegrationTest
                 .withName("Test Embargoed Bitstream")
                 .withDescription("This bitstream is embargoed")
                 .withMimeType("text/plain")
-                .withEmbargoPeriod("3 months")
+                .withEmbargoPeriod(Period.ofMonths(3))
                 .build();
         }
         context.restoreAuthSystemState();
@@ -394,7 +391,7 @@ public class BitstreamRestRepositoryIT extends AbstractControllerIntegrationTest
         getClient().perform(get("/api/core/items/" + publicItem1.getID() + "?embed=bundles/bitstreams"))
                    .andExpect(status().isOk())
                    .andExpect(jsonPath("$._embedded.bundles._embedded.bundles[0]._embedded.bitstreams._embedded" +
-                                       ".bitstreams[0]", BitstreamMatcher.matchProperties(bitstream)))
+                                           ".bitstreams[0]", BitstreamMatcher.matchProperties(bitstream)))
         ;
     }
 
@@ -403,12 +400,12 @@ public class BitstreamRestRepositoryIT extends AbstractControllerIntegrationTest
         context.turnOffAuthorisationSystem();
 
         parentCommunity = CommunityBuilder.createCommunity(context)
-            .withName("Parent Community")
-            .build();
+                                          .withName("Parent Community")
+                                          .build();
 
         Collection col1 = CollectionBuilder.createCollection(context, parentCommunity)
-            .withName("Collection 1")
-            .build();
+                                           .withName("Collection 1")
+                                           .build();
 
         // a public item with an embargoed bitstream
         String bitstreamContent = "Embargoed!";
@@ -420,27 +417,27 @@ public class BitstreamRestRepositoryIT extends AbstractControllerIntegrationTest
         try (InputStream is = IOUtils.toInputStream(bitstreamContent, org.apache.commons.lang3.CharEncoding.UTF_8)) {
 
             publicItem1 = ItemBuilder.createItem(context, col1)
-                .withTitle("Public item 1")
-                .withIssueDate("2017-10-17")
-                .withAuthor("Smith, Donald")
-                .build();
+                                     .withTitle("Public item 1")
+                                     .withIssueDate("2017-10-17")
+                                     .withAuthor("Smith, Donald")
+                                     .build();
 
             bitstream = BitstreamBuilder
                 .createBitstream(context, publicItem1, is)
                 .withName("Test Embargoed Bitstream")
                 .withDescription("This bitstream is embargoed")
                 .withMimeType(bitstreamFormat.getMIMEType())
-                .withEmbargoPeriod("3 months")
+                .withEmbargoPeriod(Period.ofMonths(3))
                 .build();
         }
         context.restoreAuthSystemState();
 
         // Bitstream format should still be accessible by anonymous request
         getClient().perform(get("/api/core/bitstreams/" + bitstream.getID() + "/format"))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$", BitstreamFormatMatcher.matchBitstreamFormat(
-                bitstreamFormat.getID(), bitstreamFormat.getMIMEType(), bitstreamFormat.getDescription())))
-            .andExpect(jsonPath("$", HalMatcher.matchNoEmbeds()))
+                   .andExpect(status().isOk())
+                   .andExpect(jsonPath("$", BitstreamFormatMatcher.matchBitstreamFormat(
+                       bitstreamFormat.getID(), bitstreamFormat.getMIMEType(), bitstreamFormat.getDescription())))
+                   .andExpect(jsonPath("$", HalMatcher.matchNoEmbeds()))
         ;
     }
 
@@ -473,11 +470,11 @@ public class BitstreamRestRepositoryIT extends AbstractControllerIntegrationTest
         Bitstream bitstream = null;
         try (InputStream is = IOUtils.toInputStream(bitstreamContent, CharEncoding.UTF_8)) {
             bitstream = BitstreamBuilder.
-                                            createBitstream(context, publicItem1, is)
-                                        .withName("Bitstream")
-                                        .withDescription("Description")
-                                        .withMimeType("text/plain")
-                                        .build();
+                createBitstream(context, publicItem1, is)
+                .withName("Bitstream")
+                .withDescription("Description")
+                .withMimeType("text/plain")
+                .build();
         }
 
         // Remove all READ policies on bitstream
@@ -497,7 +494,7 @@ public class BitstreamRestRepositoryIT extends AbstractControllerIntegrationTest
         getClient().perform(get("/api/core/items/" + publicItem1.getID() + "?embed=bundles/bitstreams"))
                    .andExpect(status().isOk())
                    .andExpect(jsonPath("$._embedded.bundles._embedded.bundles[0]._embedded.bitstreams._embedded" +
-                                       ".bitstreams[0]", BitstreamMatcher.matchProperties(bitstream)))
+                                           ".bitstreams[0]", BitstreamMatcher.matchProperties(bitstream)))
         ;
     }
 
@@ -509,20 +506,20 @@ public class BitstreamRestRepositoryIT extends AbstractControllerIntegrationTest
         //** GIVEN **
         //1. A community-collection structure with one parent community with sub-community and one collection.
         parentCommunity = CommunityBuilder.createCommunity(context)
-            .withName("Parent Community")
-            .build();
+                                          .withName("Parent Community")
+                                          .build();
         Community child1 = CommunityBuilder.createSubCommunity(context, parentCommunity)
-            .withName("Sub Community")
-            .build();
+                                           .withName("Sub Community")
+                                           .build();
         Collection col1 = CollectionBuilder.createCollection(context, child1).withName("Collection 1").build();
 
         //2. One public items that is readable by Anonymous
         Item publicItem1 = ItemBuilder.createItem(context, col1)
-            .withTitle("Test")
-            .withIssueDate("2010-10-17")
-            .withAuthor("Smith, Donald")
-            .withSubject("ExtraEntry")
-            .build();
+                                      .withTitle("Test")
+                                      .withIssueDate("2010-10-17")
+                                      .withAuthor("Smith, Donald")
+                                      .withSubject("ExtraEntry")
+                                      .build();
 
         String bitstreamContent = "ThisIsSomeDummyText";
 
@@ -546,10 +543,10 @@ public class BitstreamRestRepositoryIT extends AbstractControllerIntegrationTest
 
         // Bitstream format should still be accessible by anonymous request
         getClient().perform(get("/api/core/bitstreams/" + bitstream.getID() + "/format"))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$", BitstreamFormatMatcher.matchBitstreamFormat(
-                bitstreamFormat.getID(), bitstreamFormat.getMIMEType(), bitstreamFormat.getDescription())))
-            .andExpect(jsonPath("$", HalMatcher.matchNoEmbeds()))
+                   .andExpect(status().isOk())
+                   .andExpect(jsonPath("$", BitstreamFormatMatcher.matchBitstreamFormat(
+                       bitstreamFormat.getID(), bitstreamFormat.getMIMEType(), bitstreamFormat.getDescription())))
+                   .andExpect(jsonPath("$", HalMatcher.matchNoEmbeds()))
         ;
     }
 
@@ -584,7 +581,7 @@ public class BitstreamRestRepositoryIT extends AbstractControllerIntegrationTest
                 .withName("Test Embargoed Bitstream")
                 .withDescription("This bitstream is embargoed")
                 .withMimeType("text/plain")
-                .withEmbargoPeriod("3 months")
+                .withEmbargoPeriod(Period.ofMonths(3))
                 .build();
         }
 
@@ -617,12 +614,12 @@ public class BitstreamRestRepositoryIT extends AbstractControllerIntegrationTest
         context.setCurrentUser(eperson);
 
         parentCommunity = CommunityBuilder.createCommunity(context)
-            .withName("Parent Community")
-            .build();
+                                          .withName("Parent Community")
+                                          .build();
 
         Collection col1 = CollectionBuilder.createCollection(context, parentCommunity)
-            .withName("Collection 1")
-            .build();
+                                           .withName("Collection 1")
+                                           .build();
 
         // a public item with an embargoed bitstream
         String bitstreamContent = "Embargoed!";
@@ -634,17 +631,17 @@ public class BitstreamRestRepositoryIT extends AbstractControllerIntegrationTest
         try (InputStream is = IOUtils.toInputStream(bitstreamContent, org.apache.commons.lang3.CharEncoding.UTF_8)) {
 
             publicItem1 = ItemBuilder.createItem(context, col1)
-                .withTitle("Public item 1")
-                .withIssueDate("2017-10-17")
-                .withAuthor("Smith, Donald")
-                .build();
+                                     .withTitle("Public item 1")
+                                     .withIssueDate("2017-10-17")
+                                     .withAuthor("Smith, Donald")
+                                     .build();
 
             bitstream = BitstreamBuilder
                 .createBitstream(context, publicItem1, is)
                 .withName("Test Embargoed Bitstream")
                 .withDescription("This bitstream is embargoed")
                 .withMimeType(bitstreamFormat.getMIMEType())
-                .withEmbargoPeriod("3 months")
+                .withEmbargoPeriod(Period.ofMonths(3))
                 .build();
         }
 
@@ -655,22 +652,23 @@ public class BitstreamRestRepositoryIT extends AbstractControllerIntegrationTest
 
         // Bitstream format should not be accessible by anonymous request
         getClient().perform(get("/api/core/bitstreams/" + bitstream.getID() + "/format"))
-            .andExpect(status().isUnauthorized())
+                   .andExpect(status().isUnauthorized())
         ;
 
         // Bitstream format should not be accessible by submitter
         String submitterToken = getAuthToken(context.getCurrentUser().getEmail(), password);
         getClient(submitterToken).perform(get("/api/core/bitstreams/" + bitstream.getID() + "/format"))
-            .andExpect(status().isForbidden())
+                                 .andExpect(status().isForbidden())
         ;
 
         // Bitstream format should be accessible by admin
         String adminToken = getAuthToken(admin.getEmail(), password);
         getClient(adminToken).perform(get("/api/core/bitstreams/" + bitstream.getID() + "/format"))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$", BitstreamFormatMatcher.matchBitstreamFormat(
-                bitstreamFormat.getID(), bitstreamFormat.getMIMEType(), bitstreamFormat.getDescription())))
-            .andExpect(jsonPath("$", HalMatcher.matchNoEmbeds()))
+                             .andExpect(status().isOk())
+                             .andExpect(jsonPath("$", BitstreamFormatMatcher.matchBitstreamFormat(
+                                 bitstreamFormat.getID(), bitstreamFormat.getMIMEType(),
+                                 bitstreamFormat.getDescription())))
+                             .andExpect(jsonPath("$", HalMatcher.matchNoEmbeds()))
         ;
     }
 
@@ -705,7 +703,7 @@ public class BitstreamRestRepositoryIT extends AbstractControllerIntegrationTest
                 .withName("Test Embargoed Bitstream")
                 .withDescription("This bitstream is embargoed")
                 .withMimeType("text/plain")
-                .withEmbargoPeriod("3 months")
+                .withEmbargoPeriod(Period.ofMonths(3))
                 .build();
         }
 
@@ -741,12 +739,12 @@ public class BitstreamRestRepositoryIT extends AbstractControllerIntegrationTest
         context.setCurrentUser(eperson);
 
         parentCommunity = CommunityBuilder.createCommunity(context)
-            .withName("Parent Community")
-            .build();
+                                          .withName("Parent Community")
+                                          .build();
 
         Collection col1 = CollectionBuilder.createCollection(context, parentCommunity)
-            .withName("Collection 1")
-            .build();
+                                           .withName("Collection 1")
+                                           .build();
 
         // a public item with an embargoed bitstream
         String bitstreamContent = "Embargoed!";
@@ -758,17 +756,17 @@ public class BitstreamRestRepositoryIT extends AbstractControllerIntegrationTest
         try (InputStream is = IOUtils.toInputStream(bitstreamContent, org.apache.commons.lang3.CharEncoding.UTF_8)) {
 
             publicItem1 = ItemBuilder.createItem(context, col1)
-                .withTitle("Public item 1")
-                .withIssueDate("2017-10-17")
-                .withAuthor("Smith, Donald")
-                .build();
+                                     .withTitle("Public item 1")
+                                     .withIssueDate("2017-10-17")
+                                     .withAuthor("Smith, Donald")
+                                     .build();
 
             bitstream = BitstreamBuilder
                 .createBitstream(context, publicItem1, is)
                 .withName("Test Embargoed Bitstream")
                 .withDescription("This bitstream is embargoed")
                 .withMimeType(bitstreamFormat.getMIMEType())
-                .withEmbargoPeriod("3 months")
+                .withEmbargoPeriod(Period.ofMonths(3))
                 .build();
         }
 
@@ -782,25 +780,27 @@ public class BitstreamRestRepositoryIT extends AbstractControllerIntegrationTest
 
         // Bitstream format should not be accessible by anonymous request
         getClient().perform(get("/api/core/bitstreams/" + bitstream.getID() + "/format"))
-            .andExpect(status().isUnauthorized())
+                   .andExpect(status().isUnauthorized())
         ;
 
         // Bitstream format should be accessible by eperson
         String submitterToken = getAuthToken(context.getCurrentUser().getEmail(), password);
         getClient(submitterToken).perform(get("/api/core/bitstreams/" + bitstream.getID() + "/format"))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$", BitstreamFormatMatcher.matchBitstreamFormat(
-                bitstreamFormat.getID(), bitstreamFormat.getMIMEType(), bitstreamFormat.getDescription())))
-            .andExpect(jsonPath("$", HalMatcher.matchNoEmbeds()))
+                                 .andExpect(status().isOk())
+                                 .andExpect(jsonPath("$", BitstreamFormatMatcher.matchBitstreamFormat(
+                                     bitstreamFormat.getID(), bitstreamFormat.getMIMEType(),
+                                     bitstreamFormat.getDescription())))
+                                 .andExpect(jsonPath("$", HalMatcher.matchNoEmbeds()))
         ;
 
         // Bitstream format should be accessible by admin
         String adminToken = getAuthToken(admin.getEmail(), password);
         getClient(adminToken).perform(get("/api/core/bitstreams/" + bitstream.getID() + "/format"))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$", BitstreamFormatMatcher.matchBitstreamFormat(
-                bitstreamFormat.getID(), bitstreamFormat.getMIMEType(), bitstreamFormat.getDescription())))
-            .andExpect(jsonPath("$", HalMatcher.matchNoEmbeds()))
+                             .andExpect(status().isOk())
+                             .andExpect(jsonPath("$", BitstreamFormatMatcher.matchBitstreamFormat(
+                                 bitstreamFormat.getID(), bitstreamFormat.getMIMEType(),
+                                 bitstreamFormat.getDescription())))
+                             .andExpect(jsonPath("$", HalMatcher.matchNoEmbeds()))
         ;
     }
 
@@ -835,7 +835,7 @@ public class BitstreamRestRepositoryIT extends AbstractControllerIntegrationTest
                 .withName("Test Embargoed Bitstream")
                 .withDescription("This bitstream is embargoed")
                 .withMimeType("text/plain")
-                .withEmbargoPeriod("3 months")
+                .withEmbargoPeriod(Period.ofMonths(3))
                 .build();
         }
 
@@ -893,7 +893,7 @@ public class BitstreamRestRepositoryIT extends AbstractControllerIntegrationTest
                 .withName("Test Embargoed Bitstream")
                 .withDescription("This bitstream is embargoed")
                 .withMimeType("text/plain")
-                .withEmbargoPeriod("3 months")
+                .withEmbargoPeriod(Period.ofMonths(3))
                 .build();
         }
 
@@ -952,22 +952,22 @@ public class BitstreamRestRepositoryIT extends AbstractControllerIntegrationTest
         Bitstream bitstream = null;
         try (InputStream is = IOUtils.toInputStream(bitstreamContent, CharEncoding.UTF_8)) {
             bitstream = BitstreamBuilder.
-                                            createBitstream(context, publicItem1, is)
-                                        .withName("Bitstream")
-                                        .withDescription("Description")
-                                        .withMimeType("text/plain")
-                                        .build();
+                createBitstream(context, publicItem1, is)
+                .withName("Bitstream")
+                .withDescription("Description")
+                .withMimeType("text/plain")
+                .build();
         }
 
         //Add a bitstream to an item
         Bitstream bitstream1 = null;
         try (InputStream is = IOUtils.toInputStream(bitstreamContent, CharEncoding.UTF_8)) {
             bitstream1 = BitstreamBuilder.
-                                             createBitstream(context, publicItem1, is)
-                                         .withName("Bitstream1")
-                                         .withDescription("Description1234")
-                                         .withMimeType("text/plain")
-                                         .build();
+                createBitstream(context, publicItem1, is)
+                .withName("Bitstream1")
+                .withDescription("Description1234")
+                .withMimeType("text/plain")
+                .build();
         }
 
         context.restoreAuthSystemState();
@@ -1054,7 +1054,7 @@ public class BitstreamRestRepositoryIT extends AbstractControllerIntegrationTest
         String token = getAuthToken(admin.getEmail(), password);
 
         getClient(token).perform(get("/api/core/bitstreams/" + UUID.randomUUID()))
-                   .andExpect(status().isNotFound())
+                        .andExpect(status().isNotFound())
         ;
 
     }
@@ -1088,11 +1088,11 @@ public class BitstreamRestRepositoryIT extends AbstractControllerIntegrationTest
         Bitstream bitstream = null;
         try (InputStream is = IOUtils.toInputStream(bitstreamContent, CharEncoding.UTF_8)) {
             bitstream = BitstreamBuilder.
-                                            createBitstream(context, publicItem1, is)
-                                        .withName("Bitstream")
-                                        .withDescription("Description")
-                                        .withMimeType("text/plain")
-                                        .build();
+                createBitstream(context, publicItem1, is)
+                .withName("Bitstream")
+                .withDescription("Description")
+                .withMimeType("text/plain")
+                .build();
         }
 
         context.restoreAuthSystemState();
@@ -1101,11 +1101,11 @@ public class BitstreamRestRepositoryIT extends AbstractControllerIntegrationTest
 
         // Delete
         getClient(token).perform(delete("/api/core/bitstreams/" + bitstream.getID()))
-                .andExpect(status().is(204));
+                        .andExpect(status().is(204));
 
         // Verify 404 after delete
         getClient(token).perform(get("/api/core/bitstreams/" + bitstream.getID()))
-                .andExpect(status().isNotFound());
+                        .andExpect(status().isNotFound());
     }
 
     @Test
@@ -1137,11 +1137,11 @@ public class BitstreamRestRepositoryIT extends AbstractControllerIntegrationTest
         Bitstream bitstream = null;
         try (InputStream is = IOUtils.toInputStream(bitstreamContent, CharEncoding.UTF_8)) {
             bitstream = BitstreamBuilder.
-                                            createBitstream(context, publicItem1, is)
-                                        .withName("Bitstream")
-                                        .withDescription("Description")
-                                        .withMimeType("text/plain")
-                                        .build();
+                createBitstream(context, publicItem1, is)
+                .withName("Bitstream")
+                .withDescription("Description")
+                .withMimeType("text/plain")
+                .build();
         }
 
         context.restoreAuthSystemState();
@@ -1150,11 +1150,11 @@ public class BitstreamRestRepositoryIT extends AbstractControllerIntegrationTest
 
         // Delete using an unauthorized user
         getClient(token).perform(delete("/api/core/bitstreams/" + bitstream.getID()))
-                .andExpect(status().isForbidden());
+                        .andExpect(status().isForbidden());
 
         // Verify the bitstream is still here
         getClient().perform(get("/api/core/bitstreams/" + bitstream.getID()))
-                .andExpect(status().isOk());
+                   .andExpect(status().isOk());
     }
 
     @Test
@@ -1186,22 +1186,22 @@ public class BitstreamRestRepositoryIT extends AbstractControllerIntegrationTest
         Bitstream bitstream = null;
         try (InputStream is = IOUtils.toInputStream(bitstreamContent, CharEncoding.UTF_8)) {
             bitstream = BitstreamBuilder.
-                                            createBitstream(context, publicItem1, is)
-                                        .withName("Bitstream")
-                                        .withDescription("Description")
-                                        .withMimeType("text/plain")
-                                        .build();
+                createBitstream(context, publicItem1, is)
+                .withName("Bitstream")
+                .withDescription("Description")
+                .withMimeType("text/plain")
+                .build();
         }
 
         context.restoreAuthSystemState();
 
         // Delete as anonymous
         getClient().perform(delete("/api/core/bitstreams/" + bitstream.getID()))
-                .andExpect(status().isUnauthorized());
+                   .andExpect(status().isUnauthorized());
 
         // Verify the bitstream is still here
         getClient().perform(get("/api/core/bitstreams/" + bitstream.getID()))
-                .andExpect(status().isOk());
+                   .andExpect(status().isOk());
     }
 
     @Test
@@ -1224,11 +1224,11 @@ public class BitstreamRestRepositoryIT extends AbstractControllerIntegrationTest
 
         // trying to DELETE parentCommunity logo should work
         getClient(token).perform(delete("/api/core/bitstreams/" + parentCommunity.getLogo().getID()))
-                   .andExpect(status().is(204));
+                        .andExpect(status().is(204));
 
         // trying to DELETE collection logo should work
         getClient(token).perform(delete("/api/core/bitstreams/" + col.getLogo().getID()))
-                   .andExpect(status().is(204));
+                        .andExpect(status().is(204));
     }
 
     @Test
@@ -1237,11 +1237,11 @@ public class BitstreamRestRepositoryIT extends AbstractControllerIntegrationTest
 
         // Delete
         getClient(token).perform(delete("/api/core/bitstreams/1c11f3f1-ba1f-4f36-908a-3f1ea9a557eb"))
-                .andExpect(status().isNotFound());
+                        .andExpect(status().isNotFound());
 
         // Verify 404 after failed delete
         getClient(token).perform(delete("/api/core/bitstreams/1c11f3f1-ba1f-4f36-908a-3f1ea9a557eb"))
-                .andExpect(status().isNotFound());
+                        .andExpect(status().isNotFound());
     }
 
     @Test
@@ -1252,31 +1252,31 @@ public class BitstreamRestRepositoryIT extends AbstractControllerIntegrationTest
         //** GIVEN **
         //1. A community-collection structure with one parent community with sub-community and one collection.
         parentCommunity = CommunityBuilder.createCommunity(context)
-                .withName("Parent Community")
-                .build();
+                                          .withName("Parent Community")
+                                          .build();
         Community child1 = CommunityBuilder.createSubCommunity(context, parentCommunity)
-                .withName("Sub Community")
-                .build();
+                                           .withName("Sub Community")
+                                           .build();
         Collection col1 = CollectionBuilder.createCollection(context, child1).withName("Collection 1").build();
 
         //2. One public items that is readable by Anonymous
         Item publicItem1 = ItemBuilder.createItem(context, col1)
-                .withTitle("Test")
-                .withIssueDate("2010-10-17")
-                .withAuthor("Smith, Donald")
-                .withSubject("ExtraEntry")
-                .build();
+                                      .withTitle("Test")
+                                      .withIssueDate("2010-10-17")
+                                      .withAuthor("Smith, Donald")
+                                      .withSubject("ExtraEntry")
+                                      .build();
 
         String bitstreamContent = "ThisIsSomeDummyText";
         //Add a bitstream to an item
         Bitstream bitstream = null;
         try (InputStream is = IOUtils.toInputStream(bitstreamContent, CharEncoding.UTF_8)) {
             bitstream = BitstreamBuilder.
-                    createBitstream(context, publicItem1, is)
-                    .withName("Bitstream")
-                    .withDescription("Description")
-                    .withMimeType("text/plain")
-                    .build();
+                createBitstream(context, publicItem1, is)
+                .withName("Bitstream")
+                .withDescription("Description")
+                .withMimeType("text/plain")
+                .build();
         }
 
         context.restoreAuthSystemState();
@@ -1285,11 +1285,11 @@ public class BitstreamRestRepositoryIT extends AbstractControllerIntegrationTest
 
         // Delete
         getClient(token).perform(delete("/api/core/bitstreams/" + bitstream.getID()))
-                .andExpect(status().is(204));
+                        .andExpect(status().is(204));
 
         // Verify 404 when trying to delete a non-existing bitstream
         getClient(token).perform(delete("/api/core/bitstreams/" + bitstream.getID()))
-                .andExpect(status().isNotFound());
+                        .andExpect(status().isNotFound());
     }
 
     @Test
@@ -1305,12 +1305,12 @@ public class BitstreamRestRepositoryIT extends AbstractControllerIntegrationTest
     private void runPatchMetadataTests(EPerson asUser, int expectedStatus) throws Exception {
         context.turnOffAuthorisationSystem();
         parentCommunity = CommunityBuilder.createCommunity(context).withName("Community").withLogo("logo_community")
-                .build();
+                                          .build();
         context.restoreAuthSystemState();
         String token = getAuthToken(asUser.getEmail(), password);
 
         new MetadataPatchSuite().runWith(getClient(token), "/api/core/bitstreams/"
-                + parentCommunity.getLogo().getID(), expectedStatus);
+            + parentCommunity.getLogo().getID(), expectedStatus);
     }
 
     @Test
@@ -1324,8 +1324,8 @@ public class BitstreamRestRepositoryIT extends AbstractControllerIntegrationTest
         );
 
         parentCommunity = CommunityBuilder.createCommunity(context)
-            .withName("Parent Community")
-            .build();
+                                          .withName("Parent Community")
+                                          .build();
         Community child1 =
             CommunityBuilder.createSubCommunity(context, parentCommunity).withName("Sub Community").build();
         Collection col1 = CollectionBuilder.createCollection(context, child1).withName("Collection 1").build();
@@ -1336,10 +1336,10 @@ public class BitstreamRestRepositoryIT extends AbstractControllerIntegrationTest
         Bitstream bitstream = null;
         try (InputStream is = IOUtils.toInputStream(bitstreamContent, CharEncoding.UTF_8)) {
             bitstream = BitstreamBuilder.
-                    createBitstream(context, publicItem1, is)
-                    .withName("Bitstream")
-                    //.withMimeType("text/plain")
-                    .build();
+                createBitstream(context, publicItem1, is)
+                .withName("Bitstream")
+                .withMimeType("text/plain")
+                .build();
         }
 
         this.bitstreamService
@@ -1357,11 +1357,11 @@ public class BitstreamRestRepositoryIT extends AbstractControllerIntegrationTest
             .andExpect(status().isOk())
             .andExpect(
                 jsonPath("$.metadata",
-                    Matchers.allOf(
-                        MetadataMatcher.matchMetadata("dc.description", bitstreamDescriptions.get(0), 0),
-                        MetadataMatcher.matchMetadata("dc.description", bitstreamDescriptions.get(1), 1),
-                        MetadataMatcher.matchMetadata("dc.description", bitstreamDescriptions.get(2), 2)
-                    )
+                         Matchers.allOf(
+                             MetadataMatcher.matchMetadata("dc.description", bitstreamDescriptions.get(0), 0),
+                             MetadataMatcher.matchMetadata("dc.description", bitstreamDescriptions.get(1), 1),
+                             MetadataMatcher.matchMetadata("dc.description", bitstreamDescriptions.get(2), 2)
+                         )
                 )
             );
 
@@ -1373,28 +1373,28 @@ public class BitstreamRestRepositoryIT extends AbstractControllerIntegrationTest
         String requestBody = getPatchContent(ops);
         getClient(token)
             .perform(patch("/api/core/bitstreams/" + bitstream.getID())
-            .content(requestBody)
-            .contentType(javax.ws.rs.core.MediaType.APPLICATION_JSON_PATCH_JSON))
+                         .content(requestBody)
+                         .contentType(jakarta.ws.rs.core.MediaType.APPLICATION_JSON_PATCH_JSON))
             .andExpect(status().isOk())
             .andExpect(
-                 jsonPath("$.metadata",
-                     Matchers.allOf(
-                         MetadataMatcher.matchMetadata("dc.description", bitstreamDescriptions.get(2), 0),
-                         MetadataMatcher.matchMetadata("dc.description", bitstreamDescriptions.get(0), 1),
-                         MetadataMatcher.matchMetadata("dc.description", bitstreamDescriptions.get(1), 2)
-                     )
-                 )
-             );
+                jsonPath("$.metadata",
+                         Matchers.allOf(
+                             MetadataMatcher.matchMetadata("dc.description", bitstreamDescriptions.get(2), 0),
+                             MetadataMatcher.matchMetadata("dc.description", bitstreamDescriptions.get(0), 1),
+                             MetadataMatcher.matchMetadata("dc.description", bitstreamDescriptions.get(1), 2)
+                         )
+                )
+            );
         getClient(token)
             .perform(get("/api/core/bitstreams/" + bitstream.getID()))
             .andExpect(status().isOk())
             .andExpect(
                 jsonPath("$.metadata",
-                    Matchers.allOf(
-                        MetadataMatcher.matchMetadata("dc.description", bitstreamDescriptions.get(2), 0),
-                        MetadataMatcher.matchMetadata("dc.description", bitstreamDescriptions.get(0), 1),
-                        MetadataMatcher.matchMetadata("dc.description", bitstreamDescriptions.get(1), 2)
-                    )
+                         Matchers.allOf(
+                             MetadataMatcher.matchMetadata("dc.description", bitstreamDescriptions.get(2), 0),
+                             MetadataMatcher.matchMetadata("dc.description", bitstreamDescriptions.get(0), 1),
+                             MetadataMatcher.matchMetadata("dc.description", bitstreamDescriptions.get(1), 2)
+                         )
                 )
             );
     }
@@ -1430,19 +1430,19 @@ public class BitstreamRestRepositoryIT extends AbstractControllerIntegrationTest
         Bitstream bitstream = null;
         try (InputStream is = IOUtils.toInputStream(bitstreamContent, CharEncoding.UTF_8)) {
             bitstream = BitstreamBuilder.
-                                                createBitstream(context, publicItem1, is)
-                                        .withName("Bitstream")
-                                        .withDescription("Description")
-                                        .withProvenance("Provenance Data")
-                                        .withMimeType("text/plain")
-                                        .build();
+                createBitstream(context, publicItem1, is)
+                .withName("Bitstream")
+                .withDescription("Description")
+                .withProvenance("Provenance Data")
+                .withMimeType("text/plain")
+                .build();
         }
 
         context.restoreAuthSystemState();
 
         // When full projection is requested, response should include expected properties, links, and embeds.
         getClient().perform(get("/api/core/bitstreams/" + bitstream.getID())
-                                    .param("projection", "full"))
+                                .param("projection", "full"))
                    .andExpect(status().isOk())
                    .andExpect(content().contentType(contentType))
                    .andExpect(jsonPath("$", BitstreamMatcher.matchFullEmbeds()))
@@ -1483,12 +1483,12 @@ public class BitstreamRestRepositoryIT extends AbstractControllerIntegrationTest
         Bitstream bitstream = null;
         try (InputStream is = IOUtils.toInputStream(bitstreamContent, CharEncoding.UTF_8)) {
             bitstream = BitstreamBuilder.
-                                                createBitstream(context, publicItem1, is)
-                                        .withName("Bitstream")
-                                        .withDescription("Description")
-                                        .withProvenance("Provenance Data")
-                                        .withMimeType("text/plain")
-                                        .build();
+                createBitstream(context, publicItem1, is)
+                .withName("Bitstream")
+                .withDescription("Description")
+                .withProvenance("Provenance Data")
+                .withMimeType("text/plain")
+                .build();
         }
 
         context.restoreAuthSystemState();
@@ -1497,13 +1497,14 @@ public class BitstreamRestRepositoryIT extends AbstractControllerIntegrationTest
 
         // When full projection is requested, response should include expected properties, links, and embeds.
         getClient(token).perform(get("/api/core/bitstreams/" + bitstream.getID())
-                                    .param("projection", "full"))
-                   .andExpect(status().isOk())
-                   .andExpect(content().contentType(contentType))
-                   .andExpect(jsonPath("$", BitstreamMatcher.matchFullEmbeds()))
-                   .andExpect(jsonPath("$", BitstreamMatcher.matchBitstreamEntry(bitstream)))
-                   .andExpect(jsonPath("$.metadata", matchMetadata("dc.title", "Bitstream")))
-                   .andExpect(jsonPath("$.metadata", matchMetadata("dc.description.provenance", "Provenance Data")))
+                                     .param("projection", "full"))
+                        .andExpect(status().isOk())
+                        .andExpect(content().contentType(contentType))
+                        .andExpect(jsonPath("$", BitstreamMatcher.matchFullEmbeds()))
+                        .andExpect(jsonPath("$", BitstreamMatcher.matchBitstreamEntry(bitstream)))
+                        .andExpect(jsonPath("$.metadata", matchMetadata("dc.title", "Bitstream")))
+                        .andExpect(
+                            jsonPath("$.metadata", matchMetadata("dc.description.provenance", "Provenance Data")))
         ;
 
     }
@@ -1539,12 +1540,12 @@ public class BitstreamRestRepositoryIT extends AbstractControllerIntegrationTest
         Bitstream bitstream = null;
         try (InputStream is = IOUtils.toInputStream(bitstreamContent, CharEncoding.UTF_8)) {
             bitstream = BitstreamBuilder.
-                                                createBitstream(context, publicItem1, is)
-                                        .withName("Bitstream")
-                                        .withDescription("Description")
-                                        .withProvenance("Provenance Data")
-                                        .withMimeType("text/plain")
-                                        .build();
+                createBitstream(context, publicItem1, is)
+                .withName("Bitstream")
+                .withDescription("Description")
+                .withProvenance("Provenance Data")
+                .withMimeType("text/plain")
+                .build();
         }
 
         ResourcePolicyBuilder.createResourcePolicy(context, eperson, null)
@@ -1559,7 +1560,7 @@ public class BitstreamRestRepositoryIT extends AbstractControllerIntegrationTest
 
         // When full projection is requested, response should include expected properties, links, and embeds.
         getClient(token).perform(get("/api/core/bitstreams/" + bitstream.getID())
-                                         .param("projection", "full"))
+                                     .param("projection", "full"))
                         .andExpect(status().isOk())
                         .andExpect(content().contentType(contentType))
                         .andExpect(jsonPath("$", BitstreamMatcher.matchFullEmbeds()))
@@ -1578,20 +1579,20 @@ public class BitstreamRestRepositoryIT extends AbstractControllerIntegrationTest
         //** GIVEN **
         //1. A community-collection structure with one parent community with sub-community and one collection.
         parentCommunity = CommunityBuilder.createCommunity(context)
-                .withName("Parent Community")
-                .build();
+                                          .withName("Parent Community")
+                                          .build();
         Community child1 = CommunityBuilder.createSubCommunity(context, parentCommunity)
-                .withName("Sub Community")
-                .build();
+                                           .withName("Sub Community")
+                                           .build();
         Collection col1 = CollectionBuilder.createCollection(context, child1).withName("Collection 1").build();
 
         //2. One public items that is readable by Anonymous
         Item publicItem1 = ItemBuilder.createItem(context, col1)
-                .withTitle("Test")
-                .withIssueDate("2010-10-17")
-                .withAuthor("Smith, Donald")
-                .withSubject("ExtraEntry")
-                .build();
+                                      .withTitle("Test")
+                                      .withIssueDate("2010-10-17")
+                                      .withAuthor("Smith, Donald")
+                                      .withSubject("ExtraEntry")
+                                      .build();
 
         String bitstreamContent = "ThisIsSomeDummyText";
 
@@ -1599,27 +1600,27 @@ public class BitstreamRestRepositoryIT extends AbstractControllerIntegrationTest
         Bitstream bitstream = null;
         try (InputStream is = IOUtils.toInputStream(bitstreamContent, CharEncoding.UTF_8)) {
             bitstream = BitstreamBuilder.
-                    createBitstream(context, publicItem1, is)
-                    .withName("Bitstream")
-                    .withDescription("Description")
-                    .withMimeType("text/plain")
-                    .build();
+                createBitstream(context, publicItem1, is)
+                .withName("Bitstream")
+                .withDescription("Description")
+                .withMimeType("text/plain")
+                .build();
         }
 
         Bundle bundle = bitstream.getBundles().get(0);
 
         //Get the bitstream with embedded bundle
         getClient().perform(get("/api/core/bitstreams/" + bitstream.getID() + "?embed=bundle"))
-                .andExpect(status().isOk())
-                .andExpect(content().contentType(contentType))
-                .andExpect(jsonPath("$._embedded.bundle",
-                        BundleMatcher.matchProperties(
-                                bundle.getName(),
-                                bundle.getID(),
-                                bundle.getHandle(),
-                                bundle.getType()
-                        )
-                ));
+                   .andExpect(status().isOk())
+                   .andExpect(content().contentType(contentType))
+                   .andExpect(jsonPath("$._embedded.bundle",
+                                       BundleMatcher.matchProperties(
+                                           bundle.getName(),
+                                           bundle.getID(),
+                                           bundle.getHandle(),
+                                           bundle.getType()
+                                       )
+                   ));
     }
 
     @Test
@@ -1635,20 +1636,20 @@ public class BitstreamRestRepositoryIT extends AbstractControllerIntegrationTest
         //** GIVEN **
         //1. A community-collection structure with one parent community with sub-community and one collection.
         parentCommunity = CommunityBuilder.createCommunity(context)
-                .withName("Parent Community")
-                .build();
+                                          .withName("Parent Community")
+                                          .build();
         Community child1 = CommunityBuilder.createSubCommunity(context, parentCommunity)
-                .withName("Sub Community")
-                .build();
+                                           .withName("Sub Community")
+                                           .build();
         Collection col1 = CollectionBuilder.createCollection(context, child1).withName("Collection 1").build();
 
         //2. One public items that is readable by Anonymous
         Item publicItem1 = ItemBuilder.createItem(context, col1)
-                .withTitle("Test")
-                .withIssueDate("2010-10-17")
-                .withAuthor("Smith, Donald")
-                .withSubject("ExtraEntry")
-                .build();
+                                      .withTitle("Test")
+                                      .withIssueDate("2010-10-17")
+                                      .withAuthor("Smith, Donald")
+                                      .withSubject("ExtraEntry")
+                                      .build();
 
         String bitstreamContent = "ThisIsSomeDummyText";
 
@@ -1656,11 +1657,11 @@ public class BitstreamRestRepositoryIT extends AbstractControllerIntegrationTest
         Bitstream bitstream = null;
         try (InputStream is = IOUtils.toInputStream(bitstreamContent, CharEncoding.UTF_8)) {
             bitstream = BitstreamBuilder.
-                    createBitstream(context, publicItem1, is)
-                    .withName("Bitstream")
-                    .withDescription("Description")
-                    .withMimeType("text/plain")
-                    .build();
+                createBitstream(context, publicItem1, is)
+                .withName("Bitstream")
+                .withDescription("Description")
+                .withMimeType("text/plain")
+                .build();
         }
 
         // Add default content bundle to list of bundles
@@ -1668,8 +1669,8 @@ public class BitstreamRestRepositoryIT extends AbstractControllerIntegrationTest
 
         // Add this bitstream to a second bundle & append to list of bundles
         bundles.add(BundleBuilder.createBundle(context, publicItem1)
-                .withName("second bundle")
-                .withBitstream(bitstream).build());
+                                 .withName("second bundle")
+                                 .withBitstream(bitstream).build());
 
         // While in DSpace code, Bundles are *unordered*, in Hibernate v5 + H2 v2.x, they are returned sorted by UUID.
         // So, we reorder this list of created Bundles by UUID to get their expected return order.
@@ -1679,16 +1680,16 @@ public class BitstreamRestRepositoryIT extends AbstractControllerIntegrationTest
 
         //Get bundle should contain the first bundle in the list
         getClient().perform(get("/api/core/bitstreams/" + bitstream.getID() + "/bundle"))
-                .andExpect(status().isOk())
-                .andExpect(content().contentType(contentType))
-                .andExpect(jsonPath("$",
-                        BundleMatcher.matchProperties(
-                            bundles.get(0).getName(),
-                            bundles.get(0).getID(),
-                            bundles.get(0).getHandle(),
-                            bundles.get(0).getType()
-                    )
-                ));
+                   .andExpect(status().isOk())
+                   .andExpect(content().contentType(contentType))
+                   .andExpect(jsonPath("$",
+                                       BundleMatcher.matchProperties(
+                                           bundles.get(0).getName(),
+                                           bundles.get(0).getID(),
+                                           bundles.get(0).getHandle(),
+                                           bundles.get(0).getType()
+                                       )
+                   ));
     }
 
     @Test
@@ -1699,17 +1700,17 @@ public class BitstreamRestRepositoryIT extends AbstractControllerIntegrationTest
         // ** GIVEN **
         // 1. A community with a logo
         parentCommunity = CommunityBuilder.createCommunity(context).withName("Community").withLogo("logo_community")
-                .build();
+                                          .build();
 
         // 2. A collection with a logo
         Collection col = CollectionBuilder.createCollection(context, parentCommunity).withName("Collection")
-                .withLogo("logo_collection").build();
+                                          .withLogo("logo_collection").build();
 
         Bitstream bitstream = parentCommunity.getLogo();
 
         //Get bundle should contain an empty response
         getClient().perform(get("/api/core/bitstreams/" + bitstream.getID() + "/bundle"))
-                .andExpect(status().isNoContent());
+                   .andExpect(status().isNoContent());
     }
 
 
@@ -1766,45 +1767,45 @@ public class BitstreamRestRepositoryIT extends AbstractControllerIntegrationTest
         context.turnOffAuthorisationSystem();
 
         parentCommunity = CommunityBuilder.createCommunity(context)
-            .withName("Parent Community")
-            .build();
+                                          .withName("Parent Community")
+                                          .build();
 
         Collection col1 = CollectionBuilder.createCollection(context, parentCommunity)
-            .withName("Collection 1").build();
+                                           .withName("Collection 1").build();
 
         Item item = ItemBuilder.createItem(context, col1)
-            .withTitle("Test item -- thumbnail")
-            .withIssueDate("2017-10-17")
-            .withAuthor("Smith, Donald").withAuthor("Doe, John")
-            .build();
+                               .withTitle("Test item -- thumbnail")
+                               .withIssueDate("2017-10-17")
+                               .withAuthor("Smith, Donald").withAuthor("Doe, John")
+                               .build();
 
         Bundle originalBundle = BundleBuilder.createBundle(context, item)
-            .withName(Constants.DEFAULT_BUNDLE_NAME)
-            .build();
+                                             .withName(Constants.DEFAULT_BUNDLE_NAME)
+                                             .build();
         Bundle thumbnailBundle = BundleBuilder.createBundle(context, item)
-            .withName("THUMBNAIL")
-            .build();
+                                              .withName("THUMBNAIL")
+                                              .build();
 
         InputStream is = IOUtils.toInputStream("dummy", "utf-8");
 
         // With an ORIGINAL Bitstream & matching THUMBNAIL Bitstream containing special characters in filenames
         Bitstream bitstream = BitstreamBuilder.createBitstream(context, originalBundle, is)
-            .withName("test (2023) file.pdf")
-            .withMimeType("application/pdf")
-            .build();
+                                              .withName("test (2023) file.pdf")
+                                              .withMimeType("application/pdf")
+                                              .build();
         Bitstream thumbnail = BitstreamBuilder.createBitstream(context, thumbnailBundle, is)
-            .withName("test (2023) file.pdf.jpg")
-            .withMimeType("image/jpeg")
-            .build();
+                                              .withName("test (2023) file.pdf.jpg")
+                                              .withMimeType("image/jpeg")
+                                              .build();
 
         context.restoreAuthSystemState();
 
         String tokenAdmin = getAuthToken(admin.getEmail(), password);
 
         getClient(tokenAdmin).perform(get("/api/core/bitstreams/" + bitstream.getID() + "/thumbnail"))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$.uuid", Matchers.is(thumbnail.getID().toString())))
-            .andExpect(jsonPath("$.type", is("bitstream")));
+                             .andExpect(status().isOk())
+                             .andExpect(jsonPath("$.uuid", Matchers.is(thumbnail.getID().toString())))
+                             .andExpect(jsonPath("$.type", is("bitstream")));
     }
 
     @Test
@@ -1912,9 +1913,9 @@ public class BitstreamRestRepositoryIT extends AbstractControllerIntegrationTest
         InputStream is = IOUtils.toInputStream("dummy", "utf-8");
 
         Bitstream bitstream = BitstreamBuilder.createBitstream(context, originalBundle, is)
-                        .withName("test.pdf")
-                        .withMimeType("application/pdf")
-                        .build();
+                                              .withName("test.pdf")
+                                              .withMimeType("application/pdf")
+                                              .build();
 
         context.restoreAuthSystemState();
 
@@ -1957,28 +1958,27 @@ public class BitstreamRestRepositoryIT extends AbstractControllerIntegrationTest
         Bitstream bitstream1 = null;
         try (InputStream is = IOUtils.toInputStream(bitstreamContent, CharEncoding.UTF_8)) {
             bitstream1 = BitstreamBuilder.
-                                                createBitstream(context, publicItem1, is)
-                                        .withName("Bitstream1")
-                                        .withMimeType("text/plain")
-                                        .build();
+                createBitstream(context, publicItem1, is)
+                .withName("Bitstream1")
+                .withMimeType("text/plain")
+                .build();
         }
 
         bitstreamContent = "This is an archived bitstream";
         Bitstream bitstream2 = null;
         try (InputStream is = IOUtils.toInputStream(bitstreamContent, CharEncoding.UTF_8)) {
             bitstream2 = BitstreamBuilder.
-                                                 createBitstream(context, publicItem1, is)
-                                         .withName("Bitstream2")
-                                         .withMimeType("text/plain")
-                                         .build();
+                createBitstream(context, publicItem1, is)
+                .withName("Bitstream2")
+                .withMimeType("text/plain")
+                .build();
         }
 
 
-
         getClient().perform(get("/api/core/bitstreams/search/byItemHandle")
-                                    .param("handle", publicItem1.getHandle())
-                                    .param("filename", "Bitstream1")
-        )
+                                .param("handle", publicItem1.getHandle())
+                                .param("filename", "Bitstream1")
+                   )
                    .andExpect(status().isOk())
                    .andExpect(content().contentType(contentType))
                    .andExpect(jsonPath("$",
@@ -1986,9 +1986,9 @@ public class BitstreamRestRepositoryIT extends AbstractControllerIntegrationTest
                    ));
 
         getClient().perform(get("/api/core/bitstreams/search/byItemHandle")
-                                    .param("handle", publicItem1.getHandle())
-                                    .param("filename", "Bitstream2")
-        )
+                                .param("handle", publicItem1.getHandle())
+                                .param("filename", "Bitstream2")
+                   )
                    .andExpect(status().isOk())
                    .andExpect(content().contentType(contentType))
                    .andExpect(jsonPath("$",
@@ -2009,20 +2009,20 @@ public class BitstreamRestRepositoryIT extends AbstractControllerIntegrationTest
         Collection col1 = CollectionBuilder.createCollection(context, child1).withName("Collection 1").build();
 
         Item embargoItem1 = ItemBuilder.createItem(context, col1)
-                                      .withTitle("Test")
-                                      .withIssueDate("2010-10-17")
-                                      .withAuthor("Smith, Donald")
-                                      .withEmbargoPeriod("6 months")
-                                      .build();
+                                       .withTitle("Test")
+                                       .withIssueDate("2010-10-17")
+                                       .withAuthor("Smith, Donald")
+                                       .withEmbargoPeriod(Period.ofMonths(6))
+                                       .build();
 
         String bitstreamContent = "This is an archived bitstream";
         Bitstream bitstream1 = null;
         try (InputStream is = IOUtils.toInputStream(bitstreamContent, CharEncoding.UTF_8)) {
             bitstream1 = BitstreamBuilder.
-                                                createBitstream(context, embargoItem1, is)
-                                        .withName("Bitstream1")
-                                        .withMimeType("text/plain")
-                                        .build();
+                createBitstream(context, embargoItem1, is)
+                .withName("Bitstream1")
+                .withMimeType("text/plain")
+                .build();
         }
 
         Group group = groupService.findByName(context, Group.ANONYMOUS);
@@ -2031,33 +2031,33 @@ public class BitstreamRestRepositoryIT extends AbstractControllerIntegrationTest
         Bitstream bitstream2 = null;
         try (InputStream is = IOUtils.toInputStream(bitstreamContent, CharEncoding.UTF_8)) {
             bitstream2 = BitstreamBuilder.
-                                                 createBitstream(context, embargoItem1, is)
-                                         .withName("Bitstream2")
-                                         .withMimeType("text/plain")
-                                         .withReaderGroup(group)
-                                         .build();
+                createBitstream(context, embargoItem1, is)
+                .withName("Bitstream2")
+                .withMimeType("text/plain")
+                .withReaderGroup(group)
+                .build();
         }
 
 
         getClient().perform(get("/api/core/bitstreams/search/byItemHandle")
-                                    .param("handle", embargoItem1.getHandle())
-                                    .param("filename", "Bitstream1")
-        )
+                                .param("handle", embargoItem1.getHandle())
+                                .param("filename", "Bitstream1")
+                   )
                    .andExpect(status().isNoContent());
 
         String token = getAuthToken(eperson.getEmail(), password);
         String admintoken = getAuthToken(admin.getEmail(), password);
 
         getClient(token).perform(get("/api/core/bitstreams/search/byItemHandle")
-                                    .param("handle", embargoItem1.getHandle())
-                                    .param("filename", "Bitstream1")
-        )
-                   .andExpect(status().isNoContent());
+                                     .param("handle", embargoItem1.getHandle())
+                                     .param("filename", "Bitstream1")
+                        )
+                        .andExpect(status().isNoContent());
 
         getClient(admintoken).perform(get("/api/core/bitstreams/search/byItemHandle")
-                                         .param("handle", embargoItem1.getHandle())
-                                         .param("filename", "Bitstream1")
-        )
+                                          .param("handle", embargoItem1.getHandle())
+                                          .param("filename", "Bitstream1")
+                             )
                              .andExpect(status().isOk())
                              .andExpect(content().contentType(contentType))
                              .andExpect(jsonPath("$",
@@ -2065,15 +2065,16 @@ public class BitstreamRestRepositoryIT extends AbstractControllerIntegrationTest
                              ));
 
         getClient().perform(get("/api/core/bitstreams/search/byItemHandle")
-                                    .param("handle", embargoItem1.getHandle())
-                                    .param("filename", "Bitstream2")
-        )
+                                .param("handle", embargoItem1.getHandle())
+                                .param("filename", "Bitstream2")
+                   )
                    .andExpect(status().isOk())
                    .andExpect(content().contentType(contentType))
                    .andExpect(jsonPath("$",
                                        BitstreamMatcher.matchProperties(bitstream2)
                    ));
     }
+
     @Test
     public void findByHandleAndFileNameForPrivateItem() throws Exception {
         context.turnOffAuthorisationSystem();
@@ -2097,42 +2098,41 @@ public class BitstreamRestRepositoryIT extends AbstractControllerIntegrationTest
         Bitstream bitstream1 = null;
         try (InputStream is = IOUtils.toInputStream(bitstreamContent, CharEncoding.UTF_8)) {
             bitstream1 = BitstreamBuilder.
-                                                createBitstream(context, privateItem1, is)
-                                        .withName("Bitstream1")
-                                        .withMimeType("text/plain")
-                                        .build();
+                createBitstream(context, privateItem1, is)
+                .withName("Bitstream1")
+                .withMimeType("text/plain")
+                .build();
         }
 
         bitstreamContent = "This is an archived bitstream";
         Bitstream bitstream2 = null;
         try (InputStream is = IOUtils.toInputStream(bitstreamContent, CharEncoding.UTF_8)) {
             bitstream2 = BitstreamBuilder.
-                                                 createBitstream(context, privateItem1, is)
-                                         .withName("Bitstream2")
-                                         .withMimeType("text/plain")
-                                         .build();
+                createBitstream(context, privateItem1, is)
+                .withName("Bitstream2")
+                .withMimeType("text/plain")
+                .build();
         }
 
 
-
         getClient().perform(get("/api/core/bitstreams/search/byItemHandle")
-                                    .param("handle", privateItem1.getHandle())
-                                    .param("filename", "Bitstream1")
-        )
+                                .param("handle", privateItem1.getHandle())
+                                .param("filename", "Bitstream1")
+                   )
                    .andExpect(status().isOk())
                    .andExpect(content().contentType(contentType))
                    .andExpect(jsonPath("$",
-                           BitstreamMatcher.matchProperties(bitstream1)
+                                       BitstreamMatcher.matchProperties(bitstream1)
                    ));
 
         getClient().perform(get("/api/core/bitstreams/search/byItemHandle")
-                                    .param("handle", privateItem1.getHandle())
-                                    .param("filename", "Bitstream2")
-        )
+                                .param("handle", privateItem1.getHandle())
+                                .param("filename", "Bitstream2")
+                   )
                    .andExpect(status().isOk())
                    .andExpect(content().contentType(contentType))
                    .andExpect(jsonPath("$",
-                           BitstreamMatcher.matchProperties(bitstream2)
+                                       BitstreamMatcher.matchProperties(bitstream2)
                    ));
     }
 
@@ -2158,28 +2158,27 @@ public class BitstreamRestRepositoryIT extends AbstractControllerIntegrationTest
         Bitstream bitstream1 = null;
         try (InputStream is = IOUtils.toInputStream(bitstreamContent, CharEncoding.UTF_8)) {
             bitstream1 = BitstreamBuilder.
-                                                 createBitstream(context, publicItem1, is)
-                                         .withName("BitstreamName")
-                                         .withMimeType("text/plain")
-                                         .build();
+                createBitstream(context, publicItem1, is)
+                .withName("BitstreamName")
+                .withMimeType("text/plain")
+                .build();
         }
 
         bitstreamContent = "This is an archived bitstream";
         Bitstream bitstream2 = null;
         try (InputStream is = IOUtils.toInputStream(bitstreamContent, CharEncoding.UTF_8)) {
             bitstream2 = BitstreamBuilder.
-                                                 createBitstream(context, publicItem1, is)
-                                         .withName("BitstreamName")
-                                         .withMimeType("text/plain")
-                                         .build();
+                createBitstream(context, publicItem1, is)
+                .withName("BitstreamName")
+                .withMimeType("text/plain")
+                .build();
         }
 
 
-
         getClient().perform(get("/api/core/bitstreams/search/byItemHandle")
-                                    .param("handle", publicItem1.getHandle())
-                                    .param("sequence", String.valueOf(bitstream1.getSequenceID()))
-        )
+                                .param("handle", publicItem1.getHandle())
+                                .param("sequence", String.valueOf(bitstream1.getSequenceID()))
+                   )
                    .andExpect(status().isOk())
                    .andExpect(content().contentType(contentType))
                    .andExpect(jsonPath("$",
@@ -2187,19 +2186,19 @@ public class BitstreamRestRepositoryIT extends AbstractControllerIntegrationTest
                    ));
 
         getClient().perform(get("/api/core/bitstreams/search/byItemHandle")
-                                    .param("handle", publicItem1.getHandle())
-                                    .param("sequence", String.valueOf(bitstream2.getSequenceID()))
+                                .param("handle", publicItem1.getHandle())
+                                .param("sequence", String.valueOf(bitstream2.getSequenceID()))
 
-        )
+                   )
                    .andExpect(status().isOk())
                    .andExpect(content().contentType(contentType))
                    .andExpect(jsonPath("$",
                                        BitstreamMatcher.matchProperties(bitstream2)
                    ));
         getClient().perform(get("/api/core/bitstreams/search/byItemHandle")
-                                    .param("handle", publicItem1.getHandle())
-                                    .param("filename", "BitstreamName")
-        )
+                                .param("handle", publicItem1.getHandle())
+                                .param("filename", "BitstreamName")
+                   )
                    .andExpect(status().isOk())
                    .andExpect(content().contentType(contentType))
                    .andExpect(jsonPath("$",
@@ -2233,17 +2232,17 @@ public class BitstreamRestRepositoryIT extends AbstractControllerIntegrationTest
         Bitstream bitstream1 = null;
         try (InputStream is = IOUtils.toInputStream(bitstreamContent, CharEncoding.UTF_8)) {
             bitstream1 = BitstreamBuilder.
-                                                 createBitstream(context, license, is)
-                                         .withName("BitstreamName")
-                                         .withMimeType("text/plain")
-                                         .build();
+                createBitstream(context, license, is)
+                .withName("BitstreamName")
+                .withMimeType("text/plain")
+                .build();
         }
 
 
         getClient().perform(get("/api/core/bitstreams/search/byItemHandle")
-                                    .param("handle", publicItem1.getHandle())
-                                    .param("sequence", String.valueOf(bitstream1.getSequenceID()))
-        )
+                                .param("handle", publicItem1.getHandle())
+                                .param("sequence", String.valueOf(bitstream1.getSequenceID()))
+                   )
                    .andExpect(status().isOk())
                    .andExpect(content().contentType(contentType))
                    .andExpect(jsonPath("$",
@@ -2251,9 +2250,9 @@ public class BitstreamRestRepositoryIT extends AbstractControllerIntegrationTest
                    ));
 
         getClient().perform(get("/api/core/bitstreams/search/byItemHandle")
-                                    .param("handle", publicItem1.getHandle())
-                                    .param("filename", "BitstreamName")
-        )
+                                .param("handle", publicItem1.getHandle())
+                                .param("filename", "BitstreamName")
+                   )
                    .andExpect(status().isOk())
                    .andExpect(content().contentType(contentType))
                    .andExpect(jsonPath("$",
@@ -2287,19 +2286,19 @@ public class BitstreamRestRepositoryIT extends AbstractControllerIntegrationTest
         Bitstream bitstream1 = null;
         try (InputStream is = IOUtils.toInputStream(bitstreamContent, CharEncoding.UTF_8)) {
             bitstream1 = BitstreamBuilder.
-                                                 createBitstream(context, license, is)
-                                         .withName("BitstreamName")
-                                         .withMimeType("text/plain")
-                                         .build();
+                createBitstream(context, license, is)
+                .withName("BitstreamName")
+                .withMimeType("text/plain")
+                .build();
         }
 
 
         getClient().perform(get("/api/core/bitstreams/search/byItemHandle")
-                                    .param("handle", publicItem1.getHandle())
-                                    .param("sequence", String.valueOf(bitstream1.getSequenceID()))
-                                    .param("filename", "WrongBitstreamName")
+                                .param("handle", publicItem1.getHandle())
+                                .param("sequence", String.valueOf(bitstream1.getSequenceID()))
+                                .param("filename", "WrongBitstreamName")
 
-        )
+                   )
                    .andExpect(status().isOk())
                    .andExpect(content().contentType(contentType))
                    .andExpect(jsonPath("$",
@@ -2333,41 +2332,41 @@ public class BitstreamRestRepositoryIT extends AbstractControllerIntegrationTest
         Bitstream bitstream1 = null;
         try (InputStream is = IOUtils.toInputStream(bitstreamContent, CharEncoding.UTF_8)) {
             bitstream1 = BitstreamBuilder.
-                                                 createBitstream(context, license, is)
-                                         .withName("BitstreamName")
-                                         .withMimeType("text/plain")
-                                         .build();
+                createBitstream(context, license, is)
+                .withName("BitstreamName")
+                .withMimeType("text/plain")
+                .build();
         }
 
         getClient().perform(get("/api/core/bitstreams/search/byItemHandle")
-                                    .param("sequence", String.valueOf(bitstream1.getSequenceID()))
-                                    .param("filename", "WrongBitstreamName")
+                                .param("sequence", String.valueOf(bitstream1.getSequenceID()))
+                                .param("filename", "WrongBitstreamName")
 
-        )
+                   )
                    .andExpect(status().isBadRequest());
 
         getClient().perform(get("/api/core/bitstreams/search/byItemHandle")
-                                    .param("handle", "123456789/999999999999")
-                                    .param("sequence", String.valueOf(bitstream1.getSequenceID()))
-                                    .param("filename", "WrongBitstreamName")
+                                .param("handle", "123456789/999999999999")
+                                .param("sequence", String.valueOf(bitstream1.getSequenceID()))
+                                .param("filename", "WrongBitstreamName")
 
-        )
+                   )
                    .andExpect(status().isUnprocessableEntity());
 
         getClient().perform(get("/api/core/bitstreams/search/byItemHandle")
-                                    .param("handle", parentCommunity.getHandle())
-                                    .param("sequence", String.valueOf(bitstream1.getSequenceID()))
-                                    .param("filename", "WrongBitstreamName")
+                                .param("handle", parentCommunity.getHandle())
+                                .param("sequence", String.valueOf(bitstream1.getSequenceID()))
+                                .param("filename", "WrongBitstreamName")
 
-        )
+                   )
                    .andExpect(status().isUnprocessableEntity());
 
         getClient().perform(get("/api/core/bitstreams/search/byItemHandle")
-                                    .param("handle", col1.getHandle())
-                                    .param("sequence", String.valueOf(bitstream1.getSequenceID()))
-                                    .param("filename", "WrongBitstreamName")
+                                .param("handle", col1.getHandle())
+                                .param("sequence", String.valueOf(bitstream1.getSequenceID()))
+                                .param("filename", "WrongBitstreamName")
 
-        )
+                   )
                    .andExpect(status().isUnprocessableEntity());
 
     }
@@ -2398,16 +2397,16 @@ public class BitstreamRestRepositoryIT extends AbstractControllerIntegrationTest
         Bitstream bitstream1 = null;
         try (InputStream is = IOUtils.toInputStream(bitstreamContent, CharEncoding.UTF_8)) {
             bitstream1 = BitstreamBuilder.
-                                                 createBitstream(context, license, is)
-                                         .withName("BitstreamName")
-                                         .withMimeType("text/plain")
-                                         .build();
+                createBitstream(context, license, is)
+                .withName("BitstreamName")
+                .withMimeType("text/plain")
+                .build();
         }
 
 
         getClient().perform(get("/api/core/bitstreams/search/byItemHandle")
-                                    .param("handle", publicItem1.getHandle())
-        )
+                                .param("handle", publicItem1.getHandle())
+                   )
                    .andExpect(status().isBadRequest());
 
     }
@@ -2438,24 +2437,24 @@ public class BitstreamRestRepositoryIT extends AbstractControllerIntegrationTest
         Bitstream bitstream1 = null;
         try (InputStream is = IOUtils.toInputStream(bitstreamContent, CharEncoding.UTF_8)) {
             bitstream1 = BitstreamBuilder.
-                                                 createBitstream(context, license, is)
-                                         .withName("BitstreamName")
-                                         .withMimeType("text/plain")
-                                         .build();
+                createBitstream(context, license, is)
+                .withName("BitstreamName")
+                .withMimeType("text/plain")
+                .build();
         }
 
         getClient().perform(get("/api/core/bitstreams/search/byItemHandle")
-                                    .param("handle", publicItem1.getHandle())
-                                    .param("filename", "WrongBitstreamName")
+                                .param("handle", publicItem1.getHandle())
+                                .param("filename", "WrongBitstreamName")
 
-        )
+                   )
                    .andExpect(status().isNoContent());
 
         getClient().perform(get("/api/core/bitstreams/search/byItemHandle")
-                                    .param("handle", publicItem1.getHandle())
-                                    .param("sequence", "999999")
+                                .param("handle", publicItem1.getHandle())
+                                .param("sequence", "999999")
 
-        )
+                   )
                    .andExpect(status().isNoContent());
     }
 
@@ -2485,21 +2484,21 @@ public class BitstreamRestRepositoryIT extends AbstractControllerIntegrationTest
                 .withName("Test Embargoed Bitstream")
                 .withDescription("This bitstream is embargoed")
                 .withMimeType("text/plain")
-                .withEmbargoPeriod("3 months")
+                .withEmbargoPeriod(Period.ofMonths(3))
                 .build();
         }
 
         // Embargo on bitstream, but item is public, so has read_metadata access on bitstream
         getClient().perform(get("/api/core/bitstreams/search/byItemHandle")
-                                              .param("handle", publicItem1.getHandle())
-                                              .param("sequence", String.valueOf(bitstream1.getSequenceID()))
+                                .param("handle", publicItem1.getHandle())
+                                .param("sequence", String.valueOf(bitstream1.getSequenceID()))
 
-        )
-                             .andExpect(status().isOk())
-                             .andExpect(content().contentType(contentType))
-                             .andExpect(jsonPath("$",
-                                                 BitstreamMatcher.matchProperties(bitstream1)
-                             ));
+                   )
+                   .andExpect(status().isOk())
+                   .andExpect(content().contentType(contentType))
+                   .andExpect(jsonPath("$",
+                                       BitstreamMatcher.matchProperties(bitstream1)
+                   ));
     }
 
     @Test
@@ -2524,7 +2523,7 @@ public class BitstreamRestRepositoryIT extends AbstractControllerIntegrationTest
         context.restoreAuthSystemState();
 
         getClient().perform(get("/api/core/bitstreams/search/byItemId")
-                       .param("uuid", publicItem1.getID().toString()))
+                                .param("uuid", publicItem1.getID().toString()))
                    .andExpect(status().isBadRequest());
 
     }
@@ -2551,23 +2550,23 @@ public class BitstreamRestRepositoryIT extends AbstractControllerIntegrationTest
         context.restoreAuthSystemState();
 
         getClient().perform(get("/api/core/bitstreams/search/byItemId")
-                       .param("uuid", publicItem1.getID().toString())
-                       .param("name", "bundle name")
-                       .param("filterMetadata", "dc.title"))
+                                .param("uuid", publicItem1.getID().toString())
+                                .param("name", "bundle name")
+                                .param("filterMetadata", "dc.title"))
                    .andExpect(status().isBadRequest());
 
         getClient().perform(get("/api/core/bitstreams/search/byItemId")
-                       .param("uuid", publicItem1.getID().toString())
-                       .param("name", "bundle name")
-                       .param("filterMetadata", "dc.title")
-                       .param("filterMetadataValue", "Test", "Test 2"))
+                                .param("uuid", publicItem1.getID().toString())
+                                .param("name", "bundle name")
+                                .param("filterMetadata", "dc.title")
+                                .param("filterMetadataValue", "Test", "Test 2"))
                    .andExpect(status().isBadRequest());
 
         getClient().perform(get("/api/core/bitstreams/search/byItemId")
-                       .param("uuid", publicItem1.getID().toString())
-                       .param("name", "bundle name")
-                       .param("filterMetadata", "dc.title", "dc.date.issued", "dc.description")
-                       .param("filterMetadataValue", "Test", "Test 2"))
+                                .param("uuid", publicItem1.getID().toString())
+                                .param("name", "bundle name")
+                                .param("filterMetadata", "dc.title", "dc.date.issued", "dc.description")
+                                .param("filterMetadataValue", "Test", "Test 2"))
                    .andExpect(status().isBadRequest());
 
     }
@@ -2578,10 +2577,10 @@ public class BitstreamRestRepositoryIT extends AbstractControllerIntegrationTest
         String fakeId = "9cc8104e-5337-4305-b4ce-b578eb1b24ba";
 
         getClient().perform(get("/api/core/bitstreams/search/byItemId")
-                       .param("uuid", fakeId)
-                       .param("name", "bundle name")
-                       .param("filterMetadata", "dc.title")
-                       .param("filterMetadataValue", "test"))
+                                .param("uuid", fakeId)
+                                .param("name", "bundle name")
+                                .param("filterMetadata", "dc.title")
+                                .param("filterMetadataValue", "test"))
                    .andExpect(status().isUnprocessableEntity());
 
     }
@@ -2619,12 +2618,12 @@ public class BitstreamRestRepositoryIT extends AbstractControllerIntegrationTest
         }
 
         getClient().perform(get("/api/core/bitstreams/search/byItemId")
-                       .param("uuid", publicItem1.getID().toString())
-                       .param("name", license.getName())
-                       .param("filterMetadata", "dc.title")
-                       .param("filterMetadataValue", "wrong value"))
-                       .andExpect(status().isOk())
-                       .andExpect(jsonPath("$.page.totalElements", is(0)));
+                                .param("uuid", publicItem1.getID().toString())
+                                .param("name", license.getName())
+                                .param("filterMetadata", "dc.title")
+                                .param("filterMetadataValue", "wrong value"))
+                   .andExpect(status().isOk())
+                   .andExpect(jsonPath("$.page.totalElements", is(0)));
 
     }
 
@@ -2672,11 +2671,11 @@ public class BitstreamRestRepositoryIT extends AbstractControllerIntegrationTest
         }
 
         getClient().perform(get("/api/core/bitstreams/search/byItemId")
-                       .param("uuid", publicItem1.getID().toString())
-                       .param("name", license.getName())
-                       .param("filterMetadata", "dc.title")
-                       .param("filterMetadataValue", "this is a test")
-                       .param("projection", "full"))
+                                .param("uuid", publicItem1.getID().toString())
+                                .param("name", license.getName())
+                                .param("filterMetadata", "dc.title")
+                                .param("filterMetadataValue", "this is a test")
+                                .param("projection", "full"))
                    .andExpect(status().isOk())
                    .andExpect(jsonPath("$.page.totalElements", is(1)))
                    .andExpect(jsonPath("$._embedded.bitstreams", hasSize(1)))
@@ -2685,11 +2684,11 @@ public class BitstreamRestRepositoryIT extends AbstractControllerIntegrationTest
                    )));
 
         getClient().perform(get("/api/core/bitstreams/search/byItemId")
-                       .param("uuid", publicItem1.getID().toString())
-                       .param("name", license.getName())
-                       .param("filterMetadata", "dc.title")
-                       .param("filterMetadataValue", "([a-z]+ [a-z]+ [a-z]+ [a-z]+)")
-                       .param("projection", "full"))
+                                .param("uuid", publicItem1.getID().toString())
+                                .param("name", license.getName())
+                                .param("filterMetadata", "dc.title")
+                                .param("filterMetadataValue", "([a-z]+ [a-z]+ [a-z]+ [a-z]+)")
+                                .param("projection", "full"))
                    .andExpect(status().isOk())
                    .andExpect(jsonPath("$.page.totalElements", is(1)))
                    .andExpect(jsonPath("$._embedded.bitstreams", hasSize(1)))
@@ -2698,11 +2697,11 @@ public class BitstreamRestRepositoryIT extends AbstractControllerIntegrationTest
                    )));
 
         getClient().perform(get("/api/core/bitstreams/search/byItemId")
-                       .param("uuid", publicItem1.getID().toString())
-                       .param("name", license.getName())
-                       .param("filterMetadata", "dc.title")
-                       .param("filterMetadataValue", "(this is a test.*)")
-                       .param("projection", "full"))
+                                .param("uuid", publicItem1.getID().toString())
+                                .param("name", license.getName())
+                                .param("filterMetadata", "dc.title")
+                                .param("filterMetadataValue", "(this is a test.*)")
+                                .param("projection", "full"))
                    .andExpect(status().isOk())
                    .andExpect(jsonPath("$.page.totalElements", is(2)))
                    .andExpect(jsonPath("$._embedded.bitstreams", hasSize(2)))
@@ -2763,9 +2762,9 @@ public class BitstreamRestRepositoryIT extends AbstractControllerIntegrationTest
         }
 
         getClient().perform(get("/api/core/bitstreams/search/byItemId")
-                       .param("uuid", publicItem1.getID().toString())
-                       .param("name", license.getName())
-                       .param("projection", "full"))
+                                .param("uuid", publicItem1.getID().toString())
+                                .param("name", license.getName())
+                                .param("projection", "full"))
                    .andExpect(status().isOk())
                    .andExpect(jsonPath("$.page.totalElements", is(1)))
                    .andExpect(jsonPath("$._embedded.bitstreams", hasSize(1)))
@@ -2781,93 +2780,93 @@ public class BitstreamRestRepositoryIT extends AbstractControllerIntegrationTest
         context.turnOffAuthorisationSystem();
 
         parentCommunity = CommunityBuilder.createCommunity(context)
-            .withName("Parent Community")
-            .build();
+                                          .withName("Parent Community")
+                                          .build();
 
         Collection col1 = CollectionBuilder.createCollection(context, parentCommunity)
-            .withName("Collection 1")
-            .build();
+                                           .withName("Collection 1")
+                                           .build();
 
         Item publicItem1 = ItemBuilder.createItem(context, col1)
-            .withTitle("Test")
-            .withIssueDate("2010-10-17")
-            .withAuthor("Smith, Donald")
-            .build();
+                                      .withTitle("Test")
+                                      .withIssueDate("2010-10-17")
+                                      .withAuthor("Smith, Donald")
+                                      .build();
 
         Bundle license = BundleBuilder.createBundle(context, publicItem1)
-            .withName("LICENSE")
-            .build();
+                                      .withName("LICENSE")
+                                      .build();
 
         Bitstream bitstream1 = BitstreamBuilder.createBitstream(context, license, InputStream.nullInputStream())
-            .withName("this is a test")
-            .withType("Image")
-            .withMimeType("text/plain")
-            .build();
+                                               .withName("this is a test")
+                                               .withType("Image")
+                                               .withMimeType("text/plain")
+                                               .build();
 
         Bitstream bitstream2 = BitstreamBuilder.createBitstream(context, license, InputStream.nullInputStream())
-            .withName("this is a test")
-            .withType("Personal Picture")
-            .withMimeType("text/plain")
-            .build();
+                                               .withName("this is a test")
+                                               .withType("Personal Picture")
+                                               .withMimeType("text/plain")
+                                               .build();
 
         Bitstream bitstream3 = BitstreamBuilder.createBitstream(context, license, InputStream.nullInputStream())
-            .withName("this is a test 2")
-            .withType("Personal Picture")
-            .withMimeType("text/plain")
-            .build();
+                                               .withName("this is a test 2")
+                                               .withType("Personal Picture")
+                                               .withMimeType("text/plain")
+                                               .build();
 
         Bitstream bitstream4 = BitstreamBuilder.createBitstream(context, license, InputStream.nullInputStream())
-            .withName("this is a test 3")
-            .withMimeType("text/plain")
-            .build();
+                                               .withName("this is a test 3")
+                                               .withMimeType("text/plain")
+                                               .build();
 
         getClient().perform(get("/api/core/bitstreams/search/byItemId")
-            .param("uuid", publicItem1.getID().toString())
-            .param("name", license.getName())
-            .param("filterMetadata", "dc.title")
-            .param("filterMetadataValue", "this is a test")
-            .param("projection", "full"))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$.page.totalElements", is(2)))
-            .andExpect(jsonPath("$._embedded.bitstreams", containsInAnyOrder(
-                BitstreamMatcher.matchBitstreamEntry(bitstream1),
-                BitstreamMatcher.matchBitstreamEntry(bitstream2))));
+                                .param("uuid", publicItem1.getID().toString())
+                                .param("name", license.getName())
+                                .param("filterMetadata", "dc.title")
+                                .param("filterMetadataValue", "this is a test")
+                                .param("projection", "full"))
+                   .andExpect(status().isOk())
+                   .andExpect(jsonPath("$.page.totalElements", is(2)))
+                   .andExpect(jsonPath("$._embedded.bitstreams", containsInAnyOrder(
+                       BitstreamMatcher.matchBitstreamEntry(bitstream1),
+                       BitstreamMatcher.matchBitstreamEntry(bitstream2))));
 
         getClient().perform(get("/api/core/bitstreams/search/byItemId")
-            .param("uuid", publicItem1.getID().toString())
-            .param("name", license.getName())
-            .param("filterMetadata", "dc.type")
-            .param("filterMetadataValue", "Personal Picture")
-            .param("projection", "full"))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$.page.totalElements", is(2)))
-            .andExpect(jsonPath("$._embedded.bitstreams", containsInAnyOrder(
-                BitstreamMatcher.matchBitstreamEntry(bitstream2),
-                BitstreamMatcher.matchBitstreamEntry(bitstream3))));
+                                .param("uuid", publicItem1.getID().toString())
+                                .param("name", license.getName())
+                                .param("filterMetadata", "dc.type")
+                                .param("filterMetadataValue", "Personal Picture")
+                                .param("projection", "full"))
+                   .andExpect(status().isOk())
+                   .andExpect(jsonPath("$.page.totalElements", is(2)))
+                   .andExpect(jsonPath("$._embedded.bitstreams", containsInAnyOrder(
+                       BitstreamMatcher.matchBitstreamEntry(bitstream2),
+                       BitstreamMatcher.matchBitstreamEntry(bitstream3))));
 
         getClient().perform(get("/api/core/bitstreams/search/byItemId")
-            .param("uuid", publicItem1.getID().toString())
-            .param("name", license.getName())
-            .param("filterMetadata", "dc.type")
-            .param("filterMetadataValue", "!Personal Picture")
-            .param("projection", "full"))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$.page.totalElements", is(2)))
-            .andExpect(jsonPath("$._embedded.bitstreams", containsInAnyOrder(
-                BitstreamMatcher.matchBitstreamEntry(bitstream1),
-                BitstreamMatcher.matchBitstreamEntry(bitstream4))));
+                                .param("uuid", publicItem1.getID().toString())
+                                .param("name", license.getName())
+                                .param("filterMetadata", "dc.type")
+                                .param("filterMetadataValue", "!Personal Picture")
+                                .param("projection", "full"))
+                   .andExpect(status().isOk())
+                   .andExpect(jsonPath("$.page.totalElements", is(2)))
+                   .andExpect(jsonPath("$._embedded.bitstreams", containsInAnyOrder(
+                       BitstreamMatcher.matchBitstreamEntry(bitstream1),
+                       BitstreamMatcher.matchBitstreamEntry(bitstream4))));
 
         getClient().perform(get("/api/core/bitstreams/search/byItemId")
-            .param("uuid", publicItem1.getID().toString())
-            .param("name", license.getName())
-            .param("filterMetadata", "dc.title", "dc.type")
-            .param("filterMetadataValue", "this is a test", "Personal Picture")
-            .param("projection", "full"))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$.page.totalElements", is(1)))
-            .andExpect(jsonPath("$._embedded.bitstreams", hasSize(1)))
-            .andExpect(jsonPath("$._embedded.bitstreams", contains(
-                BitstreamMatcher.matchBitstreamEntry(bitstream2))));
+                                .param("uuid", publicItem1.getID().toString())
+                                .param("name", license.getName())
+                                .param("filterMetadata", "dc.title", "dc.type")
+                                .param("filterMetadataValue", "this is a test", "Personal Picture")
+                                .param("projection", "full"))
+                   .andExpect(status().isOk())
+                   .andExpect(jsonPath("$.page.totalElements", is(1)))
+                   .andExpect(jsonPath("$._embedded.bitstreams", hasSize(1)))
+                   .andExpect(jsonPath("$._embedded.bitstreams", contains(
+                       BitstreamMatcher.matchBitstreamEntry(bitstream2))));
 
     }
 
@@ -2881,52 +2880,52 @@ public class BitstreamRestRepositoryIT extends AbstractControllerIntegrationTest
         //1. A community-collection structure with one parent community and two collections.
         parentCommunity =
             CommunityBuilder.createCommunity(context)
-                .withName("Parent Community")
-                .build();
+                            .withName("Parent Community")
+                            .build();
         Collection col1 = CollectionBuilder.createCollection(context, parentCommunity).withName("Collection 1").build();
 
         //2. A public item that is readable by Anonymous
         Item publicItem1 =
             ItemBuilder.createItem(context, col1)
-                .withTitle("Public item 1")
-                .withIssueDate("2017-10-17")
-                .withAuthor("Smith, Donald")
-                .build();
+                       .withTitle("Public item 1")
+                       .withIssueDate("2017-10-17")
+                       .withAuthor("Smith, Donald")
+                       .build();
 
         Item publicItem2 =
             ItemBuilder.createItem(context, col1)
-            .withTitle("Public item 1")
-            .withIssueDate("2017-10-17")
-            .withAuthor("Smith, Donald")
-            .build();
+                       .withTitle("Public item 1")
+                       .withIssueDate("2017-10-17")
+                       .withAuthor("Smith, Donald")
+                       .build();
 
         Bitstream bitstream =
             BitstreamBuilder.createBitstream(context, publicItem1, toInputStream("test", UTF_8))
-                .withName("first")
-                .withFormat("test format")
-                .build();
+                            .withName("first")
+                            .withFormat("test format")
+                            .build();
 
         Bitstream bitstream2 =
             BitstreamBuilder.createBitstream(context, publicItem1, toInputStream("test2", UTF_8))
-                .withName("second")
-                .withFormat("test format 2")
-                .build();
+                            .withName("second")
+                            .withFormat("test format 2")
+                            .build();
 
         final String customBundle = "Bundle Test";
         Bundle bundle = BundleBuilder.createBundle(context, publicItem1).withName(customBundle).build();
 
         Bitstream bitstream3 =
             BitstreamBuilder.createBitstream(context, bundle, toInputStream("test3", UTF_8))
-                .withName("third")
-                .withFormat("test format 3")
-                .build();
+                            .withName("third")
+                            .withFormat("test format 3")
+                            .build();
 
         Bitstream bitstream4 =
             BitstreamBuilder.createBitstream(context, publicItem2, toInputStream("test4", UTF_8))
-                .withName("fourth")
-                .withFormat("test format 4")
-                .isHidden()
-                .build();
+                            .withName("fourth")
+                            .withFormat("test format 4")
+                            .isHidden()
+                            .build();
 
         context.commit();
         context.restoreAuthSystemState();
@@ -2934,60 +2933,156 @@ public class BitstreamRestRepositoryIT extends AbstractControllerIntegrationTest
         String token = getAuthToken(admin.getEmail(), password);
 
         getClient(token).perform(
-                get("/api/core/bitstreams/search/showableByItem")
-                    .param("uuid", publicItem1.getID().toString())
-                    .param("name", Constants.CONTENT_BUNDLE_NAME)
-            )
-            .andExpect(status().isOk())
-            .andExpect(content().contentType(contentType))
-            .andExpect(
-                jsonPath(
-                    "$._embedded.bitstreams",
-                    allOf(
-                        hasItem(BitstreamMatcher.matchProperties(bitstream)),
-                        hasItem(BitstreamMatcher.matchProperties(bitstream2))
-                    )
-                )
-            )
-            .andExpect(
-                jsonPath(
-                    "$._embedded.bitstreams",
-                     not(
-                         allOf(
-                             hasItem(BitstreamMatcher.matchProperties(bitstream3)),
-                             hasItem(BitstreamMatcher.matchProperties(bitstream4))
-                         )
-                     )
-                )
-            );
+                            get("/api/core/bitstreams/search/showableByItem")
+                                .param("uuid", publicItem1.getID().toString())
+                                .param("name", Constants.CONTENT_BUNDLE_NAME)
+                        )
+                        .andExpect(status().isOk())
+                        .andExpect(content().contentType(contentType))
+                        .andExpect(
+                            jsonPath(
+                                "$._embedded.bitstreams",
+                                allOf(
+                                    hasItem(BitstreamMatcher.matchProperties(bitstream)),
+                                    hasItem(BitstreamMatcher.matchProperties(bitstream2))
+                                )
+                            )
+                        )
+                        .andExpect(
+                            jsonPath(
+                                "$._embedded.bitstreams",
+                                not(
+                                    allOf(
+                                        hasItem(BitstreamMatcher.matchProperties(bitstream3)),
+                                        hasItem(BitstreamMatcher.matchProperties(bitstream4))
+                                    )
+                                )
+                            )
+                        );
 
         getClient(token).perform(
-            get("/api/core/bitstreams/search/showableByItem")
-            .param("uuid", publicItem1.getID().toString())
-            .param("name", customBundle)
-            )
-        .andExpect(status().isOk())
-        .andExpect(content().contentType(contentType))
-        .andExpect(
-            jsonPath(
-                "$._embedded.bitstreams",
-                allOf(
-                    hasItem(BitstreamMatcher.matchProperties(bitstream3))
-                    )
-                )
-            )
-        .andExpect(
-            jsonPath(
-                "$._embedded.bitstreams",
-                not(
-                    allOf(
-                        hasItem(BitstreamMatcher.matchProperties(bitstream)),
-                        hasItem(BitstreamMatcher.matchProperties(bitstream2)),
-                        hasItem(BitstreamMatcher.matchProperties(bitstream4))
+                            get("/api/core/bitstreams/search/showableByItem")
+                                .param("uuid", publicItem1.getID().toString())
+                                .param("name", customBundle)
                         )
-                    )
-                )
-            );
+                        .andExpect(status().isOk())
+                        .andExpect(content().contentType(contentType))
+                        .andExpect(
+                            jsonPath(
+                                "$._embedded.bitstreams",
+                                allOf(
+                                    hasItem(BitstreamMatcher.matchProperties(bitstream3))
+                                )
+                            )
+                        )
+                        .andExpect(
+                            jsonPath(
+                                "$._embedded.bitstreams",
+                                not(
+                                    allOf(
+                                        hasItem(BitstreamMatcher.matchProperties(bitstream)),
+                                        hasItem(BitstreamMatcher.matchProperties(bitstream2)),
+                                        hasItem(BitstreamMatcher.matchProperties(bitstream4))
+                                    )
+                                )
+                            )
+                        );
+    }
+
+    @Test
+    public void findShowableByItemWithHideMetadata() throws Exception {
+
+        //Turn off the authorization system, otherwise we can't make the objects
+        context.turnOffAuthorisationSystem();
+
+        //** GIVEN **
+        //1. A community-collection structure with one parent community and one collection.
+        parentCommunity =
+            CommunityBuilder.createCommunity(context)
+                            .withName("Parent Community")
+                            .build();
+        Collection col1 = CollectionBuilder.createCollection(context, parentCommunity).withName("Collection 1").build();
+
+        //2. A public item that is readable by Anonymous
+        Item publicItem =
+            ItemBuilder.createItem(context, col1)
+                       .withTitle("Public item with hidden bitstream")
+                       .withIssueDate("2017-10-17")
+                       .withAuthor("Smith, Donald")
+                       .build();
+
+        // 3. Create visible bitstream in ORIGINAL bundle
+        Bitstream visibleBitstream =
+            BitstreamBuilder.createBitstream(context, publicItem, toInputStream("visible content", UTF_8))
+                            .withName("visible-file.txt")
+                            .withFormat("text/plain")
+                            .build();
+
+        // 4. Create hidden bitstream in ORIGINAL bundle with bitstream.hide = true metadata
+        Bitstream hiddenBitstream =
+            BitstreamBuilder.createBitstream(context, publicItem, toInputStream("hidden content", UTF_8))
+                            .withName("hidden-file.txt")
+                            .withMetadata("bitstream", "hide", null, null, "true")
+                            .withFormat("text/plain")
+                            .build();
+
+        // 5. Create another visible bitstream with bitstream.hide = false (should be shown)
+        Bitstream explicitlyVisibleBitstream =
+            BitstreamBuilder.createBitstream(context, publicItem, toInputStream("explicitly visible", UTF_8))
+                            .withName("explicitly-visible.txt")
+                            .withMetadata("bitstream", "hide", null, null, "false")
+                            .withFormat("text/plain")
+                            .build();
+
+        // 6. Create another hidden bitstream with bitstream.hide = yes (should be filtered)
+        Bitstream hiddenBitstreamYes =
+            BitstreamBuilder.createBitstream(context, publicItem, toInputStream("hidden yes content", UTF_8))
+                            .withName("hidden-yes-file.txt")
+                            .withFormat("text/plain")
+                            .build();
+
+        // Add bitstream.hide = yes metadata
+        bitstreamService.addMetadata(context, hiddenBitstreamYes, "bitstream", "hide", null, null, "yes");
+
+        context.commit();
+        context.restoreAuthSystemState();
+
+        String token = getAuthToken(admin.getEmail(), password);
+
+        //** WHEN & THEN **
+        // Test 1: Search for bitstreams in ORIGINAL bundle
+        // Should return only visible bitstreams (visibleBitstream and explicitlyVisibleBitstream)
+        // Should NOT return hidden bitstreams (hiddenBitstream and hiddenBitstreamYes)
+        getClient(token).perform(
+                            get("/api/core/bitstreams/search/showableByItem")
+                                .param("uuid", publicItem.getID().toString())
+                                .param("name", Constants.CONTENT_BUNDLE_NAME)
+                        )
+                        .andExpect(status().isOk())
+                        .andExpect(content().contentType(contentType))
+                        .andExpect(
+                            jsonPath(
+                                "$._embedded.bitstreams",
+                                allOf(
+                                    hasItem(BitstreamMatcher.matchProperties(visibleBitstream)),
+                                    hasItem(BitstreamMatcher.matchProperties(explicitlyVisibleBitstream))
+                                )
+                            )
+                        )
+                        .andExpect(
+                            jsonPath("$._embedded.bitstreams", hasSize(2))
+                        )
+                        .andExpect(
+                            jsonPath(
+                                "$._embedded.bitstreams",
+                                not(
+                                    anyOf(
+                                        hasItem(BitstreamMatcher.matchProperties(hiddenBitstream)),
+                                        hasItem(BitstreamMatcher.matchProperties(hiddenBitstreamYes))
+                                    )
+                                )
+                            )
+                        );
     }
 
     @Test
@@ -3111,14 +3206,14 @@ public class BitstreamRestRepositoryIT extends AbstractControllerIntegrationTest
         Assert.assertTrue(bitstreamExists(token, bitstream1, bitstream2, bitstream3, bitstream4));
 
         MvcResult result = getClient(token).perform(patch("/api/core/bitstreams")
-                                                        .content(patchBody)
-                                                        .contentType(MediaType.APPLICATION_JSON_PATCH_JSON))
-                                           .andExpect(status().isUnprocessableEntity())
-                                           .andReturn();
+                                     .content(patchBody)
+                                     .contentType(MediaType.APPLICATION_JSON_PATCH_JSON))
+                                  .andExpect(status().isUnprocessableEntity())
+                                  .andReturn();
 
         // Verify our custom error message is returned when an invalid UUID is used
         assertEquals("Bitstream with uuid " + randomUUID + " could not be found in the repository",
-                     result.getResponse().getErrorMessage());
+                            result.getResponse().getErrorMessage());
 
         // Verify that no bitstreams were deleted since the request was invalid
         Assert.assertTrue(bitstreamExists(token, bitstream1, bitstream2, bitstream3, bitstream4));
@@ -3244,9 +3339,9 @@ public class BitstreamRestRepositoryIT extends AbstractControllerIntegrationTest
         Assert.assertTrue(bitstreamExists(token, bitstream1, bitstream2, bitstream3, bitstream4));
 
         getClient().perform(patch("/api/core/bitstreams")
-                                .content(patchBody)
-                                .contentType(MediaType.APPLICATION_JSON_PATCH_JSON))
-                   .andExpect(status().isUnauthorized());
+                                     .content(patchBody)
+                                     .contentType(MediaType.APPLICATION_JSON_PATCH_JSON))
+                        .andExpect(status().isUnauthorized());
     }
 
     @Test
@@ -3297,9 +3392,9 @@ public class BitstreamRestRepositoryIT extends AbstractControllerIntegrationTest
         String token = getAuthToken(eperson.getEmail(), password);
 
         getClient(token).perform(patch("/api/core/bitstreams")
-                                     .content(patchBody)
-                                     .contentType(MediaType.APPLICATION_JSON_PATCH_JSON))
-                        .andExpect(status().isForbidden());
+                                .content(patchBody)
+                                .contentType(MediaType.APPLICATION_JSON_PATCH_JSON))
+                   .andExpect(status().isForbidden());
     }
 
     @Test
@@ -3309,23 +3404,25 @@ public class BitstreamRestRepositoryIT extends AbstractControllerIntegrationTest
                                           .withName("Parent Community")
                                           .build();
         Collection col1 = CollectionBuilder.createCollection(context, parentCommunity)
-                                           .withName("Collection 1")
-                                           .build();
+                                                 .withName("Collection 1")
+                                                 .build();
         Collection col2 = CollectionBuilder.createCollection(context, parentCommunity)
                                            .withName("Collection 2")
                                            .build();
         EPerson col1Admin = EPersonBuilder.createEPerson(context)
-                                          .withEmail("col1admin@test.com")
-                                          .withPassword(password)
-                                          .build();
+                                         .withEmail("col1admin@test.com")
+                                         .withPassword(password)
+                                         .build();
         EPerson col2Admin = EPersonBuilder.createEPerson(context)
                                           .withEmail("col2admin@test.com")
                                           .withPassword(password)
                                           .build();
-        Group col1_AdminGroup = collectionService.createAdministrators(context, col1);
-        Group col2_AdminGroup = collectionService.createAdministrators(context, col2);
-        groupService.addMember(context, col1_AdminGroup, col1Admin);
-        groupService.addMember(context, col2_AdminGroup, col2Admin);
+        Group col1_AdminGroup = GroupBuilder.createCollectionAdminGroup(context, col1)
+                                            .addMember(col1Admin)
+                                            .build();
+        Group col2_AdminGroup = GroupBuilder.createCollectionAdminGroup(context, col2)
+                                            .addMember(col2Admin)
+                                            .build();
         Item publicItem1 = ItemBuilder.createItem(context, col1)
                                       .withTitle("Test item 1")
                                       .build();
@@ -3423,11 +3520,12 @@ public class BitstreamRestRepositoryIT extends AbstractControllerIntegrationTest
                                            .withName("Collection 2")
                                            .build();
         EPerson parentCommunityAdmin = EPersonBuilder.createEPerson(context)
-                                                     .withEmail("parentComAdmin@test.com")
-                                                     .withPassword(password)
-                                                     .build();
-        Group parentComAdminGroup = communityService.createAdministrators(context, parentCommunity);
-        groupService.addMember(context, parentComAdminGroup, parentCommunityAdmin);
+                                          .withEmail("parentComAdmin@test.com")
+                                          .withPassword(password)
+                                          .build();
+        Group parentComAdminGroup = GroupBuilder.createCommunityAdminGroup(context, parentCommunity)
+                                                .addMember(parentCommunityAdmin)
+                                                .build();
         Item publicItem1 = ItemBuilder.createItem(context, col1)
                                       .withTitle("Test item 1")
                                       .build();
@@ -3485,45 +3583,45 @@ public class BitstreamRestRepositoryIT extends AbstractControllerIntegrationTest
         context.turnOffAuthorisationSystem();
 
         parentCommunity = CommunityBuilder.createCommunity(context)
-                .withName("Parent Community")
-                .build();
+                                          .withName("Parent Community")
+                                          .build();
 
         Collection col1 = CollectionBuilder.createCollection(context, parentCommunity)
-                .withName("Collection 1").build();
+                                           .withName("Collection 1").build();
 
         Item item = ItemBuilder.createItem(context, col1)
-                .withTitle("Test item -- thumbnail")
-                .withIssueDate("2017-10-17")
-                .withAuthor("Smith, Donald")
-                .withAuthor("Doe, John")
-                .build();
+                               .withTitle("Test item -- thumbnail")
+                               .withIssueDate("2017-10-17")
+                               .withAuthor("Smith, Donald")
+                               .withAuthor("Doe, John")
+                               .build();
 
         Bundle originalBundle = BundleBuilder.createBundle(context, item)
-                .withName(Constants.DEFAULT_BUNDLE_NAME)
-                .build();
+                                             .withName(Constants.DEFAULT_BUNDLE_NAME)
+                                             .build();
         Bundle thumbnailBundle = BundleBuilder.createBundle(context, item)
-                .withName("THUMBNAIL")
-                .build();
+                                              .withName("THUMBNAIL")
+                                              .build();
 
         InputStream is = IOUtils.toInputStream("dummy", "utf-8");
 
         // With an ORIGINAL Bitstream & matching THUMBNAIL Bitstream
         Bitstream bitstream = BitstreamBuilder.createBitstream(context, originalBundle, is)
-                .withName("test.pdf")
-                .withMimeType("application/pdf")
-                .build();
+                                              .withName("test.pdf")
+                                              .withMimeType("application/pdf")
+                                              .build();
 
         Bitstream thumbnail = BitstreamBuilder.createBitstream(context, thumbnailBundle, is)
-                .withName("test.pdf.jpg")
-                .withMimeType("image/jpeg")
-                .build();
+                                              .withName("test.pdf.jpg")
+                                              .withMimeType("image/jpeg")
+                                              .build();
 
         context.restoreAuthSystemState();
 
         getClient().perform(get("/api/core/bitstreams/" + bitstream.getID() + "/thumbnail"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.uuid", Matchers.is(thumbnail.getID().toString())))
-                .andExpect(jsonPath("$.type", is("bitstream")));
+                   .andExpect(status().isOk())
+                   .andExpect(jsonPath("$.uuid", Matchers.is(thumbnail.getID().toString())))
+                   .andExpect(jsonPath("$.type", is("bitstream")));
     }
 
     @Test
@@ -3532,47 +3630,47 @@ public class BitstreamRestRepositoryIT extends AbstractControllerIntegrationTest
         context.turnOffAuthorisationSystem();
 
         parentCommunity = CommunityBuilder.createCommunity(context)
-                .withName("Parent Community")
-                .build();
+                                          .withName("Parent Community")
+                                          .build();
 
         Collection col1 = CollectionBuilder.createCollection(context, parentCommunity)
-                .withName("Collection 1").build();
+                                           .withName("Collection 1").build();
 
         Item item = ItemBuilder.createItem(context, col1)
-                .withTitle("Test item -- thumbnail")
-                .withIssueDate("2017-10-17")
-                .withAuthor("Smith, Donald")
-                .withAuthor("Doe, John")
-                .build();
+                               .withTitle("Test item -- thumbnail")
+                               .withIssueDate("2017-10-17")
+                               .withAuthor("Smith, Donald")
+                               .withAuthor("Doe, John")
+                               .build();
 
         Bundle originalBundle = BundleBuilder.createBundle(context, item)
-                .withName(Constants.DEFAULT_BUNDLE_NAME)
-                .build();
+                                             .withName(Constants.DEFAULT_BUNDLE_NAME)
+                                             .build();
         Bundle thumbnailBundle = BundleBuilder.createBundle(context, item)
-                .withName("THUMBNAIL")
-                .build();
+                                              .withName("THUMBNAIL")
+                                              .build();
 
         InputStream is = IOUtils.toInputStream("dummy", "utf-8");
 
         // With an ORIGINAL Bitstream & matching THUMBNAIL Bitstream
         Bitstream bitstream = BitstreamBuilder.createBitstream(context, originalBundle, is)
-                .withName("test.pdf")
-                .withMimeType("application/pdf")
-                .build();
+                                              .withName("test.pdf")
+                                              .withMimeType("application/pdf")
+                                              .build();
 
         // invalid thumbnail mime type
         Bitstream thumbnail = BitstreamBuilder.createBitstream(context, thumbnailBundle, is)
-                .withName("test.pdf.jpg")
-                .withMimeType("application/pdf")
-                .build();
+                                              .withName("test.pdf.jpg")
+                                              .withMimeType("application/pdf")
+                                              .build();
 
         context.restoreAuthSystemState();
 
         getClient().perform(get("/api/core/bitstreams/" + bitstream.getID() + "/thumbnail"))
-                .andExpect(status().isNoContent());
+                   .andExpect(status().isNoContent());
     }
 
-    public boolean bitstreamExists(String token, Bitstream ...bitstreams) throws Exception {
+    public boolean bitstreamExists(String token, Bitstream... bitstreams) throws Exception {
         for (Bitstream bitstream : bitstreams) {
             if (getClient(token).perform(get("/api/core/bitstreams/" + bitstream.getID()))
                                 .andReturn().getResponse().getStatus() != SC_OK) {
@@ -3582,7 +3680,7 @@ public class BitstreamRestRepositoryIT extends AbstractControllerIntegrationTest
         return true;
     }
 
-    public boolean bitstreamNotFound(String token, Bitstream ...bitstreams) throws Exception {
+    public boolean bitstreamNotFound(String token, Bitstream... bitstreams) throws Exception {
         for (Bitstream bitstream : bitstreams) {
             if (getClient(token).perform(get("/api/core/bitstreams/" + bitstream.getID()))
                                 .andReturn().getResponse().getStatus() != SC_NOT_FOUND) {
@@ -3591,6 +3689,5 @@ public class BitstreamRestRepositoryIT extends AbstractControllerIntegrationTest
         }
         return true;
     }
-
 
 }

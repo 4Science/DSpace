@@ -18,13 +18,14 @@ import static org.dspace.util.WorkbookUtils.getNotEmptyRowsSkippingHeader;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-import javax.annotation.PostConstruct;
 
+import jakarta.annotation.PostConstruct;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.EnumUtils;
@@ -161,9 +162,65 @@ public class CrisLayoutToolValidatorImpl implements CrisLayoutToolValidator {
 
         if (entityTypeColumn != -1 && shortnameColumn != -1) {
             validatePresenceInTab2BoxSheet(result, boxSheet, BOXES_COLUMN, entityTypeColumn, shortnameColumn);
+            validateDuplicateBoxes(boxSheet, result, entityTypeColumn, shortnameColumn);
         }
 
     }
+
+    private void validateDuplicateBoxes(Sheet boxSheet, CrisLayoutToolValidationResult result,
+                                        int entityTypeColumn, int shortnameColumn) {
+
+        Map<String, List<String>> lowerCaseToOriginals = new HashMap<>();
+        Map<String, List<Integer>> originalToRows = new HashMap<>();
+
+        for (Row row : getNotEmptyRowsSkippingHeader(boxSheet)) {
+            String entityType = getEntityTypeCellValue(row, entityTypeColumn);
+            String shortname = getCellValue(row, shortnameColumn);
+
+            if (StringUtils.isNotBlank(entityType) && StringUtils.isNotBlank(shortname)) {
+                String key = (entityType + ":" + shortname).toLowerCase();
+                String original = entityType + ":" + shortname;
+                int excelRowNumber = row.getRowNum() + 1;
+
+                // Track lowercase to originals mapping
+                lowerCaseToOriginals.computeIfAbsent(key, k -> new ArrayList<>()).add(original);
+
+                // Track original values to row numbers
+                originalToRows.computeIfAbsent(original, k -> new ArrayList<>()).add(excelRowNumber);
+            }
+        }
+
+        lowerCaseToOriginals.entrySet().stream()
+                            .filter(entry -> entry.getValue().stream().distinct().count() > 1 ||
+                                entry.getValue().size() > entry.getValue().stream().distinct().count())
+                            .forEach(entry -> {
+                                List<String> duplicateOriginals = entry.getValue().stream().distinct()
+                                                                       .collect(Collectors.toList());
+
+                                StringBuilder errorMsg = new StringBuilder();
+                                errorMsg.append("Duplicate boxes detected in '")
+                                        .append(BOX_SHEET).append("' sheet: ");
+
+                                for (int i = 0; i < duplicateOriginals.size(); i++) {
+                                    String original = duplicateOriginals.get(i);
+                                    List<Integer> rows = originalToRows.get(original);
+
+                                    errorMsg.append("'").append(original).append("'");
+                                    if (rows.size() == 1) {
+                                        errorMsg.append(" (row ").append(rows.get(0)).append(")");
+                                    } else {
+                                        errorMsg.append(" (rows ").append(rows).append(")");
+                                    }
+
+                                    if (i < duplicateOriginals.size() - 1) {
+                                        errorMsg.append(" and ");
+                                    }
+                                }
+
+                                result.addError(errorMsg.toString());
+                            });
+    }
+
 
     private void validateTab2BoxSheet(Workbook workbook, CrisLayoutToolValidationResult result) {
 

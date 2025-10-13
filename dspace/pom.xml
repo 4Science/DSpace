@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <groupId>org.dspace</groupId>
     <artifactId>dspace</artifactId>
     <name>DSpace Assembly and Configuration</name>
     <packaging>pom</packaging>
@@ -16,7 +15,7 @@
     <parent>
         <groupId>org.dspace</groupId>
         <artifactId>dspace-parent</artifactId>
-        <version>cris-2023.02.07-SNAPSHOT</version>
+        <version>cris-2024.02.03</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -59,8 +58,8 @@
             </activation>
             <build>
                 <plugins>
-                   <!-- Assemble 'target/dspace-installer' using 'assembly.xml' -->
-                   <plugin>
+                    <!-- Assemble 'target/dspace-installer' using 'assembly.xml' -->
+                    <plugin>
                         <artifactId>maven-assembly-plugin</artifactId>
                         <inherited>false</inherited>
                         <configuration>
@@ -113,39 +112,39 @@
             Instead, a zip/tarball is generated from the parent [dspace-src] directory.
         -->
         <profile>
-           <id>distributions</id>
-           <activation>
-              <!-- Only enabled if "distributions=true" was passed on commandline -->
-              <property>
-                  <name>distributions</name>
-                  <value>true</value>
-              </property>
-           </activation>
-           <build>
-              <plugins>
-                 <plugin>
-                    <artifactId>maven-assembly-plugin</artifactId>
-                    <inherited>false</inherited>
-                    <executions>
-                       <execution>
-                          <inherited>false</inherited>
-                          <configuration>
-                             <descriptors>
-                                <descriptor>src/main/assembly/release.xml</descriptor>
-                                <descriptor>src/main/assembly/src-release.xml</descriptor>
-                             </descriptors>
-                             <tarLongFileMode>gnu</tarLongFileMode>
-                             <finalName>dspace-${project.version}</finalName>
-                          </configuration>
-                          <phase>package</phase>
-                          <goals>
-                             <goal>single</goal>
-                          </goals>
-                       </execution>
-                    </executions>
-                 </plugin>
-              </plugins>
-           </build>
+            <id>distributions</id>
+            <activation>
+                <!-- Only enabled if "distributions=true" was passed on commandline -->
+                <property>
+                    <name>distributions</name>
+                    <value>true</value>
+                </property>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-assembly-plugin</artifactId>
+                        <inherited>false</inherited>
+                        <executions>
+                            <execution>
+                                <inherited>false</inherited>
+                                <configuration>
+                                    <descriptors>
+                                        <descriptor>src/main/assembly/release.xml</descriptor>
+                                        <descriptor>src/main/assembly/src-release.xml</descriptor>
+                                    </descriptors>
+                                    <tarLongFileMode>gnu</tarLongFileMode>
+                                    <finalName>dspace-${project.version}</finalName>
+                                </configuration>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>single</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
         </profile>
 
         <!-- Profile to aggregate (local) code coverage reports created by JaCoCo (jacoco.org)
@@ -188,7 +187,6 @@
             </build>
             <dependencies>
                 <!-- Add all modules that should be taken into account for the coverage reports -->
-                <!-- (Excludes dspace-rest which is deprecated and doesn't build by default) -->
                 <dependency>
                     <groupId>org.dspace</groupId>
                     <artifactId>dspace-api</artifactId>
@@ -244,19 +242,68 @@
             <groupId>org.dspace.modules</groupId>
             <artifactId>additions</artifactId>
             <scope>provided</scope>
+            <exclusions>
+                <exclusion>
+                    <artifactId>jetty-alpn-client</artifactId>
+                    <groupId>org.eclipse.jetty</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>jetty-alpn-java-client</artifactId>
+                    <groupId>org.eclipse.jetty</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>jetty-jndi</artifactId>
+                    <groupId>org.eclipse.jetty</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>jetty-plus</artifactId>
+                    <groupId>org.eclipse.jetty</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>jetty-client</artifactId>
+                    <groupId>org.eclipse.jetty</groupId>
+                </exclusion>
+            </exclusions>
         </dependency>
-    	<!-- This dependency ensures DSpace OAI JAR is added to [dspace]/lib/,
+
+        <dependency>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-alpn-client</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-alpn-java-client</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-jndi</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-plus</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-client</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+
+        <!-- This dependency ensures DSpace OAI JAR is added to [dspace]/lib/,
              so that the 'dspace oai' launcher.xml command works.  -->
-    	<dependency>
+        <dependency>
             <groupId>org.dspace</groupId>
             <artifactId>dspace-oai</artifactId>
-    	</dependency>
+        </dependency>
 
         <!-- The Servlet API is also needed by the 'dspace oai' launcher.xml
              command. -->
-    	<dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>javax.servlet-api</artifactId>
-    	</dependency>
+        <dependency>
+            <groupId>jakarta.servlet</groupId>
+            <artifactId>jakarta.servlet-api</artifactId>
+        </dependency>
     </dependencies>
 </project>
