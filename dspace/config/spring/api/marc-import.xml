@@ -96,6 +96,11 @@
         <value>./subfield[@code = 'f']</value>
     </util:list>
 
+    <bean class="org.dspace.app.marcxml2item.reader.ItemsImportJournalFondsReader" >
+        <property name="issnXPath" value="./subfield[@code = 'x']" />
+        <property name="journalfondTitleXPath" value="./subfield[@code = 't']" />
+    </bean>
+
     <!-- XML Validator beans -->
     <bean class="org.dspace.app.marcxml2item.validator.SimpleXmlValidator"/>
     <bean class="org.dspace.app.marcxml2item.validator.XmlFieldValidation">

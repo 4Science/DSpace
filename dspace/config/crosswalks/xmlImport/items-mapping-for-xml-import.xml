@@ -89,16 +89,6 @@
             <field>dc.relation.hasversion</field>
             <xpath>./datafield[@tag = '775']/subfield[@code = 't']</xpath>
         </metadata-field>
-        <!--
-        <metadata-field>
-            <field>dc.relation.journalfonds</field>
-            <xpath>./datafield[@tag = '773']/subfield[@code = 't']</xpath>
-        </metadata-field>
-        <metadata-field>
-            <field>glamjournalfonds.parent</field>
-            <xpath>./datafield[@tag = '773']/subfield[@code = 't']</xpath>
-        </metadata-field>
-        -->
         <metadata-field>
             <field>dc.relation.isbn</field>
             <xpath>./datafield[@tag = '773']/subfield[@code = 'z']</xpath>
@@ -196,6 +186,17 @@
             <field>dc.rights</field>
             <xpath>./datafield[@tag = '540']</xpath>
             <reader>rights</reader>
+        </metadata-field>
+
+        <metadata-field>
+            <field>dc.relation.journalfonds</field>
+            <xpath>./datafield[@tag = '773']</xpath>
+            <reader>journalfonds</reader>
+        </metadata-field>
+        <metadata-field>
+            <field>glamjournalfonds.parent</field>
+            <xpath>./datafield[@tag = '773']</xpath>
+            <reader>journalfonds</reader>
         </metadata-field>
     </metadata-fields>
 

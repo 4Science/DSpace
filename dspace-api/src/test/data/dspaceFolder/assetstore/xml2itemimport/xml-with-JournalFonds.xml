@@ -1,0 +1,147 @@
+<collection xmlns="http://www.loc.gov/MARC21/slim">
+    <record>
+        <leader>01142cam 2200301 a 4500</leader>
+        <controlfield tag="001"> 92005291 </controlfield>
+        <controlfield tag="003">DLC</controlfield>
+        <controlfield tag="005">19930521155141.9</controlfield>
+        <controlfield tag="008">920219s1993 caua j 000 0 eng </controlfield>
+        <datafield tag="010" ind1=" " ind2=" ">
+            <subfield code="a"> 92005291 </subfield>
+        </datafield>
+        <datafield tag="020" ind1=" " ind2=" ">
+            <subfield code="a">0152038655 :</subfield>
+            <subfield code="c">$15.95</subfield>
+        </datafield>
+        <datafield tag="022" ind1=" " ind2=" ">
+            <subfield code="a">3035-3467</subfield>
+        </datafield>
+        <datafield tag="024" ind1="2" ind2=" ">
+            <subfield code="a">M571100511</subfield>
+        </datafield>
+        <datafield tag="024" ind1="2" ind2="0">
+            <subfield code="a">M571100512</subfield>
+        </datafield>
+        <datafield tag="035" ind1=" " ind2=" ">
+            <subfield code="a">1276909548</subfield>
+        </datafield>
+        <datafield tag="040" ind1=" " ind2=" ">
+            <subfield code="a">DLC</subfield>
+            <subfield code="c">DLC</subfield>
+            <subfield code="d">DLC</subfield>
+        </datafield>
+        <datafield tag="041" ind1=" " ind2=" ">
+            <subfield code="a">ita</subfield>
+        </datafield>
+        <datafield tag="042" ind1=" " ind2=" ">
+            <subfield code="a">lcac</subfield>
+        </datafield>
+        <datafield tag="050" ind1="0" ind2="0">
+            <subfield code="a">PS3537.A618</subfield>
+            <subfield code="b">A88 1993</subfield>
+        </datafield>
+        <datafield tag="082" ind1="0" ind2="0">
+            <subfield code="a">811/.52</subfield>
+            <subfield code="2">20</subfield>
+        </datafield>
+        <datafield tag="084" ind1=" " ind2=" ">
+            <subfield code="a">TEST.811/1052</subfield>
+            <subfield code="2">20</subfield>
+        </datafield>
+        <datafield tag="100" ind1="1" ind2=" ">
+            <subfield code="a">Sandburg, Carl,</subfield>
+            <subfield code="d">1878-1967.</subfield>
+        </datafield>
+        <datafield tag="245" ind1="1" ind2="0">
+            <subfield code="a">Arithmetic /</subfield>
+            <subfield code="c">Carl Sandburg ; illustrated as an anamorphic adventure by Ted Rand.</subfield>
+        </datafield>
+        <datafield tag="246" ind1="0" ind2="1">
+            <subfield code="a">Democrazia e definizioni</subfield>
+            <subfield code="b">esempi pratici</subfield>
+        </datafield>
+        <datafield tag="250" ind1=" " ind2=" ">
+            <subfield code="a">1st ed.</subfield>
+        </datafield>
+        <datafield tag="260" ind1=" " ind2=" ">
+            <subfield code="a">San Diego :</subfield>
+            <subfield code="b">Harcourt Brace Jovanovich,</subfield>
+            <subfield code="c">c1993.</subfield>
+        </datafield>
+        <datafield tag="300" ind1=" " ind2=" ">
+            <subfield code="a">1 v. (unpaged) :</subfield>
+            <subfield code="b">ill. (some col.) ;</subfield>
+            <subfield code="c">26 cm.</subfield>
+        </datafield>
+        <datafield tag="490" ind1="0" ind2=" ">
+            <subfield code="a">West Virginia University bulletin ;</subfield>
+            <subfield code="x">3035-3467</subfield>
+            <subfield code="v">no. 35</subfield>
+        </datafield>
+        <datafield tag="490" ind1="1" ind2=" ">
+            <subfield code="x">3035-3567</subfield>
+        </datafield>
+        <datafield tag="500" ind1=" " ind2=" ">
+            <subfield code="a">One Mylar sheet included in pocket.</subfield>
+        </datafield>
+        <datafield tag="504" ind1=" " ind2=" ">
+            <subfield code="a">Bibliography: p. 238-239.</subfield>
+        </datafield>
+        <datafield tag="505" ind1="0" ind2=" ">
+            <subfield code="a">pt. 1. Carbon -- pt. 2. Nitrogen -- pt. 3. Sulphur -- pt. 4. Metals.</subfield>
+        </datafield>
+        <datafield tag="510" ind1="4" ind2=" ">
+            <subfield code="a">Algae abstracts,</subfield>
+            <subfield code="c">v. 3, W73-11952</subfield>
+        </datafield>
+        <datafield tag="520" ind1=" " ind2=" ">
+            <subfield code="a">A poem about numbers and their characteristics.</subfield>
+        </datafield>
+        <datafield tag="540" ind1=" " ind2=" ">
+            <subfield code="a">Restricted: Information on reproduction rights available at Reference Desk.</subfield>
+            <subfield code="f">CC BY-NC-ND 4.0</subfield>
+        </datafield>
+        <datafield tag="650" ind1=" " ind2="0">
+            <subfield code="a">Arithmetic</subfield>
+            <subfield code="x">Juvenile poetry.</subfield>
+        </datafield>
+        <datafield tag="650" ind1=" " ind2="0">
+            <subfield code="a">Children's poetry, American.</subfield>
+        </datafield>
+        <datafield tag="650" ind1=" " ind2="1">
+            <subfield code="a">Arithmetic</subfield>
+            <subfield code="x">Poetry.</subfield>
+        </datafield>
+        <datafield tag="650" ind1=" " ind2="1">
+            <subfield code="a">American poetry.</subfield>
+        </datafield>
+        <datafield tag="650" ind1=" " ind2="1">
+            <subfield code="a">Visual perception.</subfield>
+        </datafield>
+        <datafield tag="650" ind1=" " ind2="6">
+            <subfield code="a">Boissons alcoolisées – Fiscalité – Droit et législation</subfield>
+        </datafield>
+        <datafield tag="700" ind1="1" ind2=" ">
+            <subfield code="a">Rand, Ted,</subfield>
+            <subfield code="e">ill.</subfield>
+        </datafield>
+        <datafield tag="700" ind1="1" ind2=" ">
+            <subfield code="a">Smith, Jhon,</subfield>
+            <subfield code="e">editor</subfield>
+        </datafield>
+        <datafield tag="711" ind1="2" ind2="2">
+            <subfield code="a">Conference on Philosophy and Its History</subfield>
+            <subfield code="c">Cali, Colombia)</subfield>
+        </datafield>
+        <datafield tag="773" ind1="0" ind2=" ">
+            <subfield code="g">Vol. 24, pt. B no. 9 (Sept. 1993), p. 235-48</subfield>
+            <subfield code="t">Pacific news.</subfield>
+            <subfield code="x">3035-3467</subfield>
+        </datafield>
+        <datafield tag="775" ind1="1" ind2=" ">
+            <subfield code="t">Communist</subfield>
+        </datafield>
+        <datafield tag="787" ind1="1" ind2=" ">
+            <subfield code="a">George Orwell's Animal farm /</subfield>
+        </datafield>
+    </record>
+</collection>
