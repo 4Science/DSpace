@@ -11,7 +11,6 @@ import static org.dspace.app.launcher.ScriptLauncher.handleScript;
 import static org.dspace.app.marcxml2item.XmlToItemImportScript.XML_TO_ITEM_SCRIPT_NAME;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.empty;
-import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
