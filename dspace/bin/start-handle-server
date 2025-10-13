@@ -13,6 +13,8 @@
 # Assume that this script is in the bin subdirectory of the DSpace
 # installation directory.
 BINDIR=`dirname $0`
+LOGGING_CONFIG=log4j2-handle-plugin.xml
+LOG4J_CONFIGURATION_FILE=log4j2-handle-plugin.xml
 
 # Read parameters from DSpace config
 DSPACEDIR=`$BINDIR/dspace dsprop --property dspace.dir`
@@ -31,11 +33,17 @@ fi
 # Remove lock file, in case the old Handle server did not shut down properly
 rm -f $HANDLEDIR/txns/lock
 
+# Unset JAVA_TOOL_OPTIONS (exported by Dockerfile) so that any debug ports don't conflict
+unset JAVA_TOOL_OPTIONS
+# Note, if you wish to also debug the Handle launcher, the following line is an
+# example of how to do so - note the different port number and 'suspend=y' which
+# means the JVM will not begin execution until a debugger is attached.
+#JAVA_TOOL_OPTIONS="-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=*:1044"
+
 # Start the Handle server, with a special log4j properties file.
 # We cannot simply write to the same logs, since log4j
 # does not support more than one JVM writing to the same rolling log.
 nohup java $JAVA_OPTS -classpath `$BINDIR/dspace classpath` \
     -Ddspace.log.init.disable=true \
-    -Dlog4j2.configurationFile=log4j2-handle-plugin.xml \
     net.handle.server.Main $HANDLEDIR \
     </dev/null >> $LOGDIR/handle-server.log 2>&1 &

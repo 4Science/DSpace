@@ -273,7 +273,10 @@ public class WebApplication {
                 // with the org.webjars.hal-browser version in the POM
                 registry
                     .addResourceHandler("/browser/**")
-                    .addResourceLocations("/webjars/hal-browser/ad9b865/");
+                    .addResourceLocations(
+                        "/webjars/hal-browser/ad9b865/",
+                        "classpath:/META-INF/resources/webjars/hal-browser/ad9b865/"
+                    );
 
                 // Make all other Webjars available off the /webjars path
                 registry
