@@ -44,22 +44,6 @@
 				    	<xsl:with-param name="label" select="'Publication date'" />
 				    	<xsl:with-param name="value" select="PublicationDate" />
 				    </xsl:call-template>
-					<xsl:call-template name="print-value">
-				    	<xsl:with-param name="label" select="'DOI'" />
-				    	<xsl:with-param name="value" select="DOI" />
-				    </xsl:call-template>
-					<xsl:call-template name="print-value">
-				    	<xsl:with-param name="label" select="'ISBN'" />
-				    	<xsl:with-param name="value" select="ISBN" />
-				    </xsl:call-template>
-					<xsl:call-template name="print-value">
-				    	<xsl:with-param name="label" select="'ISI number'" />
-				    	<xsl:with-param name="value" select="ISI-Number" />
-				    </xsl:call-template>
-					<xsl:call-template name="print-value">
-				    	<xsl:with-param name="label" select="'SCP number'" />
-				    	<xsl:with-param name="value" select="SCP-Number" />
-			    	</xsl:call-template>
 					<fo:block font-size="10pt" margin-top="2mm">
 						<fo:inline font-weight="bold" text-align="right"  >
 							<xsl:text>Authors: </xsl:text>
@@ -88,14 +72,9 @@
 						</xsl:for-each>
 						</fo:inline >
 					</fo:block>
-					<xsl:call-template name="print-values">
-				    	<xsl:with-param name="label" select="'Keywords'" />
-				    	<xsl:with-param name="values" select="Keyword" />
-			    	</xsl:call-template>
-					<xsl:call-template name="print-value">
-				    	<xsl:with-param name="label" select="'Type'" />
-				    	<xsl:with-param name="value" select="Type" />
-				    </xsl:call-template>
+					<fo:block font-size="10pt" space-after="5mm" text-align="justify" margin-top="5mm" >
+						<xsl:value-of select="Type" />
+					</fo:block>
 					<xsl:call-template name="print-value">
 				    	<xsl:with-param name="label" select="'Language'" />
 				    	<xsl:with-param name="value" select="Language" />
@@ -116,20 +95,6 @@
 							</fo:inline >
 							<fo:inline>
 								<xsl:for-each select="Aggregations/Aggregation">
-									<xsl:value-of select="DisplayName" />
-									<xsl:if test="position() != last()">, </xsl:if>
-								</xsl:for-each>
-							</fo:inline >
-						</fo:block>
-					</xsl:if>
-
-					<xsl:if test="Documents/Document">
-						<fo:block font-size="10pt" margin-top="2mm">
-							<fo:inline font-weight="bold" text-align="right"  >
-								<xsl:text>Document(s): </xsl:text>
-							</fo:inline >
-							<fo:inline>
-								<xsl:for-each select="Documents/Document">
 									<xsl:value-of select="DisplayName" />
 									<xsl:if test="position() != last()">, </xsl:if>
 								</xsl:for-each>

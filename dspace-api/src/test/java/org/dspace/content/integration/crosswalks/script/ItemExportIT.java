@@ -59,11 +59,11 @@ public class ItemExportIT extends AbstractIntegrationTestWithDatabase {
 
         context.turnOffAuthorisationSystem();
         Item item = ItemBuilder.createItem(context, collection)
-            .withEntityType("Person")
-            .withTitle("Edward White")
-            .withJobTitle("Researcher")
-            .withOrcidIdentifier("0000-0002-9077-5939")
-            .build();
+                .withEntityType("Person")
+                .withTitle("Edward White")
+                .withBirthDate("2001-02-02")
+                .withMetadata("crisrp", "name", "translated", "Nome")
+                .build();
         context.restoreAuthSystemState();
 
         File xml = new File(System.getProperty("java.io.tmpdir"), "item-export-test.xml");
@@ -82,8 +82,8 @@ public class ItemExportIT extends AbstractIntegrationTestWithDatabase {
         try (FileInputStream fis = new FileInputStream(xml)) {
             String content = IOUtils.toString(fis, Charset.defaultCharset());
             assertThat(content, containsString("<preferred-name>Edward White</preferred-name>"));
-            assertThat(content, containsString("<job-title>Researcher</job-title>"));
-            assertThat(content, containsString("<orcid>0000-0002-9077-5939</orcid>"));
+            assertThat(content, containsString("<vernacular-name>Nome</vernacular-name>"));
+            assertThat(content, containsString("<birth-date>2001-02-02</birth-date>"));
         }
     }
 
@@ -94,8 +94,8 @@ public class ItemExportIT extends AbstractIntegrationTestWithDatabase {
         Item item = ItemBuilder.createItem(context, collection)
             .withEntityType("Person")
             .withTitle("Edward White")
-            .withJobTitle("Researcher")
-            .withOrcidIdentifier("0000-0002-9077-5939")
+            .withBirthDate("2001-02-02")
+            .withMetadata("crisrp", "name", "translated", "Nome")
             .build();
         context.restoreAuthSystemState();
 
@@ -114,8 +114,8 @@ public class ItemExportIT extends AbstractIntegrationTestWithDatabase {
         try (FileInputStream fis = new FileInputStream(xml)) {
             String content = IOUtils.toString(fis, Charset.defaultCharset());
             assertThat(content, containsString("<preferred-name>Edward White</preferred-name>"));
-            assertThat(content, containsString("<job-title>Researcher</job-title>"));
-            assertThat(content, containsString("<orcid>0000-0002-9077-5939</orcid>"));
+            assertThat(content, containsString("<vernacular-name>Nome</vernacular-name>"));
+            assertThat(content, containsString("<birth-date>2001-02-02</birth-date>"));
         }
 
     }
@@ -153,10 +153,11 @@ public class ItemExportIT extends AbstractIntegrationTestWithDatabase {
 
         context.turnOffAuthorisationSystem();
         Item item = ItemBuilder.createItem(context, collection)
-            .withTitle("Edward White")
-            .withJobTitle("Researcher")
-            .withOrcidIdentifier("0000-0002-9077-5939")
-            .build();
+                .withEntityType("Person")
+                .withTitle("Edward White")
+                .withBirthDate("2001-02-02")
+                .withGender("Male")
+                .build();
         context.restoreAuthSystemState();
 
         String[] args = new String[] { "item-export", "-i", item.getID().toString() };
@@ -175,10 +176,11 @@ public class ItemExportIT extends AbstractIntegrationTestWithDatabase {
 
         context.turnOffAuthorisationSystem();
         Item item = ItemBuilder.createItem(context, collection)
-            .withTitle("Edward White")
-            .withJobTitle("Researcher")
-            .withOrcidIdentifier("0000-0002-9077-5939")
-            .build();
+                .withEntityType("Person")
+                .withTitle("Edward White")
+                .withBirthDate("2001-02-02")
+                .withGender("Male")
+                .build();
         context.restoreAuthSystemState();
 
         String[] args = new String[] { "item-export", "-i", item.getID().toString(), "-f", "invalid" };

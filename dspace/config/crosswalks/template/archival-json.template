@@ -57,7 +57,7 @@
             "@dc.relation.isreferencedby@",
         ],
         "fond": [
-            "@dc.relation.fond@",
+            "@dc.relation.fonds@",
         ],
     },
 	"languagesIso": [

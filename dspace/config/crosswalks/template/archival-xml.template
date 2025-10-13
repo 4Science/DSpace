@@ -51,7 +51,7 @@
             <Name>@dc.relation.isreferencedby@</Name>
         </Document>
         <Fond>
-            <Name>@dc.relation.fond@</Name>
+            <Name>@dc.relation.fonds@</Name>
         </Fond>
     </Uses>
     <LanguagesIso>
