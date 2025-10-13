@@ -29,6 +29,43 @@
         <property name="qualifier" value="name"/>
         <property name="singleResultOnAggregate" value="false"/>
      </bean>
+
+    <bean class="org.dspace.content.authority.SimpleAuthorityOtherInformationGenerator">
+        <property name="keyId" value="handle"/>
+        <property name="authorityNames" ref="authorityNames"/>
+        <property name="solrField" value="handle"/>
+    </bean>
+
+    <util:set id="authorityNames" value-type="java.lang.String">
+        <value>PersonAuthority</value>
+        <value>EventAuthority</value>
+        <value>FamilyAuthority</value>
+        <value>OperaAuthority</value>
+        <value>OrgUnitAuthority</value>
+        <value>PathAuthority</value>
+        <value>PlaceAuthority</value>
+        <value>ProjectAuthority</value>
+        <value>PublicationAuthority</value>
+    </util:set>
+
+    <bean class="org.dspace.content.authority.SimpleAuthorityOtherInformationGenerator">
+        <property name="keyId" value="author"/>
+        <property name="authorityNames" ref="authorAuthorityNames"/>
+        <property name="solrField" value="author"/>
+        <property name="separator" value="; "/>
+    </bean>
+
+    <util:set id="authorAuthorityNames" value-type="java.lang.String">
+        <value>PublicationAuthority</value>
+        <value>EventAuthority</value>
+        <value>FamilyAuthority</value>
+        <value>OperaAuthority</value>
+        <value>OrgUnitAuthority</value>
+        <value>PathAuthority</value>
+        <value>PlaceAuthority</value>
+        <value>ProjectAuthority</value>
+    </util:set>
+
     <!-- <bean class="org.dspace.content.authority.ItemSimpleAuthorityMetadataGenerator">
         <property name="authorityName" value="AuthorAuthority"/>
         <property name="keyId" value="oairecerif_author_affiliation"/>

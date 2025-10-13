@@ -19,7 +19,7 @@ services:
       # Uncomment to set a non-default value for dspace.server.url or dspace.ui.url
       # dspace__P__server__P__url: http://localhost:8080/server
       # dspace__P__ui__P__url: http://localhost:4000
-      dspace__P__name: 'DSpace Started with Docker Compose'
+      dspace__P__name: 'DSpace-CRIS Started with Docker Compose'
       # db.url: Ensure we are using the 'dspacedb' image for our database
       db__P__url: 'jdbc:postgresql://dspacedb:5432/dspace'
       # solr.server: Ensure we are using the 'dspacesolr' image for Solr
@@ -28,7 +28,7 @@ services:
       # from the host machine. This IP range MUST correspond to the 'dspacenet' subnet defined above.
       proxies__P__trusted__P__ipranges: '172.23.0'
       LOGGING_CONFIG: /dspace/config/log4j2-container.xml
-    image: "${DOCKER_REGISTRY:-docker.io}/${DOCKER_OWNER:-dspace}/dspace:${DSPACE_VER:-dspace-8_x-test}"
+    image: "${DOCKER_REGISTRY:-docker.io}/${DOCKER_OWNER:-4science}/dspace-cris:${DSPACE_VER:-dspace-cris-2024_02_x-test}"
     build:
       context: .
       dockerfile: Dockerfile.test
@@ -57,17 +57,18 @@ services:
       - /bin/bash
       - '-c'
       - |
-        while (!</dev/tcp/dspacedb/5432) > /dev/null 2>&1; do sleep 1; done;
-        /dspace/bin/dspace database migrate
-        java -jar /dspace/webapps/server-boot.jar --dspace.dir=/dspace
-  # DSpace PostgreSQL database container
+        /dspace/bin/dspace database repair
+          /dspace/bin/dspace database migrate
+        /dspace/bin/dspace database migrate ignored
+        java -XX:+UseParallelGC -XX:MaxRAMPercentage=75 org.springframework.boot.loader.launch.JarLauncher
   dspacedb:
     container_name: dspacedb
     # Uses a custom Postgres image with pgcrypto installed
-    image: "${DOCKER_REGISTRY:-docker.io}/${DOCKER_OWNER:-dspace}/dspace-postgres-pgcrypto:${DSPACE_VER:-dspace-8_x}"
+    image: "${DOCKER_REGISTRY:-docker.io}/${DOCKER_OWNER:-4science}/dspace-cris-postgres-pgcrypto:${DSPACE_VER:-dspace-cris-2024_02_x}"
     build:
       # Must build out of subdirectory to have access to install script for pgcrypto
       context: ./dspace/src/main/docker/dspace-postgres-pgcrypto/
+      dockerfile: Dockerfile
     environment:
       PGDATA: /pgdata
       POSTGRES_PASSWORD: dspace
@@ -84,14 +85,13 @@ services:
   # DSpace Solr container
   dspacesolr:
     container_name: dspacesolr
-    image: "${DOCKER_REGISTRY:-docker.io}/${DOCKER_OWNER:-dspace}/dspace-solr:${DSPACE_VER:-dspace-8_x}"
+    image: "${DOCKER_REGISTRY:-docker.io}/${DOCKER_OWNER:-4science}/dspace-cris-solr:${DSPACE_VER:-dspace-cris-2024_02_x}"
     build:
-      context: ./dspace/src/main/docker/dspace-solr/
+      context: .
+      dockerfile: ./dspace/src/main/docker/dspace-solr/Dockerfile
       # Provide path to Solr configs necessary to build Docker image
-      additional_contexts:
-        solrconfigs: ./dspace/solr/
       args:
-        SOLR_VERSION: "${SOLR_VER:-8.11}"
+        SOLR_VERSION: "${SOLR_VER:-8.11.4}"
     networks:
       dspacenet:
     ports:
@@ -106,7 +106,7 @@ services:
     # Initialize all DSpace Solr cores then start Solr:
     # * First, run precreate-core to create the core (if it doesn't yet exist). If exists already, this is a no-op
     # * Second, copy configsets to this core:
-    #   Updates to Solr configs require the container to be rebuilt/restarted: `docker compose -p d7 up -d --build dspacesolr`
+    #   Updates to Solr configs require the container to be rebuilt/restarted: `docker compose -p dcris24 up -d --build dspacesolr`
     entrypoint:
       - /bin/bash
       - '-c'
@@ -124,6 +124,10 @@ services:
         cp -r /opt/solr/server/solr/configsets/qaevent/* qaevent
         precreate-core suggestion /opt/solr/server/solr/configsets/suggestion
         cp -r /opt/solr/server/solr/configsets/suggestion/* suggestion
+        precreate-core dedup /opt/solr/server/solr/configsets/dedup
+        cp -r /opt/solr/server/solr/configsets/dedup/* dedup
+        precreate-core audit /opt/solr/server/solr/configsets/audit
+        cp -r /opt/solr/server/solr/configsets/audit/* audit
         exec solr -f
 volumes:
   assetstore:

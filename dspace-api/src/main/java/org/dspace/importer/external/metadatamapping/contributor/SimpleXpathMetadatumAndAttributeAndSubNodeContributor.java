@@ -71,11 +71,6 @@ public class SimpleXpathMetadatumAndAttributeAndSubNodeContributor extends Simpl
         return xpath.evaluate(t);
     }
 
-    private String extractValue(Object el) {
-        String value = ((Element) el).getText();
-        return StringUtils.isNotBlank(value) ? value : ((Element) el).getValue().trim();
-    }
-
     public void setAttributeValue(String attributeValue) {
         this.attributeValue = attributeValue;
     }

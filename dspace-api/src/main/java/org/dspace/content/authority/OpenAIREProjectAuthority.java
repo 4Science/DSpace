@@ -33,7 +33,7 @@ import org.slf4j.LoggerFactory;
  */
 public class OpenAIREProjectAuthority extends ItemAuthority {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(OrcidAuthority.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(OpenAIREProjectAuthority.class);
 
     private ServiceManager serviceManager = new DSpace().getServiceManager();
 

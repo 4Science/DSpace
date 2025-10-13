@@ -1,487 +1,487 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE item-submission SYSTEM "item-submission.dtd">
 <item-submission>
-    <submission-map>
-        <name-map collection-handle="default" submission-name="archival_material"/>
-    </submission-map>
-    <step-definitions>
-        <step-definition id="collection" mandatory="true">
-            <heading>submit.progressbar.collection</heading>
-            <processing-class>org.dspace.app.rest.submit.step.CollectionStep</processing-class>
-            <type>collection</type>
-        </step-definition>
-        <step-definition id="upload" mandatory="true">
-            <heading>submit.progressbar.upload</heading>
-            <processing-class>org.dspace.app.rest.submit.step.UploadStep</processing-class>
-            <type>upload</type>
-        </step-definition>
-        <step-definition id="license" mandatory="true">
-            <heading>submit.progressbar.license</heading>
-            <processing-class>org.dspace.app.rest.submit.step.LicenseStep</processing-class>
-            <type>license</type>
-        </step-definition>
-        <step-definition id="archival_material" mandatory="true">
-            <heading>submit.progressbar.describe.archival_material</heading>
-            <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
-            <type>submission-form</type>
-        </step-definition>
-        <step-definition id="archival_material_indexing" mandatory="true">
-            <heading>submit.progressbar.describe.archival_material_indexing</heading>
-            <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
-            <type>submission-form</type>
-        </step-definition>
-        <step-definition id="archival_material_references" mandatory="true">
-            <heading>submit.progressbar.describe.archival_material_references</heading>
-            <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
-            <type>submission-form</type>
-        </step-definition>
-        <step-definition id="project" mandatory="true">
-            <heading>submit.progressbar.describe.project</heading>
-            <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
-            <type>submission-form</type>
-        </step-definition>
-        <step-definition id="publication" mandatory="true">
-            <heading>submit.progressbar.describe.publication</heading>
-            <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
-            <type>submission-form</type>
-        </step-definition>
-        <step-definition id="publication-dc-contributor-author" mandatory="true">
-            <heading>submit.progressbar.describe.publication-dc-contributor-author</heading>
-            <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
-            <type>submission-form</type>
-        </step-definition>
-        <step-definition id="publication-dc-contributor-contributor" mandatory="true">
-            <heading>submit.progressbar.describe.publication-dc-contributor-contributor</heading>
-            <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
-            <type>submission-form</type>
-        </step-definition>
-        <step-definition id="publication_indexing" mandatory="false">
-            <heading>submit.progressbar.describe.publication_indexing</heading>
-            <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
-            <type>submission-form</type>
-        </step-definition>
-        <step-definition id="publication_references" mandatory="false">
-            <heading>submit.progressbar.describe.publication_references</heading>
-            <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
-            <type>submission-form</type>
-        </step-definition>
-        <step-definition id="event" mandatory="true">
-            <heading>submit.progressbar.describe.event</heading>
-            <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
-            <type>submission-form</type>
-        </step-definition>
-        <step-definition id="person" mandatory="true">
-            <heading>submit.progressbar.describe.person</heading>
-            <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
-            <type>submission-form</type>
-        </step-definition>
-        <step-definition id="orgunit" mandatory="true">
-            <heading>submit.progressbar.describe.orgunit</heading>
-            <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
-            <type>submission-form</type>
-        </step-definition>
-        <step-definition id="fonds" mandatory="true">
-            <heading>submit.progressbar.describe.fonds</heading>
-            <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
-            <type>submission-form</type>
-        </step-definition>
-        <step-definition id="fonds-glamfonds-editor" mandatory="true">
-            <heading>submit.progressbar.describe.fonds-glamfonds-editor</heading>
-            <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
-            <type>submission-form</type>
-        </step-definition>
-        <step-definition id="fonds-glamfonds-bibliography" mandatory="true">
-            <heading>submit.progressbar.describe.fonds-glamfonds-bibliography</heading>
-            <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
-            <type>submission-form</type>
-        </step-definition>
-        <step-definition id="place" mandatory="true">
-            <heading>submit.progressbar.describe.place</heading>
-            <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
-            <type>submission-form</type>
-        </step-definition>
-        <step-definition id="family" mandatory="true">
-            <heading>submit.progressbar.describe.family</heading>
-            <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
-            <type>submission-form</type>
-        </step-definition>
-        <step-definition id="family-glamfamily-editor" mandatory="true">
-            <heading>submit.progressbar.describe.family-glamfamily-editor</heading>
-            <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
-            <type>submission-form</type>
-        </step-definition>
-        <step-definition id="extractionstep" mandatory="true">
-            <heading>submit.progressbar.ExtractMetadataStep</heading>
-            <processing-class>org.dspace.app.rest.submit.step.ExtractMetadataStep</processing-class>
-            <type>extract</type>
-            <scope visibility="hidden" visibilityOutside="hidden">submission</scope>
-        </step-definition>
-        <step-definition id="aggregation" mandatory="true">
-            <heading>submit.progressbar.describe.aggregation</heading>
-            <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
-            <type>submission-form</type>
-        </step-definition>
-        <step-definition id="news" mandatory="true">
-            <heading>submit.progressbar.describe.news</heading>
-            <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
-            <type>submission-form</type>
-        </step-definition>
-        <step-definition id="staticpage" mandatory="true">
-            <heading>submit.progressbar.describe.staticpage</heading>
-            <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
-            <type>submission-form</type>
-        </step-definition>
-        <step-definition id="path" mandatory="true">
-            <heading>submit.progressbar.describe.path</heading>
-            <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
-            <type>submission-form</type>
-        </step-definition>
-        <step-definition id="staticpage-url" mandatory="true">
-            <heading>submit.progressbar.staticpage-url</heading>
-            <processing-class>org.dspace.app.rest.submit.step.CustomUrlStep</processing-class>
-            <type>custom-url</type>
-        </step-definition>
-        <step-definition id="journal_file" mandatory="true">
-            <heading>submit.progressbar.describe.journal_file</heading>
-            <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
-            <type>submission-form</type>
-        </step-definition>
-        <step-definition id="journal_fonds" mandatory="true">
-            <heading>submit.progressbar.describe.journal_fonds</heading>
-            <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
-            <type>submission-form</type>
-        </step-definition>
-        <step-definition id="picture" mandatory="true">
-            <heading>submit.progressbar.describe.picture</heading>
-            <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
-            <type>submission-form</type>
-        </step-definition>
-        <step-definition id="picture-glam-inscription" mandatory="true">
-            <heading>submit.progressbar.describe.picture-glam-inscription</heading>
-            <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
-            <type>submission-form</type>
-        </step-definition>
-        <step-definition id="picture-glam-mark" mandatory="true">
-            <heading>submit.progressbar.describe.picture-glam-mark</heading>
-            <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
-            <type>submission-form</type>
-        </step-definition>
-        <step-definition id="picture-glam-bibliography" mandatory="true">
-            <heading>submit.progressbar.describe.picture-glam-bibliography</heading>
-            <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
-            <type>submission-form</type>
-        </step-definition>
-        <step-definition id="audiovideo" mandatory="true">
-            <heading>submit.progressbar.describe.audiovideo</heading>
-            <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
-            <type>submission-form</type>
-        </step-definition>
-        <step-definition id="audiovideo-file" mandatory="true">
-            <heading>submit.progressbar.describe.audiovideo-file</heading>
-            <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
-            <type>submission-form</type>
-        </step-definition>
-        <step-definition id="opera" mandatory="true">
-            <heading>submit.progressbar.describe.opera</heading>
-            <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
-            <type>submission-form</type>
-        </step-definition>
-        <step-definition id="coin" mandatory="true">
-            <heading>submit.progressbar.describe.coin</heading>
-            <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
-            <type>submission-form</type>
-        </step-definition>
-        <step-definition id="coin-glam-bibliography" mandatory="true">
-            <heading>submit.progressbar.describe.coin-glam-bibliography</heading>
-            <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
-            <type>submission-form</type>
-        </step-definition>
-        <step-definition id="artworks" mandatory="true">
-            <heading>submit.progressbar.describe.artworks</heading>
-            <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
-            <type>submission-form</type>
-        </step-definition>
-        <step-definition id="artworks-glam-bibliography" mandatory="true">
-            <heading>submit.progressbar.describe.artworks-glam-bibliography</heading>
-            <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
-            <type>submission-form</type>
-        </step-definition>
-        <step-definition id="artworks-dc-contributor-author" mandatory="true">
-            <heading>submit.progressbar.describe.artworks-dc-contributor-author</heading>
-            <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
-            <type>submission-form</type>
-        </step-definition>
-        <step-definition id="musical_librettos" mandatory="true">
-            <heading>submit.progressbar.describe.musical_librettos</heading>
-            <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
-            <type>submission-form</type>
-        </step-definition>
-        <step-definition id="scientific_materials" mandatory="true">
-            <heading>submit.progressbar.describe.scientific_materials</heading>
-            <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
-            <type>submission-form</type>
-        </step-definition>
-        <step-definition id="scientific_materials-glam-bibliography" mandatory="true">
-            <heading>submit.progressbar.describe.scientific_materials-glam-bibliography</heading>
-            <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
-            <type>submission-form</type>
-        </step-definition>
-        <step-definition id="scientific_materials-glam-inscription" mandatory="true">
-            <heading>submit.progressbar.describe.scientific_materials-glam-inscription</heading>
-            <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
-            <type>submission-form</type>
-        </step-definition>
-        <step-definition id="web_annotation" mandatory="true">
-            <heading>submit.progressbar.describe.web_annotation</heading>
-            <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
-            <type>submission-form</type>
-        </step-definition>
-        <step-definition id="personal_annotation" mandatory="true">
-            <heading>submit.progressbar.describe.personal_annotation</heading>
-            <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
-            <type>submission-form</type>
-        </step-definition>
-    </step-definitions>
-    <submission-definitions>
-        <submission-process name="archival_material">
-            <step id="collection"/>
-            <step id="archival_material"/>
-            <step id="archival_material_indexing"/>
-            <step id="archival_material_references"/>
-            <step id="upload"/>
-            <step id="license"/>
-        </submission-process>
-        <submission-process name="archival_material-edit">
-            <step id="archival_material"/>
-            <step id="archival_material_indexing"/>
-            <step id="archival_material_references"/>
-            <step id="upload"/>
-        </submission-process>
-        <submission-process name="publication">
-            <step id="collection"/>
-            <step id="extractionstep"/>
-            <step id="publication"/>
-            <step id="publication_indexing"/>
-            <step id="publication_references"/>
-            <step id="upload"/>
-            <step id="license"/>
-        </submission-process>
-        <submission-process name="publication-edit">
-            <step id="extractionstep"/>
-            <step id="publication"/>
-            <step id="publication_indexing"/>
-            <step id="publication_references"/>
-            <step id="upload"/>
-        </submission-process>
-        <submission-process name="person">
-            <step id="collection"/>
-            <step id="person"/>
-            <step id="upload"/>
-            <step id="license"/>
-        </submission-process>
-        <submission-process name="person-edit">
-            <step id="person"/>
-            <step id="upload"/>
-        </submission-process>
-        <submission-process name="event">
-            <step id="collection"/>
-            <step id="event"/>
-            <step id="upload"/>
-        </submission-process>
-        <submission-process name="event-edit">
-            <step id="event"/>
-            <step id="upload"/>
-        </submission-process>
-        <submission-process name="orgunit">
-            <step id="collection"/>
-            <step id="orgunit"/>
-            <step id="upload"/>
-            <step id="license"/>
-        </submission-process>
-        <submission-process name="orgunit-edit">
-            <step id="orgunit"/>
-            <step id="upload"/>
-        </submission-process>
-        <submission-process name="project">
-            <step id="collection"/>
-            <step id="project"/>
-            <step id="upload"/>
-            <step id="license"/>
-        </submission-process>
-        <submission-process name="project-edit">
-            <step id="project"/>
-            <step id="upload"/>
-        </submission-process>
-        <submission-process name="fonds">
-            <step id="collection"/>
-            <step id="fonds"/>
-            <step id="upload"/>
-            <step id="license"/>
-        </submission-process>
-        <submission-process name="fonds-edit">
-            <step id="fonds"/>
-            <step id="upload"/>
-        </submission-process>
-        <submission-process name="place">
-            <step id="collection"/>
-            <step id="place"/>
-            <step id="upload"/>
-        </submission-process>
-        <submission-process name="place-edit">
-            <step id="place"/>
-            <step id="upload"/>
-        </submission-process>
-        <submission-process name="family">
-            <step id="collection"/>
-            <step id="family"/>
-            <step id="upload"/>
-        </submission-process>
-        <submission-process name="family-edit">
-            <step id="family"/>
-            <step id="upload"/>
-        </submission-process>
-        <submission-process name="aggregation">
-            <step id="collection"/>
-            <step id="aggregation"/>
-            <step id="upload"/>
-        </submission-process>
-        <submission-process name="aggregation-edit">
-            <step id="aggregation"/>
-            <step id="upload"/>
-        </submission-process>
-        <submission-process name="news">
-            <step id="news"/>
-            <step id="upload"/>
-        </submission-process>
-        <submission-process name="staticpage">
-            <step id="staticpage"/>
-            <step id="staticpage-url"/>
-        </submission-process>
-        <submission-process name="path">
-            <step id="path"/>
-            <step id="upload"/>
-        </submission-process>
-        <submission-process name="news-edit">
-            <step id="news"/>
-            <step id="upload"/>
-        </submission-process>
-        <submission-process name="staticpage-edit">
-            <step id="staticpage"/>
-            <step id="staticpage-url"/>
-        </submission-process>
-        <submission-process name="path-edit">
-            <step id="path"/>
-            <step id="upload"/>
-        </submission-process>
-        <submission-process name="journal_file">
-            <step id="collection"/>
-            <step id="journal_file"/>
-            <step id="upload"/>
-            <step id="license"/>
-        </submission-process>
-        <submission-process name="journal_file-edit">
-            <step id="journal_file"/>
-            <step id="upload"/>
-        </submission-process>
-        <submission-process name="journal_fonds">
-            <step id="collection"/>
-            <step id="journal_fonds"/>
-            <step id="upload"/>
-            <step id="license"/>
-        </submission-process>
-        <submission-process name="journal_fonds-edit">
-            <step id="journal_fonds"/>
-            <step id="upload"/>
-        </submission-process>
-        <submission-process name="picture">
-            <step id="collection"/>
-            <step id="picture"/>
-            <step id="upload"/>
-            <step id="license"/>
-        </submission-process>
-        <submission-process name="picture-edit">
-            <step id="picture"/>
-            <step id="upload"/>
-        </submission-process>
-        <submission-process name="audiovideo">
-            <step id="collection"/>
-            <step id="audiovideo"/>
-            <step id="audiovideo-file"/>
-            <step id="upload"/>
-            <step id="license"/>
-        </submission-process>
-        <submission-process name="audiovideo-edit">
-            <step id="audiovideo"/>
-            <step id="audiovideo-file"/>
-            <step id="upload"/>
-        </submission-process>
-        <submission-process name="opera">
-            <step id="collection"/>
-            <step id="opera"/>
-            <step id="upload"/>
-            <step id="license"/>
-        </submission-process>
-        <submission-process name="opera-edit">
-            <step id="opera"/>
-            <step id="upload"/>
-        </submission-process>
-        <submission-process name="coin">
-            <step id="collection"/>
-            <step id="coin"/>
-            <step id="upload"/>
-            <step id="license"/>
-        </submission-process>
-        <submission-process name="coin-edit">
-            <step id="coin"/>
-            <step id="upload"/>
-        </submission-process>
-        <submission-process name="musical_librettos">
-            <step id="collection"/>
-            <step id="musical_librettos"/>
-            <step id="upload"/>
-            <step id="license"/>
-        </submission-process>
-        <submission-process name="musical_librettos-edit">
-            <step id="musical_librettos"/>
-            <step id="upload"/>
-        </submission-process>
-        <submission-process name="scientific_materials">
-            <step id="collection"/>
-            <step id="scientific_materials"/>
-            <step id="upload"/>
-            <step id="license"/>
-        </submission-process>
-        <submission-process name="scientific_materials-edit">
-            <step id="scientific_materials"/>
-            <step id="upload"/>
-        </submission-process>
-        <submission-process name="artworks">
-            <step id="collection"/>
-            <step id="artworks"/>
-            <step id="upload"/>
-            <step id="license"/>
-        </submission-process>
-        <submission-process name="artworks-edit">
-            <step id="artworks"/>
-            <step id="upload"/>
-        </submission-process>
-        <submission-process name="web_annotation">
-            <step id="collection"/>
-            <step id="web_annotation"/>
-            <step id="license"/>
-        </submission-process>
-        <submission-process name="web_annotation-edit">
-            <step id="web_annotation"/>
-            <step id="license"/>
-        </submission-process>
-        <submission-process name="personal_annotation">
-            <step id="collection"/>
-            <step id="personal_annotation"/>
-            <step id="license"/>
-        </submission-process>
-        <submission-process name="personal_annotation-edit">
-            <step id="personal_annotation"/>
-            <step id="license"/>
-        </submission-process>
-    </submission-definitions>
+  <submission-map>
+    <name-map collection-handle="default" submission-name="archival_material" />
+  </submission-map>
+  <step-definitions>
+    <step-definition id="collection" mandatory="true">
+      <heading>submit.progressbar.collection</heading>
+      <processing-class>org.dspace.app.rest.submit.step.CollectionStep</processing-class>
+      <type>collection</type>
+    </step-definition>
+    <step-definition id="upload" mandatory="true">
+      <heading>submit.progressbar.upload</heading>
+      <processing-class>org.dspace.app.rest.submit.step.UploadStep</processing-class>
+      <type>upload</type>
+    </step-definition>
+    <step-definition id="license" mandatory="true">
+      <heading>submit.progressbar.license</heading>
+      <processing-class>org.dspace.app.rest.submit.step.LicenseStep</processing-class>
+      <type>license</type>
+    </step-definition>
+    <step-definition id="archival_material" mandatory="true">
+      <heading>submit.progressbar.describe.archival_material</heading>
+      <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
+      <type>submission-form</type>
+    </step-definition>
+    <step-definition id="archival_material_indexing" mandatory="true">
+      <heading>submit.progressbar.describe.archival_material_indexing</heading>
+      <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
+      <type>submission-form</type>
+    </step-definition>
+    <step-definition id="archival_material_references" mandatory="true">
+      <heading>submit.progressbar.describe.archival_material_references</heading>
+      <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
+      <type>submission-form</type>
+    </step-definition>
+    <step-definition id="project" mandatory="true">
+      <heading>submit.progressbar.describe.project</heading>
+      <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
+      <type>submission-form</type>
+    </step-definition>
+    <step-definition id="publication" mandatory="true">
+      <heading>submit.progressbar.describe.publication</heading>
+      <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
+      <type>submission-form</type>
+    </step-definition>
+    <step-definition id="publication-dc-contributor-author" mandatory="true">
+      <heading>submit.progressbar.describe.publication-dc-contributor-author</heading>
+      <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
+      <type>submission-form</type>
+    </step-definition>
+    <step-definition id="publication-dc-contributor-contributor" mandatory="true">
+      <heading>submit.progressbar.describe.publication-dc-contributor-contributor</heading>
+      <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
+      <type>submission-form</type>
+    </step-definition>
+    <step-definition id="publication_indexing" mandatory="false">
+      <heading>submit.progressbar.describe.publication_indexing</heading>
+      <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
+      <type>submission-form</type>
+    </step-definition>
+    <step-definition id="publication_references" mandatory="false">
+      <heading>submit.progressbar.describe.publication_references</heading>
+      <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
+      <type>submission-form</type>
+    </step-definition>
+    <step-definition id="event" mandatory="true">
+      <heading>submit.progressbar.describe.event</heading>
+      <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
+      <type>submission-form</type>
+    </step-definition>
+    <step-definition id="person" mandatory="true">
+      <heading>submit.progressbar.describe.person</heading>
+      <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
+      <type>submission-form</type>
+    </step-definition>
+    <step-definition id="orgunit" mandatory="true">
+      <heading>submit.progressbar.describe.orgunit</heading>
+      <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
+      <type>submission-form</type>
+    </step-definition>
+    <step-definition id="fonds" mandatory="true">
+      <heading>submit.progressbar.describe.fonds</heading>
+      <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
+      <type>submission-form</type>
+    </step-definition>
+    <step-definition id="fonds-glamfonds-editor" mandatory="true">
+      <heading>submit.progressbar.describe.fonds-glamfonds-editor</heading>
+      <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
+      <type>submission-form</type>
+    </step-definition>
+    <step-definition id="fonds-glamfonds-bibliography" mandatory="true">
+      <heading>submit.progressbar.describe.fonds-glamfonds-bibliography</heading>
+      <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
+      <type>submission-form</type>
+    </step-definition>
+    <step-definition id="place" mandatory="true">
+      <heading>submit.progressbar.describe.place</heading>
+      <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
+      <type>submission-form</type>
+    </step-definition>
+    <step-definition id="family" mandatory="true">
+      <heading>submit.progressbar.describe.family</heading>
+      <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
+      <type>submission-form</type>
+    </step-definition>
+    <step-definition id="family-glamfamily-editor" mandatory="true">
+      <heading>submit.progressbar.describe.family-glamfamily-editor</heading>
+      <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
+      <type>submission-form</type>
+    </step-definition>
+    <step-definition id="extractionstep" mandatory="true">
+      <heading>submit.progressbar.ExtractMetadataStep</heading>
+      <processing-class>org.dspace.app.rest.submit.step.ExtractMetadataStep</processing-class>
+      <type>extract</type>
+      <scope visibility="hidden" visibilityOutside="hidden">submission</scope>
+    </step-definition>
+    <step-definition id="aggregation" mandatory="true">
+      <heading>submit.progressbar.describe.aggregation</heading>
+      <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
+      <type>submission-form</type>
+    </step-definition>
+    <step-definition id="news" mandatory="true">
+      <heading>submit.progressbar.describe.news</heading>
+      <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
+      <type>submission-form</type>
+    </step-definition>
+    <step-definition id="staticpage" mandatory="true">
+      <heading>submit.progressbar.describe.staticpage</heading>
+      <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
+      <type>submission-form</type>
+    </step-definition>
+    <step-definition id="path" mandatory="true">
+      <heading>submit.progressbar.describe.path</heading>
+      <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
+      <type>submission-form</type>
+    </step-definition>
+    <step-definition id="staticpage-url" mandatory="true">
+      <heading>submit.progressbar.staticpage-url</heading>
+      <processing-class>org.dspace.app.rest.submit.step.CustomUrlStep</processing-class>
+      <type>custom-url</type>
+    </step-definition>
+    <step-definition id="journal_file" mandatory="true">
+      <heading>submit.progressbar.describe.journal_file</heading>
+      <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
+      <type>submission-form</type>
+    </step-definition>
+    <step-definition id="journal_fonds" mandatory="true">
+      <heading>submit.progressbar.describe.journal_fonds</heading>
+      <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
+      <type>submission-form</type>
+    </step-definition>
+    <step-definition id="picture" mandatory="true">
+      <heading>submit.progressbar.describe.picture</heading>
+      <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
+      <type>submission-form</type>
+    </step-definition>
+    <step-definition id="picture-glam-inscription" mandatory="true">
+      <heading>submit.progressbar.describe.picture-glam-inscription</heading>
+      <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
+      <type>submission-form</type>
+    </step-definition>
+    <step-definition id="picture-glam-mark" mandatory="true">
+      <heading>submit.progressbar.describe.picture-glam-mark</heading>
+      <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
+      <type>submission-form</type>
+    </step-definition>
+    <step-definition id="picture-glam-bibliography" mandatory="true">
+      <heading>submit.progressbar.describe.picture-glam-bibliography</heading>
+      <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
+      <type>submission-form</type>
+    </step-definition>
+    <step-definition id="audiovideo" mandatory="true">
+      <heading>submit.progressbar.describe.audiovideo</heading>
+      <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
+      <type>submission-form</type>
+    </step-definition>
+    <step-definition id="audiovideo-file" mandatory="true">
+      <heading>submit.progressbar.describe.audiovideo-file</heading>
+      <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
+      <type>submission-form</type>
+    </step-definition>
+    <step-definition id="opera" mandatory="true">
+      <heading>submit.progressbar.describe.opera</heading>
+      <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
+      <type>submission-form</type>
+    </step-definition>
+    <step-definition id="coin" mandatory="true">
+      <heading>submit.progressbar.describe.coin</heading>
+      <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
+      <type>submission-form</type>
+    </step-definition>
+    <step-definition id="coin-glam-bibliography" mandatory="true">
+      <heading>submit.progressbar.describe.coin-glam-bibliography</heading>
+      <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
+      <type>submission-form</type>
+    </step-definition>
+    <step-definition id="artworks" mandatory="true">
+      <heading>submit.progressbar.describe.artworks</heading>
+      <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
+      <type>submission-form</type>
+    </step-definition>
+    <step-definition id="artworks-glam-bibliography" mandatory="true">
+      <heading>submit.progressbar.describe.artworks-glam-bibliography</heading>
+      <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
+      <type>submission-form</type>
+    </step-definition>
+    <step-definition id="artworks-dc-contributor-author" mandatory="true">
+      <heading>submit.progressbar.describe.artworks-dc-contributor-author</heading>
+      <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
+      <type>submission-form</type>
+    </step-definition>
+    <step-definition id="musical_librettos" mandatory="true">
+      <heading>submit.progressbar.describe.musical_librettos</heading>
+      <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
+      <type>submission-form</type>
+    </step-definition>
+    <step-definition id="scientific_materials" mandatory="true">
+      <heading>submit.progressbar.describe.scientific_materials</heading>
+      <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
+      <type>submission-form</type>
+    </step-definition>
+    <step-definition id="scientific_materials-glam-bibliography" mandatory="true">
+      <heading>submit.progressbar.describe.scientific_materials-glam-bibliography</heading>
+      <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
+      <type>submission-form</type>
+    </step-definition>
+    <step-definition id="scientific_materials-glam-inscription" mandatory="true">
+      <heading>submit.progressbar.describe.scientific_materials-glam-inscription</heading>
+      <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
+      <type>submission-form</type>
+    </step-definition>
+    <step-definition id="web_annotation" mandatory="true">
+      <heading>submit.progressbar.describe.web_annotation</heading>
+      <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
+      <type>submission-form</type>
+    </step-definition>
+    <step-definition id="personal_annotation" mandatory="true">
+      <heading>submit.progressbar.describe.personal_annotation</heading>
+      <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
+      <type>submission-form</type>
+    </step-definition>
+  </step-definitions>
+  <submission-definitions>
+    <submission-process name="archival_material">
+      <step id="collection" />
+      <step id="archival_material" />
+      <step id="archival_material_indexing" />
+      <step id="archival_material_references" />
+      <step id="upload" />
+      <step id="license" />
+    </submission-process>
+    <submission-process name="archival_material-edit">
+      <step id="archival_material" />
+      <step id="archival_material_indexing" />
+      <step id="archival_material_references" />
+      <step id="upload" />
+    </submission-process>
+    <submission-process name="publication">
+      <step id="collection" />
+      <step id="extractionstep" />
+      <step id="publication" />
+      <step id="publication_indexing" />
+      <step id="publication_references" />
+      <step id="upload" />
+      <step id="license" />
+    </submission-process>
+    <submission-process name="publication-edit">
+      <step id="extractionstep" />
+      <step id="publication" />
+      <step id="publication_indexing" />
+      <step id="publication_references" />
+      <step id="upload" />
+    </submission-process>
+    <submission-process name="person">
+      <step id="collection" />
+      <step id="person" />
+      <step id="upload" />
+      <step id="license" />
+    </submission-process>
+    <submission-process name="person-edit">
+      <step id="person" />
+      <step id="upload" />
+    </submission-process>
+    <submission-process name="event">
+      <step id="collection" />
+      <step id="event" />
+      <step id="upload" />
+    </submission-process>
+    <submission-process name="event-edit">
+      <step id="event" />
+      <step id="upload" />
+    </submission-process>
+    <submission-process name="orgunit">
+      <step id="collection" />
+      <step id="orgunit" />
+      <step id="upload" />
+      <step id="license" />
+    </submission-process>
+    <submission-process name="orgunit-edit">
+      <step id="orgunit" />
+      <step id="upload" />
+    </submission-process>
+    <submission-process name="project">
+      <step id="collection" />
+      <step id="project" />
+      <step id="upload" />
+      <step id="license" />
+    </submission-process>
+    <submission-process name="project-edit">
+      <step id="project" />
+      <step id="upload" />
+    </submission-process>
+    <submission-process name="fonds">
+      <step id="collection" />
+      <step id="fonds" />
+      <step id="upload" />
+      <step id="license" />
+    </submission-process>
+    <submission-process name="fonds-edit">
+      <step id="fonds" />
+      <step id="upload" />
+    </submission-process>
+    <submission-process name="place">
+      <step id="collection" />
+      <step id="place" />
+      <step id="upload" />
+    </submission-process>
+    <submission-process name="place-edit">
+      <step id="place" />
+      <step id="upload" />
+    </submission-process>
+    <submission-process name="family">
+      <step id="collection" />
+      <step id="family" />
+      <step id="upload" />
+    </submission-process>
+    <submission-process name="family-edit">
+      <step id="family" />
+      <step id="upload" />
+    </submission-process>
+    <submission-process name="aggregation">
+      <step id="collection" />
+      <step id="aggregation" />
+      <step id="upload" />
+    </submission-process>
+    <submission-process name="aggregation-edit">
+      <step id="aggregation" />
+      <step id="upload" />
+    </submission-process>
+    <submission-process name="news">
+      <step id="news" />
+      <step id="upload" />
+    </submission-process>
+    <submission-process name="staticpage">
+      <step id="staticpage" />
+      <step id="staticpage-url" />
+    </submission-process>
+    <submission-process name="path">
+      <step id="path" />
+      <step id="upload" />
+    </submission-process>
+    <submission-process name="news-edit">
+      <step id="news" />
+      <step id="upload" />
+    </submission-process>
+    <submission-process name="staticpage-edit">
+      <step id="staticpage" />
+      <step id="staticpage-url" />
+    </submission-process>
+    <submission-process name="path-edit">
+      <step id="path" />
+      <step id="upload" />
+    </submission-process>
+    <submission-process name="journal_file">
+      <step id="collection" />
+      <step id="journal_file" />
+      <step id="upload" />
+      <step id="license" />
+    </submission-process>
+    <submission-process name="journal_file-edit">
+      <step id="journal_file" />
+      <step id="upload" />
+    </submission-process>
+    <submission-process name="journal_fonds">
+      <step id="collection" />
+      <step id="journal_fonds" />
+      <step id="upload" />
+      <step id="license" />
+    </submission-process>
+    <submission-process name="journal_fonds-edit">
+      <step id="journal_fonds" />
+      <step id="upload" />
+    </submission-process>
+    <submission-process name="picture">
+      <step id="collection" />
+      <step id="picture" />
+      <step id="upload" />
+      <step id="license" />
+    </submission-process>
+    <submission-process name="picture-edit">
+      <step id="picture" />
+      <step id="upload" />
+    </submission-process>
+    <submission-process name="audiovideo">
+      <step id="collection" />
+      <step id="audiovideo" />
+      <step id="audiovideo-file" />
+      <step id="upload" />
+      <step id="license" />
+    </submission-process>
+    <submission-process name="audiovideo-edit">
+      <step id="audiovideo" />
+      <step id="audiovideo-file" />
+      <step id="upload" />
+    </submission-process>
+    <submission-process name="opera">
+      <step id="collection" />
+      <step id="opera" />
+      <step id="upload" />
+      <step id="license" />
+    </submission-process>
+    <submission-process name="opera-edit">
+      <step id="opera" />
+      <step id="upload" />
+    </submission-process>
+    <submission-process name="coin">
+      <step id="collection" />
+      <step id="coin" />
+      <step id="upload" />
+      <step id="license" />
+    </submission-process>
+    <submission-process name="coin-edit">
+      <step id="coin" />
+      <step id="upload" />
+    </submission-process>
+    <submission-process name="musical_librettos">
+      <step id="collection" />
+      <step id="musical_librettos" />
+      <step id="upload" />
+      <step id="license" />
+    </submission-process>
+    <submission-process name="musical_librettos-edit">
+      <step id="musical_librettos" />
+      <step id="upload" />
+    </submission-process>
+    <submission-process name="scientific_materials">
+      <step id="collection" />
+      <step id="scientific_materials" />
+      <step id="upload" />
+      <step id="license" />
+    </submission-process>
+    <submission-process name="scientific_materials-edit">
+      <step id="scientific_materials" />
+      <step id="upload" />
+    </submission-process>
+    <submission-process name="artworks">
+      <step id="collection" />
+      <step id="artworks" />
+      <step id="upload" />
+      <step id="license" />
+    </submission-process>
+    <submission-process name="artworks-edit">
+      <step id="artworks" />
+      <step id="upload" />
+    </submission-process>
+    <submission-process name="web_annotation">
+      <step id="collection" />
+      <step id="web_annotation" />
+      <step id="license" />
+    </submission-process>
+    <submission-process name="web_annotation-edit">
+      <step id="web_annotation" />
+      <step id="license" />
+    </submission-process>
+    <submission-process name="personal_annotation">
+      <step id="collection" />
+      <step id="personal_annotation" />
+      <step id="license" />
+    </submission-process>
+    <submission-process name="personal_annotation-edit">
+      <step id="personal_annotation" />
+      <step id="license" />
+    </submission-process>
+  </submission-definitions>
 </item-submission>

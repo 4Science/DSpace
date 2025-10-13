@@ -498,6 +498,12 @@
   </dc-type>
 
   <dc-type>
+    <schema>dc</schema>
+    <element>publisher</element>
+    <qualifier>place</qualifier>
+  </dc-type>
+
+  <dc-type>
 	<schema>dc</schema>
     <element>relation</element>
     <!-- unqualified -->
@@ -848,7 +854,14 @@
     <qualifier>endpage</qualifier>
     <scope_note></scope_note>
   </dc-type>
-  
+
+  <dc-type>
+    <schema>dc</schema>
+    <element>description</element>
+    <qualifier>edition</qualifier>
+    <scope_note></scope_note>
+  </dc-type>
+
   <dc-type>
 	<schema>dc</schema>
     <element>identifier</element>
@@ -895,6 +908,41 @@
     <schema>dc</schema>
     <element>subject</element>
     <qualifier>keywords</qualifier>
+    <scope_note></scope_note>
+  </dc-type>
+
+  <dc-type>
+    <schema>dc</schema>
+    <element>subject</element>
+    <qualifier>jel</qualifier>
+    <scope_note></scope_note>
+  </dc-type>
+
+  <dc-type>
+    <schema>dc</schema>
+    <element>subject</element>
+    <qualifier>fast</qualifier>
+    <scope_note></scope_note>
+  </dc-type>
+
+  <dc-type>
+    <schema>dc</schema>
+    <element>subject</element>
+    <qualifier>bncf</qualifier>
+    <scope_note></scope_note>
+  </dc-type>
+
+  <dc-type>
+    <schema>dc</schema>
+    <element>subject</element>
+    <qualifier>rvm</qualifier>
+    <scope_note></scope_note>
+  </dc-type>
+
+  <dc-type>
+    <schema>dc</schema>
+    <element>subject</element>
+    <qualifier>bnch1956</qualifier>
     <scope_note></scope_note>
   </dc-type>
 
@@ -1062,6 +1110,13 @@
 
   <dc-type>
     <schema>dc</schema>
+    <element>identifier</element>
+    <qualifier>oclc</qualifier>
+    <scope_note></scope_note>
+  </dc-type>
+
+  <dc-type>
+    <schema>dc</schema>
     <element>contributor</element>
     <qualifier>authorrole</qualifier>
     <scope_note></scope_note>
@@ -1218,6 +1273,13 @@
     <schema>dc</schema>
     <element>description</element>
     <qualifier>preservationspecifications</qualifier>
+    <scope_note></scope_note>
+  </dc-type>
+
+  <dc-type>
+    <schema>dc</schema>
+    <element>description</element>
+    <qualifier>bibliography</qualifier>
     <scope_note></scope_note>
   </dc-type>
 
@@ -1555,6 +1617,13 @@
     <element>coverage</element>
     <qualifier>spatialgpdpx</qualifier>
     <scope_note>The longitude metadata with decimal value</scope_note>
+  </dc-type>
+
+  <dc-type>
+    <schema>dc</schema>
+    <element>relation</element>
+    <qualifier>haspartofpath</qualifier>
+    <scope_note></scope_note>
   </dc-type>
 
 </dspace-dc-types>
