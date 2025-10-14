@@ -40,7 +40,6 @@ import org.dspace.services.factory.DSpaceServicesFactory;
 import org.dspace.services.model.Request;
 import org.dspace.utils.DSpace;
 import org.dspace.versioning.ItemCorrectionService;
-import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * Describe step for DSpace Spring Rest. Handle the exposition of metadata own
