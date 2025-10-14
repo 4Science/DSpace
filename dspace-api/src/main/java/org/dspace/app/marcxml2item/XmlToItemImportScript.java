@@ -117,11 +117,6 @@ public class XmlToItemImportScript extends DSpaceRunnable<XmlToItemImportScriptC
     public void internalRun() throws Exception {
         assignCurrentUserInContext();
         assignSpecialGroupsInContext();
-
-        if (!this.authorizeService.isAdmin(context)) {
-            throw new IllegalArgumentException("The user cannot run the import XML to item");
-        }
-
         try {
             if (onlyValidateXML) {
                 validation();
