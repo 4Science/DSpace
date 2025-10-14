@@ -210,7 +210,8 @@ public class XmlToItemImportScriptIT extends AbstractIntegrationTestWithDatabase
         assertEquals(2, handler.getErrorMessages().size());
         var error1 = "Marc XML validation failed with error: cvc-elt.1.a: " +
                      "Cannot find the declaration of element 'search-results'.";
-        var error2 = "IllegalArgumentException: The XML file is not well-formed or valid";
+        var error2 = "XmlValidationException: Marc XML validation failed with error: " +
+                     "cvc-elt.1.a: Cannot find the declaration of element 'search-results'.";
         assertEquals(handler.getErrorMessages().get(0), error1);
         assertEquals(handler.getErrorMessages().get(1), error2);
 
@@ -233,9 +234,9 @@ public class XmlToItemImportScriptIT extends AbstractIntegrationTestWithDatabase
         TestDSpaceRunnableHandler handler = new TestDSpaceRunnableHandler();
         int status = handleScript(args, ScriptLauncher.getConfig(kernelImpl), handler, kernelImpl, admin);
         assertEquals(0, status);
-        assertEquals(2, handler.getErrorMessages().size());
-        var error1 = "Required field: ./datafield[@tag = '245'] not found in record";
-        var error2 = "IllegalArgumentException: The XML file is not well-formed or valid";
+        assertEquals(3, handler.getErrorMessages().size());
+        var error1 = "Validation failed: Required field: ./datafield[@tag = '245'] not found in record";
+        var error2 = "Error validating XML content: " + error1;
         assertEquals(handler.getErrorMessages().get(0), error1);
         assertEquals(handler.getErrorMessages().get(1), error2);
 

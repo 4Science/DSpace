@@ -16,6 +16,6 @@ import org.dspace.scripts.handler.DSpaceRunnableHandler;
  **/
 public interface XMLValidator {
 
-    boolean validate(byte[] xmlContent, DSpaceRunnableHandler handler);
+    void validate(byte[] xmlContent, DSpaceRunnableHandler handler);
 
 }

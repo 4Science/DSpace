@@ -8,6 +8,7 @@
 package org.dspace.app.marcxml2item.validator;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import javax.xml.XMLConstants;
 import javax.xml.transform.stream.StreamSource;
@@ -17,6 +18,7 @@ import javax.xml.validation.Validator;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.dspace.app.marcxml2item.exception.XmlValidationException;
 import org.dspace.scripts.handler.DSpaceRunnableHandler;
 import org.xml.sax.SAXException;
 
@@ -32,25 +34,19 @@ public class SimpleXmlValidator implements XMLValidator {
     private static final String XSD_FILE_NAME = "simple-xml.xsd";
 
     @Override
-    public boolean validate(byte[] xmlContent, DSpaceRunnableHandler handler) {
-        InputStream xmlInputStream = new ByteArrayInputStream(xmlContent);
-        if (xmlInputStream == null) {
-            log.error("Provided XML is null!");
-            return false;
-        }
-        try {
+    public void validate(byte[] xmlContent, DSpaceRunnableHandler handler) {
+        try (InputStream xmlInputStream = new ByteArrayInputStream(xmlContent)) {
             Validator validator = getValidator();
             StreamSource sourceXML = new StreamSource(xmlInputStream);
             validator.validate(sourceXML);
-        } catch (Exception e) {
+        } catch (SAXException | IOException e) {
             var errorMessage = "Marc XML validation failed with error: " + e.getMessage();
             log.error(errorMessage);
             if (handler != null) {
                 handler.logError(errorMessage);
             }
-            return false;
+            throw new XmlValidationException(errorMessage);
         }
-        return true;
     }
 
     private Validator getValidator() throws SAXException {
@@ -58,8 +54,8 @@ public class SimpleXmlValidator implements XMLValidator {
             SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
             Schema schema = factory.newSchema(new StreamSource(inputStream));
             return schema.newValidator();
-        } catch (Exception e) {
-            throw new SAXException("Error while creating validator", e);
+        } catch (SAXException | IOException e) {
+            throw new XmlValidationException("Error while creating validator", e);
         }
     }
 

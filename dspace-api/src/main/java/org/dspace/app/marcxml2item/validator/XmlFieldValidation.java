@@ -17,6 +17,7 @@ import javax.xml.xpath.XPathFactory;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.dspace.app.marcxml2item.exception.XmlValidationException;
 import org.dspace.scripts.handler.DSpaceRunnableHandler;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
@@ -44,10 +45,9 @@ public class XmlFieldValidation implements XMLValidator {
      *
      * @param xmlContent the XML content to validate as a byte array
      * @param handler the handler for logging validation errors and information
-     * @return true if all matching elements contain the required field, false otherwise
      */
     @Override
-    public boolean validate(byte[] xmlContent, DSpaceRunnableHandler handler) {
+    public void validate(byte[] xmlContent, DSpaceRunnableHandler handler) {
         try {
             XPath xPath = XPathFactory.newInstance().newXPath();
             DocumentBuilder documentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
@@ -55,30 +55,32 @@ public class XmlFieldValidation implements XMLValidator {
 
             NodeList nodeList = getNodeList(xPath, document, RECORD_XPATH);
             if (nodeList.getLength() == 0) {
-                log.error("No elements found matching path: {}", RECORD_XPATH);
+                var errorMessage = "No elements found matching path: " + RECORD_XPATH;
+                log.error(errorMessage);
                 if (handler != null) {
-                    handler.logError("No elements found matching path: " + RECORD_XPATH);
+                    handler.logError(errorMessage);
                 }
-                return false;
+                throw new XmlValidationException(errorMessage);
             }
 
             for (int i = 0; i < nodeList.getLength(); i++) {
                 NodeList result = getNodeList(xPath, nodeList.item(i), query);
                 if (result.getLength() == 0) {
-                    log.error("Required field: {} not found in record", query);
+                    var errorMessage = "Validation failed: Required field: " + query + " not found in record";
+                    log.error(errorMessage);
                     if (handler != null) {
-                        handler.logError("Required field: " + query + " not found in record");
+                        handler.logError(errorMessage);
                     }
-                    return false;
+                    throw new XmlValidationException(errorMessage);
                 }
             }
-            return true;
         } catch (Exception e) {
-            log.error("Error validating XML content: {}", e.getMessage(), e);
+            var errorMessage = "Error validating XML content: " + e.getMessage();
+            log.error(errorMessage);
             if (handler != null) {
-                handler.logError("Error validating XML content: " + e.getMessage());
+                handler.logError(errorMessage);
             }
-            return false;
+            throw new XmlValidationException(errorMessage);
         }
     }
 
@@ -86,7 +88,7 @@ public class XmlFieldValidation implements XMLValidator {
         try {
             return (NodeList) xPath.compile(expression).evaluate(item, XPathConstants.NODESET);
         } catch (XPathExpressionException e) {
-            throw new RuntimeException("An error occurs evaluating path " + expression, e);
+            throw new XmlValidationException("An error occurs evaluating path: " + expression, e);
         }
     }
 

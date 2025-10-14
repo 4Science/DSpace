@@ -142,12 +142,7 @@ public class XmlToItemImportScript extends DSpaceRunnable<XmlToItemImportScriptC
         handler.logInfo("Start XML validation!");
         try (InputStream is = getInputStream()) {
             byte[] fileContent = IOUtils.toByteArray(is);
-            xmlValidators.stream()
-                         .filter(validator -> !validator.validate(fileContent, this.handler))
-                         .findFirst()
-                         .ifPresent(validator -> {
-                             throw new IllegalArgumentException("The XML file is not well-formed or valid");
-                         });
+            xmlValidators.forEach(validator -> validator.validate(fileContent, this.handler));
         }
         handler.logInfo("End validation: the XML file is well-formed and valid");
     }
