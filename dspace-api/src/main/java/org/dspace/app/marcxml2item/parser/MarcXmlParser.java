@@ -9,7 +9,6 @@ package org.dspace.app.marcxml2item.parser;
 
 import java.io.InputStream;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 
 import org.dspace.app.marcxml2item.model.ItemsImportMapping;
@@ -25,8 +24,6 @@ import org.w3c.dom.Node;
 public interface MarcXmlParser {
 
     Set<String> getAllRecordTypes();
-
-    Optional<String> getRecordType(Node record);
 
     ItemsImportMapping parseMapping(String configuration);
 

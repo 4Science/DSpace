@@ -49,6 +49,7 @@ import org.dspace.services.ConfigurationService;
 import org.dspace.services.factory.DSpaceServicesFactory;
 import org.dspace.utils.DSpace;
 import org.dspace.workflow.WorkflowException;
+import org.dspace.workflow.WorkflowItem;
 import org.dspace.workflow.WorkflowService;
 import org.dspace.workflow.factory.WorkflowServiceFactory;
 
@@ -122,13 +123,15 @@ public class XmlToItemImportScript extends DSpaceRunnable<XmlToItemImportScriptC
         }
 
         try {
-            context.turnOffAuthorisationSystem();
             if (onlyValidateXML) {
                 validation();
             } else {
                 validation();
+                context.turnOffAuthorisationSystem();
                 getCollection();
-                importItemsFromXML(getInputStream());
+                try (InputStream is = getInputStream()) {
+                    importItemsFromXML(is);
+                }
             }
             context.complete();
         } catch (Exception e) {
@@ -142,13 +145,15 @@ public class XmlToItemImportScript extends DSpaceRunnable<XmlToItemImportScriptC
 
     private void validation() throws IOException, AuthorizeException {
         handler.logInfo("Start XML validation!");
-        byte[] fileContent = IOUtils.toByteArray(getInputStream());
-        xmlValidators.stream()
-                     .filter(validator -> !validator.validate(fileContent, this.handler))
-                     .findFirst()
-                     .ifPresent(validator -> {
-                         throw new IllegalArgumentException("The XML file is not well-formed or valid");
-                     });
+        try (InputStream is = getInputStream()) {
+            byte[] fileContent = IOUtils.toByteArray(is);
+            xmlValidators.stream()
+                         .filter(validator -> !validator.validate(fileContent, this.handler))
+                         .findFirst()
+                         .ifPresent(validator -> {
+                             throw new IllegalArgumentException("The XML file is not well-formed or valid");
+                         });
+        }
         handler.logInfo("End validation: the XML file is well-formed and valid");
     }
 
@@ -172,33 +177,33 @@ public class XmlToItemImportScript extends DSpaceRunnable<XmlToItemImportScriptC
     private void addItemFromMetadata(List<MetadataValueDTO> parsedItemField) {
         WorkspaceItem workspaceItem = createWorkspaceItem();
         Item item = workspaceItem.getItem();
-        handler.logInfo("WorkspaceItem is created");
+        handler.logInfo("WorkspaceItem with id:" + workspaceItem.getID().toString() + " is created");
 
         for (MetadataValueDTO field : parsedItemField) {
             addMetadata(field, item);
         }
-        handler.logInfo("All metadata is added");
+        handler.logInfo("All metadata is added!");
 
         addItemToCollection(item);
         manageFInalStatus(workspaceItem);
-        handler.logInfo("Item is created");
+        handler.logInfo("Item with uuid " + item.getID().toString() + " is created!");
     }
 
     private void manageFInalStatus(WorkspaceItem workspaceItem) {
         switch (finalStatus) {
             case "ARCHIVED":
-                depositItem(workspaceItem);
-                handler.logInfo("Item is archived");
+                var item = depositItem(workspaceItem);
+                handler.logInfo("Item with uuid:" + item.getID().toString() + " is archived");
                 break;
             case "WORKSPACE":
                 handler.logInfo("Item is in workspace");
                 break;
             case "WORKFLOW":
                 try {
-                    workflowService.start(context, workspaceItem);
-                    handler.logInfo("Item started workflow");
+                    WorkflowItem wfi = workflowService.start(context, workspaceItem);
+                    handler.logInfo("WorkflowItem with id:" + wfi.getID().toString() + " in workflow");
                 } catch (SQLException | AuthorizeException | WorkflowException | IOException e) {
-                    handler.logInfo("ERROR: moving item to pool failed");
+                    handler.logError("ERROR: moving item to pool failed");
                     throw new RuntimeException(e);
                 }
                 break;
@@ -213,7 +218,7 @@ public class XmlToItemImportScript extends DSpaceRunnable<XmlToItemImportScriptC
         try {
             return workspaceItemService.create(context, collection, false);
         } catch (AuthorizeException | SQLException e) {
-            handler.logInfo("ERROR: workspaceItem creation failed");
+            handler.logError("ERROR: workspaceItem creation failed");
             throw new RuntimeException(e);
         }
     }
@@ -223,16 +228,16 @@ public class XmlToItemImportScript extends DSpaceRunnable<XmlToItemImportScriptC
             item.setOwningCollection(collection);
             collectionService.addItem(context, collection, item);
         } catch (SQLException | AuthorizeException e) {
-            handler.logInfo("ERROR: adding item to collection failed");
+            handler.logError("ERROR: adding item to collection failed");
             throw new RuntimeException(e);
         }
     }
 
-    private void depositItem(WorkspaceItem workspaceItem) {
+    private Item depositItem(WorkspaceItem workspaceItem) {
         try {
-            installItemService.installItem(context, workspaceItem);
+            return installItemService.installItem(context, workspaceItem);
         } catch (SQLException | AuthorizeException e) {
-            handler.logInfo("ERROR: deposit item to collection failed");
+            handler.logError("ERROR: deposit item to collection failed");
             throw new RuntimeException(e);
         }
     }
@@ -255,7 +260,7 @@ public class XmlToItemImportScript extends DSpaceRunnable<XmlToItemImportScriptC
                     metadataValue.getAuthority(), metadataValue.getConfidence());
             handler.logInfo(metadataValue + " is added");
         } catch (SQLException | AuthorizeException | NonUniqueMetadataException e) {
-            handler.logInfo("ERROR: adding metadata to item failed");
+            handler.logError("ERROR: adding metadata to item failed");
             throw new RuntimeException(e);
         }
     }
@@ -278,7 +283,7 @@ public class XmlToItemImportScript extends DSpaceRunnable<XmlToItemImportScriptC
                         + " cannot submit to collection " + collection.getID());
             }
         } catch (SQLException e) {
-            handler.logInfo("ERROR: failed to get collection");
+            handler.logError("ERROR: failed to get collection");
             throw new RuntimeException(e);
         }
     }

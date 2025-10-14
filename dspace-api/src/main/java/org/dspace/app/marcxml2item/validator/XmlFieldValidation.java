@@ -8,7 +8,6 @@
 package org.dspace.app.marcxml2item.validator;
 
 import java.io.ByteArrayInputStream;
-import java.io.InputStream;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.xpath.XPath;
@@ -49,16 +48,10 @@ public class XmlFieldValidation implements XMLValidator {
      */
     @Override
     public boolean validate(byte[] xmlContent, DSpaceRunnableHandler handler) {
-        InputStream xmlInputStream = new ByteArrayInputStream(xmlContent);
-        if (xmlInputStream == null) {
-            log.error("Provided XML is null!");
-            return false;
-        }
-
         try {
             XPath xPath = XPathFactory.newInstance().newXPath();
             DocumentBuilder documentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-            Document document = documentBuilder.parse(xmlInputStream);
+            Document document = documentBuilder.parse(new ByteArrayInputStream(xmlContent));
 
             NodeList nodeList = getNodeList(xPath, document, RECORD_XPATH);
             if (nodeList.getLength() == 0) {
