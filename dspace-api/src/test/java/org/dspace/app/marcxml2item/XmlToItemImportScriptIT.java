@@ -20,7 +20,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.commons.lang3.StringUtils;
 import org.dspace.AbstractIntegrationTestWithDatabase;
 import org.dspace.app.launcher.ScriptLauncher;
 import org.dspace.app.scripts.handler.impl.TestDSpaceRunnableHandler;
@@ -42,10 +41,9 @@ import org.junit.Test;
 public class XmlToItemImportScriptIT extends AbstractIntegrationTestWithDatabase {
 
     private static final String BASE_XLS_DIR_PATH = "./target/testing/dspace/assetstore/xml2itemimport";
+    private static final String OTHER_FILE_DIR_PATH = "./target/testing/dspace/assetstore/scopusFilesForTests";
 
     private ItemService itemService = ContentServiceFactory.getInstance().getItemService();
-
-    private Collection publicationCol;
 
     @Before
     @Override
@@ -55,10 +53,6 @@ public class XmlToItemImportScriptIT extends AbstractIntegrationTestWithDatabase
         parentCommunity = CommunityBuilder.createCommunity(context)
                                           .withName("Parent Community")
                                           .build();
-        this.publicationCol = CollectionBuilder.createCollection(context, parentCommunity)
-                                               .withEntityType("Publication")
-                                               .withName("Publication Collection")
-                                               .build();
         context.restoreAuthSystemState();
     }
 
@@ -90,6 +84,12 @@ public class XmlToItemImportScriptIT extends AbstractIntegrationTestWithDatabase
                 "dc.description.notes : One Mylar sheet included in pocket."
         );
 
+        context.turnOffAuthorisationSystem();
+        Collection publicationCol = CollectionBuilder.createCollection(context, parentCommunity)
+                                                     .withEntityType("Publication")
+                                                     .withName("Publication Collection")
+                                                     .build();
+        context.restoreAuthSystemState();
         String fileLocation = getXmlFilePath(BASE_XLS_DIR_PATH,"marc-xml-example.xml");
         String[] args = new String[]{ XML_TO_ITEM_SCRIPT_NAME, "-c", publicationCol.getID().toString(),
                                                                "-f", fileLocation };
@@ -98,7 +98,7 @@ public class XmlToItemImportScriptIT extends AbstractIntegrationTestWithDatabase
         assertEquals(0, status);
         assertThat(handler.getErrorMessages(), empty());
 
-        Iterator<Item> items = itemService.findAll(context);
+        Iterator<Item> items = itemService.findByCollection(context, publicationCol);
         assertTrue("Expected at least one item in the collection after import.", items.hasNext());
         Item importedItem = items.next();
         List<MetadataValue> metadataValues = importedItem.getMetadata();
@@ -153,6 +153,12 @@ public class XmlToItemImportScriptIT extends AbstractIntegrationTestWithDatabase
                 "dc.date.modified : 2023-05-06"
                 );
 
+        context.turnOffAuthorisationSystem();
+        Collection publicationCol = CollectionBuilder.createCollection(context, parentCommunity)
+                                                     .withEntityType("Publication")
+                                                     .withName("Publication Collection")
+                                                     .build();
+        context.restoreAuthSystemState();
         String fileLocation = getXmlFilePath(BASE_XLS_DIR_PATH,"marc-xml-multiple-records.xml");
         String[] args = new String[]{ XML_TO_ITEM_SCRIPT_NAME, "-c", publicationCol.getID().toString(),
                                                                "-f", fileLocation };
@@ -162,23 +168,18 @@ public class XmlToItemImportScriptIT extends AbstractIntegrationTestWithDatabase
         assertThat(handler.getErrorMessages(), empty());
 
 
-        Iterator<Item> items = itemService.findAll(context);
-        assertTrue("Expected first item in the collection after import.", items.hasNext());
-        Item tempFirstImportedItem = items.next();
-        assertTrue("Expected second item in the collection after import.", items.hasNext());
-        Item tempSecondImportedItem = items.next();
-        assertFalse("There should be only two imported items, but more were found.", items.hasNext());
+        Iterator<Item> items1 = itemService.findByMetadataField(context, "cris", "legacyId", null, "147853");
+        assertTrue("Expected one item after import.", items1.hasNext());
+        Item firstImportedItem = items1.next();
+        assertEquals(firstImportedItem.getCollections().get(0), publicationCol);
+        assertFalse("There should be only one item with legacyId 147853, but more were found.", items1.hasNext());
 
-        Item firstImportedItem;
-        Item secondImportedItem;
-        var legacyId = itemService.getMetadataFirstValue(tempFirstImportedItem, "cris", "legacyId", null, Item.ANY);
-        if (StringUtils.equals("147853", legacyId)) {
-            firstImportedItem = tempFirstImportedItem;
-            secondImportedItem = tempSecondImportedItem;
-        } else {
-            firstImportedItem = tempSecondImportedItem;
-            secondImportedItem = tempFirstImportedItem;
-        }
+        Iterator<Item> items2 = itemService.findByMetadataField(context, "cris", "legacyId", null, "293489");
+        assertTrue("Expected one item after import.", items2.hasNext());
+        Item secondImportedItem = items2.next();
+        assertEquals(secondImportedItem.getCollections().get(0), publicationCol);
+        assertFalse("There should be only one item with legacyId 293489, but more were found.", items2.hasNext());
+
 
         // check first item
         List<MetadataValue> firstItemMetadataValues = firstImportedItem.getMetadata();
@@ -192,27 +193,39 @@ public class XmlToItemImportScriptIT extends AbstractIntegrationTestWithDatabase
 
     @Test
     public void valitadeBadXmlFileTest() throws Exception {
-        var dir = "./target/testing/dspace/assetstore/scopusFilesForTests";
-        String fileLocation = getXmlFilePath(dir, "scopusMetrics.xml");
+        context.turnOffAuthorisationSystem();
+        Collection publicationCol = CollectionBuilder.createCollection(context, parentCommunity)
+                                                     .withEntityType("Publication")
+                                                     .withName("Publication Collection")
+                                                     .build();
+        context.restoreAuthSystemState();
+
+        String fileLocation = getXmlFilePath(OTHER_FILE_DIR_PATH, "scopusMetrics.xml");
         String[] args = new String[]{ XML_TO_ITEM_SCRIPT_NAME, "-c", publicationCol.getID().toString(),
                                                                "-f", fileLocation,
                                                                "-v" };
         TestDSpaceRunnableHandler handler = new TestDSpaceRunnableHandler();
         int status = handleScript(args, ScriptLauncher.getConfig(kernelImpl), handler, kernelImpl, admin);
         assertEquals(0, status);
-        assertTrue("Contains 2 error messages", handler.getErrorMessages().size() == 2);
+        assertEquals(2, handler.getErrorMessages().size());
         var error1 = "Marc XML validation failed with error: cvc-elt.1.a: " +
                      "Cannot find the declaration of element 'search-results'.";
         var error2 = "IllegalArgumentException: The XML file is not well-formed or valid";
         assertEquals(handler.getErrorMessages().get(0), error1);
         assertEquals(handler.getErrorMessages().get(1), error2);
 
-        Iterator<Item> items = itemService.findAll(context);
+        Iterator<Item> items = itemService.findByCollection(context, publicationCol);
         assertFalse("Expected zero item!", items.hasNext());
     }
 
     @Test
     public void valitadeXmlWithoutTitleTest() throws Exception {
+        context.turnOffAuthorisationSystem();
+        Collection publicationCol = CollectionBuilder.createCollection(context, parentCommunity)
+                                                     .withEntityType("Publication")
+                                                     .withName("Publication Collection")
+                                                     .build();
+        context.restoreAuthSystemState();
         String fileLocation = getXmlFilePath(BASE_XLS_DIR_PATH, "xml-without-title.xml");
         String[] args = new String[]{ XML_TO_ITEM_SCRIPT_NAME, "-c", publicationCol.getID().toString(),
                                                                "-f", fileLocation,
@@ -220,13 +233,13 @@ public class XmlToItemImportScriptIT extends AbstractIntegrationTestWithDatabase
         TestDSpaceRunnableHandler handler = new TestDSpaceRunnableHandler();
         int status = handleScript(args, ScriptLauncher.getConfig(kernelImpl), handler, kernelImpl, admin);
         assertEquals(0, status);
-        assertTrue("Contains 2 error messages", handler.getErrorMessages().size() == 2);
+        assertEquals(2, handler.getErrorMessages().size());
         var error1 = "Required field: ./datafield[@tag = '245'] not found in record";
         var error2 = "IllegalArgumentException: The XML file is not well-formed or valid";
         assertEquals(handler.getErrorMessages().get(0), error1);
         assertEquals(handler.getErrorMessages().get(1), error2);
 
-        Iterator<Item> items = itemService.findAll(context);
+        Iterator<Item> items = itemService.findByCollection(context, publicationCol);
         assertFalse("Expected zero item!", items.hasNext());
     }
 
