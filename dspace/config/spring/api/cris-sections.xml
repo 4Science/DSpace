@@ -178,13 +178,13 @@
         <constructor-arg name="visible" value="false"/>
         <constructor-arg name="sectionComponents">
           <list>
-            <list>
+            <!--<list>
                 <bean class="org.dspace.layout.CrisLayoutTextRowComponent">
                     <property name="contentType" value="text-metadata"/>
                     <property name="content" value="cms.homepage.header"/>
                     <property name="style" value="style"/>
                 </bean>
-            </list>
+            </list>-->
             <list>
                 <bean class="org.dspace.layout.CrisLayoutCarouselComponent">
                     <property name="discoveryConfigurationName" value="news" />

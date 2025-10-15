@@ -78,25 +78,25 @@ public class CrisLayoutSectionRestRepositoryIT extends AbstractControllerIntegra
             .andExpect(jsonPath("$._embedded.sections",
                 hasItem(withIdAndFacetComponent("sectiondocuments", 1, 0, "col-md-12", "documents"))))
 
-            .andExpect(jsonPath("$._embedded.sections",
-                        hasItem(withIdAndTextRowComponent("site", 0, 0 , "style", "text-metadata"))))
+            //.andExpect(jsonPath("$._embedded.sections",
+                //          hasItem(withIdAndTextRowComponent("site", 0, 0 , "style", "text-metadata"))))
 
 
             .andExpect(jsonPath("$._embedded.sections",
-                hasItem(withIdAndCarouselComponent("site", 1, 0, "col-12 px-0", "news"))))
+                hasItem(withIdAndCarouselComponent("site", 0, 0, "col-12 px-0", "news"))))
 
             .andExpect(jsonPath("$._embedded.sections",
-                        hasItem(withIdAndTextRowComponent("site", 2, 0 ,
+                        hasItem(withIdAndTextRowComponent("site", 1, 0 ,
                                 "py-3 col-12 col-md-5", "text-metadata"))))
 
             .andExpect(jsonPath("$._embedded.sections",
-                hasItem(withIdAndCountersComponent("site", 2, 1, "py-3 col-12 col-md-7", Arrays.asList("fonds",
+                hasItem(withIdAndCountersComponent("site", 1, 1, "py-3 col-12 col-md-7", Arrays.asList("fonds",
                                                                                                  "journalfonds",
                                                                                                  "aggregations",
                                                                                                  "documents")))))
 
             .andExpect(jsonPath("$._embedded.sections",
-              hasItem(withIdAndAdvancedTopComponent("site", 3, 0, "py-4",
+              hasItem(withIdAndAdvancedTopComponent("site", 2, 0, "py-4",
                                             List.of("aggregationsHomePage", "fondsHomePage", "journalfondsHomePage"),
                                             "cris.priority", "asc", 8, true, true, "card",
                                             "", "col-6 col-lg-3", "", true, "slider", "advanced-top-component"))))
