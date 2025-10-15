@@ -1,0 +1,50 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!--
+
+    The contents of this file are subject to the license and copyright
+    detailed in the LICENSE and NOTICE files at the root of the source
+    tree and available online at
+
+    http://www.dspace.org/license/
+
+-->
+<xsd:schema xmlns="http://www.loc.gov/MARC21/slim"
+            xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+            targetNamespace="http://www.loc.gov/MARC21/slim"
+            elementFormDefault="qualified"
+            attributeFormDefault="unqualified"
+            version="1.1" xml:lang="en"
+            vc:minVersion="1.1" xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning">
+    <xsd:annotation>
+        <xsd:documentation>MARCXML: The MARC 21 XML Schema. Version 1.2 - Updated pattern in subfieldcodeDataType to include uppercase letters. </xsd:documentation>
+    </xsd:annotation>
+    <xsd:element name="record" type="recordType" nillable="true" id="record.e">
+        <xsd:annotation>
+            <xsd:documentation>record is a top level container element for all of the field elements which compose the record</xsd:documentation>
+        </xsd:annotation>
+    </xsd:element>
+    <xsd:element name="collection" type="collectionType" nillable="true" id="collection.e">
+        <xsd:annotation>
+            <xsd:documentation>collection is a top level container element for 0 or many records</xsd:documentation>
+        </xsd:annotation>
+    </xsd:element>
+    <xsd:complexType name="collectionType" id="collection.ct">
+        <xsd:sequence minOccurs="0" maxOccurs="unbounded">
+            <xsd:element ref="record"/>
+        </xsd:sequence>
+        <xsd:attribute name="id" type="idDataType" use="optional"/>
+    </xsd:complexType>
+    <xsd:complexType name="recordType" id="record.ct">
+        <xsd:sequence minOccurs="0" maxOccurs="unbounded">
+            <xsd:any processContents="skip"/>
+        </xsd:sequence>
+        <xsd:attribute name="type" type="recordTypeType" use="optional"/>
+        <xsd:attribute name="id" type="idDataType" use="optional"/>
+    </xsd:complexType>
+    <xsd:simpleType name="recordTypeType" id="type.st">
+        <xsd:restriction base="xsd:string"/>
+    </xsd:simpleType>
+    <xsd:simpleType name="idDataType" id="id.st">
+        <xsd:restriction base="xsd:string"/>
+    </xsd:simpleType>
+</xsd:schema>

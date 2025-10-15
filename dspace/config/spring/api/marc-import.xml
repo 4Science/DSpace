@@ -1,0 +1,105 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:util="http://www.springframework.org/schema/util"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+                           http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+                           http://www.springframework.org/schema/context
+                           http://www.springframework.org/schema/context/spring-context-2.5.xsd
+                           http://www.springframework.org/schema/util
+                           http://www.springframework.org/schema/util/spring-util.xsd"
+       default-autowire-candidates="*Service,*DAO,javax.sql.DataSource">
+
+    <context:annotation-config/>
+    <!-- allows us to use spring annotations in beans -->
+
+    <bean class="org.dspace.app.marcxml2item.parser.MarcXmlParserImpl"/>
+
+    <!-- ItemsImport reader beans -->
+    <bean class="org.dspace.app.marcxml2item.reader.ItemsImportSimpleReader" />
+    <bean class="org.dspace.app.marcxml2item.reader.ItemsImportDateIssuedReader" />
+
+    <bean class="org.dspace.app.marcxml2item.reader.ItemsImportNestedMetadataFieldReader" >
+        <property name="readerName" value="author" />
+        <property name="skipDateConversion" value="true"/>
+        <property name="metadataFieldsPaths">
+            <util:map>
+                <entry key="dc.contributor.author" value="./subfield[@code = 'a']"/>
+            </util:map>
+        </property>
+        <property name="authorityPaths">
+            <util:map>
+                <entry key="dc.contributor.author" value="./subfield[@code = 'g']"/>
+            </util:map>
+        </property>
+        <property name="authorityPrefixes">
+            <util:map>
+                <entry key="dc.contributor.author" value="will be generated::SCIPER-ID::"/>
+            </util:map>
+        </property>
+    </bean>
+
+    <bean class="org.dspace.app.marcxml2item.reader.ItemsImportTitleReader" >
+        <property name="titleXPath" value="./subfield[@code = 'a']" />
+        <property name="subTitleXPath" value="./subfield[@code = 'b']" />
+    </bean>
+
+    <bean class="org.dspace.app.marcxml2item.reader.ItemsImportPropertiesReader">
+        <property name="readerName" value="language" />
+        <property name="propertiesPath" value="crosswalks/mapConverter-languages.properties" />
+        <property name="defaultValue" value="other" />
+    </bean>
+
+    <bean class="org.dspace.app.marcxml2item.reader.ItemsImportSeriesReader">
+        <property name="isPartOfSeriesMetadataField" value="dc.relation.ispartofseries" />
+        <property name="titleXPath" value="./subfield[@code = 'a']"/>
+        <property name="numberXPath" value="./subfield[@code = 'v']"/>
+    </bean>
+
+    <bean class="org.dspace.app.marcxml2item.reader.ItemsImportIdentifierReader">
+        <property name="qualifierXPath" value="./subfield[@code = '2']"/>
+        <property name="valueXPath" value="./subfield[@code = 'a']"/>
+        <property name="importIdentifierValueProcessor" ref="isiValueProcessor"/>
+    </bean>
+
+    <bean id="isiValueProcessor" class="org.dspace.app.marcxml2item.reader.IsiValueProcessor" >
+        <property name="metadataField" value="dc.identifier.isi"/>
+    </bean>
+
+    <bean class="org.dspace.app.marcxml2item.reader.ItemsImportCombinFieldsReader" >
+        <property name="readerName" value="edition" />
+        <property name="fieldsToCombine" ref="edition-fields" />
+    </bean>
+
+    <util:list id="edition-fields" value-type="java.lang.String">
+        <value>./subfield[@code = 'a']</value>
+        <value>./subfield[@code = 'b']</value>
+    </util:list>
+
+    <bean class="org.dspace.app.marcxml2item.reader.ItemsImportCombinFieldsReader" >
+        <property name="readerName" value="citation" />
+        <property name="fieldsToCombine" ref="citation-fields" />
+    </bean>
+
+    <util:list id="citation-fields" value-type="java.lang.String">
+        <value>./subfield[@code = 'a']</value>
+        <value>./subfield[@code = 'c']</value>
+    </util:list>
+
+    <bean class="org.dspace.app.marcxml2item.reader.ItemsImportCombinFieldsReader" >
+        <property name="readerName" value="rights" />
+        <property name="fieldsToCombine" ref="rights-fields" />
+    </bean>
+
+    <util:list id="rights-fields" value-type="java.lang.String">
+        <value>./subfield[@code = 'a']</value>
+        <value>./subfield[@code = 'f']</value>
+    </util:list>
+
+    <!-- XML Validator beans -->
+    <bean class="org.dspace.app.marcxml2item.validator.SimpleXmlValidator"/>
+    <bean class="org.dspace.app.marcxml2item.validator.XmlFieldValidation">
+        <property name="query" value="./datafield[@tag = '245']" />
+    </bean>
+
+</beans>

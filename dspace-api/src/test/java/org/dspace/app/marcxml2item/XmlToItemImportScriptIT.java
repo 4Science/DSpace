@@ -1,0 +1,272 @@
+/**
+ * The contents of this file are subject to the license and copyright
+ * detailed in the LICENSE and NOTICE files at the root of the source
+ * tree and available online at
+ *
+ * http://www.dspace.org/license/
+ */
+package org.dspace.app.marcxml2item;
+
+import static org.dspace.app.launcher.ScriptLauncher.handleScript;
+import static org.dspace.app.marcxml2item.XmlToItemImportScript.XML_TO_ITEM_SCRIPT_NAME;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.empty;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
+import java.io.File;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
+
+import org.dspace.AbstractIntegrationTestWithDatabase;
+import org.dspace.app.launcher.ScriptLauncher;
+import org.dspace.app.scripts.handler.impl.TestDSpaceRunnableHandler;
+import org.dspace.builder.CollectionBuilder;
+import org.dspace.builder.CommunityBuilder;
+import org.dspace.content.Collection;
+import org.dspace.content.Item;
+import org.dspace.content.MetadataValue;
+import org.dspace.content.factory.ContentServiceFactory;
+import org.dspace.content.service.ItemService;
+import org.junit.Before;
+import org.junit.Test;
+
+/**
+ * Integration tests for {@link XmlToItemImportScript}
+ *
+ * @author Mykhaylo Boychuk (mykhaylo.boychuk at 4science.com)
+ **/
+public class XmlToItemImportScriptIT extends AbstractIntegrationTestWithDatabase {
+
+    private static final String BASE_XLS_DIR_PATH = "./target/testing/dspace/assetstore/xml2itemimport";
+    private static final String OTHER_FILE_DIR_PATH = "./target/testing/dspace/assetstore/scopusFilesForTests";
+
+    private ItemService itemService = ContentServiceFactory.getInstance().getItemService();
+
+    @Before
+    @Override
+    public void setUp() throws Exception {
+        super.setUp();
+        context.turnOffAuthorisationSystem();
+        parentCommunity = CommunityBuilder.createCommunity(context)
+                                          .withName("Parent Community")
+                                          .build();
+        context.restoreAuthSystemState();
+    }
+
+    @Test
+    public void importSingleItemFromXmlTest() throws Exception {
+        Set<String> expectedMetadata = Set.of(
+                "dc.contributor.author : Rand, Ted,",
+                "dc.date.issued : c1993.",
+                "dc.identifier.isbn : 0152038655",
+                "dc.description.abstract : A poem about numbers and their characteristics. Features anamorphic, or " +
+                        "distorted, drawings which can be restored to normal by viewing from a particular angle or " +
+                        "by viewing the image's reflection in the provided Mylar cone.",
+                "dc.format.extent : 1 v. (unpaged)",
+                "dc.publisher : Harcourt Brace Jovanovich,",
+                "dc.publisher.place : San Diego",
+                "dc.subject : Arithmetic",
+                "dc.subject : American poetry.",
+                "dc.subject : Visual perception.",
+                "dc.subject.ddc : 811/.52",
+                "dc.subject.lcc : PS3537.A618",
+                "dc.subject.lcsh : Arithmetic",
+                "dc.subject.lcsh : Children's poetry, American.",
+                "dc.title : Arithmetic",
+                "dc.description.edition : 1st ed.",
+                "dc.relation.edition : 1st ed.",
+                "cris.legacyId : 92005291",
+                "dspace.entity.type : Publication",
+                "dc.date.modified : 1993-05-21",
+                "dc.description.notes : One Mylar sheet included in pocket."
+        );
+
+        context.turnOffAuthorisationSystem();
+        Collection publicationCol = CollectionBuilder.createCollection(context, parentCommunity)
+                                                     .withEntityType("Publication")
+                                                     .withName("Publication Collection")
+                                                     .build();
+        context.restoreAuthSystemState();
+        String fileLocation = getXmlFilePath(BASE_XLS_DIR_PATH,"marc-xml-example.xml");
+        String[] args = new String[]{ XML_TO_ITEM_SCRIPT_NAME, "-c", publicationCol.getID().toString(),
+                                                               "-f", fileLocation };
+        TestDSpaceRunnableHandler handler = new TestDSpaceRunnableHandler();
+        int status = handleScript(args, ScriptLauncher.getConfig(kernelImpl), handler, kernelImpl, admin);
+        assertEquals(0, status);
+        assertThat(handler.getErrorMessages(), empty());
+
+        Iterator<Item> items = itemService.findByCollection(context, publicationCol);
+        assertTrue("Expected at least one item in the collection after import.", items.hasNext());
+        Item importedItem = items.next();
+        List<MetadataValue> metadataValues = importedItem.getMetadata();
+        assertEquals(25, metadataValues.size());
+
+        checkMetadata(metadataValues, expectedMetadata);
+        assertFalse("There should be only one imported item, but more were found.", items.hasNext());
+    }
+
+    @Test
+    public void importMultipleItemsFromXmlTest() throws Exception {
+        Set<String> expectedMetadataItem1 = Set.of(
+            "dc.contributor.author : Oberli, D. Y.",
+            "dc.contributor.author : Byszewski, M.",
+            "dc.contributor.author : Chalupar, B.",
+            "dc.contributor.author : Pelucchi, E.",
+            "dc.contributor.author : Rudra, A.",
+            "dc.contributor.author : Kapon, E.",
+            "dc.date.issued : 2009",
+            "dc.identifier.doi : 10.1103/PhysRevB.80.165312",
+            "dc.identifier.isi : WOS:000271352100087",
+            "dc.description.abstract : The emission pattern of charged excitons in a semiconductor quantum dot (QD).",
+            "dc.subject : Fine Structure Splitting",
+            "dc.subject : Spin",
+            "dc.subject : Excitons",
+            "dc.subject : Semiconductor nanostructures",
+            "dc.title : Coulomb correlations of charged excitons in semiconductor quantum dots",
+            "cris.legacyId : 147853",
+            "dspace.entity.type : Publication",
+            "dc.date.modified : 2023-05-05"
+            );
+
+        Set<String> expectedMetadataItem2 = Set.of(
+                "dc.contributor.author : Clua Longas, Angela",
+                "dc.contributor.author : Rey, Emmanuel",
+                "dc.date.issued : 2017-09-01",
+                "dc.format : BIPV panels",
+                "dc.format : BIPV panel fastening system",
+                "dc.format : Fibrociment panels",
+                "dc.format : Blown cellulose insultation",
+                "dc.format : Timber substructure",
+                "dc.format : OSB panels",
+                "dc.format : Wood fiber insulation",
+                "dc.format : Plaster board",
+                "dc.format : Window façade module",
+                "dc.format : Translucent BIPV panel (balustrade)",
+                "dc.title : Advanced Active Facade - Demonstrator",
+                "dc.contributor.corporatebody : Swiss Centre for Electronics and Microtechnology (CSEM)",
+                "dc.contributor.corporatebody : H.Glass",
+                "cris.legacyId : 293489",
+                "dspace.entity.type : Publication",
+                "dc.date.modified : 2023-05-06"
+                );
+
+        context.turnOffAuthorisationSystem();
+        Collection publicationCol = CollectionBuilder.createCollection(context, parentCommunity)
+                                                     .withEntityType("Publication")
+                                                     .withName("Publication Collection")
+                                                     .build();
+        context.restoreAuthSystemState();
+        String fileLocation = getXmlFilePath(BASE_XLS_DIR_PATH,"marc-xml-multiple-records.xml");
+        String[] args = new String[]{ XML_TO_ITEM_SCRIPT_NAME, "-c", publicationCol.getID().toString(),
+                                                               "-f", fileLocation };
+        TestDSpaceRunnableHandler handler = new TestDSpaceRunnableHandler();
+        int status = handleScript(args, ScriptLauncher.getConfig(kernelImpl), handler, kernelImpl, admin);
+        assertEquals(0, status);
+        assertThat(handler.getErrorMessages(), empty());
+
+
+        Iterator<Item> items1 = itemService.findByMetadataField(context, "cris", "legacyId", null, "147853");
+        assertTrue("Expected one item after import.", items1.hasNext());
+        Item firstImportedItem = items1.next();
+        assertEquals(firstImportedItem.getCollections().get(0), publicationCol);
+        assertFalse("There should be only one item with legacyId 147853, but more were found.", items1.hasNext());
+
+        Iterator<Item> items2 = itemService.findByMetadataField(context, "cris", "legacyId", null, "293489");
+        assertTrue("Expected one item after import.", items2.hasNext());
+        Item secondImportedItem = items2.next();
+        assertEquals(secondImportedItem.getCollections().get(0), publicationCol);
+        assertFalse("There should be only one item with legacyId 293489, but more were found.", items2.hasNext());
+
+
+        // check first item
+        List<MetadataValue> firstItemMetadataValues = firstImportedItem.getMetadata();
+        assertEquals(22, firstItemMetadataValues.size());
+        checkMetadata(firstItemMetadataValues, expectedMetadataItem1);
+        // check second item
+        List<MetadataValue> secondItemMetadataValues = secondImportedItem.getMetadata();
+        assertEquals(23, secondItemMetadataValues.size());
+        checkMetadata(secondItemMetadataValues, expectedMetadataItem2);
+    }
+
+    @Test
+    public void valitadeBadXmlFileTest() throws Exception {
+        context.turnOffAuthorisationSystem();
+        Collection publicationCol = CollectionBuilder.createCollection(context, parentCommunity)
+                                                     .withEntityType("Publication")
+                                                     .withName("Publication Collection")
+                                                     .build();
+        context.restoreAuthSystemState();
+
+        String fileLocation = getXmlFilePath(OTHER_FILE_DIR_PATH, "scopusMetrics.xml");
+        String[] args = new String[]{ XML_TO_ITEM_SCRIPT_NAME, "-c", publicationCol.getID().toString(),
+                                                               "-f", fileLocation,
+                                                               "-v" };
+        TestDSpaceRunnableHandler handler = new TestDSpaceRunnableHandler();
+        int status = handleScript(args, ScriptLauncher.getConfig(kernelImpl), handler, kernelImpl, admin);
+        assertEquals(0, status);
+        assertEquals(2, handler.getErrorMessages().size());
+        var error1 = "Marc XML validation failed with error: cvc-elt.1.a: " +
+                     "Cannot find the declaration of element 'search-results'.";
+        var error2 = "XmlValidationException: Marc XML validation failed with error: " +
+                     "cvc-elt.1.a: Cannot find the declaration of element 'search-results'.";
+        assertEquals(handler.getErrorMessages().get(0), error1);
+        assertEquals(handler.getErrorMessages().get(1), error2);
+
+        Iterator<Item> items = itemService.findByCollection(context, publicationCol);
+        assertFalse("Expected zero item!", items.hasNext());
+    }
+
+    @Test
+    public void valitadeXmlWithoutTitleTest() throws Exception {
+        context.turnOffAuthorisationSystem();
+        Collection publicationCol = CollectionBuilder.createCollection(context, parentCommunity)
+                                                     .withEntityType("Publication")
+                                                     .withName("Publication Collection")
+                                                     .build();
+        context.restoreAuthSystemState();
+        String fileLocation = getXmlFilePath(BASE_XLS_DIR_PATH, "xml-without-title.xml");
+        String[] args = new String[]{ XML_TO_ITEM_SCRIPT_NAME, "-c", publicationCol.getID().toString(),
+                                                               "-f", fileLocation,
+                                                               "-v" };
+        TestDSpaceRunnableHandler handler = new TestDSpaceRunnableHandler();
+        int status = handleScript(args, ScriptLauncher.getConfig(kernelImpl), handler, kernelImpl, admin);
+        assertEquals(0, status);
+        assertEquals(3, handler.getErrorMessages().size());
+        var error1 = "Validation failed: Required field: ./datafield[@tag = '245'] not found in record";
+        var error2 = "Error validating XML content: " + error1;
+        assertEquals(handler.getErrorMessages().get(0), error1);
+        assertEquals(handler.getErrorMessages().get(1), error2);
+
+        Iterator<Item> items = itemService.findByCollection(context, publicationCol);
+        assertFalse("Expected zero item!", items.hasNext());
+    }
+
+    private void checkMetadata(List<MetadataValue> metadataValues, Set<String> expectedItemMetadata) {
+        for (MetadataValue metadataValue : metadataValues) {
+            var field = metadataValue.getMetadataField().toString('.');
+            var value = metadataValue.getValue();
+            if (isTecnicalMetadata(field)) {
+                continue;
+            }
+            var valueToCheck = field + " : " + value;
+            assertTrue("Missing value:" + valueToCheck, expectedItemMetadata.contains(valueToCheck));
+        }
+    }
+
+    private boolean isTecnicalMetadata(String field) {
+        List<String> tecnicalMetadata = List.of("dc.date.accessioned",
+                                                "dc.date.available",
+                                                "dc.identifier.uri",
+                                                "dc.description.provenance"
+                                                );
+        return tecnicalMetadata.contains(field);
+    }
+
+    private String getXmlFilePath(String dir, String name) {
+        return new File(dir, name).getAbsolutePath();
+    }
+
+}
