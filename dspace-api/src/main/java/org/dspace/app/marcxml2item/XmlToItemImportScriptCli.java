@@ -5,17 +5,13 @@
  *
  * http://www.dspace.org/license/
  */
-package org.dspace.app.marcxml2item.validator;
-
-import org.dspace.scripts.handler.DSpaceRunnableHandler;
+package org.dspace.app.marcxml2item;
 
 /**
- * Interface for XML validation.
+ * Extension of {@link XmlToItemImportScript} for CLI.
  *
  * @author Mykhaylo Boychuk (mykhaylo.boychuk at 4science.it)
- **/
-public interface XMLValidator {
-
-    void validate(byte[] xmlContent, DSpaceRunnableHandler handler);
+ */
+public class XmlToItemImportScriptCli extends XmlToItemImportScript {
 
 }

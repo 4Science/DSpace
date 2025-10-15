@@ -17,7 +17,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -120,19 +119,18 @@ public class MarcXmlParserImpl implements MarcXmlParser {
 
     @Override
     public List<MetadataValueDTO> readItemMetadataValues(Context context, Node record, ItemsImportMapping mapping) {
-        String recordType = getRecordType(record).orElse(null);
+        String recordType = getRecordType(record);
         return readItemMetadataValues(context, record, recordType, mapping);
     }
 
-    @Override
-    public Optional<String> getRecordType(Node record) {
+    private String getRecordType(Node record) {
         for (String filterName : typeFilters.keySet()) {
             String filter = typeFilters.get(filterName);
             if (evaluateFilter(record, filter)) {
-                return Optional.of(filterName);
+                return filterName;
             }
         }
-        return Optional.empty();
+        return null;
     }
 
     @Override
