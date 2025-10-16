@@ -322,9 +322,10 @@ public class XmlToItemImportScriptIT extends AbstractIntegrationTestWithDatabase
         assertEquals(0, status);
         assertThat(handler.getErrorMessages(), empty());
 
-        Iterator<Item> items = itemService.findByCollection(context, publicationCollection);
-        assertTrue("Expected at least one item in the collection after import.", items.hasNext());
+        Iterator<Item> items = itemService.findByMetadataField(context, "cris", "legacyId", null, "92005291");
+        assertTrue("Expected one item with legacy id 92005291", items.hasNext());
         Item importedItem = items.next();
+        assertEquals(importedItem.getCollections().get(0), publicationCollection);
         List<MetadataValue> metadataValues = importedItem.getMetadata();
         assertThat(metadataValues.size(), is(48));
 
