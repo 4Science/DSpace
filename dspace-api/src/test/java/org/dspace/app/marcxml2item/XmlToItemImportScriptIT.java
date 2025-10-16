@@ -32,7 +32,10 @@ import org.dspace.content.Collection;
 import org.dspace.content.Item;
 import org.dspace.content.MetadataValue;
 import org.dspace.content.factory.ContentServiceFactory;
+import org.dspace.content.service.CollectionService;
 import org.dspace.content.service.ItemService;
+import org.dspace.services.ConfigurationService;
+import org.dspace.services.factory.DSpaceServicesFactory;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -47,6 +50,8 @@ public class XmlToItemImportScriptIT extends AbstractIntegrationTestWithDatabase
     private static final String OTHER_FILE_DIR_PATH = "./target/testing/dspace/assetstore/scopusFilesForTests";
 
     private ItemService itemService = ContentServiceFactory.getInstance().getItemService();
+    private CollectionService collectionService = ContentServiceFactory.getInstance().getCollectionService();
+    private ConfigurationService configurationService = DSpaceServicesFactory.getInstance().getConfigurationService();
 
     @Before
     @Override
@@ -249,6 +254,7 @@ public class XmlToItemImportScriptIT extends AbstractIntegrationTestWithDatabase
 
     @Test
     public void importSingleItemFromXmlWithJournalFondsTest() throws Exception {
+        configurationService.setProperty("webui.strengths.show", true);
         context.turnOffAuthorisationSystem();
         Collection journalFondsCollection = CollectionBuilder.createCollection(context, parentCommunity)
                                                              .withEntityType("JournalFonds")
@@ -314,6 +320,9 @@ public class XmlToItemImportScriptIT extends AbstractIntegrationTestWithDatabase
             "dc.description.notes : One Mylar sheet included in pocket."
         );
 
+        int countItemsBeforImport = collectionService.countArchivedItems(context, publicationCollection);
+        assertEquals(0 , countItemsBeforImport);
+
         String fileLocation = getXmlFilePath(BASE_XLS_DIR_PATH,"xml-with-JournalFonds.xml");
         String[] args = new String[]{ XML_TO_ITEM_SCRIPT_NAME, "-c", publicationCollection.getID().toString(),
                                                                "-f", fileLocation };
@@ -321,6 +330,9 @@ public class XmlToItemImportScriptIT extends AbstractIntegrationTestWithDatabase
         int status = handleScript(args, ScriptLauncher.getConfig(kernelImpl), handler, kernelImpl, admin);
         assertEquals(0, status);
         assertThat(handler.getErrorMessages(), empty());
+
+        var countItemsAfterImport = collectionService.countArchivedItems(context, publicationCollection);
+        assertEquals(3 , countItemsAfterImport);
 
         Iterator<Item> items = itemService.findByMetadataField(context, "cris", "legacyId", null, "92005291");
         assertTrue("Expected one item with legacy id 92005291", items.hasNext());
@@ -341,7 +353,15 @@ public class XmlToItemImportScriptIT extends AbstractIntegrationTestWithDatabase
         assertThat(glamjournalfonds.getAuthority(), is(journalFonds1.getID().toString()));
         assertThat(glamjournalfonds.getValue(), is("Pacific news."));
 
-        assertFalse("There should be only one imported item, but more were found.", items.hasNext());
+        items = itemService.findByMetadataField(context, "dc", "title",null,"George Orwell's Animal farm /");
+        assertTrue("Expected to have new Publication for dc.relation.references", items.hasNext());
+        importedItem = items.next();
+        assertEquals(importedItem.getCollections().get(0), publicationCollection);
+
+        items = itemService.findByMetadataField(context, "dc", "title",null,"Algae abstracts, v. 3, W73-11952");
+        assertTrue("Expected to have new Publication for dc.relation.isreferencedby", items.hasNext());
+        importedItem = items.next();
+        assertEquals(importedItem.getCollections().get(0), publicationCollection);
     }
 
     private MetadataValue findMetadata(List<MetadataValue> metadataValues, String s) {
