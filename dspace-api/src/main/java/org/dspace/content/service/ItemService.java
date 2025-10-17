@@ -271,6 +271,15 @@ public interface ItemService
     Iterator<Item> findAllByCollection(Context context, Collection collection) throws SQLException;
 
     /**
+     * Returns all items (without filtering for withdrawn or in archive) with the given owning collection
+     * @param context           context
+     * @param collection        the collection
+     * @return                  the item iterator containing the items in the collection
+     * @throws SQLException     If the query goes wrong
+     */
+    Iterator<Item> findAllByOwningCollection(Context context, Collection collection) throws SQLException;
+
+    /**
      * See whether this Item is contained by a given Collection.
      *
      * @param item       item to check

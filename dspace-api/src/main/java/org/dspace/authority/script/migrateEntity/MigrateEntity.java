@@ -118,7 +118,7 @@ public class MigrateEntity extends DSpaceRunnable<MigrateEntityScriptConfigurati
                 if (changeType) {
                     collectionService.setMetadataSingleValue(context, collection, "dspace", "entity", "type", null,
                             this.newEntityType);
-                    Iterator<Item> itemIterator = itemService.findAllByCollection(context, collection);
+                    Iterator<Item> itemIterator = itemService.findAllByOwningCollection(context, collection);
                     handler.logInfo("Script start");
                     while (itemIterator.hasNext()) {
                         Item item = itemIterator.next();

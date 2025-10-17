@@ -153,6 +153,15 @@ public interface ItemDAO extends DSpaceObjectLegacySupportDAO<Item> {
         throws SQLException;
 
     /**
+     * Returns all items (without filtering for withdrawn or in archive) with the given owning collection
+     * @param context           context
+     * @param collection        the collection
+     * @return                  the item iterator containing the items in the collection
+     * @throws SQLException     If the query goes wrong
+     */
+    public Iterator<Item> findAllByOwningCollection(Context context, Collection collection) throws SQLException;
+
+    /**
      * Count number of items in a given collection
      *
      * @param context          context
