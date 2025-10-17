@@ -11,6 +11,7 @@ import static org.dspace.app.launcher.ScriptLauncher.handleScript;
 import static org.dspace.app.marcxml2item.XmlToItemImportScript.XML_TO_ITEM_SCRIPT_NAME;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.empty;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -20,16 +21,21 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.lang3.StringUtils;
 import org.dspace.AbstractIntegrationTestWithDatabase;
 import org.dspace.app.launcher.ScriptLauncher;
 import org.dspace.app.scripts.handler.impl.TestDSpaceRunnableHandler;
 import org.dspace.builder.CollectionBuilder;
 import org.dspace.builder.CommunityBuilder;
+import org.dspace.builder.ItemBuilder;
 import org.dspace.content.Collection;
 import org.dspace.content.Item;
 import org.dspace.content.MetadataValue;
 import org.dspace.content.factory.ContentServiceFactory;
+import org.dspace.content.service.CollectionService;
 import org.dspace.content.service.ItemService;
+import org.dspace.services.ConfigurationService;
+import org.dspace.services.factory.DSpaceServicesFactory;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -44,6 +50,8 @@ public class XmlToItemImportScriptIT extends AbstractIntegrationTestWithDatabase
     private static final String OTHER_FILE_DIR_PATH = "./target/testing/dspace/assetstore/scopusFilesForTests";
 
     private ItemService itemService = ContentServiceFactory.getInstance().getItemService();
+    private CollectionService collectionService = ContentServiceFactory.getInstance().getCollectionService();
+    private ConfigurationService configurationService = DSpaceServicesFactory.getInstance().getConfigurationService();
 
     @Before
     @Override
@@ -242,6 +250,125 @@ public class XmlToItemImportScriptIT extends AbstractIntegrationTestWithDatabase
 
         Iterator<Item> items = itemService.findByCollection(context, publicationCol);
         assertFalse("Expected zero item!", items.hasNext());
+    }
+
+    @Test
+    public void importSingleItemFromXmlWithJournalFondsTest() throws Exception {
+        configurationService.setProperty("webui.strengths.show", true);
+        context.turnOffAuthorisationSystem();
+        Collection journalFondsCollection = CollectionBuilder.createCollection(context, parentCommunity)
+                                                             .withEntityType("JournalFonds")
+                                                             .withName("JournalFonds Collection")
+                                                             .build();
+
+        Item journalFonds1 = ItemBuilder.createItem(context, journalFondsCollection)
+                                        .withTitle("JournalFonds item 1")
+                                        .withIssnIdentifier("3035-3467")
+                                        .build();
+
+        Collection publicationCollection = CollectionBuilder.createCollection(context, parentCommunity)
+                                                            .withEntityType("Publication")
+                                                            .withName("Publication Collection TEST")
+                                                            .build();
+
+        context.restoreAuthSystemState();
+        Set<String> expectedMetadata = Set.of(
+            "dc.contributor.author : Rand, Ted,",
+            "dc.contributor.author : Smith, Jhon,",
+            "dc.date.issued : c1993.",
+            "dc.identifier.isbn : 0152038655 :",
+            "dc.identifier.issn : 3035-3467",
+            "dc.identifier.ismn : M571100511",
+            "dc.identifier.ismn : M571100512",
+            "dc.description.abstract : A poem about numbers and their characteristics.",
+            "dc.description.tableofcontents : pt. 1. Carbon -- pt. 2. Nitrogen -- pt. 3. Sulphur -- pt. 4. Metals.",
+            "dc.format.extent : 1 v. (unpaged) :",
+            "dc.language.iso : it",
+            "dc.publisher : Harcourt Brace Jovanovich,",
+            "dc.publisher.place : San Diego :",
+            "dc.relation.ispartof : West Virginia University bulletin ;; no. 35",
+            "dc.relation.hasversion : Communist",
+            "dc.relation.isreferencedby : Algae abstracts, v. 3, W73-11952",
+            "dc.relation.conference : Conference on Philosophy and Its History",
+            "dc.rights : Restricted: Information on reproduction rights available at Reference Desk. CC BY-NC-ND 4.0",
+            "dc.subject : Arithmetic",
+            "dc.subject : American poetry.",
+            "dc.subject : Visual perception.",
+            "dc.subject.ddc : 811/.52",
+            "dc.subject.lcc : PS3537.A618",
+            "dc.subject.lcsh : Arithmetic",
+            "dc.subject.lcsh : Children's poetry, American.",
+            "dc.subject.other : TEST.811/1052",
+            "dc.title : Arithmetic /",
+            "dc.title.alternative : Democrazia e definizioni : esempi pratici",
+            "dc.relation.isbn : 9781234567890",
+            "dc.relation.issn : 3035-3467",
+            "dc.relation.references : George Orwell's Animal farm /",
+            "dc.description.edition : 1st ed.",
+            "dc.subject.rvm : Boissons alcoolisées – Fiscalité – Droit et législation",
+            "dc.relation.place : Cali, Colombia)",
+            "dc.identifier.oclc : 1276909548",
+            "dc.relation.journalfonds : Pacific news.",
+            "dc.description.bibliography : Bibliography: p. 238-239.",
+            "dc.relation.stpieceperother : no. 35",
+            "dc.relation.edition : 1st ed.",
+            "cris.legacyId : 92005291",
+            "oaire.citation.volume : no. 35",
+            "dspace.entity.type : Publication",
+            "glamjournalfonds.parent : Pacific news.",
+            "dc.date.modified : 1993-05-21",
+            "dc.description.notes : One Mylar sheet included in pocket."
+        );
+
+        int countItemsBeforImport = collectionService.countArchivedItems(context, publicationCollection);
+        assertEquals(0 , countItemsBeforImport);
+
+        String fileLocation = getXmlFilePath(BASE_XLS_DIR_PATH,"xml-with-JournalFonds.xml");
+        String[] args = new String[]{ XML_TO_ITEM_SCRIPT_NAME, "-c", publicationCollection.getID().toString(),
+                                                               "-f", fileLocation };
+        TestDSpaceRunnableHandler handler = new TestDSpaceRunnableHandler();
+        int status = handleScript(args, ScriptLauncher.getConfig(kernelImpl), handler, kernelImpl, admin);
+        assertEquals(0, status);
+        assertThat(handler.getErrorMessages(), empty());
+
+        var countItemsAfterImport = collectionService.countArchivedItems(context, publicationCollection);
+        assertEquals(3 , countItemsAfterImport);
+
+        Iterator<Item> items = itemService.findByMetadataField(context, "cris", "legacyId", null, "92005291");
+        assertTrue("Expected one item with legacy id 92005291", items.hasNext());
+        Item importedItem = items.next();
+        assertEquals(importedItem.getCollections().get(0), publicationCollection);
+        List<MetadataValue> metadataValues = importedItem.getMetadata();
+        assertThat(metadataValues.size(), is(48));
+
+        checkMetadata(metadataValues, expectedMetadata);
+        // verify that metadataValues dc.relation.journalfonds & glamjournalfonds.parent has authority
+        MetadataValue journalfonds =  findMetadata(metadataValues, "dc.relation.journalfonds");
+        assertThat(journalfonds.getMetadataField().toString('.'), is("dc.relation.journalfonds"));
+        assertThat(journalfonds.getAuthority(), is(journalFonds1.getID().toString()));
+        assertThat(journalfonds.getValue(), is("Pacific news."));
+
+        MetadataValue glamjournalfonds =  findMetadata(metadataValues, "glamjournalfonds.parent");
+        assertThat(glamjournalfonds.getMetadataField().toString('.'), is("glamjournalfonds.parent"));
+        assertThat(glamjournalfonds.getAuthority(), is(journalFonds1.getID().toString()));
+        assertThat(glamjournalfonds.getValue(), is("Pacific news."));
+
+        items = itemService.findByMetadataField(context, "dc", "title",null,"George Orwell's Animal farm /");
+        assertTrue("Expected to have new Publication for dc.relation.references", items.hasNext());
+        importedItem = items.next();
+        assertEquals(importedItem.getCollections().get(0), publicationCollection);
+
+        items = itemService.findByMetadataField(context, "dc", "title",null,"Algae abstracts, v. 3, W73-11952");
+        assertTrue("Expected to have new Publication for dc.relation.isreferencedby", items.hasNext());
+        importedItem = items.next();
+        assertEquals(importedItem.getCollections().get(0), publicationCollection);
+    }
+
+    private MetadataValue findMetadata(List<MetadataValue> metadataValues, String s) {
+        return metadataValues.stream()
+                             .filter(m -> StringUtils.equals(m.getMetadataField().toString('.'), s))
+                             .findFirst()
+                             .orElse(null);
     }
 
     private void checkMetadata(List<MetadataValue> metadataValues, Set<String> expectedItemMetadata) {

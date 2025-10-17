@@ -3352,6 +3352,16 @@
       </row>
       <row>
         <field>
+          <dc-schema>dc</dc-schema>
+          <dc-element>identifier</dc-element>
+          <dc-qualifier>issn</dc-qualifier>
+          <label>ISSN</label>
+          <input-type>onebox</input-type>
+          <repeatable>true</repeatable>
+          <required />
+          <hint>Inserire l’ISSN del periodico</hint>
+        </field>
+        <field>
           <dc-schema>glamfonds</dc-schema>
           <dc-element>history</dc-element>
           <label>Storia</label>
