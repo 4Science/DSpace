@@ -1613,6 +1613,43 @@ public class WorkspaceItemRestRepositoryIT extends AbstractControllerIntegration
 
     @Test
     /**
+     * Test the creation of workspaceitems POSTing to the resource collection endpoint a binary file
+     *
+     * @throws Exception
+     */
+    public void createSingleWorkspaceItemFromBinaryFileTest() throws Exception {
+        context.turnOffAuthorisationSystem();
+
+        Community community = CommunityBuilder.createCommunity(context)
+            .withName("Community")
+            .build();
+        Collection col = CollectionBuilder.createCollection(context, community)
+            .withName("Collection")
+            .withEntityType("Publication")
+            .withSubmissionDefinition("traditional")
+            .withSubmitterGroup(eperson)
+            .build();
+
+
+        InputStream binary = getClass().getResourceAsStream("testfile.bin");
+        final MockMultipartFile binaryFile = new MockMultipartFile("file", "/local/path/testfile.bin",
+            "application/octet-stream", binary);
+
+        context.restoreAuthSystemState();
+
+        String authToken = getAuthToken(eperson.getEmail(), password);
+
+        getClient(authToken).perform(multipart("/api/submission/workspaceitems")
+                .file(binaryFile)
+                .param("embed", "collection"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$._embedded.workspaceitems[0].sections.upload.files", hasSize(1)));
+
+        binary.close();
+    }
+
+    @Test
+    /**
      * Test the creation of workspaceitems POSTing to the resource collection endpoint a tsv file
      *
      * @throws Exception
