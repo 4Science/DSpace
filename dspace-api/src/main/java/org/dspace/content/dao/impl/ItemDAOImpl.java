@@ -421,6 +421,17 @@ public class ItemDAOImpl extends AbstractHibernateDSODAO<Item> implements ItemDA
     }
 
     @Override
+    public Iterator<Item> findAllByOwningCollection(Context context, Collection collection)
+        throws SQLException {
+        Query query = createQuery(context, "SELECT item.id FROM Item as item " +
+            "WHERE owningCollection = :collection");
+        query.setParameter("collection", collection);
+        @SuppressWarnings("unchecked")
+        List<UUID> uuids = query.getResultList();
+        return new UUIDIterator<Item>(context, uuids, Item.class, this);
+    }
+
+    @Override
     public int countItems(Context context, Collection collection, boolean includeArchived, boolean includeWithdrawn,
                           boolean discoverable)
         throws SQLException {
