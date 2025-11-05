@@ -63,6 +63,8 @@ public class Curation extends DSpaceRunnable<CurationScriptConfiguration> {
     private String reporter;
     private Map<String, String> parameters;
     private boolean verbose;
+    private boolean force;
+    private int modifiedSinceDays = -1;
 
     @Override
     public void internalRun() throws Exception {
@@ -208,6 +210,8 @@ public class Curation extends DSpaceRunnable<CurationScriptConfiguration> {
         }
 
         curator.addParameters(parameters);
+        curator.setForce(this.force);
+        curator.setModifiedSinceDays(this.modifiedSinceDays);
         // we are operating in batch mode, if anyone cares.
         curator.setInvoked(Curator.Invoked.BATCH);
         return curator;
@@ -324,6 +328,16 @@ public class Curation extends DSpaceRunnable<CurationScriptConfiguration> {
                     "'open' recognized");
             }
         }
+
+        // force
+        force = commandLine.hasOption('f');
+
+
+        // modifiedSinceDays
+        if (commandLine.hasOption('l')) {
+            modifiedSinceDays = Integer.parseInt(commandLine.getOptionValue('l'));
+        }
+
     }
 
     /**

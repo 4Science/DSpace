@@ -183,7 +183,7 @@ public class MediaFilterServiceImpl implements MediaFilterService, InitializingB
             }
             UUIDIterator<Item> itemIterator =
                 new UUIDIterator<>(
-                    context, results, Item.class, (ItemDAOImpl) itemDAO
+                    context, results, Item.class,(ItemDAOImpl) itemDAO
                 );
             while (itemIterator.hasNext() && processed < max2Process) {
                 applyFiltersItem(context, itemIterator.next());

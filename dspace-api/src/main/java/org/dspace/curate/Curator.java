@@ -94,10 +94,12 @@ public class Curator {
     protected ItemService itemService;
     protected HandleService handleService;
     protected DSpaceRunnableHandler handler;
+    protected boolean force;
+    protected int modifiedSinceDays;
 
     /**
      * constructor that uses an handler for logging
-     * 
+     *
      * @param handler {@code DSpaceRunnableHandler} used to logs infos
      */
     public Curator(DSpaceRunnableHandler handler) {
@@ -113,6 +115,22 @@ public class Curator {
         itemService = ContentServiceFactory.getInstance().getItemService();
         handleService = HandleServiceFactory.getInstance().getHandleService();
         resolver = new TaskResolver();
+    }
+
+    public boolean isForce() {
+        return force;
+    }
+
+    public void setForce(boolean force) {
+        this.force = force;
+    }
+
+    public int getModifiedSinceDays() {
+        return modifiedSinceDays;
+    }
+
+    public void setModifiedSinceDays(int modifiedSinceDays) {
+        this.modifiedSinceDays = modifiedSinceDays;
     }
 
     /**
@@ -648,7 +666,7 @@ public class Curator {
 
     /**
      * Proxt method for logging with WARN level
-     * 
+     *
      * @param message
      */
     protected void logWarning(String message) {
@@ -658,7 +676,7 @@ public class Curator {
     /**
      * Proxy method for logging with WARN level and a {@code Messageformatter}
      * that generates the final log.
-     * 
+     *
      * @param message Target message to format or print
      * @param object  Object to use inside the message, or null
      */
@@ -674,6 +692,60 @@ public class Curator {
                 handler.logWarning(MessageFormat.format(message, object));
             } else {
                 handler.logWarning(message);
+            }
+        }
+    }
+
+    /**
+     * Proxy method for logging with ERROR level and exception details.
+     *
+     * @param message The error message to log
+     * @param t       The throwable/exception to include in the log
+     */
+    protected void logError(String message, Throwable t) {
+        if (handler != null) {
+            if (t != null) {
+                handler.logError(message, t);
+            } else {
+                handler.logError(message);
+            }
+        } else {
+            if (t != null) {
+                log.error(message, t);
+            } else {
+                log.error(message);
+            }
+        }
+    }
+
+    /**
+     * Proxy method for logging with INFO level.
+     *
+     * @param message Message to log.
+     */
+    protected void logInfo(String message) {
+        logInfo(message, null);
+    }
+
+    /**
+     * Proxy method for logging with INFO level and a {@code MessageFormat}
+     * that generates the final log.
+     *
+     * @param message Target message to format or print
+     * @param object  Object to use inside the message, or null
+     */
+    protected void logInfo(String message, Object object) {
+        if (handler != null) {
+            if (object != null) {
+                handler.logInfo(MessageFormat.format(message, object));
+            } else {
+                handler.logInfo(message);
+            }
+        } else {
+            if (object != null) {
+                log.info(message, object);
+            } else {
+                log.info(message);
             }
         }
     }

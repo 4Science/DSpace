@@ -28,6 +28,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.io.file.PathUtils;
@@ -55,9 +56,9 @@ import org.dspace.scripts.Process;
 import org.dspace.scripts.service.ProcessService;
 import org.dspace.services.ConfigurationService;
 import org.hamcrest.Matchers;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
@@ -72,6 +73,7 @@ public class ItemImportIT extends AbstractEntityIntegrationTest {
 
     private static final String publicationTitle = "A Tale of Two Cities";
     private static final String personTitle = "Person Test";
+    private static final Logger log = LoggerFactory.getLogger(ItemImportIT.class);
 
     @Autowired
     private ItemService itemService;
@@ -90,7 +92,6 @@ public class ItemImportIT extends AbstractEntityIntegrationTest {
     private Path workDir;
     private static final String TEMP_DIR = ItemImport.TEMP_DIR;
 
-    @Before
     @Override
     public void setUp() throws Exception {
         super.setUp();
@@ -111,13 +112,20 @@ public class ItemImportIT extends AbstractEntityIntegrationTest {
         workDir = Path.of(file.getAbsolutePath());
     }
 
-    @After
     @Override
     public void destroy() throws Exception {
-        for (Path path : Files.list(workDir).collect(Collectors.toList())) {
-            PathUtils.delete(path);
-        }
         super.destroy();
+        try (Stream<Path> list = Files.list(workDir)) {
+            list.forEach(
+                path -> {
+                    try {
+                        PathUtils.delete(path);
+                    } catch (Exception e) {
+                        log.error("Error during the cleanup of test working dir", e);
+                    }
+                }
+            );
+        }
     }
 
     @Test

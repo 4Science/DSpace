@@ -30,6 +30,7 @@ import org.dspace.workflow.WorkflowItem;
 import org.dspace.workflow.WorkflowItemService;
 import org.springframework.beans.factory.annotation.Autowired;
 
+
 /**
  * @author Fabio Bolognesi (fabio at atmire dot com)
  * @author Mark Diggory (markd at atmire dot com)
@@ -201,7 +202,7 @@ public class VersioningServiceImpl implements VersioningService {
 
     @Override
     public Version createNewVersion(Context context, VersionHistory history, Item item, String summary, Instant date,
-                                    int versionNumber) {
+                                    int versionNumber) throws NotAuthorizedException {
         try {
             if (!itemService.canCreateNewVersion(context, item)) {
                 throw new NotAuthorizedException("Current User is not allowed to create a new version of this item");
@@ -250,7 +251,7 @@ public class VersioningServiceImpl implements VersioningService {
 // **** PROTECTED METHODS!!
 
     protected Version createVersion(Context c, VersionHistory vh, Item item, String summary, ZonedDateTime date)
-        throws SQLException {
+        throws SQLException, NotAuthorizedException {
         return createNewVersion(c, vh, item, summary, date.toInstant(), getNextVersionNumer(c, vh));
     }
 

@@ -437,6 +437,34 @@
                     <groupId>org.bouncycastle</groupId>
                     <artifactId>bcprov-jdk15on</artifactId>
                 </exclusion>
+                <exclusion>
+                    <artifactId>jetty-security</artifactId>
+                    <groupId>org.eclipse.jetty</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>jetty-xml</artifactId>
+                    <groupId>org.eclipse.jetty</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>jetty-annotations</artifactId>
+                    <groupId>org.eclipse.jetty</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>jetty-alpn-java-server</artifactId>
+                    <groupId>org.eclipse.jetty</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>jetty-alpn-server</artifactId>
+                    <groupId>org.eclipse.jetty</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>jetty-continuation</artifactId>
+                    <groupId>org.eclipse.jetty</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>jetty-servlets</artifactId>
+                    <groupId>org.eclipse.jetty</groupId>
+                </exclusion>
             </exclusions>
         </dependency>
 
@@ -444,6 +472,41 @@
         <dependency>
             <groupId>org.eclipse.jetty</groupId>
             <artifactId>jetty-server</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-security</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-xml</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-annotations</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-alpn-java-server</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-alpn-server</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-continuation</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-servlets</artifactId>
             <scope>runtime</scope>
         </dependency>
         <dependency>
@@ -602,6 +665,10 @@
         <!-- Solr Core is only needed for Integration Tests (to run a MockSolrServer) -->
         <!-- The following Solr / Lucene dependencies also support integration tests -->
         <dependency>
+            <groupId>org.antlr</groupId>
+            <artifactId>antlr4-runtime</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.apache.solr</groupId>
             <artifactId>solr-core</artifactId>
             <scope>test</scope>
@@ -615,6 +682,34 @@
                 <exclusion>
                     <groupId>org.antlr</groupId>
                     <artifactId>antlr4-runtime</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.antlr</groupId>
+                    <artifactId>antlr4-runtime</artifactId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>jetty-alpn-java-server</artifactId>
+                    <groupId>org.eclipse.jetty</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>jetty-alpn-server</artifactId>
+                    <groupId>org.eclipse.jetty</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>jetty-continuation</artifactId>
+                    <groupId>org.eclipse.jetty</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>jetty-security</artifactId>
+                    <groupId>org.eclipse.jetty</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>jetty-servlets</artifactId>
+                    <groupId>org.eclipse.jetty</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>jetty-xml</artifactId>
+                    <groupId>org.eclipse.jetty</groupId>
                 </exclusion>
             </exclusions>
         </dependency>
@@ -868,37 +963,41 @@
 
 
         <dependency>
-            <groupId>de.undercouch</groupId>
-            <artifactId>citeproc-java</artifactId>
-            <version>2.0.0</version>
-            <exclusions>
+	        <groupId>de.undercouch</groupId>
+	        <artifactId>citeproc-java</artifactId>
+	        <version>3.3.0</version>
+	        <exclusions>
+	            <exclusion>
+	               <groupId>org.apache.commons</groupId>
+	               <artifactId>commons-lang3</artifactId>
+	            </exclusion>
+	            <exclusion>
+	               <groupId>org.jbibtex</groupId>
+	               <artifactId>jbibtex</artifactId>
+	            </exclusion>
+	            <exclusion>
+	               <groupId>org.antlr</groupId>
+	               <artifactId>antlr4-runtime</artifactId>
+	            </exclusion>
                 <exclusion>
-                    <groupId>org.apache.commons</groupId>
-                    <artifactId>commons-lang3</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.jbibtex</groupId>
-                    <artifactId>jbibtex</artifactId>
+                    <groupId>org.ow2.asm</groupId>
+                    <artifactId>asm-util</artifactId>
                 </exclusion>
                 <exclusion>
                     <groupId>org.antlr</groupId>
                     <artifactId>antlr4-runtime</artifactId>
                 </exclusion>
-                <exclusion>
-                    <groupId>org.ow2.asm</groupId>
-                    <artifactId>asm-util</artifactId>
-                </exclusion>
-            </exclusions>
+         	</exclusions>
+      </dependency>
+        <dependency>
+            <groupId>org.citationstyles</groupId>
+            <artifactId>styles</artifactId>
+            <version>25.4</version>
         </dependency>
         <dependency>
             <groupId>org.citationstyles</groupId>
             <artifactId>locales</artifactId>
-            <version>1.0</version>
-        </dependency>
-        <dependency>
-            <groupId>org.citationstyles</groupId>
-            <artifactId>styles</artifactId>
-            <version>1.0</version>
+            <version>25.4</version>
         </dependency>
 
         <!-- required for openaire api integration -->

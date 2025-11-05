@@ -2066,7 +2066,6 @@ public class BulkAccessControlIT extends AbstractIntegrationTestWithDatabase {
 
     }
 
-
     @Test
     public void performBulkAccessControlwithDerivedBitstreams() throws Exception {
         context.turnOffAuthorisationSystem();
