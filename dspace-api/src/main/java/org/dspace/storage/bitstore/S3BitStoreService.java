@@ -14,9 +14,11 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
 import java.security.DigestInputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -27,6 +29,7 @@ import java.util.function.Supplier;
 import com.amazonaws.AmazonClientException;
 import com.amazonaws.ClientConfiguration;
 import com.amazonaws.ClientConfigurationFactory;
+import com.amazonaws.HttpMethod;
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.AWSCredentialsProvider;
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
@@ -40,6 +43,7 @@ import com.amazonaws.regions.Regions;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.AmazonS3Exception;
+import com.amazonaws.services.s3.model.GeneratePresignedUrlRequest;
 import com.amazonaws.services.s3.model.GetObjectRequest;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.transfer.Download;
@@ -845,6 +849,41 @@ public class S3BitStoreService extends BaseBitStoreService {
             IOUtils.copy(get(bitstream), out);
         }
         return tempFile.getAbsolutePath();
+    }
+
+    @Override
+    public String getPresignedUrl(Bitstream bitstream) throws IOException {
+        if (!isInitialized()) {
+            throw new IOException("S3BitStoreService not initialized");
+        }
+
+        String key = getFullKey(bitstream.getInternalId());
+
+        if (isRegisteredBitstream(key)) {
+            key = key.substring(REGISTERED_FLAG.length());
+        }
+
+        try {
+            // Generate a presigned URL valid for 15 min (900 seconds)
+            int expireSeconds = configurationService
+                .getIntProperty("assetstore.s3.presigned.url.expiration.seconds", 900);
+            Date expiration = new Date(System.currentTimeMillis() + (expireSeconds * 1000L));
+
+            GeneratePresignedUrlRequest generatePresignedUrlRequest =
+                new GeneratePresignedUrlRequest(bucketName, key)
+                    .withMethod(HttpMethod.GET)
+                    .withExpiration(expiration);
+
+            URL presignedUrl = s3Service.generatePresignedUrl(generatePresignedUrlRequest);
+
+            log.debug("Generated presigned URL for bitstream {} (key: {}): {}",
+                     bitstream.getID(), key, presignedUrl.toString());
+
+            return presignedUrl.toString();
+        } catch (AmazonClientException e) {
+            log.error("Error generating presigned URL for key: {}", key, e);
+            throw new IOException("Failed to generate presigned URL", e);
+        }
     }
 
     public void setBufferSize(long bufferSize) {
