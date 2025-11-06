@@ -351,6 +351,29 @@ public class BitstreamStorageServiceImpl implements BitstreamStorageService, Ini
         return Long.valueOf(metadata.get("modified").toString());
     }
 
+    @Override
+    public String getPresignedUrl(Context context, Bitstream bitstream)
+        throws IOException, SQLException, AuthorizeException {
+        if (bitstream == null) {
+            throw new IllegalArgumentException("Bitstream cannot be null");
+        }
+
+        // Get the appropriate bitstore for this bitstream
+        BitStoreService store = this.getStore(bitstream.getStoreNumber());
+
+        // Try to get presigned URL from the store implementation
+        String presignedUrl = store.getPresignedUrl(bitstream);
+
+        if (presignedUrl == null) {
+            log.debug("Presigned URL not supported by store implementation for bitstream: {}",
+                     bitstream.getID());
+            return null;
+        }
+
+        log.debug("Generated presigned URL for bitstream: {}", bitstream.getID());
+        return presignedUrl;
+    }
+
     /**
      * @param context   The relevant DSpace Context.
      * @param bitstream the bitstream to be cloned
