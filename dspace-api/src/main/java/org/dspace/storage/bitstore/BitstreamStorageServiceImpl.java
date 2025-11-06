@@ -365,7 +365,7 @@ public class BitstreamStorageServiceImpl implements BitstreamStorageService, Ini
         String presignedUrl = store.getPresignedUrl(bitstream);
 
         if (presignedUrl == null) {
-            log.debug("Presigned URL not supported by store implementation for bitstream: {}",
+            log.warn("Presigned URL not supported by store implementation for bitstream: {}",
                      bitstream.getID());
             return null;
         }
