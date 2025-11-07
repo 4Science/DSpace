@@ -334,9 +334,9 @@ public class BitstreamRestController {
             // Return the presigned URL as JSON
             Map<String, String> result = new HashMap<>();
             result.put("presignedUrl", presignedUrl);
-            result.put("bitstreamId", uuid.toString());
-            result.put("filename", getBitstreamName(bitstream, bitstream.getFormat(context)));
 
+            log.info("Generated presigned URL for bitstream: {}, StoreNumber: {}, FormatId: {}",
+                     bitstream.getID(), bitstream.getStoreNumber(), bitstream.getFormat(context).getID());
             return ResponseEntity.ok(result);
 
         } catch (Exception e) {
