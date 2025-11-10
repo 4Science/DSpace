@@ -891,7 +891,12 @@ public class S3BitStoreService extends BaseBitStoreService {
     protected Date getExpirationDate() {
         long expireSeconds = configurationService
             .getLongProperty("assetstore.s3.presigned.url.expiration.seconds", DEFAULT_EXPIRATION);
-        return new Date(LocalDateTime.now().plusSeconds(expireSeconds).toEpochSecond(ZoneOffset.UTC));
+        return Date.from(
+            LocalDateTime.now()
+                         .plusSeconds(expireSeconds)
+                         .atZone(ZoneId.systemDefault())
+                         .toInstant()
+        );
     }
 
     public void setBufferSize(long bufferSize) {
