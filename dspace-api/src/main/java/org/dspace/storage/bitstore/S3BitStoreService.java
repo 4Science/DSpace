@@ -18,6 +18,9 @@ import java.net.URL;
 import java.security.DigestInputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -92,6 +95,7 @@ public class S3BitStoreService extends BaseBitStoreService {
     protected static final String DEFAULT_BUCKET_PREFIX = "dspace-asset-";
     protected static final Gson GSON = new GsonBuilder().serializeNulls().setPrettyPrinting().create();
     public static final String REGEX_SECRET = "^(.{3})(.*)(.{3})$";
+    public static final long DEFAULT_EXPIRATION = Duration.ofMinutes(15).toSeconds();
     // Prefix indicating a registered bitstream
     protected final String REGISTERED_FLAG = "-R";
     /**
@@ -865,25 +869,29 @@ public class S3BitStoreService extends BaseBitStoreService {
 
         try {
             // Generate a presigned URL valid for 15 min (900 seconds)
-            int expireSeconds = configurationService
-                .getIntProperty("assetstore.s3.presigned.url.expiration.seconds", 900);
-            Date expiration = new Date(System.currentTimeMillis() + (expireSeconds * 1000L));
-
             GeneratePresignedUrlRequest generatePresignedUrlRequest =
                 new GeneratePresignedUrlRequest(bucketName, key)
                     .withMethod(HttpMethod.GET)
-                    .withExpiration(expiration);
+                    .withExpiration(getExpirationDate());
 
             URL presignedUrl = s3Service.generatePresignedUrl(generatePresignedUrlRequest);
 
-            log.debug("Generated presigned URL for bitstream {} (key: {}): {}",
-                     bitstream.getID(), key, presignedUrl.toString());
+            if (log.isDebugEnabled()) {
+                log.debug("Generated presigned URL for bitstream {} (key: {}): {}",
+                          bitstream.getID(), key, presignedUrl.toString());
+            }
 
             return presignedUrl.toString();
         } catch (AmazonClientException e) {
             log.error("Error generating presigned URL for key: {}", key, e);
             throw new IOException("Failed to generate presigned URL", e);
         }
+    }
+
+    protected Date getExpirationDate() {
+        long expireSeconds = configurationService
+            .getLongProperty("assetstore.s3.presigned.url.expiration.seconds", DEFAULT_EXPIRATION);
+        return new Date(LocalDateTime.now().plusSeconds(expireSeconds).toEpochSecond(ZoneOffset.UTC));
     }
 
     public void setBufferSize(long bufferSize) {
