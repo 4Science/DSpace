@@ -51,20 +51,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.net.URI;
 import java.nio.file.Files;
 import java.time.Period;
 import java.util.Map;
 import java.util.UUID;
 
-import com.amazonaws.auth.AWSStaticCredentialsProvider;
-import com.amazonaws.auth.AnonymousAWSCredentials;
-import com.amazonaws.client.builder.AwsClientBuilder;
-import com.amazonaws.regions.Regions;
-import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.AmazonS3ClientBuilder;
-import io.findify.s3mock.S3Mock;
+import com.adobe.testing.s3mock.testcontainers.S3MockContainer;
 import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.CharEncoding;
 import org.apache.commons.lang3.StringUtils;
@@ -106,6 +100,9 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
+import software.amazon.awssdk.auth.credentials.AnonymousCredentialsProvider;
+import software.amazon.awssdk.regions.Region;
+import software.amazon.awssdk.services.s3.S3AsyncClient;
 
 /**
  * Integration test to test the /api/core/bitstreams/[id]/* endpoints
@@ -141,8 +138,8 @@ public class BitstreamRestControllerIT extends AbstractControllerIntegrationTest
     private BitstreamStorageService bitstreamStorageService;
 
     // S3Mock related fields for integration testing
-    private S3Mock s3Mock;
-    private AmazonS3 amazonS3Client;
+    private static S3MockContainer s3Mock = new S3MockContainer("4.8.0");
+    private static S3AsyncClient s3AsyncClient;
     private File s3Directory;
     private S3BitStoreService mockS3BitStoreService;
 
@@ -205,27 +202,13 @@ public class BitstreamRestControllerIT extends AbstractControllerIntegrationTest
      */
     private void setupS3Mock() throws Exception {
         // Setup S3Mock server similar to S3BitStoreServiceIT
-        s3Directory = new File(System.getProperty("java.io.tmpdir"), "s3mock-test");
-        s3Mock = S3Mock.create(8001, s3Directory.getAbsolutePath());
         s3Mock.start();
 
-        // Create Amazon S3 client pointing to the mock server
-        amazonS3Client = createAmazonS3Client("http://127.0.0.1:8001");
-
-        // Create the test bucket
-        String bucketName = "testbucket";
-        amazonS3Client.createBucket(bucketName);
-
-        // Create a new S3BitStoreService configured with the mock S3 client
-        Class<S3BitStoreService> s3Class = S3BitStoreService.class;
-        java.lang.reflect.Constructor<S3BitStoreService> constructor =
-            s3Class.getDeclaredConstructor(AmazonS3.class);
-        constructor.setAccessible(true);
-        mockS3BitStoreService = constructor.newInstance(amazonS3Client);
-
-        mockS3BitStoreService.setEnabled(true);
-        mockS3BitStoreService.setBucketName(bucketName);
-        mockS3BitStoreService.init();
+        s3AsyncClient = S3AsyncClient.crtBuilder()
+                                     .endpointOverride(URI.create("http://127.0.0.1:" + s3Mock.getHttpServerPort()))
+                                     .credentialsProvider(AnonymousCredentialsProvider.create())
+                                     .region(Region.US_EAST_1)
+                                     .build();
 
         // Replace store number 1 in the BitstreamStorageService with our mock S3 store
         Map<Integer, org.dspace.storage.bitstore.BitStoreService> stores =
@@ -241,25 +224,8 @@ public class BitstreamRestControllerIT extends AbstractControllerIntegrationTest
      * Tears down S3Mock after presigned URL tests
      */
     private void tearDownS3Mock() throws Exception {
-        if (s3Mock != null) {
-            s3Mock.shutdown();
-        }
-        if (s3Directory != null && s3Directory.exists()) {
-            FileUtils.deleteDirectory(s3Directory);
-        }
-    }
-
-    /**
-     * Creates an Amazon S3 client for testing with S3Mock
-     * Based on the approach used in S3BitStoreServiceIT
-     */
-    private AmazonS3 createAmazonS3Client(String endpoint) {
-        return AmazonS3ClientBuilder.standard()
-            .withCredentials(new AWSStaticCredentialsProvider(new AnonymousAWSCredentials()))
-            .withEndpointConfiguration(new AwsClientBuilder
-                .EndpointConfiguration(endpoint, Regions.DEFAULT_REGION.getName()))
-            .withPathStyleAccessEnabled(true)
-            .build();
+        s3Mock.close();
+        s3AsyncClient.close();
     }
 
     @Test
