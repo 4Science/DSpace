@@ -150,13 +150,13 @@
 
     <bean id="cclicensefullRenderValidator" class="org.dspace.layout.script.service.impl.CrisLayoutToolRenderValidatorImpl">
         <property name="name" value="cclicensefull"/>
-        <property name="fieldType" value="METADATA"/>
+        <property name="fieldType" value="METADATAGROUP"/>
         <property name="subTypeValidationRule" value="NOT_ALLOWED"/>
     </bean>
 
     <bean id="cclicensesmallRenderValidator" class="org.dspace.layout.script.service.impl.CrisLayoutToolRenderValidatorImpl">
-        <property name="name" value="cclicensesmall"/>
-        <property name="fieldType" value="METADATA"/>
+        <property name="name" value="cclicense"/>
+        <property name="fieldType" value="METADATAGROUP"/>
         <property name="subTypeValidationRule" value="NOT_ALLOWED"/>
     </bean>
 </beans>
