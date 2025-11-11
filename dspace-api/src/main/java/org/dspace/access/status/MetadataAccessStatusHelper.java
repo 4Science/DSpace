@@ -10,6 +10,7 @@ package org.dspace.access.status;
 import static org.dspace.content.Item.ANY;
 
 import java.sql.SQLException;
+import java.time.LocalDate;
 import java.util.Date;
 
 import org.dspace.content.Item;
@@ -19,7 +20,6 @@ import org.dspace.content.service.ItemService;
 import org.dspace.core.Context;
 import org.dspace.services.ConfigurationService;
 import org.dspace.services.factory.DSpaceServicesFactory;
-import org.joda.time.LocalDate;
 
 /**
  * implementation of the access status helper.
