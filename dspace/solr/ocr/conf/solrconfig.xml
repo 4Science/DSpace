@@ -33,6 +33,10 @@
         <autoSoftCommit>
             <maxTime>${solr.autoSoftCommit.maxTime:-1}</maxTime>
         </autoSoftCommit>
+
+        <updateLog>
+            <str name="dir">${solr.ulog.dir:}</str>
+        </updateLog>
     </updateHandler>
 
     <searchComponent class="de.digitalcollections.solrocr.solr.OcrHighlightComponent"
