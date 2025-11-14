@@ -95,7 +95,7 @@ public class S3BitStoreService extends BaseBitStoreService {
     protected static final String DEFAULT_BUCKET_PREFIX = "dspace-asset-";
     protected static final Gson GSON = new GsonBuilder().serializeNulls().setPrettyPrinting().create();
     public static final String REGEX_SECRET = "^(.{3})(.*)(.{3})$";
-    public static final long DEFAULT_EXPIRATION = Duration.ofMinutes(15).toSeconds();
+    public static final long DEFAULT_EXPIRATION = Duration.ofMinutes(2).toSeconds();
     // Prefix indicating a registered bitstream
     protected final String REGISTERED_FLAG = "-R";
     /**
