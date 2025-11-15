@@ -84,4 +84,15 @@
         <property name="virtualQualifier" value="journalance" />
     </bean>
 
+    <bean class="org.dspace.content.enhancer.impl.WhitespaceNormalizeEnhancer">
+        <property name="sourceEntityType" value="Publication"/>
+        <property name="metaDataFields">
+            <list>
+                <value>dc.title</value>
+                <value>dc.title.alternative</value>
+                <value>dc.description.abstract</value>
+            </list>
+        </property>
+    </bean>
+
 </beans>
