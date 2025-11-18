@@ -53,6 +53,18 @@ public class DiscoveryConfigurationUtilsService {
         discoverQuery.setDSpaceObjectFilter(IndexableItem.TYPE);
         discoverQuery.setDiscoveryConfigurationName(discoveryConfiguration.getId());
         discoverQuery.setScopeObject(new IndexableItem(item));
+
+        if (discoveryConfiguration.getSearchSortConfiguration() == null ||
+            discoveryConfiguration.getSearchSortConfiguration().getDefaultSortField() == null) {
+            // No sorting configured - add default chronological sort for consistency
+            discoverQuery.setSortField("dc.date.issued_dt", DiscoverQuery.SORT_ORDER.asc);
+        } else {
+            DiscoverySortFieldConfiguration sortField =
+                discoveryConfiguration.getSearchSortConfiguration().getDefaultSortField();
+            discoverQuery.setSortField(sortField.getMetadataField(),
+                                       DiscoverQuery.SORT_ORDER.valueOf(sortField.getDefaultSortOrder().name()));
+        }
+
         List<String> defaultFilterQueries = discoveryConfiguration.getDefaultFilterQueries();
         for (String defaultFilterQuery : defaultFilterQueries) {
             discoverQuery.addFilterQueries(MessageFormat.format(defaultFilterQuery, item.getID()));
