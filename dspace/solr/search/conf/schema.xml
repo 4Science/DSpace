@@ -245,7 +245,7 @@
 
  <fields>
  
- 	<field name="_version_" type="long" indexed="true" stored="true" multiValued="false"/>
+ 	<field name="_version_" type="long" indexed="true" stored="true" docValues="true" multiValued="false"/>
 
     <!-- catchall field, containing all other searchable text fields (implemented
         via copyField further on in this schema  -->
@@ -254,7 +254,7 @@
     <field name="fulltext" type="text" indexed="true" stored="true" multiValued="true"/>
 
     <!-- Internal DSpace Object ID -->
-    <field name="search.resourceid" type="string" indexed="true" stored="true" required="true" omitNorms="true" />
+    <field name="search.resourceid" type="string" indexed="true" stored="true" required="true" omitNorms="true" docValues="true"/>
 
     <!-- Internal DSpaceObject Type ID -->
     <field name="search.resourcetype" type="string" indexed="true" stored="true" required="true" omitNorms="true" />

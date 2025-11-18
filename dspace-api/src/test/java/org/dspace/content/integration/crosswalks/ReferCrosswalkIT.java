@@ -33,7 +33,6 @@ import java.nio.charset.Charset;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Date;
 import java.util.Locale;
 
@@ -2117,7 +2116,7 @@ public class ReferCrosswalkIT extends AbstractIntegrationTestWithDatabase {
         assertThat(referCrossWalk, notNullValue());
 
         ByteArrayOutputStream out = new ByteArrayOutputStream();
-        referCrossWalk.disseminate(context, Collections.singletonList(item).iterator(), out);
+        referCrossWalk.disseminate(context, Arrays.asList(item).iterator(), out);
 
         try (FileInputStream fis = getFileInputStream("publications2.xml")) {
             String expectedXml = IOUtils.toString(fis, Charset.defaultCharset());
@@ -2195,7 +2194,7 @@ public class ReferCrosswalkIT extends AbstractIntegrationTestWithDatabase {
         assertThat(referCrossWalk, notNullValue());
 
         ByteArrayOutputStream out = new ByteArrayOutputStream();
-        referCrossWalk.disseminate(context, Collections.singletonList(item).iterator(), out);
+        referCrossWalk.disseminate(context, Arrays.asList(item).iterator(), out);
 
         try (FileInputStream fis = getFileInputStream("publications3.xml")) {
             compareEachLine(out.toString(), IOUtils.toString(fis, Charset.defaultCharset()));
@@ -2205,7 +2204,7 @@ public class ReferCrosswalkIT extends AbstractIntegrationTestWithDatabase {
         context.setCurrentUser(eperson);
 
         ByteArrayOutputStream out2 = new ByteArrayOutputStream();
-        referCrossWalk.disseminate(context, Collections.singletonList(item).iterator(), out2);
+        referCrossWalk.disseminate(context, Arrays.asList(item).iterator(), out2);
 
         try (FileInputStream fis = getFileInputStream("publications2.xml")) {
             compareEachLine(out2.toString(), IOUtils.toString(fis, Charset.defaultCharset()));
@@ -2278,7 +2277,7 @@ public class ReferCrosswalkIT extends AbstractIntegrationTestWithDatabase {
         assertThat(referCrossWalk, notNullValue());
 
         ByteArrayOutputStream out = new ByteArrayOutputStream();
-        referCrossWalk.disseminate(context, Collections.singletonList(item).iterator(), out);
+        referCrossWalk.disseminate(context, Arrays.asList(item).iterator(), out);
 
         try (FileInputStream fis = getFileInputStream("publications4.xml")) {
             compareEachLine(out.toString(), IOUtils.toString(fis, Charset.defaultCharset()));
@@ -2288,7 +2287,7 @@ public class ReferCrosswalkIT extends AbstractIntegrationTestWithDatabase {
         context.setCurrentUser(owner);
 
         ByteArrayOutputStream out2 = new ByteArrayOutputStream();
-        referCrossWalk.disseminate(context, Collections.singletonList(item).iterator(), out2);
+        referCrossWalk.disseminate(context, Arrays.asList(item).iterator(), out2);
 
         try (FileInputStream fis = getFileInputStream("publications4.xml")) {
             compareEachLine(out2.toString(), IOUtils.toString(fis, Charset.defaultCharset()));
@@ -2403,36 +2402,30 @@ public class ReferCrosswalkIT extends AbstractIntegrationTestWithDatabase {
             .build();
 
         Item firstPublication = ItemBuilder.createItem(context, collection)
-                                           .withTitle("First Publication")
-                                           .withIssueDate("2020-01-01")
-                                           .withAuthor("John Smith", personItem.getID().toString())
-                                           .withAuthor("Walter White")
-                                           .withType(
-                                               "Controlled Vocabulary for Resource Type " +
-                                                   "Genres::text::periodical::journal")
-                                           .withPublisher("Test publisher")
-                                           .withHandle("123456789/111111")
-                                           .build();
+                               .withTitle("First Publication")
+                               .withIssueDate("2020-01-01")
+                               .withAuthor("John Smith", personItem.getID().toString())
+                               .withAuthor("Walter White")
+                               .withType("Controlled Vocabulary for Resource Type Genres::text::periodical::journal")
+                               .withPublisher("Test publisher")
+                               .withHandle("123456789/111111")
+                               .build();
 
         Item secondPublication = ItemBuilder.createItem(context, collection)
-                                            .withTitle("Second Publication")
-                                            .withIssueDate("2020-04-01")
-                                            .withAuthor("John Smith", personItem.getID().toString())
-                                            .withType(
-                                                "Controlled Vocabulary for Resource Type " +
- "Genres::text::periodical::journal")
-                                            .withHandle("123456789/99999")
-                                            .build();
+                                .withTitle("Second Publication")
+                                .withIssueDate("2020-04-01")
+                                .withAuthor("John Smith", personItem.getID().toString())
+                                .withType("Controlled Vocabulary for Resource Type Genres::text::periodical::journal")
+                                .withHandle("123456789/99999")
+                                .build();
 
         Item thirdPublication = ItemBuilder.createItem(context, collection)
-                                           .withTitle("Third Publication")
-                                           .withIssueDate("2022-03-02")
-                                           .withAuthor("John Smith", personItem.getID().toString())
-                                           .withType(
-                                               "Controlled Vocabulary for Resource Type " +
- "Genres::text::periodical::journal")
-                                           .withHandle("123456789/55555")
-                                           .build();
+                               .withTitle("Third Publication")
+                               .withIssueDate("2022-03-02")
+                               .withAuthor("John Smith", personItem.getID().toString())
+                               .withType("Controlled Vocabulary for Resource Type Genres::text::periodical::journal")
+                               .withHandle("123456789/55555")
+                               .build();
 
         context.restoreAuthSystemState();
 
@@ -2450,13 +2443,11 @@ public class ReferCrosswalkIT extends AbstractIntegrationTestWithDatabase {
         assertThat(resultLines[0].trim(), is("<person>"));
         assertThat(resultLines[1].trim(), is("<citations>"));
         assertThat(resultLines[4].trim(), is("<citation>John Smith, &amp; Walter White. (2020). " +
-                                                 "First Publication. http://localhost:4000/handle/123456789/111111" +
-                                                  "</citation>"));
+                                                 "First Publication. http://localhost:4000/handle/123456789/111111</citation>"));
         assertThat(resultLines[2].trim(), is("<citation>John Smith. (2020). Second Publication. " +
                                                  "http://localhost:4000/handle/123456789/99999</citation>"));
         assertThat(resultLines[3].trim(), is("<citation>John Smith. (2022). " +
-                                                 "Third Publication. http://localhost:4000/handle/123456789/55555" +
-                                                 "</citation>"));
+                                                 "Third Publication. http://localhost:4000/handle/123456789/55555</citation>"));
 
         assertThat(resultLines[5].trim(), is("</citations>"));
         assertThat(resultLines[6].trim(), is("</person>"));
@@ -2685,7 +2676,7 @@ public class ReferCrosswalkIT extends AbstractIntegrationTestWithDatabase {
 
         referCrosswalk.disseminate(context, item, byteArrayOutputStream);
 
-        System.out.println(byteArrayOutputStream.toString());
+        System.out.println(new String(byteArrayOutputStream.toByteArray()));
 
         try (FileInputStream fis = getFileInputStream("journal-article-datacite.xml")) {
             String expectedXml = IOUtils.toString(fis, Charset.defaultCharset());
@@ -2723,7 +2714,7 @@ public class ReferCrosswalkIT extends AbstractIntegrationTestWithDatabase {
 
         referCrosswalk.disseminate(context, item, byteArrayOutputStream);
 
-        System.out.println(byteArrayOutputStream.toString());
+        System.out.println(new String(byteArrayOutputStream.toByteArray()));
 
         try (FileInputStream fis = getFileInputStream("publication-without-authors-and-type-datacite.xml")) {
             String expectedXml = IOUtils.toString(fis, Charset.defaultCharset());
@@ -2760,7 +2751,7 @@ public class ReferCrosswalkIT extends AbstractIntegrationTestWithDatabase {
 
         referCrosswalk.disseminate(context, item, byteArrayOutputStream);
 
-        System.out.println(byteArrayOutputStream.toString());
+        System.out.println(new String(byteArrayOutputStream.toByteArray()));
 
         try (FileInputStream fis = getFileInputStream("publication-virtual-place-datacite.xml")) {
             String expectedXml = IOUtils.toString(fis, Charset.defaultCharset());

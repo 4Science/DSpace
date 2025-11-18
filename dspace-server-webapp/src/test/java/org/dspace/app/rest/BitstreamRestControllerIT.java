@@ -87,7 +87,6 @@ import org.dspace.content.Community;
 import org.dspace.content.Item;
 import org.dspace.content.service.BitstreamFormatService;
 import org.dspace.content.service.BitstreamService;
-import org.dspace.content.service.CollectionService;
 import org.dspace.core.Constants;
 import org.dspace.disseminate.CitationDocumentServiceImpl;
 import org.dspace.eperson.EPerson;
@@ -140,7 +139,13 @@ public class BitstreamRestControllerIT extends AbstractControllerIntegrationTest
     private AuthorizeService authorizeService;
 
     @Autowired
-    private CollectionService collectionService;
+    private BitstreamStorageService bitstreamStorageService;
+
+    // S3Mock related fields for integration testing
+    private S3Mock s3Mock;
+    private AmazonS3 amazonS3Client;
+    private File s3Directory;
+    private S3BitStoreService mockS3BitStoreService;
 
     @Autowired
     private BitstreamStorageService bitstreamStorageService;
