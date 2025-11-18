@@ -28,7 +28,7 @@ services:
       # from the host machine. This IP range MUST correspond to the 'dspacenet' subnet defined above.
       proxies__P__trusted__P__ipranges: '172.23.0'
       LOGGING_CONFIG: /dspace/config/log4j2-container.xml
-    image: "${DOCKER_REGISTRY:-docker.io}/${DOCKER_OWNER:-4science}/dspace-cris:${DSPACE_VER:-2024_02_x-test}"
+    image: "${DOCKER_REGISTRY:-docker.io}/${DOCKER_OWNER:-4science}/dspace-cris:${DSPACE_VER:-dspace-cris-2024_02_x-test}"
     build:
       context: .
       dockerfile: Dockerfile.test
@@ -64,10 +64,11 @@ services:
   dspacedb:
     container_name: dspacedb
     # Uses a custom Postgres image with pgcrypto installed
-    image: "${DOCKER_REGISTRY:-docker.io}/${DOCKER_OWNER:-4science}/dspace-cris-postgres-pgcrypto:${DSPACE_VER:-2024_02_x}"
+    image: "${DOCKER_REGISTRY:-docker.io}/${DOCKER_OWNER:-4science}/dspace-cris-postgres-pgcrypto:${DSPACE_VER:-dspace-cris-2024_02_x}"
     build:
       # Must build out of subdirectory to have access to install script for pgcrypto
       context: ./dspace/src/main/docker/dspace-postgres-pgcrypto/
+      dockerfile: Dockerfile
     environment:
       PGDATA: /pgdata
       POSTGRES_PASSWORD: dspace
@@ -84,9 +85,10 @@ services:
   # DSpace Solr container
   dspacesolr:
     container_name: dspacesolr
-    image: "${DOCKER_REGISTRY:-docker.io}/${DOCKER_OWNER:-4science}/dspace-cris-solr:${DSPACE_VER:-2024_02_x}"
+    image: "${DOCKER_REGISTRY:-docker.io}/${DOCKER_OWNER:-4science}/dspace-cris-solr:${DSPACE_VER:-dspace-cris-2024_02_x}"
     build:
       context: .
+      dockerfile: ./dspace/src/main/docker/dspace-solr/Dockerfile
       # Provide path to Solr configs necessary to build Docker image
       args:
         SOLR_VERSION: "${SOLR_VER:-8.11.4}"
@@ -104,7 +106,7 @@ services:
     # Initialize all DSpace Solr cores then start Solr:
     # * First, run precreate-core to create the core (if it doesn't yet exist). If exists already, this is a no-op
     # * Second, copy configsets to this core:
-    #   Updates to Solr configs require the container to be rebuilt/restarted: `docker compose -p d7 up -d --build dspacesolr`
+    #   Updates to Solr configs require the container to be rebuilt/restarted: `docker compose -p dcris25 up -d --build dspacesolr`
     entrypoint:
     - /bin/bash
     - '-c'

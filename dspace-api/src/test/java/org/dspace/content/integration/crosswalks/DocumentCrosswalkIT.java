@@ -13,9 +13,9 @@ import static org.dspace.builder.ItemBuilder.createItem;
 import static org.dspace.core.CrisConstants.PLACEHOLDER_PARENT_METADATA_VALUE;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.anyOf;
-import static org.hamcrest.Matchers.arrayContaining;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.isEmptyString;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.notNullValue;
@@ -27,6 +27,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.Arrays;
 import java.util.UUID;
 import java.util.function.Consumer;
 import javax.swing.text.BadLocationException;
@@ -713,8 +714,12 @@ public class DocumentCrosswalkIT extends AbstractIntegrationTestWithDatabase {
             documentCrosswalk.disseminate(context, personItem, out);
             assertThat(out.toString(), not(isEmptyString()));
             assertThatPdfHasContent(out, content -> {
-                String[] rows = content.split("\n");
-                assertThat(rows, arrayContaining(
+                String[] rows = Arrays.stream(content.split("\n"))
+                                      .map(String::trim)
+                                      .filter(s -> !s.isEmpty())
+                                      .toArray(String[]::new);
+
+                String[] expectedRows = {
                     "Publications",
                     "Article",
                     "Test User, & Walter White. (2023). Publication 1. http://localhost:4000/handle/123456789/111111",
@@ -725,7 +730,14 @@ public class DocumentCrosswalkIT extends AbstractIntegrationTestWithDatabase {
                     "Chapter",
                     "John Smith, & Test User. (2020). Publication 3. http://localhost:4000/handle/123456789/333333",
                     "Other",
-                    "Test User, & Another User. (2023). Publication 6. http://localhost:4000/handle/123456789/666666"));
+                    "Test User, & Another User. (2023, March 1). Publication 6. " +
+                        "http://localhost:4000/handle/123456789/666666"
+                };
+
+                assertThat("Number of rows", rows.length, is(expectedRows.length));
+                for (int i = 0; i < expectedRows.length; i++) {
+                    assertThat("Row " + i, rows[i], is(expectedRows[i]));
+                }
             });
         }
 
