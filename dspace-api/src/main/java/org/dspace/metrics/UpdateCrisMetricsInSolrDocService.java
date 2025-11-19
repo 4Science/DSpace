@@ -21,6 +21,7 @@ import org.dspace.core.Context;
 import org.dspace.discovery.IndexingService;
 import org.dspace.discovery.SearchServiceException;
 import org.dspace.scripts.handler.DSpaceRunnableHandler;
+import org.dspace.services.ConfigurationService;
 import org.dspace.utils.DSpace;
 
 /**
@@ -29,6 +30,8 @@ import org.dspace.utils.DSpace;
 public class UpdateCrisMetricsInSolrDocService {
 
     private static final Logger log = LogManager.getLogger(UpdateCrisMetricsInSolrDocService.class);
+
+    private ConfigurationService configurationService = new DSpace().getConfigurationService();
 
     private CrisMetricsService crisMetricsService = new DSpace().getServiceManager().getServiceByName(
             CrisMetricsServiceImpl.class.getName(), CrisMetricsServiceImpl.class);
@@ -42,21 +45,28 @@ public class UpdateCrisMetricsInSolrDocService {
 
     public void performUpdate(Context context, DSpaceRunnableHandler handler, boolean optimize, UUID resourceUuid) {
         try {
-            List<CrisMetrics> metrics = resourceUuid == null
-                    ? crisMetricsService.findAllLast(context,-1,-1)
-                    : crisMetricsService.findLastMetricsByResourceId(context, resourceUuid, -1, -1);
+            int offset = 0;
+            int limit = configurationService.getIntProperty("metrics.indexer.page", 1000);
             handler.logInfo("Metric update start");
-            for (CrisMetrics metric : metrics) {
-                try {
-                    crisIndexingService.updateMetrics(context, metric);
-                } catch (RemoteSolrException rse) {
-                    if (StringUtils.containsIgnoreCase(rse.getMessage(), "Did not find child ID Item-")) {
-                        log.error(rse.getMessage());
-                    } else {
-                        throw rse;
+            List<CrisMetrics> metrics;
+            while (!(metrics = (resourceUuid == null
+                            ? crisMetricsService.findAllLast(context, limit, offset)
+                            : crisMetricsService.findLastMetricsByResourceId(context, resourceUuid, limit, offset)
+                            )).isEmpty()) {
+                for (CrisMetrics metric : metrics) {
+                    try {
+                        crisIndexingService.updateMetrics(context, metric);
+                    } catch (RemoteSolrException rse) {
+                        if (StringUtils.containsIgnoreCase(rse.getMessage(), "Did not find child ID Item-")) {
+                            log.error(rse.getMessage());
+                        } else {
+                            throw rse;
+                        }
                     }
                 }
+                offset += limit;
             }
+
             handler.logInfo("Metric update end");
             if (optimize) {
                 handler.logInfo("Starting solr optimization");
