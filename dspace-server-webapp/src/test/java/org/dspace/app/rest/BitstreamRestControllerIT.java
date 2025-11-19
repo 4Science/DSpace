@@ -104,7 +104,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 
@@ -140,21 +139,6 @@ public class BitstreamRestControllerIT extends AbstractControllerIntegrationTest
 
     @Autowired
     private BitstreamStorageService bitstreamStorageService;
-
-    // S3Mock related fields for integration testing
-    private S3Mock s3Mock;
-    private AmazonS3 amazonS3Client;
-    private File s3Directory;
-    private S3BitStoreService mockS3BitStoreService;
-
-    @Autowired
-    private BitstreamStorageService bitstreamStorageService;
-
-    @Autowired
-    private S3BitStoreService s3BitStoreService;
-
-    @Autowired
-    private ApplicationContext applicationContext;
 
     // S3Mock related fields for integration testing
     private S3Mock s3Mock;
