@@ -27,6 +27,7 @@ import org.dspace.content.Collection;
 import org.dspace.content.InProgressSubmission;
 import org.dspace.content.Item;
 import org.dspace.content.MetadataValue;
+import org.dspace.content.WorkspaceItem;
 import org.dspace.content.authority.service.MetadataAuthorityService;
 import org.dspace.content.service.ItemService;
 import org.dspace.core.Constants;
@@ -34,7 +35,6 @@ import org.dspace.core.Context;
 import org.dspace.core.exception.SQLRuntimeException;
 import org.dspace.services.ConfigurationService;
 import org.dspace.validation.model.ValidationError;
-import org.dspace.workflow.WorkflowItem;
 
 /**
  * Execute three validation check on fields validation: - mandatory metadata
@@ -49,7 +49,7 @@ public class MetadataValidator implements SubmissionStepValidator {
 
     private static final String ERROR_VALIDATION_AUTHORITY_REQUIRED = "error.validation.authority.required";
 
-    private static final String ERROR_VALIDATION_REGEX = "error.validation.regex";
+    private static final String ERROR_VALIDATION_PREFIX = "error.validation.regex";
 
     private static final String ERROR_VALIDATION_NOT_REPEATABLE = "error.validation.notRepeatable";
 
@@ -67,6 +67,10 @@ public class MetadataValidator implements SubmissionStepValidator {
 
     @Override
     public List<ValidationError> validate(Context context, InProgressSubmission<?> obj, SubmissionStepConfig config) {
+        // Determine current scope
+        String currentScope = (obj instanceof WorkspaceItem) ?
+                DCInput.SUBMISSION_SCOPE : DCInput.WORKFLOW_SCOPE;
+
 
         List<ValidationError> errors = new ArrayList<>();
 
@@ -108,10 +112,18 @@ public class MetadataValidator implements SubmissionStepValidator {
                         }
                     }
                     if (input.isRequired() && !foundResult) {
-                        // for this required qualdrop no value was found, add to the list of error fields
-                        addError(errors, ERROR_VALIDATION_REQUIRED,
-                            "/" + OPERATION_PATH_SECTIONS + "/" + config.getId() + "/" +
-                                input.getFieldName());
+
+                        // Check if field is visible and not readonly in current scope
+                        boolean isVisibleInCurrentScope = input.isVisible(currentScope);
+                        boolean isReadonlyInCurrentScope = input.isReadOnly(currentScope);
+
+                        // Only add error if field is visible, not readonly, and allowed for document type
+                        if (isVisibleInCurrentScope && !isReadonlyInCurrentScope && input.isAllowedFor(documentType)) {
+                            // for this required qualdrop no value was found, add to the list of error fields
+                            addError(errors, ERROR_VALIDATION_REQUIRED,
+                                    "/" + OPERATION_PATH_SECTIONS + "/" + config.getId() + "/" +
+                                            input.getFieldName());
+                        }
                     }
 
                 } else {
@@ -140,16 +152,21 @@ public class MetadataValidator implements SubmissionStepValidator {
                         }
                     }
                     validateMetadataValues(obj.getCollection(), mdv, input, config,
-                        isAuthorityControlled, fieldKey, errors);
-                    if ((input.isRequired() && mdv.size() == 0)
-                            && (input.isVisible(DCInput.SUBMISSION_SCOPE)
-                            || (obj instanceof WorkflowItem && input.isVisible(DCInput.WORKFLOW_SCOPE)))
-                            && !valuesRemoved) {
-                        // Is the input required for *this* type? In other words, are we looking at a required
-                        // input that is also allowed for this document type
-                        if (input.isAllowedFor(documentType)) {
-                            // since this field is missing add to list of error
-                            // fields
+                            isAuthorityControlled, fieldKey, errors);
+                    if ((input.isRequired() && mdv.size() == 0) && !valuesRemoved) {
+
+                        // Check if field is visible in current scope
+                        boolean isVisibleInCurrentScope = input.isVisible(currentScope);
+
+                        // Check if field is readonly or hidden in current scope
+                        boolean isReadonlyInCurrentScope = input.isReadOnly(currentScope);
+
+                        // Only validate as required if:
+                        // 1. Field is visible in current scope AND
+                        // 2. Field is NOT readonly in current scope AND
+                        // 3. Field is allowed for this document type
+                        if (isVisibleInCurrentScope && !isReadonlyInCurrentScope && input.isAllowedFor(documentType)) {
+                            // since this field is missing add to list of error fields
                             addError(errors, ERROR_VALIDATION_REQUIRED,
                                 "/" + OPERATION_PATH_SECTIONS + "/" + config.getId() + "/" +
                                     input.getFieldName());
@@ -181,7 +198,7 @@ public class MetadataValidator implements SubmissionStepValidator {
 
         for (MetadataValue md : metadataValues) {
             if (! (input.validate(md.getValue()))) {
-                addError(errors, ERROR_VALIDATION_REGEX,
+                addError(errors, ERROR_VALIDATION_PREFIX,
                     "/" + OPERATION_PATH_SECTIONS + "/" + config.getId() + "/" +
                         input.getFieldName() + "/" + md.getPlace());
             }

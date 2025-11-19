@@ -2450,6 +2450,78 @@ it, please enter the types and the actual numbers or codes.</hint>
              </field>
          </row>
      </form>
+     <form name="test-metadata-validator-step">
+         <row>
+             <field>
+                 <dc-schema>dc</dc-schema>
+                 <dc-element>title</dc-element>
+                 <repeatable>false</repeatable>
+                 <label>Title</label>
+                 <input-type>onebox</input-type>
+                 <required>Title is required</required>
+                 <hint>Enter the title of the item</hint>
+             </field>
+             <field>
+                 <dc-schema>dc</dc-schema>
+                 <dc-element>contributor</dc-element>
+                 <dc-qualifier>author</dc-qualifier>
+                 <repeatable>true</repeatable>
+                 <label>Author(s)</label>
+                 <input-type>onebox</input-type>
+                 <required>Author is required</required>
+                 <hint>Enter the author(s) of the item</hint>
+                 <readonly>workflow</readonly>
+             </field>
+             <field>
+                 <dc-schema>dc</dc-schema>
+                 <dc-element>date</dc-element>
+                 <dc-qualifier>issued</dc-qualifier>
+                 <repeatable>false</repeatable>
+                 <label>Date Issued</label>
+                 <input-type>date</input-type>
+                 <required>Date issued is required</required>
+                 <hint>Enter the date the item was issued</hint>
+                 <visibility>submission</visibility>
+                 <readonly>submission</readonly>
+             </field>
+         </row>
+         <row>
+             <field>
+                 <dc-schema>dc</dc-schema>
+                 <dc-element>description</dc-element>
+                 <dc-qualifier>abstract</dc-qualifier>
+                 <repeatable>false</repeatable>
+                 <label>Abstract</label>
+                 <input-type>textarea</input-type>
+                 <required>Abstract is required</required>
+                 <hint>Enter an abstract for the item</hint>
+                 <visibility>workflow</visibility>
+                 <readonly>submission</readonly>
+             </field>
+             <field>
+                 <dc-schema>dc</dc-schema>
+                 <dc-element>subject</dc-element>
+                 <repeatable>true</repeatable>
+                 <label>Subject(s)</label>
+                 <input-type>onebox</input-type>
+                 <required>Subject is required</required>
+                 <hint>Enter subject keywords for the item</hint>
+                 <visibility>workflow</visibility>
+                 <readonly>workflow</readonly>
+             </field>
+             <field>
+                 <dc-schema>dc</dc-schema>
+                 <dc-element>type</dc-element>
+                 <repeatable>false</repeatable>
+                 <label>Type</label>
+                 <input-type>onebox</input-type>
+                 <required>Type is required</required>
+                 <hint>Enter the type of the item</hint>
+                 <visibility>submission</visibility>
+                 <readonly>all</readonly>
+             </field>
+         </row>
+     </form>
  </form-definitions>
 
 
