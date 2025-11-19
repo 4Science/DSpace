@@ -293,7 +293,7 @@ pipelines:
           - step: *integration-tests-with-test-jars
           - step: *integration-tests-slow
           - step: *integration-tests-dspace-api
-    'dspace-cris-2024_02_x':
+    'dspace-cris-2025_02_x':
       - step: *install
       - parallel: *parallel-pipeline
       - step: *build-and-push
