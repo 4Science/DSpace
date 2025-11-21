@@ -43,7 +43,7 @@
 
     <bean id="rorIdentifierContrib" class="org.dspace.importer.external.metadatamapping.contributor.SimpleJsonPathMetadataContributor">
         <property name="field" ref="ror.identifier"/>
-        <property name="query" value="/id"/> <!-- same -->
+        <property name="query" value="/id"/>
     </bean>
     <bean id="ror.identifier" class="org.dspace.importer.external.metadatamapping.MetadataFieldConfig">
         <constructor-arg value="organization.identifier.ror"/>
@@ -70,18 +70,21 @@
         <property name="field" ref="ror.links"/>
         <property name="query" value="/links"/>
         <property name="valueField" value="value"/>
-        <!-- No filters needed for links - extract all link values -->
     </bean>
     <bean id="ror.links" class="org.dspace.importer.external.metadatamapping.MetadataFieldConfig">
         <constructor-arg value="oairecerif.identifier.url"/>
     </bean>
 
-    <bean id="rorTypesContrib" class="org.dspace.importer.external.metadatamapping.contributor.SimpleJsonPathMetadataContributor">
+    <bean id="innerRorTypeContrib" class="org.dspace.importer.external.metadatamapping.contributor.SimpleJsonPathMetadataContributor">
         <property name="field" ref="ror.types"/>
-        <property name="query" value="/types"/> <!-- same -->
+        <property name="query" value="/types"/>
     </bean>
     <bean id="ror.types" class="org.dspace.importer.external.metadatamapping.MetadataFieldConfig">
         <constructor-arg value="dc.type"/>
+    </bean>
+    <bean id="rorTypesContrib" class="org.dspace.importer.external.metadatamapping.contributor.MappedMetadataContributor">
+        <constructor-arg name="innerContributor" ref="innerRorTypeContrib"/>
+        <constructor-arg name="mapConverter" ref="mapConverterRorToOrgunitTypes"/>
     </bean>
 
     <bean id="rorCountryContrib" class="org.dspace.importer.external.metadatamapping.contributor.FilterableJsonPathMetadataContributor">
@@ -95,7 +98,7 @@
 
     <bean id="rorEstablishedContrib" class="org.dspace.importer.external.metadatamapping.contributor.SimpleJsonPathMetadataContributor">
         <property name="field" ref="ror.established"/>
-        <property name="query" value="/established"/> <!-- remains the same -->
+        <property name="query" value="/established"/>
     </bean>
     <bean id="ror.established" class="org.dspace.importer.external.metadatamapping.MetadataFieldConfig">
         <constructor-arg value="organization.foundingDate"/>
@@ -140,7 +143,7 @@
         <property name="query" value="/relationships"/>
         <property name="typeField" value="type"/>
         <property name="labelField" value="label"/>
-        <property name="parentType" value="parent"/> <!-- remains the same -->
+        <property name="parentType" value="parent"/>
     </bean>
     
     <bean id="ror.parent" class="org.dspace.importer.external.metadatamapping.MetadataFieldConfig">

@@ -67,7 +67,7 @@ public class RorImportMetadataSourceServiceIT extends AbstractLiveImportIntegrat
             assertThat(record.getSingleValue("oairecerif.acronym"), is("UTHSCSA"));
             assertThat(record.getSingleValue("oairecerif.identifier.url"), is("https://www.uthscsa.edu"));
             assertThat(record.getValue("oairecerif", "identifier", "url"), hasSize(2));
-            assertThat(record.getSingleValue("dc.type"), is("education"));
+            assertThat(record.getSingleValue("dc.type"), is("Education"));
             assertThat(record.getSingleValue("organization.address.addressCountry"), is("US"));
             assertThat(record.getSingleValue("organization.foundingDate"), is("1959"));
             assertThat(record.getValue("organization", "identifier", "crossrefid"), hasSize(2));
@@ -123,7 +123,7 @@ public class RorImportMetadataSourceServiceIT extends AbstractLiveImportIntegrat
             assertThat(record.getSingleValue("oairecerif.acronym"), is("UTHSCT"));
             assertThat(record.getSingleValue("oairecerif.identifier.url"),
                 is("https://www.utsystem.edu/institutions/university-texas-health-science-center-tyler"));
-            assertThat(record.getSingleValue("dc.type"), is("healthcare"));
+            assertThat(record.getSingleValue("dc.type"), is("Healthcare"));
             assertThat(record.getSingleValue("organization.address.addressCountry"), is("US"));
             assertThat(record.getSingleValue("organization.foundingDate"), is("1947"));
             assertThat(record.getSingleValue("organization.identifier.isni"), is("0000 0000 9704 5790"));
