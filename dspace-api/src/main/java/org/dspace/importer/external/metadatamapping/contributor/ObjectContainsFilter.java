@@ -1,3 +1,12 @@
+package org.dspace.importer.external.metadatamapping.contributor;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import org.apache.commons.lang3.StringUtils;
+
 /**
  * A {@link JsonPathFilter} implementation that checks if a specified field within a JSON object
  * contains one or more specific values. This filter can handle fields that are either a single
@@ -31,7 +40,8 @@ public class ObjectContainsFilter implements JsonPathFilter {
      * @param field          The name of the field to inspect within the JSON node.
      * @param requiredValues A {@link Set} of string values to check for in the field.
      * @param requireAll     If `true`, the field (or its array elements) must contain all the `requiredValues`.
-     *                       If `false`, the field (or its array elements) must contain at least one of the `requiredValues`.
+     *                       If `false`, the field (or its array elements)
+     *                       must contain at least one of the `requiredValues`.
      */
     public ObjectContainsFilter(String field, Set<String> requiredValues, boolean requireAll) {
         this.field = field;
@@ -51,7 +61,7 @@ public class ObjectContainsFilter implements JsonPathFilter {
      *
      * @param node The {@link JsonNode} to be tested.
      * @return {@code true} if the node's field contains the required values according to the
-     *         `requireAll` policy; {@code false} otherwise, or if the field is missing or not a text/array type.
+     * `requireAll` policy; {@code false} otherwise, or if the field is missing or not a text/array type.
      */
     @Override
     public boolean matches(JsonNode node) {
@@ -89,8 +99,7 @@ public class ObjectContainsFilter implements JsonPathFilter {
      */
     @Override
     public String getDescription() {
-        String operator = requireAll ? "ALL" : "ANY";
-        return String.format("ObjectContainsFilter[field=%s, values=%s, require=%s]",
-                             field, requiredValues, operator);
+        return String.format("ObjectContainsFilter[field=%s, values=%s]",
+                             field, requiredValues);
     }
 }

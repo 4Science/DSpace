@@ -1,3 +1,11 @@
+package org.dspace.importer.external.metadatamapping.contributor;
+
+import java.util.HashSet;
+import java.util.Set;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import org.apache.commons.lang3.StringUtils;
+
 /**
  * A {@link JsonPathFilter} implementation that checks if a specified array field
  * within a JSON object contains one or more required string values.

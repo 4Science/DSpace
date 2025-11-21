@@ -14,6 +14,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.dspace.AbstractUnitTest;
 import org.dspace.importer.external.metadatamapping.MetadataFieldConfig;
 import org.dspace.importer.external.metadatamapping.MetadatumDTO;
 import org.junit.Before;
@@ -21,13 +22,10 @@ import org.junit.Test;
 
 /**
  * Test class for FilterableJsonPathMetadataContributor
- * 
+ *
  * @author Vincenzo Mecca (vins01-4science - vincenzo.mecca at 4science.com)
  */
-public class FilterableJsonPathMetadataContributorTest {
-
-    private FilterableJsonPathMetadataContributor contributor;
-    private MetadataFieldConfig fieldConfig;
+public class FilterableJsonPathMetadataContributorTest extends AbstractUnitTest {
 
     // Sample JSON from ROR API v2 (based on the user's example)
     private static final String SAMPLE_JSON = "{\n" +
@@ -56,6 +54,8 @@ public class FilterableJsonPathMetadataContributorTest {
         "    }\n" +
         "  ]\n" +
         "}";
+    private FilterableJsonPathMetadataContributor contributor;
+    private MetadataFieldConfig fieldConfig;
 
     @Before
     public void setUp() {
@@ -116,7 +116,7 @@ public class FilterableJsonPathMetadataContributorTest {
         // Verify
         assertEquals("Should extract exactly one value", 1, result.size());
         MetadatumDTO metadata = result.iterator().next();
-        assertEquals("Should extract full name", "Royal Melbourne Institute of Technology University", 
+        assertEquals("Should extract full name", "Royal Melbourne Institute of Technology University",
                      metadata.getValue());
     }
 
@@ -169,16 +169,16 @@ public class FilterableJsonPathMetadataContributorTest {
 
         // Verify - should get all three values
         assertEquals("Should extract all three values", 3, result.size());
-        
+
         // Collect all extracted values
         Set<String> extractedValues = new HashSet<>();
         for (MetadatumDTO metadata : result) {
             extractedValues.add(metadata.getValue());
         }
-        
+
         assertTrue("Should contain RMIT", extractedValues.contains("RMIT"));
         assertTrue("Should contain RMIT University", extractedValues.contains("RMIT University"));
-        assertTrue("Should contain full name", 
+        assertTrue("Should contain full name",
                    extractedValues.contains("Royal Melbourne Institute of Technology University"));
     }
 
@@ -200,7 +200,7 @@ public class FilterableJsonPathMetadataContributorTest {
     @Test
     public void testArrayContainsFilterMatches() {
         ArrayContainsFilter filter = new ArrayContainsFilter("types", "ror_display");
-        
+
         // Test with the ror_display entry
         String testJson = "{\n" +
             "      \"lang\": \"en\",\n" +
@@ -210,11 +210,11 @@ public class FilterableJsonPathMetadataContributorTest {
             "      ],\n" +
             "      \"value\": \"RMIT University\"\n" +
             "    }";
-        
+
         // This would require parsing the JSON node, but for unit test let's test the description
-        assertTrue("Filter description should contain field name", 
+        assertTrue("Filter description should contain field name",
                    filter.getDescription().contains("types"));
-        assertTrue("Filter description should contain required value", 
+        assertTrue("Filter description should contain required value",
                    filter.getDescription().contains("ror_display"));
     }
 }

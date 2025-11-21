@@ -1,3 +1,21 @@
+package org.dspace.importer.external.metadatamapping.contributor;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Objects;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.dspace.importer.external.metadatamapping.MetadataFieldConfig;
+import org.dspace.importer.external.metadatamapping.MetadataFieldMapping;
+import org.dspace.importer.external.metadatamapping.MetadatumDTO;
+
 /**
  * A {@link MetadataContributor} that supports conditional extraction of metadata
  * from a JSON document using JSONPath expressions and configurable filters.
