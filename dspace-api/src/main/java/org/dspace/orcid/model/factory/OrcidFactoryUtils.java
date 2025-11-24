@@ -22,6 +22,8 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.dspace.app.client.DSpaceHttpClientFactory;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Utility class for Orcid factory classes. This is used to parse the
@@ -32,6 +34,8 @@ import org.json.JSONObject;
  *
  */
 public final class OrcidFactoryUtils {
+
+    private static final Logger log = LoggerFactory.getLogger(OrcidFactoryUtils.class);
 
     private OrcidFactoryUtils() {
 
@@ -87,8 +91,17 @@ public final class OrcidFactoryUtils {
      */
     public static Optional<String> retrieveAccessToken(String clientId, String clientSecret, String oauthUrl)
             throws IOException {
-        if (StringUtils.isNotBlank(clientSecret) && StringUtils.isNotBlank(clientId)
-                && StringUtils.isNotBlank(oauthUrl)) {
+        log.info(
+            "Trying to fetch the orcid-access token - clientId: {}, clientSecret: {}, oatuhUrl: {}",
+            clientId,
+            clientSecret,
+            oauthUrl
+        );
+        if (
+                StringUtils.isNotBlank(clientSecret) &&
+                StringUtils.isNotBlank(clientId) &&
+                StringUtils.isNotBlank(oauthUrl)
+        ) {
             String authenticationParameters = "?client_id=" + clientId +
                     "&client_secret=" + clientSecret +
                     "&scope=/read-public&grant_type=client_credentials";

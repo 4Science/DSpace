@@ -81,7 +81,7 @@ public class Orcidv3SolrAuthorityImpl implements SolrAuthorityInterface {
 
     public void initializeAccessToken() {
         // If we have reaches max retries or the access token is already set, return immediately
-        if (maxClientRetries <= 0 || org.apache.commons.lang3.StringUtils.isNotBlank(accessToken)) {
+        if (maxClientRetries <= 0 || StringUtils.isNotBlank(accessToken)) {
             return;
         }
         try {
