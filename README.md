@@ -1,7 +1,7 @@
 
-# DSpace-CRIS
+# DSpace-GLAM
 
-[![Build Status](https://github.com/4Science/DSpace/workflows/Build/badge.svg)](https://github.com/4Science/DSpace/actions?query=workflow%3ABuild)
+> As DSpace-GLAM is a tailored configuration of DSpace-CRIS, any references to DSpace-CRIS in the code or documentation also apply to DSpace-GLAM.
 
 [DSpace-CRIS Documentation](https://wiki.lyrasis.org/display/DSPACECRIS/Technical+and+User+documentation) |
 [DSpace-CRIS Wiki](https://wiki.duraspace.org/display/DSPACECRIS/DSpace-CRIS+Home) |
