@@ -305,11 +305,13 @@ pipelines:
       - step: *build-and-push
       - step: *deploy-on-dev
       - step: *deploy-on-staging
+      - step: *build-and-push-solr8
     'test/**':
       - step: *install
       - parallel: *parallel-pipeline
       - step: *build-and-push
       - step: *deploy-on-test
+      - step: *build-and-push-solr8
 
   pull-requests:
     '**':
