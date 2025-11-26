@@ -50,7 +50,6 @@ public class NotifyServiceBuilder extends AbstractBuilder<NotifyServiceEntity, N
                 delete(notifyServiceEntity);
             }
             c.complete();
-            indexingService.commit();
         }
     }
 

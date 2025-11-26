@@ -69,9 +69,9 @@ public class LDNMessageConsumerIT extends AbstractIntegrationTestWithDatabase {
     public static String[] excludedDiscoveryConsumers;
     public static String[] consumers;
 
-    private static final ConfigurationService configurationService =
-        DSpaceServicesFactory.getInstance().getConfigurationService();
     public static final EventService eventService = EventServiceFactory.getInstance().getEventService();
+    public final ConfigurationService configurationService =
+        DSpaceServicesFactory.getInstance().getConfigurationService();
 
     private Collection collection;
     private EPerson submitter;
@@ -82,6 +82,8 @@ public class LDNMessageConsumerIT extends AbstractIntegrationTestWithDatabase {
 
     @BeforeClass
     public static void tearUp() {
+        ConfigurationService configurationService = DSpaceServicesFactory.getInstance()
+                                                                         .getConfigurationService();
         excludedDiscoveryConsumers =
             configurationService.getArrayProperty(EVENT_DISPATCHER_EXCLUDE_DISCOVERY_CONSUMERS);
         consumers = configurationService.getArrayProperty(EVENT_DISPATCHER_DEFAULT_CONSUMERS);
@@ -103,6 +105,8 @@ public class LDNMessageConsumerIT extends AbstractIntegrationTestWithDatabase {
 
     @AfterClass
     public static void reset() {
+        ConfigurationService configurationService = DSpaceServicesFactory.getInstance()
+                                                                         .getConfigurationService();
         configurationService.setProperty(
             EVENT_DISPATCHER_DEFAULT_CONSUMERS,
             consumers
@@ -162,7 +166,7 @@ public class LDNMessageConsumerIT extends AbstractIntegrationTestWithDatabase {
 
         WorkflowItem workflowItem = workflowService.start(context, workspaceItem);
         Item item = workflowItem.getItem();
-        context.dispatchEvents();
+        context.commit();
         context.restoreAuthSystemState();
 
         LDNMessageEntity ldnMessage =
@@ -239,7 +243,7 @@ public class LDNMessageConsumerIT extends AbstractIntegrationTestWithDatabase {
 
         WorkflowItem workflowItem = workflowService.start(context, workspaceItem);
         Item item = workflowItem.getItem();
-        context.dispatchEvents();
+        context.commit();
         context.restoreAuthSystemState();
 
         LDNMessageEntity ldnMessage =
@@ -310,7 +314,7 @@ public class LDNMessageConsumerIT extends AbstractIntegrationTestWithDatabase {
 
         WorkflowItem workflowItem = workflowService.start(context, workspaceItem);
         Item item = workflowItem.getItem();
-        context.dispatchEvents();
+        context.commit();
         context.restoreAuthSystemState();
 
         LDNMessageEntity ldnMessage =
@@ -381,7 +385,7 @@ public class LDNMessageConsumerIT extends AbstractIntegrationTestWithDatabase {
 
         WorkflowItem workflowItem = workflowService.start(context, workspaceItem);
         Item item = workflowItem.getItem();
-        context.dispatchEvents();
+        context.commit();
         context.restoreAuthSystemState();
 
         LDNMessageEntity ldnMessage =
@@ -451,7 +455,7 @@ public class LDNMessageConsumerIT extends AbstractIntegrationTestWithDatabase {
                                 .build();
 
         workflowService.start(context, workspaceItem);
-        context.dispatchEvents();
+        context.commit();
         context.restoreAuthSystemState();
 
         LDNMessageEntity ldnMessage =
@@ -474,7 +478,7 @@ public class LDNMessageConsumerIT extends AbstractIntegrationTestWithDatabase {
                                 .build();
 
         workflowService.start(context, workspaceItem);
-        context.dispatchEvents();
+        context.commit();
         context.restoreAuthSystemState();
 
         LDNMessageEntity ldnMessage =
