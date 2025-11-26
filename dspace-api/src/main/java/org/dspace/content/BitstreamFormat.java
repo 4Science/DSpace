@@ -24,6 +24,7 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
+import org.apache.commons.lang3.StringUtils;
 import org.dspace.content.factory.ContentServiceFactory;
 import org.dspace.content.service.BitstreamFormatService;
 import org.dspace.core.Context;
@@ -165,7 +166,7 @@ public class BitstreamFormat implements Serializable, ReloadableEntity<Integer> 
      * @return the MIME type
      */
     public String getMIMEType() {
-        return mimetype;
+        return StringUtils.equalsIgnoreCase("null", mimetype) ? null : mimetype;
     }
 
     /**

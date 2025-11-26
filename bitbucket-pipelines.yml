@@ -1,13 +1,10 @@
-image: maven:3.6.3-jdk-11
+image: maven:3.9.11-eclipse-temurin-11
 
 definitions:
-  docker:
-    memory: 4096  # increase memory for docker-in-docker from 1GB to 4GB
   caches:
     gradlewrapper: ~/.gradle/wrapper
   mvnVars:
-    &setEnv export MAVEN_OPTS="-Xmx4096M" &&
-    export MAVEN_ARGS="-Dorg.slf4j.simpleLogger.showDateTime=true -Dorg.slf4j.simpleLogger.dateTimeFormat=HH:mm:ss,SSS"
+    &setEnv export MAVEN_ARGS="-Dorg.slf4j.simpleLogger.showDateTime=true -Dorg.slf4j.simpleLogger.dateTimeFormat=HH:mm:ss,SSS"
   steps:
     - step: &install
         runs-on: self.hosted
@@ -21,7 +18,7 @@ definitions:
           - maven
         script:
           - *setEnv
-          - mvn install -T 1C -B -P-assembly,pipeline $MAVEN_ARGS
+          - mvn install -ntp -T 1C -B -P-assembly,pipeline -Drun.jvmArguments="-XX:MaxRAMPercentage=50.0 -XX:+UseStringDeduplication -XX:+UseCompressedOops -XX:+UnlockExperimentalVMOptions -XX:+UseContainerSupport" $MAVEN_ARGS
         artifacts:
           - target/local-repo/**
           - dspace-server-webapp/target/**
@@ -40,7 +37,7 @@ definitions:
         script:
           - *setEnv
           - cp -rf target/local-repo/** ~/.m2/repository/
-          - mvn -T 1C test -B -pl dspace-api,dspace-server-webapp,dspace-services,dspace-oai -P-assembly -nsu -Dmaven.main.skip -DuseIncrementalCompilation=false -Dtest.argLine=-Xmx4096M -DskipUnitTests=false $MAVEN_ARGS
+          - mvn -T 1C test -B -pl dspace-api,dspace-server-webapp,dspace-services,dspace-oai -P-assembly -nsu -ntp -Dmaven.main.skip -DuseIncrementalCompilation=false -DskipUnitTests=false -Dtest.argLine="-XX:MaxMetaspaceSize=2g -Xmx2g -XX:+UseG1GC -XX:MaxGCPauseMillis=1000 -XX:+HeapDumpOnOutOfMemoryError -XX:+UseStringDeduplication -XX:+UseCompressedOops -XX:+UnlockExperimentalVMOptions -XX:+UseContainerSupport" $MAVEN_ARGS
         artifacts:
           - dspace-api/target/surefire-reports/*-output.txt
           - dspace-server-webapp/target/surefire-reports/*-output.txt
@@ -54,7 +51,7 @@ definitions:
     - step: &integration-tests-dspace-api
         runs-on: self.hosted
         name: integration-tests-dspace-api
-        size: 1x
+        size: 2x
         caches:
           - gradle
           - gradlewrapper
@@ -62,7 +59,7 @@ definitions:
         script:
           - *setEnv
           - cp -rf target/local-repo/** ~/.m2/repository/
-          - mvn verify -pl dspace-api -nsu -Dmaven.main.skip -DuseIncrementalCompilation=true -DskipUnitTests=true -DskipIntegrationTests=false -B -Dsurefire.rerunFailingTestsCount=2 -Dtest.argLine=-Xmx4096M $MAVEN_ARGS
+          - mvn verify -pl dspace-api -nsu -ntp -Dmaven.main.skip -DuseIncrementalCompilation=true -DskipUnitTests=true -DskipIntegrationTests=false -B -Dsurefire.rerunFailingTestsCount=2 -Dtest.argLine="-XX:MaxMetaspaceSize=1g -Xmx2g -XX:+UseG1GC -XX:MaxGCPauseMillis=1000 -XX:+HeapDumpOnOutOfMemoryError -XX:+UseStringDeduplication -XX:+UseCompressedOops -XX:+UnlockExperimentalVMOptions -XX:+UseContainerSupport" $MAVEN_ARGS
         artifacts:
           - dspace-api/target/surefire-reports/*-output.txt
           - dspace-api/target/failsafe-reports/*-output.txt
@@ -78,7 +75,7 @@ definitions:
         script:
           - *setEnv
           - cp -rf target/local-repo/** ~/.m2/repository/
-          - mvn verify -pl dspace-server-webapp -nsu -Dmaven.main.skip -DuseIncrementalCompilation=true -Dit.test=*IT,\!GenericAuthorizationFeatureIT,\!WorkspaceItemRestRepositoryIT,\!ItemImportIT,\!ItemRestRepositoryIT,\!LeftTiltedRelationshipRestRepositoryIT,\!RelationshipRestRepositoryIT,\!StatisticsRestRepositoryIT,\!DiscoveryRestControllerIT,\!PatchMetadataIT,\!VersionRestRepositoryIT,\!CollectionRestRepositoryIT,\!DiscoveryScopeBasedRestControllerIT,\!BrowsesResourceControllerIT,\!BitstreamRestRepositoryIT,\!RightTiltedRelationshipRestRepositoryIT,\!ResearcherProfileRestRepositoryIT,\!StatisticsRestSearchByCategoryRepositoryIT,\!TaskRestRepositoriesIT -DskipUnitTests=true -DskipIntegrationTests=false -B -Dsurefire.rerunFailingTestsCount=2 -Dtest.argLine=-Xmx4096M $MAVEN_ARGS
+          - mvn verify -pl dspace-server-webapp -nsu -ntp -Dmaven.main.skip -DuseIncrementalCompilation=true -Dit.test=*IT,\!GenericAuthorizationFeatureIT,\!WorkspaceItemRestRepositoryIT,\!ItemImportIT,\!ItemRestRepositoryIT,\!LeftTiltedRelationshipRestRepositoryIT,\!RelationshipRestRepositoryIT,\!StatisticsRestRepositoryIT,\!DiscoveryRestControllerIT,\!PatchMetadataIT,\!VersionRestRepositoryIT,\!CollectionRestRepositoryIT,\!DiscoveryScopeBasedRestControllerIT,\!BrowsesResourceControllerIT,\!BitstreamRestRepositoryIT,\!RightTiltedRelationshipRestRepositoryIT,\!ResearcherProfileRestRepositoryIT,\!StatisticsRestSearchByCategoryRepositoryIT,\!TaskRestRepositoriesIT -DskipUnitTests=true -DskipIntegrationTests=false -B -Dsurefire.rerunFailingTestsCount=2 -Dtest.argLine="-XX:MaxMetaspaceSize=1g -Xmx1g -XX:+UseG1GC -XX:MaxGCPauseMillis=1000 -XX:+HeapDumpOnOutOfMemoryError -XX:+UseStringDeduplication -XX:+UseCompressedOops -XX:+UnlockExperimentalVMOptions -XX:+UseContainerSupport" $MAVEN_ARGS
         artifacts:
           - dspace-server-webapp/target/surefire-reports/*-output.txt
           - dspace-server-webapp/target/failsafe-reports/*-output.txt
@@ -94,7 +91,7 @@ definitions:
         script:
           - *setEnv
           - cp -rf target/local-repo/** ~/.m2/repository/
-          - mvn verify -pl dspace-server-webapp -nsu -Dmaven.main.skip -Dit.test=GenericAuthorizationFeatureIT,WorkspaceItemRestRepositoryIT,ItemImportIT,ItemRestRepositoryIT,LeftTiltedRelationshipRestRepositoryIT,RelationshipRestRepositoryIT,StatisticsRestRepositoryIT,DiscoveryRestControllerIT,PatchMetadataIT,VersionRestRepositoryIT,CollectionRestRepositoryIT,DiscoveryScopeBasedRestControllerIT,BrowsesResourceControllerIT,BitstreamRestRepositoryIT,RightTiltedRelationshipRestRepositoryIT,ResearcherProfileRestRepositoryIT,StatisticsRestSearchByCategoryRepositoryIT,TaskRestRepositoriesIT -DskipUnitTests=true -DskipIntegrationTests=false -B -Dsurefire.rerunFailingTestsCount=2 -Dtest.argLine=-Xmx4096M $MAVEN_ARGS
+          - mvn verify -pl dspace-server-webapp -nsu -ntp -Dmaven.main.skip -Dit.test=GenericAuthorizationFeatureIT,WorkspaceItemRestRepositoryIT,ItemImportIT,ItemRestRepositoryIT,LeftTiltedRelationshipRestRepositoryIT,RelationshipRestRepositoryIT,StatisticsRestRepositoryIT,DiscoveryRestControllerIT,PatchMetadataIT,VersionRestRepositoryIT,CollectionRestRepositoryIT,DiscoveryScopeBasedRestControllerIT,BrowsesResourceControllerIT,BitstreamRestRepositoryIT,RightTiltedRelationshipRestRepositoryIT,ResearcherProfileRestRepositoryIT,StatisticsRestSearchByCategoryRepositoryIT,TaskRestRepositoriesIT -DskipUnitTests=true -DskipIntegrationTests=false -B -Dsurefire.rerunFailingTestsCount=2 -Dtest.argLine="-XX:MaxMetaspaceSize=1g -Xmx1g -XX:+UseG1GC -XX:MaxGCPauseMillis=1000 -XX:+HeapDumpOnOutOfMemoryError -XX:+UseStringDeduplication -XX:+UseCompressedOops -XX:+UnlockExperimentalVMOptions -XX:+UseContainerSupport" $MAVEN_ARGS
         artifacts:
           - dspace-server-webapp/target/surefire-reports/*-output.txt
           - dspace-server-webapp/target/failsafe-reports/*-output.txt
