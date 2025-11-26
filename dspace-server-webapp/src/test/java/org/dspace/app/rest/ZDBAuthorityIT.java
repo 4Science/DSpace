@@ -18,12 +18,14 @@ import org.dspace.services.ConfigurationService;
 import org.hamcrest.Matchers;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Import;
 
 /**
  * This class handles ZDBAuthority related IT.
  *
  * @author Luca Giamminonni (luca.giamminonni at 4Science.it)
  */
+@Import(ZDBAuthorityTestConfig.class)
 public class ZDBAuthorityIT extends AbstractControllerIntegrationTest {
 
     @Autowired
