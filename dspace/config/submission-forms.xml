@@ -3137,34 +3137,6 @@ it, please enter the types and the actual numbers or codes.</hint>
         <displayed-value>National Health Service</displayed-value>
         <stored-value>National Health Service</stored-value>
       </pair>
-      <pair>
-        <displayed-value>Education</displayed-value>
-        <stored-value>Education</stored-value>
-      </pair>
-      <pair>
-        <displayed-value>Healthcare</displayed-value>
-        <stored-value>Healthcare</stored-value>
-      </pair>
-      <pair>
-        <displayed-value>Archive</displayed-value>
-        <stored-value>Archive</stored-value>
-      </pair>
-        <pair>
-         <displayed-value>Nonprofit</displayed-value>
-         <stored-value>Nonprofit</stored-value>
-        </pair>
-      <pair>
-        <displayed-value>Funder</displayed-value>
-        <stored-value>Funder</stored-value>
-      </pair>
-      <pair>
-        <displayed-value>Facility</displayed-value>
-        <stored-value>Facility</stored-value>
-      </pair>
-        <pair>
-         <displayed-value>Other</displayed-value>
-         <stored-value>Other</stored-value>
-        </pair>
     </value-pairs>
     <value-pairs value-pairs-name="project_types" dc-term="project_types">
       <pair>
