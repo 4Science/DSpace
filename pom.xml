@@ -63,6 +63,8 @@
         <!-- Jena is used by both RDF and SWORDv2 -->
         <jena.version>4.10.0</jena.version>
 
+        <s3mock-testcontainers.version>4.10.0</s3mock-testcontainers.version>
+
         <!--=== ADDON DEPENDENCIES ===-->
         <addons.version>[cris-2025.01.00-SNAPSHOT,cris-2025.01.00.9999-SNAPSHOT)</addons.version>
         <addon-iiif.version>${addons.version}</addon-iiif.version>
@@ -2172,6 +2174,12 @@
                 <groupId>net.minidev</groupId>
                 <artifactId>json-smart</artifactId>
                 <version>${json-smart.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.adobe.testing</groupId>
+                <artifactId>s3mock-testcontainers</artifactId>
+                <version>${s3mock-testcontainers.version}</version>
+                <scope>test</scope>
             </dependency>
         </dependencies>
     </dependencyManagement>
