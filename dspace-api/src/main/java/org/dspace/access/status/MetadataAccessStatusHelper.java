@@ -11,6 +11,7 @@ import static org.dspace.content.Item.ANY;
 
 import java.sql.SQLException;
 import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
 import java.util.Date;
 
 import org.dspace.content.Item;
@@ -84,7 +85,7 @@ public class MetadataAccessStatusHelper implements AccessStatusHelper {
     private LocalDate parseDate(String dateStr) {
         try {
             return LocalDate.parse(dateStr);
-        } catch (IllegalArgumentException e) {
+        } catch (DateTimeParseException e) {
             return null;
         }
     }
