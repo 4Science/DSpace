@@ -1,4 +1,4 @@
-# No global image - each step specifies its own image
+image: atlassian/default-image:4
 
 definitions:
   caches:
@@ -7,6 +7,17 @@ definitions:
     maven-java17: ~/.m2/repository
   mvnVars:
     &setEnv export MAVEN_ARGS="-Dorg.slf4j.simpleLogger.showDateTime=true -Dorg.slf4j.simpleLogger.dateTimeFormat=HH:mm:ss,SSS"
+  testEnvSetup:
+    &setupTestEnv |
+      apt-get update && apt-get install -y openjdk-17-jdk wget
+      export JAVA_HOME=$(dirname $(dirname $(readlink -f $(which java))))
+      export PATH=$JAVA_HOME/bin:$PATH
+      export DOCKER_HOST=tcp://localhost:2375
+      wget -q https://archive.apache.org/dist/maven/maven-3/3.9.11/binaries/apache-maven-3.9.11-bin.tar.gz
+      tar -xzf apache-maven-3.9.11-bin.tar.gz
+      export M2_HOME=$PWD/apache-maven-3.9.11
+      export PATH=$M2_HOME/bin:$PATH
+      java -version && mvn --version
   steps:
     - step: &install
         runs-on:
@@ -15,7 +26,6 @@ definitions:
           - arm64.group
         name: Install
         size: 1x
-        image: maven:3.9.11-eclipse-temurin-17
         clone:
           depth: 2
         caches:
@@ -23,6 +33,7 @@ definitions:
           - gradlewrapper-java17
           - maven-java17
         script:
+          - *setupTestEnv
           - *setEnv
           - mvn install -ntp -T 1C -B -P-assembly,pipeline -Drun.jvmArguments="-XX:MaxRAMPercentage=50.0 -XX:+UseStringDeduplication -XX:+UseCompressedOops -XX:+UnlockExperimentalVMOptions -XX:+UseContainerSupport" $MAVEN_ARGS
         artifacts:
@@ -40,12 +51,12 @@ definitions:
           - arm64.group
         name: unit-test-code-checks
         size: 2x
-        image: maven:3.9.11-eclipse-temurin-17
         caches:
           - gradle-java17
           - gradlewrapper-java17
           - maven-java17
         script:
+          - *setupTestEnv
           - *setEnv
           - cp -rf target/local-repo/** ~/.m2/repository/
           - mvn -T 1C test -B -pl dspace-api,dspace-server-webapp,dspace-services,dspace-oai -P-assembly -nsu -ntp -Dmaven.main.skip -DuseIncrementalCompilation=false -Dtest.argLine="-XX:MaxMetaspaceSize=2g -Xmx2g -XX:+UseG1GC -XX:MaxGCPauseMillis=1000 -XX:+HeapDumpOnOutOfMemoryError -XX:+UseStringDeduplication -XX:+UseCompressedOops -XX:+UnlockExperimentalVMOptions -XX:+UseContainerSupport" -DskipUnitTests=false $MAVEN_ARGS
@@ -68,7 +79,6 @@ definitions:
           - arm64.group
         name: integration-tests-dspace-api
         size: 1x
-        image: atlassian/default-image:4
         services:
           - docker
         caches:
@@ -76,15 +86,7 @@ definitions:
           - gradlewrapper-java17
           - maven-java17
         script:
-          - apt-get update && apt-get install -y openjdk-17-jdk wget
-          - export JAVA_HOME=$(dirname $(dirname $(readlink -f $(which java))))
-          - export PATH=$JAVA_HOME/bin:$PATH
-          - export DOCKER_HOST=tcp://localhost:2375
-          - wget -q https://archive.apache.org/dist/maven/maven-3/3.9.11/binaries/apache-maven-3.9.11-bin.tar.gz
-          - tar -xzf apache-maven-3.9.11-bin.tar.gz
-          - export M2_HOME=$PWD/apache-maven-3.9.11
-          - export PATH=$M2_HOME/bin:$PATH
-          - java -version && mvn --version
+          - *setupTestEnv
           - *setEnv
           - cp -rf target/local-repo/** ~/.m2/repository/
           - mvn verify -pl dspace-api -nsu -ntp -Dmaven.main.skip -DuseIncrementalCompilation=true -DskipUnitTests=true -DskipIntegrationTests=false -B -Dsurefire.rerunFailingTestsCount=2 -Dtest.argLine="-XX:MaxMetaspaceSize=1g -Xmx1g -XX:+UseG1GC -XX:MaxGCPauseMillis=1000 -XX:+HeapDumpOnOutOfMemoryError -XX:+UseStringDeduplication -XX:+UseCompressedOops -XX:+UnlockExperimentalVMOptions -XX:+UseContainerSupport" $MAVEN_ARGS
@@ -101,7 +103,6 @@ definitions:
           - arm64.group
         name: integration-tests-with-test-jars
         size: 2x
-        image: atlassian/default-image:4
         services:
           - docker
         caches:
@@ -109,15 +110,7 @@ definitions:
           - gradlewrapper-java17
           - maven-java17
         script:
-          - apt-get update && apt-get install -y openjdk-17-jdk wget
-          - export JAVA_HOME=$(dirname $(dirname $(readlink -f $(which java))))
-          - export PATH=$JAVA_HOME/bin:$PATH
-          - export DOCKER_HOST=tcp://localhost:2375
-          - wget -q https://archive.apache.org/dist/maven/maven-3/3.9.11/binaries/apache-maven-3.9.11-bin.tar.gz
-          - tar -xzf apache-maven-3.9.11-bin.tar.gz
-          - export M2_HOME=$PWD/apache-maven-3.9.11
-          - export PATH=$M2_HOME/bin:$PATH
-          - java -version && mvn --version
+          - *setupTestEnv
           - *setEnv
           # - ./dspace-api/src/test/data/dspaceFolder/bin/install_grobid.sh
           - cp -rf target/local-repo/** ~/.m2/repository/
@@ -135,12 +128,12 @@ definitions:
           - arm64.group
         name: integration-tests-slow
         size: 1x
-        image: maven:3.9.11-eclipse-temurin-17
         caches:
           - gradle-java17
           - gradlewrapper-java17
           - maven-java17
         script:
+          - *setupTestEnv
           - *setEnv
           - cp -rf target/local-repo/** ~/.m2/repository/
           - mvn verify -pl dspace-server-webapp -nsu -ntp -Dmaven.main.skip -Dit.test=GenericAuthorizationFeatureIT,WorkspaceItemRestRepositoryIT,ItemImportIT,ItemRestRepositoryIT,LeftTiltedRelationshipRestRepositoryIT,RelationshipRestRepositoryIT,StatisticsRestRepositoryIT,DiscoveryRestControllerIT,PatchMetadataIT,VersionRestRepositoryIT,CollectionRestRepositoryIT,DiscoveryScopeBasedRestControllerIT,BrowsesResourceControllerIT,BitstreamRestRepositoryIT,RightTiltedRelationshipRestRepositoryIT,ResearcherProfileRestRepositoryIT,StatisticsRestSearchByCategoryRepositoryIT,TaskRestRepositoriesIT -DskipUnitTests=true -DskipIntegrationTests=false -B -Dsurefire.rerunFailingTestsCount=2 -Dtest.argLine="-XX:MaxMetaspaceSize=1g -Xmx1g -XX:+UseG1GC -XX:MaxGCPauseMillis=1000 -XX:+HeapDumpOnOutOfMemoryError -XX:+UseStringDeduplication -XX:+UseCompressedOops -XX:+UnlockExperimentalVMOptions -XX:+UseContainerSupport" $MAVEN_ARGS
@@ -157,7 +150,6 @@ definitions:
           - arm64.group
         name: Build and Push Docker Image to ECR
         size: 1x
-        image: atlassian/default-image:4  # Default Bitbucket image with Docker support
         services:
           - docker
         script:
@@ -181,7 +173,6 @@ definitions:
           - arm64.group
         name: Build and Push SOLR8 Docker Image to ECR
         size: 1x
-        image: atlassian/default-image:4  # Default Bitbucket image with Docker support
         services:
           - docker
         script:
@@ -203,7 +194,6 @@ definitions:
           - arm64.group
         name: Build and Push SOLR9 Docker Image to ECR
         size: 1x
-        image: atlassian/default-image:4  # Default Bitbucket image with Docker support
         services:
           - docker
         script:
