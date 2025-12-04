@@ -983,10 +983,6 @@
                     <groupId>org.ow2.asm</groupId>
                     <artifactId>asm-util</artifactId>
                 </exclusion>
-                <exclusion>
-                    <groupId>org.antlr</groupId>
-                    <artifactId>antlr4-runtime</artifactId>
-                </exclusion>
          	</exclusions>
       </dependency>
         <dependency>

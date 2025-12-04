@@ -201,4 +201,18 @@ public interface BitstreamStorageService {
      */
     public void setIncomingExternal(int incoming);
 
+    /**
+     * Generate a presigned URL for direct access to the bitstream content.
+     * This allows downloading files directly from storage (S3, etc.) without going through DSpace.
+     *
+     * @param context   The current context
+     * @param bitstream The bitstream for which to generate the presigned URL
+     * @return The presigned URL as a string, or null if not supported by the storage backend
+     * @throws IOException        If a problem occurs while generating the URL
+     * @throws SQLException       If a problem occurs accessing the RDBMS
+     * @throws AuthorizeException Exception indicating the current user does not have permission
+     */
+    String getPresignedUrl(Context context, Bitstream bitstream)
+        throws IOException, SQLException, AuthorizeException;
+
 }

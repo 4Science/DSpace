@@ -13,7 +13,9 @@ import static org.springframework.web.bind.annotation.RequestMethod.PUT;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -35,13 +37,13 @@ import org.dspace.app.rest.utils.Utils;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.content.Bitstream;
 import org.dspace.content.BitstreamFormat;
-import org.dspace.content.service.BitstreamFormatService;
 import org.dspace.content.service.BitstreamService;
 import org.dspace.core.Context;
 import org.dspace.disseminate.service.CitationDocumentService;
 import org.dspace.eperson.EPerson;
 import org.dspace.services.ConfigurationService;
 import org.dspace.services.EventService;
+import org.dspace.storage.bitstore.service.BitstreamStorageService;
 import org.dspace.usage.UsageEvent;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.rest.webmvc.ResourceNotFoundException;
@@ -84,9 +86,6 @@ public class BitstreamRestController {
     private BitstreamService bitstreamService;
 
     @Autowired
-    BitstreamFormatService bitstreamFormatService;
-
-    @Autowired
     private EventService eventService;
 
     @Autowired
@@ -103,6 +102,9 @@ public class BitstreamRestController {
 
     @Autowired
     Utils utils;
+
+    @Autowired
+    private BitstreamStorageService bitstreamStorageService;
 
     /**
      * Retrieve bitstream. An access token (created by request a copy for some files, if enabled) can optionally
@@ -354,5 +356,55 @@ public class BitstreamRestController {
 
         BitstreamRest bitstreamRest = converter.toRest(context.reloadEntity(bitstream), utils.obtainProjection());
         return converter.toResource(bitstreamRest);
+    }
+
+    /**
+     * This method will retrieve the presigned URL for the bitstream that corresponds to the provided UUID.
+     * The presigned URL allows direct download from the storage (S3 or local) without going through DSpace.
+     *
+     * @param uuid The UUID of the bitstream for which to retrieve the presigned URL
+     * @param request  The request object
+     * @param response The response object
+     * @return ResponseEntity containing the presigned URL as JSON, or null if an error occurred
+     * @throws SQLException       If something goes wrong in the database
+     * @throws IOException        If something goes wrong accessing the storage
+     * @throws AuthorizeException If the user is not authorized to access the bitstream
+     */
+    @RequestMapping(method = RequestMethod.GET, value = "signedurl")
+    @PreAuthorize("hasPermission(#uuid, 'BITSTREAM','READ')")
+    public ResponseEntity<?> getPresignedUrl(@PathVariable UUID uuid,
+                                           HttpServletRequest request,
+                                           HttpServletResponse response)
+            throws SQLException, IOException, AuthorizeException {
+
+        Context context = obtainContext(request);
+
+        Bitstream bitstream = bitstreamService.find(context, uuid);
+
+        if (bitstream == null) {
+            response.sendError(HttpServletResponse.SC_NOT_FOUND);
+            return null;
+        }
+
+        try {
+            String presignedUrl = bitstreamStorageService.getPresignedUrl(context, bitstream);
+            if (StringUtils.isBlank(presignedUrl)) {
+                response.sendError(HttpServletResponse.SC_NOT_FOUND);
+                return null;
+            }
+
+            // Return the presigned URL as JSON
+            Map<String, String> result = new HashMap<>();
+            result.put("presignedUrl", presignedUrl);
+
+            log.info("Generated presigned URL for bitstream: {}, StoreNumber: {}, FormatId: {}",
+                     bitstream.getID(), bitstream.getStoreNumber(), bitstream.getFormat(context).getID());
+            return ResponseEntity.ok(result);
+
+        } catch (Exception e) {
+            log.error("Unable to get presigned url for Bitstream with id: " + uuid, e);
+            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            return null;
+        }
     }
 }

@@ -58,8 +58,16 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 
+import com.amazonaws.auth.AWSStaticCredentialsProvider;
+import com.amazonaws.auth.AnonymousAWSCredentials;
+import com.amazonaws.client.builder.AwsClientBuilder;
+import com.amazonaws.regions.Regions;
+import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.findify.s3mock.S3Mock;
 import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.CharEncoding;
 import org.apache.commons.lang3.StringUtils;
@@ -86,7 +94,6 @@ import org.dspace.content.Community;
 import org.dspace.content.Item;
 import org.dspace.content.service.BitstreamFormatService;
 import org.dspace.content.service.BitstreamService;
-import org.dspace.content.service.CollectionService;
 import org.dspace.core.Constants;
 import org.dspace.disseminate.CitationDocumentServiceImpl;
 import org.dspace.eperson.EPerson;
@@ -96,7 +103,9 @@ import org.dspace.statistics.ObjectCount;
 import org.dspace.statistics.SolrLoggerServiceImpl;
 import org.dspace.statistics.factory.StatisticsServiceFactory;
 import org.dspace.statistics.service.SolrLoggerService;
+import org.dspace.storage.bitstore.S3BitStoreService;
 import org.dspace.storage.bitstore.factory.StorageServiceFactory;
+import org.dspace.storage.bitstore.service.BitstreamStorageService;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -131,11 +140,19 @@ public class BitstreamRestControllerIT extends AbstractControllerIntegrationTest
     @Autowired
     private AuthorizeService authorizeService;
     @Autowired
-    private CollectionService collectionService;
-    @Autowired
     private RequestItemService requestItemService;
     @Autowired
     private ObjectMapper mapper;
+
+    @Autowired
+    private BitstreamStorageService bitstreamStorageService;
+
+    // S3Mock related fields for integration testing
+    private S3Mock s3Mock;
+    private AmazonS3 amazonS3Client;
+    private File s3Directory;
+    private S3BitStoreService mockS3BitStoreService;
+
     private Bitstream bitstream;
     private BitstreamFormat supportedFormat;
     private BitstreamFormat knownFormat;
@@ -193,6 +210,69 @@ public class BitstreamRestControllerIT extends AbstractControllerIntegrationTest
         bitstream.setFormat(context, supportedFormat);
 
         context.restoreAuthSystemState();
+    }
+
+    /**
+     * Sets up S3Mock for presigned URL integration tests.
+     * This creates a real S3-compatible mock server that the S3BitStoreService can connect to.
+     */
+    private void setupS3Mock() throws Exception {
+        // Setup S3Mock server similar to S3BitStoreServiceIT
+        s3Directory = new File(System.getProperty("java.io.tmpdir"), "s3mock-test");
+        s3Mock = S3Mock.create(8001, s3Directory.getAbsolutePath());
+        s3Mock.start();
+
+        // Create Amazon S3 client pointing to the mock server
+        amazonS3Client = createAmazonS3Client("http://127.0.0.1:8001");
+
+        // Create the test bucket
+        String bucketName = "testbucket";
+        amazonS3Client.createBucket(bucketName);
+
+        // Create a new S3BitStoreService configured with the mock S3 client
+        Class<S3BitStoreService> s3Class = S3BitStoreService.class;
+        java.lang.reflect.Constructor<S3BitStoreService> constructor =
+            s3Class.getDeclaredConstructor(AmazonS3.class);
+        constructor.setAccessible(true);
+        mockS3BitStoreService = constructor.newInstance(amazonS3Client);
+
+        mockS3BitStoreService.setEnabled(true);
+        mockS3BitStoreService.setBucketName(bucketName);
+        mockS3BitStoreService.init();
+
+        // Replace store number 1 in the BitstreamStorageService with our mock S3 store
+        Map<Integer, org.dspace.storage.bitstore.BitStoreService> stores =
+            (Map<Integer, org.dspace.storage.bitstore.BitStoreService>)
+                ReflectionTestUtils.getField(bitstreamStorageService, "stores");
+
+        if (stores != null) {
+            stores.put(1, mockS3BitStoreService);
+        }
+    }
+
+    /**
+     * Tears down S3Mock after presigned URL tests
+     */
+    private void tearDownS3Mock() throws Exception {
+        if (s3Mock != null) {
+            s3Mock.shutdown();
+        }
+        if (s3Directory != null && s3Directory.exists()) {
+            FileUtils.deleteDirectory(s3Directory);
+        }
+    }
+
+    /**
+     * Creates an Amazon S3 client for testing with S3Mock
+     * Based on the approach used in S3BitStoreServiceIT
+     */
+    private AmazonS3 createAmazonS3Client(String endpoint) {
+        return AmazonS3ClientBuilder.standard()
+                                    .withCredentials(new AWSStaticCredentialsProvider(new AnonymousAWSCredentials()))
+                                    .withEndpointConfiguration(new AwsClientBuilder
+                                        .EndpointConfiguration(endpoint, Regions.DEFAULT_REGION.getName()))
+                                    .withPathStyleAccessEnabled(true)
+                                    .build();
     }
 
     @Test
@@ -296,7 +376,7 @@ public class BitstreamRestControllerIT extends AbstractControllerIntegrationTest
                 .build();
             bf = bitstreamFormatService.create(context);
             bf.setMIMEType("null");
-            bf.setShortDescription(context,"null");
+            bf.setShortDescription(context, "null");
 
             bitstream = BitstreamBuilder
                 .createBitstream(context, item, is)
@@ -311,8 +391,8 @@ public class BitstreamRestControllerIT extends AbstractControllerIntegrationTest
         //** WHEN **
         //We download the bitstream
         getClient().perform(get("/api/core/bitstreams/" + bitstream.getID() + "/content"))
-            //** THEN **
-            .andExpect(status().isOk());
+                   //** THEN **
+                   .andExpect(status().isOk());
         context.turnOffAuthorisationSystem();
         bitstreamFormatService.delete(context, bf);
         context.restoreAuthSystemState();
@@ -1655,6 +1735,103 @@ public class BitstreamRestControllerIT extends AbstractControllerIntegrationTest
             throw new RuntimeException(e);
         }
     }
+
+    @Test
+    public void testGetPresignedUrl_Success() throws Exception {
+
+        context.turnOffAuthorisationSystem();
+        //** GIVEN **
+        //1. A community-collection structure with one parent community and one collections.
+        parentCommunity = CommunityBuilder.createCommunity(context)
+                                          .withName("Parent Community")
+                                          .build();
+
+        Community community = CommunityBuilder.createCommunity(context).build();
+        Collection collection = CollectionBuilder.createCollection(context, community).build();
+        Item item = ItemBuilder.createItem(context, collection).build();
+        Bitstream dummyBitstream;
+        try (InputStream is = IOUtils.toInputStream("Test Content", CharEncoding.UTF_8)) {
+            dummyBitstream = BitstreamBuilder.createBitstream(context, item, is)
+                                             .withMimeType("text/plain").build();
+            dummyBitstream.setStoreNumber(1); // Set to a s3 store to simulate external storage
+
+            // Grant READ access to eperson
+            createResourcePolicy(context, eperson, null)
+                .withAction(READ)
+                .withDspaceObject(dummyBitstream)
+                .build();
+        }
+
+        // Setup S3Mock - this creates a real S3-compatible server for integration testing
+        setupS3Mock();
+
+        // Actually store the bitstream content in the S3Mock
+        mockS3BitStoreService.put(dummyBitstream, IOUtils.toInputStream("Test Content", CharEncoding.UTF_8));
+
+        context.restoreAuthSystemState();
+
+        String authToken = getAuthToken(eperson.getEmail(), password);
+        try {
+            getClient(authToken)
+                .perform(get("/api/core/bitstreams/" + dummyBitstream.getID() + "/signedurl"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.presignedUrl").exists())
+                .andExpect(jsonPath("$.presignedUrl")
+                               .value(org.hamcrest.Matchers.startsWith("http://127.0.0.1:8001/testbucket")));
+        } finally {
+            // Always clean up S3Mock
+            tearDownS3Mock();
+        }
+    }
+
+    @Test
+    public void testGetPresignedUrl_Unauthorized() throws Exception {
+        context.turnOffAuthorisationSystem();
+        resourcePolicyService.removePolicies(context, bitstream, READ);
+        context.restoreAuthSystemState();
+        // Anonymous request
+        getClient()
+            .perform(get("/api/core/bitstreams/" + bitstream.getID() + "/signedurl"))
+            .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    public void testGetPresignedUrl_Forbidden() throws Exception {
+        // Remove all READ policies for eperson
+        context.turnOffAuthorisationSystem();
+        resourcePolicyService.removePolicies(context, bitstream, READ);
+        context.restoreAuthSystemState();
+
+        String authToken = getAuthToken(eperson.getEmail(), password);
+        getClient(authToken)
+            .perform(get("/api/core/bitstreams/" + bitstream.getID() + "/signedurl"))
+            .andExpect(status().isForbidden());
+    }
+
+    @Test
+    public void testGetPresignedUrl_BitstreamNotFound() throws Exception {
+        String authToken = getAuthToken(eperson.getEmail(), password);
+        getClient(authToken)
+            .perform(get("/api/core/bitstreams/" + randomUUID() + "/signedurl"))
+            .andExpect(status().isNotFound());
+    }
+
+    @Test
+    public void testGetPresignedUrl_PresignedUrlNotAvailable() throws Exception {
+        // Grant READ access to eperson
+        context.turnOffAuthorisationSystem();
+        createResourcePolicy(context, eperson, null)
+            .withAction(READ)
+            .withDspaceObject(bitstream)
+            .build();
+        context.restoreAuthSystemState();
+        // This test assumes the storage service returns null for presigned URL (by default it does with local storage)
+        String authToken = getAuthToken(eperson.getEmail(), password);
+        getClient(authToken)
+            .perform(get("/api/core/bitstreams/" + bitstream.getID() + "/signedurl"))
+            .andExpect(status().isNotFound());
+    }
+
 
     @Test
     public void restrictedBitstreamWithAccessTokenTest() throws Exception {
