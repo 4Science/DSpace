@@ -22,7 +22,7 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
+import java.time.Instant;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -65,9 +65,9 @@ public class AbstractCurationTaskIT extends AbstractIntegrationTestWithDatabase 
                                                                                 .getServiceByName(
                                                                                     IndexingService.class.getName(),
                                                                                     IndexingService.class);
-    private final long nowTime = new Date().getTime();
-    private final Date oldestModifiedDate = new Date(nowTime - ONE_YEAR_TIME);
-    private final Date midModifiedDate = new Date(new Date().getTime() - HALF_YEAR_TIME);
+    private final Instant nowTime = Instant.now();
+    private final Instant oldestModifiedDate = nowTime.minusMillis(ONE_YEAR_TIME);
+    private final Instant midModifiedDate = nowTime.minusMillis(HALF_YEAR_TIME);
 
     @Before
     public void setup() throws Exception {

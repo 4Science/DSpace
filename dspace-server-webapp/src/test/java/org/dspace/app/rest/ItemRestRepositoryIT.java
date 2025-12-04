@@ -66,7 +66,6 @@ import org.dspace.app.rest.model.MetadataValueRest;
 import org.dspace.app.rest.model.patch.AddOperation;
 import org.dspace.app.rest.model.patch.Operation;
 import org.dspace.app.rest.model.patch.ReplaceOperation;
-import org.dspace.app.rest.repository.ItemRestRepository;
 import org.dspace.app.rest.test.AbstractControllerIntegrationTest;
 import org.dspace.app.rest.test.MetadataPatchSuite;
 import org.dspace.builder.BitstreamBuilder;
@@ -4027,8 +4026,8 @@ public class ItemRestRepositoryIT extends AbstractControllerIntegrationTest {
 
         //Delete public item with copyVirtualMetadata = configured
         getClient(token).perform(delete("/api/core/items/" + publication1.getID())
-                                     .param(ItemRestRepository.REQUESTPARAMETER_COPYVIRTUALMETADATA,
-                                            ItemRestRepository.COPYVIRTUAL_CONFIGURED))
+                                     .param(REQUESTPARAMETER_COPYVIRTUALMETADATA,
+                                            COPYVIRTUAL_CONFIGURED))
                         .andExpect(status().is(204));
         // The non-deleted item of the relationships the delete item had (other sides) now still has the
         // relationship Metadata
