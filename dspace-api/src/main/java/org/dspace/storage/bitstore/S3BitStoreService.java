@@ -18,9 +18,6 @@ import java.security.DigestInputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.time.Duration;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -150,8 +147,8 @@ public class S3BitStoreService extends BaseBitStoreService {
     /**
      * Utility method for generate AmazonS3 builder
      *
-     * @param regions wanted regions in client
-     * @param awsCredentials credentials of the client
+     * @param region wanted regions in client
+     * @param credentialsProvider credentials of the client
      * @param endpoint custom AWS endpoint
      * @param targetThroughput target throughput in Gbps
      * @param minPartSize minimum part size in bytes
@@ -708,10 +705,11 @@ public class S3BitStoreService extends BaseBitStoreService {
                                                                 .key(key)
                                                                 .build();
 
-            PresignedGetObjectRequest presignedGetObjectRequest = presigner.presignGetObject(builder -> builder
-                .signatureDuration(Duration.ofMinutes(15))
-                .getObjectRequest(getObjectRequest)
-            );
+            PresignedGetObjectRequest presignedGetObjectRequest =
+                presigner.presignGetObject(
+                    builder -> builder.signatureDuration(presignDuration())
+                                             .getObjectRequest(getObjectRequest)
+                );
 
             String presignedUrl = presignedGetObjectRequest.url().toString();
 
@@ -728,14 +726,10 @@ public class S3BitStoreService extends BaseBitStoreService {
     }
 
 
-    protected Date getExpirationDate() {
-        long expireSeconds = configurationService
-            .getLongProperty("assetstore.s3.presigned.url.expiration.seconds", DEFAULT_EXPIRATION);
-        return Date.from(
-            LocalDateTime.now()
-                         .plusSeconds(expireSeconds)
-                         .atZone(ZoneId.systemDefault())
-                         .toInstant()
+    protected Duration presignDuration() {
+        return Duration.ofSeconds(
+            configurationService
+                .getLongProperty("assetstore.s3.presigned.url.expiration.seconds", DEFAULT_EXPIRATION)
         );
     }
 
