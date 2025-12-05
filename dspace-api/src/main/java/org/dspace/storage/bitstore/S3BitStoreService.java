@@ -217,6 +217,7 @@ public class S3BitStoreService extends BaseBitStoreService {
         }
 
         try {
+            S3Presigner.Builder presignerBuilder = S3Presigner.builder();
             if (StringUtils.isNotBlank(getAwsAccessKey()) && StringUtils.isNotBlank(getAwsSecretKey())) {
                 log.warn("Use local defined S3 credentials");
                 // region
@@ -240,10 +241,7 @@ public class S3BitStoreService extends BaseBitStoreService {
                                 minPartSizeBytes, maxConcurrency)
                         );
 
-                presigner = S3Presigner.builder()
-                                       .region(region)
-                                       .credentialsProvider(credentialsProvider)
-                                       .build();
+                presignerBuilder = presignerBuilder.region(region).credentialsProvider(credentialsProvider);
 
                 log.warn("S3 Region set to: " + region.id());
             } else {
@@ -253,6 +251,8 @@ public class S3BitStoreService extends BaseBitStoreService {
                         amazonClientBuilderBy(null, null , endpoint, targetThroughputGbps,
                                 minPartSizeBytes, maxConcurrency));
             }
+
+            presigner = presignerBuilder.build();
 
             // bucket name
             if (StringUtils.isEmpty(bucketName)) {
