@@ -246,11 +246,17 @@ public class ReferCrosswalk implements ItemExportCrosswalk {
         try (BufferedReader templateReader = new BufferedReader(new FileReader(templateFile))) {
             return templateReader.lines()
                 .map(this::buildTemplateLine)
+                .filter(Objects::nonNull)
                 .collect(Collectors.toList());
         }
     }
 
     private TemplateLine buildTemplateLine(String templateLine) {
+
+        if (templateLine.trim().startsWith("#")) {
+            return null;
+        }
+
 
         Matcher matcher = FIELD_PATTERN.matcher(templateLine);
         if (!matcher.find()) {
