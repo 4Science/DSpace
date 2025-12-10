@@ -64,6 +64,8 @@
         <jena.version>4.10.0</jena.version>
 
         <s3mock-testcontainers.version>4.10.0</s3mock-testcontainers.version>
+        <software.amazon.awssdk.version>2.32.31</software.amazon.awssdk.version>
+        <software.amazon.awssdk.crt.version>0.38.9</software.amazon.awssdk.crt.version>
 
         <!--=== ADDON DEPENDENCIES ===-->
         <addons.version>[cris-2024.02.04-SNAPSHOT,cris-2024.02.04.9999-SNAPSHOT)</addons.version>
