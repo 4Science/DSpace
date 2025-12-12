@@ -20,7 +20,7 @@ public class HitHighlightMatcher {
 
     public static Matcher<? super Object> entry(String value, String expectedField) {
         return allOf(
-            hasJsonPath("$.['" + expectedField + "']", contains(containsString("Public")))
+            hasJsonPath("$.['" + expectedField + "']", contains(containsString(value)))
         );
     }
 
