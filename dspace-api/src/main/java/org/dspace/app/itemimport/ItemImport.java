@@ -192,7 +192,7 @@ public class ItemImport extends DSpaceRunnable<ItemImportScriptConfiguration> {
 
                 // was the collection valid?
                 if (collection == null || collection.getType() != Constants.COLLECTION) {
-                    throw new IllegalArgumentException("Cannot resolve "+ collections[i] + " to collection");
+                    throw new IllegalArgumentException("Cannot resolve " + collections[i] + " to collection");
                 }
 
                 // add resolved collection to list

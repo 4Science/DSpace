@@ -50,13 +50,11 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.TransformerException;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
-import jakarta.mail.MessagingException;
 import org.apache.commons.collections4.ComparatorUtils;
 import org.apache.commons.io.FileDeleteStrategy;
 import org.apache.commons.io.FileUtils;
@@ -69,7 +67,6 @@ import org.dspace.app.itemimport.service.ItemImportService;
 import org.dspace.app.util.LocalSchemaFilenameFilter;
 import org.dspace.app.util.RelationshipUtils;
 import org.dspace.app.util.XMLUtils;
-import org.dspace.authority.service.AuthorityValueService;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.authorize.ResourcePolicy;
 import org.dspace.authorize.service.AuthorizeService;
@@ -122,7 +119,6 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-
 /**
  * Import items into DSpace. The conventional use is upload files by copying
  * them. DSpace writes the item's bitstreams into its assetstore. Metadata is
@@ -140,7 +136,8 @@ import org.xml.sax.SAXException;
  * allow the registration of files (bitstreams) into DSpace.
  */
 public class ItemImportServiceImpl implements ItemImportService, InitializingBean {
-    private final Logger log = LogManager.getLogger();
+
+    private final Logger log = LogManager.getLogger(ItemImportServiceImpl.class);
 
     private DSpaceRunnableHandler handler;
 
