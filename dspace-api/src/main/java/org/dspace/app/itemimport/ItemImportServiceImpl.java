@@ -7,6 +7,7 @@
  */
 package org.dspace.app.itemimport;
 
+import static org.dspace.authority.service.AuthorityValueService.REFERENCE;
 import static org.dspace.iiif.util.IIIFSharedUtils.METADATA_IIIF_HEIGHT_QUALIFIER;
 import static org.dspace.iiif.util.IIIFSharedUtils.METADATA_IIIF_IMAGE_ELEMENT;
 import static org.dspace.iiif.util.IIIFSharedUtils.METADATA_IIIF_LABEL_ELEMENT;
@@ -68,6 +69,7 @@ import org.dspace.app.itemimport.service.ItemImportService;
 import org.dspace.app.util.LocalSchemaFilenameFilter;
 import org.dspace.app.util.RelationshipUtils;
 import org.dspace.app.util.XMLUtils;
+import org.dspace.authority.service.AuthorityValueService;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.authorize.ResourcePolicy;
 import org.dspace.authorize.service.AuthorizeService;
@@ -109,6 +111,7 @@ import org.dspace.eperson.service.GroupService;
 import org.dspace.handle.service.HandleService;
 import org.dspace.scripts.handler.DSpaceRunnableHandler;
 import org.dspace.services.ConfigurationService;
+import org.dspace.util.UUIDUtils;
 import org.dspace.workflow.WorkflowItem;
 import org.dspace.workflow.WorkflowService;
 import org.springframework.beans.factory.InitializingBean;
@@ -263,8 +266,7 @@ public class ItemImportServiceImpl implements ItemImportService, InitializingBea
             }
 
             if (!isTest) {
-                // get the directory names of items to skip (will be in keys of
-                // hash)
+                // get the directory names of items to skip (will be in keys of hash)
                 if (isResume) {
                     skipItems = readMapFile(mapFile);
                 }
@@ -275,13 +277,13 @@ public class ItemImportServiceImpl implements ItemImportService, InitializingBea
             }
 
             // open and process the source directory
-            File d = new java.io.File(sourceDir);
+            File sourceDirectory = new File(sourceDir);
 
-            if (!d.isDirectory()) {
+            if (!sourceDirectory.isDirectory()) {
                 throw new Exception("Error, cannot open source directory " + sourceDir);
             }
 
-            String[] dircontents = d.list(directoryFilter);
+            String[] dircontents = sourceDirectory.list(directoryFilter);
 
             Arrays.sort(dircontents, ComparatorUtils.naturalComparator());
 
@@ -639,11 +641,10 @@ public class ItemImportServiceImpl implements ItemImportService, InitializingBea
     public void replaceItems(Context c, List<Collection> mycollections,
                              String sourceDir, String mapFile, boolean template) throws Exception {
         // verify the source directory
-        File d = new java.io.File(sourceDir);
+        File sourceDirectory = new java.io.File(sourceDir);
 
-        if (!d.isDirectory()) {
-            throw new Exception("Error, cannot open source directory "
-                                    + sourceDir);
+        if (!sourceDirectory.isDirectory()) {
+            throw new Exception("Error, cannot open source directory:" + sourceDir);
         }
 
         // read in HashMap first, to get list of handles & source dirs
@@ -656,11 +657,9 @@ public class ItemImportServiceImpl implements ItemImportService, InitializingBea
             String newItemName = mapEntry.getKey();
             String oldHandle = mapEntry.getValue();
 
-            Item oldItem = null;
-
+            Item oldItem;
             if (oldHandle.indexOf('/') != -1) {
                 logInfo("\tReplacing:  " + oldHandle);
-
                 // add new item, locate old one
                 oldItem = (Item) handleService.resolveToObject(c, oldHandle);
             } else {
@@ -906,7 +905,7 @@ public class ItemImportServiceImpl implements ItemImportService, InitializingBea
     // Load all metadata schemas into the item.
     protected void loadMetadata(Context c, Item myitem, String path)
         throws SQLException, IOException, ParserConfigurationException,
-        SAXException, TransformerException, AuthorizeException, XPathExpressionException {
+        SAXException, AuthorizeException, XPathExpressionException {
         // Load the dublin core metadata
         loadDublinCore(c, myitem, path + "dublin_core.xml");
 
@@ -920,22 +919,16 @@ public class ItemImportServiceImpl implements ItemImportService, InitializingBea
 
     protected void loadDublinCore(Context c, Item myitem, String filename)
         throws SQLException, IOException, ParserConfigurationException,
-        SAXException, TransformerException, AuthorizeException, XPathExpressionException {
+        SAXException, AuthorizeException, XPathExpressionException {
         Document document = loadXML(filename);
 
         // Get the schema, for backward compatibility we will default to the
-        // dublin core schema if the schema name is not available in the import
-        // file
+        // dublin core schema if the schema name is not available in the import file
         String schema;
         XPath xPath = XPathFactory.newInstance().newXPath();
         NodeList metadata = (NodeList) xPath.compile("/dublin_core").evaluate(document, XPathConstants.NODESET);
-        Node schemaAttr = metadata.item(0).getAttributes().getNamedItem(
-            "schema");
-        if (schemaAttr == null) {
-            schema = MetadataSchemaEnum.DC.getName();
-        } else {
-            schema = schemaAttr.getNodeValue();
-        }
+        Node schemaAttr = metadata.item(0).getAttributes().getNamedItem("schema");
+        schema = schemaAttr == null ? MetadataSchemaEnum.DC.getName() : schemaAttr.getNodeValue();
 
         // Get the nodes corresponding to formats
         NodeList dcNodes = (NodeList) xPath.compile("/dublin_core/dcvalue").evaluate(document, XPathConstants.NODESET);
@@ -951,62 +944,65 @@ public class ItemImportServiceImpl implements ItemImportService, InitializingBea
         }
     }
 
-    protected void addDCValue(Context c, Item i, String schema, Node n)
-        throws TransformerException, SQLException, AuthorizeException {
-        String value = getStringValue(n); //n.getNodeValue();
+    protected void addDCValue(Context context, Item item, String schema, Node node)
+            throws SQLException, AuthorizeException {
+        String value = getStringValue(node);
         // compensate for empty value getting read as "null", which won't display
-        if (value == null) {
-            value = "";
-        } else {
-            value = value.trim();
-        }
-        // //getElementData(n, "element");
-        String element = getAttributeValue(n, "element");
-        String qualifier = getAttributeValue(n, "qualifier"); //NodeValue();
-        // //getElementData(n,
-        // "qualifier");
+        value = value == null ? "" : value.trim();
+
+        String element = getAttributeValue(node, "element");
+        String qualifier = getAttributeValue(node, "qualifier");
+        String authority = getAttributeValue(node, "authority");
 
         String language = null;
-        if (StringUtils.isNotBlank(getAttributeValue(n, "language"))) {
-            language = getAttributeValue(n, "language").trim();
+        if (StringUtils.isNotBlank(getAttributeValue(node, "language"))) {
+            language = getAttributeValue(node, "language").trim();
         }
 
         if (!isQuiet) {
-            logInfo("\tSchema: " + schema + " Element: " + element + " Qualifier: " + qualifier
-                                   + " Value: " + value);
+            logInfo("\tSchema: " + schema + " Element: " + element + " Qualifier: " + qualifier + " Value: " + value);
         }
 
         if ("none".equals(qualifier) || "".equals(qualifier)) {
             qualifier = null;
         }
         // only add metadata if it is no test and there is an actual value
-        if (!isTest && !value.equals("")) {
+        if (!isTest && StringUtils.isNotBlank(value)) {
             if (StringUtils.equals(schema, MetadataSchemaEnum.RELATION.getName())) {
-                Item relationItem = resolveItem(c, value);
+                Item relationItem = resolveItem(context, value);
                 if (relationItem == null) {
                     throw new IllegalArgumentException("No item found with id=" + value);
                 }
-                addRelationship(c, i, relationItem, element);
+                addRelationship(context, item, relationItem, element);
+            } else if (StringUtils.isNotBlank(authority)) {
+                manageAuthority(context, item, schema, element, qualifier, language, value, authority);
             } else {
-                itemService.addMetadata(c, i, schema, element, qualifier, language, value);
+                itemService.addMetadata(context, item, schema, element, qualifier, language, value);
             }
         } else {
             // If we're just test the import, let's check that the actual metadata field exists.
-            MetadataSchema foundSchema = metadataSchemaService.find(c, schema);
-
+            MetadataSchema foundSchema = metadataSchemaService.find(context, schema);
             if (foundSchema == null) {
                 logError("ERROR: schema '" + schema + "' was not found in the registry.");
                 return;
             }
 
-            MetadataField foundField = metadataFieldService.findByElement(c, foundSchema, element, qualifier);
-
+            MetadataField foundField = metadataFieldService.findByElement(context, foundSchema, element, qualifier);
             if (foundField == null) {
-                logError(
-                    "ERROR: Metadata field: '" + schema + "." + element + "." + qualifier + "' was not found in the " +
-                        "registry.");
-                return;
+                var field = schema + "." + element;
+                field = qualifier == null ? field : field + "." + qualifier;
+                logError(String.format("ERROR: field '%s' was not found in the registry.", field));
             }
+        }
+    }
+
+    private void manageAuthority(Context context, Item item, String schema, String element, String qualifier,
+                                 String language, String value, String authority) throws SQLException {
+        if (StringUtils.startsWith(authority, REFERENCE)) {
+            itemService.addMetadata(context, item, schema, element, qualifier, language, value, authority, 0);
+        } else if (UUIDUtils.isUUID(authority)) {
+            var authorityToReference = REFERENCE + authority;
+            itemService.addMetadata(context, item, schema, element, qualifier, language, value, authorityToReference,0);
         }
     }
 
@@ -1904,15 +1900,12 @@ public class ItemImportServiceImpl implements ItemImportService, InitializingBea
      */
     protected String getStringValue(Node node) {
         String value = node.getNodeValue();
-
         if (node.hasChildNodes()) {
             Node first = node.getFirstChild();
-
             if (first.getNodeType() == Node.TEXT_NODE) {
                 return first.getNodeValue();
             }
         }
-
         return value;
     }
 
@@ -1925,8 +1918,7 @@ public class ItemImportServiceImpl implements ItemImportService, InitializingBea
      * @throws ParserConfigurationException if config error
      * @throws SAXException                 if XML error
      */
-    protected Document loadXML(String filename) throws IOException,
-        ParserConfigurationException, SAXException {
+    protected Document loadXML(String filename) throws IOException, ParserConfigurationException, SAXException {
         DocumentBuilder builder = XMLUtils.getDocumentBuilder();
         return builder.parse(new File(filename));
     }
@@ -2079,7 +2071,6 @@ public class ItemImportServiceImpl implements ItemImportService, InitializingBea
         SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd_HHmm");
         String datePart = sdf.format(new Date());
         filename = datePart + "_" + filename;
-
         return filename;
     }
 
@@ -2094,12 +2085,10 @@ public class ItemImportServiceImpl implements ItemImportService, InitializingBea
      * @param inputType        The input type of the data (bibtex, csv, etc.), in case of local file
      * @param context          The context
      * @param template         whether to use template item
-     * @throws Exception if error
      */
     @Override
     public void processUIImport(String filepath, Collection owningCollection, String[] otherCollections,
-                                String resumeDir, String inputType, Context context, final boolean template)
-        throws Exception {
+                                String resumeDir, String inputType, Context context, final boolean template) {
         final EPerson oldEPerson = context.getCurrentUser();
         final String[] theOtherCollections = otherCollections;
         final Collection theOwningCollection = owningCollection;
@@ -2260,21 +2249,17 @@ public class ItemImportServiceImpl implements ItemImportService, InitializingBea
             }
 
         };
-
         go.isDaemon();
         go.start();
-
     }
 
     @Override
-    public void emailSuccessMessage(Context context, EPerson eperson,
-                                    String fileName) throws MessagingException {
+    public void emailSuccessMessage(Context context, EPerson eperson, String fileName) {
         try {
             Locale supportedLocale = I18nUtil.getEPersonLocale(eperson);
             Email email = Email.getEmail(I18nUtil.getEmailFilename(supportedLocale, "batch_import_success"));
             email.addRecipient(eperson.getEmail());
             email.addArgument(fileName);
-
             email.send();
         } catch (Exception e) {
             logError(LogHelper.getHeader(context, "emailSuccessMessage", "cannot notify user of import"), e);
@@ -2282,8 +2267,7 @@ public class ItemImportServiceImpl implements ItemImportService, InitializingBea
     }
 
     @Override
-    public void emailErrorMessage(EPerson eperson, String error)
-        throws MessagingException {
+    public void emailErrorMessage(EPerson eperson, String error) {
         logError("An error occurred during item import, the user will be notified. " + error);
         try {
             Locale supportedLocale = I18nUtil.getEPersonLocale(eperson);
@@ -2291,7 +2275,6 @@ public class ItemImportServiceImpl implements ItemImportService, InitializingBea
             email.addRecipient(eperson.getEmail());
             email.addArgument(error);
             email.addArgument(configurationService.getProperty("dspace.ui.url") + "/feedback");
-
             email.send();
         } catch (Exception e) {
             logError("error during item import error notification", e);
