@@ -795,8 +795,10 @@ public class ItemImportServiceImpl implements ItemImportService, InitializingBea
 
                 // find the handle, and output to map file
                 myhandle = handleService.findHandle(c, myitem);
-
                 mapOutputString = itemname + " " + myhandle;
+                logInfo("***********************************************************************");
+                logInfo("*NEW ITEM* Item imported with uuid:" + myitem.getID());
+                logInfo("***********************************************************************");
             }
 
             // set permissions if specified in contents file
@@ -958,14 +960,15 @@ public class ItemImportServiceImpl implements ItemImportService, InitializingBea
         if (StringUtils.isNotBlank(getAttributeValue(node, "language"))) {
             language = getAttributeValue(node, "language").trim();
         }
-
-        if (!isQuiet) {
-            logInfo("\tSchema: " + schema + " Element: " + element + " Qualifier: " + qualifier + " Value: " + value);
-        }
-
         if ("none".equals(qualifier) || "".equals(qualifier)) {
             qualifier = null;
         }
+
+        if (!isQuiet) {
+            var field = schema + "." + element + (qualifier != null ? "." + qualifier : "");
+            logInfo(String.format("\tAdding metadata:%s with value:'%s'", field, value));
+        }
+
         // only add metadata if it is no test and there is an actual value
         if (!isTest && StringUtils.isNotBlank(value)) {
             if (StringUtils.equals(schema, MetadataSchemaEnum.RELATION.getName())) {
@@ -1003,6 +1006,10 @@ public class ItemImportServiceImpl implements ItemImportService, InitializingBea
         } else if (UUIDUtils.isUUID(authority)) {
             var authorityToReference = REFERENCE + authority;
             itemService.addMetadata(context, item, schema, element, qualifier, language, value, authorityToReference,0);
+        } else {
+            var filed = schema + "." + element + (qualifier != null ? "." + qualifier : "");
+            var error = String.format("Provided authority:%s is not supported for metadata:%s", authority, filed);
+            handler.logError(error);
         }
     }
 
