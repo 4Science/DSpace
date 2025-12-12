@@ -132,4 +132,11 @@ public class MetadataMatcher {
     public static Matcher<? super Object> matchMetadataLanguageDoesNotExist(String key, String language) {
         return Matchers.not(hasJsonPath("$.['" + key + "'][*].language", hasItem(language)));
     }
+
+    public static Matcher<? super Object> matchMetadataWithAuthority(String key, String value, String authority, int position, int confidence) {
+        Matcher<Object> hasValue = hasJsonPath("$.['" + key + "'][" + position + "].value", is(value));
+        Matcher<Object> hasAuthority = hasJsonPath("$.['" + key + "'][" + position + "].authority", is(authority));
+        Matcher<Object> hasConfidence = hasJsonPath("$.['" + key + "'][" + position + "].confidence", is(confidence));
+        return Matchers.allOf(hasValue, hasAuthority, hasConfidence);
+    }
 }
