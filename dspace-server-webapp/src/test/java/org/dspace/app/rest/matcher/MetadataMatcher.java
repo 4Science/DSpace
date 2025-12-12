@@ -133,7 +133,10 @@ public class MetadataMatcher {
         return Matchers.not(hasJsonPath("$.['" + key + "'][*].language", hasItem(language)));
     }
 
-    public static Matcher<? super Object> matchMetadataWithAuthority(String key, String value, String authority, int position, int confidence) {
+    public static Matcher<? super Object> matchMetadataWithAuthority(String key,
+                                                                     String value,
+                                                                     String authority,
+                                                                     int position, int confidence) {
         Matcher<Object> hasValue = hasJsonPath("$.['" + key + "'][" + position + "].value", is(value));
         Matcher<Object> hasAuthority = hasJsonPath("$.['" + key + "'][" + position + "].authority", is(authority));
         Matcher<Object> hasConfidence = hasJsonPath("$.['" + key + "'][" + position + "].confidence", is(confidence));
