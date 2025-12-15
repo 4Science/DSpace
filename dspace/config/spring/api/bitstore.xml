@@ -41,8 +41,6 @@
         <!-- Subfolder to organize assets within the bucket, in case this bucket is shared  -->
         <!-- Optional, default is root level of bucket -->
         <property name="subfolder" value="${assetstore.s3.subfolder}"/>
-        <property name="maxConnections" value="${assetstore.s3.maxConnections}"/>
-        <property name="connectionTimeout" value="${assetstore.s3.connectionTimeout}"/>
 
         <!-- The target throughput for transfer requests in Gbps. Higher value means more connections will be established with S3.  -->
         <property name="targetThroughputGbps" value="${assetstore.s3.targetThroughputGbps}"/>
@@ -79,8 +77,6 @@
     <!-- Subfolder to organize assets within the bucket, in case this bucket is shared  -->
     <!-- Optional, default is root level of bucket -->
     <property name="subfolder" value="${assetstore.s3.temp.subfolder}"/>
-    <property name="maxConnections" value="${assetstore.s3.maxConnections}"/>
-    <property name="connectionTimeout" value="${assetstore.s3.connectionTimeout}"/>
     <property name="endpoint" value="${assetstore.s3.endpoint:}"/>
 
     <!-- The target throughput for transfer requests in Gbps. Higher value means more connections will be established with S3.  -->
