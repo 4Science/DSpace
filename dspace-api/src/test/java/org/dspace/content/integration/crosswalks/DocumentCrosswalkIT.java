@@ -34,6 +34,8 @@ import javax.swing.text.Document;
 import javax.swing.text.rtf.RTFEditorKit;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.pdfbox.Loader;
+import org.apache.pdfbox.io.RandomAccessReadBuffer;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.text.PDFTextStripper;
 import org.dspace.AbstractIntegrationTestWithDatabase;
@@ -997,7 +999,7 @@ public class DocumentCrosswalkIT extends AbstractIntegrationTestWithDatabase {
 
     private String getPdfContent(ByteArrayOutputStream out) {
         try {
-            PDDocument document = PDDocument.load(createTempFile(out.toByteArray()));
+            PDDocument document = Loader.loadPDF(new RandomAccessReadBuffer(createTempFile(out.toByteArray())));
             return new PDFTextStripper().getText(document);
         } catch (IOException e) {
             throw new RuntimeException(e);
