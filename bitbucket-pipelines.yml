@@ -66,6 +66,8 @@ definitions:
           - arm64.group
         name: integration-tests-dspace-api
         size: 1x
+        services:
+          - docker
         caches:
           - gradle-java17
           - gradlewrapper-java17
@@ -87,6 +89,8 @@ definitions:
           - arm64.group
         name: integration-tests-with-test-jars
         size: 2x
+        services:
+          - docker
         caches:
           - gradle-java17
           - gradlewrapper-java17
