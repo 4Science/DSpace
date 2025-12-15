@@ -47,6 +47,7 @@ import org.dspace.util.FunctionalUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider;
+import software.amazon.awssdk.auth.credentials.AwsSessionCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.awscore.exception.AwsServiceException;
 import software.amazon.awssdk.core.async.AsyncRequestBody;
@@ -71,34 +72,23 @@ import software.amazon.awssdk.services.s3.model.NoSuchBucketException;
  */
 
 public class S3BitStoreService extends BaseBitStoreService {
-    public static final long DEFAULT_EXPIRATION = Duration.ofMinutes(2).toSeconds();
-    public static final String TEMP_PREFIX = "s3-virtual-path";
-    public static final String TEMP_SUFFIX = "temp";
     protected static final String DEFAULT_BUCKET_PREFIX = "dspace-asset-";
-    // These settings control the way an identifier is hashed into
-    // directory and file names
-    //
-    // With digitsPerLevel 2 and directoryLevels 3, an identifier
-    // like 12345678901234567890 turns into the relative name
-    // /12/34/56/12345678901234567890.
-    //
-    // You should not change these settings if you have data in the
-    // asset store, as the BitstreamStorageManager will be unable
-    // to find your existing data.
-    protected static final int digitsPerLevel = 2;
-    protected static final int directoryLevels = 3;
-    /**
-     * Checksum algorithm
-     */
-    static final String CSA = "MD5";
+    public static final long DEFAULT_EXPIRATION = Duration.ofMinutes(2).toSeconds();
+    // Prefix indicating a registered bitstream
+    protected final String REGISTERED_FLAG = "-R";
     /**
      * log4j log
      */
     private static final Logger log = LogManager.getLogger(S3BitStoreService.class);
-    private static final ConfigurationService configurationService
-        = DSpaceServicesFactory.getInstance().getConfigurationService();
-    // Prefix indicating a registered bitstream
-    protected final String REGISTERED_FLAG = "-R";
+
+    public static final String TEMP_PREFIX = "s3-virtual-path";
+    public static final String TEMP_SUFFIX = "temp";
+
+    /**
+     * Checksum algorithm
+     */
+    static final String CSA = "MD5";
+
     private boolean enabled = false;
     /**
      * Override AWS endpoint if not null
@@ -113,8 +103,7 @@ public class S3BitStoreService extends BaseBitStoreService {
     private long minPartSizeBytes = 8 * 1024 * 1024L;
     private ChecksumAlgorithm s3ChecksumAlgorithm = ChecksumAlgorithm.CRC32;
     private Integer maxConcurrency = null;
-    private Integer maxConnections;
-    private Integer connectionTimeout;
+
     /**
      * container for all the assets
      */
@@ -127,6 +116,9 @@ public class S3BitStoreService extends BaseBitStoreService {
      * S3 service
      */
     private S3AsyncClient s3AsyncClient = null;
+
+    private static final ConfigurationService configurationService
+            = DSpaceServicesFactory.getInstance().getConfigurationService();
 
     public S3BitStoreService() {
     }
@@ -141,23 +133,45 @@ public class S3BitStoreService extends BaseBitStoreService {
     }
 
     /**
+     * Creates an AWS credentials provider that supports both basic credentials and session tokens.
+     *
+     * @param accessKey AWS access key
+     * @param secretKey AWS secret key
+     * @param sessionToken AWS session token (optional)
+     * @return StaticCredentialsProvider with appropriate credentials
+     */
+    protected static StaticCredentialsProvider createCredentialsProvider(
+        String accessKey, String secretKey, String sessionToken
+    ) {
+        if (StringUtils.isNotBlank(sessionToken)) {
+            return StaticCredentialsProvider.create(
+                AwsSessionCredentials.create(accessKey, secretKey, sessionToken)
+            );
+        } else {
+            return StaticCredentialsProvider.create(
+                AwsBasicCredentials.create(accessKey, secretKey)
+            );
+        }
+    }
+
+    /**
      * Utility method for generate AmazonS3 builder
      *
-     * @param regions          wanted regions in client
-     * @param awsCredentials   credentials of the client
-     * @param endpoint         custom AWS endpoint
+     * @param region wanted regions in client
+     * @param credentialsProvider credentials of the client
+     * @param endpoint custom AWS endpoint
      * @param targetThroughput target throughput in Gbps
-     * @param minPartSize      minimum part size in bytes
-     * @param maxConcurrency   maximum number of concurrent requests
+     * @param minPartSize minimum part size in bytes
+     * @param maxConcurrency maximum number of concurrent requests
      * @return builder with the specified parameters
      */
     protected static Supplier<S3AsyncClient> amazonClientBuilderBy(
-        Region region,
-        AwsCredentialsProvider credentialsProvider,
-        String endpoint,
-        double targetThroughput,
-        long minPartSize,
-        Integer maxConcurrency
+            Region region,
+            AwsCredentialsProvider credentialsProvider,
+            String endpoint,
+            double targetThroughput,
+            long minPartSize,
+            Integer maxConcurrency
     ) {
         return () -> {
             S3CrtAsyncClientBuilder crtBuilder = S3AsyncClient.crtBuilder();
@@ -242,10 +256,6 @@ public class S3BitStoreService extends BaseBitStoreService {
         return this.enabled;
     }
 
-    public void setEnabled(boolean enabled) {
-        this.enabled = enabled;
-    }
-
     /**
      * Initialize the asset store
      * S3 Requires:
@@ -272,24 +282,25 @@ public class S3BitStoreService extends BaseBitStoreService {
                     }
                 }
 
-                StaticCredentialsProvider credentialsProvider = StaticCredentialsProvider
-                    .create(AwsBasicCredentials.create(getAwsAccessKey(), getAwsSecretKey()));
+                StaticCredentialsProvider credentialsProvider = createCredentialsProvider(
+                    getAwsAccessKey(), getAwsSecretKey(), getAwsSessionToken());
+
                 // init client
                 s3AsyncClient = FunctionalUtils.getDefaultOrBuild(
-                    this.s3AsyncClient,
-                    amazonClientBuilderBy(
-                        region,
-                        credentialsProvider, endpoint, targetThroughputGbps,
-                        minPartSizeBytes, maxConcurrency)
-                );
+                        this.s3AsyncClient,
+                        amazonClientBuilderBy(
+                                region,
+                                credentialsProvider, endpoint, targetThroughputGbps,
+                                minPartSizeBytes, maxConcurrency)
+                        );
 
                 log.warn("S3 Region set to: " + region.id());
             } else {
                 log.info("Using a IAM role or aws environment credentials");
                 s3AsyncClient = FunctionalUtils.getDefaultOrBuild(
-                    this.s3AsyncClient,
-                    amazonClientBuilderBy(null, null, endpoint, targetThroughputGbps,
-                                          minPartSizeBytes, maxConcurrency));
+                        this.s3AsyncClient,
+                        amazonClientBuilderBy(null, null , endpoint, targetThroughputGbps,
+                                minPartSizeBytes, maxConcurrency));
             }
 
             // bucket name
@@ -359,7 +370,7 @@ public class S3BitStoreService extends BaseBitStoreService {
 
         try {
             return s3AsyncClient.getObject(r -> r.bucket(bucketName).key(objectKey),
-                                           AsyncResponseTransformer.toBlockingInputStream()).join();
+                AsyncResponseTransformer.toBlockingInputStream()).join();
         } catch (CompletionException e) {
             throw new IOException(e.getCause());
         }
@@ -384,11 +395,11 @@ public class S3BitStoreService extends BaseBitStoreService {
         try (DigestInputStream dis = new DigestInputStream(in, MessageDigest.getInstance(CSA))) {
             AsyncRequestBody body = AsyncRequestBody.fromInputStream(dis, null, executor);
 
-            s3AsyncClient.putObject(b -> b.bucket(bucketName).key(key).checksumAlgorithm(s3ChecksumAlgorithm),
-                                    body).join();
+            s3AsyncClient.putObject(b ->  b.bucket(bucketName).key(key).checksumAlgorithm(s3ChecksumAlgorithm),
+                    body).join();
 
             bitstream.setSizeBytes(s3AsyncClient.headObject(r -> r.bucket(bucketName).key(key))
-                                                .join().contentLength());
+                    .join().contentLength());
 
             // we cannot use the S3 ETAG here as it could be not a MD5 in case of multipart upload (large files) or if
             // the bucket is encrypted
@@ -476,7 +487,7 @@ public class S3BitStoreService extends BaseBitStoreService {
         String key = getFullKey(bitstream.getInternalId());
         try {
             s3AsyncClient.deleteObject(r -> r.bucket(bucketName).key(key)).join();
-        } catch (CompletionException e) {
+        }  catch (CompletionException e) {
             log.error("remove(" + key + ")", e.getCause());
             throw new IOException(e.getCause());
         }
@@ -503,7 +514,7 @@ public class S3BitStoreService extends BaseBitStoreService {
 
         if (log.isDebugEnabled()) {
             log.debug("S3 filepath for " + id + " is "
-                          + bufFilename.toString());
+                    + bufFilename.toString());
         }
 
         return bufFilename.toString();
@@ -513,15 +524,15 @@ public class S3BitStoreService extends BaseBitStoreService {
      * there are 2 cases:
      * - conventional bitstream, conventional storage
      * - registered bitstream, conventional storage
-     * conventional bitstream: dspace ingested, dspace random name/path
-     * registered bitstream: registered to dspace, any name/path
+     *  conventional bitstream: dspace ingested, dspace random name/path
+     *  registered bitstream: registered to dspace, any name/path
      *
      * @param sInternalId
      * @return Computed Relative path
      */
     public String getRelativePath(String sInternalId) {
         BitstreamStorageService bitstreamStorageService = StorageServiceFactory.getInstance()
-                                                                               .getBitstreamStorageService();
+                .getBitstreamStorageService();
 
         String sIntermediatePath = StringUtils.EMPTY;
         if (bitstreamStorageService.isRegisteredBitstream(sInternalId)) {
@@ -532,6 +543,10 @@ public class S3BitStoreService extends BaseBitStoreService {
         }
 
         return sIntermediatePath + sInternalId;
+    }
+
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
     }
 
     public String getAwsAccessKey() {
@@ -623,22 +638,6 @@ public class S3BitStoreService extends BaseBitStoreService {
 
     public void setEndpoint(String endpoint) {
         this.endpoint = endpoint;
-    }
-
-    public Integer getMaxConnections() {
-        return maxConnections;
-    }
-
-    public void setMaxConnections(Integer maxConnections) {
-        this.maxConnections = maxConnections;
-    }
-
-    public Integer getConnectionTimeout() {
-        return connectionTimeout;
-    }
-
-    public void setConnectionTimeout(Integer connectionTimeout) {
-        this.connectionTimeout = connectionTimeout;
     }
 
     public String getAwsSessionToken() {
