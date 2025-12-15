@@ -46,6 +46,7 @@
         <rome.version>1.19.0</rome.version>
         <slf4j.version>2.0.17</slf4j.version>
         <tika.version>3.2.3</tika.version>
+        <picocli.version>4.7.6</picocli.version>
         <!-- Sync BouncyCastle & ASM with whatever version Tika uses -->
         <bouncycastle.version>1.81</bouncycastle.version>
         <asm.version>8.0.1</asm.version>
@@ -1562,6 +1563,12 @@
                         <artifactId>xml-apis</artifactId>
                     </exclusion>
                 </exclusions>
+            </dependency>
+            <!-- specify picocli version used by tika to avoid multiple versions -->
+            <dependency>
+                <groupId>info.picocli</groupId>
+                <artifactId>picocli</artifactId>
+                <version>${picocli.version}</version>
             </dependency>
             <!-- Tika brings in multiple versions of this. Select the latest version. Always sync with Tika version -->
             <dependency>
