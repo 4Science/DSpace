@@ -47,6 +47,7 @@ import org.dspace.util.FunctionalUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider;
+import software.amazon.awssdk.auth.credentials.AwsSessionCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.awscore.exception.AwsServiceException;
 import software.amazon.awssdk.core.async.AsyncRequestBody;
@@ -93,19 +94,6 @@ public class S3BitStoreService extends BaseBitStoreService {
      */
     static final String CSA = "MD5";
 
-    // These settings control the way an identifier is hashed into
-    // directory and file names
-    //
-    // With digitsPerLevel 2 and directoryLevels 3, an identifier
-    // like 12345678901234567890 turns into the relative name
-    // /12/34/56/12345678901234567890.
-    //
-    // You should not change these settings if you have data in the
-    // asset store, as the BitstreamStorageManager will be unable
-    // to find your existing data.
-    protected static final int digitsPerLevel = 2;
-    protected static final int directoryLevels = 3;
-
     private boolean enabled = false;
 
     /**
@@ -122,8 +110,6 @@ public class S3BitStoreService extends BaseBitStoreService {
     private long minPartSizeBytes = 8 * 1024 * 1024L;
     private ChecksumAlgorithm s3ChecksumAlgorithm = ChecksumAlgorithm.CRC32;
     private Integer maxConcurrency = null;
-    private Integer maxConnections;
-    private Integer connectionTimeout;
 
     /**
      * container for all the assets
@@ -143,6 +129,28 @@ public class S3BitStoreService extends BaseBitStoreService {
     private static final ConfigurationService configurationService
             = DSpaceServicesFactory.getInstance().getConfigurationService();
     private S3Presigner presigner;
+
+    /**
+     * Creates an AWS credentials provider that supports both basic credentials and session tokens.
+     *
+     * @param accessKey AWS access key
+     * @param secretKey AWS secret key
+     * @param sessionToken AWS session token (optional)
+     * @return StaticCredentialsProvider with appropriate credentials
+     */
+    protected static StaticCredentialsProvider createCredentialsProvider(
+        String accessKey, String secretKey, String sessionToken
+    ) {
+        if (StringUtils.isNotBlank(sessionToken)) {
+            return StaticCredentialsProvider.create(
+                AwsSessionCredentials.create(accessKey, secretKey, sessionToken)
+            );
+        } else {
+            return StaticCredentialsProvider.create(
+                AwsBasicCredentials.create(accessKey, secretKey)
+            );
+        }
+    }
 
     /**
      * Utility method for generate AmazonS3 builder
@@ -230,8 +238,9 @@ public class S3BitStoreService extends BaseBitStoreService {
                     }
                 }
 
-                StaticCredentialsProvider credentialsProvider = StaticCredentialsProvider
-                    .create(AwsBasicCredentials.create(getAwsAccessKey(), getAwsSecretKey()));
+                StaticCredentialsProvider credentialsProvider = createCredentialsProvider(
+                    getAwsAccessKey(), getAwsSecretKey(), getAwsSessionToken());
+
                 // init client
                 s3AsyncClient = FunctionalUtils.getDefaultOrBuild(
                         this.s3AsyncClient,
@@ -588,22 +597,6 @@ public class S3BitStoreService extends BaseBitStoreService {
 
     public void setEndpoint(String endpoint) {
         this.endpoint = endpoint;
-    }
-
-    public Integer getMaxConnections() {
-        return maxConnections;
-    }
-
-    public void setMaxConnections(Integer maxConnections) {
-        this.maxConnections = maxConnections;
-    }
-
-    public Integer getConnectionTimeout() {
-        return connectionTimeout;
-    }
-
-    public void setConnectionTimeout(Integer connectionTimeout) {
-        this.connectionTimeout = connectionTimeout;
     }
 
     public String getAwsSessionToken() {
