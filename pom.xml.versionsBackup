@@ -62,7 +62,7 @@
         <jersey.version>2.46</jersey.version>
 
         <!--=== ADDON DEPENDENCIES ===-->
-        <addons.version>[cris-2023.02.07,cris-2023.02.07.9999)</addons.version>
+        <addons.version>[cris-2023.02.07-SNAPSHOT,cris-2023.02.07.9999-SNAPSHOT)</addons.version>
         <addon-iiif.version>${addons.version}</addon-iiif.version>
         <addon-ocr.version>${addons.version}</addon-ocr.version>
         <addon-docviewer.version>${addons.version}</addon-docviewer.version>
