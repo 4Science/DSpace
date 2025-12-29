@@ -25,11 +25,11 @@ import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.message.BasicNameValuePair;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.dspace.app.client.DSpaceHttpClientFactory;
 import org.json.JSONObject;
 import org.json.JSONTokener;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Utility class for Orcid factory classes. This is used to parse the
@@ -41,7 +41,7 @@ import org.json.JSONTokener;
  */
 public final class OrcidFactoryUtils {
 
-    private static final Logger log = LogManager.getLogger(OrcidFactoryUtils.class);
+    private static final Logger log = LoggerFactory.getLogger(OrcidFactoryUtils.class);
 
     private OrcidFactoryUtils() { }
 
@@ -102,8 +102,8 @@ public final class OrcidFactoryUtils {
         );
         if (StringUtils.isBlank(clientSecret) || StringUtils.isBlank(clientId) || StringUtils.isBlank(oauthUrl)) {
             String missingParams = (StringUtils.isBlank(clientId) ? "clientId " : "") +
-                                   (StringUtils.isBlank(clientSecret) ? "clientSecret " : "") +
-                                   (StringUtils.isBlank(oauthUrl) ? "oauthUrl" : "");
+                (StringUtils.isBlank(clientSecret) ? "clientSecret " : "") +
+                (StringUtils.isBlank(oauthUrl) ? "oauthUrl" : "");
             log.error("Cannot retrieve ORCID access token: missing required parameters:{} ", missingParams.trim());
             return Optional.empty();
         }
