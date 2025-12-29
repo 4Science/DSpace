@@ -10,55 +10,22 @@ package org.dspace.storage.bitstore;
 import static java.lang.String.valueOf;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URL;
+import java.net.URI;
 import java.security.DigestInputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.time.Duration;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.concurrent.CompletionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.function.Supplier;
 
-import com.amazonaws.AmazonClientException;
-import com.amazonaws.ClientConfiguration;
-import com.amazonaws.ClientConfigurationFactory;
-import com.amazonaws.HttpMethod;
-import com.amazonaws.auth.AWSCredentials;
-import com.amazonaws.auth.AWSCredentialsProvider;
-import com.amazonaws.auth.AWSStaticCredentialsProvider;
-import com.amazonaws.auth.BasicAWSCredentials;
-import com.amazonaws.auth.BasicSessionCredentials;
-import com.amazonaws.auth.DefaultAWSCredentialsProviderChain;
-import com.amazonaws.client.builder.AwsClientBuilder.EndpointConfiguration;
-import com.amazonaws.regions.DefaultAwsRegionProviderChain;
-import com.amazonaws.regions.Region;
-import com.amazonaws.regions.Regions;
-import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.AmazonS3ClientBuilder;
-import com.amazonaws.services.s3.model.AmazonS3Exception;
-import com.amazonaws.services.s3.model.GeneratePresignedUrlRequest;
-import com.amazonaws.services.s3.model.GetObjectRequest;
-import com.amazonaws.services.s3.model.ObjectMetadata;
-import com.amazonaws.services.s3.transfer.Download;
-import com.amazonaws.services.s3.transfer.TransferManager;
-import com.amazonaws.services.s3.transfer.TransferManagerBuilder;
-import com.amazonaws.services.s3.transfer.Upload;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import jakarta.validation.constraints.NotNull;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.HelpFormatter;
@@ -67,9 +34,7 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.output.NullOutputStream;
-import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.http.HttpStatus;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.dspace.content.Bitstream;
@@ -80,6 +45,26 @@ import org.dspace.storage.bitstore.factory.StorageServiceFactory;
 import org.dspace.storage.bitstore.service.BitstreamStorageService;
 import org.dspace.util.FunctionalUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
+import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider;
+import software.amazon.awssdk.auth.credentials.AwsSessionCredentials;
+import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
+import software.amazon.awssdk.awscore.exception.AwsServiceException;
+import software.amazon.awssdk.core.async.AsyncRequestBody;
+import software.amazon.awssdk.core.async.AsyncResponseTransformer;
+import software.amazon.awssdk.core.exception.SdkClientException;
+import software.amazon.awssdk.http.HttpStatusCode;
+import software.amazon.awssdk.regions.Region;
+import software.amazon.awssdk.services.s3.S3AsyncClient;
+import software.amazon.awssdk.services.s3.S3CrtAsyncClientBuilder;
+import software.amazon.awssdk.services.s3.model.ChecksumAlgorithm;
+import software.amazon.awssdk.services.s3.model.GetObjectRequest;
+import software.amazon.awssdk.services.s3.model.HeadObjectResponse;
+import software.amazon.awssdk.services.s3.model.NoSuchBucketException;
+import software.amazon.awssdk.services.s3.model.S3Exception;
+import software.amazon.awssdk.services.s3.presigner.S3Presigner;
+import software.amazon.awssdk.services.s3.presigner.model.PresignedGetObjectRequest;
+
 
 /**
  * Asset store using Amazon's Simple Storage Service (S3).
@@ -88,13 +73,11 @@ import org.springframework.beans.factory.annotation.Autowired;
  *
  * @author Richard Rodgers, Peter Dietz
  * @author Vincenzo Mecca (vins01-4science - vincenzo.mecca at 4science.com)
- *
+ * @author Mark Patton
  */
 
 public class S3BitStoreService extends BaseBitStoreService {
     protected static final String DEFAULT_BUCKET_PREFIX = "dspace-asset-";
-    protected static final Gson GSON = new GsonBuilder().serializeNulls().setPrettyPrinting().create();
-    public static final String REGEX_SECRET = "^(.{3})(.*)(.{3})$";
     public static final long DEFAULT_EXPIRATION = Duration.ofMinutes(2).toSeconds();
     // Prefix indicating a registered bitstream
     protected final String REGISTERED_FLAG = "-R";
@@ -111,34 +94,22 @@ public class S3BitStoreService extends BaseBitStoreService {
      */
     static final String CSA = "MD5";
 
-    // These settings control the way an identifier is hashed into
-    // directory and file names
-    //
-    // With digitsPerLevel 2 and directoryLevels 3, an identifier
-    // like 12345678901234567890 turns into the relative name
-    // /12/34/56/12345678901234567890.
-    //
-    // You should not change these settings if you have data in the
-    // asset store, as the BitstreamStorageManager will be unable
-    // to find your existing data.
-    protected static final int digitsPerLevel = 2;
-    protected static final int directoryLevels = 3;
-
     private boolean enabled = false;
+
+    /**
+     *  Override AWS endpoint if not null
+     */
+    private String endpoint = null;
 
     private String awsAccessKey;
     private String awsSecretKey;
     private String awsRegionName;
     private String awsSessionToken;
     private boolean useRelativePath;
-    private Integer maxConnections;
-    private Integer connectionTimeout;
-    private String endpoint;
-
-    /**
-     * The maximum size of individual chunk to download from S3 when a file is accessed. Default 5Mb
-     */
-    private long bufferSize = 5 * 1024 * 1024;
+    private double targetThroughputGbps = 10.0;
+    private long minPartSizeBytes = 8 * 1024 * 1024L;
+    private ChecksumAlgorithm s3ChecksumAlgorithm = ChecksumAlgorithm.CRC32;
+    private Integer maxConcurrency = null;
 
     /**
      * container for all the assets
@@ -153,192 +124,75 @@ public class S3BitStoreService extends BaseBitStoreService {
     /**
      * S3 service
      */
-    private AmazonS3 s3Service = null;
-
-    /**
-     * S3 transfer manager
-     * this is reused between put calls to use less resources for multiple uploads
-     */
-    private TransferManager tm = null;
+    private S3AsyncClient s3AsyncClient = null;
 
     private static final ConfigurationService configurationService
             = DSpaceServicesFactory.getInstance().getConfigurationService();
+    private S3Presigner presigner;
 
     /**
-     * Utility method for generate ClientConfiguration
+     * Creates an AWS credentials provider that supports both basic credentials and session tokens.
      *
-     * @param maxConnections maximum number of connections for the S3 Service
-     * @param connectionTimeout maximum timeout for those connections
-     * @return ClientConfiguration with the specified parameters
+     * @param accessKey AWS access key
+     * @param secretKey AWS secret key
+     * @param sessionToken AWS session token (optional)
+     * @return StaticCredentialsProvider with appropriate credentials
      */
-    protected static Supplier<ClientConfiguration> getClientConfiguration(
-        Integer maxConnections, Integer connectionTimeout
+    protected static StaticCredentialsProvider createCredentialsProvider(
+        String accessKey, String secretKey, String sessionToken
     ) {
-        return () -> {
-            ClientConfiguration clientConfiguration =
-                new ClientConfigurationFactory().getConfig()
-                                                .withMaxConnections(
-                                                    Optional.ofNullable(maxConnections)
-                                                            .orElse(ClientConfiguration.DEFAULT_MAX_CONNECTIONS)
-                                                )
-                                                .withConnectionTimeout(
-                                                    Optional.ofNullable(connectionTimeout)
-                                                            .orElse(ClientConfiguration.DEFAULT_CONNECTION_TIMEOUT)
-                                                );
-            if (log.isDebugEnabled()) {
-                log.debug(
-                    "AmazonS3Client client configuration: {}",
-                    toJson(clientConfiguration)
-                );
-            }
-            return clientConfiguration;
-        };
-    }
-
-    private static String toJson(ClientConfiguration clientConfiguration) {
-        try {
-            return new ObjectMapper()
-                .configure(SerializationFeature.INDENT_OUTPUT, true)
-                .configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false)
-                .writeValueAsString(clientConfiguration);
-        } catch (JsonProcessingException e) {
-            log.error("Cannot convert client S3 configuration into JSON", e);
-            log.info("Trying converting to simple String");
-            return ReflectionToStringBuilder.toString(clientConfiguration);
-        }
-    }
-
-    /**
-     * Utility method for generate AmazonS3 builder
-     *
-     * @param regionsSupplier wanted regionsSupplier in client
-     * @param credentialsProvider credentials of the client
-     * @param clientConfiguration client connection details
-     * @param endpoint optional custom endpoint
-     * @return builder with the specified parameters
-     */
-    protected static Supplier<AmazonS3> amazonClientBuilderBy(
-            @NotNull Supplier<Regions> regionsSupplier,
-            @NotNull Supplier<? extends AWSCredentialsProvider> credentialsProvider,
-            @NotNull Supplier<ClientConfiguration> clientConfiguration,
-            String endpoint
-    ) {
-        return () ->
-            withEndpointConfiguration(
-                AmazonS3ClientBuilder.standard()
-                                     .withCredentials(credentialsProvider.get())
-                                     .withClientConfiguration(clientConfiguration.get()),
-                regionsSupplier.get(),
-                endpoint
-            ).build();
-    }
-
-    /**
-     * Utility method for generate AmazonS3 builder
-     *
-     * @param clientConfigurationSupplier client connection details
-     * @param regionsSupplier the region of the configured endpoint
-     * @param endpoint optional custom endpoint
-     * @return builder with the specified parameters
-     */
-    protected static Supplier<AmazonS3> amazonClientBuilderBy(
-        @NotNull Supplier<Regions> regionsSupplier,
-        @NotNull Supplier<ClientConfiguration> clientConfigurationSupplier,
-        String endpoint
-    ) {
-        return () ->
-            withEndpointConfiguration(
-                AmazonS3ClientBuilder.standard()
-                                     .withClientConfiguration(clientConfigurationSupplier.get()),
-                regionsSupplier.get(),
-                endpoint
-            ).build();
-    }
-
-    /**
-     * Additional builder that enriches a given {@link AmazonS3ClientBuilder} with a custom {@link EndpointConfiguration}
-     * if any endpoint is set.
-     * <br/>
-     * Otherwise proceeds to set the {@link Regions} inside the builder.
-     *
-     * @param clientBuilder The builder that contains all the client details
-     * @param regions The region of the client to be built
-     * @param endpoint The custom optional endpoint to set
-     * @return {@link AmazonS3ClientBuilder} enriched with the given details
-     */
-    protected static AmazonS3ClientBuilder withEndpointConfiguration(
-        @NotNull AmazonS3ClientBuilder clientBuilder,
-        @NotNull Regions regions,
-        String endpoint
-    ) {
-        if (StringUtils.isNotBlank(endpoint)) {
-            clientBuilder =
-                clientBuilder.withEndpointConfiguration(getEndpointConfiguration(endpoint, regions));
-            log.info(
-                "AmazonS3Client endpoint-configuration: {}",
-                GSON.toJson(clientBuilder.getEndpoint())
+        if (StringUtils.isNotBlank(sessionToken)) {
+            return StaticCredentialsProvider.create(
+                AwsSessionCredentials.create(accessKey, secretKey, sessionToken)
             );
         } else {
-            clientBuilder = clientBuilder.withRegion(regions);
-            log.info(
-                "AmazonS3Client regions: {}",
-                GSON.toJson(clientBuilder.getRegion())
+            return StaticCredentialsProvider.create(
+                AwsBasicCredentials.create(accessKey, secretKey)
             );
         }
-        return clientBuilder;
     }
 
-    protected static EndpointConfiguration getEndpointConfiguration(String endpoint, Regions region) {
-        return new EndpointConfiguration(
-            endpoint, region.getName()
-        );
-    }
-
-    protected static Supplier<AWSStaticCredentialsProvider> getAwsCredentialsSupplier(
-        String awsAccessKey, String awsSecretKey
+    /**
+     * Utility method for generate AmazonS3 builder
+     *
+     * @param region wanted regions in client
+     * @param credentialsProvider credentials of the client
+     * @param endpoint custom AWS endpoint
+     * @param targetThroughput target throughput in Gbps
+     * @param minPartSize minimum part size in bytes
+     * @param maxConcurrency maximum number of concurrent requests
+     * @return builder with the specified parameters
+     */
+    protected static Supplier<S3AsyncClient> amazonClientBuilderBy(
+            Region region,
+            AwsCredentialsProvider credentialsProvider,
+            String endpoint,
+            double targetThroughput,
+            long minPartSize,
+            Integer maxConcurrency
     ) {
-        BasicAWSCredentials credentials = new BasicAWSCredentials(awsAccessKey, awsSecretKey);
-        log.info(
-            "AmazonS3Client credentials - accessKey: {}, secretKey: {}",
-            credentials.getAWSAccessKeyId().replaceFirst(REGEX_SECRET, "$1***$3"),
-            credentials.getAWSSecretKey().replaceFirst(REGEX_SECRET, "$1***$3")
-        );
-        return getAwsCredentialsSupplier(credentials);
-    }
+        return () -> {
+            S3CrtAsyncClientBuilder crtBuilder = S3AsyncClient.crtBuilder();
 
-    protected static Supplier<AWSStaticCredentialsProvider> getAwsCredentialsSupplier(
-        AWSCredentials credentials
-    ) {
-        return () -> new AWSStaticCredentialsProvider(credentials);
-    }
+            if (credentialsProvider != null) {
+                crtBuilder.credentialsProvider(credentialsProvider);
+            }
 
-    protected static Supplier<AWSStaticCredentialsProvider> getBasicCredentialsSupplier(
-        String awsAccessKey, String awsSecretKey, String awsSessionToken
-    ) {
-        BasicSessionCredentials credentials = new BasicSessionCredentials(awsAccessKey, awsSecretKey, awsSessionToken);
-        log.info(
-            "AmazonS3Client credentials - accessKey: {}, secretKey: {}, awsSessionToken: {}",
-            credentials.getAWSAccessKeyId().replaceFirst(REGEX_SECRET, "$1***$3"),
-            credentials.getAWSSecretKey().replaceFirst(REGEX_SECRET, "$1***$3"),
-            credentials.getSessionToken().replaceFirst(REGEX_SECRET, "$1***$3")
-        );
-        return getAwsCredentialsSupplier(credentials);
-    }
+            if (region != null) {
+                crtBuilder.region(region);
+            }
 
-    protected static Regions getDefaultRegion() {
-        return Optional.ofNullable(new DefaultAwsRegionProviderChain().getRegion())
-                       .filter(StringUtils::isNotBlank)
-                       .map(S3BitStoreService::parseRegion)
-                       .orElse(Regions.DEFAULT_REGION);
-    }
+            if (maxConcurrency != null) {
+                crtBuilder.maxConcurrency(maxConcurrency);
+            }
 
-    private static Regions parseRegion(String awsRegionName) {
-        try {
-            return Regions.fromName(awsRegionName);
-        } catch (IllegalArgumentException e) {
-            log.warn("Invalid aws_region: " + awsRegionName);
-        }
-        return null;
+            if (StringUtils.isNotBlank(endpoint)) {
+                crtBuilder.endpointOverride(URI.create(endpoint));
+                crtBuilder.forcePathStyle(true);
+            }
+
+            return crtBuilder.targetThroughputInGbps(targetThroughput).minimumPartSizeInBytes(minPartSize).build();
+        };
     }
 
     public S3BitStoreService() {}
@@ -346,10 +200,10 @@ public class S3BitStoreService extends BaseBitStoreService {
     /**
      * This constructor is used for test purpose.
      *
-     * @param s3Service AmazonS3 service
+     * @param s3AsyncClient AmazonS3 service
      */
-    protected S3BitStoreService(AmazonS3 s3Service) {
-        this.s3Service = s3Service;
+    protected S3BitStoreService(S3AsyncClient s3AsyncClient) {
+        this.s3AsyncClient = s3AsyncClient;
     }
 
     @Override
@@ -366,38 +220,48 @@ public class S3BitStoreService extends BaseBitStoreService {
      */
     @Override
     public void init() throws IOException {
-
         if (this.isInitialized() || !this.isEnabled()) {
             return;
         }
 
         try {
-            Supplier<? extends AWSCredentialsProvider> awsCredentialsSupplier;
+            S3Presigner.Builder presignerBuilder = S3Presigner.builder();
             if (StringUtils.isNotBlank(getAwsAccessKey()) && StringUtils.isNotBlank(getAwsSecretKey())) {
-                if (StringUtils.isNotBlank(getAwsSessionToken())) {
-                    log.warn("Use local S3 credentials with session token");
-                    awsCredentialsSupplier =
-                        getBasicCredentialsSupplier(getAwsAccessKey(), getAwsSecretKey(), getAwsSessionToken());
-                } else {
-                    log.warn("Use local S3 credentials with access and secret keys");
-                    awsCredentialsSupplier =
-                        getAwsCredentialsSupplier(getAwsAccessKey(), getAwsSecretKey());
+                log.warn("Use local defined S3 credentials");
+                // region
+                Region region = Region.US_EAST_1;
+                if (StringUtils.isNotBlank(awsRegionName)) {
+                    try {
+                        region = Region.of(awsRegionName);
+                    } catch (IllegalArgumentException e) {
+                        log.warn("Invalid aws_region: " + awsRegionName);
+                    }
                 }
+
+                StaticCredentialsProvider credentialsProvider = createCredentialsProvider(
+                    getAwsAccessKey(), getAwsSecretKey(), getAwsSessionToken());
+
+                // init client
+                s3AsyncClient = FunctionalUtils.getDefaultOrBuild(
+                        this.s3AsyncClient,
+                        amazonClientBuilderBy(
+                                region,
+                                credentialsProvider, endpoint, targetThroughputGbps,
+                                minPartSizeBytes, maxConcurrency)
+                        );
+
+                presignerBuilder = presignerBuilder.region(region).credentialsProvider(credentialsProvider);
+
+                log.warn("S3 Region set to: " + region.id());
             } else {
-                log.info("Use an IAM role or aws environment credentials");
-                awsCredentialsSupplier = DefaultAWSCredentialsProviderChain::new;
+                log.info("Using a IAM role or aws environment credentials");
+                s3AsyncClient = FunctionalUtils.getDefaultOrBuild(
+                        this.s3AsyncClient,
+                        amazonClientBuilderBy(null, null , endpoint, targetThroughputGbps,
+                                minPartSizeBytes, maxConcurrency));
             }
-            // init client
-            s3Service =
-                FunctionalUtils.getDefaultOrBuild(
-                    this.s3Service,
-                    amazonClientBuilderBy(
-                        this::getRegions,
-                        awsCredentialsSupplier,
-                        getClientConfiguration(maxConnections, connectionTimeout),
-                        endpoint
-                    )
-                );
+
+            presigner = presignerBuilder.build();
 
             // bucket name
             if (StringUtils.isEmpty(bucketName)) {
@@ -407,14 +271,9 @@ public class S3BitStoreService extends BaseBitStoreService {
                 log.warn("S3 BucketName is not configured, setting default: " + bucketName);
             }
 
-            try {
-                if (!s3Service.doesBucketExistV2(bucketName)) {
-                    s3Service.createBucket(bucketName);
-                    log.info("Creating new S3 Bucket: " + bucketName);
-                }
-            } catch (AmazonClientException e) {
-                log.error("Cannot locate or create the bucket: ", e);
-                // throw new IOException(e);
+            if (!doesBucketExist(bucketName)) {
+                s3AsyncClient.createBucket(r -> r.bucket(bucketName)).join();
+                log.info("Creating new S3 Bucket: " + bucketName);
             }
             this.initialized = true;
             log.info("AWS S3 Assetstore ready to go! bucket:" + bucketName);
@@ -422,19 +281,23 @@ public class S3BitStoreService extends BaseBitStoreService {
             this.initialized = false;
             log.error("Can't initialize this store!", e);
         }
-
-        tm = FunctionalUtils.getDefaultOrBuild(tm, () -> TransferManagerBuilder.standard()
-                                                               .withAlwaysCalculateMultipartMd5(true)
-                                                               .withS3Client(s3Service)
-                                                               .build());
     }
 
-    protected Regions getRegions() {
-        // region
-        return Optional.ofNullable(awsRegionName)
-            .filter(StringUtils::isNotBlank)
-            .map(S3BitStoreService::parseRegion)
-            .orElseGet(S3BitStoreService::getDefaultRegion);
+    /**
+     * @param bucketName
+     * @return whether or not the specified bucket exists
+     */
+    public boolean doesBucketExist(String bucketName ) {
+        try {
+            s3AsyncClient.headBucket(r -> r.bucket(bucketName)).join();
+            return true;
+        } catch (CompletionException ce) {
+            if (!(ce.getCause() instanceof NoSuchBucketException)) {
+                log.error("headBucket(" + bucketName + ")", ce.getCause());
+            }
+
+            return false;
+        }
     }
 
     /**
@@ -462,7 +325,15 @@ public class S3BitStoreService extends BaseBitStoreService {
         if (isRegisteredBitstream(key)) {
             key = key.substring(REGISTERED_FLAG.length());
         }
-        return new S3LazyInputStream(key, bufferSize, bitstream.getSizeBytes());
+
+        final String objectKey = key;
+
+        try {
+            return s3AsyncClient.getObject(r -> r.bucket(bucketName).key(objectKey),
+                AsyncResponseTransformer.toBlockingInputStream()).join();
+        } catch (CompletionException e) {
+            throw new IOException(e.getCause());
+        }
     }
 
     /**
@@ -479,44 +350,40 @@ public class S3BitStoreService extends BaseBitStoreService {
     @Override
     public void put(Bitstream bitstream, InputStream in) throws IOException {
         String key = getFullKey(bitstream.getInternalId());
-        //Copy istream to temp file, and send the file, with some metadata
-        File scratchFile = File.createTempFile(bitstream.getInternalId(), "s3bs");
-        try (
-                FileOutputStream fos = new FileOutputStream(scratchFile);
-                // Read through a digest input stream that will work out the MD5
-                DigestInputStream dis = new DigestInputStream(in, MessageDigest.getInstance(CSA));
-        ) {
-            Utils.bufferedCopy(dis, fos);
-            in.close();
+        ExecutorService executor = Executors.newSingleThreadExecutor();
 
-            Upload upload = tm.upload(bucketName, key, scratchFile);
+        try (DigestInputStream dis = new DigestInputStream(in, MessageDigest.getInstance(CSA))) {
+            AsyncRequestBody body = AsyncRequestBody.fromInputStream(dis, null, executor);
 
-            upload.waitForUploadResult();
+            s3AsyncClient.putObject(b ->  b.bucket(bucketName).key(key).checksumAlgorithm(s3ChecksumAlgorithm),
+                    body).join();
 
-            bitstream.setSizeBytes(scratchFile.length());
+            bitstream.setSizeBytes(s3AsyncClient.headObject(r -> r.bucket(bucketName).key(key))
+                    .join().contentLength());
+
             // we cannot use the S3 ETAG here as it could be not a MD5 in case of multipart upload (large files) or if
             // the bucket is encrypted
             bitstream.setChecksum(Utils.toHex(dis.getMessageDigest().digest()));
             bitstream.setChecksumAlgorithm(CSA);
-
-        } catch (AmazonClientException | IOException | InterruptedException e) {
+        } catch (CompletionException e) {
+            log.error("put(" + bitstream.getInternalId() + ", is)", e.getCause());
+            throw new IOException(e.getCause());
+        } catch (IOException e) {
             log.error("put(" + bitstream.getInternalId() + ", is)", e);
             throw new IOException(e);
         } catch (NoSuchAlgorithmException nsae) {
             // Should never happen
             log.warn("Caught NoSuchAlgorithmException", nsae);
         } finally {
-            if (!scratchFile.delete()) {
-                scratchFile.deleteOnExit();
-            }
+            executor.shutdown();
+            in.close();
         }
     }
 
     /**
      * Obtain technical metadata about an asset in the asset store.
      *
-     * Checksum used is (ETag) hex encoded 128-bit MD5 digest of an object's content as calculated by Amazon S3
-     * (Does not use getContentMD5, as that is 128-bit MD5 digest calculated on caller's side)
+     * The MD5 checksum is calculated locally because it is not supported by AWS.
      *
      * @param bitstream The asset to describe
      * @param attrs     A List of desired metadata fields
@@ -527,7 +394,6 @@ public class S3BitStoreService extends BaseBitStoreService {
      */
     @Override
     public Map<String, Object> about(Bitstream bitstream, List<String> attrs) throws IOException {
-
         String key = getFullKey(bitstream.getInternalId());
         // If this is a registered bitstream, strip the -R prefix before retrieving
         if (isRegisteredBitstream(key)) {
@@ -537,20 +403,18 @@ public class S3BitStoreService extends BaseBitStoreService {
         Map<String, Object> metadata = new HashMap<>();
 
         try {
+            final String objectKey = key;
+            HeadObjectResponse response = s3AsyncClient.headObject(r -> r.bucket(bucketName).key(objectKey)).join();
 
-            ObjectMetadata objectMetadata = s3Service.getObjectMetadata(bucketName, key);
-            if (objectMetadata != null) {
-                putValueIfExistsKey(attrs, metadata, "size_bytes", objectMetadata.getContentLength());
-                putValueIfExistsKey(attrs, metadata, "modified", valueOf(objectMetadata.getLastModified().getTime()));
-            }
-
+            putValueIfExistsKey(attrs, metadata, "size_bytes", response.contentLength());
+            putValueIfExistsKey(attrs, metadata, "modified", valueOf(response.lastModified().toEpochMilli()));
             putValueIfExistsKey(attrs, metadata, "checksum_algorithm", CSA);
 
             if (attrs.contains("checksum")) {
                 try (InputStream in = get(bitstream);
                      DigestInputStream dis = new DigestInputStream(in, MessageDigest.getInstance(CSA))
                 ) {
-                    Utils.copy(dis, NullOutputStream.NULL_OUTPUT_STREAM);
+                    Utils.copy(dis, NullOutputStream.INSTANCE);
                     byte[] md5Digest = dis.getMessageDigest().digest();
                     metadata.put("checksum", Utils.toHex(md5Digest));
                 } catch (NoSuchAlgorithmException nsae) {
@@ -560,15 +424,15 @@ public class S3BitStoreService extends BaseBitStoreService {
             }
 
             return metadata;
-        } catch (AmazonS3Exception e) {
-            if (e.getStatusCode() == HttpStatus.SC_NOT_FOUND) {
+        } catch (CompletionException e) {
+            if (e.getCause() instanceof AwsServiceException awsEx &&
+                    awsEx.statusCode() == HttpStatusCode.NOT_FOUND) {
                 return metadata;
             }
-        } catch (AmazonClientException e) {
+
             log.error("about(" + key + ", attrs)", e);
             throw new IOException(e);
         }
-        return metadata;
     }
 
     /**
@@ -581,10 +445,10 @@ public class S3BitStoreService extends BaseBitStoreService {
     public void remove(Bitstream bitstream) throws IOException {
         String key = getFullKey(bitstream.getInternalId());
         try {
-            s3Service.deleteObject(bucketName, key);
-        } catch (AmazonClientException e) {
-            log.error("remove(" + key + ")", e);
-            throw new IOException(e);
+            s3AsyncClient.deleteObject(r -> r.bucket(bucketName).key(key)).join();
+        }  catch (CompletionException e) {
+            log.error("remove(" + key + ")", e.getCause());
+            throw new IOException(e.getCause());
         }
     }
 
@@ -695,20 +559,36 @@ public class S3BitStoreService extends BaseBitStoreService {
         this.useRelativePath = useRelativePath;
     }
 
-    public Integer getMaxConnections() {
-        return maxConnections;
+    public double getTargetThroughputGbps() {
+        return targetThroughputGbps;
     }
 
-    public void setMaxConnections(Integer maxConnections) {
-        this.maxConnections = maxConnections;
+    public void setTargetThroughputGbps(double targetThroughputGbps) {
+        this.targetThroughputGbps = targetThroughputGbps;
     }
 
-    public Integer getConnectionTimeout() {
-        return connectionTimeout;
+    public long getMinPartSizeBytes() {
+        return minPartSizeBytes;
     }
 
-    public void setConnectionTimeout(Integer connectionTimeout) {
-        this.connectionTimeout = connectionTimeout;
+    public void setMinPartSizeBytes(long minPartSizeBytes) {
+        this.minPartSizeBytes = minPartSizeBytes;
+    }
+
+    public ChecksumAlgorithm getS3ChecksumAlgorithm() {
+        return s3ChecksumAlgorithm;
+    }
+
+    public void setS3ChecksumAlgorithm(ChecksumAlgorithm s3ChecksumAlgorithm) {
+        this.s3ChecksumAlgorithm = s3ChecksumAlgorithm;
+    }
+
+    public Integer getMaxConcurrency() {
+        return maxConcurrency;
+    }
+
+    public void setMaxConcurrency(Integer maxConcurrency) {
+        this.maxConcurrency = maxConcurrency;
     }
 
     public String getEndpoint() {
@@ -767,73 +647,18 @@ public class S3BitStoreService extends BaseBitStoreService {
 
         S3BitStoreService store = new S3BitStoreService();
 
-        AWSCredentials awsCredentials = new BasicAWSCredentials(accessKey, secretKey);
+        StaticCredentialsProvider credentialsProvider = StaticCredentialsProvider.create(
+                AwsBasicCredentials.create(accessKey, secretKey));
 
-        store.s3Service = AmazonS3ClientBuilder.standard()
-            .withCredentials(new AWSStaticCredentialsProvider(awsCredentials))
-            .build();
-
-        //Todo configurable region
-        Region usEast1 = Region.getRegion(Regions.US_EAST_1);
-        store.s3Service.setRegion(usEast1);
+        // Todo configurable region
+        store.s3AsyncClient = S3AsyncClient.builder().credentialsProvider(credentialsProvider).
+                                region(Region.US_EAST_1).build();
 
         // get hostname of DSpace UI to use to name bucket
         String hostname = Utils.getHostName(configurationService.getProperty("dspace.ui.url"));
         //Bucketname should be lowercase
         store.bucketName = DEFAULT_BUCKET_PREFIX + hostname + ".s3test";
-        store.s3Service.createBucket(store.bucketName);
-        /* Broken in DSpace 6 TODO Refactor
-        // time everything, todo, swtich to caliper
-        long start = System.currentTimeMillis();
-        // Case 1: store a file
-        String id = store.generateId();
-        System.out.print("put() file " + assetFile + " under ID " + id + ": ");
-        FileInputStream fis = new FileInputStream(assetFile);
-        //TODO create bitstream for assetfile...
-        Map attrs = store.put(fis, id);
-        long now =  System.currentTimeMillis();
-        System.out.println((now - start) + " msecs");
-        start = now;
-        // examine the metadata returned
-        Iterator iter = attrs.keySet().iterator();
-        System.out.println("Metadata after put():");
-        while (iter.hasNext())
-        {
-            String key = (String)iter.next();
-            System.out.println( key + ": " + (String)attrs.get(key) );
-        }
-        // Case 2: get metadata and compare
-        System.out.print("about() file with ID " + id + ": ");
-        Map attrs2 = store.about(id, attrs);
-        now =  System.currentTimeMillis();
-        System.out.println((now - start) + " msecs");
-        start = now;
-        iter = attrs2.keySet().iterator();
-        System.out.println("Metadata after about():");
-        while (iter.hasNext())
-        {
-            String key = (String)iter.next();
-            System.out.println( key + ": " + (String)attrs.get(key) );
-        }
-        // Case 3: retrieve asset and compare bits
-        System.out.print("get() file with ID " + id + ": ");
-        java.io.FileOutputStream fos = new java.io.FileOutputStream(assetFile+".echo");
-        InputStream in = store.get(id);
-        Utils.bufferedCopy(in, fos);
-        fos.close();
-        in.close();
-        now =  System.currentTimeMillis();
-        System.out.println((now - start) + " msecs");
-        start = now;
-        // Case 4: remove asset
-        System.out.print("remove() file with ID: " + id + ": ");
-        store.remove(id);
-        now =  System.currentTimeMillis();
-        System.out.println((now - start) + " msecs");
-        System.out.flush();
-        // should get nothing back now - will throw exception
-        store.get(id);
-*/
+        store.s3AsyncClient.createBucket(r -> r.bucket(store.bucketName)).join();
     }
 
     /**
@@ -868,115 +693,37 @@ public class S3BitStoreService extends BaseBitStoreService {
         }
 
         try {
-            // Generate a presigned URL valid for 15 min (900 seconds)
-            GeneratePresignedUrlRequest generatePresignedUrlRequest =
-                new GeneratePresignedUrlRequest(bucketName, key)
-                    .withMethod(HttpMethod.GET)
-                    .withExpiration(getExpirationDate());
+            GetObjectRequest getObjectRequest = GetObjectRequest.builder()
+                                                                .bucket(bucketName)
+                                                                .key(key)
+                                                                .build();
 
-            URL presignedUrl = s3Service.generatePresignedUrl(generatePresignedUrlRequest);
+            PresignedGetObjectRequest presignedGetObjectRequest =
+                presigner.presignGetObject(
+                    builder -> builder.signatureDuration(presignDuration())
+                                             .getObjectRequest(getObjectRequest)
+                );
+
+            String presignedUrl = presignedGetObjectRequest.url().toString();
 
             if (log.isDebugEnabled()) {
                 log.debug("Generated presigned URL for bitstream {} (key: {}): {}",
-                          bitstream.getID(), key, presignedUrl.toString());
+                          bitstream.getID(), key, presignedUrl);
             }
 
-            return presignedUrl.toString();
-        } catch (AmazonClientException e) {
+            return presignedUrl;
+        } catch (S3Exception | SdkClientException e) {
             log.error("Error generating presigned URL for key: {}", key, e);
             throw new IOException("Failed to generate presigned URL", e);
         }
     }
 
-    protected Date getExpirationDate() {
-        long expireSeconds = configurationService
-            .getLongProperty("assetstore.s3.presigned.url.expiration.seconds", DEFAULT_EXPIRATION);
-        return Date.from(
-            LocalDateTime.now()
-                         .plusSeconds(expireSeconds)
-                         .atZone(ZoneId.systemDefault())
-                         .toInstant()
+
+    protected Duration presignDuration() {
+        return Duration.ofSeconds(
+            configurationService
+                .getLongProperty("assetstore.s3.presigned.url.expiration.seconds", DEFAULT_EXPIRATION)
         );
     }
 
-    public void setBufferSize(long bufferSize) {
-        this.bufferSize = bufferSize;
-    }
-
-    /**
-     * This inner class represent an InputStream that uses temporary files to
-     * represent chunk of the object downloaded from S3. When the input stream is
-     * read the class look first to the current chunk and download a new one once if
-     * the current one as been fully read. The class is responsible to close a chunk
-     * as soon as a new one is retrieved, the last chunk is closed when the input
-     * stream itself is closed or the last byte is read (the first of the two)
-     */
-    public class S3LazyInputStream extends InputStream {
-        private InputStream currentChunkStream;
-        private String objectKey;
-        private long endOfChunk = -1;
-        private long chunkMaxSize;
-        private long currPos = 0;
-        private long fileSize;
-
-        public S3LazyInputStream(String objectKey, long chunkMaxSize, long fileSize) throws IOException {
-            this.objectKey = objectKey;
-            this.chunkMaxSize = chunkMaxSize;
-            this.endOfChunk = 0;
-            this.fileSize = fileSize;
-            downloadChunk();
-        }
-
-        @Override
-        public int read() throws IOException {
-            // is the current chunk completely read and other are available?
-            if (currPos == endOfChunk && currPos < fileSize) {
-                currentChunkStream.close();
-                downloadChunk();
-            }
-
-            int byteRead = currPos < endOfChunk ? currentChunkStream.read() : -1;
-            // do we get any data or are we at the end of the file?
-            if (byteRead != -1) {
-                currPos++;
-            } else {
-                currentChunkStream.close();
-            }
-            return byteRead;
-        }
-
-        /**
-         * This method download the next chunk from S3
-         *
-         * @throws IOException
-         * @throws FileNotFoundException
-         */
-        private void downloadChunk() throws IOException, FileNotFoundException {
-            // Create a DownloadFileRequest with the desired byte range
-            long startByte = currPos; // Start byte (inclusive)
-            long endByte = Long.min(startByte + chunkMaxSize - 1, fileSize - 1); // End byte (inclusive)
-            GetObjectRequest getRequest = new GetObjectRequest(bucketName, objectKey)
-                    .withRange(startByte, endByte);
-
-            File currentChunkFile = File.createTempFile("s3-disk-copy-" + UUID.randomUUID(), "temp");
-            currentChunkFile.deleteOnExit();
-            try {
-                Download download = tm.download(getRequest, currentChunkFile);
-                download.waitForCompletion();
-                currentChunkStream = new DeleteOnCloseFileInputStream(currentChunkFile);
-                endOfChunk = endOfChunk + download.getProgress().getBytesTransferred();
-            } catch (AmazonClientException | InterruptedException e) {
-                currentChunkFile.delete();
-                throw new IOException(e);
-            }
-        }
-
-        @Override
-        public void close() throws IOException {
-            if (currentChunkStream != null) {
-                currentChunkStream.close();
-            }
-        }
-
-    }
 }
