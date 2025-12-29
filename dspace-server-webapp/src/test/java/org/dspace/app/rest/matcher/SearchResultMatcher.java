@@ -90,6 +90,22 @@ public class SearchResultMatcher {
         );
     }
 
+    public static Matcher<? super Object> matchOnItemNameAndNotHitHighlight(String type, String typePlural,
+                                                                         String itemName, String hitHighlightQuery,
+                                                                         String expectedFieldInHitHighlightning) {
+        return allOf(
+            hasJsonPath("$.type", is("discover")),
+            hasJsonPath("$.uniqueType", is("discover.discover")),
+            hasJsonPath("$.hitHighlights", Matchers.not(
+                HitHighlightMatcher.entry(hitHighlightQuery, expectedFieldInHitHighlightning))),
+            hasJsonPath("$._links.indexableObject.href", containsString("/api/core/" + typePlural)),
+            hasJsonPath("$._embedded", notNullValue()),
+            hasJsonPath("$._embedded.indexableObject", is(
+                matchEmbeddedObjectOnItemName(type, itemName)
+            ))
+        );
+    }
+
     public static Matcher<? super Object> matchEmbeddedFacetValues(String label, int count,
                                                                    String type,
                                                                    String search_href, String category) {
