@@ -40,10 +40,11 @@
         <!-- NOTE: Jetty needed for Solr, Handle Server & tests -->
         <jetty.version>9.4.57.v20241219</jetty.version>
         <log4j.version>2.24.3</log4j.version>
-        <pdfbox-version>2.0.33</pdfbox-version>
+        <pdfbox-version>3.0.5</pdfbox-version>
         <rome.version>1.19.0</rome.version>
         <slf4j.version>1.7.36</slf4j.version>
-        <tika.version>2.9.2</tika.version>
+        <tika.version>3.2.3</tika.version>
+        <picocli.version>4.7.6</picocli.version>
         <!-- Sync with whatever version Tika uses -->
         <bouncycastle.version>1.80</bouncycastle.version>
 
@@ -60,6 +61,10 @@
         <jena.version>2.13.0</jena.version>
         <!-- Used by (now obsolete) 'dspace-rest' WAR -->
         <jersey.version>2.46</jersey.version>
+
+        <testcontainers.version>2.0.1</testcontainers.version>
+        <software.amazon.awssdk.version>2.32.31</software.amazon.awssdk.version>
+        <software.amazon.awssdk.crt.version>0.38.12</software.amazon.awssdk.crt.version>
 
         <!--=== ADDON DEPENDENCIES ===-->
         <addons.version>[cris-2023.02.08-SNAPSHOT,cris-2023.02.08.9999-SNAPSHOT)</addons.version>
@@ -1543,6 +1548,12 @@
                 <artifactId>tika-parsers-standard-package</artifactId>
                 <version>${tika.version}</version>
             </dependency>
+            <!-- specify picocli version used by tika to avoid multiple versions -->
+            <dependency>
+                <groupId>info.picocli</groupId>
+                <artifactId>picocli</artifactId>
+                <version>${picocli.version}</version>
+            </dependency>
             <!-- Tika brings in multiple versions of this. Select the latest version. Always sync with Tika version -->
             <dependency>
                 <groupId>org.bouncycastle</groupId>
@@ -2106,6 +2117,12 @@
                 <groupId>org.antlr</groupId>
                 <artifactId>antlr4-runtime</artifactId>
                 <version>4.12.0</version>
+            </dependency>
+            <dependency>
+                <groupId>org.testcontainers</groupId>
+                <artifactId>testcontainers-localstack</artifactId>
+                <version>${testcontainers.version}</version>
+                <scope>test</scope>
             </dependency>
         </dependencies>
     </dependencyManagement>
