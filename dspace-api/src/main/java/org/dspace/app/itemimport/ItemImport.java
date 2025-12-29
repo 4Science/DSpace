@@ -192,10 +192,8 @@ public class ItemImport extends DSpaceRunnable<ItemImportScriptConfiguration> {
                 }
 
                 // was the collection valid?
-                if (collection == null
-                        || collection.getType() != Constants.COLLECTION) {
-                    throw new IllegalArgumentException("Cannot resolve "
-                            + collections[i] + " to collection");
+                if (collection == null || collection.getType() != Constants.COLLECTION) {
+                    throw new IllegalArgumentException("Cannot resolve " + collections[i] + " to collection");
                 }
 
                 // add resolved collection to list
@@ -208,8 +206,7 @@ public class ItemImport extends DSpaceRunnable<ItemImportScriptConfiguration> {
         // end validation
 
         // start
-        ItemImportService itemImportService = ItemImportServiceFactory.getInstance()
-                .getItemImportService();
+        ItemImportService itemImportService = ItemImportServiceFactory.getInstance().getItemImportService();
         try {
             itemImportService.setTest(isTest);
             itemImportService.setExcludeContent(isExcludeContent);

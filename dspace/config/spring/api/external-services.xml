@@ -150,7 +150,7 @@
         </property>
     </bean>
 
-    <bean class="org.dspace.external.provider.impl.OrcidV3AuthorDataProvider" init-method="init">
+    <bean class="org.dspace.external.provider.impl.OrcidV3AuthorDataProvider">
         <property name="sourceIdentifier" value="orcid"/>
         <property name="orcidUrl" value="${orcid.domain-url}" />
         <property name="clientId" value="${orcid.application-client-id}" />

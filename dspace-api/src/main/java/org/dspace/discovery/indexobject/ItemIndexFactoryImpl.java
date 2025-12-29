@@ -751,8 +751,13 @@ public class ItemIndexFactoryImpl extends DSpaceObjectIndexFactoryImpl<Indexable
 
     @Override
     public void writeDocument(Context context, IndexableItem indexableObject, SolrInputDocument solrInputDocument)
-            throws SQLException, IOException, SolrServerException {
-        writeDocument(solrInputDocument, new FullTextContentStreams(context, indexableObject.getIndexedObject()));
+            throws SolrServerException {
+        try {
+            writeDocument(solrInputDocument, new FullTextContentStreams(context, indexableObject.getIndexedObject()));
+        } catch (Exception e) {
+            log.error("Error occurred while writing SOLR document for {} object {}",
+                indexableObject.getType(), indexableObject.getID(), e);
+        }
     }
 
     @Override

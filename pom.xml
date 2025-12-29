@@ -42,11 +42,12 @@
         <!-- NOTE: Jetty needed for Solr, Handle Server & tests -->
         <jetty.version>9.4.57.v20241219</jetty.version>
         <log4j.version>2.24.3</log4j.version>
-        <pdfbox-version>2.0.34</pdfbox-version>
+        <pdfbox-version>3.0.5</pdfbox-version>
         <rome.version>1.19.0</rome.version>
         <!-- SLF4J is not used, but specified for dependency convergence issues between many dependencies -->
         <slf4j.version>2.0.17</slf4j.version>
-        <tika.version>2.9.4</tika.version>
+        <tika.version>3.2.3</tika.version>
+        <picocli.version>4.7.6</picocli.version>
         <!-- Sync BouncyCastle & ASM with whatever version Tika uses -->
         <bouncycastle.version>1.81</bouncycastle.version>
         <asm.version>8.0.1</asm.version>
@@ -65,6 +66,10 @@
         <jena.version>4.10.0</jena.version>
         <!-- JClouds is used by dspace-api -->
         <jclouds.version>2.7.0</jclouds.version>
+
+        <s3mock-testcontainers.version>4.10.0</s3mock-testcontainers.version>
+        <software.amazon.awssdk.version>2.32.31</software.amazon.awssdk.version>
+        <software.amazon.awssdk.crt.version>0.38.12</software.amazon.awssdk.crt.version>
 
         <!--=== ADDON DEPENDENCIES ===-->
         <addons.version>[cris-2025.01.00-SNAPSHOT,cris-2025.01.00.9999-SNAPSHOT)</addons.version>
@@ -1596,6 +1601,12 @@
                     </exclusion>
                 </exclusions>
             </dependency>
+            <!-- specify picocli version used by tika to avoid multiple versions -->
+            <dependency>
+                <groupId>info.picocli</groupId>
+                <artifactId>picocli</artifactId>
+                <version>${picocli.version}</version>
+            </dependency>
             <!-- Tika brings in multiple versions of this. Select the latest version. Always sync with Tika version -->
             <dependency>
                 <groupId>org.bouncycastle</groupId>
@@ -2201,6 +2212,12 @@
                 <groupId>net.minidev</groupId>
                 <artifactId>json-smart</artifactId>
                 <version>${json-smart.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.adobe.testing</groupId>
+                <artifactId>s3mock-testcontainers</artifactId>
+                <version>${s3mock-testcontainers.version}</version>
+                <scope>test</scope>
             </dependency>
         </dependencies>
     </dependencyManagement>

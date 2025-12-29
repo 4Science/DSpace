@@ -20,6 +20,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
+import jakarta.inject.Named;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.solr.client.solrj.SolrClient;
@@ -34,6 +35,7 @@ import org.apache.solr.common.SolrInputDocument;
 import org.dspace.core.Context;
 import org.dspace.eperson.EPerson;
 import org.dspace.event.Event;
+import org.dspace.service.impl.HttpConnectionPoolService;
 import org.dspace.services.ConfigurationService;
 import org.dspace.util.SolrUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -66,11 +68,17 @@ public class AuditService {
     @Autowired
     private ConfigurationService configurationService;
 
+    @Autowired @Named("solrHttpConnectionPoolService")
+    protected HttpConnectionPoolService httpConnectionPoolService;
+
     public SolrClient getSolr() throws SolrServerException, IOException {
         if (solr == null) {
             String solrService = configurationService.getProperty("solr.audit.server");
             log.debug("Solr audit URL: " + solrService);
-            HttpSolrClient solrServer = new HttpSolrClient.Builder(solrService).build();
+            HttpSolrClient solrServer =
+                new HttpSolrClient.Builder(solrService)
+                    .withHttpClient(httpConnectionPoolService.getClient())
+                    .build();
             solrServer.setBaseURL(solrService);
             SolrQuery solrQuery = new SolrQuery().setQuery("*:*");
             solrServer.query(solrQuery);

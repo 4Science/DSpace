@@ -9,12 +9,15 @@ package org.dspace.app.itemimport;
 
 import static com.jayway.jsonpath.JsonPath.read;
 import static org.dspace.app.rest.matcher.MetadataMatcher.matchMetadata;
+import static org.dspace.app.rest.matcher.MetadataMatcher.matchMetadataDoesNotExist;
+import static org.dspace.app.rest.matcher.MetadataMatcher.matchMetadataWithAuthority;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.springframework.http.MediaType.APPLICATION_OCTET_STREAM_VALUE;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -265,6 +268,69 @@ public class ItemImportIT extends AbstractEntityIntegrationTest {
 
         checkMetadata();
         checkRelationship();
+    }
+
+    @Test
+    public void importItemByZipSafWithAuthorityAttributeTest() throws Exception {
+        context.turnOffAuthorisationSystem();
+        Collection publicationCollection = CollectionBuilder.createCollection(context, parentCommunity)
+                                                            .withName("Publication Collection")
+                                                            .withEntityType("Publication")
+                                                            .build();
+        Collection personCollection = CollectionBuilder.createCollection(context, parentCommunity)
+                                                       .withName("Person Collection")
+                                                       .withEntityType("Person")
+                                                       .build();
+        Item personItem = ItemBuilder.createItem(context, personCollection)
+                                     .withTitle("Misha, Boychuk")
+                                     .withScopusAuthorIdentifier("55484808800 ")
+                                     .build();
+        context.restoreAuthSystemState();
+
+        LinkedList<DSpaceCommandLineParameter> parameters = new LinkedList<>();
+        parameters.add(new DSpaceCommandLineParameter("-a", ""));
+        parameters.add(new DSpaceCommandLineParameter("-c", publicationCollection.getID().toString()));
+        parameters.add(new DSpaceCommandLineParameter("-z", "authority-saf.zip"));
+        MockMultipartFile bitstreamFile = new MockMultipartFile("file", "authority-saf.zip",
+                            APPLICATION_OCTET_STREAM_VALUE, getClass().getResourceAsStream("authority-saf.zip"));
+        perfomImportScript(parameters, bitstreamFile, admin);
+
+        var title0 = "Test SAF with authority SCOPUS-AUTHOR-ID";
+        var title1 = "Test SAF with authority UUID";
+        var title2 = "Test SAF with authority with prefix and uuid";
+        var title3 = "Test SAF with authority with wrong id";
+        Item item0 = itemService.findArchivedByMetadataField(context, "dc", "title", null, title0).next();
+        Item item1 = itemService.findArchivedByMetadataField(context, "dc", "title", null, title1).next();
+        Item item2 = itemService.findArchivedByMetadataField(context, "dc", "title", null, title2).next();
+        Item item3 = itemService.findArchivedByMetadataField(context, "dc", "title", null, title3).next();
+
+        getClient().perform(get("/api/core/items/" + item0.getID()))
+                   .andExpect(status().isOk())
+                   .andExpect(jsonPath("$.metadata", allOf(
+                              matchMetadata("dc.title", title0),
+                              matchMetadata("dc.contributor.editor", "Boychuk, Misha"),
+                              matchMetadataWithAuthority("dc.contributor.editor", "Boychuk, Misha",
+                                                         personItem.getID().toString(), 0, 600))));
+
+        getClient().perform(get("/api/core/items/" + item1.getID()))
+                   .andExpect(status().isOk())
+                   .andExpect(jsonPath("$.metadata", allOf(
+                              matchMetadata("dc.title", title1),
+                              matchMetadataWithAuthority("dc.contributor.editor", "Boychuk, Misha",
+                                   "will be referenced::9cfa53a4-bcb8-2222-2222-42db53a52222", 0, -1))));
+
+        getClient().perform(get("/api/core/items/" + item2.getID()))
+                   .andExpect(status().isOk())
+                   .andExpect(jsonPath("$.metadata", allOf(
+                              matchMetadata("dc.title", title2),
+                              matchMetadataWithAuthority("dc.contributor.editor", "Boychuk, Misha",
+                                   "will be referenced::9cfa53a4-bcb8-1111-1111-42db53a51111", 0, -1))));
+
+        getClient().perform(get("/api/core/items/" + item3.getID()))
+                   .andExpect(status().isOk())
+                   .andExpect(jsonPath("$.metadata", allOf(
+                              matchMetadata("dc.title", title3),
+                              matchMetadataDoesNotExist("dc.contributor.editor"))));
     }
 
     /**

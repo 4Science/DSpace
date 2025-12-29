@@ -112,11 +112,10 @@ public class HttpConnectionPoolService {
      * @return the client.
      */
     public CloseableHttpClient getClient() {
-        CloseableHttpClient httpClient = DSpaceHttpClientFactory.getInstance().builder(true).create()
-                .setKeepAliveStrategy(keepAliveStrategy)
-                .setConnectionManager(connManager)
-                .build();
-        return httpClient;
+        return DSpaceHttpClientFactory.getInstance().builder(true)
+                                  .setKeepAliveStrategy(keepAliveStrategy)
+                                  .setConnectionManager(connManager)
+                                  .build();
     }
 
     /**

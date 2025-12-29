@@ -25,7 +25,6 @@ import java.nio.charset.Charset;
 import java.util.Calendar;
 import java.util.Date;
 
-import com.amazonaws.util.StringInputStream;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.ProtocolVersion;
 import org.apache.http.StatusLine;
@@ -53,6 +52,7 @@ import org.junit.Test;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
+import software.amazon.awssdk.utils.StringInputStream;
 
 /**
  *

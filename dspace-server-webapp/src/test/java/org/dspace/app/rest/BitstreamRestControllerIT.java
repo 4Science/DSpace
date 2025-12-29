@@ -52,25 +52,21 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.net.URI;
 import java.nio.file.Files;
 import java.time.Period;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 
-import com.amazonaws.auth.AWSStaticCredentialsProvider;
-import com.amazonaws.auth.AnonymousAWSCredentials;
-import com.amazonaws.client.builder.AwsClientBuilder;
-import com.amazonaws.regions.Regions;
-import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.AmazonS3ClientBuilder;
+import com.adobe.testing.s3mock.testcontainers.S3MockContainer;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.findify.s3mock.S3Mock;
 import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.CharEncoding;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.pdfbox.Loader;
+import org.apache.pdfbox.io.RandomAccessReadBuffer;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.text.PDFTextStripper;
 import org.apache.solr.client.solrj.SolrServerException;
@@ -106,6 +102,7 @@ import org.dspace.statistics.service.SolrLoggerService;
 import org.dspace.storage.bitstore.S3BitStoreService;
 import org.dspace.storage.bitstore.factory.StorageServiceFactory;
 import org.dspace.storage.bitstore.service.BitstreamStorageService;
+import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -113,6 +110,12 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
+import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
+import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
+import software.amazon.awssdk.regions.Region;
+import software.amazon.awssdk.services.s3.S3AsyncClient;
+import software.amazon.awssdk.services.s3.model.ChecksumAlgorithm;
+import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 
 /**
  * Integration test to test the /api/core/bitstreams/[id]/* endpoints
@@ -123,6 +126,10 @@ import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 public class BitstreamRestControllerIT extends AbstractControllerIntegrationTest {
 
     public static final String[] PASS_ONLY = {"org.dspace.authenticate.PasswordAuthentication"};
+    private static final String DEFAULT_BUCKET_NAME = "dspace-asset-localhost";
+    // S3Mock related fields for integration testing
+    private static S3MockContainer s3Mock = new S3MockContainer("4.8.0");
+    private static S3AsyncClient s3AsyncClient;
     public static final String requestItemUrl = REST_SERVER_URL
         + RequestItemRest.CATEGORY + '/'
         + RequestItemRest.PLURAL_NAME;
@@ -146,13 +153,6 @@ public class BitstreamRestControllerIT extends AbstractControllerIntegrationTest
 
     @Autowired
     private BitstreamStorageService bitstreamStorageService;
-
-    // S3Mock related fields for integration testing
-    private S3Mock s3Mock;
-    private AmazonS3 amazonS3Client;
-    private File s3Directory;
-    private S3BitStoreService mockS3BitStoreService;
-
     private Bitstream bitstream;
     private BitstreamFormat supportedFormat;
     private BitstreamFormat knownFormat;
@@ -163,6 +163,31 @@ public class BitstreamRestControllerIT extends AbstractControllerIntegrationTest
         // To ensure these tests start "fresh", clear out any existing statistics data.
         // NOTE: this is committed immediately in removeIndex()
         StatisticsServiceFactory.getInstance().getSolrLoggerService().removeIndex("*:*");
+
+        // Setup S3Mock for all tests
+        setupS3();
+    }
+
+    @AfterClass
+    public static void cleanupS3() {
+        s3Mock.close();
+        s3AsyncClient.close();
+    }
+
+    @BeforeClass
+    public static void setupS3() {
+        s3Mock.start();
+
+        // Use static credentials for S3Mock compatibility (required for SigV4 signatures)
+        StaticCredentialsProvider credentialsProvider =
+            StaticCredentialsProvider.create(AwsBasicCredentials.create("test-access-key", "test-secret-key"));
+
+        s3AsyncClient = S3AsyncClient.crtBuilder()
+                .endpointOverride(URI.create("http://127.0.0.1:" + s3Mock.getHttpServerPort()))
+                .credentialsProvider(credentialsProvider)
+                .region(Region.US_EAST_1)
+                .forcePathStyle(true)
+                .build();
     }
 
     private static String md5Checksum(File file) throws IOException {
@@ -210,69 +235,6 @@ public class BitstreamRestControllerIT extends AbstractControllerIntegrationTest
         bitstream.setFormat(context, supportedFormat);
 
         context.restoreAuthSystemState();
-    }
-
-    /**
-     * Sets up S3Mock for presigned URL integration tests.
-     * This creates a real S3-compatible mock server that the S3BitStoreService can connect to.
-     */
-    private void setupS3Mock() throws Exception {
-        // Setup S3Mock server similar to S3BitStoreServiceIT
-        s3Directory = new File(System.getProperty("java.io.tmpdir"), "s3mock-test");
-        s3Mock = S3Mock.create(8001, s3Directory.getAbsolutePath());
-        s3Mock.start();
-
-        // Create Amazon S3 client pointing to the mock server
-        amazonS3Client = createAmazonS3Client("http://127.0.0.1:8001");
-
-        // Create the test bucket
-        String bucketName = "testbucket";
-        amazonS3Client.createBucket(bucketName);
-
-        // Create a new S3BitStoreService configured with the mock S3 client
-        Class<S3BitStoreService> s3Class = S3BitStoreService.class;
-        java.lang.reflect.Constructor<S3BitStoreService> constructor =
-            s3Class.getDeclaredConstructor(AmazonS3.class);
-        constructor.setAccessible(true);
-        mockS3BitStoreService = constructor.newInstance(amazonS3Client);
-
-        mockS3BitStoreService.setEnabled(true);
-        mockS3BitStoreService.setBucketName(bucketName);
-        mockS3BitStoreService.init();
-
-        // Replace store number 1 in the BitstreamStorageService with our mock S3 store
-        Map<Integer, org.dspace.storage.bitstore.BitStoreService> stores =
-            (Map<Integer, org.dspace.storage.bitstore.BitStoreService>)
-                ReflectionTestUtils.getField(bitstreamStorageService, "stores");
-
-        if (stores != null) {
-            stores.put(1, mockS3BitStoreService);
-        }
-    }
-
-    /**
-     * Tears down S3Mock after presigned URL tests
-     */
-    private void tearDownS3Mock() throws Exception {
-        if (s3Mock != null) {
-            s3Mock.shutdown();
-        }
-        if (s3Directory != null && s3Directory.exists()) {
-            FileUtils.deleteDirectory(s3Directory);
-        }
-    }
-
-    /**
-     * Creates an Amazon S3 client for testing with S3Mock
-     * Based on the approach used in S3BitStoreServiceIT
-     */
-    private AmazonS3 createAmazonS3Client(String endpoint) {
-        return AmazonS3ClientBuilder.standard()
-                                    .withCredentials(new AWSStaticCredentialsProvider(new AnonymousAWSCredentials()))
-                                    .withEndpointConfiguration(new AwsClientBuilder
-                                        .EndpointConfiguration(endpoint, Regions.DEFAULT_REGION.getName()))
-                                    .withPathStyleAccessEnabled(true)
-                                    .build();
     }
 
     @Test
@@ -797,8 +759,6 @@ public class BitstreamRestControllerIT extends AbstractControllerIntegrationTest
 
         //An unauthorized request should not log statistics
         checkNumberOfStatsRecords(bitstream, 0);
-
-
     }
 
     @Test
@@ -1153,7 +1113,7 @@ public class BitstreamRestControllerIT extends AbstractControllerIntegrationTest
 
         try (ByteArrayInputStream source = new ByteArrayInputStream(content);
              Writer writer = new StringWriter();
-             PDDocument pdfDoc = PDDocument.load(source)) {
+             PDDocument pdfDoc = Loader.loadPDF(new RandomAccessReadBuffer(source))) {
 
             pts.writeText(pdfDoc, writer);
             return writer.toString();
@@ -1162,7 +1122,7 @@ public class BitstreamRestControllerIT extends AbstractControllerIntegrationTest
 
     private int getNumberOfPdfPages(byte[] content) throws IOException {
         try (ByteArrayInputStream source = new ByteArrayInputStream(content);
-             PDDocument pdfDoc = PDDocument.load(source)) {
+            PDDocument pdfDoc = Loader.loadPDF(new RandomAccessReadBuffer(source))) {
             return pdfDoc.getNumberOfPages();
         }
     }
@@ -1762,26 +1722,65 @@ public class BitstreamRestControllerIT extends AbstractControllerIntegrationTest
                 .build();
         }
 
-        // Setup S3Mock - this creates a real S3-compatible server for integration testing
-        setupS3Mock();
+        // Create a new S3BitStoreService configured with the mock S3 client
+        // We need to create an S3Presigner for the same mock endpoint
+        // Use static credentials for S3Mock compatibility (required for SigV4 signatures)
+        StaticCredentialsProvider credentialsProvider =
+            StaticCredentialsProvider.create(AwsBasicCredentials.create("test-access-key", "test-secret-key"));
+
+        S3Presigner s3Presigner = S3Presigner.builder()
+                .endpointOverride(URI.create("http://127.0.0.1:" + s3Mock.getHttpServerPort()))
+                .credentialsProvider(credentialsProvider)
+                .region(Region.US_EAST_1)
+                .serviceConfiguration(software.amazon.awssdk.services.s3.S3Configuration.builder()
+                    .pathStyleAccessEnabled(true)
+                    .build())
+                .build();
+
+        Class<S3BitStoreService> s3Class = S3BitStoreService.class;
+        java.lang.reflect.Constructor<S3BitStoreService> constructor =
+            s3Class.getDeclaredConstructor(S3AsyncClient.class);
+        constructor.setAccessible(true);
+        S3BitStoreService s3BitStoreService = constructor.newInstance(s3AsyncClient);
+
+        s3BitStoreService.setS3ChecksumAlgorithm(ChecksumAlgorithm.SHA256);
+        s3BitStoreService.setEnabled(true);
+
+        // Set the endpoint and credentials so init() creates the presigner with correct mock endpoint
+        s3BitStoreService.setEndpoint("http://127.0.0.1:" + s3Mock.getHttpServerPort());
+        s3BitStoreService.setAwsAccessKey("test-access-key");
+        s3BitStoreService.setAwsSecretKey("test-secret-key");
+        s3BitStoreService.setAwsRegionName("us-east-1");
+
+        s3BitStoreService.init();
+
+        // Use reflection to set the presigner field AFTER init() to override the one created by init()
+        java.lang.reflect.Field presignerField = s3Class.getDeclaredField("presigner");
+        presignerField.setAccessible(true);
+        presignerField.set(s3BitStoreService, s3Presigner);
+
+        // Replace store number 1 in the BitstreamStorageService with our mock S3 store
+        Map<Integer, org.dspace.storage.bitstore.BitStoreService> stores =
+            (Map<Integer, org.dspace.storage.bitstore.BitStoreService>)
+                ReflectionTestUtils.getField(bitstreamStorageService, "stores");
+
+        if (stores != null) {
+            stores.put(1, s3BitStoreService);
+        }
 
         // Actually store the bitstream content in the S3Mock
-        mockS3BitStoreService.put(dummyBitstream, IOUtils.toInputStream("Test Content", CharEncoding.UTF_8));
+        s3BitStoreService.put(dummyBitstream, IOUtils.toInputStream("Test Content", CharEncoding.UTF_8));
 
         context.restoreAuthSystemState();
 
         String authToken = getAuthToken(eperson.getEmail(), password);
-        try {
-            getClient(authToken)
-                .perform(get("/api/core/bitstreams/" + dummyBitstream.getID() + "/signedurl"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.presignedUrl").exists())
-                .andExpect(jsonPath("$.presignedUrl")
-                               .value(org.hamcrest.Matchers.startsWith("http://127.0.0.1:8001/testbucket")));
-        } finally {
-            // Always clean up S3Mock
-            tearDownS3Mock();
-        }
+        getClient(authToken)
+            .perform(get("/api/core/bitstreams/" + dummyBitstream.getID() + "/signedurl"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.presignedUrl").exists())
+            .andExpect(jsonPath("$.presignedUrl")
+                           .value(org.hamcrest.Matchers.startsWith(
+                               "http://127.0.0.1:" + s3Mock.getHttpServerPort() + "/" + DEFAULT_BUCKET_NAME)));
     }
 
     @Test
@@ -1831,7 +1830,6 @@ public class BitstreamRestControllerIT extends AbstractControllerIntegrationTest
             .perform(get("/api/core/bitstreams/" + bitstream.getID() + "/signedurl"))
             .andExpect(status().isNotFound());
     }
-
 
     @Test
     public void restrictedBitstreamWithAccessTokenTest() throws Exception {

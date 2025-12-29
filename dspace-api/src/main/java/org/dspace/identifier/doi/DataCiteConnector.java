@@ -341,7 +341,7 @@ public class DataCiteConnector
         try {
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             xwalk.disseminate(context, dso, baos);
-            SAXBuilder builder = new SAXBuilder();
+            SAXBuilder builder = XMLUtils.getSAXBuilder();
             Document document = builder.build(new ByteArrayInputStream(baos.toByteArray()));
             root = document.getRootElement();
         } catch (AuthorizeException ae) {
