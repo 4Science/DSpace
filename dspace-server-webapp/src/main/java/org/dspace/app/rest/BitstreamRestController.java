@@ -25,6 +25,8 @@ import org.apache.catalina.connector.ClientAbortException;
 import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.Logger;
+import org.dspace.app.requestitem.RequestItem;
+import org.dspace.app.requestitem.service.RequestItemService;
 import org.dspace.app.rest.converter.ConverterService;
 import org.dspace.app.rest.exception.DSpaceBadRequestException;
 import org.dspace.app.rest.model.BitstreamRest;
@@ -93,6 +95,9 @@ public class BitstreamRestController {
     private ConfigurationService configurationService;
 
     @Autowired
+    private RequestItemService requestItemService;
+
+    @Autowired
     ConverterService converter;
 
     @Autowired
@@ -101,26 +106,61 @@ public class BitstreamRestController {
     @Autowired
     private BitstreamStorageService bitstreamStorageService;
 
-    @PreAuthorize("hasPermission(#uuid, 'BITSTREAM', 'READ')")
+    /**
+     * Retrieve bitstream. An access token (created by request a copy for some files, if enabled) can optionally
+     * be used for authorization instead of current user/group
+     *
+     * @param uuid bitstream ID
+     * @param accessToken request-a-copy access token (optional)
+     * @param response HTTP response
+     * @param request HTTP request
+     * @return response entity with bitstream content
+     * @throws IOException
+     * @throws SQLException
+     * @throws AuthorizeException
+     */
+    @PreAuthorize("#accessToken != null|| hasPermission(#uuid, 'BITSTREAM', 'READ')")
     @RequestMapping( method = {RequestMethod.GET, RequestMethod.HEAD}, value = "content")
-    public ResponseEntity retrieve(@PathVariable UUID uuid, HttpServletResponse response,
-                         HttpServletRequest request) throws IOException, SQLException, AuthorizeException {
+    public ResponseEntity retrieve(@PathVariable UUID uuid,
+                                   @Parameter(value = "accessToken", required = false) String accessToken,
+                                   HttpServletResponse response,
+                                   HttpServletRequest request) throws IOException, SQLException, AuthorizeException {
 
-
+        // Obtain context
         Context context = ContextUtil.obtainContext(request);
-
+        // Find bitstream
         Bitstream bit = bitstreamService.find(context, uuid);
-        EPerson currentUser = context.getCurrentUser();
-
         if (bit == null) {
             response.sendError(HttpServletResponse.SC_NOT_FOUND);
             return null;
         }
+        // Get EPerson
+        EPerson currentUser = context.getCurrentUser();
 
+        // Get bitstream metadata
         Long lastModified = bitstreamService.getLastModified(bit);
         BitstreamFormat format = bit.getFormat(context);
         String mimetype = format.getMIMEType();
         String name = getBitstreamName(bit, format);
+
+        // If an access token is found, immediately authenticate it if request a copy is enabled
+        // Though, if we do further "has to be loggd in requester" checks we'll have to check here anyway
+        // Even if eperson is not null and has access, we will treat this token as the primary means of
+        // authorizing bitstream download access
+        boolean authorizedByAccessToken = false;
+        // There may be a way of checking enabled in preauth
+        if (StringUtils.isNotBlank(accessToken) && requestACopyEnabled()) {
+            RequestItem requestItem = requestItemService.findByAccessToken(context, accessToken);
+            // Try authorize by token. An AuthorizeException will be thrown if the token is invalid, expired,
+            // for the wrong bitstream, or does not match (see RequestItemService)
+            requestItemService.authorizeAccessByAccessToken(context, requestItem, bit, accessToken);
+            authorizedByAccessToken = true;
+            log.debug("Authorize access by token={} bitstream={}", accessToken, bit.getID());
+        }
+        // If an authorization error was encountered it will be rethrown by this method even if the eperson
+        // could technically READ the bitstream normally. This is for consistency and clarify of usage - if we
+        // want a fallback we will need to reauthenticate as otherwise any eperson could have supplied a non-blank
+        // access token here
 
         if (StringUtils.isBlank(request.getHeader("Range"))) {
             //We only log a download request when serving a request without Range header. This is because
@@ -133,9 +173,9 @@ public class BitstreamRestController {
                     bit));
         }
 
+        // Begin actual bitstream delivery
         try {
-            // if we got here we have already verified that the user is allowed to access
-            // the bit, see the preAuthorize annotation
+            // Check if a citation coverpage is valid for this download
             long filesize = bit.getSizeBytes();
             Boolean citationEnabledForBitstream = citationDocumentService.isCitationEnabledForBitstream(bit, context);
             context.turnOffAuthorisationSystem();
@@ -145,22 +185,24 @@ public class BitstreamRestController {
                             currentUser != null ? currentUser.getID() : null,
                             context.getSpecialGroupUuids(), citationEnabledForBitstream, true);
 
+            // Set http headers
             HttpHeadersInitializer httpHeadersInitializer = new HttpHeadersInitializer()
-                .withBufferSize(BUFFER_SIZE)
-                .withFileName(name)
-                .withChecksum(bitstreamResource.getChecksum())
-                .withLength(bitstreamResource.contentLength())
-                .withMimetype(mimetype)
-                .with(request)
-                .with(response);
+                    .withBufferSize(BUFFER_SIZE)
+                    .withFileName(name)
+                    .withChecksum(bitstreamResource.getChecksum())
+                    .withLength(bitstreamResource.contentLength())
+                    .withMimetype(mimetype)
+                    .with(request)
+                    .with(response);
 
+            // Set last modified in headers
             if (lastModified != null) {
                 httpHeadersInitializer.withLastModified(lastModified);
             }
 
-            //Determine if we need to send the file as a download or if the browser can open it inline
-            //The file will be downloaded if its size is larger than the configured threshold,
-            //or if its mimetype/extension appears in the "webui.content_disposition_format" config
+            // Determine if we need to send the file as a download or if the browser can open it inline
+            // The file will be downloaded if its size is larger than the configured threshold,
+            // or if its mimetype/extension appears in the "webui.content_disposition_format" config
             long dispositionThreshold = configurationService.getLongProperty("webui.content_disposition_threshold");
             if ((dispositionThreshold >= 0 && filesize > dispositionThreshold)
                     || checkFormatForContentDisposition(format)) {
@@ -194,6 +236,12 @@ public class BitstreamRestController {
         return null;
     }
 
+    /**
+     * Get the name for attachment disposition headers
+     * @param bit bitstream
+     * @param format bitstream format
+     * @return name
+     */
     private String getBitstreamName(Bitstream bit, BitstreamFormat format) {
         String name = bit.getName();
         if (name == null) {
@@ -206,6 +254,11 @@ public class BitstreamRestController {
         return name;
     }
 
+    /**
+     * Check for a success or other non-error response message
+     * @param response HTTP resposnse
+     * @return success or redirection code indication as boolean
+     */
     private boolean isNotAnErrorResponse(HttpServletResponse response) {
         Response.Status.Family responseCode = Response.Status.Family.familyOf(response.getStatus());
         return responseCode.equals(Response.Status.Family.SUCCESSFUL)
@@ -255,6 +308,15 @@ public class BitstreamRestController {
             }
         }
         return download;
+    }
+
+    /**
+     * Quick check to see if request a copy is enabled. If not, for safety, we'll deny any downoads
+     * @return true or false
+     */
+    private boolean requestACopyEnabled() {
+        // If the feature is not enabled, throw exception
+        return configurationService.getProperty("request.item.type") != null;
     }
 
     /**

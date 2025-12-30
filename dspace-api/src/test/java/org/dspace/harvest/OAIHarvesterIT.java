@@ -91,7 +91,6 @@ import org.mockito.ArgumentCaptor;
  * Integration tests for {@link OAIHarvester}.
  *
  * @author Luca Giamminonni (luca.giamminonni at 4science.it)
- *
  */
 public class OAIHarvesterIT extends AbstractIntegrationTestWithDatabase {
 
@@ -101,25 +100,28 @@ public class OAIHarvesterIT extends AbstractIntegrationTestWithDatabase {
     private static final String VALIDATION_DIR = OAI_PMH_DIR_PATH + "cerif/validation/";
     private static final String CERIF_XSD_NAME = "openaire-cerif-profile.xsd";
 
-    private OAIHarvester harvester = HarvestServiceFactory.getInstance().getOAIHarvester();
+    private final OAIHarvester harvester = HarvestServiceFactory.getInstance().getOAIHarvester();
 
-    private HarvestedCollectionService harvestedCollectionService = HarvestServiceFactory.getInstance()
-        .getHarvestedCollectionService();
+    private final HarvestedCollectionService harvestedCollectionService =
+        HarvestServiceFactory.getInstance().getHarvestedCollectionService();
 
-    private HarvestedItemService harvestedItemService = HarvestServiceFactory.getInstance().getHarvestedItemService();
+    private final HarvestedItemService harvestedItemService =
+        HarvestServiceFactory.getInstance().getHarvestedItemService();
 
-    private ItemService itemService = ContentServiceFactory.getInstance().getItemService();
+    private final ItemService itemService = ContentServiceFactory.getInstance().getItemService();
 
-    private WorkspaceItemService workspaceItemService = ContentServiceFactory.getInstance().getWorkspaceItemService();
+    private final WorkspaceItemService workspaceItemService =
+        ContentServiceFactory.getInstance().getWorkspaceItemService();
 
-    private ConfigurationService configurationService = DSpaceServicesFactory.getInstance().getConfigurationService();
+    private final ConfigurationService configurationService =
+        DSpaceServicesFactory.getInstance().getConfigurationService();
 
-    private XmlWorkflowItemService workflowItemService = XmlWorkflowServiceFactory.getInstance()
-        .getXmlWorkflowItemService();
+    private final XmlWorkflowItemService workflowItemService = XmlWorkflowServiceFactory.getInstance()
+                                                                                        .getXmlWorkflowItemService();
 
-    private PoolTaskService poolTaskService = XmlWorkflowServiceFactory.getInstance().getPoolTaskService();
+    private final PoolTaskService poolTaskService = XmlWorkflowServiceFactory.getInstance().getPoolTaskService();
 
-    private SAXBuilder builder = new SAXBuilder();
+    private final SAXBuilder builder = new SAXBuilder();
 
     private Community community;
 
@@ -167,12 +169,12 @@ public class OAIHarvesterIT extends AbstractIntegrationTestWithDatabase {
 
         context.turnOffAuthorisationSystem();
         HarvestedCollection harvestRow = HarvestedCollectionBuilder.create(context, collection)
-            .withOaiSource(BASE_URL)
-            .withOaiSetId("publications")
-            .withMetadataConfigId("cerif")
-            .withHarvestType(HarvestedCollection.TYPE_DMD)
-            .withHarvestStatus(HarvestedCollection.STATUS_READY)
-            .build();
+                                                                   .withOaiSource(BASE_URL)
+                                                                   .withOaiSetId("publications")
+                                                                   .withMetadataConfigId("cerif")
+                                                                   .withHarvestType(HarvestedCollection.TYPE_DMD)
+                                                                   .withHarvestStatus(HarvestedCollection.STATUS_READY)
+                                                                   .build();
         context.restoreAuthSystemState();
 
         harvester.runHarvest(context, harvestRow, getDefaultOptions());
@@ -188,14 +190,14 @@ public class OAIHarvesterIT extends AbstractIntegrationTestWithDatabase {
         harvestRow = harvestedCollectionService.find(context, collection);
         assertThat(harvestRow.getHarvestStatus(), equalTo(HarvestedCollection.STATUS_READY));
         assertThat(harvestRow.getHarvestStartTime(), notNullValue());
-        assertThat(harvestRow.getLastHarvestDate(), notNullValue());
+        assertThat(harvestRow.getHarvestDate(), notNullValue());
         assertThat(harvestRow.getHarvestMessage(), equalTo("Imported 3 records with success"));
 
         Item item = findItemByOaiID("oai:test-harvest:Publications/c3ae30ae-ddc4-4c25-b0b8-c87a3f850bca", collection);
         assertThat(item.isArchived(), equalTo(true));
         assertThat(getFirstMetadataValue(item, "dc.title"), equalTo("The International Journal of Digital Curation"));
         assertThat(getFirstMetadataValue(item, "cris.sourceId"),
-            equalTo("test-harvest::c3ae30ae-ddc4-4c25-b0b8-c87a3f850bca"));
+                   equalTo("test-harvest::c3ae30ae-ddc4-4c25-b0b8-c87a3f850bca"));
 
         item = findItemByOaiID("oai:test-harvest:Publications/123456789/6", collection);
         assertThat(item.isArchived(), equalTo(true));
@@ -217,12 +219,12 @@ public class OAIHarvesterIT extends AbstractIntegrationTestWithDatabase {
 
         context.turnOffAuthorisationSystem();
         HarvestedCollection harvestRow = HarvestedCollectionBuilder.create(context, collection)
-            .withOaiSource(BASE_URL)
-            .withOaiSetId("publications")
-            .withMetadataConfigId("cerif")
-            .withHarvestType(HarvestedCollection.TYPE_DMD)
-            .withHarvestStatus(HarvestedCollection.STATUS_READY)
-            .build();
+                                                                   .withOaiSource(BASE_URL)
+                                                                   .withOaiSetId("publications")
+                                                                   .withMetadataConfigId("cerif")
+                                                                   .withHarvestType(HarvestedCollection.TYPE_DMD)
+                                                                   .withHarvestStatus(HarvestedCollection.STATUS_READY)
+                                                                   .build();
         context.restoreAuthSystemState();
 
         harvester.runHarvest(context, harvestRow, getDefaultOptions());
@@ -238,14 +240,14 @@ public class OAIHarvesterIT extends AbstractIntegrationTestWithDatabase {
         harvestRow = harvestedCollectionService.find(context, collection);
         assertThat(harvestRow.getHarvestStatus(), equalTo(HarvestedCollection.STATUS_RETRY));
         assertThat(harvestRow.getHarvestStartTime(), notNullValue());
-        assertThat(harvestRow.getLastHarvestDate(), nullValue());
+        assertThat(harvestRow.getHarvestDate(), nullValue());
         assertThat(harvestRow.getHarvestMessage(),
-            equalTo("Imported 2 records with success - Record import failures: 1"));
+                   equalTo("Imported 2 records with success - Record import failures: 1"));
 
         Item item = findItemByOaiID("oai:test-harvest:Publications/c3ae30ae-ddc4-4c25-b0b8-c87a3f850bca", collection);
         assertThat(getFirstMetadataValue(item, "dc.title"), equalTo("The International Journal of Digital Curation"));
         assertThat(getFirstMetadataValue(item, "cris.sourceId"),
-            equalTo("test-harvest::c3ae30ae-ddc4-4c25-b0b8-c87a3f850bca"));
+                   equalTo("test-harvest::c3ae30ae-ddc4-4c25-b0b8-c87a3f850bca"));
 
         item = findItemByOaiID("oai:test-harvest:Publications/123456789/7", collection);
         assertThat(getFirstMetadataValue(item, "dc.title"), equalTo("TEST"));
@@ -253,7 +255,7 @@ public class OAIHarvesterIT extends AbstractIntegrationTestWithDatabase {
 
         assertThat(
             harvestedItemService.findByOAIId(context, "oai:test-harvest:Publications/123456789/6",
-                collection),
+                                             collection),
             nullValue());
 
     }
@@ -267,12 +269,12 @@ public class OAIHarvesterIT extends AbstractIntegrationTestWithDatabase {
 
         context.turnOffAuthorisationSystem();
         HarvestedCollection harvestRow = HarvestedCollectionBuilder.create(context, collection)
-            .withOaiSource(BASE_URL)
-            .withOaiSetId("publications")
-            .withMetadataConfigId("cerif")
-            .withHarvestType(HarvestedCollection.TYPE_DMD)
-            .withHarvestStatus(HarvestedCollection.STATUS_READY)
-            .build();
+                                                                   .withOaiSource(BASE_URL)
+                                                                   .withOaiSetId("publications")
+                                                                   .withMetadataConfigId("cerif")
+                                                                   .withHarvestType(HarvestedCollection.TYPE_DMD)
+                                                                   .withHarvestStatus(HarvestedCollection.STATUS_READY)
+                                                                   .build();
         context.restoreAuthSystemState();
 
         harvester.runHarvest(context, harvestRow, getDefaultOptions());
@@ -289,7 +291,7 @@ public class OAIHarvesterIT extends AbstractIntegrationTestWithDatabase {
         harvestRow = harvestedCollectionService.find(context, collection);
         assertThat(harvestRow.getHarvestStatus(), equalTo(HarvestedCollection.STATUS_READY));
         assertThat(harvestRow.getHarvestStartTime(), notNullValue());
-        assertThat(harvestRow.getLastHarvestDate(), notNullValue());
+        assertThat(harvestRow.getHarvestDate(), notNullValue());
         assertThat(harvestRow.getHarvestMessage(), equalTo("Imported 3 records with success"));
 
         Item item = findItemByOaiID("oai:test-harvest:Publications/1", collection);
@@ -312,12 +314,12 @@ public class OAIHarvesterIT extends AbstractIntegrationTestWithDatabase {
 
         context.turnOffAuthorisationSystem();
         HarvestedCollection harvestRow = HarvestedCollectionBuilder.create(context, collection)
-            .withOaiSource(BASE_URL)
-            .withOaiSetId("publications")
-            .withMetadataConfigId("cerif")
-            .withHarvestType(HarvestedCollection.TYPE_DMD)
-            .withHarvestStatus(HarvestedCollection.STATUS_READY)
-            .build();
+                                                                   .withOaiSource(BASE_URL)
+                                                                   .withOaiSetId("publications")
+                                                                   .withMetadataConfigId("cerif")
+                                                                   .withHarvestType(HarvestedCollection.TYPE_DMD)
+                                                                   .withHarvestStatus(HarvestedCollection.STATUS_READY)
+                                                                   .build();
         context.restoreAuthSystemState();
 
         harvester.runHarvest(context, harvestRow, getDefaultOptions());
@@ -333,7 +335,7 @@ public class OAIHarvesterIT extends AbstractIntegrationTestWithDatabase {
         harvestRow = harvestedCollectionService.find(context, collection);
         assertThat(harvestRow.getHarvestStatus(), equalTo(HarvestedCollection.STATUS_READY));
         assertThat(harvestRow.getHarvestStartTime(), notNullValue());
-        assertThat(harvestRow.getLastHarvestDate(), notNullValue());
+        assertThat(harvestRow.getHarvestDate(), notNullValue());
         assertThat(harvestRow.getHarvestMessage(), equalTo("noRecordsMatch: OAI server did not contain any updates"));
 
     }
@@ -345,12 +347,12 @@ public class OAIHarvesterIT extends AbstractIntegrationTestWithDatabase {
 
         context.turnOffAuthorisationSystem();
         HarvestedCollection harvestRow = HarvestedCollectionBuilder.create(context, collection)
-            .withOaiSource(BASE_URL)
-            .withOaiSetId("publications")
-            .withMetadataConfigId("cerif")
-            .withHarvestType(HarvestedCollection.TYPE_DMD)
-            .withHarvestStatus(HarvestedCollection.STATUS_READY)
-            .build();
+                                                                   .withOaiSource(BASE_URL)
+                                                                   .withOaiSetId("publications")
+                                                                   .withMetadataConfigId("cerif")
+                                                                   .withHarvestType(HarvestedCollection.TYPE_DMD)
+                                                                   .withHarvestStatus(HarvestedCollection.STATUS_READY)
+                                                                   .build();
         context.restoreAuthSystemState();
 
         harvester.runHarvest(context, harvestRow, getDefaultOptions());
@@ -366,9 +368,11 @@ public class OAIHarvesterIT extends AbstractIntegrationTestWithDatabase {
         harvestRow = harvestedCollectionService.find(context, collection);
         assertThat(harvestRow.getHarvestStatus(), equalTo(HarvestedCollection.STATUS_RETRY));
         assertThat(harvestRow.getHarvestStartTime(), notNullValue());
-        assertThat(harvestRow.getLastHarvestDate(), nullValue());
+        assertThat(harvestRow.getHarvestDate(), nullValue());
         assertThat(harvestRow.getHarvestMessage(), equalTo("Not recoverable error occurs: "
-            + "OAI server response contains the following error codes: [errorCode1, errorCode2]"));
+                                                               +
+                                                               "OAI server response contains the following error " +
+                                                               "codes: [errorCode1, errorCode2]"));
 
     }
 
@@ -380,12 +384,12 @@ public class OAIHarvesterIT extends AbstractIntegrationTestWithDatabase {
 
         context.turnOffAuthorisationSystem();
         HarvestedCollection harvestRow = HarvestedCollectionBuilder.create(context, collection)
-            .withOaiSource(BASE_URL)
-            .withOaiSetId("publications")
-            .withMetadataConfigId("cerif")
-            .withHarvestType(HarvestedCollection.TYPE_DMD)
-            .withHarvestStatus(HarvestedCollection.STATUS_READY)
-            .build();
+                                                                   .withOaiSource(BASE_URL)
+                                                                   .withOaiSetId("publications")
+                                                                   .withMetadataConfigId("cerif")
+                                                                   .withHarvestType(HarvestedCollection.TYPE_DMD)
+                                                                   .withHarvestStatus(HarvestedCollection.STATUS_READY)
+                                                                   .build();
         context.restoreAuthSystemState();
 
         harvester.runHarvest(context, harvestRow, getDefaultOptions());
@@ -401,7 +405,7 @@ public class OAIHarvesterIT extends AbstractIntegrationTestWithDatabase {
         harvestRow = harvestedCollectionService.find(context, collection);
         assertThat(harvestRow.getHarvestStatus(), equalTo(HarvestedCollection.STATUS_RETRY));
         assertThat(harvestRow.getHarvestStartTime(), notNullValue());
-        assertThat(harvestRow.getLastHarvestDate(), nullValue());
+        assertThat(harvestRow.getHarvestDate(), nullValue());
         assertThat(harvestRow.getHarvestMessage(), equalTo("Not recoverable error occurs: GENERIC ERROR"));
     }
 
@@ -415,18 +419,18 @@ public class OAIHarvesterIT extends AbstractIntegrationTestWithDatabase {
         context.turnOffAuthorisationSystem();
 
         HarvestedCollection harvestRow = HarvestedCollectionBuilder.create(context, collection)
-            .withOaiSource(BASE_URL)
-            .withOaiSetId("publications")
-            .withMetadataConfigId("cerif")
-            .withHarvestType(HarvestedCollection.TYPE_DMD)
-            .withHarvestStatus(HarvestedCollection.STATUS_READY)
-            .withLastHarvested(new Date())
-            .build();
+                                                                   .withOaiSource(BASE_URL)
+                                                                   .withOaiSetId("publications")
+                                                                   .withMetadataConfigId("cerif")
+                                                                   .withHarvestType(HarvestedCollection.TYPE_DMD)
+                                                                   .withHarvestStatus(HarvestedCollection.STATUS_READY)
+                                                                   .withLastHarvested(new Date())
+                                                                   .build();
 
         Item item = ItemBuilder.createItem(context, collection)
-            .withTitle("Old title")
-            .withIssueDate("2020-11-29")
-            .build();
+                               .withTitle("Old title")
+                               .withIssueDate("2020-11-29")
+                               .build();
 
         HarvestedItemBuilder.create(context, item, "oai:test-harvest:Publications/3").build();
 
@@ -456,7 +460,7 @@ public class OAIHarvesterIT extends AbstractIntegrationTestWithDatabase {
         assertThat(values, hasItems(with("oaire.citation.endPage", "250")));
         assertThat(values, hasItems(with("dc.identifier.doi", "10.1007/978-3-642-35233-1_18")));
         assertThat(values, hasItems(with("dc.contributor.author", "Manghi, Paolo", null,
-            "will be generated::test-harvest::123", 0, 500)));
+                                         "will be generated::test-harvest::123", 0, 500)));
         assertThat(values, hasItems(with("oairecerif.author.affiliation", PLACEHOLDER_PARENT_METADATA_VALUE)));
         assertThat(values, hasItems(with("cris.sourceId", "test-harvest::3")));
         assertThat(values, hasItems(with("dspace.entity.type", "Publication")));
@@ -471,18 +475,18 @@ public class OAIHarvesterIT extends AbstractIntegrationTestWithDatabase {
         context.turnOffAuthorisationSystem();
 
         HarvestedCollection harvestRow = HarvestedCollectionBuilder.create(context, collection)
-            .withOaiSource(BASE_URL)
-            .withOaiSetId("publications")
-            .withMetadataConfigId("cerif")
-            .withHarvestType(HarvestedCollection.TYPE_DMD)
-            .withHarvestStatus(HarvestedCollection.STATUS_READY)
-            .withLastHarvested(new Date())
-            .build();
+                                                                   .withOaiSource(BASE_URL)
+                                                                   .withOaiSetId("publications")
+                                                                   .withMetadataConfigId("cerif")
+                                                                   .withHarvestType(HarvestedCollection.TYPE_DMD)
+                                                                   .withHarvestStatus(HarvestedCollection.STATUS_READY)
+                                                                   .withLastHarvested(new Date())
+                                                                   .build();
 
         Item item = ItemBuilder.createItem(context, collection)
-            .withTitle("Publication title")
-            .withIssueDate("2020-11-29")
-            .build();
+                               .withTitle("Publication title")
+                               .withIssueDate("2020-11-29")
+                               .build();
 
         HarvestedItemBuilder.create(context, item, "oai:test-harvest:Publications/3").build();
 
@@ -499,7 +503,7 @@ public class OAIHarvesterIT extends AbstractIntegrationTestWithDatabase {
         assertThat(items, emptyCollectionOf(Item.class));
 
         assertThat(harvestedItemService.findByOAIId(context, "oai:test-harvest:Publications/3", collection),
-            nullValue());
+                   nullValue());
     }
 
     @Test
@@ -512,22 +516,22 @@ public class OAIHarvesterIT extends AbstractIntegrationTestWithDatabase {
         context.turnOffAuthorisationSystem();
 
         HarvestedCollection harvestRow = HarvestedCollectionBuilder.create(context, collection)
-            .withOaiSource(BASE_URL)
-            .withOaiSetId("publications")
-            .withMetadataConfigId("cerif")
-            .withHarvestType(HarvestedCollection.TYPE_DMD)
-            .withHarvestStatus(HarvestedCollection.STATUS_READY)
-            .withLastHarvested(new Date())
-            .build();
+                                                                   .withOaiSource(BASE_URL)
+                                                                   .withOaiSetId("publications")
+                                                                   .withMetadataConfigId("cerif")
+                                                                   .withHarvestType(HarvestedCollection.TYPE_DMD)
+                                                                   .withHarvestStatus(HarvestedCollection.STATUS_READY)
+                                                                   .withLastHarvested(new Date())
+                                                                   .build();
 
         Item item = ItemBuilder.createItem(context, collection)
-            .withTitle("Publication title")
-            .withIssueDate("2020-11-29")
-            .build();
+                               .withTitle("Publication title")
+                               .withIssueDate("2020-11-29")
+                               .build();
 
         HarvestedItemBuilder.create(context, item, "oai:test-harvest:Publications/3")
-            .withHarvestDate(new SimpleDateFormat("yyyy-MM-dd").parse("2101-01-01"))
-            .build();
+                            .withHarvestDate(new SimpleDateFormat("yyyy-MM-dd").parse("2101-01-01"))
+                            .build();
 
         context.restoreAuthSystemState();
 
@@ -562,22 +566,22 @@ public class OAIHarvesterIT extends AbstractIntegrationTestWithDatabase {
         context.turnOffAuthorisationSystem();
 
         HarvestedCollection harvestRow = HarvestedCollectionBuilder.create(context, collection)
-            .withOaiSource(BASE_URL)
-            .withOaiSetId("publications")
-            .withMetadataConfigId("cerif")
-            .withHarvestType(HarvestedCollection.TYPE_DMD)
-            .withHarvestStatus(HarvestedCollection.STATUS_READY)
-            .withLastHarvested(new Date())
-            .build();
+                                                                   .withOaiSource(BASE_URL)
+                                                                   .withOaiSetId("publications")
+                                                                   .withMetadataConfigId("cerif")
+                                                                   .withHarvestType(HarvestedCollection.TYPE_DMD)
+                                                                   .withHarvestStatus(HarvestedCollection.STATUS_READY)
+                                                                   .withLastHarvested(new Date())
+                                                                   .build();
 
         Item item = ItemBuilder.createItem(context, collection)
-            .withTitle("Publication title")
-            .withIssueDate("2020-11-29")
-            .build();
+                               .withTitle("Publication title")
+                               .withIssueDate("2020-11-29")
+                               .build();
 
         HarvestedItemBuilder.create(context, item, "oai:test-harvest:Publications/3")
-            .withHarvestDate(new SimpleDateFormat("yyyy-MM-dd").parse("2101-01-01"))
-            .build();
+                            .withHarvestDate(new SimpleDateFormat("yyyy-MM-dd").parse("2101-01-01"))
+                            .build();
 
         context.restoreAuthSystemState();
 
@@ -611,13 +615,13 @@ public class OAIHarvesterIT extends AbstractIntegrationTestWithDatabase {
         context.turnOffAuthorisationSystem();
 
         HarvestedCollection harvestRow = HarvestedCollectionBuilder.create(context, collection)
-            .withOaiSource(BASE_URL)
-            .withOaiSetId("publications")
-            .withMetadataConfigId("cerif")
-            .withHarvestType(HarvestedCollection.TYPE_DMD)
-            .withHarvestStatus(HarvestedCollection.STATUS_READY)
-            .withLastHarvested(new Date())
-            .build();
+                                                                   .withOaiSource(BASE_URL)
+                                                                   .withOaiSetId("publications")
+                                                                   .withMetadataConfigId("cerif")
+                                                                   .withHarvestType(HarvestedCollection.TYPE_DMD)
+                                                                   .withHarvestStatus(HarvestedCollection.STATUS_READY)
+                                                                   .withLastHarvested(new Date())
+                                                                   .build();
 
         Item item = ItemBuilder.createItem(context, collection).withCrisSourceId("test-harvest::3").build();
 
@@ -642,7 +646,7 @@ public class OAIHarvesterIT extends AbstractIntegrationTestWithDatabase {
         assertThat(values, hasItems(with("oaire.citation.endPage", "250")));
         assertThat(values, hasItems(with("dc.identifier.doi", "10.1007/978-3-642-35233-1_18")));
         assertThat(values, hasItems(with("dc.contributor.author", "Manghi, Paolo", null,
-            "will be generated::test-harvest::123", 0, 500)));
+                                         "will be generated::test-harvest::123", 0, 500)));
         assertThat(values, hasItems(with("oairecerif.author.affiliation", PLACEHOLDER_PARENT_METADATA_VALUE)));
         assertThat(values, hasItems(with("cris.sourceId", "test-harvest::3")));
         assertThat(values, hasItems(with("dspace.entity.type", "Publication")));
@@ -660,12 +664,12 @@ public class OAIHarvesterIT extends AbstractIntegrationTestWithDatabase {
 
         context.turnOffAuthorisationSystem();
         HarvestedCollection harvestRow = HarvestedCollectionBuilder.create(context, collection)
-            .withOaiSource(BASE_URL)
-            .withOaiSetId("publications")
-            .withMetadataConfigId("cerif")
-            .withHarvestType(HarvestedCollection.TYPE_DMD)
-            .withHarvestStatus(HarvestedCollection.STATUS_READY)
-            .build();
+                                                                   .withOaiSource(BASE_URL)
+                                                                   .withOaiSetId("publications")
+                                                                   .withMetadataConfigId("cerif")
+                                                                   .withHarvestType(HarvestedCollection.TYPE_DMD)
+                                                                   .withHarvestStatus(HarvestedCollection.STATUS_READY)
+                                                                   .build();
         context.restoreAuthSystemState();
 
         // create the item
@@ -687,7 +691,7 @@ public class OAIHarvesterIT extends AbstractIntegrationTestWithDatabase {
         assertThat(values, hasItems(with("oaire.citation.endPage", "180")));
         assertThat(values, hasItems(with("dc.identifier.doi", "10.1007/978-3-642-35233-1_18")));
         assertThat(values, hasItems(with("dc.contributor.author", "Manghi, Paolo", null,
-            "will be generated::test-harvest::123", 0, 500)));
+                                         "will be generated::test-harvest::123", 0, 500)));
         assertThat(values, hasItems(with("oairecerif.author.affiliation", PLACEHOLDER_PARENT_METADATA_VALUE)));
         assertThat(values, hasItems(with("cris.sourceId", "test-harvest::3")));
         assertThat(values, hasItems(with("dspace.entity.type", "Publication")));
@@ -695,7 +699,7 @@ public class OAIHarvesterIT extends AbstractIntegrationTestWithDatabase {
         harvestRow = harvestedCollectionService.find(context, collection);
         assertThat(harvestRow.getHarvestStatus(), equalTo(HarvestedCollection.STATUS_READY));
         assertThat(harvestRow.getHarvestStartTime(), notNullValue());
-        assertThat(harvestRow.getLastHarvestDate(), notNullValue());
+        assertThat(harvestRow.getHarvestDate(), notNullValue());
         assertThat(harvestRow.getHarvestMessage(), equalTo("Imported 1 records with success"));
 
         // update the item
@@ -718,7 +722,7 @@ public class OAIHarvesterIT extends AbstractIntegrationTestWithDatabase {
         assertThat(values, hasItems(with("oaire.citation.endPage", "250")));
         assertThat(values, hasItems(with("dc.identifier.doi", "10.1007/978-3-642-35233-1_18")));
         assertThat(values, hasItems(with("dc.contributor.author", "Manghi, Paolo", null,
-            "will be generated::test-harvest::123", 0, 500)));
+                                         "will be generated::test-harvest::123", 0, 500)));
         assertThat(values, hasItems(with("oairecerif.author.affiliation", PLACEHOLDER_PARENT_METADATA_VALUE)));
         assertThat(values, hasItems(with("cris.sourceId", "test-harvest::3")));
         assertThat(values, hasItems(with("dspace.entity.type", "Publication")));
@@ -743,20 +747,23 @@ public class OAIHarvesterIT extends AbstractIntegrationTestWithDatabase {
                 .build();
 
             HarvestedCollection publicationHarvest = HarvestedCollectionBuilder.create(context, collection)
-                .withOaiSource(BASE_URL)
-                .withOaiSetId("publications")
-                .withMetadataConfigId("cerif")
-                .withHarvestType(HarvestedCollection.TYPE_DMD)
-                .withHarvestStatus(HarvestedCollection.STATUS_READY)
-                .build();
+                                                                               .withOaiSource(BASE_URL)
+                                                                               .withOaiSetId("publications")
+                                                                               .withMetadataConfigId("cerif")
+                                                                               .withHarvestType(
+                                                                                   HarvestedCollection.TYPE_DMD)
+                                                                               .withHarvestStatus(
+                                                                                   HarvestedCollection.STATUS_READY)
+                                                                               .build();
 
             HarvestedCollection personHarvest = HarvestedCollectionBuilder.create(context, personCollection)
-                .withOaiSource(BASE_URL)
-                .withOaiSetId("persons")
-                .withMetadataConfigId("cerif")
-                .withHarvestType(HarvestedCollection.TYPE_DMD)
-                .withHarvestStatus(HarvestedCollection.STATUS_READY)
-                .build();
+                                                                          .withOaiSource(BASE_URL)
+                                                                          .withOaiSetId("persons")
+                                                                          .withMetadataConfigId("cerif")
+                                                                          .withHarvestType(HarvestedCollection.TYPE_DMD)
+                                                                          .withHarvestStatus(
+                                                                              HarvestedCollection.STATUS_READY)
+                                                                          .build();
 
             context.restoreAuthSystemState();
 
@@ -839,20 +846,23 @@ public class OAIHarvesterIT extends AbstractIntegrationTestWithDatabase {
                 .build();
 
             HarvestedCollection publicationHarvest = HarvestedCollectionBuilder.create(context, collection)
-                .withOaiSource(BASE_URL)
-                .withOaiSetId("publications")
-                .withMetadataConfigId("cerif")
-                .withHarvestType(HarvestedCollection.TYPE_DMD)
-                .withHarvestStatus(HarvestedCollection.STATUS_READY)
-                .build();
+                                                                               .withOaiSource(BASE_URL)
+                                                                               .withOaiSetId("publications")
+                                                                               .withMetadataConfigId("cerif")
+                                                                               .withHarvestType(
+                                                                                   HarvestedCollection.TYPE_DMD)
+                                                                               .withHarvestStatus(
+                                                                                   HarvestedCollection.STATUS_READY)
+                                                                               .build();
 
             HarvestedCollection personHarvest = HarvestedCollectionBuilder.create(context, personCollection)
-                .withOaiSource(BASE_URL)
-                .withOaiSetId("persons")
-                .withMetadataConfigId("cerif")
-                .withHarvestType(HarvestedCollection.TYPE_DMD)
-                .withHarvestStatus(HarvestedCollection.STATUS_READY)
-                .build();
+                                                                          .withOaiSource(BASE_URL)
+                                                                          .withOaiSetId("persons")
+                                                                          .withMetadataConfigId("cerif")
+                                                                          .withHarvestType(HarvestedCollection.TYPE_DMD)
+                                                                          .withHarvestStatus(
+                                                                              HarvestedCollection.STATUS_READY)
+                                                                          .build();
 
             context.restoreAuthSystemState();
 
@@ -916,12 +926,12 @@ public class OAIHarvesterIT extends AbstractIntegrationTestWithDatabase {
             .build();
 
         HarvestedCollection harvestRow = HarvestedCollectionBuilder.create(context, equipmentCollection)
-            .withOaiSource(BASE_URL)
-            .withOaiSetId("equipments")
-            .withMetadataConfigId("cerif")
-            .withHarvestType(HarvestedCollection.TYPE_DMD)
-            .withHarvestStatus(HarvestedCollection.STATUS_READY)
-            .build();
+                                                                   .withOaiSource(BASE_URL)
+                                                                   .withOaiSetId("equipments")
+                                                                   .withMetadataConfigId("cerif")
+                                                                   .withHarvestType(HarvestedCollection.TYPE_DMD)
+                                                                   .withHarvestStatus(HarvestedCollection.STATUS_READY)
+                                                                   .build();
         context.restoreAuthSystemState();
 
         harvester.runHarvest(context, harvestRow, getDefaultOptions());
@@ -955,12 +965,12 @@ public class OAIHarvesterIT extends AbstractIntegrationTestWithDatabase {
             .build();
 
         HarvestedCollection harvestRow = HarvestedCollectionBuilder.create(context, equipmentCollection)
-            .withOaiSource(BASE_URL)
-            .withOaiSetId("equipments")
-            .withMetadataConfigId("cerif")
-            .withHarvestType(HarvestedCollection.TYPE_DMD)
-            .withHarvestStatus(HarvestedCollection.STATUS_READY)
-            .build();
+                                                                   .withOaiSource(BASE_URL)
+                                                                   .withOaiSetId("equipments")
+                                                                   .withMetadataConfigId("cerif")
+                                                                   .withHarvestType(HarvestedCollection.TYPE_DMD)
+                                                                   .withHarvestStatus(HarvestedCollection.STATUS_READY)
+                                                                   .build();
         context.restoreAuthSystemState();
 
         harvester.runHarvest(context, harvestRow, getDefaultOptions());
@@ -994,12 +1004,12 @@ public class OAIHarvesterIT extends AbstractIntegrationTestWithDatabase {
             .build();
 
         HarvestedCollection harvestRow = HarvestedCollectionBuilder.create(context, equipmentCollection)
-            .withOaiSource(BASE_URL)
-            .withOaiSetId("equipments")
-            .withMetadataConfigId("cerif")
-            .withHarvestType(HarvestedCollection.TYPE_DMD)
-            .withHarvestStatus(HarvestedCollection.STATUS_READY)
-            .build();
+                                                                   .withOaiSource(BASE_URL)
+                                                                   .withOaiSetId("equipments")
+                                                                   .withMetadataConfigId("cerif")
+                                                                   .withHarvestType(HarvestedCollection.TYPE_DMD)
+                                                                   .withHarvestStatus(HarvestedCollection.STATUS_READY)
+                                                                   .build();
         context.restoreAuthSystemState();
 
         harvester.runHarvest(context, harvestRow, getDefaultOptions());
@@ -1025,12 +1035,12 @@ public class OAIHarvesterIT extends AbstractIntegrationTestWithDatabase {
 
         context.turnOffAuthorisationSystem();
         HarvestedCollection harvestRow = HarvestedCollectionBuilder.create(context, collection)
-            .withOaiSource(BASE_URL)
-            .withOaiSetId("publications")
-            .withMetadataConfigId("cerif")
-            .withHarvestType(HarvestedCollection.TYPE_DMD)
-            .withHarvestStatus(HarvestedCollection.STATUS_READY)
-            .build();
+                                                                   .withOaiSource(BASE_URL)
+                                                                   .withOaiSetId("publications")
+                                                                   .withMetadataConfigId("cerif")
+                                                                   .withHarvestType(HarvestedCollection.TYPE_DMD)
+                                                                   .withHarvestStatus(HarvestedCollection.STATUS_READY)
+                                                                   .build();
         context.restoreAuthSystemState();
 
         harvester.runHarvest(context, harvestRow, getOptionsWithItemValidationEnabled());
@@ -1061,18 +1071,18 @@ public class OAIHarvesterIT extends AbstractIntegrationTestWithDatabase {
         context.turnOffAuthorisationSystem();
 
         Collection equipmentCollection = CollectionBuilder.createCollection(context, community)
-            .withEntityType("Equipment")
-            .withSubmitterGroup(eperson)
-            .withWorkflowGroup(1, eperson)
-            .build();
+                                                          .withEntityType("Equipment")
+                                                          .withSubmitterGroup(eperson)
+                                                          .withWorkflowGroup(1, eperson)
+                                                          .build();
 
         HarvestedCollection harvestRow = HarvestedCollectionBuilder.create(context, equipmentCollection)
-            .withOaiSource(BASE_URL)
-            .withOaiSetId("equipments")
-            .withMetadataConfigId("cerif")
-            .withHarvestType(HarvestedCollection.TYPE_DMD)
-            .withHarvestStatus(HarvestedCollection.STATUS_READY)
-            .build();
+                                                                   .withOaiSource(BASE_URL)
+                                                                   .withOaiSetId("equipments")
+                                                                   .withMetadataConfigId("cerif")
+                                                                   .withHarvestType(HarvestedCollection.TYPE_DMD)
+                                                                   .withHarvestStatus(HarvestedCollection.STATUS_READY)
+                                                                   .build();
         context.restoreAuthSystemState();
 
         harvester.runHarvest(context, harvestRow, getOptionsWithInstallationNotEnabled());
@@ -1101,12 +1111,12 @@ public class OAIHarvesterIT extends AbstractIntegrationTestWithDatabase {
 
         context.turnOffAuthorisationSystem();
         HarvestedCollection harvestRow = HarvestedCollectionBuilder.create(context, collection)
-            .withOaiSource(BASE_URL)
-            .withOaiSetId("publications")
-            .withMetadataConfigId("cerif")
-            .withHarvestType(HarvestedCollection.TYPE_DMD)
-            .withHarvestStatus(HarvestedCollection.STATUS_READY)
-            .build();
+                                                                   .withOaiSource(BASE_URL)
+                                                                   .withOaiSetId("publications")
+                                                                   .withMetadataConfigId("cerif")
+                                                                   .withHarvestType(HarvestedCollection.TYPE_DMD)
+                                                                   .withHarvestStatus(HarvestedCollection.STATUS_READY)
+                                                                   .build();
         context.restoreAuthSystemState();
 
         harvester.runHarvest(context, harvestRow, getOptionsWithRecordValidationEnabled());
@@ -1131,12 +1141,12 @@ public class OAIHarvesterIT extends AbstractIntegrationTestWithDatabase {
 
         context.turnOffAuthorisationSystem();
         HarvestedCollection harvestRow = HarvestedCollectionBuilder.create(context, collection)
-            .withOaiSource(BASE_URL)
-            .withOaiSetId("publications")
-            .withMetadataConfigId("cerif")
-            .withHarvestType(HarvestedCollection.TYPE_DMD)
-            .withHarvestStatus(HarvestedCollection.STATUS_READY)
-            .build();
+                                                                   .withOaiSource(BASE_URL)
+                                                                   .withOaiSetId("publications")
+                                                                   .withMetadataConfigId("cerif")
+                                                                   .withHarvestType(HarvestedCollection.TYPE_DMD)
+                                                                   .withHarvestStatus(HarvestedCollection.STATUS_READY)
+                                                                   .build();
         context.restoreAuthSystemState();
 
         harvester.runHarvest(context, harvestRow, getOptionsWithRecordValidationEnabled());
@@ -1152,7 +1162,7 @@ public class OAIHarvesterIT extends AbstractIntegrationTestWithDatabase {
         harvestRow = harvestedCollectionService.find(context, collection);
         assertThat(harvestRow.getHarvestStatus(), equalTo(HarvestedCollection.STATUS_READY));
         assertThat(harvestRow.getHarvestStartTime(), notNullValue());
-        assertThat(harvestRow.getLastHarvestDate(), notNullValue());
+        assertThat(harvestRow.getHarvestDate(), notNullValue());
         assertThat(harvestRow.getHarvestMessage(), equalTo("Imported 3 records with success"));
 
         Item item = findItemByOaiID("oai:test-harvest:Publications/123456789/1001", collection);
@@ -1179,12 +1189,12 @@ public class OAIHarvesterIT extends AbstractIntegrationTestWithDatabase {
 
         context.turnOffAuthorisationSystem();
         HarvestedCollection harvestRow = HarvestedCollectionBuilder.create(context, collection)
-            .withOaiSource(BASE_URL)
-            .withOaiSetId("publications")
-            .withMetadataConfigId("cerif")
-            .withHarvestType(HarvestedCollection.TYPE_DMD)
-            .withHarvestStatus(HarvestedCollection.STATUS_READY)
-            .build();
+                                                                   .withOaiSource(BASE_URL)
+                                                                   .withOaiSetId("publications")
+                                                                   .withMetadataConfigId("cerif")
+                                                                   .withHarvestType(HarvestedCollection.TYPE_DMD)
+                                                                   .withHarvestStatus(HarvestedCollection.STATUS_READY)
+                                                                   .build();
         context.restoreAuthSystemState();
 
         harvester.runHarvest(context, harvestRow, getOptionsWithRecordAndItemValidationEnabled());
@@ -1222,12 +1232,13 @@ public class OAIHarvesterIT extends AbstractIntegrationTestWithDatabase {
 
             context.turnOffAuthorisationSystem();
             HarvestedCollection harvestRow = HarvestedCollectionBuilder.create(context, collection)
-                .withOaiSource(BASE_URL)
-                .withOaiSetId("publications")
-                .withMetadataConfigId("cerif")
-                .withHarvestType(HarvestedCollection.TYPE_DMD)
-                .withHarvestStatus(HarvestedCollection.STATUS_READY)
-                .build();
+                                                                       .withOaiSource(BASE_URL)
+                                                                       .withOaiSetId("publications")
+                                                                       .withMetadataConfigId("cerif")
+                                                                       .withHarvestType(HarvestedCollection.TYPE_DMD)
+                                                                       .withHarvestStatus(
+                                                                           HarvestedCollection.STATUS_READY)
+                                                                       .build();
             context.restoreAuthSystemState();
 
             harvester.runHarvest(context, harvestRow, getDefaultOptions());
@@ -1269,12 +1280,13 @@ public class OAIHarvesterIT extends AbstractIntegrationTestWithDatabase {
                 .build();
 
             HarvestedCollection harvestRow = HarvestedCollectionBuilder.create(context, collection)
-                .withOaiSource(BASE_URL)
-                .withOaiSetId("publications")
-                .withMetadataConfigId("cerif")
-                .withHarvestType(HarvestedCollection.TYPE_DMD)
-                .withHarvestStatus(HarvestedCollection.STATUS_READY)
-                .build();
+                                                                       .withOaiSource(BASE_URL)
+                                                                       .withOaiSetId("publications")
+                                                                       .withMetadataConfigId("cerif")
+                                                                       .withHarvestType(HarvestedCollection.TYPE_DMD)
+                                                                       .withHarvestStatus(
+                                                                           HarvestedCollection.STATUS_READY)
+                                                                       .build();
             context.restoreAuthSystemState();
 
             harvester.runHarvest(context, harvestRow, getDefaultOptions());
@@ -1307,7 +1319,7 @@ public class OAIHarvesterIT extends AbstractIntegrationTestWithDatabase {
             assertThat(errorDetails.getMessages(), hasSize(2));
             assertThat(errorDetails.getMessages(), hasItem("error.validation.filerequired - [/sections/upload]"));
             assertThat(errorDetails.getMessages(),
-               hasItem(LicenseValidator.ERROR_VALIDATION_LICENSEREQUIRED + " - [/sections/license]")
+                       hasItem(LicenseValidator.ERROR_VALIDATION_LICENSEREQUIRED + " - [/sections/license]")
             );
 
             verifyNoMoreInteractions(mockClient, mockEmailSender);
@@ -1340,12 +1352,13 @@ public class OAIHarvesterIT extends AbstractIntegrationTestWithDatabase {
                 .build();
 
             HarvestedCollection harvestRow = HarvestedCollectionBuilder.create(context, collection)
-                .withOaiSource(BASE_URL)
-                .withOaiSetId("publications")
-                .withMetadataConfigId("cerif")
-                .withHarvestType(HarvestedCollection.TYPE_DMD)
-                .withHarvestStatus(HarvestedCollection.STATUS_READY)
-                .build();
+                                                                       .withOaiSource(BASE_URL)
+                                                                       .withOaiSetId("publications")
+                                                                       .withMetadataConfigId("cerif")
+                                                                       .withHarvestType(HarvestedCollection.TYPE_DMD)
+                                                                       .withHarvestStatus(
+                                                                           HarvestedCollection.STATUS_READY)
+                                                                       .build();
             context.restoreAuthSystemState();
 
             harvester.runHarvest(context, harvestRow, getDefaultOptions());
@@ -1372,7 +1385,9 @@ public class OAIHarvesterIT extends AbstractIntegrationTestWithDatabase {
             assertThat(errorDetails.getAction(), is("created"));
             assertThat(errorDetails.getMessages(), hasSize(1));
             assertThat(errorDetails.getMessages(), hasItem(containsString("Invalid content was found starting "
-                + "with element '{\"https://www.openaire.eu/cerif-profile/1.1/\":StartPage}'")));
+                                                                              +
+                                                                              "with element '{\"https://www.openaire" +
+                                                                              ".eu/cerif-profile/1.1/\":StartPage}'")));
 
             verifyNoMoreInteractions(mockClient, mockEmailSender);
 
@@ -1396,12 +1411,13 @@ public class OAIHarvesterIT extends AbstractIntegrationTestWithDatabase {
 
             context.turnOffAuthorisationSystem();
             HarvestedCollection harvestRow = HarvestedCollectionBuilder.create(context, collection)
-                .withOaiSource(BASE_URL)
-                .withOaiSetId("publications")
-                .withMetadataConfigId("cerif")
-                .withHarvestType(HarvestedCollection.TYPE_DMD)
-                .withHarvestStatus(HarvestedCollection.STATUS_READY)
-                .build();
+                                                                       .withOaiSource(BASE_URL)
+                                                                       .withOaiSetId("publications")
+                                                                       .withMetadataConfigId("cerif")
+                                                                       .withHarvestType(HarvestedCollection.TYPE_DMD)
+                                                                       .withHarvestStatus(
+                                                                           HarvestedCollection.STATUS_READY)
+                                                                       .build();
             context.restoreAuthSystemState();
 
             harvester.runHarvest(context, harvestRow, getOptionsWithRecordAndItemValidationEnabled());
@@ -1441,7 +1457,7 @@ public class OAIHarvesterIT extends AbstractIntegrationTestWithDatabase {
             assertThat(messages, hasItem("error.validation.filerequired - [/sections/upload]"));
             assertThat(messages, hasItem(LicenseValidator.ERROR_VALIDATION_LICENSEREQUIRED + " - [/sections/license]"));
             assertThat(errorDetails.getMessages(), hasItem(containsString("Element 'oai_cerif:Publishers' "
-                + "cannot have character [children]")));
+                                                                              + "cannot have character [children]")));
 
             errorDetails = errors.get("oai:test-harvest:Publications/123456789/1003");
             assertThat(errorDetails.getAction(), is("created"));
@@ -1474,12 +1490,13 @@ public class OAIHarvesterIT extends AbstractIntegrationTestWithDatabase {
 
             context.turnOffAuthorisationSystem();
             HarvestedCollection harvestRow = HarvestedCollectionBuilder.create(context, collection)
-                .withOaiSource(BASE_URL)
-                .withOaiSetId("publications")
-                .withMetadataConfigId("cerif")
-                .withHarvestType(HarvestedCollection.TYPE_DMD)
-                .withHarvestStatus(HarvestedCollection.STATUS_READY)
-                .build();
+                                                                       .withOaiSource(BASE_URL)
+                                                                       .withOaiSetId("publications")
+                                                                       .withMetadataConfigId("cerif")
+                                                                       .withHarvestType(HarvestedCollection.TYPE_DMD)
+                                                                       .withHarvestStatus(
+                                                                           HarvestedCollection.STATUS_READY)
+                                                                       .build();
             context.restoreAuthSystemState();
 
             harvester.runHarvest(context, harvestRow, getDefaultOptions());

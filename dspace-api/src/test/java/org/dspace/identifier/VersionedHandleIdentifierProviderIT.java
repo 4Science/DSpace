@@ -55,12 +55,16 @@ public class VersionedHandleIdentifierProviderIT extends AbstractIdentifierProvi
     }
 
     private void createVersions() throws SQLException, AuthorizeException {
+        context.turnOffAuthorisationSystem();
+
         itemV1 = ItemBuilder.createItem(context, collection)
                 .withTitle("First version")
                 .build();
         firstHandle = itemV1.getHandle();
         itemV2 = VersionBuilder.createVersion(context, itemV1, "Second version").build().getItem();
         itemV3 = VersionBuilder.createVersion(context, itemV1, "Third version").build().getItem();
+
+        context.restoreAuthSystemState();
     }
 
     @Test

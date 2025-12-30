@@ -7,8 +7,6 @@
  */
 package org.dspace.storage.bitstore;
 
-import static java.lang.String.valueOf;
-
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -407,7 +405,7 @@ public class S3BitStoreService extends BaseBitStoreService {
             HeadObjectResponse response = s3AsyncClient.headObject(r -> r.bucket(bucketName).key(objectKey)).join();
 
             putValueIfExistsKey(attrs, metadata, "size_bytes", response.contentLength());
-            putValueIfExistsKey(attrs, metadata, "modified", valueOf(response.lastModified().toEpochMilli()));
+            putValueIfExistsKey(attrs, metadata, "modified", String.valueOf(response.lastModified().toEpochMilli()));
             putValueIfExistsKey(attrs, metadata, "checksum_algorithm", CSA);
 
             if (attrs.contains("checksum")) {
@@ -701,7 +699,7 @@ public class S3BitStoreService extends BaseBitStoreService {
             PresignedGetObjectRequest presignedGetObjectRequest =
                 presigner.presignGetObject(
                     builder -> builder.signatureDuration(presignDuration())
-                                             .getObjectRequest(getObjectRequest)
+                                      .getObjectRequest(getObjectRequest)
                 );
 
             String presignedUrl = presignedGetObjectRequest.url().toString();

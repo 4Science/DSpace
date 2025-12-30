@@ -64,6 +64,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 public class OrcidSynchronizationServiceImpl implements OrcidSynchronizationService {
 
     private static final Logger log = LoggerFactory.getLogger(OrcidSynchronizationServiceImpl.class);
+
     @Autowired
     private ItemService itemService;
 

@@ -15,8 +15,8 @@ import static org.dspace.content.authority.Choices.CF_ACCEPTED;
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.SQLException;
+import java.time.Instant;
 import java.time.Period;
-import java.util.Date;
 import java.util.UUID;
 
 import org.apache.logging.log4j.LogManager;
@@ -980,7 +980,7 @@ public class ItemBuilder extends AbstractDSpaceObjectBuilder<Item> {
     }
 
 
-    public Item buildWithLastModifiedDate(Date lastModifiedDate) {
+    public Item buildWithLastModifiedDate(Instant lastModifiedDate) {
         try {
             installItemService.installItem(context, workspaceItem, this.handle);
             itemService.updateLastModifiedDate(context, item, lastModifiedDate);
