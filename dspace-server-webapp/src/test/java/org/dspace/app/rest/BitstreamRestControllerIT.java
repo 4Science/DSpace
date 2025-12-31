@@ -55,6 +55,8 @@ import java.util.UUID;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.CharEncoding;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.pdfbox.Loader;
+import org.apache.pdfbox.io.RandomAccessReadBuffer;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.text.PDFTextStripper;
 import org.apache.solr.client.solrj.SolrServerException;
@@ -74,7 +76,6 @@ import org.dspace.content.Community;
 import org.dspace.content.Item;
 import org.dspace.content.service.BitstreamFormatService;
 import org.dspace.content.service.BitstreamService;
-import org.dspace.content.service.CollectionService;
 import org.dspace.core.Constants;
 import org.dspace.disseminate.CitationDocumentServiceImpl;
 import org.dspace.eperson.EPerson;
@@ -85,6 +86,7 @@ import org.dspace.statistics.SolrLoggerServiceImpl;
 import org.dspace.statistics.factory.StatisticsServiceFactory;
 import org.dspace.statistics.service.SolrLoggerService;
 import org.dspace.storage.bitstore.factory.StorageServiceFactory;
+import org.dspace.storage.bitstore.service.BitstreamStorageService;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -103,28 +105,20 @@ public class BitstreamRestControllerIT extends AbstractControllerIntegrationTest
     public static final String[] PASS_ONLY = {"org.dspace.authenticate.PasswordAuthentication"};
 
     protected SolrLoggerService solrLoggerService = StatisticsServiceFactory.getInstance().getSolrLoggerService();
-
     @Autowired
     private ConfigurationService configurationService;
-
     @Autowired
     private CitationDocumentServiceImpl citationDocumentService;
-
     @Autowired
     private BitstreamService bitstreamService;
-
     @Autowired
     private ResourcePolicyService resourcePolicyService;
-
     @Autowired
     private BitstreamFormatService bitstreamFormatService;
-
     @Autowired
     private AuthorizeService authorizeService;
-
     @Autowired
-    private CollectionService collectionService;
-
+    private BitstreamStorageService bitstreamStorageService;
     private Bitstream bitstream;
     private BitstreamFormat supportedFormat;
     private BitstreamFormat knownFormat;
@@ -247,6 +241,57 @@ public class BitstreamRestControllerIT extends AbstractControllerIntegrationTest
 
             //The download and head request should also be logged as a statistics record
             checkNumberOfStatsRecords(bitstream, 3);
+    }
+
+    @Test
+    public void testGetBitstreamWithNullMimeType() throws Exception {
+
+        context.turnOffAuthorisationSystem();
+
+        //** GIVEN **
+        //1. A community-collection structure with one parent community and one collection
+
+        parentCommunity = CommunityBuilder
+            .createCommunity(context)
+            .build();
+
+        Collection collection = CollectionBuilder
+            .createCollection(context, parentCommunity)
+            .build();
+
+        //2. A public item with a bitstream
+
+        String bitstreamContent = "0123456789";
+        String bitstreamName = "testBitstreamWithNullMimeType";
+        BitstreamFormat bf;
+        try (InputStream is = IOUtils.toInputStream(bitstreamContent, CharEncoding.UTF_8)) {
+
+            Item item = ItemBuilder
+                .createItem(context, collection)
+                .build();
+            bf = bitstreamFormatService.create(context);
+            bf.setMIMEType("null");
+            bf.setShortDescription(context,"null");
+
+            bitstream = BitstreamBuilder
+                .createBitstream(context, item, is)
+                .withName(bitstreamName)
+                .withMimeType("null")
+                .build();
+        }
+
+        context.restoreAuthSystemState();
+        context.commit();
+
+        //** WHEN **
+        //We download the bitstream
+        getClient().perform(get("/api/core/bitstreams/" + bitstream.getID() + "/content"))
+            //** THEN **
+            .andExpect(status().isOk());
+        context.turnOffAuthorisationSystem();
+        bitstreamFormatService.delete(context, bf);
+        context.restoreAuthSystemState();
+        context.commit();
     }
 
     @Test
@@ -935,8 +980,8 @@ public class BitstreamRestControllerIT extends AbstractControllerIntegrationTest
         //** GIVEN **
         //1. A community-collection structure with one parent community and one collections.
         parentCommunity = CommunityBuilder.createCommunity(context)
-                .withName("Parent Community")
-                .build();
+                                          .withName("Parent Community")
+                                          .build();
 
         Collection col1 = CollectionBuilder.createCollection(context, parentCommunity).withName("Collection 1").build();
 
@@ -947,54 +992,54 @@ public class BitstreamRestControllerIT extends AbstractControllerIntegrationTest
         try (InputStream is = new FileInputStream(originalPdf)) {
 
             Item publicItem1 = ItemBuilder.createItem(context, col1)
-                    .withTitle("Public item citation cover page test 1")
-                    .withIssueDate("2017-10-17")
-                    .withAuthor("Smith, Donald").withAuthor("Doe, John")
-                    .build();
+                                          .withTitle("Public item citation cover page test 1")
+                                          .withIssueDate("2017-10-17")
+                                          .withAuthor("Smith, Donald").withAuthor("Doe, John")
+                                          .build();
 
             bitstream = BitstreamBuilder
-                    .createBitstream(context, publicItem1, is)
-                    .withName("Test bitstream")
-                    .withDescription("This is a bitstream to test the citation cover page.")
-                    .withMimeType("application/pdf")
-                    .build();
+                .createBitstream(context, publicItem1, is)
+                .withName("Test bitstream")
+                .withDescription("This is a bitstream to test the citation cover page.")
+                .withMimeType("application/pdf")
+                .build();
         }
-            context.restoreAuthSystemState();
-            //** WHEN **
-            //We download the bitstream
-            byte[] content = getClient().perform(get("/api/core/bitstreams/" + bitstream.getID() + "/content"))
+        context.restoreAuthSystemState();
+        //** WHEN **
+        //We download the bitstream
+        byte[] content = getClient().perform(get("/api/core/bitstreams/" + bitstream.getID() + "/content"))
 
-                    //** THEN **
-                    .andExpect(status().isOk())
+                                    //** THEN **
+                                    .andExpect(status().isOk())
 
-                    //The Content Length must match the full length
-                    .andExpect(header().string("Content-Length", not(nullValue())))
-                    //The server should indicate we support Range requests
-                    .andExpect(header().string("Accept-Ranges", "bytes"))
-                    //The ETag has to be based on the checksum
-                    .andExpect(header().string("ETag", "\"" + bitstream.getChecksum() + "\""))
-                    //We expect the content type to match the bitstream mime type
-                    .andExpect(content().contentType("application/pdf;charset=UTF-8"))
-                    //THe bytes of the content must match the original content
-                    .andReturn().getResponse().getContentAsByteArray();
+                                    //The Content Length must match the full length
+                                    .andExpect(header().string("Content-Length", not(nullValue())))
+                                    //The server should indicate we support Range requests
+                                    .andExpect(header().string("Accept-Ranges", "bytes"))
+                                    //The ETag has to be based on the checksum
+                                    .andExpect(header().string("ETag", "\"" + bitstream.getChecksum() + "\""))
+                                    //We expect the content type to match the bitstream mime type
+                                    .andExpect(content().contentType("application/pdf;charset=UTF-8"))
+                                    //THe bytes of the content must match the original content
+                                    .andReturn().getResponse().getContentAsByteArray();
 
-            // The citation cover page contains the item title.
-            // We will now verify that the pdf text contains this title.
-            String pdfText = extractPDFText(content);
-            System.out.println(pdfText);
-            assertTrue(StringUtils.contains(pdfText,"Public item citation cover page test 1"));
+        // The citation cover page contains the item title.
+        // We will now verify that the pdf text contains this title.
+        String pdfText = extractPDFText(content);
+        System.out.println(pdfText);
+        assertTrue(StringUtils.contains(pdfText, "Public item citation cover page test 1"));
 
-            // The dspace-api/src/test/data/dspaceFolder/assetstore/ConstitutionofIreland.pdf file contains 64 pages,
-            // manually counted + 1 citation cover page
-            assertEquals(65,getNumberOfPdfPages(content));
+        // The dspace-api/src/test/data/dspaceFolder/assetstore/ConstitutionofIreland.pdf file contains 64 pages,
+        // manually counted + 1 citation cover page
+        assertEquals(65, getNumberOfPdfPages(content));
 
-            //A If-None-Match HEAD request on the ETag must tell is the bitstream is not modified
-            getClient().perform(head("/api/core/bitstreams/" + bitstream.getID() + "/content")
-                    .header("If-None-Match", bitstream.getChecksum()))
-                    .andExpect(status().isNotModified());
+        //A If-None-Match HEAD request on the ETag must tell is the bitstream is not modified
+        getClient().perform(head("/api/core/bitstreams/" + bitstream.getID() + "/content")
+                                .header("If-None-Match", bitstream.getChecksum()))
+                   .andExpect(status().isNotModified());
 
-            //The download and head request should also be logged as a statistics record
-            checkNumberOfStatsRecords(bitstream, 2);
+        //The download and head request should also be logged as a statistics record
+        checkNumberOfStatsRecords(bitstream, 2);
     }
 
     private String extractPDFText(byte[] content) throws IOException {
@@ -1003,7 +1048,7 @@ public class BitstreamRestControllerIT extends AbstractControllerIntegrationTest
 
         try (ByteArrayInputStream source = new ByteArrayInputStream(content);
              Writer writer = new StringWriter();
-             PDDocument pdfDoc = PDDocument.load(source)) {
+             PDDocument pdfDoc = Loader.loadPDF(new RandomAccessReadBuffer(source))) {
 
             pts.writeText(pdfDoc, writer);
             return writer.toString();
@@ -1012,7 +1057,7 @@ public class BitstreamRestControllerIT extends AbstractControllerIntegrationTest
 
     private int getNumberOfPdfPages(byte[] content) throws IOException {
         try (ByteArrayInputStream source = new ByteArrayInputStream(content);
-             PDDocument pdfDoc = PDDocument.load(source)) {
+            PDDocument pdfDoc = Loader.loadPDF(new RandomAccessReadBuffer(source))) {
             return pdfDoc.getNumberOfPages();
         }
     }
@@ -1024,8 +1069,8 @@ public class BitstreamRestControllerIT extends AbstractControllerIntegrationTest
         resourcePolicyService.removePolicies(context, bitstream.getBundles().get(0), READ);
 
         getClient()
-                .perform(get("/api/core/bitstreams/" + bitstream.getID() + "/format"))
-                .andExpect(status().isUnauthorized());
+            .perform(get("/api/core/bitstreams/" + bitstream.getID() + "/format"))
+            .andExpect(status().isUnauthorized());
     }
 
     @Test
@@ -1035,44 +1080,44 @@ public class BitstreamRestControllerIT extends AbstractControllerIntegrationTest
         resourcePolicyService.removePolicies(context, bitstream.getBundles().get(0), READ);
 
         getClient(getAuthToken(eperson.getEmail(), password))
-                .perform(get("/api/core/bitstreams/" + bitstream.getID() + "/format"))
-                .andExpect(status().isForbidden());
+            .perform(get("/api/core/bitstreams/" + bitstream.getID() + "/format"))
+            .andExpect(status().isForbidden());
     }
 
     @Test
     public void getBitstreamFormat() throws Exception {
 
         getClient()
-                .perform(get("/api/core/bitstreams/" + bitstream.getID() + "/format"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$", matchBitstreamFormat(
-                        supportedFormat.getID(),
-                        supportedFormat.getMIMEType(),
-                        supportedFormat.getDescription(),
-                        supportedFormat.getShortDescription(),
-                        "SUPPORTED"
-                )));
+            .perform(get("/api/core/bitstreams/" + bitstream.getID() + "/format"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$", matchBitstreamFormat(
+                supportedFormat.getID(),
+                supportedFormat.getMIMEType(),
+                supportedFormat.getDescription(),
+                supportedFormat.getShortDescription(),
+                "SUPPORTED"
+            )));
     }
 
     @Test
     public void updateBitstreamFormatBadRequest() throws Exception {
 
         getClient(getAuthToken(admin.getEmail(), password)).perform(
-                put("/api/core/bitstreams/" + bitstream.getID() + "/format")
-                        .contentType(parseMediaType(TEXT_URI_LIST_VALUE))
-                        .content(
-                                REST_SERVER_URL + "/api/core/bitstreamformat/-1"
-                        )
+            put("/api/core/bitstreams/" + bitstream.getID() + "/format")
+                .contentType(parseMediaType(TEXT_URI_LIST_VALUE))
+                .content(
+                    REST_SERVER_URL + "/api/core/bitstreamformat/-1"
+                )
         ).andExpect(status().isBadRequest());
 
         getClient(getAuthToken(admin.getEmail(), password)).perform(
-                put("/api/core/bitstreams/" + bitstream.getID() + "/format")
-                        .contentType(parseMediaType(TEXT_URI_LIST_VALUE))
-                        .content(
-                                REST_SERVER_URL + "/api/core/bitstreamformat/" + knownFormat.getID() + "\n"
-                                        + REST_SERVER_URL + "/api/core/bitstreamformat/"
-                                        + supportedFormat.getID()
-                        )
+            put("/api/core/bitstreams/" + bitstream.getID() + "/format")
+                .contentType(parseMediaType(TEXT_URI_LIST_VALUE))
+                .content(
+                    REST_SERVER_URL + "/api/core/bitstreamformat/" + knownFormat.getID() + "\n"
+                        + REST_SERVER_URL + "/api/core/bitstreamformat/"
+                        + supportedFormat.getID()
+                )
         ).andExpect(status().isBadRequest());
     }
 
@@ -1080,11 +1125,11 @@ public class BitstreamRestControllerIT extends AbstractControllerIntegrationTest
     public void updateBitstreamFormatNotFound() throws Exception {
 
         getClient(getAuthToken(admin.getEmail(), password)).perform(
-                put("/api/core/bitstreams/" + randomUUID() + "/format")
-                        .contentType(parseMediaType(TEXT_URI_LIST_VALUE))
-                        .content(
-                                REST_SERVER_URL + "/api/core/bitstreamformat/" + unknownFormat.getID()
-                        )
+            put("/api/core/bitstreams/" + randomUUID() + "/format")
+                .contentType(parseMediaType(TEXT_URI_LIST_VALUE))
+                .content(
+                    REST_SERVER_URL + "/api/core/bitstreamformat/" + unknownFormat.getID()
+                )
         ).andExpect(status().isNotFound());
     }
 
@@ -1092,11 +1137,11 @@ public class BitstreamRestControllerIT extends AbstractControllerIntegrationTest
     public void updateBitstreamFormatUnauthorized() throws Exception {
 
         getClient().perform(
-                put("/api/core/bitstreams/" + bitstream.getID() + "/format")
-                        .contentType(parseMediaType(TEXT_URI_LIST_VALUE))
-                        .content(
-                                REST_SERVER_URL + "/api/core/bitstreamformat/" + knownFormat.getID()
-                        )
+            put("/api/core/bitstreams/" + bitstream.getID() + "/format")
+                .contentType(parseMediaType(TEXT_URI_LIST_VALUE))
+                .content(
+                    REST_SERVER_URL + "/api/core/bitstreamformat/" + knownFormat.getID()
+                )
         ).andExpect(status().isUnauthorized());
     }
 
@@ -1104,11 +1149,11 @@ public class BitstreamRestControllerIT extends AbstractControllerIntegrationTest
     public void updateBitstreamFormatForbidden() throws Exception {
 
         getClient(getAuthToken(eperson.getEmail(), password)).perform(
-                put("/api/core/bitstreams/" + bitstream.getID() + "/format")
-                        .contentType(parseMediaType(TEXT_URI_LIST_VALUE))
-                        .content(
-                                REST_SERVER_URL + "/api/core/bitstreamformat/" + knownFormat.getID()
-                        )
+            put("/api/core/bitstreams/" + bitstream.getID() + "/format")
+                .contentType(parseMediaType(TEXT_URI_LIST_VALUE))
+                .content(
+                    REST_SERVER_URL + "/api/core/bitstreamformat/" + knownFormat.getID()
+                )
         ).andExpect(status().isForbidden());
     }
 
@@ -1118,25 +1163,25 @@ public class BitstreamRestControllerIT extends AbstractControllerIntegrationTest
         context.turnOffAuthorisationSystem();
 
         createResourcePolicy(context, eperson, null)
-                .withAction(WRITE)
-                .withDspaceObject(bitstream)
-                .build();
+            .withAction(WRITE)
+            .withDspaceObject(bitstream)
+            .build();
 
         context.restoreAuthSystemState();
 
         getClient(getAuthToken(eperson.getEmail(), password)).perform(
-                put("/api/core/bitstreams/" + bitstream.getID() + "/format")
-                        .contentType(parseMediaType(TEXT_URI_LIST_VALUE))
-                        .content(
-                                REST_SERVER_URL + "/api/core/bitstreamformat/" + knownFormat.getID()
-                        )
+            put("/api/core/bitstreams/" + bitstream.getID() + "/format")
+                .contentType(parseMediaType(TEXT_URI_LIST_VALUE))
+                .content(
+                    REST_SERVER_URL + "/api/core/bitstreamformat/" + knownFormat.getID()
+                )
         ).andExpect(status().isOk());
 
         bitstream = context.reloadEntity(bitstream);
 
         assertThat(knownFormat, equalTo(bitstream.getFormat(context)));
         assertTrue(isEmpty(
-                bitstreamService.getMetadataByMetadataString(bitstream, "dc.format")
+            bitstreamService.getMetadataByMetadataString(bitstream, "dc.format")
         ));
     }
 
@@ -1148,18 +1193,18 @@ public class BitstreamRestControllerIT extends AbstractControllerIntegrationTest
         context.restoreAuthSystemState();
 
         getClient(getAuthToken(admin.getEmail(), password)).perform(
-                put("/api/core/bitstreams/" + bitstream.getID() + "/format")
-                        .contentType(parseMediaType(TEXT_URI_LIST_VALUE))
-                        .content(
-                                REST_SERVER_URL + "/api/core/bitstreamformat/" + unknownFormat.getID()
-                        )
+            put("/api/core/bitstreams/" + bitstream.getID() + "/format")
+                .contentType(parseMediaType(TEXT_URI_LIST_VALUE))
+                .content(
+                    REST_SERVER_URL + "/api/core/bitstreamformat/" + unknownFormat.getID()
+                )
         ).andExpect(status().isOk());
 
         bitstream = context.reloadEntity(bitstream);
 
         assertThat(unknownFormat, equalTo(bitstream.getFormat(context)));
         assertTrue(isEmpty(
-                bitstreamService.getMetadataByMetadataString(bitstream, "dc.format")
+            bitstreamService.getMetadataByMetadataString(bitstream, "dc.format")
         ));
     }
 

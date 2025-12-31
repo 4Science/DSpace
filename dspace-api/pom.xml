@@ -609,6 +609,11 @@
         <!-- Solr Core is only needed for Integration Tests (to run a MockSolrServer) -->
         <!-- The following Solr / Lucene dependencies also support integration tests -->
         <dependency>
+            <groupId>org.antlr</groupId>
+            <artifactId>antlr4-runtime</artifactId>
+            <version>4.12.0</version>
+        </dependency>
+        <dependency>
             <groupId>org.apache.solr</groupId>
             <artifactId>solr-core</artifactId>
             <scope>test</scope>
@@ -617,6 +622,10 @@
                 <exclusion>
                     <groupId>com.google.j2objc</groupId>
                     <artifactId>j2objc-annotations</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.antlr</groupId>
+                    <artifactId>antlr4-runtime</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>
@@ -677,6 +686,7 @@
             <version>1.1.1</version>
         </dependency>
 
+        <!-- guava is needed by OAuth, Guice, Mockserver, ORCID, Solr, JClouds -->
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
@@ -778,9 +788,37 @@
 
         <!-- S3 -->
         <dependency>
-            <groupId>com.amazonaws</groupId>
-            <artifactId>aws-java-sdk-s3</artifactId>
-            <version>1.12.780</version>
+            <groupId>software.amazon.awssdk</groupId>
+            <artifactId>s3</artifactId>
+            <version>${software.amazon.awssdk.version}</version>
+            <exclusions>
+              <exclusion>
+                <groupId>software.amazon.awssdk</groupId>
+                <artifactId>netty-nio-client</artifactId>
+              </exclusion>
+              <exclusion>
+                <groupId>software.amazon.awssdk</groupId>
+                <artifactId>apache-client</artifactId>
+              </exclusion>
+            </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>software.amazon.awssdk.crt</groupId>
+            <artifactId>aws-crt</artifactId>
+            <version>${software.amazon.awssdk.crt.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>software.amazon.awssdk</groupId>
+            <artifactId>s3-transfer-manager</artifactId>
+            <version>${software.amazon.awssdk.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>software.amazon.awssdk</groupId>
+            <artifactId>url-connection-client</artifactId>
+            <version>${software.amazon.awssdk.version}</version>
         </dependency>
 
         <dependency>
@@ -869,7 +907,7 @@
         <dependency>
 		    <groupId>org.apache.xmlgraphics</groupId>
 		    <artifactId>fop</artifactId>
-		    <version>2.5</version>
+		    <version>${fop.version}</version>
 		    <exclusions>
 		        <exclusion>
 		        	<groupId>javax.servlet</groupId>
@@ -881,13 +919,12 @@
 		<dependency>
 		    <groupId>org.apache.xmlgraphics</groupId>
 		    <artifactId>fop-pdf-images</artifactId>
-		    <version>2.5</version>
+		    <version>${fop.version}</version>
 		</dependency>
-
         <dependency>
 	        <groupId>de.undercouch</groupId>
 	        <artifactId>citeproc-java</artifactId>
-	        <version>1.0.1</version>
+	        <version>3.3.0</version>
 	        <exclusions>
 	            <exclusion>
 	               <groupId>org.apache.commons</groupId>
@@ -897,22 +934,22 @@
 	               <groupId>org.jbibtex</groupId>
 	               <artifactId>jbibtex</artifactId>
 	            </exclusion>
-	            <exclusion>
-	               <groupId>org.antlr</groupId>
-	               <artifactId>antlr4-runtime</artifactId>
-	            </exclusion>
+                <exclusion>
+                    <groupId>org.antlr</groupId>
+                    <artifactId>antlr4-runtime</artifactId>
+                </exclusion>
          	</exclusions>
       </dependency>
-      <dependency>
-	      <groupId>org.citationstyles</groupId>
-	      <artifactId>locales</artifactId>
-	      <version>1.0</version>
-      </dependency>
-      <dependency>
-	      <groupId>org.citationstyles</groupId>
-	      <artifactId>styles</artifactId>
-	      <version>1.0</version>
-      </dependency>
+        <dependency>
+            <groupId>org.citationstyles</groupId>
+            <artifactId>styles</artifactId>
+            <version>25.4</version>
+        </dependency>
+        <dependency>
+            <groupId>org.citationstyles</groupId>
+            <artifactId>locales</artifactId>
+            <version>25.4</version>
+        </dependency>
 
         <!-- required for openaire api integration -->
         <dependency>
@@ -943,20 +980,10 @@
         </dependency>
 
         <dependency>
-            <groupId>io.findify</groupId>
-            <artifactId>s3mock_2.13</artifactId>
-            <version>0.2.6</version>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>testcontainers-localstack</artifactId>
+            <version>2.0.1</version>
             <scope>test</scope>
-            <exclusions>
-                <exclusion>
-                    <groupId>com.amazonawsl</groupId>
-                    <artifactId>aws-java-sdk-s3</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>com.amazonaws</groupId>
-                    <artifactId>aws-java-sdk-s3</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
 
     </dependencies>
@@ -1028,6 +1055,11 @@
             <version>2.13.16</version>
             <scope>test</scope>
           </dependency>
+            <dependency>
+                <groupId>org.antlr</groupId>
+                <artifactId>antlr4-runtime</artifactId>
+                <version>4.12.0</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
