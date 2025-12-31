@@ -22,7 +22,8 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.client.methods.RequestBuilder;
 import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.dspace.app.client.DSpaceHttpClientFactory;
 import org.dspace.services.ConfigurationService;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -67,8 +68,8 @@ public class CSLWebServiceGenerator implements CSLGenerator {
     }
 
     private HttpResponse sendRequest(HttpUriRequest request) {
-        try {
-            return HttpClientBuilder.create().build().execute(request);
+        try (CloseableHttpClient client = DSpaceHttpClientFactory.getInstance().build()) {
+            return client.execute(request);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

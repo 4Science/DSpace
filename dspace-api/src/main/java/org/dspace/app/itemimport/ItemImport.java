@@ -191,10 +191,8 @@ public class ItemImport extends DSpaceRunnable<ItemImportScriptConfiguration> {
                 }
 
                 // was the collection valid?
-                if (collection == null
-                        || collection.getType() != Constants.COLLECTION) {
-                    throw new IllegalArgumentException("Cannot resolve "
-                            + collections[i] + " to collection");
+                if (collection == null || collection.getType() != Constants.COLLECTION) {
+                    throw new IllegalArgumentException("Cannot resolve " + collections[i] + " to collection");
                 }
 
                 // add resolved collection to list
@@ -207,8 +205,7 @@ public class ItemImport extends DSpaceRunnable<ItemImportScriptConfiguration> {
         // end validation
 
         // start
-        ItemImportService itemImportService = ItemImportServiceFactory.getInstance()
-                .getItemImportService();
+        ItemImportService itemImportService = ItemImportServiceFactory.getInstance().getItemImportService();
         try {
             itemImportService.setTest(isTest);
             itemImportService.setExcludeContent(isExcludeContent);
@@ -352,7 +349,7 @@ public class ItemImport extends DSpaceRunnable<ItemImportScriptConfiguration> {
             }
 
             workFile = new File(itemImportService.getTempWorkDir() + File.separator
-                    + zipfilename + "-" + context.getCurrentUser().getID());
+                    + zipfilename + "-" + UUID.randomUUID());
             FileUtils.copyInputStreamToFile(optionalFileStream.get(), workFile);
         } else {
             throw new IllegalArgumentException(
@@ -360,7 +357,7 @@ public class ItemImport extends DSpaceRunnable<ItemImportScriptConfiguration> {
         }
 
         workDir = new File(itemImportService.getTempWorkDir() + File.separator + TEMP_DIR
-                           + File.separator + context.getCurrentUser().getID());
+                           + File.separator + UUID.randomUUID());
         sourcedir = itemImportService.unzip(workFile, workDir.getAbsolutePath());
     }
 

@@ -7,6 +7,8 @@
  */
 package org.dspace.app.mediafilter;
 
+import static org.dspace.app.mediafilter.MediaFilterServiceImpl.MEDIA_FILTER_PLUGINS_KEY;
+
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -47,9 +49,6 @@ import org.dspace.utils.DSpace;
  * filtering by last_modified in the item table.
  */
 public class MediaFilterScript extends DSpaceRunnable<MediaFilterScriptConfiguration> {
-
-    //key (in dspace.cfg) which lists all enabled filters by name
-    private static final String MEDIA_FILTER_PLUGINS_KEY = "filter.plugins";
 
     //prefix (in dspace.cfg) for all filter properties
     private static final String FILTER_PREFIX = "filter";
@@ -277,6 +276,9 @@ public class MediaFilterScript extends DSpaceRunnable<MediaFilterScriptConfigura
         } catch (Exception e) {
             handler.handleException(e);
             c.abort();
+        } finally {
+            mediaFilterService.setFilterFormats(null);
+            mediaFilterService.setFilterClasses(null);
         }
     }
 

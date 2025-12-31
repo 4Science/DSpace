@@ -598,12 +598,193 @@ public class BulkItemExportIT extends AbstractIntegrationTestWithDatabase {
         configurationService.setProperty("bulk-export.limit.notLoggedIn", notLoggedInLimit);
     }
 
+    @Test
+    public void bulkItemExportWithDateIssuedAndLeftLimitTest() throws Exception {
+        context.turnOffAuthorisationSystem();
+        createItem(collection, "Edward Red", "Science", "Person");
+        createPublication("Title Publication1 2025", "subject one", "2025");
+        createPublication("Test Publication bulk-import", "subject2", "2025-03-15");
+        createPublication("Title Publication 2024", "subject33", "2024");
+        createPublication("TitlePublication", "subject4", "2024-11-21");
+        createPublication("Tets 2023", "subject", "2023");
+        createPublication("Title Publication 4sciecnce", "subject99", "2023-06-20");
+        context.restoreAuthSystemState();
+        context.commit();
+
+        File csv = new File("publications.csv");
+        csv.deleteOnExit();
+
+        String[] args = new String[] { "bulk-item-export",
+                                       "-t", "Publication",
+                                       "-f", "publication-csv",
+                                       "-sf", "dateIssued=[2025 TO *],equals",
+                                       "-c", "site",
+                                       "-so", "score,DESC" };
+
+        TestDSpaceRunnableHandler handler = new TestDSpaceRunnableHandler();
+        handleScript(args, ScriptLauncher.getConfig(kernelImpl), handler, kernelImpl, eperson);
+
+        assertThat(handler.getErrorMessages(), empty());
+        assertThat(handler.getInfoMessages(), hasItem("Found 2 items to export"));
+        assertThat("The xml file should be created", csv.exists(), is(true));
+
+        try (FileInputStream file = new FileInputStream(csv)) {
+            String content = IOUtils.toString(file, Charset.defaultCharset());
+            // check that only 2025 publications was exported
+            assertThat(content, containsString("\"Test Publication bulk-import\",\"\",\"\",\"\",\"2025-03-15\""));
+            assertThat(content, containsString("\"Title Publication1 2025\",\"\",\"\",\"\",\"2025\""));
+            // check that others publications wasn't exported
+            assertThat(content, not(containsString("\"Title Publication 2024\"")));
+            assertThat(content, not(containsString("\"TitlePublication\"")));
+            assertThat(content, not(containsString("\"Tets 2023\"")));
+            assertThat(content, not(containsString("\"Title Publication 4sciecnce\"")));
+        }
+    }
+
+    @Test
+    public void bulkItemExportWithDateIssuedAndLeftLimitWithoutOperatorEqualsTest() throws Exception {
+        context.turnOffAuthorisationSystem();
+        createItem(collection, "Edward Red", "Science", "Person");
+        createPublication("Title Publication1 2025", "subject one", "2025");
+        createPublication("Test Publication bulk-import", "subject2", "2025-03-15");
+        createPublication("Title Publication 2024", "subject33", "2024");
+        createPublication("TitlePublication", "subject4", "2024-11-21");
+        createPublication("Tets 2023", "subject", "2023");
+        createPublication("Title Publication 4sciecnce", "subject99", "2023-06-20");
+        context.restoreAuthSystemState();
+        context.commit();
+
+        File csv = new File("publications.csv");
+        csv.deleteOnExit();
+
+        String[] args = new String[] { "bulk-item-export",
+                                       "-t", "Publication",
+                                       "-f", "publication-csv",
+                                       "-sf", "dateIssued=[2025 TO *]",
+                                       "-c", "site",
+                                       "-so", "score,DESC" };
+
+        TestDSpaceRunnableHandler handler = new TestDSpaceRunnableHandler();
+        handleScript(args, ScriptLauncher.getConfig(kernelImpl), handler, kernelImpl, eperson);
+
+        assertThat(handler.getErrorMessages(), empty());
+        assertThat(handler.getInfoMessages(), hasItem("Found 3 items to export"));
+        assertThat("The xml file should be created", csv.exists(), is(true));
+
+        try (FileInputStream file = new FileInputStream(csv)) {
+            String content = IOUtils.toString(file, Charset.defaultCharset());
+            assertThat(content, containsString("\"Test Publication bulk-import\",\"\",\"\",\"\",\"2025-03-15\""));
+            assertThat(content, containsString("\"Title Publication1 2025\",\"\",\"\",\"\",\"2025\""));
+            assertThat(content, containsString("\"TitlePublication\",\"\",\"\",\"\",\"2024-11-21\""));
+
+            assertThat(content, not(containsString("\"Title Publication 2024\"")));
+            assertThat(content, not(containsString("\"Tets 2023\"")));
+            assertThat(content, not(containsString("\"Title Publication 4sciecnce\"")));
+        }
+    }
+
+    @Test
+    public void bulkItemExportWithDateIssuedAndRightLimitTest() throws Exception {
+        context.turnOffAuthorisationSystem();
+        createItem(collection, "Edward Red", "Science", "Person");
+        createPublication("Title Publication1 2025", "subject one", "2025");
+        createPublication("Test Publication bulk-import", "subject2", "2025-03-15");
+        createPublication("Title Publication 2024", "subject33", "2024");
+        createPublication("TitlePublication", "subject4", "2024-11-21");
+        createPublication("Tets 2023", "subject", "2023");
+        createPublication("Title Publication 4sciecnce", "subject99", "2023-06-20");
+        context.restoreAuthSystemState();
+        context.commit();
+
+        File csv = new File("publications.csv");
+        csv.deleteOnExit();
+
+        String[] args = new String[] { "bulk-item-export",
+                                       "-t", "Publication",
+                                       "-f", "publication-csv",
+                                       "-sf", "dateIssued=[* TO 2024],equals",
+                                       "-c", "site",
+                                       "-so", "score,DESC" };
+
+        TestDSpaceRunnableHandler handler = new TestDSpaceRunnableHandler();
+        handleScript(args, ScriptLauncher.getConfig(kernelImpl), handler, kernelImpl, eperson);
+
+        assertThat(handler.getErrorMessages(), empty());
+        assertThat(handler.getInfoMessages(), hasItem("Found 4 items to export"));
+        assertThat("The xml file should be created", csv.exists(), is(true));
+
+        try (FileInputStream file = new FileInputStream(csv)) {
+            String content = IOUtils.toString(file, Charset.defaultCharset());
+            // check that only until 2024 publications was exported
+            assertThat(content, containsString("\"Title Publication 2024\",\"\",\"\",\"\",\"2024\""));
+            assertThat(content, containsString("\"TitlePublication\",\"\",\"\",\"\",\"2024-11-21\""));
+            assertThat(content, containsString("\"Tets 2023\",\"\",\"\",\"\",\"2023\""));
+            assertThat(content, containsString("\"Title Publication 4sciecnce\",\"\",\"\",\"\",\"2023-06-20\""));
+            // check that others publications wasn't exported
+            assertThat(content, not(containsString("\"Test Publication bulk-import\"")));
+            assertThat(content, not(containsString("\"Title Publication1 2025\"")));
+        }
+    }
+
+    @Test
+    public void bulkItemExportWithDateIssuedAndOnlySpecificYearTest() throws Exception {
+        context.turnOffAuthorisationSystem();
+        createItem(collection, "Edward Red", "Science", "Person");
+        createPublication("Title Publication1 2025", "subject one", "2025");
+        createPublication("Test Publication bulk-import", "subject2", "2025-03-15");
+        createPublication("Title Publication 2024", "subject33", "2024");
+        createPublication("TitlePublication", "subject4", "2024-11-21");
+        createPublication("Tets 2023", "subject", "2023");
+        createPublication("Title Publication 4sciecnce", "subject99", "2023-06-20");
+        context.restoreAuthSystemState();
+        context.commit();
+
+        File csv = new File("publications.csv");
+        csv.deleteOnExit();
+
+        String[] args = new String[] { "bulk-item-export",
+                                       "-t", "Publication",
+                                       "-f", "publication-csv",
+                                       "-sf", "dateIssued=[2024 TO 2024],equals",
+                                       "-c", "site",
+                                       "-so", "score,DESC" };
+
+        TestDSpaceRunnableHandler handler = new TestDSpaceRunnableHandler();
+        handleScript(args, ScriptLauncher.getConfig(kernelImpl), handler, kernelImpl, eperson);
+
+        assertThat(handler.getErrorMessages(), empty());
+        assertThat(handler.getInfoMessages(), hasItem("Found 2 items to export"));
+        assertThat("The xml file should be created", csv.exists(), is(true));
+
+        try (FileInputStream file = new FileInputStream(csv)) {
+            String content = IOUtils.toString(file, Charset.defaultCharset());
+            // check that only 2024 publications was exported
+            assertThat(content, containsString("\"Title Publication 2024\",\"\",\"\",\"\",\"2024\""));
+            assertThat(content, containsString("\"TitlePublication\",\"\",\"\",\"\",\"2024-11-21\""));
+
+            // check that others publications wasn't exported
+            assertThat(content, not(containsString("\"Test Publication bulk-import\"")));
+            assertThat(content, not(containsString("\"Title Publication1 2025\"")));
+            assertThat(content, not(containsString("\"Tets 2023\"")));
+            assertThat(content, not(containsString("\"Title Publication 4sciecnce\"")));
+        }
+    }
+
     private Item createItem(Collection collection, String title, String subject, String entityType) {
         return ItemBuilder.createItem(context, collection)
             .withTitle(title)
             .withSubject(subject)
             .withEntityType(entityType)
             .build();
+    }
+
+    private Item createPublication(String title, String subject, String dateIssued) {
+        return ItemBuilder.createItem(context, collection)
+                          .withTitle(title)
+                          .withSubject(subject)
+                          .withIssueDate(dateIssued)
+                          .withEntityType("Publication")
+                          .build();
     }
 
     private EPerson createEPerson() {

@@ -290,10 +290,6 @@ public abstract class AbstractBuilder<T, S> {
         submissionConfigService = null;
         subscribeService = null;
         supervisionOrderService = null;
-        notifyService = null;
-        inboundPatternService = null;
-        notifyPatternToTriggerService = null;
-        qaEventService = null;
         ldnMessageService = null;
         doiService = null;
     }

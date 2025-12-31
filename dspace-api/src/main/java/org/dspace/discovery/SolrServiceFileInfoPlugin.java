@@ -95,10 +95,11 @@ public class SolrServiceFileInfoPlugin implements SolrServiceIndexPlugin {
     private void generateBitstreamIndex(Context context, SolrInputDocument document, List<Bitstream> bitstreams) {
         if (document != null && bitstreams != null) {
             for (Bitstream bitstream : bitstreams) {
+                if (bitstream != null) {
+                    indexBitstreamFields(context, document, bitstream);
 
-                indexBitstreamFields(context, document, bitstream);
-
-                indexBitstreamsMetadatadas(document, bitstream);
+                    indexBitstreamsMetadatadas(document, bitstream);
+                }
             }
         }
     }
