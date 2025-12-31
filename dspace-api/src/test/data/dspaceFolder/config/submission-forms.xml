@@ -2547,6 +2547,33 @@ it, please enter the types and the actual numbers or codes.</hint>
              </field>
          </row>
      </form>
+     <form name="product-dc-contributor-author">
+         <row>
+             <field>
+                 <dc-schema>dc</dc-schema>
+                 <dc-element>contributor</dc-element>
+                 <dc-qualifier>author</dc-qualifier>
+                 <label>Author</label>
+                 <input-type>onebox</input-type>
+                 <repeatable>false</repeatable>
+                 <required>You must enter at least the author.</required>
+                 <hint>Enter the names of the authors of this item in the form Lastname, Firstname [i.e. Smith, Josh or Smith, J].</hint>
+             </field>
+         </row>
+         <row>
+             <field>
+                 <dc-schema>oairecerif</dc-schema>
+                 <dc-element>author</dc-element>
+                 <dc-qualifier>affiliation</dc-qualifier>
+                 <label>Affiliation</label>
+                 <input-type>onebox</input-type>
+                 <repeatable>false</repeatable>
+                 <required />
+                 <hint>Enter the affiliation of the author as stated on the publication.</hint>
+             </field>
+         </row>
+     </form>
+
      <form name="event">
          <row>
              <field>

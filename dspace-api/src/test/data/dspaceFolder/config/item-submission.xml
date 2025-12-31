@@ -563,12 +563,10 @@
         <submission-process name="event">
             <step id="collection" />
             <step id="event" />
-            <step id="license" />
         </submission-process>
         <submission-process name="product">
             <step id="collection" />
             <step id="product" />
-            <step id="license" />
         </submission-process>
     </submission-definitions>
 
