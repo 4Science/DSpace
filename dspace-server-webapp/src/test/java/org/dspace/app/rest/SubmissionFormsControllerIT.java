@@ -92,7 +92,7 @@ public class SubmissionFormsControllerIT extends AbstractControllerIntegrationTe
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(contentType))
                 .andExpect(jsonPath("$.page.size", is(20)))
-                .andExpect(jsonPath("$.page.totalElements", equalTo(46)))
+                .andExpect(jsonPath("$.page.totalElements", equalTo(47)))
                 .andExpect(jsonPath("$.page.totalPages", equalTo(3)))
                 .andExpect(jsonPath("$.page.number", is(0)))
                 .andExpect(jsonPath("$._links.self.href", Matchers.startsWith(REST_SERVER_URL
@@ -671,7 +671,7 @@ public class SubmissionFormsControllerIT extends AbstractControllerIntegrationTe
                          Matchers.containsString("page=1"), Matchers.containsString("size=2"))))
                  .andExpect(jsonPath("$._links.last.href", Matchers.allOf(
                          Matchers.containsString("/api/config/submissionforms?"),
-                         Matchers.containsString("page=22"), Matchers.containsString("size=2"))))
+                         Matchers.containsString("page=23"), Matchers.containsString("size=2"))))
                  .andExpect(jsonPath("$.page.size", is(2)))
                  .andExpect(jsonPath("$.page.totalElements", equalTo(46)))
                  .andExpect(jsonPath("$.page.totalPages", equalTo(23)))
@@ -745,7 +745,7 @@ public class SubmissionFormsControllerIT extends AbstractControllerIntegrationTe
                                  Matchers.containsString("page=4"), Matchers.containsString("size=2"))))
                              .andExpect(jsonPath("$._links.last.href", Matchers.allOf(
                                  Matchers.containsString("/api/config/submissionforms?"),
-                                 Matchers.containsString("page=22"), Matchers.containsString("size=2"))))
+                                 Matchers.containsString("page=23"), Matchers.containsString("size=2"))))
                              .andExpect(jsonPath("$.page.size", is(2)))
                              .andExpect(jsonPath("$.page.totalElements", equalTo(46)))
                              .andExpect(jsonPath("$.page.totalPages", equalTo(23)))
