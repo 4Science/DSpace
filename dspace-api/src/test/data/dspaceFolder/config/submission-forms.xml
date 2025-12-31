@@ -1156,10 +1156,11 @@ it, please enter the types and the actual numbers or codes.</hint>
          <dc-schema>dc</dc-schema>
          <dc-element>type</dc-element>
          <label>Type</label>
-         <input-type value-pairs-name="patent_types">dropdown</input-type>
+         <input-type>onebox</input-type>
          <repeatable>false</repeatable>
          <required>You must select a patent type</required>
          <hint>Select the type of content of the patent.</hint>
+         <vocabulary>patent-coar-types</vocabulary>
        </field>
      </row>
      <row>
@@ -2415,6 +2416,17 @@ it, please enter the types and the actual numbers or codes.</hint>
                  <hint />
              </field>
          </row>
+         <row>
+             <field>
+                 <dc-schema>dc</dc-schema>
+                 <dc-element>type</dc-element>
+                 <label>Type</label>
+                 <input-type value-pairs-name="funding_types">dropdown</input-type>
+                 <repeatable>false</repeatable>
+                 <required />
+                 <hint />
+             </field>
+         </row>
      </form>
 
      <form name="funding-oairecerif-funder">
@@ -2445,6 +2457,261 @@ it, please enter the types and the actual numbers or codes.</hint>
                  <label>Currency</label>
                  <input-type value-pairs-name="currency">dropdown</input-type>
                  <repeatable>false</repeatable>
+                 <required />
+                 <hint />
+             </field>
+         </row>
+     </form>
+     <form name="product">
+         <row>
+             <field>
+                 <dc-schema>dc</dc-schema>
+                 <dc-element>identifier</dc-element>
+                 <label>Identifiers</label>
+                 <input-type value-pairs-name="common_identifiers">qualdrop_value</input-type>
+                 <repeatable>true</repeatable>
+                 <required />
+                 <hint>If the item has any identification numbers or codes associated with
+                     it, please enter the types and the actual numbers or codes.</hint>
+             </field>
+         </row>
+         <row>
+             <field>
+                 <dc-schema>dc</dc-schema>
+                 <dc-element>title</dc-element>
+                 <label>Title</label>
+                 <input-type>onebox</input-type>
+                 <repeatable>false</repeatable>
+                 <required>You must enter a main title for this item.</required>
+                 <hint>Enter the main title of the item.</hint>
+             </field>
+         </row>
+         <row>
+             <field>
+                 <dc-schema>dc</dc-schema>
+                 <dc-element>title</dc-element>
+                 <dc-qualifier>alternative</dc-qualifier>
+                 <label>Other Titles</label>
+                 <input-type>onebox</input-type>
+                 <repeatable>true</repeatable>
+                 <required />
+                 <hint>If the item has any alternative titles, please enter them here.</hint>
+             </field>
+         </row>
+         <row>
+             <field>
+                 <dc-schema>dc</dc-schema>
+                 <dc-element>date</dc-element>
+                 <dc-qualifier>issued</dc-qualifier>
+                 <label>Date of Issue</label>
+                 <input-type>date</input-type>
+                 <repeatable>false</repeatable>
+                 <required>You must enter at least the year.</required>
+                 <hint>Please give the date of previous publication or public distribution. You can leave out the day and/or month if they aren't applicable.</hint>
+             </field>
+         </row>
+         <row>
+             <field>
+                 <dc-schema>dc</dc-schema>
+                 <dc-element>description</dc-element>
+                 <dc-qualifier>version</dc-qualifier>
+                 <label>Version</label>
+                 <input-type>onebox</input-type>
+                 <repeatable>false</repeatable>
+                 <required />
+                 <hint>If applicable, the version of the product</hint>
+             </field>
+         </row>
+         <row>
+             <field>
+                 <dc-schema>dc</dc-schema>
+                 <dc-element>contributor</dc-element>
+                 <dc-qualifier>author</dc-qualifier>
+                 <label>Authors</label>
+                 <input-type>group</input-type>
+                 <repeatable>true</repeatable>
+                 <required />
+                 <hint>Enter the names of the authors of this item.</hint>
+             </field>
+         </row>
+         <row>
+             <field>
+                 <dc-schema>dc</dc-schema>
+                 <dc-element>type</dc-element>
+                 <label>Type</label>
+                 <input-type>onebox</input-type>
+                 <repeatable>false</repeatable>
+                 <required />
+                 <hint>Nothing to do here. Note for administrators, this metadata could be completely hide using template item</hint>
+                 <vocabulary>product-coar-types</vocabulary>
+             </field>
+         </row>
+     </form>
+     <form name="event">
+         <row>
+             <field>
+                 <dc-schema>dc</dc-schema>
+                 <dc-element>title</dc-element>
+                 <label>Event name</label>
+                 <input-type>onebox</input-type>
+                 <repeatable>false</repeatable>
+                 <required />
+                 <hint />
+             </field>
+         </row>
+         <row>
+             <field>
+                 <dc-schema>oairecerif</dc-schema>
+                 <dc-element>acronym</dc-element>
+                 <label>Acronym</label>
+                 <input-type>onebox</input-type>
+                 <repeatable>false</repeatable>
+                 <required />
+                 <hint />
+             </field>
+         </row>
+         <row>
+             <field>
+                 <dc-schema>dc</dc-schema>
+                 <dc-element>type</dc-element>
+                 <label>Event type</label>
+                 <input-type value-pairs-name="event_types">dropdown</input-type>
+                 <repeatable>false</repeatable>
+                 <required />
+                 <hint />
+             </field>
+         </row>
+         <row>
+             <field>
+                 <dc-schema>oairecerif</dc-schema>
+                 <dc-element>event</dc-element>
+                 <dc-qualifier>startDate</dc-qualifier>
+                 <label>Start date</label>
+                 <input-type>date</input-type>
+                 <repeatable>false</repeatable>
+                 <required />
+                 <hint />
+             </field>
+             <field>
+                 <dc-schema>oairecerif</dc-schema>
+                 <dc-element>event</dc-element>
+                 <dc-qualifier>endDate</dc-qualifier>
+                 <label>End date</label>
+                 <input-type>date</input-type>
+                 <repeatable>false</repeatable>
+                 <required />
+                 <hint />
+             </field>
+         </row>
+         <row>
+             <field>
+                 <dc-schema>oairecerif</dc-schema>
+                 <dc-element>event</dc-element>
+                 <dc-qualifier>place</dc-qualifier>
+                 <label>Location</label>
+                 <input-type>onebox</input-type>
+                 <repeatable>false</repeatable>
+                 <required />
+                 <hint />
+             </field>
+         </row>
+         <row>
+             <field>
+                 <dc-schema>oairecerif</dc-schema>
+                 <dc-element>event</dc-element>
+                 <dc-qualifier>country</dc-qualifier>
+                 <label>Country</label>
+                 <input-type value-pairs-name="common_iso_countries">dropdown</input-type>
+                 <repeatable>false</repeatable>
+                 <required />
+                 <hint />
+             </field>
+         </row>
+         <row>
+             <field>
+                 <dc-schema>crisevent</dc-schema>
+                 <dc-element>organizerou</dc-element>
+                 <label>Organizer(s) of the Event</label>
+                 <input-type>onebox</input-type>
+                 <repeatable>true</repeatable>
+                 <required />
+                 <hint />
+             </field>
+         </row>
+         <row>
+             <field>
+                 <dc-schema>crisevent</dc-schema>
+                 <dc-element>organizerpj</dc-element>
+                 <label>Organizer(s) of the Event (project)</label>
+                 <input-type>onebox</input-type>
+                 <repeatable>true</repeatable>
+                 <required />
+                 <hint />
+             </field>
+         </row>
+         <row>
+             <field>
+                 <dc-schema>crisevent</dc-schema>
+                 <dc-element>sponsorou</dc-element>
+                 <label>Sponsor(s) of the Event</label>
+                 <input-type>onebox</input-type>
+                 <repeatable>true</repeatable>
+                 <required />
+                 <hint />
+             </field>
+         </row>
+         <row>
+             <field>
+                 <dc-schema>crisevent</dc-schema>
+                 <dc-element>sponsorpj</dc-element>
+                 <label>Sponsor(s) of the Event (project)</label>
+                 <input-type>onebox</input-type>
+                 <repeatable>true</repeatable>
+                 <required />
+                 <hint />
+             </field>
+         </row>
+         <row>
+             <field>
+                 <dc-schema>crisevent</dc-schema>
+                 <dc-element>partnerou</dc-element>
+                 <label>Partner(s) of the Event</label>
+                 <input-type>onebox</input-type>
+                 <repeatable>true</repeatable>
+                 <required />
+                 <hint />
+             </field>
+         </row>
+         <row>
+             <field>
+                 <dc-schema>crisevent</dc-schema>
+                 <dc-element>partnerpj</dc-element>
+                 <label>Partner(s) of the Event (project)</label>
+                 <input-type>onebox</input-type>
+                 <repeatable>true</repeatable>
+                 <required />
+                 <hint />
+             </field>
+         </row>
+         <row>
+             <field>
+                 <dc-schema>dc</dc-schema>
+                 <dc-element>description</dc-element>
+                 <dc-qualifier>abstract</dc-qualifier>
+                 <label>Event Description</label>
+                 <input-type>textarea</input-type>
+                 <repeatable>false</repeatable>
+                 <required />
+                 <hint />
+             </field>
+         </row>
+         <row>
+             <field>
+                 <dc-schema>dc</dc-schema>
+                 <dc-element>subject</dc-element>
+                 <label>Keyword(s)</label>
+                 <input-type>tag</input-type>
+                 <repeatable>true</repeatable>
                  <required />
                  <hint />
              </field>
@@ -3034,6 +3301,50 @@ it, please enter the types and the actual numbers or codes.</hint>
              <stored-value>ln_2</stored-value>
          </pair>
      </value-pairs>
+
+     <value-pairs value-pairs-name="event_types" dc-term="event_types">
+         <pair>
+             <displayed-value>Unspecified</displayed-value>
+             <stored-value />
+         </pair>
+         <pair>
+             <displayed-value>Conference</displayed-value>
+             <stored-value>Conference</stored-value>
+         </pair>
+         <pair>
+             <displayed-value>Workshop</displayed-value>
+             <stored-value>Workshop</stored-value>
+         </pair>
+     </value-pairs>
+
+
+     <value-pairs value-pairs-name="funding_types" dc-term="funding_types">
+         <pair>
+             <displayed-value>Unspecified</displayed-value>
+             <stored-value />
+         </pair>
+         <pair>
+             <displayed-value>Gift</displayed-value>
+             <stored-value>Gift</stored-value>
+         </pair>
+         <pair>
+             <displayed-value>Internal Funding</displayed-value>
+             <stored-value>Internal Funding</stored-value>
+         </pair>
+         <pair>
+             <displayed-value>Contract</displayed-value>
+             <stored-value>Contract</stored-value>
+         </pair>
+         <pair>
+             <displayed-value>Award</displayed-value>
+             <stored-value>Award</stored-value>
+         </pair>
+         <pair>
+             <displayed-value>Grant</displayed-value>
+             <stored-value>Grant</stored-value>
+         </pair>
+     </value-pairs>
+
 
  </form-value-pairs>
 
