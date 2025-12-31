@@ -8,6 +8,10 @@
 package org.dspace.app.rest;
 
 import static com.jayway.jsonpath.JsonPath.read;
+import static com.jayway.jsonpath.matchers.JsonPathMatchers.hasJsonPath;
+import static org.dspace.app.rest.matcher.WorkspaceItemMatcher.matchLinks;
+import static org.dspace.app.rest.matcher.WorkspaceItemMatcher.matchProperties;
+import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.containsInRelativeOrder;
@@ -42,7 +46,9 @@ import org.dspace.versioning.Version;
 import org.dspace.versioning.VersionHistory;
 import org.dspace.versioning.service.VersionHistoryService;
 import org.dspace.versioning.service.VersioningService;
+import org.dspace.workflow.WorkflowItem;
 import org.dspace.xmlworkflow.storedcomponents.XmlWorkflowItem;
+import org.hamcrest.Matcher;
 import org.hamcrest.Matchers;
 import org.junit.After;
 import org.junit.Before;
@@ -386,7 +392,6 @@ public class VersionHistoryRestRepositoryIT extends AbstractControllerIntegratio
                                .withTitle("Public test item")
                                .withIssueDate("2021-04-27")
                                .withAuthor("Doe, John")
-                               .withSubject("ExtraEntry")
                                .build();
 
         Version v2 = VersionBuilder.createVersion(context, item, "test").build();
@@ -397,9 +402,8 @@ public class VersionHistoryRestRepositoryIT extends AbstractControllerIntegratio
         String tokenAdmin = getAuthToken(admin.getEmail(), password);
         getClient(tokenAdmin).perform(get("/api/versioning/versionhistories/" + vh.getID() + "/draftVersion"))
                              .andExpect(status().isOk())
-                             .andExpect(jsonPath("$",Matchers.is(WorkspaceItemMatcher
-                                        .matchItemWithTitleAndDateIssuedAndSubject(witem,
-                                         "Public test item", "2021-04-27", "ExtraEntry"))));
+                             .andExpect(jsonPath("$",Matchers.is(matchProductWithTitleAndDateIssued(witem,
+                                         "Public test item", "2021-04-27"))));
     }
 
     @Test
@@ -523,14 +527,12 @@ public class VersionHistoryRestRepositoryIT extends AbstractControllerIntegratio
                                .withTitle("Public test item")
                                .withIssueDate("2021-04-27")
                                .withAuthor("Doe, John")
-                               .withSubject("ExtraEntry")
                                .build();
 
         XmlWorkflowItem witem = WorkflowItemBuilder.createWorkflowItem(context, col)
                                                    .withTitle("Workflow Item 1")
                                                    .withIssueDate("2017-10-17")
                                                    .withAuthor("Doe, John")
-                                                   .withSubject("ExtraEntry")
                                                    .build();
 
         Version version = VersionBuilder.createVersion(context, item, "test").build();
@@ -542,8 +544,8 @@ public class VersionHistoryRestRepositoryIT extends AbstractControllerIntegratio
 
         getClient(tokenAdmin).perform(get("/api/versioning/versionhistories/" + vh.getID() + "/draftVersion"))
                              .andExpect(jsonPath("$", Matchers.is(
-                                        WorkflowItemMatcher.matchItemWithTitleAndDateIssuedAndSubject(witem,
-                                        "Workflow Item 1", "2017-10-17", "ExtraEntry"))));
+                                 matchProductWithTitleAndDateIssued(witem,
+                                        "Workflow Item 1", "2017-10-17"))));
     }
 
     @Test
@@ -562,7 +564,6 @@ public class VersionHistoryRestRepositoryIT extends AbstractControllerIntegratio
                                .withTitle("Public test item")
                                .withIssueDate("2021-04-27")
                                .withAuthor("Doe, John")
-                               .withSubject("ExtraEntry")
                                .build();
 
         Version v2 = VersionBuilder.createVersion(context, item, "test").build();
@@ -573,9 +574,10 @@ public class VersionHistoryRestRepositoryIT extends AbstractControllerIntegratio
         String ePersonToken = getAuthToken(eperson.getEmail(), password);
         getClient(ePersonToken).perform(get("/api/versioning/versionhistories/" + vh.getID() + "/draftVersion"))
                                .andExpect(status().isOk())
-                               .andExpect(jsonPath("$",Matchers.is(WorkspaceItemMatcher
-                                          .matchItemWithTitleAndDateIssuedAndSubject(witem,
-                                           "Public test item", "2021-04-27", "ExtraEntry"))));
+                               .andExpect(jsonPath("$",Matchers.is(matchProductWithTitleAndDateIssued(
+                                              witem, "Public test item", "2021-04-27"
+                                          )))
+                               );
     }
 
     @Test
@@ -683,6 +685,30 @@ public class VersionHistoryRestRepositoryIT extends AbstractControllerIntegratio
                              .andExpect(jsonPath("$.page.number", is(0)))
                              .andExpect(jsonPath("$.page.totalPages", is(1)))
                              .andExpect(jsonPath("$.page.totalElements", is(1)));
+    }
+
+    public static Matcher<?> matchProductWithTitleAndDateIssued(
+        WorkspaceItem witem, String title, String dateIssued
+    ) {
+        return allOf(
+            // Check workspaceitem properties
+            matchProperties(witem),
+            hasJsonPath("$.sections.product['dc.title'][0].value", is(title)),
+            hasJsonPath("$.sections.product['dc.date.issued'][0].value", is(dateIssued)),
+            // Check links
+            matchLinks(witem));
+    }
+
+    public static Matcher<?> matchProductWithTitleAndDateIssued(
+        XmlWorkflowItem witem, String title, String dateIssued
+    ) {
+        return allOf(
+            // Check workspaceitem properties
+            WorkflowItemMatcher.matchProperties(witem),
+            hasJsonPath("$.sections.product['dc.title'][0].value", is(title)),
+            hasJsonPath("$.sections.product['dc.date.issued'][0].value", is(dateIssued)),
+            // Check links
+            WorkflowItemMatcher.matchLinks(witem));
     }
 
 }
