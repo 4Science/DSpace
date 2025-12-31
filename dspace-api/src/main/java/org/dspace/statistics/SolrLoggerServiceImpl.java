@@ -47,6 +47,7 @@ import com.maxmind.geoip2.exception.GeoIp2Exception;
 import com.maxmind.geoip2.model.CityResponse;
 import com.opencsv.CSVReader;
 import com.opencsv.CSVWriter;
+import jakarta.inject.Named;
 import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.ArrayUtils;
@@ -101,6 +102,7 @@ import org.dspace.core.Context;
 import org.dspace.discovery.DiscoverResult.FacetPivotResult;
 import org.dspace.eperson.EPerson;
 import org.dspace.service.ClientInfoService;
+import org.dspace.service.impl.HttpConnectionPoolService;
 import org.dspace.services.ConfigurationService;
 import org.dspace.statistics.service.SolrLoggerService;
 import org.dspace.statistics.util.LocationUtils;
@@ -152,6 +154,8 @@ public class SolrLoggerServiceImpl implements SolrLoggerService, InitializingBea
     protected GeoIpService geoIpService;
     @Autowired
     private AuthorizeService authorizeService;
+    @Autowired @Named("solrHttpConnectionPoolService")
+    protected HttpConnectionPoolService httpConnectionPoolService;
 
     protected SolrClient solr;
 
@@ -1399,7 +1403,10 @@ public class SolrLoggerServiceImpl implements SolrLoggerService, InitializingBea
         //DS-3458: Test to see if a solr core already exists.  If it exists,
         // return a connection to that core.  Otherwise create a new core and
         // return a connection to it.
-        HttpSolrClient returnServer = new HttpSolrClient.Builder(baseSolrUrl + coreName).build();
+        HttpSolrClient returnServer =
+            new HttpSolrClient.Builder(baseSolrUrl + coreName)
+                .withHttpClient(httpConnectionPoolService.getClient())
+                .build();
         try {
             SolrPingResponse ping = returnServer.ping();
             log.debug("Ping of Solr Core {} returned with Status {}",
@@ -1419,7 +1426,10 @@ public class SolrLoggerServiceImpl implements SolrLoggerService, InitializingBea
         create.setConfigSet(configSetName);
         create.setInstanceDir(coreName);
 
-        HttpSolrClient solrServer = new HttpSolrClient.Builder(baseSolrUrl).build();
+        HttpSolrClient solrServer =
+            new HttpSolrClient.Builder(baseSolrUrl)
+                .withHttpClient(httpConnectionPoolService.getClient())
+                .build();
         create.process(solrServer);
         log.info("Created core with name: {} from configset {}", coreName, configSetName);
         return returnServer;
@@ -1707,7 +1717,8 @@ public class SolrLoggerServiceImpl implements SolrLoggerService, InitializingBea
         //Base url should like : http://localhost:{port.number}/solr
         String baseSolrUrl = ((HttpSolrClient) solr).getBaseURL().replace(statisticsCoreBase, "");
 
-        try (HttpSolrClient enumClient = new HttpSolrClient.Builder(baseSolrUrl).build();) {
+        try (HttpSolrClient enumClient = new HttpSolrClient.Builder(baseSolrUrl).withHttpClient(
+            httpConnectionPoolService.getClient()).build()) {
             //Attempt to retrieve all the statistic year cores
             CoreAdminRequest coresRequest = new CoreAdminRequest();
             coresRequest.setAction(CoreAdminAction.STATUS);
@@ -1731,9 +1742,9 @@ public class SolrLoggerServiceImpl implements SolrLoggerService, InitializingBea
                     .add(baseSolrUrl.replace("http://", "").replace("https://", "") + statCoreName);
             }
             var baseCore = ((HttpSolrClient) solr)
-                    .getBaseURL()
-                    .replace("http://", "")
-                    .replace("https://", "");
+                .getBaseURL()
+                .replace("http://", "")
+                .replace("https://", "");
             if (!statisticYearCores.contains(baseCore)) {
                 //Also add the core containing the current year, if it hasn't been added already
                 statisticYearCores.add(baseCore);

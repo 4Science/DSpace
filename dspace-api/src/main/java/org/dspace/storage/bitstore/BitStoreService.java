@@ -104,4 +104,16 @@ public interface BitStoreService {
      *            If a problem occurs while retrieving the path
      */
     public String path(Bitstream bitstream) throws IOException;
+
+    /**
+     * Generate a presigned URL for accessing the bitstream directly.
+     * This allows temporary, secure access to the bitstream without going through DSpace's authorization.
+     *
+     * @param bitstream The bitstream for which to generate the presigned URL
+     * @return The presigned URL as a string, or null if not supported by this store implementation
+     * @throws IOException If a problem occurs while generating the URL
+     */
+    public default String getPresignedUrl(Bitstream bitstream) throws IOException {
+        return null; // Default implementation returns null (not supported)
+    }
 }

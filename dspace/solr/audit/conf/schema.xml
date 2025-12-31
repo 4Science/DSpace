@@ -79,7 +79,7 @@
  </types>
 
 <fields>
-   <field name="_version_" type="long" indexed="true" stored="true" multiValued="false"/>
+   <field name="_version_" type="long" indexed="true" stored="true" docValues="true" multiValued="false"/>
    <field name="subject_uuid" type="string" indexed="true" stored="true" multiValued="false" />
    <field name="subject_type" type="string" indexed="true" stored="true" multiValued="false" />
    <field name="object_uuid" type="string" indexed="true" stored="true" multiValued="false" />
