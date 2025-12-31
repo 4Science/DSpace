@@ -298,10 +298,11 @@ definitions:
             fi
 
     - parallel: &parallel-test-steps
-        - step: *unit-test-code-checks
-        - step: *integration-tests-with-test-jars
-        - step: *integration-tests-slow
-        - step: *integration-tests-dspace-api
+        steps:
+          - step: *unit-test-code-checks
+          - step: *integration-tests-with-test-jars
+          - step: *integration-tests-slow
+          - step: *integration-tests-dspace-api
 
 pipelines:
   branches:
