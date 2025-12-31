@@ -19,7 +19,10 @@ import static org.junit.Assert.assertTrue;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
+import java.sql.SQLException;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.dspace.AbstractIntegrationTestWithDatabase;
 import org.dspace.builder.CollectionBuilder;
 import org.dspace.builder.CommunityBuilder;
@@ -30,6 +33,7 @@ import org.dspace.content.Community;
 import org.dspace.content.Item;
 import org.dspace.content.factory.ContentServiceFactory;
 import org.dspace.content.service.ItemService;
+import org.dspace.core.Context;
 import org.dspace.identifier.DOI;
 import org.dspace.identifier.DOIIdentifierProvider;
 import org.dspace.identifier.factory.IdentifierServiceFactory;
@@ -37,6 +41,7 @@ import org.dspace.identifier.service.DOIService;
 import org.dspace.services.ConfigurationService;
 import org.dspace.services.factory.DSpaceServicesFactory;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 
@@ -45,11 +50,38 @@ import org.junit.Test;
  **/
 public class DOIOrganiserIT extends AbstractIntegrationTestWithDatabase {
 
+    private static final Logger log = LogManager.getLogger(DOIOrganiserIT.class);
     private final ItemService itemService = ContentServiceFactory.getInstance().getItemService();
     private final ConfigurationService configurationService =
         DSpaceServicesFactory.getInstance().getConfigurationService();
     private final DOIService doiService = IdentifierServiceFactory.getInstance().getDOIService();
     private Collection collection;
+
+    @BeforeClass
+    public static void init() {
+        Context c = new Context();
+        try {
+            DOIService ds = IdentifierServiceFactory.getInstance().getDOIService();
+            ds
+                .findAll(c)
+                .forEach(doi -> {
+                    try {
+                        ds.delete(c, doi);
+                    } catch (SQLException e) {
+                        log.error("Cannot delete DOI {} entry during test setup", doi, e);
+                    }
+                });
+        } catch (SQLException e) {
+            log.error("Cannot retrieve DOI entries during test setup", e);
+            c.abort();
+        } finally {
+            try {
+                c.complete();
+            } catch (SQLException e) {
+                log.error("Cannot complete context during test setup", e);
+            }
+        }
+    }
 
     @Override
     @Before
