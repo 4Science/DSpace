@@ -11,6 +11,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.builder.CollectionBuilder;
@@ -18,13 +20,21 @@ import org.dspace.builder.CommunityBuilder;
 import org.dspace.builder.ItemBuilder;
 import org.dspace.builder.VersionBuilder;
 import org.dspace.content.Collection;
+import org.dspace.content.Community;
 import org.dspace.content.Item;
+import org.dspace.content.MetadataValue;
+import org.dspace.content.factory.ContentServiceFactory;
+import org.dspace.services.factory.DSpaceServicesFactory;
 import org.junit.Before;
 import org.junit.Test;
 
 public class VersionedHandleIdentifierProviderIT extends AbstractIdentifierProviderIT  {
 
     private String firstHandle;
+    private String dspaceUrl;
+
+    // Save original providers to restore them after test
+    private List<IdentifierProvider> originalProviders;
 
     private Collection collection;
     private Item itemV1;
@@ -36,26 +46,49 @@ public class VersionedHandleIdentifierProviderIT extends AbstractIdentifierProvi
     public void setUp() throws Exception {
         super.setUp();
         context.turnOffAuthorisationSystem();
+
+        dspaceUrl = DSpaceServicesFactory.getInstance().getConfigurationService().getProperty("dspace.ui.url");
+
+        // Save original providers to restore them later
+        originalProviders = new ArrayList<>(identifierService.getProviders());
+
+        // Clean out providers to avoid any being used for creation of community and collection
+        identifierService.setProviders(new ArrayList<>());
+
         parentCommunity = CommunityBuilder.createCommunity(context)
-                .withName("Parent Community")
-                .build();
+                                          .withName("Parent Community")
+                                          .build();
         collection = CollectionBuilder.createCollection(context, parentCommunity)
                 .withName("Collection")
                 .withEntityType("Publication")
                 .build();
     }
 
+    @Override
+    public void destroy() throws Exception {
+        super.destroy();
+        // Restore original providers to avoid affecting other tests
+        if (originalProviders != null && !originalProviders.isEmpty()) {
+            identifierService.setProviders(originalProviders);
+        }
+    }
+
     private void createVersions() throws SQLException, AuthorizeException {
+        context.turnOffAuthorisationSystem();
+
         itemV1 = ItemBuilder.createItem(context, collection)
                 .withTitle("First version")
                 .build();
         firstHandle = itemV1.getHandle();
         itemV2 = VersionBuilder.createVersion(context, itemV1, "Second version").build().getItem();
         itemV3 = VersionBuilder.createVersion(context, itemV1, "Third version").build().getItem();
+
+        context.restoreAuthSystemState();
     }
 
     @Test
     public void testDefaultVersionedHandleProvider() throws Exception {
+        registerProvider(VersionedHandleIdentifierProvider.class);
         createVersions();
 
         // Confirm the original item only has its original handle
@@ -89,6 +122,42 @@ public class VersionedHandleIdentifierProviderIT extends AbstractIdentifierProvi
         unregisterProvider(VersionedHandleIdentifierProviderWithCanonicalHandles.class);
         // Re-register the default provider (for later tests)
         registerProvider(VersionedHandleIdentifierProvider.class);
+    }
+
+    @Test
+    public void testCollectionHandleMetadata() {
+        registerProvider(VersionedHandleIdentifierProvider.class);
+
+        Community testCommunity = CommunityBuilder.createCommunity(context)
+                                                  .withName("Test community")
+                                                  .build();
+
+        Collection testCollection = CollectionBuilder.createCollection(context, testCommunity)
+                                                     .withName("Test Collection")
+                                                     .build();
+
+        List<MetadataValue> metadata = ContentServiceFactory.getInstance().getDSpaceObjectService(testCollection)
+                                                            .getMetadata(testCollection, "dc", "identifier", "uri",
+                                                                         Item.ANY);
+
+        assertEquals(1, metadata.size());
+        assertEquals(dspaceUrl + "/handle/" + testCollection.getHandle(), metadata.get(0).getValue());
+    }
+
+    @Test
+    public void testCommunityHandleMetadata() {
+        registerProvider(VersionedHandleIdentifierProvider.class);
+
+        Community testCommunity = CommunityBuilder.createCommunity(context)
+                                                  .withName("Test community")
+                                                  .build();
+
+        List<MetadataValue> metadata = ContentServiceFactory.getInstance().getDSpaceObjectService(testCommunity)
+                                                            .getMetadata(testCommunity, "dc", "identifier", "uri",
+                                                                         Item.ANY);
+
+        assertEquals(1, metadata.size());
+        assertEquals(dspaceUrl + "/handle/" + testCommunity.getHandle(), metadata.get(0).getValue());
     }
 
     private void containsHandle(Item item, String handle) {

@@ -21,7 +21,10 @@ import org.dspace.builder.CommunityBuilder;
 import org.dspace.builder.ItemBuilder;
 import org.dspace.builder.VersionBuilder;
 import org.dspace.content.Collection;
+import org.dspace.content.Community;
 import org.dspace.content.Item;
+import org.dspace.content.MetadataValue;
+import org.dspace.content.factory.ContentServiceFactory;
 import org.dspace.kernel.ServiceManager;
 import org.dspace.services.factory.DSpaceServicesFactory;
 import org.junit.Before;
@@ -32,6 +35,10 @@ public class VersionedHandleIdentifierProviderTest extends AbstractIntegrationTe
     private IdentifierServiceImpl identifierService;
 
     private String firstHandle;
+    private String dspaceUrl;
+
+    // Save original providers to restore them after test
+    private List<IdentifierProvider> originalProviders;
 
     private Collection collection;
     private Item itemV1;
@@ -45,7 +52,14 @@ public class VersionedHandleIdentifierProviderTest extends AbstractIntegrationTe
         context.turnOffAuthorisationSystem();
 
         serviceManager = DSpaceServicesFactory.getInstance().getServiceManager();
-        identifierService = serviceManager.getServicesByType(IdentifierServiceImpl.class).get(0);
+
+        dspaceUrl = DSpaceServicesFactory.getInstance().getConfigurationService().getProperty("dspace.ui.url");
+
+        identifierService = serviceManager.getServicesByType(IdentifierServiceImpl.class).get((0));
+
+        // Save original providers to restore them later
+        originalProviders = new ArrayList<>(identifierService.getProviders());
+
         // Clean out providers to avoid any being used for creation of community and collection
         identifierService.setProviders(new ArrayList<>());
 
@@ -56,6 +70,15 @@ public class VersionedHandleIdentifierProviderTest extends AbstractIntegrationTe
                 .withName("Collection")
                 .withEntityType("Publication")
                 .build();
+    }
+
+    @Override
+    public void destroy() throws Exception {
+        super.destroy();
+        // Restore original providers to avoid affecting other tests
+        if (originalProviders != null && !originalProviders.isEmpty()) {
+            identifierService.setProviders(originalProviders);
+        }
     }
 
     private void registerProvider(Class type) {
@@ -108,6 +131,42 @@ public class VersionedHandleIdentifierProviderTest extends AbstractIntegrationTe
         assertEquals(firstHandle, itemV3.getHandle());
         assertEquals(2, itemV3.getHandles().size());
         containsHandle(itemV3, firstHandle + ".3");
+    }
+
+    @Test
+    public void testCollectionHandleMetadata() {
+        registerProvider(VersionedHandleIdentifierProvider.class);
+
+        Community testCommunity = CommunityBuilder.createCommunity(context)
+                                                  .withName("Test community")
+                                                  .build();
+
+        Collection testCollection = CollectionBuilder.createCollection(context, testCommunity)
+                                                     .withName("Test Collection")
+                                                     .build();
+
+        List<MetadataValue> metadata = ContentServiceFactory.getInstance().getDSpaceObjectService(testCollection)
+                                                            .getMetadata(testCollection, "dc", "identifier", "uri",
+                                                                         Item.ANY);
+
+        assertEquals(1, metadata.size());
+        assertEquals(dspaceUrl + "/handle/" + testCollection.getHandle(), metadata.get(0).getValue());
+    }
+
+    @Test
+    public void testCommunityHandleMetadata() {
+        registerProvider(VersionedHandleIdentifierProvider.class);
+
+        Community testCommunity = CommunityBuilder.createCommunity(context)
+                                                  .withName("Test community")
+                                                  .build();
+
+        List<MetadataValue> metadata = ContentServiceFactory.getInstance().getDSpaceObjectService(testCommunity)
+                                                            .getMetadata(testCommunity, "dc", "identifier", "uri",
+                                                                         Item.ANY);
+
+        assertEquals(1, metadata.size());
+        assertEquals(dspaceUrl + "/handle/" + testCommunity.getHandle(), metadata.get(0).getValue());
     }
 
     private void containsHandle(Item item, String handle) {
