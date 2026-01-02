@@ -674,7 +674,7 @@ public class SubmissionFormsControllerIT extends AbstractControllerIntegrationTe
                          Matchers.containsString("page=23"), Matchers.containsString("size=2"))))
                  .andExpect(jsonPath("$.page.size", is(2)))
                  .andExpect(jsonPath("$.page.totalElements", equalTo(47)))
-                 .andExpect(jsonPath("$.page.totalPages", equalTo(23)))
+                 .andExpect(jsonPath("$.page.totalPages", equalTo(24)))
                  .andExpect(jsonPath("$.page.number", is(0)));
 
         getClient(tokenAdmin).perform(get("/api/config/submissionforms")
@@ -748,7 +748,7 @@ public class SubmissionFormsControllerIT extends AbstractControllerIntegrationTe
                                  Matchers.containsString("page=23"), Matchers.containsString("size=2"))))
                              .andExpect(jsonPath("$.page.size", is(2)))
                              .andExpect(jsonPath("$.page.totalElements", equalTo(47)))
-                             .andExpect(jsonPath("$.page.totalPages", equalTo(23)))
+                             .andExpect(jsonPath("$.page.totalPages", equalTo(24)))
                              .andExpect(jsonPath("$.page.number", is(4)));
     }
 
