@@ -698,10 +698,10 @@ public class SubmissionFormsControllerIT extends AbstractControllerIntegrationTe
                          Matchers.containsString("page=16"), Matchers.containsString("size=2"))))
                  .andExpect(jsonPath("$._links.last.href", Matchers.allOf(
                          Matchers.containsString("/api/config/submissionforms?"),
-                         Matchers.containsString("page=22"), Matchers.containsString("size=2"))))
+                         Matchers.containsString("page=23"), Matchers.containsString("size=2"))))
                  .andExpect(jsonPath("$.page.size", is(2)))
                  .andExpect(jsonPath("$.page.totalElements", equalTo(47)))
-                 .andExpect(jsonPath("$.page.totalPages", equalTo(23)))
+                 .andExpect(jsonPath("$.page.totalPages", equalTo(24)))
                  .andExpect(jsonPath("$.page.number", is(15)));
     }
 
