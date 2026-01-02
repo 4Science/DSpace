@@ -9,7 +9,6 @@ package org.dspace.app.rest.repository;
 
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
@@ -85,6 +84,9 @@ public class EPersonRestRepository extends DSpaceObjectRestRepository<EPerson, E
     @Autowired
     private GroupService groupService;
 
+    @Autowired
+    private ObjectMapper mapper;
+
     private final EPersonService es;
 
 
@@ -98,7 +100,6 @@ public class EPersonRestRepository extends DSpaceObjectRestRepository<EPerson, E
             throws AuthorizeException {
         // this need to be revisited we should receive an EPersonRest as input
         HttpServletRequest req = getRequestService().getCurrentRequest().getHttpServletRequest();
-        ObjectMapper mapper = new ObjectMapper();
         EPersonRest epersonRest = null;
         try {
             epersonRest = mapper.readValue(req.getInputStream(), EPersonRest.class);
@@ -463,7 +464,7 @@ public class EPersonRestRepository extends DSpaceObjectRestRepository<EPerson, E
 
     @Override
     public void afterPropertiesSet() throws Exception {
-        discoverableEndpointsService.register(this, Arrays.asList(
-                Link.of("/api/" + EPersonRest.CATEGORY + "/registrations", EPersonRest.NAME + "-registration")));
+        discoverableEndpointsService.register(this, List.of(
+            Link.of("/api/" + EPersonRest.CATEGORY + "/registrations", EPersonRest.NAME + "-registration")));
     }
 }

@@ -68,7 +68,7 @@ import org.springframework.mock.web.MockMultipartFile;
 
 /**
  * Basic integration testing for the SAF Import feature via UI {@link ItemImport}.
- * https://wiki.lyrasis.org/display/DSDOC7x/Importing+and+Exporting+Items+via+Simple+Archive+Format
+ * https://wiki.lyrasis.org/display/DSDOC9x/Importing+and+Exporting+Items+via+Simple+Archive+Format
  *
  * @author Francesco Pio Scognamiglio (francescopio.scognamiglio at 4science.com)
  */
@@ -88,6 +88,9 @@ public class ItemImportIT extends AbstractEntityIntegrationTest {
     private ProcessService processService;
     @Autowired
     private DSpaceRunnableParameterConverter dSpaceRunnableParameterConverter;
+    @Autowired
+    private ObjectMapper mapper;
+
     private Collection collection;
     private Path workDir;
     private static final String TEMP_DIR = ItemImport.TEMP_DIR;
@@ -433,8 +436,8 @@ public class ItemImportIT extends AbstractEntityIntegrationTest {
 
             getClient(getAuthToken(user.getEmail(), password))
                 .perform(multipart("/api/system/scripts/import/processes")
-                             .file(bitstreamFile)
-                             .param("properties", new ObjectMapper().writeValueAsString(list)))
+                        .file(bitstreamFile)
+                        .param("properties", mapper.writeValueAsString(list)))
                 .andExpect(status().isAccepted())
                 .andExpect(jsonPath("$", is(
                     ProcessMatcher.matchProcess("import",

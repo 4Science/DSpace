@@ -8,8 +8,8 @@
 package org.dspace.eperson;
 
 import java.sql.SQLException;
+import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import jakarta.persistence.Column;
@@ -17,8 +17,6 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
-import jakarta.persistence.Temporal;
-import jakarta.persistence.TemporalType;
 import jakarta.persistence.Transient;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -39,76 +37,56 @@ import org.dspace.eperson.service.EPersonService;
 @Entity
 @Table(name = "eperson")
 public class EPerson extends CacheableDSpaceObject implements DSpaceObjectLegacySupport {
-    @Column(name = "eperson_id", insertable = false, updatable = false)
-    private Integer legacyId;
-
-    @Column(name = "netid", length = 64)
-    private String netid;
-
-    @Column(name = "last_active")
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date lastActive;
-
-    @Column(name = "can_log_in", nullable = true)
-    private Boolean canLogIn;
-
-    @Column(name = "email", unique = true, length = 64)
-    private String email;
-
-    @Column(name = "require_certificate")
-    private boolean requireCertificate = false;
-
-    @Column(name = "self_registered")
-    private boolean selfRegistered = false;
-
-    @Column(name = "password", length = 128)
-    private String password;
-
-    @Column(name = "salt", length = 32)
-    private String salt;
-
-    @Column(name = "session_salt", length = 32)
-    private String sessionSalt;
-
-    @Column(name = "machine_salt", length = 32)
-    private String machineSessionSalt;
-
-    @Column(name = "digest_algorithm", length = 16)
-    private String digestAlgorithm;
-
-    @ManyToMany(fetch = FetchType.LAZY, mappedBy = "epeople")
-    private final List<Group> groups = new ArrayList<>();
-
     /**
      * The e-mail field (for sorting)
      */
     public static final int EMAIL = 1;
-
     /**
      * The last name (for sorting)
      */
     public static final int LASTNAME = 2;
-
     /**
      * The e-mail field (for sorting)
      */
     public static final int ID = 3;
-
     /**
      * The netid field (for sorting)
      */
     public static final int NETID = 4;
-
     /**
      * The e-mail field (for sorting)
      */
     public static final int LANGUAGE = 5;
-
+    @ManyToMany(fetch = FetchType.LAZY, mappedBy = "epeople")
+    private final List<Group> groups = new ArrayList<>();
     @Transient
     protected transient EPersonService ePersonService;
-
+    @Column(name = "eperson_id", insertable = false, updatable = false)
+    private Integer legacyId;
+    @Column(name = "netid", length = 64)
+    private String netid;
+    @Column(name = "last_active")
+    private Instant lastActive;
+    @Column(name = "can_log_in", nullable = true)
+    private Boolean canLogIn;
+    @Column(name = "email", unique = true, length = 64)
+    private String email;
+    @Column(name = "require_certificate")
+    private boolean requireCertificate = false;
+    @Column(name = "self_registered")
+    private boolean selfRegistered = false;
+    @Column(name = "password", length = 128)
+    private String password;
+    @Column(name = "salt", length = 32)
+    private String salt;
+    @Column(name = "session_salt", length = 32)
+    private String sessionSalt;
+    @Column(name = "machine_salt", length = 32)
+    private String machineSessionSalt;
+    @Column(name = "digest_algorithm", length = 16)
+    private String digestAlgorithm;
     @Transient
-    private Date previousActive;
+    private Instant previousActive;
 
     /**
      * Protected constructor, create object using:
@@ -145,10 +123,7 @@ public class EPerson extends CacheableDSpaceObject implements DSpaceObjectLegacy
         if (!StringUtils.equals(this.getEmail(), other.getEmail())) {
             return false;
         }
-        if (!StringUtils.equals(this.getFullName(), other.getFullName())) {
-            return false;
-        }
-        return true;
+        return StringUtils.equals(this.getFullName(), other.getFullName());
     }
 
     /**
@@ -177,7 +152,7 @@ public class EPerson extends CacheableDSpaceObject implements DSpaceObjectLegacy
     /**
      * Set the EPerson's language.  Value is expected to be a Unix/POSIX
      * Locale specification of the form {language} or {language}_{territory},
-     * e.g. "en", "en_US", "pt_BR" (the latter is Brazilian Portugese).
+     * e.g. "en", "en_US", "pt_BR" (the latter is Brazilian Portuguese).
      *
      * @param context  The relevant DSpace Context.
      * @param language language code
@@ -306,16 +281,6 @@ public class EPerson extends CacheableDSpaceObject implements DSpaceObjectLegacy
     }
 
     /**
-     * Set require cert yes/no
-     *
-     * @param isrequired boolean yes/no
-     */
-    public void setRequireCertificate(boolean isrequired) {
-        this.requireCertificate = isrequired;
-        setModified();
-    }
-
-    /**
      * Get require certificate or not
      *
      * @return boolean, yes/no (or false if the column is an SQL NULL)
@@ -325,12 +290,12 @@ public class EPerson extends CacheableDSpaceObject implements DSpaceObjectLegacy
     }
 
     /**
-     * Indicate whether the user self-registered
+     * Set require cert yes/no
      *
-     * @param sr boolean yes/no
+     * @param isrequired boolean yes/no
      */
-    public void setSelfRegistered(boolean sr) {
-        this.selfRegistered = sr;
+    public void setRequireCertificate(boolean isrequired) {
+        this.requireCertificate = isrequired;
         setModified();
     }
 
@@ -344,13 +309,13 @@ public class EPerson extends CacheableDSpaceObject implements DSpaceObjectLegacy
     }
 
     /**
-     * Stamp the EPerson's last-active date.
+     * Indicate whether the user self-registered
      *
-     * @param when latest activity timestamp, or null to clear.
+     * @param sr boolean yes/no
      */
-    public void setLastActive(Date when) {
-        this.previousActive = lastActive;
-        this.lastActive = when;
+    public void setSelfRegistered(boolean sr) {
+        this.selfRegistered = sr;
+        setModified();
     }
 
     /**
@@ -358,8 +323,18 @@ public class EPerson extends CacheableDSpaceObject implements DSpaceObjectLegacy
      *
      * @return date when last logged on, or null.
      */
-    public Date getLastActive() {
+    public Instant getLastActive() {
         return lastActive;
+    }
+
+    /**
+     * Stamp the EPerson's last-active date.
+     *
+     * @param when latest activity timestamp, or null to clear.
+     */
+    public void setLastActive(Instant when) {
+        this.previousActive = lastActive;
+        this.lastActive = when;
     }
 
     /**
@@ -446,9 +421,9 @@ public class EPerson extends CacheableDSpaceObject implements DSpaceObjectLegacy
         this.machineSessionSalt = machineSalt;
     }
 
-    public Date getPreviousActive() {
+    public Instant getPreviousActive() {
         if (previousActive == null) {
-            return new Date(0);
+            return Instant.now();
         }
         return previousActive;
     }

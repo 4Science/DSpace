@@ -7,13 +7,17 @@
  */
 package org.dspace.app.rest.statistics;
 
+import static java.time.ZoneOffset.UTC;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -87,7 +91,7 @@ public class TotalVisitPerPeriodGenerator extends AbstractUsageReportGenerator {
 
         if (getRelation() != null) {
             DiscoveryConfiguration discoveryConfiguration = discoveryConfigurationService
-                                                                .getDiscoveryConfigurationByName(getRelation());
+                .getDiscoveryConfigurationByName(getRelation());
             if (discoveryConfiguration == null) {
                 // not valid because not found bean with this relation configuration name
                 hasValidRelation = false;
@@ -96,9 +100,9 @@ public class TotalVisitPerPeriodGenerator extends AbstractUsageReportGenerator {
                 query.append(
                     statisticsDatasetDisplay
                         .composeQueryWithInverseRelation(
-                                dso,
-                                discoveryConfiguration.getDefaultFilterQueries(),
-                                getDsoType(dso)
+                            dso,
+                            discoveryConfiguration.getDefaultFilterQueries(),
+                            getDsoType(dso)
                         )
                 );
             }
@@ -118,7 +122,7 @@ public class TotalVisitPerPeriodGenerator extends AbstractUsageReportGenerator {
         boolean startDateProvided = !isBlankDate(startDate);
 
         startDate = isBlankDate(startDate) ? getDefaultStartDate() : startDate;
-        endDate = isBlankDate(endDate) ? formatDate(new Date()) : endDate;
+        endDate = isBlankDate(endDate) ? formatDate(LocalDate.now()) : endDate;
 
         validateStartAndEndDates(startDate, endDate);
 
@@ -134,7 +138,9 @@ public class TotalVisitPerPeriodGenerator extends AbstractUsageReportGenerator {
 
         // execute query
         ObjectCount[] dateFacetResult = solrLoggerService.queryFacetDateField(context, "id", null, query.toString(),
-            filterQuery.toString(), periodType.toUpperCase(), rangeStart, rangeEnd, false, 0, increment);
+                                                                              filterQuery, periodType.toUpperCase(),
+                                                                              rangeStart, rangeEnd, false, 0,
+                                                                              increment);
 
         List<UsageReportPointDateRest> usageReportPoints = convertToReportPoints(dateFacetResult, startDateProvided);
 
@@ -173,27 +179,24 @@ public class TotalVisitPerPeriodGenerator extends AbstractUsageReportGenerator {
     }
 
     private long calculatePeriodFromToday(String date) {
-        Date startDate = MultiFormatDateParser.parse(date);
-        Date endDate = new Date();
+        LocalDate startDate = MultiFormatDateParser.parse(date).toLocalDate();
+        LocalDate endDate = LocalDate.now();
         return calculatePeriodBetweenDates(startDate, endDate);
     }
 
-    private long calculatePeriodBetweenDates(Date startDate, Date endDate) {
+    private long calculatePeriodBetweenDates(LocalDate startDate, LocalDate endDate) {
 
         ChronoUnit chronoUnit = getConfiguredChronoUnit();
 
-        LocalDate startLocalDate = toLocalDate(startDate);
-        LocalDate endLocalDate = toLocalDate(endDate);
-
         if (chronoUnit == ChronoUnit.MONTHS) {
-            startLocalDate = startLocalDate.with(ChronoField.DAY_OF_MONTH, 1L);
-            endLocalDate = endLocalDate.with(ChronoField.DAY_OF_MONTH, 1L);
+            startDate = startDate.with(ChronoField.DAY_OF_MONTH, 1L);
+            endDate = endDate.with(ChronoField.DAY_OF_MONTH, 1L);
         } else if (chronoUnit == ChronoUnit.YEARS) {
-            startLocalDate = startLocalDate.with(ChronoField.DAY_OF_YEAR, 1L);
-            endLocalDate = endLocalDate.with(ChronoField.DAY_OF_YEAR, 1L);
+            startDate = startDate.with(ChronoField.DAY_OF_YEAR, 1L);
+            endDate = endDate.with(ChronoField.DAY_OF_YEAR, 1L);
         }
 
-        return chronoUnit.between(startLocalDate, endLocalDate);
+        return chronoUnit.between(startDate, endDate);
     }
 
     private ChronoUnit getConfiguredChronoUnit() {
@@ -211,8 +214,8 @@ public class TotalVisitPerPeriodGenerator extends AbstractUsageReportGenerator {
 
     private LocalDate toLocalDate(Date date) {
         return date.toInstant()
-            .atZone(ZoneId.systemDefault())
-            .toLocalDate();
+                   .atZone(ZoneId.systemDefault())
+                   .toLocalDate();
     }
 
     private List<UsageReportPointDateRest> convertToReportPoints(ObjectCount[] countResult, boolean startDateProvided) {
@@ -242,22 +245,20 @@ public class TotalVisitPerPeriodGenerator extends AbstractUsageReportGenerator {
         UsageReportRest usageReportRest = new UsageReportRest();
 
         String format = SolrUtils.getDateformatFrom(periodType.toUpperCase());
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat(format, context.getCurrentLocale());
+        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern(format, context.getCurrentLocale());
 
         UsageReportPointDateRest point = new UsageReportPointDateRest();
         point.addValue(POINT_VIEWS_KEY, 0);
-        point.setId(simpleDateFormat.format(MultiFormatDateParser.parse(endDate)));
+
+        ZonedDateTime zonedDateTime = MultiFormatDateParser.parse(endDate);
+        if (zonedDateTime == null) {
+            throw new IllegalArgumentException("Invalid endDate: " + endDate);
+        }
+
+        point.setId(zonedDateTime.format(dateTimeFormatter));
         usageReportRest.addPoint(point);
 
         return usageReportRest;
-    }
-
-    public void setDefaultStartDate(String date) {
-        Date parsedDate = MultiFormatDateParser.parse(date);
-        if (parsedDate == null) {
-            throw new IllegalStateException("Unsupported date " + date + " provided to TotalVisitPerPeriodGenerator");
-        }
-        this.defaultStartDate = formatDate(parsedDate);
     }
 
     private String getDefaultStartDate() throws SolrServerException, IOException {
@@ -269,16 +270,24 @@ public class TotalVisitPerPeriodGenerator extends AbstractUsageReportGenerator {
         String query = "statistics_type:" + SolrLoggerServiceImpl.StatisticsType.VIEW.text();
 
         QueryResponse queryResponse = solrLoggerService.query(query, null, null, 1, 1, null,
-            null, null, null, "time", true, -1);
+                                                              null, null, null, "time", true, -1);
 
         SolrDocumentList results = queryResponse.getResults();
         if (results.isEmpty()) {
             return null;
         }
 
-        defaultStartDate = formatDate((Date) results.get(0).get("time"));
+        defaultStartDate = formatDate(LocalDate.ofInstant(((Date) results.get(0).get("time")).toInstant(), UTC));
         return defaultStartDate;
 
+    }
+
+    public void setDefaultStartDate(String date) {
+        LocalDate parsedDate = MultiFormatDateParser.parse(date).toLocalDate();
+        if (parsedDate == null) {
+            throw new IllegalStateException("Unsupported date " + date + " provided to TotalVisitPerPeriodGenerator");
+        }
+        this.defaultStartDate = formatDate(parsedDate);
     }
 
     private void validateStartAndEndDates(String startDate, String endDate) {
@@ -305,11 +314,11 @@ public class TotalVisitPerPeriodGenerator extends AbstractUsageReportGenerator {
     }
 
     private boolean isAfterToday(String date) {
-        return MultiFormatDateParser.parse(date).after(new Date());
+        return MultiFormatDateParser.parse(date).toInstant().isAfter(Instant.now());
     }
 
-    private String formatDate(Date date) {
-        return DATE_FORMAT.format(date);
+    private String formatDate(LocalDate date) {
+        return DateTimeFormatter.ISO_LOCAL_DATE.format(date);
     }
 
     private boolean isNotSiteObject(DSpaceObject dso) {

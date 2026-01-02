@@ -48,7 +48,7 @@ import org.springframework.beans.factory.annotation.Autowired;
  * @author Pasquale Cavallo (pasquale.cavallo at 4science dot it)
  */
 public class OpenAireImportMetadataSourceServiceImpl extends AbstractImportMetadataSourceService<Element>
-        implements QuerySource {
+    implements QuerySource {
 
     private static Logger log = LogManager.getLogger(OpenAireImportMetadataSourceServiceImpl.class);
 
@@ -149,15 +149,6 @@ public class OpenAireImportMetadataSourceServiceImpl extends AbstractImportMetad
     }
 
     /**
-     * Set the baseAddress to this object
-     *
-     * @param baseAddress The String object that represents the baseAddress of this object
-     */
-    public void setBaseAddress(String baseAddress) {
-        this.baseAddress = baseAddress;
-    }
-
-    /**
      * Return the baseAddress set to this object
      *
      * @return The String object that represents the baseAddress of this object
@@ -167,22 +158,32 @@ public class OpenAireImportMetadataSourceServiceImpl extends AbstractImportMetad
     }
 
     /**
+     * Set the baseAddress to this object
+     *
+     * @param baseAddress The String object that represents the baseAddress of this object
+     */
+    public void setBaseAddress(String baseAddress) {
+        this.baseAddress = baseAddress;
+    }
+
+    /**
+     * Get the name of the query param for the rest call
+     *
+     * @return the name of the query param, i.e. the index (title, author) to use
+     */
+    public String getQueryParam() {
+        return queryParam;
+    }
+
+    /**
      * Set the name of the query param, this correspond to the index used (title, author)
-     * 
+     *
      * @param queryParam on which index make the query
      */
     public void setQueryParam(String queryParam) {
         this.queryParam = queryParam;
     }
 
-    /**
-     * Get the name of the query param for the rest call
-     * 
-     * @return the name of the query param, i.e. the index (title, author) to use
-     */
-    public String getQueryParam() {
-        return queryParam;
-    }
     /**
      * Initialize the class
      *
@@ -201,7 +202,50 @@ public class OpenAireImportMetadataSourceServiceImpl extends AbstractImportMetad
         webTarget = client.target(baseAddress);
     }
 
-    public class SearchByIdCallable  implements Callable<ImportRecord> {
+    /**
+     * This method remove multiple titles occurrences
+     *
+     * @param transformSourceRecords
+     * @return ImportRecord with one or zero title
+     */
+    private ImportRecord filterMultipleTitles(ImportRecord transformSourceRecords) {
+        List<MetadatumDTO> metadata = (List<MetadatumDTO>) transformSourceRecords.getValueList();
+        ArrayList<MetadatumDTO> nextSourceRecord = new ArrayList<>();
+        boolean found = false;
+        for (MetadatumDTO dto : metadata) {
+            if ("dc".equals(dto.getSchema()) && "title".equals(dto.getElement()) && dto.getQualifier() == null) {
+                if (!found) {
+                    nextSourceRecord.add(dto);
+                    found = true;
+                }
+            } else {
+                nextSourceRecord.add(dto);
+            }
+        }
+        return new ImportRecord(nextSourceRecord);
+    }
+
+    private List<Element> splitToRecords(String recordsSrc) {
+        try {
+            SAXBuilder saxBuilder = XMLUtils.getSAXBuilder();
+            Document document = saxBuilder.build(new StringReader(recordsSrc));
+            Element root = document.getRootElement();
+            List<Namespace> namespaces = Arrays.asList(
+                Namespace.getNamespace("dri", "http://www.driver-repository.eu/namespace/dri"),
+                Namespace.getNamespace("oaf", "http://namespace.openaire.eu/oaf"),
+                Namespace.getNamespace("xsi", "http://www.w3.org/2001/XMLSchema-instance"));
+            XPathExpression<Element> xpath = XPathFactory.instance().compile("/response/results/result",
+                                                                             Filters.element(), null, namespaces);
+
+            List<Element> recordsList = xpath.evaluate(root);
+            return recordsList;
+        } catch (JDOMException | IOException e) {
+            log.error(e.getMessage(), e);
+            return new LinkedList<Element>();
+        }
+    }
+
+    public class SearchByIdCallable implements Callable<ImportRecord> {
 
         String id = null;
 
@@ -258,7 +302,7 @@ public class OpenAireImportMetadataSourceServiceImpl extends AbstractImportMetad
                 Document document = saxBuilder.build(new StringReader(responseString));
                 Element root = document.getRootElement();
                 XPathExpression<Element> xpath = XPathFactory.instance().compile("/response/header/total",
-                    Filters.element(), null);
+                                                                                 Filters.element(), null);
 
                 Element totalItem = xpath.evaluateFirst(root);
                 return totalItem != null ? Integer.parseInt(totalItem.getText()) : null;
@@ -306,49 +350,6 @@ public class OpenAireImportMetadataSourceServiceImpl extends AbstractImportMetad
                 }
             }
             return results;
-        }
-    }
-
-    /**
-     * This method remove multiple titles occurrences
-     * 
-     * @param transformSourceRecords
-     * @return ImportRecord with one or zero title
-     */
-    private ImportRecord filterMultipleTitles(ImportRecord transformSourceRecords) {
-        List<MetadatumDTO> metadata = (List<MetadatumDTO>)transformSourceRecords.getValueList();
-        ArrayList<MetadatumDTO> nextSourceRecord = new ArrayList<>();
-        boolean found = false;
-        for (MetadatumDTO dto : metadata) {
-            if ("dc".equals(dto.getSchema()) && "title".equals(dto.getElement()) && dto.getQualifier() == null) {
-                if (!found) {
-                    nextSourceRecord.add(dto);
-                    found = true;
-                }
-            } else {
-                nextSourceRecord.add(dto);
-            }
-        }
-        return new ImportRecord(nextSourceRecord);
-    }
-
-    private List<Element> splitToRecords(String recordsSrc) {
-        try {
-            SAXBuilder saxBuilder = XMLUtils.getSAXBuilder();
-            Document document = saxBuilder.build(new StringReader(recordsSrc));
-            Element root = document.getRootElement();
-            List<Namespace> namespaces = Arrays.asList(
-                Namespace.getNamespace("dri", "http://www.driver-repository.eu/namespace/dri"),
-                Namespace.getNamespace("oaf", "http://namespace.openaire.eu/oaf"),
-                Namespace.getNamespace("xsi", "http://www.w3.org/2001/XMLSchema-instance"));
-            XPathExpression<Element> xpath = XPathFactory.instance().compile("/response/results/result",
-                Filters.element(), null, namespaces);
-
-            List<Element> recordsList = xpath.evaluate(root);
-            return recordsList;
-        } catch (JDOMException | IOException e) {
-            log.error(e.getMessage(), e);
-            return new LinkedList<Element>();
         }
     }
 

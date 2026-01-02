@@ -234,7 +234,7 @@ public class OidcAuthenticationBean implements AuthenticationMethod {
         try {
             return oidcClient.getAccessToken(code);
         } catch (Exception ex) {
-            LOGGER.error("An error occurs retriving the OIDC access_token", ex);
+            LOGGER.error("An error occurs retrieving the OIDC access_token", ex);
             return null;
         }
     }
@@ -243,7 +243,7 @@ public class OidcAuthenticationBean implements AuthenticationMethod {
         try {
             return oidcClient.getUserInfo(accessToken);
         } catch (Exception ex) {
-            LOGGER.error("An error occurs retriving the OIDC user info", ex);
+            LOGGER.error("An error occurs retrieving the OIDC user info", ex);
             return Map.of();
         }
     }

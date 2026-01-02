@@ -7,11 +7,11 @@
  */
 package org.dspace.app.rest.repository;
 
-import static org.dspace.access.status.AccessStatusHelper.EMBARGO;
-import static org.dspace.access.status.AccessStatusHelper.METADATA_ONLY;
-import static org.dspace.access.status.AccessStatusHelper.OPEN_ACCESS;
-import static org.dspace.access.status.AccessStatusHelper.RESTRICTED;
-import static org.dspace.access.status.AccessStatusHelper.UNKNOWN;
+import static org.dspace.access.status.DefaultAccessStatusHelper.EMBARGO;
+import static org.dspace.access.status.DefaultAccessStatusHelper.METADATA_ONLY;
+import static org.dspace.access.status.DefaultAccessStatusHelper.OPEN_ACCESS;
+import static org.dspace.access.status.DefaultAccessStatusHelper.RESTRICTED;
+import static org.dspace.access.status.DefaultAccessStatusHelper.UNKNOWN;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;

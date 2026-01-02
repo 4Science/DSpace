@@ -7,6 +7,7 @@
  */
 package org.dspace.app.rest;
 
+import static org.dspace.app.rest.matcher.BrowseIndexMatcher.bis;
 import static org.dspace.app.rest.matcher.MetadataMatcher.matchMetadata;
 import static org.dspace.app.rest.model.BrowseIndexRest.BROWSE_TYPE_VALUE_LIST;
 import static org.hamcrest.Matchers.contains;
@@ -66,17 +67,17 @@ public class BrowsesResourceControllerIT extends AbstractControllerIntegrationTe
                    //We expect the content type to be "application/hal+json;charset=UTF-8"
                    .andExpect(content().contentType(contentType))
 
-                   //Our default Discovery config has 5 browse indexes, so we expect this to be reflected in the page
-                   // object
+                   // Dynamically obtain the total number of browse indices configured in dspace.cfg and check that the
+                   // response contains the correct number of browse indices
                    .andExpect(jsonPath("$.page.size", is(20)))
-                   .andExpect(jsonPath("$.page.totalElements", is(17)))
+                   .andExpect(jsonPath("$.page.totalElements", is(bis.length)))
                    .andExpect(jsonPath("$.page.totalPages", is(1)))
                    .andExpect(jsonPath("$.page.number", is(0)))
 
-                   //The array of browse index should have a size 4
-                   .andExpect(jsonPath("$._embedded.browses", hasSize(17)))
+                   //The array of browse index should match the size of the total number of browse indices configured
+                   .andExpect(jsonPath("$._embedded.browses", hasSize(bis.length)))
 
-                   //Check that all (and only) the default browse indexes are present
+                   //Check that all (and only) the configured browse indexes are present
                    .andExpect(jsonPath("$._embedded.browses", containsInAnyOrder(
                        BrowseIndexMatcher.dateIssuedBrowseIndex("asc"),
                        BrowseIndexMatcher.contributorBrowseIndex("asc"),
@@ -1717,7 +1718,7 @@ public class BrowsesResourceControllerIT extends AbstractControllerIntegrationTe
                    .andExpect(jsonPath("$._embedded.entries",
                                        contains(BrowseEntryResourceMatcher.matchBrowseEntry("Turing, Alan Mathison", 1)
                                        )))
-                   //Verify that the startsWith paramater is included in the links
+                   //Verify that the startsWith parameter is included in the links
                     .andExpect(jsonPath("$._links.self.href", containsString("?startsWith=T")));
 
         //** WHEN **
@@ -1740,7 +1741,7 @@ public class BrowsesResourceControllerIT extends AbstractControllerIntegrationTe
                    .andExpect(jsonPath("$._embedded.entries",
                                        contains(BrowseEntryResourceMatcher.matchBrowseEntry("Computing", 3)
                                        )))
-                   //Verify that the startsWith paramater is included in the links
+                   //Verify that the startsWith parameter is included in the links
                     .andExpect(jsonPath("$._links.self.href", containsString("?startsWith=C")));
 
     }
@@ -1850,7 +1851,7 @@ public class BrowsesResourceControllerIT extends AbstractControllerIntegrationTe
                                        contains(BrowseEntryResourceMatcher.matchBrowseEntry("Ögren, Name", 1),
                                                 BrowseEntryResourceMatcher.matchBrowseEntry("Ortiz, Nombre", 1)
                                                )))
-                   //Verify that the startsWith paramater is included in the links
+                   //Verify that the startsWith parameter is included in the links
                    .andExpect(jsonPath("$._links.self.href", containsString("?startsWith=Ó")));
 
 
@@ -1877,7 +1878,7 @@ public class BrowsesResourceControllerIT extends AbstractControllerIntegrationTe
                                                 BrowseEntryResourceMatcher.matchBrowseEntry("Teléfono", 1),
                                                 BrowseEntryResourceMatcher.matchBrowseEntry("Televisor", 1)
                                                )))
-                   //Verify that the startsWith paramater is included in the links
+                   //Verify that the startsWith parameter is included in the links
                    .andExpect(jsonPath("$._links.self.href", containsString("?startsWith=Tele")));
 
         //** WHEN **
@@ -1900,7 +1901,7 @@ public class BrowsesResourceControllerIT extends AbstractControllerIntegrationTe
                    .andExpect(jsonPath("$._embedded.entries",
                                        contains(BrowseEntryResourceMatcher.matchBrowseEntry("Guion", 1)
                                                )))
-                   //Verify that the startsWith paramater is included in the links
+                   //Verify that the startsWith parameter is included in the links
                    .andExpect(jsonPath("$._links.self.href", containsString("?startsWith=Guión")));
 
     }
