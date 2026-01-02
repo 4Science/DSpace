@@ -11,13 +11,14 @@ package org.dspace.app.audit;
  * Service to store and retrieve DSpace Events from the audit solr core
  * @author Andrea Bollini (andrea.bollini at 4science.it)
  */
+
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
+import jakarta.inject.Named;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.solr.client.solrj.SolrClient;
@@ -32,6 +33,7 @@ import org.apache.solr.common.SolrInputDocument;
 import org.dspace.core.Context;
 import org.dspace.eperson.EPerson;
 import org.dspace.event.Event;
+import org.dspace.service.impl.HttpConnectionPoolService;
 import org.dspace.services.ConfigurationService;
 import org.dspace.util.SolrUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -63,15 +65,21 @@ public class AuditService {
     @Autowired
     private ConfigurationService configurationService;
 
+    @Autowired @Named("solrHttpConnectionPoolService")
+    protected HttpConnectionPoolService httpConnectionPoolService;
+
     private static Logger log = LogManager.getLogger(AuditService.class);
 
     protected SolrClient solr = null;
 
-    public SolrClient getSolr() throws MalformedURLException, SolrServerException, IOException {
+    public SolrClient getSolr() throws SolrServerException, IOException {
         if (solr == null) {
             String solrService = configurationService.getProperty("solr.audit.server");
             log.debug("Solr audit URL: " + solrService);
-            HttpSolrClient solrServer = new HttpSolrClient.Builder(solrService).build();
+            HttpSolrClient solrServer =
+                new HttpSolrClient.Builder(solrService)
+                    .withHttpClient(httpConnectionPoolService.getClient())
+                    .build();
             solrServer.setBaseURL(solrService);
             SolrQuery solrQuery = new SolrQuery().setQuery("*:*");
             solrServer.query(solrQuery);

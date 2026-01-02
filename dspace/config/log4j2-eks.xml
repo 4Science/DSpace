@@ -80,7 +80,6 @@
         <!-- Block passwords from being exposed in Axis logs -->
         <Logger name="org.apache.axis.handlers.http.HTTPAuthHandler"
                 level="INFO"/>
-
         <!-- Anything not a part of DSpace -->
         <Root level="${loglevel.other}">
             <AppenderRef ref="ConsoleJson"/>
