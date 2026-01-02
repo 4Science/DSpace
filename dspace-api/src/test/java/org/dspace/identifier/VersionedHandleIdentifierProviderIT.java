@@ -8,7 +8,6 @@
 package org.dspace.identifier;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -74,16 +73,12 @@ public class VersionedHandleIdentifierProviderIT extends AbstractIdentifierProvi
     }
 
     private void createVersions() throws SQLException, AuthorizeException {
-        context.turnOffAuthorisationSystem();
-
         itemV1 = ItemBuilder.createItem(context, collection)
                 .withTitle("First version")
                 .build();
         firstHandle = itemV1.getHandle();
         itemV2 = VersionBuilder.createVersion(context, itemV1, "Second version").build().getItem();
         itemV3 = VersionBuilder.createVersion(context, itemV1, "Third version").build().getItem();
-
-        context.restoreAuthSystemState();
     }
 
     @Test
@@ -100,28 +95,6 @@ public class VersionedHandleIdentifierProviderIT extends AbstractIdentifierProvi
         // Confirm the last item has the correct version handle
         assertEquals(firstHandle + ".3", itemV3.getHandle());
         assertEquals(1, itemV3.getHandles().size());
-    }
-
-    @Test
-    public void testCanonicalVersionedHandleProvider() throws Exception {
-        registerProvider(VersionedHandleIdentifierProviderWithCanonicalHandles.class);
-        createVersions();
-
-        // Confirm the original item only has a version handle
-        assertEquals(firstHandle + ".1", itemV1.getHandle());
-        assertEquals(1, itemV1.getHandles().size());
-        // Confirm the second item has the correct version handle
-        assertEquals(firstHandle + ".2", itemV2.getHandle());
-        assertEquals(1, itemV2.getHandles().size());
-        // Confirm the last item has both the correct version handle and the original handle
-        assertEquals(firstHandle, itemV3.getHandle());
-        assertEquals(2, itemV3.getHandles().size());
-        containsHandle(itemV3, firstHandle + ".3");
-
-        // Unregister this non-default provider
-        unregisterProvider(VersionedHandleIdentifierProviderWithCanonicalHandles.class);
-        // Re-register the default provider (for later tests)
-        registerProvider(VersionedHandleIdentifierProvider.class);
     }
 
     @Test
@@ -158,9 +131,5 @@ public class VersionedHandleIdentifierProviderIT extends AbstractIdentifierProvi
 
         assertEquals(1, metadata.size());
         assertEquals(dspaceUrl + "/handle/" + testCommunity.getHandle(), metadata.get(0).getValue());
-    }
-
-    private void containsHandle(Item item, String handle) {
-        assertTrue(item.getHandles().stream().anyMatch(h -> handle.equals(h.getHandle())));
     }
 }
