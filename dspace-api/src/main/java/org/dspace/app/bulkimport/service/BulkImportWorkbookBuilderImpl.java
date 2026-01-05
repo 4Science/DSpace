@@ -24,10 +24,10 @@ import static org.dspace.app.bulkedit.BulkImport.METADATA_SEPARATOR;
 import static org.dspace.app.bulkedit.BulkImport.PARENT_ID_HEADER;
 
 import java.sql.SQLException;
-import java.util.Date;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.BiConsumer;
@@ -213,7 +213,7 @@ public class BulkImportWorkbookBuilderImpl implements BulkImportWorkbookBuilder 
 
         for (String header : mainSheet.getHeaders()) {
             if (header.equals(ID_HEADER)) {
-                mainSheet.setValueOnLastRow(header, item.getId().toString());
+                mainSheet.setValueOnLastRow(header, item.getId());
                 continue;
             }
 
@@ -330,12 +330,12 @@ public class BulkImportWorkbookBuilderImpl implements BulkImportWorkbookBuilder 
 
         String resourcePolicyAsString = policy.getName();
 
-        Date startDate = policy.getStartDate();
+        LocalDate startDate = policy.getStartDate();
         if (accessConditionOption.getHasStartDate() && startDate != null) {
             resourcePolicyAsString += BulkImport.ACCESS_CONDITION_ATTRIBUTES_SEPARATOR + formatDate(startDate);
         }
 
-        Date endDate = policy.getEndDate();
+        LocalDate endDate = policy.getEndDate();
         if (accessConditionOption.getHasEndDate() && endDate != null) {
             resourcePolicyAsString += BulkImport.ACCESS_CONDITION_ATTRIBUTES_SEPARATOR + formatDate(endDate);
         }
@@ -419,7 +419,7 @@ public class BulkImportWorkbookBuilderImpl implements BulkImportWorkbookBuilder 
     private boolean isLanguageSupported(Collection collection, String language, String metadataField, boolean group) {
         try {
             List<String> languages = this.reader.getLanguagesForMetadata(collection, metadataField, group);
-            return CollectionUtils.isNotEmpty(languages) ? languages.contains(language) : false;
+            return CollectionUtils.isNotEmpty(languages) && languages.contains(language);
         } catch (DCInputsReaderException e) {
             throw new RuntimeException("An error occurs reading the input configuration by collection", e);
         }
@@ -443,8 +443,8 @@ public class BulkImportWorkbookBuilderImpl implements BulkImportWorkbookBuilder 
         return uploadConfiguration.getOptions();
     }
 
-    private String formatDate(Date date) {
-        return DATE_FORMATTER.print(date, Locale.getDefault());
+    private String formatDate(LocalDate date) {
+        return DateTimeFormatter.ISO_LOCAL_DATE.format(date);
     }
 
     private boolean isBitstreamMetadataFieldHeader(String header) {

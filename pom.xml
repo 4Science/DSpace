@@ -22,7 +22,7 @@
         <spring.version>6.2.8</spring.version>
         <spring-boot.version>3.5.3</spring-boot.version>
         <spring-security.version>6.5.1</spring-security.version> <!-- sync with version used by spring-boot-->
-        <hibernate.version>6.4.8.Final</hibernate.version>
+        <hibernate.version>6.4.10.Final</hibernate.version>
         <hibernate-validator.version>8.0.2.Final</hibernate-validator.version>
         <postgresql.driver.version>42.7.7</postgresql.driver.version>
         <!-- update to version 10.11.0 and newer will cause runtime problems due to some
@@ -44,6 +44,7 @@
         <log4j.version>2.24.3</log4j.version>
         <pdfbox-version>3.0.5</pdfbox-version>
         <rome.version>1.19.0</rome.version>
+        <!-- SLF4J is not used, but specified for dependency convergence issues between many dependencies -->
         <slf4j.version>2.0.17</slf4j.version>
         <tika.version>3.2.3</tika.version>
         <picocli.version>4.7.6</picocli.version>
@@ -63,6 +64,8 @@
         <!--=== OTHER MODULE-SPECIFIC DEPENDENCIES ===-->
         <!-- Jena is used by both RDF and SWORDv2 -->
         <jena.version>4.10.0</jena.version>
+        <!-- JClouds is used by dspace-api -->
+        <jclouds.version>2.7.0</jclouds.version>
 
         <s3mock-testcontainers.version>4.10.0</s3mock-testcontainers.version>
         <software.amazon.awssdk.version>2.32.31</software.amazon.awssdk.version>
@@ -317,7 +320,7 @@
                         <dependency>
                             <groupId>com.puppycrawl.tools</groupId>
                             <artifactId>checkstyle</artifactId>
-                            <version>8.45.1</version>
+                            <version>10.25.0</version>
                         </dependency>
                     </dependencies>
                 </plugin>
@@ -804,7 +807,7 @@
                                         <licenseMerge>Apache Software License, Version 2.0|The SAX License|The W3C License</licenseMerge>
                                         <!-- JDOM uses this license, but it's essentially just Apache -->
                                         <licenseMerge>Apache Software License, Version 2.0|Similar to Apache License but with the acknowledgment clause removed</licenseMerge>
-                                        <licenseMerge>BSD License|The BSD License|BSD licence|BSD license|BSD|BSD-style license|New BSD License|New BSD license|Revised BSD License|BSD 2-Clause license|3-Clause BSD License|BSD 2-Clause|BSD 3-clause New License|BSD Licence 3|BSD-2-Clause|BSD-3-Clause|Modified BSD|The New BSD License|The BSD 3-Clause License (BSD3)|BSD License 3|BSD License 2.0|The (New) BSD License|0BSD</licenseMerge>
+                                        <licenseMerge>BSD License|The BSD License|BSD licence|BSD license|BSD|BSD-style license|New BSD License|New BSD license|Revised BSD License|BSD 2-Clause license|3-Clause BSD License|BSD 2-Clause|BSD 3-clause New License|BSD Licence 3|BSD-2-Clause|BSD-3-Clause|Modified BSD|The New BSD License|The BSD 3-Clause License (BSD3)|BSD License 3|BSD License 2.0|0BSD|The (New) BSD License</licenseMerge>
                                         <!-- DSpace uses a BSD License -->
                                         <licenseMerge>BSD License|DSpace BSD License|DSpace Sourcecode License</licenseMerge>
                                         <!-- Coverity uses modified BSD: https://github.com/coverity/coverity-security-library -->
@@ -957,6 +960,21 @@
             </activation>
             <modules>
                 <module>dspace-iiif</module>
+            </modules>
+        </profile>
+
+        <!--
+     Builds SAML 2 extension for DSpace
+-->
+        <profile>
+            <id>dspace-saml2</id>
+            <activation>
+                <file>
+                    <exists>dspace-saml2/pom.xml</exists>
+                </file>
+            </activation>
+            <modules>
+                <module>dspace-saml2</module>
             </modules>
         </profile>
 
@@ -1347,6 +1365,11 @@
             </dependency>
             <dependency>
                 <groupId>org.dspace</groupId>
+                <artifactId>dspace-saml2</artifactId>
+                <version>cris-2025.01.00-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>org.dspace</groupId>
                 <artifactId>dspace-iiif</artifactId>
                 <version>cris-2025.01.00-SNAPSHOT</version>
             </dependency>
@@ -1359,7 +1382,7 @@
             <dependency>
                 <groupId>org.dspace</groupId>
                 <artifactId>dspace-api-lang</artifactId>
-                <version>[8.0.0,9.0.0)</version>
+                <version>[9.0.0,10.0.0)</version>
             </dependency>
 
             <!-- DSpace third Party Dependencies -->
@@ -1538,6 +1561,16 @@
                         <artifactId>mockito-core</artifactId>
                     </exclusion>
                 </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.security</groupId>
+                <artifactId>spring-security-core</artifactId>
+                <version>${spring-security.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.security</groupId>
+                <artifactId>spring-security-web</artifactId>
+                <version>${spring-security.version}</version>
             </dependency>
 
             <dependency>
@@ -1951,11 +1984,6 @@
             <!-- This bridge ensures any logging to slf4j is sent to log4j -->
             <dependency>
                 <groupId>org.apache.logging.log4j</groupId>
-                <artifactId>log4j-web</artifactId>
-                <version>${log4j.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.logging.log4j</groupId>
                 <artifactId>log4j-slf4j2-impl</artifactId>
                 <version>${log4j.version}</version>
             </dependency>
@@ -2124,6 +2152,7 @@
                     </exclusion>
                 </exclusions>
             </dependency>
+
             <dependency>
                 <groupId>xom</groupId>
                 <artifactId>xom</artifactId>

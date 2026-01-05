@@ -36,18 +36,19 @@ public class MockSHERPAService extends SHERPAService {
      * test resources.
      * If URI creation, parsing, or IO fails along the way, a SHERPAResponse with an error message set will be
      * returned.
+     *
      * @param value a journal / publication name, or ID, etc.
-     * @return  SHERPAResponse
+     * @return SHERPAResponse
      */
     @Override
     public SHERPAResponse performRequest(String type, String field, String predicate, String value,
                                          int start, int limit) {
         try {
             String endpoint = configurationService.getProperty("sherpa.romeo.url",
-                "https://v2.sherpa.ac.uk/cgi/retrieve");
+                                                               "https://v2.sherpa.ac.uk/cgi/retrieve");
             String apiKey = configurationService.getProperty("sherpa.romeo.apikey");
 
-            // Rather than search, we will simply attempt to build the URI using the real pepare method
+            // Rather than search, we will simply attempt to build the URI using the real prepare method
             // so that any errors there are caught, and will return a valid response for The Lancet
             InputStream content = null;
             try {
@@ -99,18 +100,19 @@ public class MockSHERPAService extends SHERPAService {
      * test resources.
      * If URI creation, parsing, or IO fails along the way, a SHERPAPublisherResponse with an error message set will be
      * returned.
+     *
      * @param value a journal / publication name, or ID, etc.
-     * @return  SHERPAResponse
+     * @return SHERPAResponse
      */
     @Override
     public SHERPAPublisherResponse performPublisherRequest(String type, String field, String predicate, String value,
                                                            int start, int limit) {
         try {
             String endpoint = configurationService.getProperty("sherpa.romeo.url",
-                "https://v2.sherpa.ac.uk/cgi/retrieve");
+                                                               "https://v2.sherpa.ac.uk/cgi/retrieve");
             String apiKey = configurationService.getProperty("sherpa.romeo.apikey");
 
-            // Rather than search, we will simply attempt to build the URI using the real pepare method
+            // Rather than search, we will simply attempt to build the URI using the real prepare method
             // so that any errors there are caught, and will return a valid response for The Lancet
             InputStream content = null;
             try {
@@ -122,7 +124,8 @@ public class MockSHERPAService extends SHERPAService {
                 content = getClass().getResourceAsStream("plos.json");
 
                 // Parse JSON input stream and return response for later evaluation
-                SHERPAPublisherResponse response = new SHERPAPublisherResponse(content, SHERPAFormat.JSON);
+                SHERPAPublisherResponse response =
+                    new SHERPAPublisherResponse(content, SHERPAPublisherResponse.SHERPAFormat.JSON);
 
                 if (response != null) {
                     applyStartAndLimit(response.getPublishers(), start, limit);
@@ -164,9 +167,9 @@ public class MockSHERPAService extends SHERPAService {
         limit = limit > 0 ? limit : Integer.MAX_VALUE;
 
         List<T> subList = list.stream()
-            .skip(start)
-            .limit(limit)
-            .collect(Collectors.toList());
+                              .skip(start)
+                              .limit(limit)
+                              .collect(Collectors.toList());
 
         list.clear();
         list.addAll(subList);

@@ -15,8 +15,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -82,43 +82,43 @@ public class VocabularyRestRepositoryIT extends AbstractControllerIntegrationTes
         // of the MockOrcid class itself or Mockito will complain of unnecessary stubbing in certain other
         // AbstractIntegrationTest implementations (depending on how config is (re)loaded)
         ApplicationContext applicationContext = DSpaceServicesFactory.getInstance()
-                .getServiceManager().getApplicationContext();
+                                                                     .getServiceManager().getApplicationContext();
         MockOrcid mockOrcid = applicationContext.getBean(MockOrcid.class);
         mockOrcid.setupNoResultsSearch();
         mockOrcid.setupSingleSearch();
         mockOrcid.setupSearchWithResults();
 
         configurationService.setProperty("plugin.named.org.dspace.content.authority.ChoiceAuthority",
-                new String[] {
-                        "org.dspace.content.authority.SolrAuthority = SolrAuthorAuthority",
-                        "org.dspace.content.authority.SHERPARoMEOPublisher = SRPublisher",
-                        "org.dspace.content.authority.SHERPARoMEOJournalTitle = SRJournalTitle"
-                });
+                                         new String[] {
+                                             "org.dspace.content.authority.SolrAuthority = SolrAuthorAuthority",
+                                             "org.dspace.content.authority.SHERPARoMEOPublisher = SRPublisher",
+                                             "org.dspace.content.authority.SHERPARoMEOJournalTitle = SRJournalTitle"
+                                         });
 
         configurationService.setProperty("solr.authority.server",
-                "${solr.server}/authority");
+                                         "${solr.server}/authority");
         configurationService.setProperty("choices.plugin.dc.contributor.author",
-                "SolrAuthorAuthority");
+                                         "SolrAuthorAuthority");
         configurationService.setProperty("choices.presentation.dc.contributor.author",
-                "authorLookup");
+                                         "authorLookup");
         configurationService.setProperty("authority.controlled.dc.contributor.author",
-                "true");
+                                         "true");
         configurationService.setProperty("authority.author.indexer.field.1",
-                "dc.contributor.author");
+                                         "dc.contributor.author");
 
         configurationService.setProperty("choices.plugin.dc.publisher",
-                "SRPublisher");
+                                         "SRPublisher");
         configurationService.setProperty("choices.presentation.dc.publisher",
-                "lookup");
+                                         "lookup");
         configurationService.setProperty("authority.controlled.dc.publisher",
-                "true");
+                                         "true");
 
         configurationService.setProperty("choices.plugin.dc.relation.ispartof",
-                "SRJournalTitle");
+                                         "SRJournalTitle");
         configurationService.setProperty("choices.presentation.dc.relation.ispartof",
-                "lookup");
+                                         "lookup");
         configurationService.setProperty("authority.controlled.dc.relation.ispartof",
-                "true");
+                                         "true");
 
         // These clears have to happen so that the config is actually reloaded in those classes. This is needed for
         // the properties that we're altering above and this is only used within the tests
@@ -133,7 +133,7 @@ public class VocabularyRestRepositoryIT extends AbstractControllerIntegrationTes
 
         context.turnOffAuthorisationSystem();
         parentCommunity = CommunityBuilder.createCommunity(context).withName("A parent community for all our test")
-                .build();
+                                          .build();
         context.restoreAuthSystemState();
         PersonAuthorityValue person1 = new PersonAuthorityValue();
         person1.setId(String.valueOf(UUID.randomUUID()));
@@ -141,8 +141,8 @@ public class VocabularyRestRepositoryIT extends AbstractControllerIntegrationTes
         person1.setFirstName("Seiko");
         person1.setValue("Shirasaka, Seiko");
         person1.setField("dc_contributor_author");
-        person1.setLastModified(new Date());
-        person1.setCreationDate(new Date());
+        person1.setLastModified(Instant.now());
+        person1.setCreationDate(Instant.now());
         AuthorityServiceFactory.getInstance().getAuthorityIndexingService().indexContent(person1);
 
         PersonAuthorityValue person2 = new PersonAuthorityValue();
@@ -151,8 +151,8 @@ public class VocabularyRestRepositoryIT extends AbstractControllerIntegrationTes
         person2.setFirstName("Tyler E");
         person2.setValue("Miller, Tyler E");
         person2.setField("dc_contributor_author");
-        person2.setLastModified(new Date());
-        person2.setCreationDate(new Date());
+        person2.setLastModified(Instant.now());
+        person2.setCreationDate(Instant.now());
         AuthorityServiceFactory.getInstance().getAuthorityIndexingService().indexContent(person2);
 
         AuthorityServiceFactory.getInstance().getAuthorityIndexingService().commit();
@@ -172,77 +172,84 @@ public class VocabularyRestRepositoryIT extends AbstractControllerIntegrationTes
     public void findAllTest() throws Exception {
         String token = getAuthToken(admin.getEmail(), password);
         getClient(token).perform(get("/api/submission/vocabularies"))
-                .andExpect(status().isOk())
-                 .andExpect(jsonPath("$._embedded.vocabularies", Matchers.containsInAnyOrder(
-                     VocabularyMatcher.matchProperties("srsc", "srsc", false, true),
-                     VocabularyMatcher.matchProperties("common_iso_languages", "common_iso_languages", true, false),
-                     VocabularyMatcher.matchProperties("SRPublisher", "SRPublisher", false, false),
-                     VocabularyMatcher.matchProperties("patent_types", "patent_types", true, false),
-                     VocabularyMatcher.matchProperties("types", "types", false, true),
-                     VocabularyMatcher.matchProperties("gender", "gender", true, false),
-                     VocabularyMatcher.matchProperties("SolrAuthorAuthority", "SolrAuthorAuthority", false, false),
-                     VocabularyMatcher.matchProperties("SRJournalTitle", "SRJournalTitle", false, false),
-                     VocabularyMatcher.matchProperties("common_types", "common_types", true, false),
+                        .andExpect(status().isOk())
+                        .andExpect(jsonPath("$._embedded.vocabularies", Matchers.containsInAnyOrder(
+                            VocabularyMatcher.matchProperties("srsc", "srsc", false, true),
+                            VocabularyMatcher.matchProperties("common_iso_languages", "common_iso_languages", true,
+                                                              false),
+                            VocabularyMatcher.matchProperties("SRPublisher", "SRPublisher", false, false),
+                            VocabularyMatcher.matchProperties("types", "types", false, true),
+                            VocabularyMatcher.matchProperties("gender", "gender", true, false),
+                            VocabularyMatcher.matchProperties("SolrAuthorAuthority", "SolrAuthorAuthority", false,
+                                                              false),
+                            VocabularyMatcher.matchProperties("SRJournalTitle", "SRJournalTitle", false, false),
+                            VocabularyMatcher.matchProperties("common_types", "common_types", true, false),
                      VocabularyMatcher.matchProperties("publication-coar-types", "publication-coar-types", false, true),
-                     VocabularyMatcher.matchProperties("currency", "currency", true, false)
-                 )))
-                .andExpect(jsonPath("$._links.self.href",
-                    Matchers.containsString("api/submission/vocabularies")))
-                .andExpect(jsonPath("$.page.totalElements", is(11)));
+                     VocabularyMatcher.matchProperties("common_iso_countries", "common_iso_countries", true, false),
+                     VocabularyMatcher.matchProperties("currency", "currency", true, false),
+                     VocabularyMatcher.matchProperties("product-coar-types", "product-coar-types", false, true),
+                     VocabularyMatcher.matchProperties("patent-coar-types", "patent-coar-types", false, true),
+                     VocabularyMatcher.matchProperties("event_types", "event_types", true, false),
+                     VocabularyMatcher.matchProperties("funding_types", "funding_types", true, false)
+                        )))
+                        .andExpect(jsonPath("$._links.self.href",
+                                            Matchers.containsString("api/submission/vocabularies")))
+                .andExpect(jsonPath("$.page.totalElements", is(15)));
     }
 
     @Test
     public void findOneSRSC_Test() throws Exception {
         getClient().perform(get("/api/submission/vocabularies/srsc"))
-                        .andExpect(status().isOk())
-                        .andExpect(jsonPath("$", is(
-                            VocabularyMatcher.matchProperties("srsc", "srsc", false, true)
-                        )));
+                   .andExpect(status().isOk())
+                   .andExpect(jsonPath("$", is(
+                       VocabularyMatcher.matchProperties("srsc", "srsc", false, true)
+                   )));
     }
 
     @Test
     public void findOneCommonTypesTest() throws Exception {
         getClient().perform(get("/api/submission/vocabularies/common_types"))
-                        .andExpect(status().isOk())
-                        .andExpect(jsonPath("$", is(
-                            VocabularyMatcher.matchProperties("common_types", "common_types", true, false)
-                        )));
+                   .andExpect(status().isOk())
+                   .andExpect(jsonPath("$", is(
+                       VocabularyMatcher.matchProperties("common_types", "common_types", true, false)
+                   )));
     }
 
     @Test
     public void correctSrscQueryTest() throws Exception {
         String token = getAuthToken(admin.getEmail(), password);
         getClient(token).perform(
-            get("/api/submission/vocabularies/srsc/entries")
-                .param("filter", "Research")
-                .param("size", "2"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$._embedded.entries", Matchers.containsInAnyOrder(
-                        VocabularyMatcher.matchVocabularyEntry("Research Subject Categories",
-                          "", "vocabularyEntry"),
-                        VocabularyMatcher.matchVocabularyEntry("Family research",
-                          "SOCIAL SCIENCES::Social sciences::Social work::Family research",
-                          "vocabularyEntry"))))
-                .andExpect(jsonPath("$.page.totalElements", Matchers.is(26)))
-                .andExpect(jsonPath("$.page.totalPages", Matchers.is(13)))
-                .andExpect(jsonPath("$.page.size", Matchers.is(2)));
+                            get("/api/submission/vocabularies/srsc/entries")
+                                .param("filter", "Research")
+                                .param("size", "2"))
+                        .andExpect(status().isOk())
+                        .andExpect(jsonPath("$._embedded.entries", Matchers.containsInAnyOrder(
+                            VocabularyMatcher.matchVocabularyEntry("Research Subject Categories",
+                                                                   "", "vocabularyEntry"),
+                            VocabularyMatcher.matchVocabularyEntry("Family research",
+                                                                   "SOCIAL SCIENCES::Social sciences::Social " +
+                                                                       "work::Family research",
+                                                                   "vocabularyEntry"))))
+                        .andExpect(jsonPath("$.page.totalElements", Matchers.is(26)))
+                        .andExpect(jsonPath("$.page.totalPages", Matchers.is(13)))
+                        .andExpect(jsonPath("$.page.size", Matchers.is(2)));
     }
 
     @Test
     public void notScrollableVocabularyRequiredQueryTest() throws Exception {
         String token = getAuthToken(admin.getEmail(), password);
         getClient(token).perform(get("/api/submission/vocabularies/srsc/entries"))
-                .andExpect(status().isUnprocessableEntity());
+                        .andExpect(status().isUnprocessableEntity());
     }
 
     @Test
     public void noResultsSrscQueryTest() throws Exception {
         String token = getAuthToken(admin.getEmail(), password);
         getClient(token).perform(
-            get("/api/submission/vocabularies/srsc/entries")
-                .param("metadata", "dc.subject")
-                .param("filter", "Research2")
-                .param("size", "1000"))
+                            get("/api/submission/vocabularies/srsc/entries")
+                                .param("metadata", "dc.subject")
+                                .param("filter", "Research2")
+                                .param("size", "1000"))
                         .andExpect(status().isOk())
                         .andExpect(jsonPath("$.page.totalElements", Matchers.is(0)));
     }
@@ -251,53 +258,53 @@ public class VocabularyRestRepositoryIT extends AbstractControllerIntegrationTes
     public void vocabularyEntriesCommonTypesWithPaginationTest() throws Exception {
         String token = getAuthToken(admin.getEmail(), password);
         getClient(token)
-                .perform(get("/api/submission/vocabularies/common_types/entries").param("size", "2"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$._embedded.entries", Matchers.containsInAnyOrder(
-                        VocabularyMatcher.matchVocabularyEntry("Animation", "Animation", "vocabularyEntry"),
-                        VocabularyMatcher.matchVocabularyEntry("Article", "Article", "vocabularyEntry")
-                        )))
-                .andExpect(jsonPath("$._embedded.entries[*].authority").doesNotExist())
-                .andExpect(jsonPath("$.page.totalElements", Matchers.is(22)))
-                .andExpect(jsonPath("$.page.totalPages", Matchers.is(11)))
-                .andExpect(jsonPath("$.page.size", Matchers.is(2)));
+            .perform(get("/api/submission/vocabularies/common_types/entries").param("size", "2"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$._embedded.entries", Matchers.containsInAnyOrder(
+                VocabularyMatcher.matchVocabularyEntry("Animation", "Animation", "vocabularyEntry"),
+                VocabularyMatcher.matchVocabularyEntry("Article", "Article", "vocabularyEntry")
+            )))
+            .andExpect(jsonPath("$._embedded.entries[*].authority").doesNotExist())
+            .andExpect(jsonPath("$.page.totalElements", Matchers.is(22)))
+            .andExpect(jsonPath("$.page.totalPages", Matchers.is(11)))
+            .andExpect(jsonPath("$.page.size", Matchers.is(2)));
 
         //second page
         getClient(token).perform(get("/api/submission/vocabularies/common_types/entries")
-                .param("size", "2")
-                .param("page", "1"))
-                 .andExpect(status().isOk())
-                 .andExpect(jsonPath("$._embedded.entries", Matchers.containsInAnyOrder(
-                         VocabularyMatcher.matchVocabularyEntry("Book", "Book", "vocabularyEntry"),
-                         VocabularyMatcher.matchVocabularyEntry("Book chapter", "Book chapter", "vocabularyEntry")
-                         )))
-                 .andExpect(jsonPath("$._embedded.entries[*].authority").doesNotExist())
-                 .andExpect(jsonPath("$.page.totalElements", Matchers.is(22)))
-                 .andExpect(jsonPath("$.page.totalPages", Matchers.is(11)))
-                 .andExpect(jsonPath("$.page.size", Matchers.is(2)));
+                                     .param("size", "2")
+                                     .param("page", "1"))
+                        .andExpect(status().isOk())
+                        .andExpect(jsonPath("$._embedded.entries", Matchers.containsInAnyOrder(
+                            VocabularyMatcher.matchVocabularyEntry("Book", "Book", "vocabularyEntry"),
+                            VocabularyMatcher.matchVocabularyEntry("Book chapter", "Book chapter", "vocabularyEntry")
+                        )))
+                        .andExpect(jsonPath("$._embedded.entries[*].authority").doesNotExist())
+                        .andExpect(jsonPath("$.page.totalElements", Matchers.is(22)))
+                        .andExpect(jsonPath("$.page.totalPages", Matchers.is(11)))
+                        .andExpect(jsonPath("$.page.size", Matchers.is(2)));
     }
 
     @Test
     public void vocabularyEntriesCommon_typesWithQueryTest() throws Exception {
         String token = getAuthToken(admin.getEmail(), password);
         getClient(token).perform(get("/api/submission/vocabularies/common_types/entries")
-                .param("filter", "Book")
-                .param("size", "2"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$._embedded.entries", Matchers.containsInAnyOrder(
-                        VocabularyMatcher.matchVocabularyEntry("Book", "Book", "vocabularyEntry"),
-                        VocabularyMatcher.matchVocabularyEntry("Book chapter", "Book chapter", "vocabularyEntry")
+                                     .param("filter", "Book")
+                                     .param("size", "2"))
+                        .andExpect(status().isOk())
+                        .andExpect(jsonPath("$._embedded.entries", Matchers.containsInAnyOrder(
+                            VocabularyMatcher.matchVocabularyEntry("Book", "Book", "vocabularyEntry"),
+                            VocabularyMatcher.matchVocabularyEntry("Book chapter", "Book chapter", "vocabularyEntry")
                         )))
-                .andExpect(jsonPath("$.page.totalElements", Matchers.is(2)))
-                .andExpect(jsonPath("$.page.totalPages", Matchers.is(1)))
-                .andExpect(jsonPath("$.page.size", Matchers.is(2)));
+                        .andExpect(jsonPath("$.page.totalElements", Matchers.is(2)))
+                        .andExpect(jsonPath("$.page.totalPages", Matchers.is(1)))
+                        .andExpect(jsonPath("$.page.size", Matchers.is(2)));
     }
 
     @Test
     public void vocabularyEntriesDCInputAuthorityLocalesTest() throws Exception {
-        String[] supportedLanguage = {"it","uk"};
-        configurationService.setProperty("default.locale","it");
-        configurationService.setProperty("webui.supported.locales",supportedLanguage);
+        String[] supportedLanguage = {"it", "uk"};
+        configurationService.setProperty("default.locale", "it");
+        configurationService.setProperty("webui.supported.locales", supportedLanguage);
         // These clears have to happen so that the config is actually reloaded in those classes. This is needed for
         // the properties that we're altering above and this is only used within the tests
         submissionFormRestRepository.reload();
@@ -310,35 +317,35 @@ public class VocabularyRestRepositoryIT extends AbstractControllerIntegrationTes
 
         String token = getAuthToken(admin.getEmail(), password);
         getClient(token)
-                .perform(get("/api/submission/vocabularies/common_iso_languages/entries")
-                        .param("size", "2")
-                        .locale(it))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$._embedded.entries", Matchers.containsInAnyOrder(
-                        VocabularyMatcher.matchVocabularyEntry("N/A", "", "vocabularyEntry"),
-                        VocabularyMatcher.matchVocabularyEntry("Inglese (USA)", "en_US", "vocabularyEntry")
-                        )))
-                .andExpect(jsonPath("$._embedded.entries[*].authority").doesNotExist())
-                .andExpect(jsonPath("$.page.totalElements", Matchers.is(12)))
-                .andExpect(jsonPath("$.page.totalPages", Matchers.is(6)))
-                .andExpect(jsonPath("$.page.size", Matchers.is(2)));
+            .perform(get("/api/submission/vocabularies/common_iso_languages/entries")
+                         .param("size", "2")
+                         .locale(it))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$._embedded.entries", Matchers.containsInAnyOrder(
+                VocabularyMatcher.matchVocabularyEntry("N/A", "", "vocabularyEntry"),
+                VocabularyMatcher.matchVocabularyEntry("Inglese (USA)", "en_US", "vocabularyEntry")
+            )))
+            .andExpect(jsonPath("$._embedded.entries[*].authority").doesNotExist())
+            .andExpect(jsonPath("$.page.totalElements", Matchers.is(12)))
+            .andExpect(jsonPath("$.page.totalPages", Matchers.is(6)))
+            .andExpect(jsonPath("$.page.size", Matchers.is(2)));
 
         getClient(token)
-                .perform(get("/api/submission/vocabularies/common_iso_languages/entries")
-                        .param("size", "2")
-                        .locale(uk))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$._embedded.entries", Matchers.containsInAnyOrder(
-                        VocabularyMatcher.matchVocabularyEntry("N/A", "", "vocabularyEntry"),
-                        VocabularyMatcher.matchVocabularyEntry("Американська (USA)", "en_US", "vocabularyEntry")
-                        )))
-                .andExpect(jsonPath("$._embedded.entries[*].authority").doesNotExist())
-                .andExpect(jsonPath("$.page.totalElements", Matchers.is(12)))
-                .andExpect(jsonPath("$.page.totalPages", Matchers.is(6)))
-                .andExpect(jsonPath("$.page.size", Matchers.is(2)));
+            .perform(get("/api/submission/vocabularies/common_iso_languages/entries")
+                         .param("size", "2")
+                         .locale(uk))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$._embedded.entries", Matchers.containsInAnyOrder(
+                VocabularyMatcher.matchVocabularyEntry("N/A", "", "vocabularyEntry"),
+                VocabularyMatcher.matchVocabularyEntry("Американська (USA)", "en_US", "vocabularyEntry")
+            )))
+            .andExpect(jsonPath("$._embedded.entries[*].authority").doesNotExist())
+            .andExpect(jsonPath("$.page.totalElements", Matchers.is(12)))
+            .andExpect(jsonPath("$.page.totalPages", Matchers.is(6)))
+            .andExpect(jsonPath("$.page.size", Matchers.is(2)));
 
-        configurationService.setProperty("default.locale","en");
-        configurationService.setProperty("webui.supported.locales",null);
+        configurationService.setProperty("default.locale", "en");
+        configurationService.setProperty("webui.supported.locales", null);
         submissionFormRestRepository.reload();
         DCInputAuthority.reset();
         pluginService.clearNamedPluginClasses();
@@ -350,73 +357,76 @@ public class VocabularyRestRepositoryIT extends AbstractControllerIntegrationTes
     public void correctSolrQueryTest() throws Exception {
         String token = getAuthToken(admin.getEmail(), password);
         getClient(token).perform(
-                get("/api/submission/vocabularies/SolrAuthorAuthority/entries")
-                        .param("filter", "Shirasaka")
-                        .param("size", "100"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$._embedded.entries", Matchers.contains(
-                    VocabularyMatcher.matchVocabularyEntry("Shirasaka, Seiko", "Shirasaka, Seiko", "vocabularyEntry")
-                    )))
-                .andExpect(jsonPath("$._embedded.entries[0].authority").isNotEmpty())
-                .andExpect(jsonPath("$.page.totalElements", Matchers.is(1)));
+                            get("/api/submission/vocabularies/SolrAuthorAuthority/entries")
+                                .param("filter", "Shirasaka")
+                                .param("size", "100"))
+                        .andExpect(status().isOk())
+                        .andExpect(jsonPath("$._embedded.entries", Matchers.contains(
+                            VocabularyMatcher.matchVocabularyEntry("Shirasaka, Seiko", "Shirasaka, Seiko",
+                                                                   "vocabularyEntry")
+                        )))
+                        .andExpect(jsonPath("$._embedded.entries[0].authority").isNotEmpty())
+                        .andExpect(jsonPath("$.page.totalElements", Matchers.is(1)));
 
         // test also an entry provided by ORCID
         getClient(token).perform(
-                get("/api/submission/vocabularies/SolrAuthorAuthority/entries")
-                        .param("filter", "Bollini")
-                        .param("size", "100"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$._embedded.entries", Matchers.contains(
-                    VocabularyMatcher.matchVocabularyEntry("Bollini, Andrea", "Bollini, Andrea", "vocabularyEntry")
-                    )))
-                .andExpect(jsonPath("$._embedded.entries[0].authority",
-                            Matchers.is(AuthorityValueServiceImpl.GENERATE + "orcid"
-                                    + AuthorityValueServiceImpl.SPLIT + "0000-0002-9029-1854")))
-                .andExpect(jsonPath("$.page.totalElements", Matchers.is(1)));
+                            get("/api/submission/vocabularies/SolrAuthorAuthority/entries")
+                                .param("filter", "Bollini")
+                                .param("size", "100"))
+                        .andExpect(status().isOk())
+                        .andExpect(jsonPath("$._embedded.entries", Matchers.contains(
+                            VocabularyMatcher.matchVocabularyEntry("Bollini, Andrea", "Bollini, Andrea",
+                                                                   "vocabularyEntry")
+                        )))
+                        .andExpect(jsonPath("$._embedded.entries[0].authority",
+                                            Matchers.is(AuthorityValueServiceImpl.GENERATE + "orcid"
+                                                            + AuthorityValueServiceImpl.SPLIT + "0000-0002-9029-1854")))
+                        .andExpect(jsonPath("$.page.totalElements", Matchers.is(1)));
     }
 
     @Test
     public void noResultsSolrQueryTest() throws Exception {
         String token = getAuthToken(admin.getEmail(), password);
         getClient(token).perform(
-                get("/api/submission/vocabularies/SolrAuthorAuthority/entries")
-                        .param("filter", "Smith")
-                        .param("size", "100"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.page.totalElements", Matchers.is(0)));
+                            get("/api/submission/vocabularies/SolrAuthorAuthority/entries")
+                                .param("filter", "Smith")
+                                .param("size", "100"))
+                        .andExpect(status().isOk())
+                        .andExpect(jsonPath("$.page.totalElements", Matchers.is(0)));
     }
 
     @Test
     public void sherpaJournalTest() throws Exception {
         String token = getAuthToken(admin.getEmail(), password);
         getClient(token).perform(
-                get("/api/submission/vocabularies/SRJournalTitle/entries")
-                        .param("filter", "Lancet")
-                        .param("size", "100"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$._embedded.entries", Matchers.contains(
-                    VocabularyMatcher.matchVocabularyEntry("The Lancet", "The Lancet", "vocabularyEntry")
-                    )))
-                .andExpect(jsonPath("$._embedded.entries[0].authority",
-                        Matchers.is("0140-6736")))
-                .andExpect(jsonPath("$.page.totalElements", Matchers.is(1)));
+                            get("/api/submission/vocabularies/SRJournalTitle/entries")
+                                .param("filter", "Lancet")
+                                .param("size", "100"))
+                        .andExpect(status().isOk())
+                        .andExpect(jsonPath("$._embedded.entries", Matchers.contains(
+                            VocabularyMatcher.matchVocabularyEntry("The Lancet", "The Lancet", "vocabularyEntry")
+                        )))
+                        .andExpect(jsonPath("$._embedded.entries[0].authority",
+                                            Matchers.is("0140-6736")))
+                        .andExpect(jsonPath("$.page.totalElements", Matchers.is(1)));
     }
 
     @Test
     public void sherpaPublisherTest() throws Exception {
         String token = getAuthToken(admin.getEmail(), password);
         getClient(token).perform(
-                get("/api/submission/vocabularies/SRPublisher/entries")
-                        .param("filter", "PLOS")
-                        .param("size", "100"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$._embedded.entries", Matchers.contains(
-                    VocabularyMatcher.matchVocabularyEntry("Public Library of Science", "Public Library of Science",
-                            "vocabularyEntry")
-                    )))
-                .andExpect(jsonPath("$._embedded.entries[0].authority",
-                        Matchers.is("112")))
-                .andExpect(jsonPath("$.page.totalElements", Matchers.is(1)));
+                            get("/api/submission/vocabularies/SRPublisher/entries")
+                                .param("filter", "PLOS")
+                                .param("size", "100"))
+                        .andExpect(status().isOk())
+                        .andExpect(jsonPath("$._embedded.entries", Matchers.contains(
+                            VocabularyMatcher.matchVocabularyEntry("Public Library of Science",
+                                                                   "Public Library of Science",
+                                                                   "vocabularyEntry")
+                        )))
+                        .andExpect(jsonPath("$._embedded.entries[0].authority",
+                                            Matchers.is("112")))
+                        .andExpect(jsonPath("$.page.totalElements", Matchers.is(1)));
     }
 
     @Test
@@ -428,8 +438,8 @@ public class VocabularyRestRepositoryIT extends AbstractControllerIntegrationTes
         context.restoreAuthSystemState();
         String token = getAuthToken(admin.getEmail(), password);
         getClient(token).perform(get("/api/submission/vocabularies/search/byMetadataAndCollection")
-                        .param("metadata", "dc.type")
-                        .param("collection", collection.getID().toString()))
+                                     .param("metadata", "dc.type")
+                                     .param("collection", collection.getID().toString()))
                         .andExpect(status().isOk())
                         .andExpect(jsonPath("$", is(
                             VocabularyMatcher.matchProperties("common_types", "common_types", true, false)
@@ -445,19 +455,19 @@ public class VocabularyRestRepositoryIT extends AbstractControllerIntegrationTes
         context.restoreAuthSystemState();
         String token = getAuthToken(admin.getEmail(), password);
         getClient(token).perform(get("/api/submission/vocabularies/common_iso_countries/entries")
-                        .param("size", "10")
-                        .param("filter", "al")
-                        .param("metadata", "dc.language.iso")
-                        .param("collection", collection.getID().toString()))
+                                     .param("size", "10")
+                                     .param("filter", "al")
+                                     .param("metadata", "dc.language.iso")
+                                     .param("collection", collection.getID().toString()))
                         .andExpect(status().isOk())
                         .andExpect(jsonPath("$._embedded.entries", Matchers.containsInAnyOrder(
-                                VocabularyMatcher.matchVocabularyEntry("Italia", "IT", "vocabularyEntry"),
-                                VocabularyMatcher.matchVocabularyEntry("Albania", "AL", "vocabularyEntry"),
-                                VocabularyMatcher.matchVocabularyEntry("Algeria", "DZ", "vocabularyEntry"),
-                                VocabularyMatcher.matchVocabularyEntry("Australia", "AU", "vocabularyEntry")
+                            VocabularyMatcher.matchVocabularyEntry("Italia", "IT", "vocabularyEntry"),
+                            VocabularyMatcher.matchVocabularyEntry("Albania", "AL", "vocabularyEntry"),
+                            VocabularyMatcher.matchVocabularyEntry("Algeria", "DZ", "vocabularyEntry"),
+                            VocabularyMatcher.matchVocabularyEntry("Australia", "AU", "vocabularyEntry")
                         )))
                         .andExpect(jsonPath("$._embedded.entries", Matchers.not(Matchers.containsInAnyOrder(
-                                VocabularyMatcher.matchVocabularyEntry("Botswana", "BW", "vocabularyEntry")
+                            VocabularyMatcher.matchVocabularyEntry("Botswana", "BW", "vocabularyEntry")
                         ))))
                         .andExpect(jsonPath("$.page.totalElements", Matchers.is(4)))
                         .andExpect(jsonPath("$.page.totalPages", Matchers.is(1)))
@@ -468,14 +478,14 @@ public class VocabularyRestRepositoryIT extends AbstractControllerIntegrationTes
     public void findByMetadataAndCollectionWithMetadataWithoutVocabularyTest() throws Exception {
         context.turnOffAuthorisationSystem();
         Collection collection = CollectionBuilder.createCollection(context, parentCommunity)
-            .withName("Test collection")
-            .build();
+                                                 .withName("Test collection")
+                                                 .build();
         context.restoreAuthSystemState();
         String token = getAuthToken(admin.getEmail(), password);
         getClient(token).perform(get("/api/submission/vocabularies/search/byMetadataAndCollection")
-                .param("metadata", "dc.title")
-                .param("collection", collection.getID().toString()))
-                .andExpect(status().isNoContent());
+                                     .param("metadata", "dc.title")
+                                     .param("collection", collection.getID().toString()))
+                        .andExpect(status().isNoContent());
     }
 
     @Test
@@ -488,14 +498,14 @@ public class VocabularyRestRepositoryIT extends AbstractControllerIntegrationTes
 
         String token = getAuthToken(admin.getEmail(), password);
         getClient(token).perform(get("/api/submission/vocabularies/search/byMetadataAndCollection")
-                        .param("metadata", "dc.not.exist")
-                        .param("collection", collection.getID().toString()))
+                                     .param("metadata", "dc.not.exist")
+                                     .param("collection", collection.getID().toString()))
                         .andExpect(status().isUnprocessableEntity());
 
         getClient(token).perform(get("/api/submission/vocabularies/search/byMetadataAndCollection")
-                .param("metadata", "dc.type")
-                .param("collection", UUID.randomUUID().toString()))
-                .andExpect(status().isUnprocessableEntity());
+                                     .param("metadata", "dc.type")
+                                     .param("collection", UUID.randomUUID().toString()))
+                        .andExpect(status().isUnprocessableEntity());
     }
 
     @Test
@@ -510,34 +520,34 @@ public class VocabularyRestRepositoryIT extends AbstractControllerIntegrationTes
         String token = getAuthToken(admin.getEmail(), password);
         //missing metadata
         getClient(token).perform(get("/api/submission/vocabularies/search/byMetadataAndCollection")
-                        .param("collection", collection.getID().toString()))
+                                     .param("collection", collection.getID().toString()))
                         .andExpect(status().isBadRequest());
 
         //missing collection
         getClient(token).perform(get("/api/submission/vocabularies/search/byMetadataAndCollection")
-                .param("metadata", "dc.type"))
-                .andExpect(status().isBadRequest());
+                                     .param("metadata", "dc.type"))
+                        .andExpect(status().isBadRequest());
     }
 
     @Test
     public void linkedEntitiesWithExactParamTest() throws Exception {
         String token = getAuthToken(eperson.getEmail(), password);
         getClient(token).perform(get("/api/submission/vocabularies/common_types/entries")
-                .param("filter", "Animation")
-                .param("exact", "true"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$._embedded.entries", Matchers.contains(
-                    VocabularyMatcher.matchVocabularyEntry("Animation", "Animation", "vocabularyEntry")
-                    )))
-                .andExpect(jsonPath("$.page.totalElements", Matchers.is(1)));
+                                     .param("filter", "Animation")
+                                     .param("exact", "true"))
+                        .andExpect(status().isOk())
+                        .andExpect(jsonPath("$._embedded.entries", Matchers.contains(
+                            VocabularyMatcher.matchVocabularyEntry("Animation", "Animation", "vocabularyEntry")
+                        )))
+                        .andExpect(jsonPath("$.page.totalElements", Matchers.is(1)));
     }
 
     @Test
     public void linkedEntitiesWithFilterAndEntryIdTest() throws Exception {
         String token = getAuthToken(eperson.getEmail(), password);
         getClient(token).perform(get("/api/submission/vocabularies/srsc/entries")
-                        .param("filter", "Research")
-                        .param("entryID", "VR131402"))
+                                     .param("filter", "Research")
+                                     .param("entryID", "VR131402"))
                         .andExpect(status().isBadRequest());
     }
 
@@ -573,25 +583,25 @@ public class VocabularyRestRepositoryIT extends AbstractControllerIntegrationTes
             getClient(tokenAdmin).perform(get("/api/core/items/" + itemA.getID()))
                                  .andExpect(status().isOk())
                                  .andExpect(jsonPath("$.metadata", Matchers.allOf(
-                                         hasJsonPath("$['dc.title'][0].value", is("Test Item A")),
-                                         hasJsonPath(
-                                                 "$['dc.type'][0].value", is("Resource Types::text::book::book part")),
-                                         hasJsonPath("$['dc.type'][0].authority", is(vocabularyName + ":c_3248")),
-                                         hasJsonPath("$['dc.type'][0].confidence", is(600))
-                                         )));
+                                     hasJsonPath("$['dc.title'][0].value", is("Test Item A")),
+                                     hasJsonPath(
+                                         "$['dc.type'][0].value", is("Resource Types::text::book::book part")),
+                                     hasJsonPath("$['dc.type'][0].authority", is(vocabularyName + ":c_3248")),
+                                     hasJsonPath("$['dc.type'][0].confidence", is(600))
+                                 )));
 
             AtomicReference<String> selectedLeafValue = new AtomicReference<>();
             AtomicReference<String> selectedLeafauthority = new AtomicReference<>();
 
             getClient(tokenAdmin).perform(get("/api/submission/vocabularies/" + vocabularyName + "/entries")
-                                 .param("metadata", "dc.type")
-                                 .param("entryID", vocabularyName + ":c_b239"))
+                                              .param("metadata", "dc.type")
+                                              .param("entryID", vocabularyName + ":c_b239"))
                                  .andExpect(status().isOk())
                                  .andDo(result -> selectedLeafValue.set(read(result.getResponse().getContentAsString(),
-                                                                        "$._embedded.entries[0].value")))
+                                                                             "$._embedded.entries[0].value")))
                                  .andDo(result -> selectedLeafauthority.set(
-                                         read(result.getResponse().getContentAsString(),
-                                                 "$._embedded.entries[0].authority")));
+                                     read(result.getResponse().getContentAsString(),
+                                          "$._embedded.entries[0].authority")));
 
             List<Operation> operations = new ArrayList<Operation>();
             Map<String, String> value = new HashMap<String, String>();
@@ -602,18 +612,18 @@ public class VocabularyRestRepositoryIT extends AbstractControllerIntegrationTes
 
             String patchBody = getPatchContent(operations);
             getClient(tokenAdmin).perform(patch("/api/core/edititems/" + editItem.getID() + ":MODE-VOC")
-                                 .content(patchBody)
-                                 .contentType(MediaType.APPLICATION_JSON_PATCH_JSON))
+                                              .content(patchBody)
+                                              .contentType(MediaType.APPLICATION_JSON_PATCH_JSON))
                                  .andExpect(status().isOk());
 
             getClient(tokenAdmin).perform(get("/api/core/items/" + itemA.getID()))
                                  .andExpect(status().isOk())
                                  .andExpect(jsonPath("$.metadata", Matchers.allOf(
-                                       hasJsonPath("$['dc.title'][0].value", is("Test Item A")),
-                                       hasJsonPath("$['dc.type'][0].value", is("text::journal::editorial")),
-                                       hasJsonPath("$['dc.type'][0].authority", is(vocabularyName + ":c_b239")),
-                                         hasJsonPath("$['dc.type'][0].confidence", is(600))
-                                       )));
+                                     hasJsonPath("$['dc.title'][0].value", is("Test Item A")),
+                                     hasJsonPath("$['dc.type'][0].value", is("text::journal::editorial")),
+                                     hasJsonPath("$['dc.type'][0].authority", is(vocabularyName + ":c_b239")),
+                                     hasJsonPath("$['dc.type'][0].confidence", is(600))
+                                 )));
         } finally {
             configurationService.setProperty("authority.controlled.dc.type", "false");
             metadataAuthorityService.clearCache();
@@ -653,25 +663,25 @@ public class VocabularyRestRepositoryIT extends AbstractControllerIntegrationTes
             getClient(tokenAdmin).perform(get("/api/core/items/" + itemA.getID()))
                                  .andExpect(status().isOk())
                                  .andExpect(jsonPath("$.metadata", Matchers.allOf(
-                                         hasJsonPath("$['dc.title'][0].value", is("Test Item A")),
-                                         hasJsonPath("$['dc.type'][0].value",
+                                     hasJsonPath("$['dc.title'][0].value", is("Test Item A")),
+                                     hasJsonPath("$['dc.type'][0].value",
                                                  is("Resource Types::text::book::book part")),
-                                         hasJsonPath("$['dc.type'][0].authority", is(vocabularyName + ":c_3248")),
-                                         hasJsonPath("$['dc.type'][0].confidence", is(600))
-                                         )));
+                                     hasJsonPath("$['dc.type'][0].authority", is(vocabularyName + ":c_3248")),
+                                     hasJsonPath("$['dc.type'][0].confidence", is(600))
+                                 )));
 
             AtomicReference<String> selectedLeafValue = new AtomicReference<>();
             AtomicReference<String> selectedLeafauthority = new AtomicReference<>();
 
             getClient(tokenAdmin).perform(get("/api/submission/vocabularies/" + vocabularyName + "/entries")
-                                 .param("metadata", "dc.type")
-                                 .param("entryID", vocabularyName + ":c_b239"))
+                                              .param("metadata", "dc.type")
+                                              .param("entryID", vocabularyName + ":c_b239"))
                                  .andExpect(status().isOk())
                                  .andDo(result -> selectedLeafValue.set(read(result.getResponse().getContentAsString(),
-                                                                        "$._embedded.entries[0].value")))
+                                                                             "$._embedded.entries[0].value")))
                                  .andDo(result -> selectedLeafauthority.set(
-                                         read(result.getResponse().getContentAsString(),
-                                                                            "$._embedded.entries[0].authority")));
+                                     read(result.getResponse().getContentAsString(),
+                                          "$._embedded.entries[0].authority")));
 
             List<Operation> operations = new ArrayList<Operation>();
             Map<String, String> value = new HashMap<String, String>();
@@ -682,18 +692,18 @@ public class VocabularyRestRepositoryIT extends AbstractControllerIntegrationTes
 
             String patchBody = getPatchContent(operations);
             getClient(tokenAdmin).perform(patch("/api/core/edititems/" + editItem.getID() + ":MODE-VOC")
-                                 .content(patchBody)
-                                 .contentType(MediaType.APPLICATION_JSON_PATCH_JSON))
+                                              .content(patchBody)
+                                              .contentType(MediaType.APPLICATION_JSON_PATCH_JSON))
                                  .andExpect(status().isOk());
 
             getClient(tokenAdmin).perform(get("/api/core/items/" + itemA.getID()))
                                  .andExpect(status().isOk())
                                  .andExpect(jsonPath("$.metadata", Matchers.allOf(
-                                         hasJsonPath("$['dc.title'][0].value", is("Test Item A")),
-                                         hasJsonPath("$['dc.type'][0].value", is("editorial")),
-                                         hasJsonPath("$['dc.type'][0].authority", is(vocabularyName + ":c_b239")),
-                                         hasJsonPath("$['dc.type'][0].confidence", is(600))
-                                         )));
+                                     hasJsonPath("$['dc.title'][0].value", is("Test Item A")),
+                                     hasJsonPath("$['dc.type'][0].value", is("editorial")),
+                                     hasJsonPath("$['dc.type'][0].authority", is(vocabularyName + ":c_b239")),
+                                     hasJsonPath("$['dc.type'][0].confidence", is(600))
+                                 )));
         } finally {
             configurationService.setProperty("authority.controlled.dc.type", "false");
             metadataAuthorityService.clearCache();
@@ -707,28 +717,28 @@ public class VocabularyRestRepositoryIT extends AbstractControllerIntegrationTes
         String tokenAdmin = getAuthToken(admin.getEmail(), password);
         // default configuration
         getClient(tokenAdmin).perform(get("/api/submission/vocabularies/" + vocabularyName + "/entries")
-                             .param("metadata", "dc.type")
-                             .param("entryID", vocabularyName + ":c_b239"))
+                                          .param("metadata", "dc.type")
+                                          .param("entryID", vocabularyName + ":c_b239"))
                              .andExpect(status().isOk())
                              .andExpect(jsonPath("$._embedded.entries[0]", Matchers.allOf(
-                                     hasJsonPath("$.authority", is(vocabularyName + ":c_b239")),
-                                     // the display value without suggestions
-                                     hasJsonPath("$.display", is("editorial")),
-                                     hasJsonPath("$.value", is("text::journal::editorial"))
-                                     )));
+                                 hasJsonPath("$.authority", is(vocabularyName + ":c_b239")),
+                                 // the display value without suggestions
+                                 hasJsonPath("$.display", is("editorial")),
+                                 hasJsonPath("$.value", is("text::journal::editorial"))
+                             )));
 
         configurationService.setProperty("vocabulary.plugin." + vocabularyName + ".hierarchy.suggest", true);
 
         getClient(tokenAdmin).perform(get("/api/submission/vocabularies/" + vocabularyName + "/entries")
-                .param("metadata", "dc.type")
-                .param("entryID", vocabularyName + ":c_b239"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$._embedded.entries[0]", Matchers.allOf(
-                        hasJsonPath("$.authority", is(vocabularyName + ":c_b239")),
-                        // now the display value with suggestions
-                        hasJsonPath("$.display", is("text::journal::editorial")),
-                        hasJsonPath("$.value", is("text::journal::editorial"))
-                        )));
+                                          .param("metadata", "dc.type")
+                                          .param("entryID", vocabularyName + ":c_b239"))
+                             .andExpect(status().isOk())
+                             .andExpect(jsonPath("$._embedded.entries[0]", Matchers.allOf(
+                                 hasJsonPath("$.authority", is(vocabularyName + ":c_b239")),
+                                 // now the display value with suggestions
+                                 hasJsonPath("$.display", is("text::journal::editorial")),
+                                 hasJsonPath("$.value", is("text::journal::editorial"))
+                             )));
     }
 
 }

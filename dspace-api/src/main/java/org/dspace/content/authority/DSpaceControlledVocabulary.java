@@ -8,11 +8,11 @@
 package org.dspace.content.authority;
 
 import java.io.File;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import javax.xml.xpath.XPath;
@@ -24,7 +24,6 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.dspace.core.I18nUtil;
 import org.dspace.core.SelfNamedPlugin;
 import org.dspace.services.ConfigurationService;
 import org.dspace.services.factory.DSpaceServicesFactory;
@@ -60,48 +59,38 @@ import org.xml.sax.InputSource;
  */
 public class DSpaceControlledVocabulary extends SelfNamedPlugin implements HierarchicalAuthority {
 
-    private static Logger log = LogManager.getLogger(DSpaceControlledVocabulary.class);
-
+    public static final String ID_SPLITTER = ":";
+    private static final Logger log = LogManager.getLogger(DSpaceControlledVocabulary.class);
     protected static String xpathTemplate = "//node[contains(translate(@label,'ABCDEFGHIJKLMNOPQRSTUVWXYZ'," +
         "'abcdefghijklmnopqrstuvwxyz'),'%s')]";
     protected static String idTemplate = "//node[@id = '%s']";
     protected static String labelTemplate = "//node[@label = '%s']";
     protected static String idParentTemplate = "//node[@id = '%s']/parent::isComposedBy/parent::node";
     protected static String rootTemplate = "/node";
-    protected static String pluginNames[] = null;
-    public static final String ID_SPLITTER = ":";
-
+    protected static String idAttribute = "id";
+    protected static String labelAttribute = "label";
+    protected static String[] pluginNames = null;
+    private final ConfigurationService config;
     protected String vocabularyName = null;
-    protected Map<Locale,InputSource> vocabularies = null;
+    protected InputSource vocabulary = null;
     protected Boolean suggestHierarchy = false;
     protected Boolean storeHierarchy = true;
     protected boolean storeAuthority = false;
     protected String hierarchyDelimiter = "::";
     protected Integer preloadLevel = 1;
-
-    private ConfigurationService config;
+    protected String valueAttribute = labelAttribute;
+    protected String valueTemplate = labelTemplate;
 
     public DSpaceControlledVocabulary() {
         super();
         config = DSpaceServicesFactory.getInstance().getConfigurationService();
     }
 
-    @Override
-    public boolean isPublic() {
-        return true;
-    }
-
-    @Override
-    public boolean storeAuthorityInMetadata() {
-        init();
-        return storeAuthority;
-    }
-
     public static String[] getPluginNames() {
         if (pluginNames == null) {
             initPluginNames();
         }
-        return (String[]) ArrayUtils.clone(pluginNames);
+        return ArrayUtils.clone(pluginNames);
     }
 
     private static synchronized void initPluginNames() {
@@ -114,8 +103,8 @@ public class DSpaceControlledVocabulary extends SelfNamedPlugin implements Hiera
             }
             String vocabulariesPath = DSpaceServicesFactory.getInstance().getConfigurationService()
                                                            .getProperty("dspace.dir") +
-                                                           File.separator + "config" +
-                                                           File.separator + "controlled-vocabularies";
+                File.separator + "config" +
+                File.separator + "controlled-vocabularies";
             String[] xmlFiles = (new File(vocabulariesPath)).list(new xmlFilter());
             List<String> names = new ArrayList<String>();
             for (String filename : xmlFiles) {
@@ -128,41 +117,62 @@ public class DSpaceControlledVocabulary extends SelfNamedPlugin implements Hiera
         }
     }
 
-    private synchronized void init() {
-        vocabularyName = this.getPluginInstanceName();
-        log.info("Configuring " + this.getClass().getName() + ": " + vocabularyName);
-        String configurationPrefix = "vocabulary.plugin." + vocabularyName;
-        storeHierarchy = config.getBooleanProperty(configurationPrefix + ".hierarchy.store", storeHierarchy);
-        storeAuthority = config.getBooleanProperty(configurationPrefix + ".authority.store",
-                                            config.getBooleanProperty("vocabulary.plugin.authority.store", false));
-        suggestHierarchy = config.getBooleanProperty(configurationPrefix + ".hierarchy.suggest", suggestHierarchy);
-        preloadLevel = config.getIntProperty(configurationPrefix + ".hierarchy.preloadLevel", preloadLevel);
-        String configuredDelimiter = config.getProperty(configurationPrefix + ".delimiter");
-        if (configuredDelimiter != null) {
-            hierarchyDelimiter = configuredDelimiter.replaceAll("(^\"|\"$)", "");
-        }
+    @Override
+    public boolean isPublic() {
+        return true;
+    }
 
-        if (Objects.isNull(vocabularies)) {
-            vocabularies = new HashMap<Locale, InputSource>();
-            log.info("Initializing " + this.getClass().getName() + ": " + vocabularyName);
-            for (Locale locale : I18nUtil.getSupportedLocales()) {
-                String filename = I18nUtil.getControlledVocabularyFileName(locale, vocabularyName);
-                log.info("Loading " + filename);
-                vocabularies.put(locale, new InputSource(filename));
+    @Override
+    public boolean storeAuthorityInMetadata() {
+        init(null);
+        return storeAuthority;
+    }
+
+    private synchronized void init(String locale) {
+        if (vocabulary == null) {
+            vocabularyName = this.getPluginInstanceName();
+            log.info("Configuring " + this.getClass().getName() + ": " + vocabularyName);
+            String configurationPrefix = "vocabulary.plugin." + vocabularyName;
+            storeHierarchy = config.getBooleanProperty(configurationPrefix + ".hierarchy.store", storeHierarchy);
+            storeAuthority = config.getBooleanProperty(configurationPrefix + ".authority.store",
+                                                       config.getBooleanProperty("vocabulary.plugin.authority.store",
+                                                                                 false));
+            boolean storeIDs = config.getBooleanProperty(configurationPrefix + ".storeIDs", false);
+            String vocabulariesPath = config.getProperty("dspace.dir") + File.separator + "config" +
+                File.separator + "controlled-vocabularies" + File.separator;
+            suggestHierarchy = config.getBooleanProperty(configurationPrefix + ".hierarchy.suggest", suggestHierarchy);
+            preloadLevel = config.getIntProperty(configurationPrefix + ".hierarchy.preloadLevel", preloadLevel);
+            String configuredDelimiter = config.getProperty(configurationPrefix + ".delimiter");
+            if (configuredDelimiter != null) {
+                hierarchyDelimiter = configuredDelimiter.replaceAll("(^\"|\"$)", "");
             }
+            if (storeIDs) {
+                valueAttribute = idAttribute;
+                valueTemplate = idTemplate;
+            }
+
+            String filename = vocabulariesPath + vocabularyName + ".xml";
+            if (StringUtils.isNotEmpty(locale)) {
+                String localizedFilename = vocabulariesPath + vocabularyName + "_" + locale + ".xml";
+                if (Paths.get(localizedFilename).toFile().exists()) {
+                    filename = localizedFilename;
+                }
+            }
+            log.info("Loading " + filename);
+            vocabulary = new InputSource(filename);
         }
     }
 
     protected String buildString(Node node) {
         if (node.getNodeType() == Node.DOCUMENT_NODE || (
             node.getParentNode() != null &&
-            node.getParentNode().getNodeType() == Node.DOCUMENT_NODE)) {
+                node.getParentNode().getNodeType() == Node.DOCUMENT_NODE)) {
             return ("");
         } else {
             String parentValue = buildString(node.getParentNode());
-            Node currentLabel = node.getAttributes().getNamedItem("label");
-            if (currentLabel != null) {
-                String currentValue = currentLabel.getNodeValue();
+            Node currentNodeValue = node.getAttributes().getNamedItem(labelAttribute);
+            if (currentNodeValue != null) {
+                String currentValue = currentNodeValue.getNodeValue();
                 if (parentValue.equals("")) {
                     return currentValue;
                 } else {
@@ -176,19 +186,19 @@ public class DSpaceControlledVocabulary extends SelfNamedPlugin implements Hiera
 
     @Override
     public Choices getMatches(String text, int start, int limit, String locale) {
-        init();
+        init(locale);
         log.debug("Getting matches for '" + text + "'");
         String xpathExpression = "";
         String[] textHierarchy = text.split(hierarchyDelimiter, -1);
         for (int i = 0; i < textHierarchy.length; i++) {
-            xpathExpression += String.format(xpathTemplate, textHierarchy[i].replaceAll("'", "&apos;").toLowerCase());
+            xpathExpression +=
+                String.format(xpathTemplate, textHierarchy[i].replaceAll("'", "&apos;").toLowerCase());
         }
         XPath xpath = XPathFactory.newInstance().newXPath();
         int total = 0;
-        List<Choice> choices = new ArrayList<Choice>();
+        List<Choice> choices;
         try {
-            NodeList results = (NodeList) xpath.evaluate(xpathExpression, getVocabularyByLocale(locale),
-                    XPathConstants.NODESET);
+            NodeList results = (NodeList) xpath.evaluate(xpathExpression, vocabulary, XPathConstants.NODESET);
             total = results.getLength();
             choices = getChoicesFromNodeList(results, start, limit);
         } catch (XPathExpressionException e) {
@@ -196,23 +206,24 @@ public class DSpaceControlledVocabulary extends SelfNamedPlugin implements Hiera
             return new Choices(true);
         }
         return new Choices(choices.toArray(new Choice[choices.size()]), start, total, Choices.CF_AMBIGUOUS,
-                total > start + limit);
+                           total > start + limit);
     }
 
     @Override
     public Choices getBestMatch(String text, String locale) {
-        init();
+        init(locale);
         log.debug("Getting best matches for '" + text + "'");
         String xpathExpression = "";
         String[] textHierarchy = text.split(hierarchyDelimiter, -1);
         for (int i = 0; i < textHierarchy.length; i++) {
-            xpathExpression += String.format(labelTemplate, textHierarchy[i].replaceAll("'", "&apos;"));
+            xpathExpression +=
+                String.format(valueTemplate, textHierarchy[i].replaceAll("'", "&apos;"));
         }
         XPath xpath = XPathFactory.newInstance().newXPath();
-        List<Choice> choices = new ArrayList<Choice>();
+        List<Choice> choices;
         try {
-            NodeList results = (NodeList) xpath.evaluate(xpathExpression, getVocabularyByLocale(locale),
-                    XPathConstants.NODESET);
+            NodeList results = (NodeList) xpath.evaluate(xpathExpression, vocabulary,
+                                                         XPathConstants.NODESET);
             choices = getChoicesFromNodeList(results, 0, 1);
         } catch (XPathExpressionException e) {
             log.warn(e.getMessage(), e);
@@ -223,19 +234,17 @@ public class DSpaceControlledVocabulary extends SelfNamedPlugin implements Hiera
 
     @Override
     public String getLabel(String key, String locale) {
-        init();
-        return getNodeLabel(key, this.suggestHierarchy, locale);
+        return getNodeValue(key, locale, this.suggestHierarchy);
     }
 
     @Override
     public String getValue(String key, String locale) {
-        init();
-        return getNodeLabel(key, this.storeHierarchy, locale);
+        return getNodeValue(key, locale, this.storeHierarchy);
     }
 
     @Override
     public Choice getChoice(String authKey, String locale) {
-        init();
+        init(locale);
         //FIXME hack to deal with an improper use on the angular side of the node id (otherinformation.id) to
         // build a vocabulary entry details ID
         if (!StringUtils.startsWith(authKey, vocabularyName)) {
@@ -253,20 +262,20 @@ public class DSpaceControlledVocabulary extends SelfNamedPlugin implements Hiera
 
     @Override
     public boolean isHierarchical() {
-        init();
+        init(null);
         return true;
     }
 
     @Override
     public Choices getTopChoices(String authorityName, int start, int limit, String locale) {
-        init();
+        init(locale);
         String xpathExpression = rootTemplate;
         return getChoicesByXpath(authorityName, xpathExpression, start, limit, locale);
     }
 
     @Override
     public Choices getChoicesByParent(String authorityName, String parentAuthKey, int start, int limit, String locale) {
-        init();
+        init(locale);
         String parentId = getNodeIdFromAuthorityKey(parentAuthKey);
         String xpathExpression = String.format(idTemplate, parentId);
         return getChoicesByXpath(authorityName, xpathExpression, start, limit, locale);
@@ -274,7 +283,7 @@ public class DSpaceControlledVocabulary extends SelfNamedPlugin implements Hiera
 
     @Override
     public Choice getParentChoice(String authorityName, String childAuthKey, String locale) {
-        init();
+        init(locale);
         try {
             String childId = getNodeIdFromAuthorityKey(childAuthKey);
             String xpathExpression = String.format(idParentTemplate, childId);
@@ -288,7 +297,7 @@ public class DSpaceControlledVocabulary extends SelfNamedPlugin implements Hiera
 
     @Override
     public Integer getPreloadLevel() {
-        init();
+        init(null);
         return preloadLevel;
     }
 
@@ -303,22 +312,19 @@ public class DSpaceControlledVocabulary extends SelfNamedPlugin implements Hiera
     }
 
     private boolean isRootElement(Node node) {
-        if (node != null && node.getOwnerDocument().getDocumentElement().equals(node)) {
-            return true;
-        }
-        return false;
+        return node != null && node.getOwnerDocument().getDocumentElement().equals(node);
     }
 
-    private Node getNode(String nodeId, String locale) throws XPathExpressionException {
-        init();
-        String xpathExpression = String.format(idTemplate, nodeId);
+    private Node getNode(String key, String locale) throws XPathExpressionException {
+        init(locale);
+        String xpathExpression = String.format(idTemplate, key);
         Node node = getNodeFromXPath(xpathExpression, locale);
         return node;
     }
 
     private Node getNodeFromXPath(String xpathExpression, String locale) throws XPathExpressionException {
         XPath xpath = XPathFactory.newInstance().newXPath();
-        Node node = (Node) xpath.evaluate(xpathExpression, getVocabularyByLocale(locale), XPathConstants.NODE);
+        Node node = (Node) xpath.evaluate(xpathExpression, vocabulary, XPathConstants.NODE);
         return node;
     }
 
@@ -332,8 +338,11 @@ public class DSpaceControlledVocabulary extends SelfNamedPlugin implements Hiera
                 break;
             }
             Node node = results.item(i);
-            Choice choice = new Choice(getAuthority(node), getLabel(node), getValue(node),
-                    isSelectable(node));
+            String authority = getAuthority(node);
+            String label = getLabel(node);
+            String value = getValue(node);
+            boolean isSelectable = isSelectable(node);
+            Choice choice = new Choice(authority, label, value, isSelectable);
             choice.extras = addOtherInformation(getParent(node), getNote(node), getChildren(node), getNodeId(node));
             choices.add(choice);
         }
@@ -341,7 +350,7 @@ public class DSpaceControlledVocabulary extends SelfNamedPlugin implements Hiera
     }
 
     private Map<String, String> addOtherInformation(String parentCurr, String noteCurr,
-            List<String> childrenCurr, String nodeId) {
+                                                    List<String> childrenCurr, String nodeId) {
         Map<String, String> extras = new HashMap<String, String>();
         if (StringUtils.isNotBlank(parentCurr)) {
             extras.put("parent", parentCurr);
@@ -358,7 +367,7 @@ public class DSpaceControlledVocabulary extends SelfNamedPlugin implements Hiera
         return extras;
     }
 
-    private String getNodeLabel(String key, boolean useHierarchy, String locale) {
+    private String getNodeValue(String key, String locale, boolean useHierarchy) {
         try {
             String nodeId = getNodeIdFromAuthorityKey(key);
             Node node = getNode(nodeId, locale);
@@ -368,7 +377,7 @@ public class DSpaceControlledVocabulary extends SelfNamedPlugin implements Hiera
             if (useHierarchy) {
                 return this.buildString(node);
             } else {
-                return node.getAttributes().getNamedItem("label").getNodeValue();
+                return node.getAttributes().getNamedItem(labelAttribute).getNodeValue();
             }
         } catch (XPathExpressionException e) {
             return ("");
@@ -380,7 +389,7 @@ public class DSpaceControlledVocabulary extends SelfNamedPlugin implements Hiera
             String hierarchy = this.buildString(node);
             return hierarchy;
         } else {
-            return node.getAttributes().getNamedItem("label").getNodeValue();
+            return node.getAttributes().getNamedItem(labelAttribute).getNodeValue();
         }
     }
 
@@ -389,7 +398,7 @@ public class DSpaceControlledVocabulary extends SelfNamedPlugin implements Hiera
             String hierarchy = this.buildString(node);
             return hierarchy;
         } else {
-            return node.getAttributes().getNamedItem("label").getNodeValue();
+            return node.getAttributes().getNamedItem(labelAttribute).getNodeValue();
         }
     }
 
@@ -467,12 +476,12 @@ public class DSpaceControlledVocabulary extends SelfNamedPlugin implements Hiera
     }
 
     private Choices getChoicesByXpath(String authorityName, String xpathExpression, int start, int limit,
-            String locale) {
+                                      String locale) {
         List<Choice> choices = new ArrayList<Choice>();
         XPath xpath = XPathFactory.newInstance().newXPath();
         try {
-            Node parentNode = (Node) xpath.evaluate(xpathExpression, getVocabularyByLocale(locale),
-                    XPathConstants.NODE);
+            Node parentNode = (Node) xpath.evaluate(xpathExpression, vocabulary,
+                                                    XPathConstants.NODE);
             int count = 0;
             if (parentNode != null) {
                 NodeList childNodes = (NodeList) xpath.evaluate(".//isComposedBy", parentNode, XPathConstants.NODE);
@@ -490,7 +499,7 @@ public class DSpaceControlledVocabulary extends SelfNamedPlugin implements Hiera
                     }
                 }
                 return new Choices(choices.toArray(new Choice[choices.size()]), start, count,
-                        Choices.CF_AMBIGUOUS, false);
+                                   Choices.CF_AMBIGUOUS, false);
             }
         } catch (XPathExpressionException e) {
             log.warn(e.getMessage(), e);
@@ -502,20 +511,15 @@ public class DSpaceControlledVocabulary extends SelfNamedPlugin implements Hiera
     private Choice createChoiceFromNode(String authorityName, Node node) {
         if (node != null && !isRootElement(node)) {
             Choice choice = new Choice(
-                    authorityName,
-                    getAuthority(node),
-                    getLabel(node),
-                    getValue(node),
-                    isSelectable(node)
+                authorityName,
+                getAuthority(node),
+                getLabel(node),
+                getValue(node),
+                isSelectable(node)
             );
             choice.extras = addOtherInformation(getParent(node), getNote(node), getChildren(node), getNodeId(node));
             return choice;
         }
         return null;
-    }
-
-    private InputSource getVocabularyByLocale(String locale) {
-        Locale currentLocale = I18nUtil.getSupportedLocale(locale);
-        return vocabularies.get(currentLocale);
     }
 }

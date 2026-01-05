@@ -7,7 +7,10 @@
  */
 package org.dspace.app.bulkimport.model;
 
-import java.util.Date;
+import java.time.LocalDate;
+
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import org.dspace.util.MultiFormatDateDeserializer;
 
 /**
  * Class that model the value of ACCESS_CONDITION_CELL
@@ -17,15 +20,20 @@ import java.util.Date;
  */
 public class AccessCondition {
 
-    private final String name;
+    private String name;
 
-    private final String description;
+    private String description;
 
-    private final Date startDate;
+    @JsonDeserialize(using = MultiFormatDateDeserializer.class)
+    private LocalDate startDate;
 
-    private final Date endDate;
+    @JsonDeserialize(using = MultiFormatDateDeserializer.class)
+    private LocalDate endDate;
 
-    public AccessCondition(String name, String description, Date startDate, Date endDate) {
+    public AccessCondition() {
+    }
+
+    public AccessCondition(String name, String description, LocalDate startDate, LocalDate endDate) {
         this.name = name;
         this.description = description;
         this.startDate = startDate;
@@ -40,12 +48,11 @@ public class AccessCondition {
         return description;
     }
 
-    public Date getStartDate() {
+    public LocalDate getStartDate() {
         return startDate;
     }
 
-    public Date getEndDate() {
+    public LocalDate getEndDate() {
         return endDate;
     }
-
 }

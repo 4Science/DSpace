@@ -187,6 +187,7 @@
             </build>
             <dependencies>
                 <!-- Add all modules that should be taken into account for the coverage reports -->
+                <!-- (Excludes dspace-rest which is deprecated and doesn't build by default) -->
                 <dependency>
                     <groupId>org.dspace</groupId>
                     <artifactId>dspace-api</artifactId>
@@ -200,6 +201,11 @@
                 <dependency>
                     <groupId>org.dspace</groupId>
                     <artifactId>dspace-rdf</artifactId>
+                    <scope>compile</scope>
+                </dependency>
+                <dependency>
+                    <groupId>org.dspace</groupId>
+                    <artifactId>dspace-saml2</artifactId>
                     <scope>compile</scope>
                 </dependency>
                 <dependency>
