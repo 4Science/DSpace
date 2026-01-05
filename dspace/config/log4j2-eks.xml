@@ -11,7 +11,39 @@
     <Appenders>
         <!-- JSON console appender for org.dspace -->
         <Appender name="ConsoleJson" type="Console">
-            <Layout type="JsonLayout" complete="false" compact="true" eventEol="true"/>
+            <!--<Layout
+                    type="JsonLayout"
+                    complete="false"
+                    compact="true"
+                    eventEol="true"
+                    properties="true"
+            />-->
+            <JsonTemplateLayout
+                eventTemplate='{
+                    "timestamp": {
+                      "$resolver": "timestamp",
+                      "pattern": {
+                        "format": "yyyy-MM-dd&apos;T&apos;HH:mm:ss.SSS&apos;Z&apos;",
+                        "timeZone": "UTC",
+                        "locale": "en_US"
+                      }
+                    },
+                    "correlationID": {
+                      "$resolver": "mdc",
+                      "key": "correlationID",
+                      "default": "unknown"
+                    },
+                    "requestID": {
+                      "$resolver": "mdc",
+                      "key": "requestID",
+                      "default": "unknown"
+                    },
+                    "level": { "$resolver": "level", "field": "name" },
+                    "logger": { "$resolver": "logger", "field": "name" },
+                    "thread": { "$resolver": "thread", "field": "name" },
+                    "message": { "$resolver": "message", "stringified": true }
+              }'
+            />
         </Appender>
 
     </Appenders>
@@ -48,7 +80,6 @@
         <!-- Block passwords from being exposed in Axis logs -->
         <Logger name="org.apache.axis.handlers.http.HTTPAuthHandler"
                 level="INFO"/>
-
         <!-- Anything not a part of DSpace -->
         <Root level="${loglevel.other}">
             <AppenderRef ref="ConsoleJson"/>

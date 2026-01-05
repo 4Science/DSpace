@@ -9,6 +9,8 @@ package org.dspace.content.integration.crosswalks.virtualfields;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.dspace.content.Item;
 import org.dspace.content.MetadataValue;
@@ -18,8 +20,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 
 public class ItemDOIService {
-    static final String CFG_PREFIX = "identifier.doi.prefix";
 
+    static final String DOI_RESOLVER_REGEX = "^(?:https?://[^/]*)/(.*$)";
+    static final Pattern DOI_PATTERN = Pattern.compile(DOI_RESOLVER_REGEX);
+    static final String CFG_PREFIX = "identifier.doi.prefix";
     static final String DOI_METADATA = "dc.identifier.doi";
 
     @Autowired
@@ -27,17 +31,30 @@ public class ItemDOIService {
     @Autowired
     private ConfigurationService configurationService;
 
+    static String formatDOI(String doi) {
+
+        if (doi == null) {
+            return null;
+        }
+
+        Matcher matcher = DOI_PATTERN.matcher(doi);
+        if (matcher.matches()) {
+            doi = matcher.group(1);
+        }
+        return doi;
+    }
+
     public String[] getAlternativeDOIFromItem(Item item) {
         List<MetadataValue> metadataValueList = itemService.getMetadataByMetadataString(item, DOI_METADATA);
         return getAlternativeDOI(metadataValueList, getPrimaryDOI(metadataValueList));
     }
     private String[] getAlternativeDOI(List<MetadataValue> metadataValueList, String primaryValue) {
-        return metadataValueList.stream().map(MetadataValue::getValue)
-                .filter(value -> !value.equals(primaryValue)).toArray(String[]::new);
+        return metadataValueList.stream().map(MetadataValue::getValue).filter(value -> !value.equals(primaryValue))
+                                .map(ItemDOIService::formatDOI).toArray(String[]::new);
     }
 
     public String getPrimaryDOIFromItem(Item item) {
-        return getPrimaryDOI(itemService.getMetadataByMetadataString(item, DOI_METADATA));
+        return formatDOI(getPrimaryDOI(itemService.getMetadataByMetadataString(item, DOI_METADATA)));
     }
 
     private String getPrimaryDOI(List<MetadataValue> metadataValueList) {

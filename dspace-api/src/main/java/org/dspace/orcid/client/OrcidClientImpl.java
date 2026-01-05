@@ -32,6 +32,7 @@ import jakarta.xml.bind.JAXBException;
 import jakarta.xml.bind.Marshaller;
 import jakarta.xml.bind.Unmarshaller;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -67,6 +68,8 @@ import org.orcid.jaxb.model.v3.release.record.Work;
 import org.orcid.jaxb.model.v3.release.record.WorkBulk;
 import org.orcid.jaxb.model.v3.release.record.summary.Works;
 import org.orcid.jaxb.model.v3.release.search.expanded.ExpandedSearch;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Implementation of {@link OrcidClient}.
@@ -80,6 +83,7 @@ public class OrcidClientImpl implements OrcidClient {
      * Mapping between ORCID JAXB models and the sub-paths on ORCID API.
      */
     private static final Map<Class<?>, String> PATHS_MAP = initializePathsMap();
+    private static final Logger log = LoggerFactory.getLogger(OrcidClientImpl.class);
 
     private final OrcidConfiguration orcidConfiguration;
 
@@ -108,6 +112,12 @@ public class OrcidClientImpl implements OrcidClient {
     @Override
     public OrcidTokenResponseDTO getAccessToken(String code) {
 
+        log.info("Trying to fetch the access-token code: {}", code);
+
+        if (!orcidConfiguration.isApiConfigured()) {
+            return null;
+        }
+
         List<NameValuePair> params = new ArrayList<NameValuePair>();
         params.add(new BasicNameValuePair("code", code));
         params.add(new BasicNameValuePair("grant_type", "authorization_code"));
@@ -131,18 +141,27 @@ public class OrcidClientImpl implements OrcidClient {
 
     @Override
     public Person getPerson(String accessToken, String orcid) {
+        if (StringUtils.isAnyBlank(accessToken, orcid)) {
+            return null;
+        }
         HttpUriRequest httpUriRequest = buildGetUriRequest(accessToken, "/" + orcid + "/person");
         return executeAndUnmarshall(httpUriRequest, false, Person.class);
     }
 
     @Override
     public Record getRecord(String accessToken, String orcid) {
+        if (StringUtils.isAnyBlank(accessToken, orcid)) {
+            return null;
+        }
         HttpUriRequest httpUriRequest = buildGetUriRequest(accessToken, "/" + orcid + "/record");
         return executeAndUnmarshall(httpUriRequest, false, Record.class);
     }
 
     @Override
     public Works getWorks(String accessToken, String orcid) {
+        if (StringUtils.isAnyBlank(accessToken, orcid)) {
+            return null;
+        }
         HttpUriRequest httpUriRequest = buildGetUriRequest(accessToken, "/" + orcid + "/works");
         Works works = executeAndUnmarshall(httpUriRequest, true, Works.class);
         return works != null ? works : new Works();
@@ -150,6 +169,9 @@ public class OrcidClientImpl implements OrcidClient {
 
     @Override
     public Works getWorks(String orcid) {
+        if (StringUtils.isBlank(orcid)) {
+            return null;
+        }
         HttpUriRequest httpUriRequest = buildGetUriRequestToPublicEndpoint("/" + orcid + "/works");
         Works works = executeAndUnmarshall(httpUriRequest, true, Works.class);
         return works != null ? works : new Works();
@@ -158,6 +180,9 @@ public class OrcidClientImpl implements OrcidClient {
     @Override
     public WorkBulk getWorkBulk(String accessToken, String orcid, List<String> putCodes) {
         String putCode = String.join(",", putCodes);
+        if (StringUtils.isAnyBlank(accessToken, orcid, putCode)) {
+            return null;
+        }
         HttpUriRequest httpUriRequest = buildGetUriRequest(accessToken, "/" + orcid + "/works/" + putCode);
         WorkBulk workBulk = executeAndUnmarshall(httpUriRequest, true, WorkBulk.class);
         return workBulk != null ? workBulk : new WorkBulk();
@@ -166,6 +191,9 @@ public class OrcidClientImpl implements OrcidClient {
     @Override
     public WorkBulk getWorkBulk(String orcid, List<String> putCodes) {
         String putCode = String.join(",", putCodes);
+        if (StringUtils.isAnyBlank(orcid, putCode)) {
+            return null;
+        }
         HttpUriRequest httpUriRequest = buildGetUriRequestToPublicEndpoint("/" + orcid + "/works/" + putCode);
         WorkBulk workBulk = executeAndUnmarshall(httpUriRequest, true, WorkBulk.class);
         return workBulk != null ? workBulk : new WorkBulk();
@@ -173,6 +201,9 @@ public class OrcidClientImpl implements OrcidClient {
 
     @Override
     public <T> Optional<T> getObject(String accessToken, String orcid, String putCode, Class<T> clazz) {
+        if (clazz == null || StringUtils.isAnyBlank(accessToken, orcid, putCode)) {
+            return Optional.empty();
+        }
         String path = getOrcidPathFromOrcidObjectType(clazz);
         HttpUriRequest httpUriRequest = buildGetUriRequest(accessToken, "/" + orcid + path + "/" + putCode);
         return Optional.ofNullable(executeAndUnmarshall(httpUriRequest, true, clazz));
@@ -180,6 +211,9 @@ public class OrcidClientImpl implements OrcidClient {
 
     @Override
     public <T> Optional<T> getObject(String orcid, String putCode, Class<T> clazz) {
+        if (clazz == null || StringUtils.isAnyBlank(orcid, putCode)) {
+            return Optional.empty();
+        }
         String path = getOrcidPathFromOrcidObjectType(clazz);
         HttpUriRequest httpUriRequest = buildGetUriRequestToPublicEndpoint("/" + orcid + path + "/" + putCode);
         return Optional.ofNullable(executeAndUnmarshall(httpUriRequest, true, clazz));
@@ -187,12 +221,18 @@ public class OrcidClientImpl implements OrcidClient {
 
     @Override
     public OrcidResponse push(String accessToken, String orcid, Object object) {
+        if (object == null || StringUtils.isAnyBlank(accessToken, orcid)) {
+            return null;
+        }
         String path = getOrcidPathFromOrcidObjectType(object.getClass());
         return execute(buildPostUriRequest(accessToken, "/" + orcid + path, object), false);
     }
 
     @Override
     public OrcidResponse update(String accessToken, String orcid, Object object, String putCode) {
+        if (object == null || StringUtils.isAnyBlank(accessToken, orcid, putCode)) {
+            return null;
+        }
         String path = getOrcidPathFromOrcidObjectType(object.getClass());
         return execute(buildPutUriRequest(accessToken, "/" + orcid + path + "/" + putCode, object), false);
     }
@@ -204,6 +244,9 @@ public class OrcidClientImpl implements OrcidClient {
 
     @Override
     public OrcidResponse registerWebhook(String accessToken, String orcid, String url) {
+        if (StringUtils.isAnyBlank(accessToken, orcid, url)) {
+            return null;
+        }
         String webhookUrl = orcidConfiguration.getWebhookUrl();
         String encodedUrl = encodeUrl(url);
         return execute(buildPutUriRequest(accessToken, webhookUrl, "/" + orcid + "/webhook/" + encodedUrl), false);
@@ -211,6 +254,9 @@ public class OrcidClientImpl implements OrcidClient {
 
     @Override
     public OrcidResponse unregisterWebhook(String accessToken, String orcid, String url) {
+        if (StringUtils.isAnyBlank(accessToken, orcid, url)) {
+            return null;
+        }
         String webhookUrl = orcidConfiguration.getWebhookUrl();
         String encodedUrl = encodeUrl(url);
         return execute(buildDeleteUriRequest(accessToken, webhookUrl, "/" + orcid + "/webhook/" + encodedUrl), true);
@@ -218,6 +264,9 @@ public class OrcidClientImpl implements OrcidClient {
 
     @Override
     public ExpandedSearch expandedSearch(String accessToken, String query, int start, int rows) {
+        if (StringUtils.isBlank(accessToken)) {
+            return null;
+        }
         String queryParams = formatExpandedSearchParameters(query, start, rows);
         HttpUriRequest httpUriRequest = buildGetUriRequest(accessToken, "/expanded-search" + queryParams);
         return executeAndUnmarshall(httpUriRequest, false, ExpandedSearch.class);
@@ -232,6 +281,11 @@ public class OrcidClientImpl implements OrcidClient {
 
     @Override
     public void revokeToken(OrcidToken orcidToken) {
+
+        if (orcidToken == null) {
+            return;
+        }
+
         List<NameValuePair> params = new ArrayList<>();
         params.add(new BasicNameValuePair("client_id", orcidConfiguration.getClientId()));
         params.add(new BasicNameValuePair("client_secret", orcidConfiguration.getClientSecret()));
@@ -246,6 +300,13 @@ public class OrcidClientImpl implements OrcidClient {
     }
 
     private OrcidTokenResponseDTO getClientCredentialsAccessToken(String scope) {
+
+        log.info("Trying to fetch the access-token scope: {}", scope);
+
+        if (!orcidConfiguration.isApiConfigured()) {
+            return null;
+        }
+
         List<NameValuePair> params = new ArrayList<NameValuePair>();
         params.add(new BasicNameValuePair("scope", scope));
         params.add(new BasicNameValuePair("grant_type", "client_credentials"));
@@ -262,6 +323,7 @@ public class OrcidClientImpl implements OrcidClient {
     }
 
     private HttpUriRequest buildGetUriRequest(String accessToken, String relativePath) {
+        log.info("Trying to fetch the ORCID api using access-token: {} path: {}", accessToken, relativePath);
         return get(orcidConfiguration.getApiUrl() + relativePath.trim())
             .addHeader("Content-Type", "application/x-www-form-urlencoded")
             .addHeader("Authorization", "Bearer " + accessToken)
@@ -269,12 +331,14 @@ public class OrcidClientImpl implements OrcidClient {
     }
 
     private HttpUriRequest buildGetUriRequestToPublicEndpoint(String relativePath) {
+        log.info("Trying to fetch ORCID details form public endpoint - path: {}", relativePath);
         return get(orcidConfiguration.getPublicUrl() + relativePath.trim())
             .addHeader("Content-Type", "application/x-www-form-urlencoded")
             .build();
     }
 
     private HttpUriRequest buildPostUriRequest(String accessToken, String relativePath, Object object) {
+        log.info("Trying to POST ORCID details - accessToken: {}, path: {}", accessToken, relativePath);
         return post(orcidConfiguration.getApiUrl() + relativePath.trim())
             .addHeader("Content-Type", "application/vnd.orcid+xml")
             .addHeader("Authorization", "Bearer " + accessToken)
@@ -283,6 +347,7 @@ public class OrcidClientImpl implements OrcidClient {
     }
 
     private HttpUriRequest buildPostForRevokeToken(HttpEntity entity) {
+        log.info("Trying to Revoke ORCID Token");
         return post(orcidConfiguration.getRevokeUrl())
             .addHeader("Accept", "application/json")
             .addHeader("Content-Type", "application/x-www-form-urlencoded")
@@ -291,6 +356,7 @@ public class OrcidClientImpl implements OrcidClient {
     }
 
     private HttpUriRequest buildPutUriRequest(String accessToken, String relativePath, Object object) {
+        log.info("Trying to PUT ORCID details - accessToken: {}, path: {}", accessToken, relativePath);
         return put(orcidConfiguration.getApiUrl() + relativePath.trim())
             .addHeader("Content-Type", "application/vnd.orcid+xml")
             .addHeader("Authorization", "Bearer " + accessToken)
@@ -299,6 +365,8 @@ public class OrcidClientImpl implements OrcidClient {
     }
 
     private HttpUriRequest buildPutUriRequest(String accessToken, String baseUrl, String relativePath) {
+        log.info("Trying to PUT ORCID details - accessToken: {}, path: {}, baseUrl: {}", accessToken, relativePath,
+                 baseUrl);
         return put(baseUrl + relativePath.trim())
             .addHeader("Content-Type", "application/vnd.orcid+xml")
             .addHeader("Authorization", "Bearer " + accessToken)
@@ -306,12 +374,15 @@ public class OrcidClientImpl implements OrcidClient {
     }
 
     private HttpUriRequest buildDeleteUriRequest(String accessToken, String relativePath) {
+        log.info("Trying to Delete ORCID details - accessToken: {}, path: {}", accessToken, relativePath);
         return delete(orcidConfiguration.getApiUrl() + relativePath.trim())
             .addHeader("Authorization", "Bearer " + accessToken)
             .build();
     }
 
     private HttpUriRequest buildDeleteUriRequest(String accessToken, String baseUrl, String relativePath) {
+        log.info("Trying to Delete ORCID details - accessToken: {}, path: {}, baseUrl: {}", accessToken, relativePath,
+                 baseUrl);
         return delete(baseUrl + relativePath.trim())
             .addHeader("Authorization", "Bearer " + accessToken)
             .build();
@@ -360,7 +431,7 @@ public class OrcidClientImpl implements OrcidClient {
      *                              OrcidClientException
      * @param  clazz                the class to be used for the content unmarshall
      * @return                      the response body
-     * @throws OrcidClientException if the incoming response is not successfull
+     * @throws OrcidClientException if the incoming response is not successful
      */
     private <T> T executeAndUnmarshall(HttpUriRequest httpUriRequest, boolean handleNotFoundAsNull, Class<T> clazz) {
         try (CloseableHttpClient client = DSpaceHttpClientFactory.getInstance().build()) {

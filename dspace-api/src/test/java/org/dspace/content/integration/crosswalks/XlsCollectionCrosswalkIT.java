@@ -13,7 +13,6 @@ import static org.dspace.app.launcher.ScriptLauncher.handleScript;
 import static org.dspace.builder.BitstreamBuilder.createBitstream;
 import static org.dspace.builder.CollectionBuilder.createCollection;
 import static org.dspace.builder.CommunityBuilder.createCommunity;
-import static org.dspace.util.MultiFormatDateParser.parse;
 import static org.dspace.util.WorkbookUtils.getRowValues;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.anyOf;
@@ -36,6 +35,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.sql.SQLException;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -360,7 +360,7 @@ public class XlsCollectionCrosswalkIT extends AbstractIntegrationTestWithDatabas
                 .build();
 
             List<String> publicationMetadataFields = asList("dc.title", "dc.date.issued", "dc.subject");
-            List<String> publicationMetadataFieldGroups = asList("dc.contributor.author");
+            List<String> publicationMetadataFieldGroups = List.of("dc.contributor.author");
             List<String> authorGroup = asList("dc.contributor.author", "oairecerif.author.affiliation");
 
             when(reader.getLanguagesForMetadata(collection, "dc.title", false)).thenReturn(Arrays.asList("en", "it"));
@@ -881,7 +881,7 @@ public class XlsCollectionCrosswalkIT extends AbstractIntegrationTestWithDatabas
             .withDspaceObject(bitstream)
             .withAction(Constants.READ)
             .withName("embargo")
-            .withStartDate(parse("2025-03-25"))
+                             .withStartDate(LocalDate.of(2025, 3, 25))
             .withPolicyType(ResourcePolicy.TYPE_CUSTOM)
             .build();
 
@@ -890,7 +890,7 @@ public class XlsCollectionCrosswalkIT extends AbstractIntegrationTestWithDatabas
             .withAction(Constants.READ)
             .withName("lease")
             .withDescription("Test")
-            .withEndDate(parse("2025-03-25"))
+                             .withEndDate(LocalDate.of(2025, 3, 25))
             .withPolicyType(ResourcePolicy.TYPE_CUSTOM)
             .build();
 
@@ -1058,7 +1058,7 @@ public class XlsCollectionCrosswalkIT extends AbstractIntegrationTestWithDatabas
                 .withDspaceObject(bitstream)
                 .withAction(Constants.READ)
                 .withName("embargo")
-                .withStartDate(parse("2025-03-25"))
+                             .withStartDate(LocalDate.of(2025, 3, 25))
                 .withPolicyType(ResourcePolicy.TYPE_CUSTOM)
                 .build();
 
@@ -1067,7 +1067,7 @@ public class XlsCollectionCrosswalkIT extends AbstractIntegrationTestWithDatabas
                 .withAction(Constants.READ)
                 .withName("lease")
                 .withDescription("Test")
-                .withEndDate(parse("2025-03-25"))
+                             .withEndDate(LocalDate.of(2025, 3, 25))
                 .withPolicyType(ResourcePolicy.TYPE_CUSTOM)
                 .build();
 

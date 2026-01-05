@@ -11,8 +11,8 @@ package org.dspace.identifier.doi;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.sql.SQLException;
+import java.time.Instant;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
@@ -737,7 +737,7 @@ public class DOIOrganiser {
         DOI doiRow = null;
         String doi = null;
 
-        // detect it identifer is ItemID, handle or DOI.
+        // detect it identifier is ItemID, handle or DOI.
         // try to detect ItemID
         if (identifier
             .matches("[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[34][0-9a-fA-F]{3}-[89ab][0-9a-fA-F]{3}-[0-9a-fA-F]{12}")) {
@@ -808,7 +808,7 @@ public class DOIOrganiser {
                     I18nUtil.getEmailFilename(Locale.getDefault(), "doi_maintenance_error"));
                 email.addRecipient(recipient);
                 email.addArgument(action);
-                email.addArgument(new Date());
+                email.addArgument(Instant.now());
                 email.addArgument(ContentServiceFactory.getInstance().getDSpaceObjectService(dso).getTypeText(dso));
                 email.addArgument(dso.getID().toString());
                 email.addArgument(doi);

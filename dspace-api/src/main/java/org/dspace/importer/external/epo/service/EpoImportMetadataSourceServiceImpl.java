@@ -30,9 +30,9 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpException;
 import org.apache.http.client.utils.URIBuilder;
+import org.apache.jena.ext.xerces.impl.dv.util.Base64;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.apache.xerces.impl.dv.util.Base64;
 import org.dspace.app.util.XMLUtils;
 import org.dspace.content.Item;
 import org.dspace.importer.external.datamodel.ImportRecord;
@@ -109,7 +109,7 @@ public class EpoImportMetadataSourceServiceImpl extends AbstractImportMetadataSo
     }
 
     /**
-     * Set the costumer epo secret
+     * Set the customer epo secret
      * @param consumerSecret the customer epo secret
      */
     public void setConsumerSecret(String consumerSecret) {

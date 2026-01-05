@@ -10,6 +10,7 @@ package org.dspace.content.authority;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -49,7 +50,7 @@ import org.springframework.beans.factory.annotation.Autowired;
  * Broker for ChoiceAuthority plugins, and for other information configured
  * about the choice aspect of authority control for a metadata field.
  *
- * Configuration keys, per metadata field (e.g. "dc.contributer.author")
+ * Configuration keys, per metadata field (e.g. "dc.contributor.author")
  *
  * {@code
  * # names the ChoiceAuthority plugin called for this field
@@ -644,13 +645,25 @@ public final class ChoiceAuthorityServiceImpl implements ChoiceAuthorityService 
     }
 
     @Override
-    public String getLinkedEntityType(String fieldKey) {
+    public String[] getLinkedEntityTypes(String fieldKey) {
         ChoiceAuthority ma = getAuthorityByFieldKeyCollection(fieldKey, Constants.ITEM, null);
         if (ma == null) {
             throw new IllegalArgumentException("No choices plugin was configured for  field \"" + fieldKey + "\".");
         }
         if (ma instanceof LinkableEntityAuthority) {
-            return ((LinkableEntityAuthority) ma).getLinkedEntityType();
+            return ((LinkableEntityAuthority) ma).getLinkedEntityTypes();
+        }
+        return null;
+    }
+
+    @Override
+    public String getPrimaryLinkedEntityType(String fieldKey) {
+        ChoiceAuthority ma = getAuthorityByFieldKeyCollection(fieldKey, Constants.ITEM, null);
+        if (ma == null) {
+            throw new IllegalArgumentException("No choices plugin was configured for  field \"" + fieldKey + "\".");
+        }
+        if (ma instanceof LinkableEntityAuthority) {
+            return ((LinkableEntityAuthority) ma).getPrimaryLinkedEntityType();
         }
         return null;
     }
@@ -714,7 +727,8 @@ public final class ChoiceAuthorityServiceImpl implements ChoiceAuthorityService 
     private boolean isLinkableToAnEntityWithEntityType(ChoiceAuthority choiceAuthority, String entityType) {
 
         return choiceAuthority instanceof LinkableEntityAuthority
-            && entityType.equals(((LinkableEntityAuthority) choiceAuthority).getLinkedEntityType());
+            && Arrays.stream(((LinkableEntityAuthority) choiceAuthority).getLinkedEntityTypes()).anyMatch(
+                linkedEntityType -> linkedEntityType.equals(entityType));
     }
 
     @Override
@@ -727,6 +741,7 @@ public final class ChoiceAuthorityServiceImpl implements ChoiceAuthorityService 
             if (source != null && source instanceof DSpaceControlledVocabulary) {
                 Set<String> metadataFields = new HashSet<>();
                 Map<String, List<String>> formsToFields = this.authoritiesFormDefinitions.get(nameVocab);
+                // Vocabulary is not associated with any form definition, meaning it won't be a browse index
                 if (formsToFields == null) {
                     // no value-pairs has been found
                     return null;

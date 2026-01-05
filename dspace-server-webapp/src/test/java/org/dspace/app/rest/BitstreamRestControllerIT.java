@@ -7,6 +7,7 @@
  */
 package org.dspace.app.rest;
 
+import static com.jayway.jsonpath.JsonPath.read;
 import static jakarta.mail.internet.MimeUtility.encodeText;
 import static java.util.UUID.randomUUID;
 import static org.apache.commons.codec.CharEncoding.UTF_8;
@@ -56,15 +57,22 @@ import java.nio.file.Files;
 import java.time.Period;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicReference;
 
 import com.adobe.testing.s3mock.testcontainers.S3MockContainer;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.CharEncoding;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.pdfbox.Loader;
+import org.apache.pdfbox.io.RandomAccessReadBuffer;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.text.PDFTextStripper;
 import org.apache.solr.client.solrj.SolrServerException;
+import org.dspace.app.requestitem.RequestItem;
+import org.dspace.app.requestitem.service.RequestItemService;
+import org.dspace.app.rest.model.RequestItemRest;
 import org.dspace.app.rest.test.AbstractControllerIntegrationTest;
 import org.dspace.authorize.service.AuthorizeService;
 import org.dspace.authorize.service.ResourcePolicyService;
@@ -74,6 +82,7 @@ import org.dspace.builder.CommunityBuilder;
 import org.dspace.builder.EPersonBuilder;
 import org.dspace.builder.GroupBuilder;
 import org.dspace.builder.ItemBuilder;
+import org.dspace.builder.RequestItemBuilder;
 import org.dspace.content.Bitstream;
 import org.dspace.content.BitstreamFormat;
 import org.dspace.content.Collection;
@@ -121,6 +130,9 @@ public class BitstreamRestControllerIT extends AbstractControllerIntegrationTest
     // S3Mock related fields for integration testing
     private static S3MockContainer s3Mock = new S3MockContainer("4.8.0");
     private static S3AsyncClient s3AsyncClient;
+    public static final String requestItemUrl = REST_SERVER_URL
+        + RequestItemRest.CATEGORY + '/'
+        + RequestItemRest.PLURAL_NAME;
     protected SolrLoggerService solrLoggerService = StatisticsServiceFactory.getInstance().getSolrLoggerService();
     @Autowired
     private ConfigurationService configurationService;
@@ -135,12 +147,16 @@ public class BitstreamRestControllerIT extends AbstractControllerIntegrationTest
     @Autowired
     private AuthorizeService authorizeService;
     @Autowired
+    private RequestItemService requestItemService;
+    @Autowired
+    private ObjectMapper mapper;
+
+    @Autowired
     private BitstreamStorageService bitstreamStorageService;
     private Bitstream bitstream;
     private BitstreamFormat supportedFormat;
     private BitstreamFormat knownFormat;
     private BitstreamFormat unknownFormat;
-
 
     @BeforeClass
     public static void clearStatistics() throws Exception {
@@ -197,24 +213,24 @@ public class BitstreamRestControllerIT extends AbstractControllerIntegrationTest
         Item item = ItemBuilder.createItem(context, collection).build();
 
         bitstream = BitstreamBuilder.createBitstream(context, item, toInputStream("test", UTF_8))
-                .withFormat("test format")
-                .build();
+                                    .withFormat("test format")
+                                    .build();
 
         unknownFormat = bitstreamFormatService.findUnknown(context);
 
         knownFormat = createBitstreamFormat(context)
-                                            .withMimeType("known test mime type")
-                                            .withDescription("known test description")
-                                            .withShortDescription("known test short description")
-                                            .withSupportLevel(KNOWN)
-                                            .build();
+            .withMimeType("known test mime type")
+            .withDescription("known test description")
+            .withShortDescription("known test short description")
+            .withSupportLevel(KNOWN)
+            .build();
 
         supportedFormat = createBitstreamFormat(context)
-                .withMimeType("supported mime type")
-                .withDescription("supported description")
-                .withShortDescription("supported short description")
-                .withSupportLevel(SUPPORTED)
-                .build();
+            .withMimeType("supported mime type")
+            .withDescription("supported description")
+            .withShortDescription("supported short description")
+            .withSupportLevel(SUPPORTED)
+            .build();
 
         bitstream.setFormat(context, supportedFormat);
 
@@ -337,8 +353,8 @@ public class BitstreamRestControllerIT extends AbstractControllerIntegrationTest
         //** WHEN **
         //We download the bitstream
         getClient().perform(get("/api/core/bitstreams/" + bitstream.getID() + "/content"))
-            //** THEN **
-            .andExpect(status().isOk());
+                   //** THEN **
+                   .andExpect(status().isOk());
         context.turnOffAuthorisationSystem();
         bitstreamFormatService.delete(context, bf);
         context.restoreAuthSystemState();
@@ -461,13 +477,13 @@ public class BitstreamRestControllerIT extends AbstractControllerIntegrationTest
         //** WHEN **
         //We download the bitstream
         getClient().perform(get("/api/core/bitstreams/" + bitstream.getID() + "/content"))
-            //** THEN **
-            .andExpect(status().isOk())
-            //We expect the content disposition to have the encoded bitstream name
-            .andExpect(header().string(
-                "Content-Disposition",
-                "attachment;filename=\"" + encodeText(bitstreamName) + "\""
-            ));
+                   //** THEN **
+                   .andExpect(status().isOk())
+                   //We expect the content disposition to have the encoded bitstream name
+                   .andExpect(header().string(
+                       "Content-Disposition",
+                       "attachment;filename=\"" + encodeText(bitstreamName) + "\""
+                   ));
     }
 
     @Test
@@ -525,12 +541,12 @@ public class BitstreamRestControllerIT extends AbstractControllerIntegrationTest
         context.turnOffAuthorisationSystem();
 
         parentCommunity = CommunityBuilder.createCommunity(context)
-                .withName("Parent Community")
-                .build();
+                                          .withName("Parent Community")
+                                          .build();
 
         Collection col1 = CollectionBuilder.createCollection(context, parentCommunity)
-                .withName("Collection 1")
-                .build();
+                                           .withName("Collection 1")
+                                           .build();
 
         // a public item with an embargoed bitstream
         String bitstreamContent = "Embargoed!";
@@ -568,12 +584,12 @@ public class BitstreamRestControllerIT extends AbstractControllerIntegrationTest
         context.turnOffAuthorisationSystem();
 
         parentCommunity = CommunityBuilder.createCommunity(context)
-                .withName("Parent Community")
-                .build();
+                                          .withName("Parent Community")
+                                          .build();
 
         Collection col1 = CollectionBuilder.createCollection(context, parentCommunity)
-                .withName("Collection 1")
-                .build();
+                                           .withName("Collection 1")
+                                           .build();
 
 
         String bitstreamContent = "Embargoed!";
@@ -581,10 +597,10 @@ public class BitstreamRestControllerIT extends AbstractControllerIntegrationTest
         try (InputStream is = IOUtils.toInputStream(bitstreamContent, CharEncoding.UTF_8)) {
 
             Item publicItem1 = ItemBuilder.createItem(context, col1)
-                    .withTitle("Public item 1")
-                    .withIssueDate("2015-10-17")
-                    .withAuthor("Smith, Donald")
-                    .build();
+                                          .withTitle("Public item 1")
+                                          .withIssueDate("2015-10-17")
+                                          .withAuthor("Smith, Donald")
+                                          .build();
 
             bitstream = BitstreamBuilder
                 .createBitstream(context, publicItem1, is)
@@ -614,44 +630,44 @@ public class BitstreamRestControllerIT extends AbstractControllerIntegrationTest
         context.turnOffAuthorisationSystem();
 
         EPerson adminParentCommunity = EPersonBuilder.createEPerson(context)
-                .withEmail("adminCommunity@mail.com")
-                .withPassword("qwerty02")
-                .build();
+                                                     .withEmail("adminCommunity@mail.com")
+                                                     .withPassword("qwerty02")
+                                                     .build();
         parentCommunity = CommunityBuilder.createCommunity(context)
-                   .withName("Parent Community")
-                   .withAdminGroup(adminParentCommunity)
-                   .build();
+                                          .withName("Parent Community")
+                                          .withAdminGroup(adminParentCommunity)
+                                          .build();
 
         Community child1 = CommunityBuilder.createSubCommunity(context, parentCommunity)
-                   .withName("Sub Community")
-                   .build();
+                                           .withName("Sub Community")
+                                           .build();
 
         EPerson adminChild2 = EPersonBuilder.createEPerson(context)
-                .withEmail("adminChil2@mail.com")
-                .withPassword("qwerty05")
-                .build();
+                                            .withEmail("adminChil2@mail.com")
+                                            .withPassword("qwerty05")
+                                            .build();
         Community child2 = CommunityBuilder.createSubCommunity(context, parentCommunity)
-                .withName("Sub Community 2")
-                .withAdminGroup(adminChild2)
-                .build();
+                                           .withName("Sub Community 2")
+                                           .withAdminGroup(adminChild2)
+                                           .build();
 
         EPerson adminCollection1 = EPersonBuilder.createEPerson(context)
-                .withEmail("adminCollection1@mail.com")
-                .withPassword("qwerty03")
-                .build();
+                                                 .withEmail("adminCollection1@mail.com")
+                                                 .withPassword("qwerty03")
+                                                 .build();
         Collection col1 = CollectionBuilder.createCollection(context, child1)
-                   .withName("Collection 1")
-                   .withAdminGroup(adminCollection1)
-                   .build();
+                                           .withName("Collection 1")
+                                           .withAdminGroup(adminCollection1)
+                                           .build();
 
         EPerson adminCollection2 = EPersonBuilder.createEPerson(context)
-                .withEmail("adminCol2@mail.com")
-                .withPassword("qwerty01")
-                .build();
+                                                 .withEmail("adminCol2@mail.com")
+                                                 .withPassword("qwerty01")
+                                                 .build();
         Collection col2 = CollectionBuilder.createCollection(context, child1)
-                   .withName("Collection 2")
-                   .withAdminGroup(adminCollection2)
-                   .build();
+                                           .withName("Collection 2")
+                                           .withAdminGroup(adminCollection2)
+                                           .build();
 
 
         String bitstreamContent = "Embargoed!";
@@ -659,42 +675,42 @@ public class BitstreamRestControllerIT extends AbstractControllerIntegrationTest
         try (InputStream is = IOUtils.toInputStream(bitstreamContent, CharEncoding.UTF_8)) {
 
             Item item = ItemBuilder.createItem(context, col1)
-                    .withTitle("Test")
-                    .withIssueDate("2018-10-18")
-                    .withAuthor("Smith, Donald")
-                    .withSubject("ExtraEntry")
-                    .build();
+                                   .withTitle("Test")
+                                   .withIssueDate("2018-10-18")
+                                   .withAuthor("Smith, Donald")
+                                   .withSubject("ExtraEntry")
+                                   .build();
 
             bitstream = BitstreamBuilder.createBitstream(context, item, is)
-                    .withName("Bitstream")
-                    .withDescription("Description")
-                    .withMimeType("text/plain")
-                    .withEmbargoPeriod(Period.ofWeeks(2))
-                    .build();
+                                        .withName("Bitstream")
+                                        .withDescription("Description")
+                                        .withMimeType("text/plain")
+                                        .withEmbargoPeriod(Period.ofWeeks(2))
+                                        .build();
         }
         context.restoreAuthSystemState();
 
         // parent community's admin user is allowed access to embargoed item
         String tokenAdminParentCommunity = getAuthToken(adminParentCommunity.getEmail(), "qwerty02");
         getClient(tokenAdminParentCommunity).perform(get("/api/core/bitstreams/" + bitstream.getID() + "/content"))
-                   .andExpect(status().isOk());
+                                            .andExpect(status().isOk());
 
         // collection1's admin user is allowed access to embargoed item
         String tokenAdminCollection1 = getAuthToken(adminCollection1.getEmail(), "qwerty03");
         getClient(tokenAdminCollection1).perform(get("/api/core/bitstreams/" + bitstream.getID() + "/content"))
-                   .andExpect(status().isOk());
+                                        .andExpect(status().isOk());
 
         checkNumberOfStatsRecords(bitstream, 2);
 
         // admin of second collection is NOT allowed access to embargoed item  of first collection
         String tokenAdminCollection2 = getAuthToken(adminCollection2.getEmail(), "qwerty01");
         getClient(tokenAdminCollection2).perform(get("/api/core/bitstreams/" + bitstream.getID() + "/content"))
-                   .andExpect(status().isForbidden());
+                                        .andExpect(status().isForbidden());
 
         // admin of child2 community is NOT allowed access to embargoed item  of first collection
         String tokenAdminChild2 = getAuthToken(adminChild2.getEmail(), "qwerty05");
         getClient(tokenAdminCollection2).perform(get("/api/core/bitstreams/" + bitstream.getID() + "/content"))
-                   .andExpect(status().isForbidden());
+                                        .andExpect(status().isForbidden());
 
         checkNumberOfStatsRecords(bitstream, 2);
     }
@@ -737,6 +753,7 @@ public class BitstreamRestControllerIT extends AbstractControllerIntegrationTest
         //** WHEN **
         //We download the bitstream
         getClient().perform(get("/api/core/bitstreams/" + bitstream.getID() + "/content"))
+
                    //** THEN **
                    .andExpect(status().isUnauthorized());
 
@@ -751,12 +768,12 @@ public class BitstreamRestControllerIT extends AbstractControllerIntegrationTest
         //** GIVEN **
         //1. A community-collection structure with one parent community and one collections.
         parentCommunity = CommunityBuilder.createCommunity(context)
-                .withName("Parent Community")
-                .build();
+                                          .withName("Parent Community")
+                                          .build();
 
         Group internalGroup = GroupBuilder.createGroup(context)
-                .withName("Internal Group")
-                .build();
+                                          .withName("Internal Group")
+                                          .build();
         // Explicitly create a restrictive default bitstream read policy on the collection
         Collection col1 = CollectionBuilder.createCollection(context, parentCommunity).withName("Collection 1").build();
         authorizeService.removePoliciesActionFilter(context, col1, DEFAULT_BITSTREAM_READ);
@@ -765,28 +782,28 @@ public class BitstreamRestControllerIT extends AbstractControllerIntegrationTest
         //2. A public item with a new bitstream that is not explicitly restricted
         // but should instead inherit
         Item publicItem1 = ItemBuilder.createItem(context, col1)
-                .withTitle("Public item 1")
-                .withIssueDate("2017-10-17")
-                .withAuthor("Smith, Donald").withAuthor("Doe, John")
-                .build();
+                                      .withTitle("Public item 1")
+                                      .withIssueDate("2017-10-17")
+                                      .withAuthor("Smith, Donald").withAuthor("Doe, John")
+                                      .build();
         // make sure this item has no default policies for a new bundle to inherit
         authorizeService.removePoliciesActionFilter(context, publicItem1, DEFAULT_BITSTREAM_READ);
 
         String bitstreamContent = "Private!";
         try (InputStream is = IOUtils.toInputStream(bitstreamContent, CharEncoding.UTF_8)) {
             bitstream = BitstreamBuilder
-                    .createBitstream(context, publicItem1, is)
-                    .withName("Test Restricted Bitstream")
-                    .withDescription("This bitstream is restricted")
-                    .withMimeType("text/plain")
-                    .build();
+                .createBitstream(context, publicItem1, is)
+                .withName("Test Restricted Bitstream")
+                .withDescription("This bitstream is restricted")
+                .withMimeType("text/plain")
+                .build();
         }
         context.restoreAuthSystemState();
         //** WHEN **
         //We download the bitstream
         getClient().perform(get("/api/core/bitstreams/" + bitstream.getID() + "/content"))
-                //** THEN **
-                .andExpect(status().isUnauthorized());
+                   //** THEN **
+                   .andExpect(status().isUnauthorized());
 
         //An unauthorized request should not log statistics
         checkNumberOfStatsRecords(bitstream, 0);
@@ -797,31 +814,31 @@ public class BitstreamRestControllerIT extends AbstractControllerIntegrationTest
         context.turnOffAuthorisationSystem();
 
         EPerson eperson2 = EPersonBuilder.createEPerson(context)
-                .withEmail("eperson2@mail.com")
-                .withPassword("qwerty02")
-                .build();
+                                         .withEmail("eperson2@mail.com")
+                                         .withPassword("qwerty02")
+                                         .build();
 
         parentCommunity = CommunityBuilder.createCommunity(context)
-                .withName("Parent Community")
-                .build();
+                                          .withName("Parent Community")
+                                          .build();
 
         Collection col1 = CollectionBuilder.createCollection(context, parentCommunity)
-                .withName("Collection 1")
-                .build();
+                                           .withName("Collection 1")
+                                           .build();
 
         Group restrictedGroup = GroupBuilder.createGroup(context)
-                .withName("Restricted Group")
-                .addMember(eperson)
-                .build();
+                                            .withName("Restricted Group")
+                                            .addMember(eperson)
+                                            .build();
 
         String bitstreamContent = "Private!";
         try (InputStream is = IOUtils.toInputStream(bitstreamContent, CharEncoding.UTF_8)) {
 
             Item item = ItemBuilder.createItem(context, col1)
-                    .withTitle("item 1")
-                    .withIssueDate("2013-01-17")
-                    .withAuthor("Doe, John")
-                    .build();
+                                   .withTitle("item 1")
+                                   .withIssueDate("2013-01-17")
+                                   .withAuthor("Doe, John")
+                                   .build();
             bitstream = BitstreamBuilder
                 .createBitstream(context, item, is)
                 .withName("Test Embargoed Bitstream")
@@ -921,55 +938,55 @@ public class BitstreamRestControllerIT extends AbstractControllerIntegrationTest
         context.turnOffAuthorisationSystem();
 
         EPerson adminParentCommunity = EPersonBuilder.createEPerson(context)
-                .withEmail("adminCommunity@mail.com")
-                .withPassword("qwerty00")
-                .build();
+                                                     .withEmail("adminCommunity@mail.com")
+                                                     .withPassword("qwerty00")
+                                                     .build();
 
         parentCommunity = CommunityBuilder.createCommunity(context)
-                .withName("Parent Community")
-                .withAdminGroup(adminParentCommunity)
-                .build();
+                                          .withName("Parent Community")
+                                          .withAdminGroup(adminParentCommunity)
+                                          .build();
 
         EPerson adminChild1 = EPersonBuilder.createEPerson(context)
-                .withEmail("adminChild1@mail.com")
-                .withPassword("qwerty05")
-                .build();
+                                            .withEmail("adminChild1@mail.com")
+                                            .withPassword("qwerty05")
+                                            .build();
         Community child1 = CommunityBuilder.createCommunity(context)
-                .withName("Sub Community")
-                .withAdminGroup(adminChild1)
-                .build();
+                                           .withName("Sub Community")
+                                           .withAdminGroup(adminChild1)
+                                           .build();
 
         EPerson adminCol1 = EPersonBuilder.createEPerson(context)
-                .withEmail("admin1@mail.com")
-                .withPassword("qwerty01")
-                .build();
+                                          .withEmail("admin1@mail.com")
+                                          .withPassword("qwerty01")
+                                          .build();
         Collection col1 = CollectionBuilder.createCollection(context, parentCommunity)
-                .withName("Collection 1")
-                .withAdminGroup(adminCol1)
-                .build();
+                                           .withName("Collection 1")
+                                           .withAdminGroup(adminCol1)
+                                           .build();
 
         EPerson adminCol2 = EPersonBuilder.createEPerson(context)
-                .withEmail("admin2@mail.com")
-                .withPassword("qwerty02")
-                .build();
+                                          .withEmail("admin2@mail.com")
+                                          .withPassword("qwerty02")
+                                          .build();
         Collection col2 = CollectionBuilder.createCollection(context, parentCommunity)
-                .withName("Collection 2")
-                .withAdminGroup(adminCol2)
-                .build();
+                                           .withName("Collection 2")
+                                           .withAdminGroup(adminCol2)
+                                           .build();
 
         Group restrictedGroup = GroupBuilder.createGroup(context)
-                .withName("Restricted Group")
-                .addMember(eperson)
-                .build();
+                                            .withName("Restricted Group")
+                                            .addMember(eperson)
+                                            .build();
 
         String bitstreamContent = "Private!";
         try (InputStream is = IOUtils.toInputStream(bitstreamContent, CharEncoding.UTF_8)) {
 
             Item item = ItemBuilder.createItem(context, col1)
-                    .withTitle("item")
-                    .withIssueDate("2018-10-17")
-                    .withAuthor("Doe, John")
-                    .build();
+                                   .withTitle("item")
+                                   .withIssueDate("2018-10-17")
+                                   .withAuthor("Doe, John")
+                                   .build();
             bitstream = BitstreamBuilder
                 .createBitstream(context, item, is)
                 .withName("Test Embargoed Bitstream")
@@ -1015,7 +1032,7 @@ public class BitstreamRestControllerIT extends AbstractControllerIntegrationTest
 
         // Find all hits/views of bitstream
         ObjectCount objectCount = solrLoggerService.queryTotal("type:" + Constants.BITSTREAM +
-                                                               " AND id:" + bitstream.getID(), null, 1);
+                                                                   " AND id:" + bitstream.getID(), null, 1);
         assertEquals(expectedNumberOfStatsRecords, objectCount.getCount());
     }
 
@@ -1028,8 +1045,8 @@ public class BitstreamRestControllerIT extends AbstractControllerIntegrationTest
         //** GIVEN **
         //1. A community-collection structure with one parent community and one collections.
         parentCommunity = CommunityBuilder.createCommunity(context)
-                .withName("Parent Community")
-                .build();
+                                          .withName("Parent Community")
+                                          .build();
 
         Collection col1 = CollectionBuilder.createCollection(context, parentCommunity).withName("Collection 1").build();
 
@@ -1039,17 +1056,17 @@ public class BitstreamRestControllerIT extends AbstractControllerIntegrationTest
         try (InputStream is = new FileInputStream(originalPdf)) {
 
             Item publicItem1 = ItemBuilder.createItem(context, col1)
-                    .withTitle("Public item citation cover page test 1")
-                    .withIssueDate("2017-10-17")
-                    .withAuthor("Smith, Donald").withAuthor("Doe, John")
-                    .build();
+                                          .withTitle("Public item citation cover page test 1")
+                                          .withIssueDate("2017-10-17")
+                                          .withAuthor("Smith, Donald").withAuthor("Doe, John")
+                                          .build();
 
             bitstream = BitstreamBuilder
-                    .createBitstream(context, publicItem1, is)
-                    .withName("Test bitstream")
-                    .withDescription("This is a bitstream to test the citation cover page.")
-                    .withMimeType("application/pdf")
-                    .build();
+                .createBitstream(context, publicItem1, is)
+                .withName("Test bitstream")
+                .withDescription("This is a bitstream to test the citation cover page.")
+                .withMimeType("application/pdf")
+                .build();
         }
         context.restoreAuthSystemState();
         //** WHEN **
@@ -1096,7 +1113,7 @@ public class BitstreamRestControllerIT extends AbstractControllerIntegrationTest
 
         try (ByteArrayInputStream source = new ByteArrayInputStream(content);
              Writer writer = new StringWriter();
-             PDDocument pdfDoc = PDDocument.load(source)) {
+             PDDocument pdfDoc = Loader.loadPDF(new RandomAccessReadBuffer(source))) {
 
             pts.writeText(pdfDoc, writer);
             return writer.toString();
@@ -1105,7 +1122,7 @@ public class BitstreamRestControllerIT extends AbstractControllerIntegrationTest
 
     private int getNumberOfPdfPages(byte[] content) throws IOException {
         try (ByteArrayInputStream source = new ByteArrayInputStream(content);
-             PDDocument pdfDoc = PDDocument.load(source)) {
+            PDDocument pdfDoc = Loader.loadPDF(new RandomAccessReadBuffer(source))) {
             return pdfDoc.getNumberOfPages();
         }
     }
@@ -1117,8 +1134,8 @@ public class BitstreamRestControllerIT extends AbstractControllerIntegrationTest
         resourcePolicyService.removePolicies(context, bitstream.getBundles().get(0), READ);
 
         getClient()
-                .perform(get("/api/core/bitstreams/" + bitstream.getID() + "/format"))
-                .andExpect(status().isUnauthorized());
+            .perform(get("/api/core/bitstreams/" + bitstream.getID() + "/format"))
+            .andExpect(status().isUnauthorized());
     }
 
     @Test
@@ -1128,44 +1145,44 @@ public class BitstreamRestControllerIT extends AbstractControllerIntegrationTest
         resourcePolicyService.removePolicies(context, bitstream.getBundles().get(0), READ);
 
         getClient(getAuthToken(eperson.getEmail(), password))
-                .perform(get("/api/core/bitstreams/" + bitstream.getID() + "/format"))
-                .andExpect(status().isForbidden());
+            .perform(get("/api/core/bitstreams/" + bitstream.getID() + "/format"))
+            .andExpect(status().isForbidden());
     }
 
     @Test
     public void getBitstreamFormat() throws Exception {
 
         getClient()
-                .perform(get("/api/core/bitstreams/" + bitstream.getID() + "/format"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$", matchBitstreamFormat(
-                        supportedFormat.getID(),
-                        supportedFormat.getMIMEType(),
-                        supportedFormat.getDescription(),
-                        supportedFormat.getShortDescription(),
-                        "SUPPORTED"
-                )));
+            .perform(get("/api/core/bitstreams/" + bitstream.getID() + "/format"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$", matchBitstreamFormat(
+                supportedFormat.getID(),
+                supportedFormat.getMIMEType(),
+                supportedFormat.getDescription(),
+                supportedFormat.getShortDescription(),
+                "SUPPORTED"
+            )));
     }
 
     @Test
     public void updateBitstreamFormatBadRequest() throws Exception {
 
         getClient(getAuthToken(admin.getEmail(), password)).perform(
-                put("/api/core/bitstreams/" + bitstream.getID() + "/format")
-                        .contentType(parseMediaType(TEXT_URI_LIST_VALUE))
-                        .content(
-                                REST_SERVER_URL + "/api/core/bitstreamformat/-1"
-                        )
+            put("/api/core/bitstreams/" + bitstream.getID() + "/format")
+                .contentType(parseMediaType(TEXT_URI_LIST_VALUE))
+                .content(
+                    REST_SERVER_URL + "/api/core/bitstreamformat/-1"
+                )
         ).andExpect(status().isBadRequest());
 
         getClient(getAuthToken(admin.getEmail(), password)).perform(
-                put("/api/core/bitstreams/" + bitstream.getID() + "/format")
-                        .contentType(parseMediaType(TEXT_URI_LIST_VALUE))
-                        .content(
-                                REST_SERVER_URL + "/api/core/bitstreamformat/" + knownFormat.getID() + "\n"
-                                        + REST_SERVER_URL + "/api/core/bitstreamformat/"
-                                        + supportedFormat.getID()
-                        )
+            put("/api/core/bitstreams/" + bitstream.getID() + "/format")
+                .contentType(parseMediaType(TEXT_URI_LIST_VALUE))
+                .content(
+                    REST_SERVER_URL + "/api/core/bitstreamformat/" + knownFormat.getID() + "\n"
+                        + REST_SERVER_URL + "/api/core/bitstreamformat/"
+                        + supportedFormat.getID()
+                )
         ).andExpect(status().isBadRequest());
     }
 
@@ -1173,11 +1190,11 @@ public class BitstreamRestControllerIT extends AbstractControllerIntegrationTest
     public void updateBitstreamFormatNotFound() throws Exception {
 
         getClient(getAuthToken(admin.getEmail(), password)).perform(
-                put("/api/core/bitstreams/" + randomUUID() + "/format")
-                        .contentType(parseMediaType(TEXT_URI_LIST_VALUE))
-                        .content(
-                                REST_SERVER_URL + "/api/core/bitstreamformat/" + unknownFormat.getID()
-                        )
+            put("/api/core/bitstreams/" + randomUUID() + "/format")
+                .contentType(parseMediaType(TEXT_URI_LIST_VALUE))
+                .content(
+                    REST_SERVER_URL + "/api/core/bitstreamformat/" + unknownFormat.getID()
+                )
         ).andExpect(status().isNotFound());
     }
 
@@ -1185,11 +1202,11 @@ public class BitstreamRestControllerIT extends AbstractControllerIntegrationTest
     public void updateBitstreamFormatUnauthorized() throws Exception {
 
         getClient().perform(
-                put("/api/core/bitstreams/" + bitstream.getID() + "/format")
-                        .contentType(parseMediaType(TEXT_URI_LIST_VALUE))
-                        .content(
-                                REST_SERVER_URL + "/api/core/bitstreamformat/" + knownFormat.getID()
-                        )
+            put("/api/core/bitstreams/" + bitstream.getID() + "/format")
+                .contentType(parseMediaType(TEXT_URI_LIST_VALUE))
+                .content(
+                    REST_SERVER_URL + "/api/core/bitstreamformat/" + knownFormat.getID()
+                )
         ).andExpect(status().isUnauthorized());
     }
 
@@ -1197,11 +1214,11 @@ public class BitstreamRestControllerIT extends AbstractControllerIntegrationTest
     public void updateBitstreamFormatForbidden() throws Exception {
 
         getClient(getAuthToken(eperson.getEmail(), password)).perform(
-                put("/api/core/bitstreams/" + bitstream.getID() + "/format")
-                        .contentType(parseMediaType(TEXT_URI_LIST_VALUE))
-                        .content(
-                                REST_SERVER_URL + "/api/core/bitstreamformat/" + knownFormat.getID()
-                        )
+            put("/api/core/bitstreams/" + bitstream.getID() + "/format")
+                .contentType(parseMediaType(TEXT_URI_LIST_VALUE))
+                .content(
+                    REST_SERVER_URL + "/api/core/bitstreamformat/" + knownFormat.getID()
+                )
         ).andExpect(status().isForbidden());
     }
 
@@ -1211,25 +1228,25 @@ public class BitstreamRestControllerIT extends AbstractControllerIntegrationTest
         context.turnOffAuthorisationSystem();
 
         createResourcePolicy(context, eperson, null)
-                .withAction(WRITE)
-                .withDspaceObject(bitstream)
-                .build();
+            .withAction(WRITE)
+            .withDspaceObject(bitstream)
+            .build();
 
         context.restoreAuthSystemState();
 
         getClient(getAuthToken(eperson.getEmail(), password)).perform(
-                put("/api/core/bitstreams/" + bitstream.getID() + "/format")
-                        .contentType(parseMediaType(TEXT_URI_LIST_VALUE))
-                        .content(
-                                REST_SERVER_URL + "/api/core/bitstreamformat/" + knownFormat.getID()
-                        )
+            put("/api/core/bitstreams/" + bitstream.getID() + "/format")
+                .contentType(parseMediaType(TEXT_URI_LIST_VALUE))
+                .content(
+                    REST_SERVER_URL + "/api/core/bitstreamformat/" + knownFormat.getID()
+                )
         ).andExpect(status().isOk());
 
         bitstream = context.reloadEntity(bitstream);
 
         assertThat(knownFormat, equalTo(bitstream.getFormat(context)));
         assertTrue(isEmpty(
-                bitstreamService.getMetadataByMetadataString(bitstream, "dc.format")
+            bitstreamService.getMetadataByMetadataString(bitstream, "dc.format")
         ));
     }
 
@@ -1241,18 +1258,18 @@ public class BitstreamRestControllerIT extends AbstractControllerIntegrationTest
         context.restoreAuthSystemState();
 
         getClient(getAuthToken(admin.getEmail(), password)).perform(
-                put("/api/core/bitstreams/" + bitstream.getID() + "/format")
-                        .contentType(parseMediaType(TEXT_URI_LIST_VALUE))
-                        .content(
-                                REST_SERVER_URL + "/api/core/bitstreamformat/" + unknownFormat.getID()
-                        )
+            put("/api/core/bitstreams/" + bitstream.getID() + "/format")
+                .contentType(parseMediaType(TEXT_URI_LIST_VALUE))
+                .content(
+                    REST_SERVER_URL + "/api/core/bitstreamformat/" + unknownFormat.getID()
+                )
         ).andExpect(status().isOk());
 
         bitstream = context.reloadEntity(bitstream);
 
         assertThat(unknownFormat, equalTo(bitstream.getFormat(context)));
         assertTrue(isEmpty(
-                bitstreamService.getMetadataByMetadataString(bitstream, "dc.format")
+            bitstreamService.getMetadataByMetadataString(bitstream, "dc.format")
         ));
     }
 
@@ -1263,8 +1280,8 @@ public class BitstreamRestControllerIT extends AbstractControllerIntegrationTest
         //** GIVEN **
         //1. A community-collection structure with one parent community and one collections.
         parentCommunity = CommunityBuilder.createCommunity(context)
-            .withName("Parent Community")
-            .build();
+                                          .withName("Parent Community")
+                                          .build();
 
         Collection col1 =
             CollectionBuilder.createCollection(context, parentCommunity).withName("Collection 1").build();
@@ -1275,10 +1292,10 @@ public class BitstreamRestControllerIT extends AbstractControllerIntegrationTest
         try (InputStream is = IOUtils.toInputStream(bitstreamContent, CharEncoding.UTF_8)) {
 
             Item publicItem1 = ItemBuilder.createItem(context, col1)
-                .withTitle("Public item 1")
-                .withIssueDate("2017-10-17")
-                .withAuthor("Smith, Donald").withAuthor("Doe, John")
-                .build();
+                                          .withTitle("Public item 1")
+                                          .withIssueDate("2017-10-17")
+                                          .withAuthor("Smith, Donald").withAuthor("Doe, John")
+                                          .build();
 
             bitstream = BitstreamBuilder
                 .createBitstream(context, publicItem1, is)
@@ -1299,8 +1316,8 @@ public class BitstreamRestControllerIT extends AbstractControllerIntegrationTest
         //** WHEN **
         //We download the bitstream
         getClient().perform(get("/api/core/bitstreams/" + bitstream.getID() + "/content"))
-            //** THEN **
-            .andExpect(status().isOk());
+                   //** THEN **
+                   .andExpect(status().isOk());
 
         Mockito.verify(bitstreamStorageServiceSpy, times(1)).retrieve(any(), eq(bitstream));
         Mockito.verify(inputStreamSpy, times(1)).close();
@@ -1316,8 +1333,8 @@ public class BitstreamRestControllerIT extends AbstractControllerIntegrationTest
         //** GIVEN **
         //1. A community-collection structure with one parent community and one collections.
         parentCommunity = CommunityBuilder.createCommunity(context)
-            .withName("Parent Community")
-            .build();
+                                          .withName("Parent Community")
+                                          .build();
 
         Collection col1 =
             CollectionBuilder.createCollection(context, parentCommunity).withName("Collection 1").build();
@@ -1328,17 +1345,17 @@ public class BitstreamRestControllerIT extends AbstractControllerIntegrationTest
         try (InputStream is = new FileInputStream(originalPdf)) {
 
             Item publicItem1 = ItemBuilder.createItem(context, col1)
-                    .withTitle("Public item citation cover page test 1")
-                    .withIssueDate("2017-10-17")
-                    .withAuthor("Smith, Donald").withAuthor("Doe, John")
-                    .build();
+                                          .withTitle("Public item citation cover page test 1")
+                                          .withIssueDate("2017-10-17")
+                                          .withAuthor("Smith, Donald").withAuthor("Doe, John")
+                                          .build();
 
             bitstream = BitstreamBuilder
-                    .createBitstream(context, publicItem1, is)
-                    .withName("Test bitstream")
-                    .withDescription("This is a bitstream to test the citation cover page.")
-                    .withMimeType("application/pdf")
-                    .build();
+                .createBitstream(context, publicItem1, is)
+                .withName("Test bitstream")
+                .withDescription("This is a bitstream to test the citation cover page.")
+                .withMimeType("application/pdf")
+                .build();
         }
         context.restoreAuthSystemState();
 
@@ -1351,8 +1368,8 @@ public class BitstreamRestControllerIT extends AbstractControllerIntegrationTest
         //** WHEN **
         //We download the bitstream
         getClient().perform(get("/api/core/bitstreams/" + bitstream.getID() + "/content"))
-            //** THEN **
-            .andExpect(status().isOk());
+                   //** THEN **
+                   .andExpect(status().isOk());
 
         Mockito.verify(bitstreamStorageServiceSpy, times(1)).retrieve(any(), eq(bitstream));
         Mockito.verify(inputStreamSpy, times(1)).close();
@@ -1369,42 +1386,42 @@ public class BitstreamRestControllerIT extends AbstractControllerIntegrationTest
                                           .build();
         // this should be a publication collection but right now no control are enforced
         Collection col1 = CollectionBuilder.createCollection(context, parentCommunity)
-                .withName("Collection 1").build();
+                                           .withName("Collection 1").build();
         // this should be a person collection
         Collection col2 = CollectionBuilder.createCollection(context, parentCommunity)
-                .withName("Person").build();
+                                           .withName("Person").build();
 
         //2. A public item with an embargoed bitstream
         String bitstreamContent = "Embargoed!";
         EPerson authorEp = EPersonBuilder.createEPerson(context)
-                .withEmail("author@example.com")
-                .withPassword(password)
-                .build();
+                                         .withEmail("author@example.com")
+                                         .withPassword(password)
+                                         .build();
         Item profile = ItemBuilder.createItem(context, col2)
-                .withTitle("Author")
-                .withDspaceObjectOwner(authorEp)
-                .build();
+                                  .withTitle("Author")
+                                  .withDspaceObjectOwner(authorEp)
+                                  .build();
         // set our submitter
         EPerson submitter = EPersonBuilder.createEPerson(context)
-                .withEmail("submitter@example.com")
-                .withPassword(password)
-                .build();
+                                          .withEmail("submitter@example.com")
+                                          .withPassword(password)
+                                          .build();
         context.setCurrentUser(submitter);
         try (InputStream is = IOUtils.toInputStream(bitstreamContent, CharEncoding.UTF_8)) {
             // we need a publication to check our cris enhanced security
             Item publicItem1 =
-                    ItemBuilder.createItem(context, col1)
-                            .withEntityType("Publication")
-                            .withTitle("Public item 1")
-                            .withIssueDate("2017-10-17")
-                            .withAuthor("Just an author without profile")
-                            .withAuthor("A profile not longer in the system",
-                                    UUID.randomUUID().toString())
-                            .withAuthor("An author with invalid authority",
-                                    "this is not an uuid")
-                            .withAuthor("Author",
-                                    profile.getID().toString())
-                            .build();
+                ItemBuilder.createItem(context, col1)
+                           .withEntityType("Publication")
+                           .withTitle("Public item 1")
+                           .withIssueDate("2017-10-17")
+                           .withAuthor("Just an author without profile")
+                           .withAuthor("A profile not longer in the system",
+                                       UUID.randomUUID().toString())
+                           .withAuthor("An author with invalid authority",
+                                       "this is not an uuid")
+                           .withAuthor("Author",
+                                       profile.getID().toString())
+                           .build();
 
             bitstream = BitstreamBuilder
                 .createBitstream(context, publicItem1, is)
@@ -1419,27 +1436,27 @@ public class BitstreamRestControllerIT extends AbstractControllerIntegrationTest
         //** WHEN **
         //anonymous try to download the bitstream
         getClient()
-                .perform(get("/api/core/bitstreams/" + bitstream.getID() + "/content"))
-                // ** THEN **
-                .andExpect(status().isUnauthorized());
+            .perform(get("/api/core/bitstreams/" + bitstream.getID() + "/content"))
+            // ** THEN **
+            .andExpect(status().isUnauthorized());
 
         // another unrelated eperson should get forbidden
         getClient(getAuthToken(eperson.getEmail(), password))
-                .perform(get("/api/core/bitstreams/" + bitstream.getID() + "/content"))
-                // ** THEN **
-                .andExpect(status().isForbidden());
+            .perform(get("/api/core/bitstreams/" + bitstream.getID() + "/content"))
+            // ** THEN **
+            .andExpect(status().isForbidden());
 
         // the submitter should be able to download according to our custom cris policy
         getClient(getAuthToken(submitter.getEmail(), password))
-                .perform(get("/api/core/bitstreams/" + bitstream.getID() + "/content"))
-                // ** THEN **
-                .andExpect(status().isOk());
+            .perform(get("/api/core/bitstreams/" + bitstream.getID() + "/content"))
+            // ** THEN **
+            .andExpect(status().isOk());
 
         // the author should be able to download according to our custom cris policy
         getClient(getAuthToken(authorEp.getEmail(), password))
-                .perform(get("/api/core/bitstreams/" + bitstream.getID() + "/content"))
-                // ** THEN **
-                .andExpect(status().isOk());
+            .perform(get("/api/core/bitstreams/" + bitstream.getID() + "/content"))
+            // ** THEN **
+            .andExpect(status().isOk());
 
         // unauthorized request should not log statistics so we have only 2 successful visits
         checkNumberOfStatsRecords(bitstream, 2);
@@ -1565,9 +1582,9 @@ public class BitstreamRestControllerIT extends AbstractControllerIntegrationTest
         String token = getAuthToken(admin.getEmail(), password);
         String header = getClient(token).perform(get("/api/core/bitstreams/" + file.getID() + "/content")
                                                      .header("Accept", contentType))
-                                         .andExpect(status().isOk())
-                                         .andExpect(content().contentType(contentType))
-                                         .andReturn().getResponse().getHeader("content-disposition");
+                                        .andExpect(status().isOk())
+                                        .andExpect(content().contentType(contentType))
+                                        .andReturn().getResponse().getHeader("content-disposition");
         if (shouldDownload) {
             assertTrue("Content-Disposition should contain 'attachment' for " + contentType,
                        header.contains("attachment"));
@@ -1590,10 +1607,10 @@ public class BitstreamRestControllerIT extends AbstractControllerIntegrationTest
             assertThat(originalLength, greaterThan(0L));
 
             getClient().perform(get("/api/core/bitstreams/" + bitstream.getID() + "/content"))
-                    .andDo(MockMvcResultHandlers.print())
-                    .andExpect(status().isOk())
-                    .andExpect(header().longValue("Content-Length", originalLength))
-                    .andExpect(header().string("ETag", "\"" + originalMd5 + "\""));
+                       .andDo(MockMvcResultHandlers.print())
+                       .andExpect(status().isOk())
+                       .andExpect(header().longValue("Content-Length", originalLength))
+                       .andExpect(header().string("ETag", "\"" + originalMd5 + "\""));
         });
     }
 
@@ -1604,10 +1621,10 @@ public class BitstreamRestControllerIT extends AbstractControllerIntegrationTest
             long originalLength = Files.size(originalPdf.toPath());
 
             getClient().perform(get("/api/core/bitstreams/" + bitstream.getID() + "/content"))
-                    .andDo(MockMvcResultHandlers.print())
-                    .andExpect(status().isOk())
-                    .andExpect(header().string("Content-Length", not(Long.toString(originalLength))))
-                    .andExpect(header().string("ETag", not("\"" + originalMd5 + "\"")));
+                       .andDo(MockMvcResultHandlers.print())
+                       .andExpect(status().isOk())
+                       .andExpect(header().string("Content-Length", not(Long.toString(originalLength))))
+                       .andExpect(header().string("ETag", not("\"" + originalMd5 + "\"")));
         });
     }
 
@@ -1615,10 +1632,10 @@ public class BitstreamRestControllerIT extends AbstractControllerIntegrationTest
     public void etagAndContentLengthIsStable() {
         givenPdf(false, ignored -> {
             var etag1 = getClient().perform(get("/api/core/bitstreams/" + bitstream.getID() + "/content"))
-                    .andReturn().getResponse().getHeader("Etag");
+                                   .andReturn().getResponse().getHeader("Etag");
 
             var etag2 = getClient().perform(get("/api/core/bitstreams/" + bitstream.getID() + "/content"))
-                    .andReturn().getResponse().getHeader("Etag");
+                                   .andReturn().getResponse().getHeader("Etag");
 
             assertThat(etag1, equalTo(etag2));
         });
@@ -1628,10 +1645,10 @@ public class BitstreamRestControllerIT extends AbstractControllerIntegrationTest
     public void withCoverPageEtagAndContentLengthIsStable() {
         givenPdf(true, ignored -> {
             var etag1 = getClient().perform(get("/api/core/bitstreams/" + bitstream.getID() + "/content"))
-                    .andReturn().getResponse().getHeader("Etag");
+                                   .andReturn().getResponse().getHeader("Etag");
 
             var etag2 = getClient().perform(get("/api/core/bitstreams/" + bitstream.getID() + "/content"))
-                    .andReturn().getResponse().getHeader("Etag");
+                                   .andReturn().getResponse().getHeader("Etag");
 
             assertThat(etag1, equalTo(etag2));
         });
@@ -1647,28 +1664,28 @@ public class BitstreamRestControllerIT extends AbstractControllerIntegrationTest
             //** GIVEN **
             //1. A community-collection structure with one parent community and one collections.
             parentCommunity = CommunityBuilder.createCommunity(context)
-                    .withName("Parent Community")
-                    .build();
+                                              .withName("Parent Community")
+                                              .build();
 
             Collection col1 =
-                    CollectionBuilder.createCollection(context, parentCommunity).withName("Collection 1").build();
+                CollectionBuilder.createCollection(context, parentCommunity).withName("Collection 1").build();
 
             //2. A public item with a bitstream
             File originalPdf = new File(testProps.getProperty("test.bitstream"));
 
             try (InputStream is = new FileInputStream(originalPdf)) {
                 Item publicItem1 = ItemBuilder.createItem(context, col1)
-                        .withTitle("Public item citation cover page test 1")
-                        .withIssueDate("2017-10-17")
-                        .withAuthor("Smith, Donald").withAuthor("Doe, John")
-                        .build();
+                                              .withTitle("Public item citation cover page test 1")
+                                              .withIssueDate("2017-10-17")
+                                              .withAuthor("Smith, Donald").withAuthor("Doe, John")
+                                              .build();
 
                 bitstream = BitstreamBuilder
-                        .createBitstream(context, publicItem1, is)
-                        .withName("Test bitstream")
-                        .withDescription("This is a bitstream to test the citation cover page.")
-                        .withMimeType("application/pdf")
-                        .build();
+                    .createBitstream(context, publicItem1, is)
+                    .withName("Test bitstream")
+                    .withDescription("This is a bitstream to test the citation cover page.")
+                    .withMimeType("application/pdf")
+                    .build();
             }
             context.restoreAuthSystemState();
 
@@ -1695,7 +1712,7 @@ public class BitstreamRestControllerIT extends AbstractControllerIntegrationTest
         Bitstream dummyBitstream;
         try (InputStream is = IOUtils.toInputStream("Test Content", CharEncoding.UTF_8)) {
             dummyBitstream = BitstreamBuilder.createBitstream(context, item, is)
-                                  .withMimeType("text/plain").build();
+                                             .withMimeType("text/plain").build();
             dummyBitstream.setStoreNumber(1); // Set to a s3 store to simulate external storage
 
             // Grant READ access to eperson
@@ -1814,10 +1831,108 @@ public class BitstreamRestControllerIT extends AbstractControllerIntegrationTest
             .andExpect(status().isNotFound());
     }
 
+    @Test
+    public void restrictedBitstreamWithAccessTokenTest() throws Exception {
+        context.turnOffAuthorisationSystem();
+
+        EPerson eperson2 = EPersonBuilder.createEPerson(context)
+                                         .withEmail("eperson2@mail.com")
+                                         .withPassword("qwerty02")
+                                         .build();
+
+        parentCommunity = CommunityBuilder.createCommunity(context)
+                                          .withName("Parent Community")
+                                          .build();
+
+        Collection col1 = CollectionBuilder.createCollection(context, parentCommunity)
+                                           .withName("Collection 1")
+                                           .build();
+
+        Group restrictedGroup = GroupBuilder.createGroup(context)
+                                            .withName("Restricted Group")
+                                            .addMember(eperson)
+                                            .build();
+
+        Item item;
+
+        // Create large bitstream over threshold
+        byte[] bytes = new byte[21 * 1024 * 1024]; // 21MB
+        try (InputStream is = new ByteArrayInputStream(bytes)) {
+
+            item = ItemBuilder.createItem(context, col1)
+                              .withTitle("item 1")
+                              .withIssueDate("2013-01-17")
+                              .withAuthor("Doe, John")
+                              .build();
+            bitstream = BitstreamBuilder
+                .createBitstream(context, item, is)
+                .withName("Test Embargoed Bitstream")
+                .withDescription("This bitstream is embargoed")
+                .withMimeType("text/plain")
+                .withReaderGroup(restrictedGroup)
+                .build();
+        }
+        context.restoreAuthSystemState();
+
+        // Create an item request to approve.
+        RequestItem itemRequest = RequestItemBuilder
+            .createRequestItem(context, item, bitstream)
+            .build();
+
+        // Create the HTTP request body.
+        Map<String, String> parameters = Map.of(
+            "acceptRequest", "true",
+            "subject", "subject",
+            "responseMessage", "Request accepted",
+            "accessPeriod", "+1DAY",
+            "suggestOpenAccess", "true");
+        String content = mapper
+            .writer()
+            .writeValueAsString(parameters);
+
+        // Send the request to approve the request.
+        String authToken = getAuthToken(eperson.getEmail(), password);
+        AtomicReference<String> requestTokenRef = new AtomicReference<>();
+        getClient(authToken).perform(put(requestItemUrl + '/' + itemRequest.getToken())
+                                         .contentType(contentType)
+                                         .content(content))
+                            .andExpect(status().isOk()
+                            )
+                            .andDo((var result) -> requestTokenRef.set(
+                                read(result.getResponse().getContentAsString(), "token")));
+        RequestItem foundRequest
+            = requestItemService.findByToken(context, requestTokenRef.get());
+
+        // download the bitstream - 4 scenarios
+
+        // Someone in the restricted group is allowed access to the item without any access token
+        getClient(authToken).perform(get("/api/core/bitstreams/" + bitstream.getID() + "/content"))
+                            .andExpect(status().isOk());
+
+        checkNumberOfStatsRecords(bitstream, 1);
+
+        String tokenEPerson2 = getAuthToken(eperson2.getEmail(), "qwerty02");
+        getClient(tokenEPerson2).perform(get("/api/core/bitstreams/" + bitstream.getID() + "/content"))
+                                .andExpect(status().isForbidden());
+
+        // Anonymous users CANNOT access/download Bitstreams that are restricted, without the access token
+        getClient().perform(get("/api/core/bitstreams/" + bitstream.getID() + "/content"))
+                   .andExpect(status().isUnauthorized());
+
+        // Anonymous users CANNOT access/download Bitstreams that are restricted, with an invalid access token
+        getClient().perform(get("/api/core/bitstreams/" + bitstream.getID() + "/content")
+                                .param("accessToken", "invalid_token")).andExpect(status().isUnauthorized());
+
+        // Anonymous users CAN access/download Bitstreams that are restricted, with a valid access token
+        getClient().perform(get("/api/core/bitstreams/" + bitstream.getID() + "/content")
+                                .param("accessToken", foundRequest.getAccess_token())).andExpect(status().isOk());
+
+        // Cleanup created request
+        RequestItemBuilder.deleteRequestItem(foundRequest.getToken());
+    }
+
     @FunctionalInterface
     interface ThrowingConsumer<T> {
         void accept(T t) throws Exception;
     }
-
-
 }

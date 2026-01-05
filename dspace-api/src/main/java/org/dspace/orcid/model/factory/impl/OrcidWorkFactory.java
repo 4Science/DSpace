@@ -280,7 +280,7 @@ public class OrcidWorkFactory implements OrcidEntityFactory {
     }
 
     /**
-     * Creates an instance of WorkType from the given item, taking the value fom the
+     * Creates an instance of WorkType from the given item, taking the value from the
      * configured metadata field (orcid.mapping.work.type).
      */
     private WorkType getWorkType(Context context, Item item) {

@@ -114,7 +114,7 @@ public class QDCCrosswalk extends SelfNamedPlugin
     private static final Namespace DCTERMS_NS =
         Namespace.getNamespace("dcterms", "http://purl.org/dc/terms/");
 
-    // sentinal: done init?
+    // sentinel: done init?
     private boolean inited = false;
 
     // my plugin name

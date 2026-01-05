@@ -12,6 +12,7 @@ import java.net.HttpURLConnection;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.http.client.config.CookieSpecs;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -139,7 +140,10 @@ public class BasicLinkChecker extends AbstractCurationTask {
      * @return The HTTP response code (e.g. 200 / 301 / 404 / 500)
      */
     protected int getResponseStatus(String url, int redirects) {
-        RequestConfig config = RequestConfig.custom().setRedirectsEnabled(true).build();
+        RequestConfig config = RequestConfig.custom()
+                                            .setCookieSpec(CookieSpecs.STANDARD)
+                                            .setRedirectsEnabled(true)
+                                            .build();
         try (CloseableHttpClient httpClient = DSpaceHttpClientFactory.getInstance().buildWithRequestConfig(config)) {
             CloseableHttpResponse httpResponse = httpClient.execute(new HttpGet(url));
             int statusCode = httpResponse.getStatusLine().getStatusCode();
@@ -161,7 +165,7 @@ public class BasicLinkChecker extends AbstractCurationTask {
     }
 
     /**
-     * Internal utitity method to get a description of the handle
+     * Internal utility method to get a description of the handle
      *
      * @param item The item to get a description of
      * @return The handle, or in workflow
