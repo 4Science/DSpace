@@ -37,6 +37,7 @@ import org.json.JSONTokener;
  * contributors and external ids configuration).
  *
  * @author Luca Giamminonni (luca.giamminonni at 4science.it)
+ *
  */
 public final class OrcidFactoryUtils {
 
@@ -93,6 +94,12 @@ public final class OrcidFactoryUtils {
      */
     public static Optional<String> retrieveAccessToken(String clientId, String clientSecret, String oauthUrl)
             throws IOException {
+        log.info(
+            "Trying to fetch the orcid-access token - clientId: {}, clientSecret: {}, oatuhUrl: {}",
+            clientId,
+            clientSecret,
+            oauthUrl
+        );
         if (StringUtils.isBlank(clientSecret) || StringUtils.isBlank(clientId) || StringUtils.isBlank(oauthUrl)) {
             String missingParams = (StringUtils.isBlank(clientId) ? "clientId " : "") +
                                    (StringUtils.isBlank(clientSecret) ? "clientSecret " : "") +

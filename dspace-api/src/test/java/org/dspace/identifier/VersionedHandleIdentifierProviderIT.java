@@ -10,6 +10,7 @@ package org.dspace.identifier;
 import static org.junit.Assert.assertEquals;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.dspace.authorize.AuthorizeException;
@@ -31,6 +32,9 @@ public class VersionedHandleIdentifierProviderIT extends AbstractIdentifierProvi
     private String firstHandle;
     private String dspaceUrl;
 
+    // Save original providers to restore them after test
+    private List<IdentifierProvider> originalProviders;
+
     private Collection collection;
     private Item itemV1;
     private Item itemV2;
@@ -43,7 +47,12 @@ public class VersionedHandleIdentifierProviderIT extends AbstractIdentifierProvi
         context.turnOffAuthorisationSystem();
 
         dspaceUrl = DSpaceServicesFactory.getInstance().getConfigurationService().getProperty("dspace.ui.url");
+
+        // Save original providers to restore them later
+        originalProviders = new ArrayList<>(identifierService.getProviders());
+
         // Clean out providers to avoid any being used for creation of community and collection
+        identifierService.setProviders(new ArrayList<>());
 
         parentCommunity = CommunityBuilder.createCommunity(context)
                                           .withName("Parent Community")
@@ -52,6 +61,15 @@ public class VersionedHandleIdentifierProviderIT extends AbstractIdentifierProvi
                 .withName("Collection")
                 .withEntityType("Publication")
                 .build();
+    }
+
+    @Override
+    public void destroy() throws Exception {
+        super.destroy();
+        // Restore original providers to avoid affecting other tests
+        if (originalProviders != null && !originalProviders.isEmpty()) {
+            identifierService.setProviders(originalProviders);
+        }
     }
 
     private void createVersions() throws SQLException, AuthorizeException {
@@ -65,6 +83,7 @@ public class VersionedHandleIdentifierProviderIT extends AbstractIdentifierProvi
 
     @Test
     public void testDefaultVersionedHandleProvider() throws Exception {
+        registerProvider(VersionedHandleIdentifierProvider.class);
         createVersions();
 
         // Confirm the original item only has its original handle
