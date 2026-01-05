@@ -306,6 +306,16 @@
             <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
             <type>submission-form</type>
         </step-definition>
+        <step-definition id="event" mandatory="true">
+            <heading>submit.progressbar.describe.event</heading>
+            <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
+            <type>submission-form</type>
+        </step-definition>
+        <step-definition id="product" mandatory="true">
+            <heading>submit.progressbar.describe.product</heading>
+            <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
+            <type>submission-form</type>
+        </step-definition>
 
         <!-- Detect duplicates step -->
         <step-definition id="duplicates">
@@ -548,6 +558,15 @@
             <step id="traditionalpageone" />
             <step id="upload-no-required-metadata" />
             <step id="license" />
+        </submission-process>
+
+        <submission-process name="event">
+            <step id="collection" />
+            <step id="event" />
+        </submission-process>
+        <submission-process name="product">
+            <step id="collection" />
+            <step id="product" />
         </submission-process>
     </submission-definitions>
 

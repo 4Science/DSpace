@@ -97,6 +97,12 @@ public class BrowsesResourceControllerIT extends AbstractControllerIntegrationTe
                        ),
                        BrowseIndexMatcher.hierarchicalBrowseIndex(
                            "srsc", "subject", "dc.subject"
+                       ),
+                       BrowseIndexMatcher.hierarchicalBrowseIndex(
+                           "patent-coar-types", "itemtype", "dc.type"
+                       ),
+                       BrowseIndexMatcher.hierarchicalBrowseIndex(
+                           "product-coar-types", "itemtype", "dc.type"
                        )
                    )))
         ;
