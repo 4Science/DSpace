@@ -181,16 +181,6 @@ public class VersionedHandleIdentifierProviderWithCanonicalHandles extends Ident
                 throw new RuntimeException("The current user is not authorized to change this item.", ex);
             }
         }
-        if (dso instanceof Collection || dso instanceof Community) {
-            try {
-                // Update the metadata with the handle for collections and communities.
-                modifyHandleMetadata(context, dso, getCanonical(id));
-            } catch (SQLException ex) {
-                throw new RuntimeException("A problem with the database connection occured.", ex);
-            } catch (AuthorizeException ex) {
-                throw new RuntimeException("The current user is not authorized to change this item.", ex);
-            }
-        }
 
         return id;
     }

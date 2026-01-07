@@ -63,6 +63,27 @@
 	<bean id="orcidWorkFactoryFieldMapping" class="org.dspace.orcid.model.OrcidWorkFieldMapping" >
 		<property name="contributorFields" value="${orcid.mapping.work.contributors}" />
 		<property name="externalIdentifierFields" value="${orcid.mapping.work.external-ids}" />
+    <property name="externalIdentifierPartOfMap">
+        <map>
+            <entry key="issn">
+                <list>
+                    <value>journal-article</value>
+                    <value>magazine-article</value>
+                    <value>newspaper-article</value>
+                    <value>data-set</value>
+                    <value>learning-object</value>
+                    <value>other</value>
+                </list>
+            </entry>
+            <entry key="isbn">
+                <list>
+                    <value>book-chapter</value>
+                    <value>book-review</value>
+                    <value>other</value>
+                </list>
+            </entry>
+        </map>
+    </property>
 		<property name="publicationDateField" value="${orcid.mapping.work.publication-date}" />
 		<property name="titleField" value="${orcid.mapping.work.title}" />
 		<property name="journalTitleField" value="${orcid.mapping.work.journal-title}" />
