@@ -22,7 +22,6 @@ import javax.xml.xpath.XPathFactory;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.dspace.core.SelfNamedPlugin;
 import org.dspace.services.ConfigurationService;

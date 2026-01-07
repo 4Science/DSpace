@@ -61,6 +61,7 @@ import org.dspace.app.rest.model.EPersonRest;
 import org.dspace.app.rest.projection.DefaultProjection;
 import org.dspace.app.rest.test.AbstractControllerIntegrationTest;
 import org.dspace.app.rest.utils.Utils;
+import org.dspace.authenticate.OrcidAuthenticationBean;
 import org.dspace.builder.BitstreamBuilder;
 import org.dspace.builder.BundleBuilder;
 import org.dspace.builder.CollectionBuilder;
@@ -74,6 +75,7 @@ import org.dspace.content.Collection;
 import org.dspace.content.Item;
 import org.dspace.eperson.EPerson;
 import org.dspace.eperson.Group;
+import org.dspace.orcid.client.OrcidConfiguration;
 import org.dspace.services.ConfigurationService;
 import org.hamcrest.Matchers;
 import org.junit.Before;
@@ -100,6 +102,12 @@ public class AuthenticationRestControllerIT extends AbstractControllerIntegratio
 
     @Autowired
     private AuthorizationFeatureService authorizationFeatureService;
+
+    @Autowired
+    private OrcidConfiguration orcidConfiguration;
+
+    @Autowired
+    private OrcidAuthenticationBean orcidAuthentication;
 
     @Autowired
     private Utils utils;
@@ -1974,16 +1982,5 @@ public class AuthenticationRestControllerIT extends AbstractControllerIntegratio
                 ));
     }
 
-
-
-    private OrcidTokenResponseDTO buildOrcidTokenResponse(String orcid, String accessToken) {
-        OrcidTokenResponseDTO token = new OrcidTokenResponseDTO();
-        token.setAccessToken(accessToken);
-        token.setOrcid(orcid);
-        token.setTokenType("Bearer");
-        token.setName("Test User");
-        token.setScope(String.join(" ", new String[] { "FirstScope", "SecondScope" }));
-        return token;
-    }
 }
 

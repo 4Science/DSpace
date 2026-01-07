@@ -383,8 +383,10 @@ public class ResearcherProfileRestRepositoryIT extends AbstractControllerIntegra
                             .andExpect(
                                 jsonPath("$.metadata", matchMetadata("cris.policy.group", administrators.getName(),
                                                                      UUIDUtils.toString(administrators.getID()), 0)))
-                            .andExpect(jsonPath("$.metadata", matchMetadata("person.givenName", user.getFirstName(), 0)))
-                            .andExpect(jsonPath("$.metadata", matchMetadata("person.familyName", user.getLastName(), 0)))
+                            .andExpect(jsonPath("$.metadata", matchMetadata("person.givenName", user.getFirstName(),
+                                0)))
+                            .andExpect(jsonPath("$.metadata", matchMetadata("person.familyName", user.getLastName(),
+                                0)))
                             .andExpect(jsonPath("$.metadata", matchMetadata("dspace.entity.type", "Person", 0)));
 
         getClient(authToken).perform(get("/api/eperson/profiles/{id}/eperson", id))
@@ -436,8 +438,10 @@ public class ResearcherProfileRestRepositoryIT extends AbstractControllerIntegra
         getClient(authToken).perform(get("/api/eperson/profiles/{id}/item", id))
                             .andExpect(status().isOk())
                             .andExpect(jsonPath("$.type", is("item")))
-                            .andExpect(jsonPath("$.metadata", matchMetadata("person.givenName", user.getFirstName(), 0)))
-                            .andExpect(jsonPath("$.metadata", matchMetadata("person.familyName", user.getLastName(), 0)))
+                            .andExpect(jsonPath("$.metadata", matchMetadata("person.givenName", user.getFirstName(),
+                                0)))
+                            .andExpect(jsonPath("$.metadata", matchMetadata("person.familyName", user.getLastName(),
+                                0)))
                             .andExpect(
                                 jsonPath("$.metadata", matchMetadata("dspace.object.owner", name, id, 0)))
                             .andExpect(

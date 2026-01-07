@@ -30,7 +30,6 @@ import org.dspace.content.Item;
 import org.dspace.content.Site;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
-import org.dspace.handle.service.HandleService;
 import org.dspace.services.ConfigurationService;
 import org.dspace.statistics.Dataset;
 import org.dspace.statistics.content.DatasetDSpaceObjectGenerator;

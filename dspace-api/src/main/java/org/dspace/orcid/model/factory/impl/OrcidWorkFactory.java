@@ -270,6 +270,17 @@ public class OrcidWorkFactory implements OrcidEntityFactory {
      * Creates an instance of ExternalID with the given type, value and
      * relationship.
      */
+    private ExternalID getExternalId(String type, String value, Relationship relationship) {
+        ExternalID externalID = new ExternalID();
+        externalID.setType(type);
+        externalID.setValue(value);
+        externalID.setRelationship(relationship);
+        return externalID;
+    }
+
+    /**
+     * Creates an instance of ExternalID with the given value and type.
+     */
     private ExternalID getExternalId(MetadataValue metadataValue, String workType) {
         Map<String, String> externalIdentifierFields = fieldMapping.getExternalIdentifierFields();
         Map<String, List<String>> externalIdentifierPartOfMap = fieldMapping.getExternalIdentifierPartOfMap();

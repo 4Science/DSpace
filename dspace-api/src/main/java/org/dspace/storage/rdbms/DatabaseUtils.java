@@ -271,14 +271,14 @@ public class DatabaseUtils {
                 }
 
                 try (Connection connection = dataSource.getConnection()) {
-                        BufferedReader input = new BufferedReader(new InputStreamReader(System.in,
-                                                                                        StandardCharsets.UTF_8));
+                    BufferedReader input = new BufferedReader(new InputStreamReader(System.in,
+                        StandardCharsets.UTF_8));
 
                     System.out.println("\nDatabase URL: " + connection.getMetaData().getURL());
                     System.out
                         .println("\nWARNING: ALL DATA AND TABLES IN YOUR DATABASE WILL BE PERMANENTLY DELETED.\n");
-                        System.out.println("There is NO turning back from this action. Backup your DB before " +
-                                               "continuing.");
+                    System.out.println("There is NO turning back from this action. Backup your DB before " +
+                        "continuing.");
                     System.out.print("Do you want to PERMANENTLY DELETE everything from your database? [y/n]: ");
                     String choiceString = input.readLine();
                     input.close();

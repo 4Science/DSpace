@@ -256,7 +256,7 @@ public class OrcidEntityFactoryServiceIT extends AbstractIntegrationTestWithData
         assertThat(externalIds, hasSize(4));
         assertThat(externalIds, has(selfExternalId("doi", "doi-id")));
         assertThat(externalIds, has(selfExternalId("eid", "scopus-id")));
-        assertThat(externalIds, has(selfExternalId("handle", publication.getHandle())));
+        assertThat(externalIds, has(selfExternalId("handle", product.getHandle())));
         // Book type should have SELF rel for ISBN
         assertThat(externalIds, has(selfExternalId("isbn", isbn)));
 
