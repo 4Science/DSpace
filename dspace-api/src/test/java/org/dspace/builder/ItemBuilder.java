@@ -100,6 +100,9 @@ public class ItemBuilder extends AbstractDSpaceObjectBuilder<Item> {
         return addMetadataValue(item, MetadataSchemaEnum.DC.getName(), "contributor", "editor", editorName);
     }
 
+    public ItemBuilder withEditor(final String editorName, final String authority) {
+        return addMetadataValue(item, DC.getName(), "contributor", "editor", null, editorName, authority, 600);
+    }
 
     public ItemBuilder withISSN(String issn) {
         return addMetadataValue(item, "dc", "identifier", "issn", issn);
@@ -211,6 +214,10 @@ public class ItemBuilder extends AbstractDSpaceObjectBuilder<Item> {
 
     public ItemBuilder withFamilyName(String familyName) {
         return setMetadataSingleValue(item, "person", "familyName", null, familyName);
+    }
+
+    public ItemBuilder withPersonMainAffiliation(String affiliation) {
+        return addMetadataValue(item, "person", "affiliation", "name", affiliation);
     }
 
     public ItemBuilder withPersonMainAffiliation(final String affiliation, final String authority) {
@@ -468,6 +475,10 @@ public class ItemBuilder extends AbstractDSpaceObjectBuilder<Item> {
 
     public ItemBuilder withPersonEmail(String email) {
         return addMetadataValue(item, "person", "email", null, email);
+    }
+
+    public ItemBuilder withJournalAnce(String ance) {
+        return addMetadataValue(item, "miur", "journal", "ance", ance);
     }
 
     @Override
