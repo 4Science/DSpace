@@ -544,7 +544,7 @@ public class Curator {
             Context context = curationContext();
             Iterator<Item> iter = itemService.findByCollection(context, coll);
             while (iter.hasNext()) {
-                Item item = iter.next();
+                Item item = context.reloadEntity(iter.next());
                 boolean shouldContinue = tr.run(item);
                 context.uncacheEntity(item);
                 if (!shouldContinue) {
