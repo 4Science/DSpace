@@ -957,7 +957,7 @@
         <dependency>
             <groupId>org.apache.xmlgraphics</groupId>
             <artifactId>fop</artifactId>
-            <version>2.11</version>
+            <version>2.9</version>
             <exclusions>
                 <exclusion>
                     <groupId>javax.servlet</groupId>
@@ -977,7 +977,7 @@
         <dependency>
             <groupId>org.apache.xmlgraphics</groupId>
             <artifactId>fop-pdf-images</artifactId>
-            <version>2.11</version>
+            <version>2.9</version>
         </dependency>
 
 
@@ -1248,12 +1248,16 @@
             <dependency>
                 <groupId>org.xhtmlrenderer</groupId>
                 <artifactId>flying-saucer-pdf</artifactId>
-            <version>9.13.3</version>
+                <version>9.13.3</version>
                 <exclusions>
                     <!-- Conflicts with Hibernate. Use version that is brought in via Hibernate -->
                     <exclusion>
                         <groupId>net.bytebuddy</groupId>
                         <artifactId>byte-buddy</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.apache.xmlgraphics</groupId>
+                        <artifactId>batik-codec</artifactId>
                     </exclusion>
                 </exclusions>
             </dependency>
