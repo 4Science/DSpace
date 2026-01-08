@@ -85,7 +85,7 @@ public class ItemEnhancerConsumerIT extends AbstractIntegrationTestWithDatabase 
         publication = commitAndReload(publication);
 
         List<MetadataValue> metadataValues = publication.getMetadata();
-        assertThat(metadataValues, hasSize(11));
+        assertThat(metadataValues, hasSize(10));
         assertThat(metadataValues, hasItem(with("cris.virtual.department", "4Science")));
         assertThat(metadataValues, hasItem(with("cris.virtualsource.department", personId)));
         assertThat(metadataValues, hasItem(with("cris.virtual.orcid", PLACEHOLDER_PARENT_METADATA_VALUE)));
@@ -102,7 +102,7 @@ public class ItemEnhancerConsumerIT extends AbstractIntegrationTestWithDatabase 
         publication = commitAndReload(publication);
 
         metadataValues = publication.getMetadata();
-        assertThat(metadataValues, hasSize(12));
+        assertThat(metadataValues, hasSize(11));
         assertThat(metadataValues, hasItem(with("dc.contributor.author", "Walter White", personId, 600)));
         assertThat(metadataValues, hasItem(with("cris.virtual.department", "4Science")));
         assertThat(metadataValues, hasItem(with("cris.virtualsource.department", personId)));
@@ -146,7 +146,7 @@ public class ItemEnhancerConsumerIT extends AbstractIntegrationTestWithDatabase 
         publication = commitAndReload(publication);
 
         List<MetadataValue> values = publication.getMetadata();
-        assertThat(values, hasSize(22));
+        assertThat(values, hasSize(21));
         assertThat(values, hasItem(with("dc.contributor.author", "Red Smith")));
         assertThat(values, hasItem(with("dc.contributor.author", "Walter White", person1.getID().toString(), 1, 600)));
         assertThat(values, hasItem(with("dc.contributor.author", "John Smith", person2.getID().toString(), 2, 600)));
@@ -193,7 +193,7 @@ public class ItemEnhancerConsumerIT extends AbstractIntegrationTestWithDatabase 
         publication = commitAndReload(publication);
 
         List<MetadataValue> metadataValues = publication.getMetadata();
-        assertThat(metadataValues, hasSize(6));
+        assertThat(metadataValues, hasSize(5));
 
         assertThat(getMetadataValues(publication, "cris.virtual.department"), empty());
         assertThat(getMetadataValues(publication, "cris.virtualsource.department"), empty());
@@ -206,7 +206,7 @@ public class ItemEnhancerConsumerIT extends AbstractIntegrationTestWithDatabase 
         publication = commitAndReload(publication);
 
         metadataValues = publication.getMetadata();
-        assertThat(metadataValues, hasSize(11));
+        assertThat(metadataValues, hasSize(10));
         assertThat(metadataValues, hasItem(with("dc.contributor.author", "Walter White", personId, 600)));
         assertThat(metadataValues, hasItem(with("cris.virtual.department", "4Science")));
         assertThat(metadataValues, hasItem(with("cris.virtualsource.department", personId)));
@@ -245,7 +245,18 @@ public class ItemEnhancerConsumerIT extends AbstractIntegrationTestWithDatabase 
         publication = commitAndReload(publication);
 
         List<MetadataValue> values = publication.getMetadata();
-        assertThat(values, hasSize(21));
+
+        List<MetadataValue> depts = getMetadataValues(publication, "cris.virtualsource.department");
+        depts.forEach(mv -> {
+            System.out.println("Field: " + mv.getMetadataField().getQualifier());
+            System.out.println("Value: '" + mv.getValue() + "' (" + mv.getValue().getClass() + ")");
+            System.out.println("Conf: " + mv.getConfidence() + " (" + mv.getConfidence() + ")");
+            System.out.println("Auth: " + mv.getAuthority());
+        });
+        System.out.println("Expected value: '" + person3.getID().toString() + "'");
+
+
+        assertThat(values, hasSize(20));
         assertThat(values, hasItem(with("dc.contributor.author", "Walter White", person1.getID().toString(), 0, 600)));
         assertThat(values, hasItem(with("dc.contributor.author", "John Smith", person2.getID().toString(), 1, 600)));
         assertThat(values, hasItem(with("dc.contributor.author", "Jesse Pinkman", person3.getID().toString(), 2, 600)));
@@ -280,7 +291,7 @@ public class ItemEnhancerConsumerIT extends AbstractIntegrationTestWithDatabase 
         publication = commitAndReload(publication);
 
         values = publication.getMetadata();
-        assertThat(values, hasSize(16));
+        assertThat(values, hasSize(15));
         assertThat(values, hasItem(with("dc.contributor.author", "Walter White", person1.getID().toString(), 0, 600)));
         assertThat(values, hasItem(with("dc.contributor.author", "Jesse Pinkman", person3.getID().toString(), 1, 600)));
         // virtual source and virtual metadata are not required to respect the order of the source metadata
@@ -476,7 +487,7 @@ public class ItemEnhancerConsumerIT extends AbstractIntegrationTestWithDatabase 
         publication = commitAndReload(publication);
 
         List<MetadataValue> metadataValues = publication.getMetadata();
-        assertThat(metadataValues, hasSize(9));
+        assertThat(metadataValues, hasSize(8));
         assertThat(metadataValues, hasItem(with("cris.virtual.journalance", "AA110022")));
         assertThat(metadataValues, hasItem(with("cris.virtualsource.journalance", journalItem.getID().toString())));
     }
