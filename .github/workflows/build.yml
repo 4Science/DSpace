@@ -14,7 +14,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       # Give Maven 1GB of memory to work with
-      MAVEN_OPTS: "-Xmx1024M"
+      MAVEN_OPTS: "-Xmx4g"
     strategy:
       # Create a matrix of two separate configurations for Unit vs Integration Tests
       # This will ensure those tasks are run in parallel
