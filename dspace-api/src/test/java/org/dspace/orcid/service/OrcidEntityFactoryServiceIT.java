@@ -273,7 +273,8 @@ public class OrcidEntityFactoryServiceIT extends AbstractIntegrationTestWithData
             .withIssueDate("2021-04-30")
             .withDescriptionAbstract("Publication description")
             .withLanguage("en_US")
-            .withType("Controlled Vocabulary for Resource Type Genres::text::periodical::journal::contribution to journal::journal article")
+            .withType("Controlled Vocabulary for Resource Type Genres::text::periodical::journal::" +
+                "contribution to journal::journal article")
             .withIsPartOf("Journal")
             .withISSN(issn)
             .withDoiIdentifier("doi-id")
