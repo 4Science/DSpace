@@ -58,9 +58,11 @@ import software.amazon.awssdk.auth.credentials.AnonymousCredentialsProvider;
 import software.amazon.awssdk.awscore.exception.AwsServiceException;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3AsyncClient;
+import software.amazon.awssdk.services.s3.S3Configuration;
 import software.amazon.awssdk.services.s3.model.Bucket;
 import software.amazon.awssdk.services.s3.model.ChecksumAlgorithm;
 import software.amazon.awssdk.services.s3.model.HeadObjectResponse;
+import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 
 /**
  * @author Luca Giamminonni (luca.giamminonni at 4science.com)
@@ -69,11 +71,9 @@ public class S3BitStoreServiceIT extends AbstractIntegrationTestWithDatabase {
     private static  S3MockContainer s3Mock = new S3MockContainer("4.8.0");
 
     private static S3AsyncClient s3AsyncClient;
+    private static S3Presigner s3Presigner;
 
     private static final String DEFAULT_BUCKET_NAME = "dspace-asset-localhost";
-    public static final String S3_ENDPOINT = "http://127.0.0.1:8001";
-    public static final int MAX_CONNECTIONS = 5;
-    public static final int CONNECTION_TIMEOUT = 1000;
 
     private S3BitStoreService s3BitStoreService;
 
@@ -87,11 +87,25 @@ public class S3BitStoreServiceIT extends AbstractIntegrationTestWithDatabase {
     public static void setupS3() {
         s3Mock.start();
 
+        AnonymousCredentialsProvider credentialsProvider = AnonymousCredentialsProvider.create();
+        Region region = Region.US_EAST_1;
+        URI s3URI = URI.create("http://127.0.0.1:" + s3Mock.getHttpServerPort());
         s3AsyncClient = S3AsyncClient.crtBuilder()
-                .endpointOverride(URI.create("http://127.0.0.1:" + s3Mock.getHttpServerPort()))
-                .credentialsProvider(AnonymousCredentialsProvider.create())
-                .region(Region.US_EAST_1)
-                .build();
+                                     .endpointOverride(s3URI)
+                                     .credentialsProvider(credentialsProvider)
+                                     .region(region)
+                                     .build();
+
+        s3Presigner = S3Presigner.builder()
+                                 .endpointOverride(s3URI)
+                                 .credentialsProvider(credentialsProvider)
+                                 .region(region)
+                                 .serviceConfiguration(
+                                     S3Configuration.builder()
+                                                    .pathStyleAccessEnabled(true)
+                                                    .build()
+                                 )
+                                 .build();
     }
 
     @AfterClass
@@ -105,7 +119,7 @@ public class S3BitStoreServiceIT extends AbstractIntegrationTestWithDatabase {
         configurationService.setProperty("assetstore.s3.enabled", "true");
         s3Directory = new File(System.getProperty("java.io.tmpdir"), "s3");
 
-        s3BitStoreService = new S3BitStoreService(s3AsyncClient);
+        s3BitStoreService = new S3BitStoreService(s3AsyncClient, s3Presigner);
         s3BitStoreService.setEnabled(BooleanUtils.toBoolean(
                 configurationService.getProperty("assetstore.s3.enabled")));
         s3BitStoreService.setS3ChecksumAlgorithm(ChecksumAlgorithm.SHA256);

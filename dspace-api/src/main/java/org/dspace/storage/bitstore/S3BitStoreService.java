@@ -206,6 +206,17 @@ public class S3BitStoreService extends BaseBitStoreService {
         this.s3AsyncClient = s3AsyncClient;
     }
 
+    /**
+     * This constructor is used for test purpose.
+     *
+     * @param s3AsyncClient AmazonS3 service
+     * @param presigner     S3Presigner service
+     */
+    protected S3BitStoreService(S3AsyncClient s3AsyncClient, S3Presigner presigner) {
+        this.s3AsyncClient = s3AsyncClient;
+        this.presigner = presigner;
+    }
+
     @Override
     public boolean isEnabled() {
         return this.enabled;
@@ -225,7 +236,7 @@ public class S3BitStoreService extends BaseBitStoreService {
         }
 
         try {
-            S3Presigner.Builder presignerBuilder = S3Presigner.builder();
+
             if (StringUtils.isNotBlank(getAwsAccessKey()) && StringUtils.isNotBlank(getAwsSecretKey())) {
                 log.warn("Use local defined S3 credentials");
                 // region
@@ -250,7 +261,11 @@ public class S3BitStoreService extends BaseBitStoreService {
                                 minPartSizeBytes, maxConcurrency)
                         );
 
-                presignerBuilder = presignerBuilder.region(region).credentialsProvider(credentialsProvider);
+                presigner =
+                    FunctionalUtils.getDefaultOrBuild(
+                        this.presigner,
+                        amazonPresignerBuilderBy(region, credentialsProvider)
+                    );
 
                 log.warn("S3 Region set to: " + region.id());
             } else {
@@ -259,9 +274,12 @@ public class S3BitStoreService extends BaseBitStoreService {
                         this.s3AsyncClient,
                         amazonClientBuilderBy(null, null , endpoint, targetThroughputGbps,
                                 minPartSizeBytes, maxConcurrency));
-            }
 
-            presigner = presignerBuilder.build();
+                presigner = FunctionalUtils.getDefaultOrBuild(
+                    this.presigner,
+                    S3Presigner::create
+                );
+            }
 
             // bucket name
             if (StringUtils.isEmpty(bucketName)) {
@@ -281,6 +299,14 @@ public class S3BitStoreService extends BaseBitStoreService {
             this.initialized = false;
             log.error("Can't initialize this store!", e);
         }
+    }
+
+    private static Supplier<S3Presigner> amazonPresignerBuilderBy(Region region,
+                                                                StaticCredentialsProvider credentialsProvider) {
+        return () -> S3Presigner.builder()
+                                .region(region)
+                                .credentialsProvider(credentialsProvider)
+                                .build();
     }
 
     /**
