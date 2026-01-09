@@ -163,7 +163,7 @@ definitions:
           - docker
         script:
           - export HASH_COMMIT=${BITBUCKET_COMMIT:0:8}
-          - export BRANCH_NAME=$(echo "$BITBUCKET_BRANCH" | awk -F'/' '{if(NF==1)val=$1; else if(NF==2)val=$1"--"$2; else if(NF==3)val=$2; else if(NF==4)val=$2"--"$3; print tolower(val)}')
+          - export BRANCH_NAME=$(echo "$BITBUCKET_BRANCH" | tr '[:upper:]' '[:lower:]' | sed 's|/|--|g')
           - docker build -f ./dspace/src/main/docker/dspace-solr/Dockerfile -t solr8:${BRANCH_NAME}-${HASH_COMMIT} -t solr8:${BRANCH_NAME}-latest .
           - pipe: atlassian/aws-ecr-push-image:2.5.0
             variables:
@@ -185,7 +185,7 @@ definitions:
           - docker
         script:
           - export HASH_COMMIT=${BITBUCKET_COMMIT:0:8}
-          - export BRANCH_NAME=$(echo "$BITBUCKET_BRANCH" | awk -F'/' '{if(NF==1)val=$1; else if(NF==2)val=$1"--"$2; else if(NF==3)val=$2; else if(NF==4)val=$2"--"$3; print tolower(val)}')
+          - export BRANCH_NAME=$(echo "$BITBUCKET_BRANCH" | tr '[:upper:]' '[:lower:]' | sed 's|/|--|g')
           - docker build -f ./dspace/src/main/docker/dspace-solr/Dockerfile9 -t solr9:${BRANCH_NAME}-${HASH_COMMIT} -t solr9:${BRANCH_NAME}-latest .
           - pipe: atlassian/aws-ecr-push-image:2.5.0
             variables:
@@ -285,31 +285,50 @@ definitions:
           - git commit -am "Enable test environment for ${BRANCH_NAME}" || echo "No changes to commit"
           - git push
 
-pipelines:
-  branches:
-    'main-cris':
-      - step: *install
-      - parallel: &parallel-pipeline
+    - step: &check-branch-name-allowed
+        name: Check allowed branch name
+        image: alpine:latest
+        script:
+          - |
+            if [[ "$BITBUCKET_BRANCH" = "main-cris" ]] || [[ "$BITBUCKET_BRANCH" == dspace-cris-20*_02_x ]] || [[ "$BITBUCKET_BRANCH" == prod/* ]] || [[ "$BITBUCKET_BRANCH" == test/* ]]; then
+              echo "Branch $BITBUCKET_BRANCH is allowed."
+            else
+              echo "This pipeline can only run on main-cris, dspace-cris-20*_02_x, prod/**, or test/**"
+              exit 1
+            fi
+
+    - parallel: &parallel-test-steps
+        steps:
           - step: *unit-test-code-checks
           - step: *integration-tests-with-test-jars
           - step: *integration-tests-slow
           - step: *integration-tests-dspace-api
-    'dspace-cris-2025_02_x':
+
+pipelines:
+  branches:
+    'main-cris':
+      - step: *check-branch-name-allowed
       - step: *install
-      - parallel: *parallel-pipeline
+      - parallel: *parallel-test-steps
+    'dspace-cris-20*_02_x':
+      - step: *check-branch-name-allowed
+      - step: *install
+      - parallel: *parallel-test-steps
       - step: *build-and-push
       - step: *deploy-on-dev
       - step: *deploy-on-staging
     'prod/**':
+      - step: *check-branch-name-allowed
       - step: *install
-      - parallel: *parallel-pipeline
+      - parallel: *parallel-test-steps
       - step: *build-and-push
       - step: *deploy-on-dev
       - step: *deploy-on-staging
       - step: *build-and-push-solr9
     'test/**':
+      - step: *check-branch-name-allowed
       - step: *install
-      - parallel: *parallel-pipeline
+      - parallel: *parallel-test-steps
       - step: *build-and-push
       - step: *deploy-on-test
       - step: *build-and-push-solr9
@@ -337,6 +356,11 @@ pipelines:
       - step: *install
       - step: *build-and-push
       - step: *deploy-on-dev
+    deploy-on-staging:
+      - step: *check-branch-name-allowed
+      - step: *install
+      - step: *build-and-push
+      - step: *deploy-on-staging
     e2e-test:
       - step: *install
       - step: *build-and-push

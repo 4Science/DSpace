@@ -38,6 +38,8 @@ public class VersionedHandleIdentifierProviderWithCanonicalHandlesIT extends Abs
     private String firstHandle;
     private String dspaceUrl;
 
+    // Save original providers to restore them after test
+    private List<IdentifierProvider> originalProviders;
 
     private Collection collection;
     private Item itemV1;
@@ -53,6 +55,10 @@ public class VersionedHandleIdentifierProviderWithCanonicalHandlesIT extends Abs
         serviceManager = DSpaceServicesFactory.getInstance().getServiceManager();
         dspaceUrl = DSpaceServicesFactory.getInstance().getConfigurationService().getProperty("dspace.ui.url");
         identifierService = serviceManager.getServicesByType(IdentifierServiceImpl.class).get(0);
+
+        // Save original providers to restore them later
+        originalProviders = new ArrayList<>(identifierService.getProviders());
+
         // Clean out providers to avoid any being used for creation of community and collection
         identifierService.setProviders(new ArrayList<>());
 
@@ -73,8 +79,11 @@ public class VersionedHandleIdentifierProviderWithCanonicalHandlesIT extends Abs
         super.destroy();
         // Unregister this non-default provider
         unregisterProvider(VersionedHandleIdentifierProviderWithCanonicalHandles.class);
-        // Re-register the default provider (for later tests)
-        registerProvider(VersionedHandleIdentifierProvider.class);
+
+        // Restore original providers instead of just registering the default handle provider
+        if (originalProviders != null && !originalProviders.isEmpty()) {
+            identifierService.setProviders(originalProviders);
+        }
     }
 
     private void createVersions() throws SQLException, AuthorizeException {
