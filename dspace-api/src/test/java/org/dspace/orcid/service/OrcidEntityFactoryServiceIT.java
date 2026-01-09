@@ -190,11 +190,12 @@ public class OrcidEntityFactoryServiceIT extends AbstractIntegrationTestWithData
         assertThat(work.getExternalIdentifiers(), notNullValue());
 
         List<ExternalID> externalIds = work.getExternalIdentifiers().getExternalIdentifier();
-        assertThat(externalIds, hasSize(3));
+        assertThat(externalIds, hasSize(4));
         assertThat(externalIds, has(selfExternalId("doi", "doi-id")));
         assertThat(externalIds, has(selfExternalId("eid", "scopus-id")));
         assertThat(externalIds, has(selfExternalId("handle", publication.getHandle())));
-
+        // Book type should have SELF rel for ISBN
+        assertThat(externalIds, has(selfExternalId("isbn", isbn)));
     }
 
     @Test
@@ -253,12 +254,10 @@ public class OrcidEntityFactoryServiceIT extends AbstractIntegrationTestWithData
         assertThat(work.getExternalIdentifiers(), notNullValue());
 
         List<ExternalID> externalIds = work.getExternalIdentifiers().getExternalIdentifier();
-        assertThat(externalIds, hasSize(4));
+        assertThat(externalIds, hasSize(3));
         assertThat(externalIds, has(selfExternalId("doi", "doi-id")));
         assertThat(externalIds, has(selfExternalId("eid", "scopus-id")));
         assertThat(externalIds, has(selfExternalId("handle", product.getHandle())));
-        // Book type should have SELF rel for ISBN
-        assertThat(externalIds, has(selfExternalId("isbn", isbn)));
 
     }
 
@@ -274,7 +273,7 @@ public class OrcidEntityFactoryServiceIT extends AbstractIntegrationTestWithData
             .withIssueDate("2021-04-30")
             .withDescriptionAbstract("Publication description")
             .withLanguage("en_US")
-            .withType("Article")
+            .withType("Controlled Vocabulary for Resource Type Genres::text::periodical::journal::contribution to journal::journal article")
             .withIsPartOf("Journal")
             .withISSN(issn)
             .withDoiIdentifier("doi-id")
@@ -557,7 +556,7 @@ public class OrcidEntityFactoryServiceIT extends AbstractIntegrationTestWithData
         Item publication = ItemBuilder.createItem(context, publications)
             .withTitle("Test journal")
             .withEditor("Editor")
-            .withType("Journal")
+            .withType("Controlled Vocabulary for Resource Type Genres::text::periodical::journal")
             .withISSN(issn)
             .build();
 

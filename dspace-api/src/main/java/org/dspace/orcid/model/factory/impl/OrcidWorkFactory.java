@@ -92,7 +92,6 @@ public class OrcidWorkFactory implements OrcidEntityFactory {
         work.setWorkTitle(getWorkTitle(context, item));
         work.setPublicationDate(getPublicationDate(context, item));
         work.setWorkExternalIdentifiers(getWorkExternalIds(context, item, work));
-        work.setWorkType(getWorkType(context, item));
         work.setWorkCitation(getWorkCitation(context, item));
         work.setShortDescription(getShortDescription(context, item));
         work.setLanguageCode(getLanguageCode(context, item));
@@ -237,7 +236,7 @@ public class OrcidWorkFactory implements OrcidEntityFactory {
 
         if (externalIdValues.size() > fundingPlace && isNotPlaceholder(externalIdValues.get(fundingPlace))) {
             String value = externalIdValues.get(fundingPlace).getValue();
-            return Optional.of(getExternalId(value, fieldMapping.getFundingExternalIdType(), FUNDED_BY));
+            return Optional.of(getExternalId(fieldMapping.getFundingExternalIdType(), value, FUNDED_BY));
         }
 
         return Optional.empty();
