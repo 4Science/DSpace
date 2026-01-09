@@ -189,7 +189,7 @@ public class CrisConsumer implements Consumer {
     }
 
     private void addEntityTypeIfNotExist(Context context, Item item) throws SQLException {
-        EntityType entityType = itemService.getEntityType(context, item);
+        String entityType = itemService.getEntityType(item);
         if (entityType == null) {
             Collection collection = item.getOwningCollection();
             if (collection != null) {
