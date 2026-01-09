@@ -29,7 +29,6 @@ import org.dspace.authority.service.AuthorityValueService;
 import org.dspace.authority.service.ItemSearchService;
 import org.dspace.content.Collection;
 import org.dspace.content.DSpaceObject;
-import org.dspace.content.EntityType;
 import org.dspace.content.Item;
 import org.dspace.content.MetadataValue;
 import org.dspace.content.WorkspaceItem;
