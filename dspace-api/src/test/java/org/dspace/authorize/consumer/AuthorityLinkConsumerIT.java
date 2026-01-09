@@ -46,7 +46,7 @@ public class AuthorityLinkConsumerIT extends AbstractIntegrationTestWithDatabase
             .withName("Parent Community")
             .build();
 
-        collection = CollectionBuilder.createCollection(context, parentCommunity)
+        collection = CollectionBuilder.createCollection(context, parentCommunity, "123456789/person")
             .withName("Collection 1")
             .withEntityType("Person")
             .build();
