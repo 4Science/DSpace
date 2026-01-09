@@ -413,7 +413,7 @@ public class CustomUrlStepIT extends AbstractControllerIntegrationTest {
                 contains(hasJsonPath("$.paths", contains(hasJsonPath("$", is("/sections/custom-url/url")))))));
 
         item = context.reloadEntity(item);
-        assertThat(item.getMetadata(), hasItem(with("cris.customurl", "my-url")));
+        assertThat(item.getMetadata(), hasItem(with("dspace.customurl", "my-url")));
 
     }
 
