@@ -80,7 +80,6 @@
                 catenateAll="0"
                 splitOnCaseChange="1"/>
         <filter class="org.apache.lucene.analysis.icu.ICUFoldingFilterFactory"/>
-        <filter class="solr.KeywordRepeatFilterFactory"/>
         <filter class="solr.SnowballPorterFilterFactory" language="English" protected="protwords.txt"/>
         <filter class="solr.RemoveDuplicatesTokenFilterFactory"/>
       </analyzer>
@@ -245,7 +244,7 @@
 
  <fields>
 
-	<field name="_version_" type="long" indexed="true" stored="true" docValues="true" multiValued="false"/>
+ 	<field name="_version_" type="long" indexed="true" stored="true" multiValued="false"/>
 
     <!-- catchall field, containing all other searchable text fields (implemented
         via copyField further on in this schema  -->
@@ -254,7 +253,7 @@
     <field name="fulltext" type="text" indexed="true" stored="true" multiValued="true"/>
 
     <!-- Internal DSpace Object ID -->
-    <field name="search.resourceid" type="string" indexed="true" stored="true" required="true" omitNorms="true" docValues="true"/>
+    <field name="search.resourceid" type="string" indexed="true" stored="true" required="true" omitNorms="true" />
 
     <!-- Internal DSpaceObject Type ID -->
     <field name="search.resourcetype" type="string" indexed="true" stored="true" required="true" omitNorms="true" />
@@ -270,6 +269,7 @@
     <field name="discoverable" type="string" indexed="true" stored="true" omitNorms="true" docValues="true" />
 
     <field name="read" type="string" indexed="true" stored="true" omitNorms="true" multiValued="true" docValues="true" />
+    <field name="admin" type="string" indexed="true" stored="true" omitNorms="true" multiValued="true" docValues="true" />
 
     <!-- used to track who submitted an item -->
     <field name="submitter" type="string" indexed="true" stored="true" omitNorms="true" multiValued="true" docValues="true" />
@@ -277,6 +277,8 @@
     <field name="taskfor" type="string" indexed="true" stored="true" omitNorms="true" multiValued="true" docValues="true" />
    
     <field name="has_content_in_original_bundle" type="string" indexed="true" stored="true" omitNorms="true" multiValued="true" docValues="true" />
+
+    <field name="has_geospatial_metadata" type="string" indexed="true" stored="true" omitNorms="true" multiValued="true" docValues="true" />
 
     <!-- used to track which group(s) have submit permissions -->
     <field name="submit" type="string" indexed="true" stored="true" omitNorms="true" multiValued="true" docValues="true" />
@@ -300,7 +302,7 @@
     <!-- used by the DSpace Discovery Solr Indexer to track the last time a document was indexed -->
     <field name="SolrIndexer.lastIndexed" type="date" indexed="true" stored="true" default="NOW" multiValued="false" omitNorms="true" />
     <field name="lastModified" type="date" indexed="true" stored="true" default="NOW" multiValued="false" omitNorms="true" />
-    <field name="lastModified_dt" type="date" indexed="true" stored="true" default="NOW" multiValued="false" omitNorms="true" docValues="true"/>
+    <copyField source="lastModified" dest="lastModified_dt" />
 
     <!-- used to filter out items that are older versions of another item -->
     <field name="latestVersion" type="boolean" indexed="true" stored="true" default="true" multiValued="false" omitNorms="true"/>
@@ -325,7 +327,6 @@
     <dynamicField name="*_prefix" type="keywordFilter" indexed="true" stored="true" multiValued="true" omitNorms="true" />
     <dynamicField name="*_authority" type="keywordFilter" indexed="true" stored="true" multiValued="true" omitNorms="true" />
     <dynamicField name="*_keyword" type="keywordFilter" indexed="true" stored="true" multiValued="true" omitNorms="true" />
-    <dynamicField name="*_statfilter" type="string" indexed="true" stored="true" multiValued="true" required="false" omitNorms="true" />
 
 	<!--Dynamic field used for SOLR browse by partial value -->
     <dynamicField name="*_partial" type="text" indexed="true" stored="true" multiValued="true" omitNorms="true" />
@@ -341,17 +342,8 @@
     <dynamicField name="*_mlt" type="text" indexed="true" stored="true" multiValued="true" omitNorms="true" termVectors="true" termPositions="true" termOffsets="true"/>
 
     <!--Date matching-->
-    <dynamicField name="*.year" type="sint" indexed="true" stored="true" multiValued="true" omitNorms="true" />
+    <dynamicField name="*_year" type="sint" indexed="true" stored="true" multiValued="true" omitNorms="true" />
     <dynamicField name="*_dt" type="date" indexed="true" stored="true" multiValued="false" omitNorms="true"  docValues="true"/>
-
-    <!--Dynamic field used for update metrics in Solr doc-->
-    <dynamicField name="metric.*" type="double" indexed="true" stored="true" multiValued="false" docValues="true"/>
-    <dynamicField name="metric.acquisitionDate.*" type="date" indexed="true" stored="true" multiValued="false"/>
-    <dynamicField name="metric.id.*" type="int" indexed="true" stored="true" multiValued="false"/>
-    <dynamicField name="metric.remark.*" type="string" indexed="true" stored="true" multiValued="false"/>
-    <dynamicField name="metric.deltaPeriod1.*" type="double" indexed="true" stored="true" multiValued="false"/>
-    <dynamicField name="metric.deltaPeriod2.*" type="double" indexed="true" stored="true" multiValued="false"/>
-    <dynamicField name="metric.rank.*" type="double" indexed="true" stored="true" multiValued="false"/>
 
     <!--Used for matching on all other fields -->
     <dynamicField name="*" type="text" multiValued="true"/>
@@ -392,7 +384,6 @@
         or to add multiple fields to the same field for easier/faster searching.  -->
 
  <copyField source="*" dest="search_text"/>
- <copyField source="lastModified" dest="lastModified_dt"/>
  <copyField source="title" dest="itemauthoritylookup"/>
  <copyField source="title" dest="itemauthoritylookupexactmatch"/>
  <copyField source="dspace.entity.type" dest="search.entitytype"/>
