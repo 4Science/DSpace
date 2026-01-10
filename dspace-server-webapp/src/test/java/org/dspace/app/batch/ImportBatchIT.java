@@ -77,6 +77,7 @@ import org.dspace.eperson.factory.EPersonServiceFactory;
 import org.dspace.eperson.service.GroupService;
 import org.dspace.services.ConfigurationService;
 import org.dspace.services.factory.DSpaceServicesFactory;
+import org.dspace.util.UUIDUtils;
 import org.dspace.xmlworkflow.factory.XmlWorkflowServiceFactory;
 import org.dspace.xmlworkflow.storedcomponents.XmlWorkflowItem;
 import org.dspace.xmlworkflow.storedcomponents.service.XmlWorkflowItemService;
@@ -200,6 +201,47 @@ public class ImportBatchIT extends AbstractControllerIntegrationTest {
             metadata = itemService.getMetadata(item, MetadataSchemaEnum.DC.getName(), "title", null, defLanguage);
             assertEquals("Only one metadata is assigned to the item", 1, metadata.size());
             assertEquals("Is the new metadata value the right one?", metadata.get(0).getValue(), "Sample Item");
+        } catch (SQLException ex) {
+            throw new RuntimeException(ex);
+        } finally {
+            context.restoreAuthSystemState();
+        }
+    }
+
+    @Test
+    public void createNewWorkspaceItemWithUUID() throws IOException {
+        try {
+            // create imp_record records
+            int impRecordKey = 1;
+            UUID predefineduuid = UUIDUtils.fromString("0525aa6d-9eeb-4f05-96cc-4bb8c3cb6785");
+            ImpRecord impRecord = createImpRecordWithPredefinedUUID(context, impRecordKey,
+                ImpRecordService.SEND_BACK_TO_WORKSPACE_STATUS,
+                ImpRecordService.INSERT_OR_UPDATE_OPERATION, admin, collection, predefineduuid);
+
+            // create imp_metadatavalue records
+            createImpMetadatavalue(context, impRecord, MetadataSchemaEnum.DC.getName(), "title",
+                null, null, "Sample Item");
+
+            // Create a new item
+            String argv[] = new String[] { "-E", admin.getEmail() };
+
+            ItemImportMainOA.main(argv);
+
+            List<WorkspaceItem> wis = workspaceItemService.findAll(context);
+
+            WorkspaceItem wi = wis.get(0);
+            Item item = wi.getItem();
+
+            List<MetadataValue> metadata = item.getMetadata();
+            // one metadata is explicit the other is the cris.sourceid
+            assertEquals("Only two metadata found", 2, metadata.size());
+
+            String defLanguage = configurationService.getProperty("default.language");
+            metadata = itemService.getMetadata(item, MetadataSchemaEnum.DC.getName(), "title", null, defLanguage);
+            assertEquals("Only one metadata is assigned to the item", 1, metadata.size());
+            assertEquals("Is the new metadata value the right one?", metadata.get(0).getValue(), "Sample Item");
+            assertEquals("Is the predefined uuid assigned correctly?", UUIDUtils.toString(item.getID()),
+                UUIDUtils.toString(predefineduuid));
         } catch (SQLException ex) {
             throw new RuntimeException(ex);
         } finally {
@@ -1206,6 +1248,24 @@ public class ImportBatchIT extends AbstractControllerIntegrationTest {
         impRecordService.setImpEperson(impRecord, eperson);
         impRecord.setImpRecordId(sourceRecordId);
         impRecord.setImpSourceref(SOURCE_REF);
+        impRecordService.setStatus(impRecord, status);
+        impRecordService.setOperation(impRecord, operation);
+
+        return impRecordService.create(context, impRecord);
+    }
+
+    private ImpRecord createImpRecordWithPredefinedUUID(Context context, int impRecordKey, Character status,
+            String operation, EPerson eperson, Collection collection, UUID predefined)
+        throws SQLException {
+        // create imp_record records
+        String sourceRecordId = "" + impRecordKey;
+        ImpRecord impRecord = new ImpRecord();
+        impRecord.setImpId(impSeq++);
+        impRecordService.setImpCollection(impRecord, collection);
+        impRecordService.setImpEperson(impRecord, eperson);
+        impRecord.setImpRecordId(sourceRecordId);
+        impRecord.setImpSourceref(SOURCE_REF);
+        impRecord.setUUID(predefined);
         impRecordService.setStatus(impRecord, status);
         impRecordService.setOperation(impRecord, operation);
 
