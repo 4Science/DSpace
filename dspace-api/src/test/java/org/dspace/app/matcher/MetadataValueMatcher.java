@@ -34,8 +34,6 @@ public class MetadataValueMatcher extends TypeSafeMatcher<MetadataValue> {
 
     private final Integer confidence;
 
-    private Integer securityLevel;
-
     private MetadataValueMatcher(String field, String value, String language, String authority, Integer place,
                                  Integer confidence) {
 
@@ -45,7 +43,6 @@ public class MetadataValueMatcher extends TypeSafeMatcher<MetadataValue> {
         this.authority = authority;
         this.place = place;
         this.confidence = confidence;
-
 
     }
 
@@ -74,7 +71,6 @@ public class MetadataValueMatcher extends TypeSafeMatcher<MetadataValue> {
             (Objects.isNull(place) || Objects.equals(metadataValue.getPlace(), place)) &&
             Objects.equals(metadataValue.getConfidence(), confidence);
     }
-
 
     public static MetadataValueMatcher with(String field, String value, String language,
         String authority, Integer place, Integer confidence) {

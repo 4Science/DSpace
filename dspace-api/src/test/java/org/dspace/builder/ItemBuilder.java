@@ -346,7 +346,7 @@ public class ItemBuilder extends AbstractDSpaceObjectBuilder<Item> {
     }
 
     public ItemBuilder withOldCustomUrl(String url) {
-        return addMetadataValue(item, "cris", "customurl", "old", url);
+        return addMetadataValue(item, "dspace", "customurl", "old", url);
     }
 
     public ItemBuilder withHandle(String handle) {
