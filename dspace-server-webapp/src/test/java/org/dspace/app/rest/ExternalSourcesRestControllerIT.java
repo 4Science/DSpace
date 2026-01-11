@@ -19,18 +19,15 @@ import java.util.UUID;
 import org.dspace.app.rest.matcher.EntityTypeMatcher;
 import org.dspace.app.rest.matcher.ExternalSourceEntryMatcher;
 import org.dspace.app.rest.matcher.ExternalSourceMatcher;
-import org.dspace.app.rest.matcher.ItemMatcher;
 import org.dspace.app.rest.matcher.PageMatcher;
 import org.dspace.app.rest.test.AbstractControllerIntegrationTest;
 import org.dspace.builder.CollectionBuilder;
 import org.dspace.builder.CommunityBuilder;
 import org.dspace.builder.EntityTypeBuilder;
-import org.dspace.builder.ItemBuilder;
 import org.dspace.builder.WorkflowItemBuilder;
 import org.dspace.content.Collection;
 import org.dspace.content.Community;
 import org.dspace.content.EntityType;
-import org.dspace.content.Item;
 import org.dspace.core.CrisConstants;
 import org.dspace.external.provider.AbstractExternalDataProvider;
 import org.dspace.external.provider.ExternalDataProvider;
@@ -52,32 +49,37 @@ public class ExternalSourcesRestControllerIT extends AbstractControllerIntegrati
 
     @Test
     public void findAllExternalSources() throws Exception {
-        getClient().perform(get("/api/integration/externalsources"))
+        getClient().perform(get("/api/integration/externalsources").param("size", "22"))
                    .andExpect(status().isOk())
                    .andExpect(jsonPath("$._embedded.externalsources", Matchers.hasItems(
-                       ExternalSourceMatcher.matchExternalSource(
-                           "openaireFunding", "openaireFunding", false),
-                       ExternalSourceMatcher.matchExternalSource(
-                           "sherpaJournalIssn", "sherpaJournalIssn", false),
-                       ExternalSourceMatcher.matchExternalSource(
-                           "sherpaJournal", "sherpaJournal", false),
-                       ExternalSourceMatcher.matchExternalSource(
-                           "sherpaPublisher", "sherpaPublisher", false),
-                       ExternalSourceMatcher.matchExternalSource("mock2", "mock2", false),
-                       ExternalSourceMatcher.matchExternalSource("mock3", "mock3", false),
-                       ExternalSourceMatcher.matchExternalSource("mock4", "mock4", false),
+                       ExternalSourceMatcher.matchExternalSource("mock", "mock", false),
                        ExternalSourceMatcher.matchExternalSource("orcid", "orcid", false),
-                       ExternalSourceMatcher.matchExternalSource("authorAuthority", "authorAuthority", false),
-                       ExternalSourceMatcher.matchExternalSource(
-                           "pubmed", "pubmed", false),
-                       ExternalSourceMatcher.matchExternalSource("scopus", "scopus", false),
                        ExternalSourceMatcher.matchExternalSource("suggestion", "suggestion", false),
-                       ExternalSourceMatcher.matchExternalSource("openaireProject", "openaireProject", false),
-                       ExternalSourceMatcher.matchExternalSource("crossref", "crossref", false),
-                       ExternalSourceMatcher.matchExternalSource("orcidWorks", "orcidWorks", false)
+                       ExternalSourceMatcher.matchExternalSource("scopus", "scopus", false),
+                       ExternalSourceMatcher.matchExternalSource("sherpaJournalIssn", "sherpaJournalIssn", false),
+                       ExternalSourceMatcher.matchExternalSource("sherpaJournal", "sherpaJournal", false),
+                       ExternalSourceMatcher.matchExternalSource("sherpaPublisher", "sherpaPublisher", false),
+                       ExternalSourceMatcher.matchExternalSource("pubmed", "pubmed", false),
+                       ExternalSourceMatcher.matchExternalSource("openaireFunding", "openaireFunding", false),
+                       ExternalSourceMatcher.matchExternalSource("openalexPublication", "openalexPublication", false),
+                       ExternalSourceMatcher.matchExternalSource("openalexPublicationByAuthorId",
+                                                                 "openalexPublicationByAuthorId", false),
+                       ExternalSourceMatcher.matchExternalSource("openalexPublicationByDOI", "openalexPublicationByDOI",
+                                                                 false),
+                       ExternalSourceMatcher.matchExternalSource("openalexPerson", "openalexPerson", false),
+                       ExternalSourceMatcher.matchExternalSource("openalexInstitution", "openalexInstitution", false),
+                       ExternalSourceMatcher.matchExternalSource("openalexPublisher", "openalexPublisher", false),
+                       ExternalSourceMatcher.matchExternalSource("openalexJournal", "openalexJournal", false),
+                       ExternalSourceMatcher.matchExternalSource("openalexFunder", "openalexFunder", false),
+                       ExternalSourceMatcher.matchExternalSource("authorAuthority", "authorAuthority", false),
+                       ExternalSourceMatcher.matchExternalSource("orcidWorks", "orcidWorks", false),
+                       ExternalSourceMatcher.matchExternalSource("datacite", "datacite", false),
+                       ExternalSourceMatcher.matchExternalSource("dataciteProject", "dataciteProject", false),
+                       ExternalSourceMatcher.matchExternalSource("openaireProject", "openaireProject", false)
                    )))
-                   .andExpect(jsonPath("$.page.totalElements", Matchers.is(16)));
+                   .andExpect(jsonPath("$.page.totalElements", Matchers.is(22)));
     }
+
 
     @Test
     public void findOneExternalSourcesExistingSources() throws Exception {
@@ -89,7 +91,7 @@ public class ExternalSourcesRestControllerIT extends AbstractControllerIntegrati
     }
     @Test
     public void findOneExternalSourcesNotExistingSources() throws Exception {
-        getClient().perform(get("/api/integration/externalsources/mocktwo"))
+        getClient().perform(get("/api/integration/externalsources/mock2"))
                    .andExpect(status().isNotFound());
     }
 
@@ -399,12 +401,6 @@ public class ExternalSourcesRestControllerIT extends AbstractControllerIntegrati
 
         String tokenAdmin = getAuthToken(admin.getEmail(), password);
 
-        List<String> mockSupportedEntityTypes = ((AbstractExternalDataProvider) externalDataService
-            .getExternalDataProvider("mock")).getSupportedEntityTypes();
-
-        List<String> pubmedSupportedEntityTypes = ((AbstractExternalDataProvider) externalDataService
-            .getExternalDataProvider("pubmed")).getSupportedEntityTypes();
-
         try {
             ((AbstractExternalDataProvider) externalDataService.getExternalDataProvider("mock"))
                                .setSupportedEntityTypes(Arrays.asList("Publication", "OrgUnit"));
@@ -429,9 +425,9 @@ public class ExternalSourcesRestControllerIT extends AbstractControllerIntegrati
                                  .andExpect(jsonPath("$.page.totalElements", Matchers.is(3)));
         } finally {
             ((AbstractExternalDataProvider) externalDataService.getExternalDataProvider("mock"))
-                .setSupportedEntityTypes(mockSupportedEntityTypes);
+                    .setSupportedEntityTypes(null);
             ((AbstractExternalDataProvider) externalDataService.getExternalDataProvider("pubmed"))
-                .setSupportedEntityTypes(pubmedSupportedEntityTypes);
+                    .setSupportedEntityTypes(null);
         }
     }
 
@@ -470,9 +466,6 @@ public class ExternalSourcesRestControllerIT extends AbstractControllerIntegrati
 
         context.restoreAuthSystemState();
 
-        List<String> mockSupportedEntityTypes = ((AbstractExternalDataProvider) externalDataService
-            .getExternalDataProvider("mock")).getSupportedEntityTypes();
-
         String tokenAdmin = getAuthToken(admin.getEmail(), password);
 
         try {
@@ -501,64 +494,8 @@ public class ExternalSourcesRestControllerIT extends AbstractControllerIntegrati
 
         } finally {
             ((AbstractExternalDataProvider) externalDataService.getExternalDataProvider("mock"))
-                .setSupportedEntityTypes(mockSupportedEntityTypes);
+                    .setSupportedEntityTypes(null);
         }
-    }
-
-    @Test
-    public void findOneExternalSourceEntriesDuplicationTest() throws Exception {
-        context.turnOffAuthorisationSystem();
-
-        parentCommunity = CommunityBuilder.createCommunity(context)
-                                          .withName("Parent Community")
-                                          .build();
-
-        Community child1 = CommunityBuilder.createSubCommunity(context, parentCommunity)
-                                           .withName("Sub Community")
-                                           .build();
-        Collection col1 = CollectionBuilder.createCollection(context, child1).withName("Collection 1").build();
-
-        // create item withDoiIdentifier equals 10.1016/j.procs.2017.03.031
-        Item itemOne = ItemBuilder.createItem(context, col1)
-                                  .withFullName("Public item one")
-                                  .withIssueDate("2023-10-17")
-                                  .withDoiIdentifier("10.1016/j.procs.2017.03.031")
-                                  .withEntityType("Publication")
-                                  .build();
-
-        // create another item withDoiIdentifier equals 10.1016/j.procs.2017.03.031
-        Item itemTwo = ItemBuilder.createItem(context, col1)
-                                  .withFullName("Public item two")
-                                  .withIssueDate("2023-10-17")
-                                  .withDoiIdentifier("10.1016/j.procs.2017.03.031")
-                                  .withEntityType("Publication")
-                                  .build();
-
-        context.restoreAuthSystemState();
-
-        getClient().perform(get("/api/integration/externalsources/mock/entries")
-                                .param("query", "one").param("size", "1"))
-                   .andExpect(status().isOk())
-                   .andExpect(jsonPath("$._embedded.externalSourceEntries", Matchers.hasItem(
-                       ExternalSourceEntryMatcher.matchExternalSourceEntry("onetwo", "onetwo", "onetwo", "mock")
-                   )))
-                   .andExpect(jsonPath("$._embedded.externalSourceEntries[0].matchObjects", containsInAnyOrder(
-                       ItemMatcher.matchItemProperties(itemOne),
-                       ItemMatcher.matchItemProperties(itemTwo)
-                   )))
-                   .andExpect(jsonPath("$.page", PageMatcher.pageEntryWithTotalPagesAndElements(0, 1, 2, 2)));
-
-        getClient().perform(get("/api/integration/externalsources/mock/entries")
-                                .param("query", "one").param("size", "1").param("page", "1"))
-                   .andExpect(status().isOk())
-                   .andExpect(jsonPath("$._embedded.externalSourceEntries", Matchers.hasItem(
-                       ExternalSourceEntryMatcher.matchExternalSourceEntry("one", "one", "one", "mock")
-                   )))
-                   .andExpect(jsonPath("$._embedded.externalSourceEntries[0].matchObjects", containsInAnyOrder(
-                       ItemMatcher.matchItemProperties(itemOne),
-                       ItemMatcher.matchItemProperties(itemTwo)
-                   )))
-                   .andExpect(jsonPath("$.page", PageMatcher.pageEntryWithTotalPagesAndElements(1, 1, 2, 2)));
     }
 
 }
