@@ -674,7 +674,7 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
 
         // now add authorization policies from owning item
         // hmm, not very "multiple-inclusion" friendly
-        authorizeService.inheritPolicies(context, item, bundle);
+        authorizeService.inheritPolicies(context, item, bundle, true);
 
         // Add the bundle to in-memory list
         item.addBundle(bundle);
@@ -1334,8 +1334,8 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
             // if come from InstallItem: remove all submission/workflow policies
             authorizeService.removeAllPoliciesByDSOAndType(context, mybundle, ResourcePolicy.TYPE_SUBMISSION);
             authorizeService.removeAllPoliciesByDSOAndType(context, mybundle, ResourcePolicy.TYPE_WORKFLOW);
-            addCustomPoliciesNotInPlace(context, mybundle, defaultItemPolicies);
-            addDefaultPoliciesNotInPlace(context, mybundle, defaultCollectionBundlePolicies);
+            authorizeService.addCustomPoliciesNotInPlace(context, mybundle, defaultItemPolicies);
+            authorizeService.addDefaultPoliciesNotInPlace(context, mybundle, defaultCollectionBundlePolicies);
 
             for (Bitstream bitstream : mybundle.getBitstreams()) {
                 // If collection has default READ policies, remove the bundle's READ policies.
@@ -1381,8 +1381,8 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
         throws SQLException, AuthorizeException {
         authorizeService.removeAllPoliciesByDSOAndType(context, bitstream, ResourcePolicy.TYPE_SUBMISSION);
         authorizeService.removeAllPoliciesByDSOAndType(context, bitstream, ResourcePolicy.TYPE_WORKFLOW);
-        addCustomPoliciesNotInPlace(context, bitstream, defaultItemPolicies);
-        addDefaultPoliciesNotInPlace(context, bitstream, defaultCollectionPolicies);
+        authorizeService.addCustomPoliciesNotInPlace(context, bitstream, defaultItemPolicies);
+        authorizeService.addDefaultPoliciesNotInPlace(context, bitstream, defaultCollectionPolicies);
     }
 
     @Override
@@ -1425,7 +1425,7 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
             authorizeService.removeAllPoliciesByDSOAndType(context, item, ResourcePolicy.TYPE_WORKFLOW);
 
             // add default policies only if not already in place
-            addDefaultPoliciesNotInPlace(context, item, defaultCollectionPolicies);
+            authorizeService.addDefaultPoliciesNotInPlace(context, item, defaultCollectionPolicies);
         } finally {
             context.restoreAuthSystemState();
         }

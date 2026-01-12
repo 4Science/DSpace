@@ -440,12 +440,8 @@ public class WorkspaceItemRestRepositoryIT extends AbstractControllerIntegration
                                                                                                      "Workspace Item 2",
                                                                                                      "2016-02-13"))))
                         .andExpect(jsonPath("$._embedded.workspaceitems",
-                                            Matchers.not(contains(
-                                                WorkspaceItemMatcher
-                                                    .matchItemWithTitleAndDateIssued(workspaceItem3,
-                                                                                     "Workspace " +
-                                                                                         "Item 3",
-                                                                                     "2016-02-13")))));
+                            Matchers.not(contains(WorkspaceItemMatcher
+                                .matchItemWithTitleAndDateIssued(workspaceItem3, "Workspace Item 3", "2016-02-13")))));
 
         getClient(token).perform(get("/api/submission/workspaceitems").param("size", "2").param("page", "1"))
                         .andExpect(status().isOk())
@@ -600,9 +596,7 @@ public class WorkspaceItemRestRepositoryIT extends AbstractControllerIntegration
                             .andExpect(
                                 jsonPath("$", Matchers.is(
                                     ItemMatcher.matchItemWithTitleAndDateIssued(witem.getItem(),
-                                                                                "Workspace Item" +
-                                                                                    " 1",
-                                                                                "2017-10-17"))));
+                        "Workspace Item 1", "2017-10-17"))));
 
         getClient(authToken).perform(get("/api/submission/workspaceitems/" + witem.getID() + "/submissionDefinition"))
                             .andExpect(status().isOk())
@@ -2317,8 +2311,7 @@ public class WorkspaceItemRestRepositoryIT extends AbstractControllerIntegration
                                     is("Multistep microreactions with proteins using electrocapture technology.")))
                                 .andExpect(
                                     jsonPath(
-                                        "$._embedded.workspaceitems[0].sections.traditionalpageone['dc.identifier" +
-                                            ".pmid'][0].value",
+                        "$._embedded.workspaceitems[0].sections.traditionalpageone['dc.identifier.pmid'][0].value",
                                         is("15117179")))
                                 .andExpect(jsonPath("$._embedded.workspaceitems[0].sections.traditionalpageone"
                                                         + "['dc.contributor.author'][0].value",
@@ -2503,7 +2496,7 @@ public class WorkspaceItemRestRepositoryIT extends AbstractControllerIntegration
                             .andExpect(jsonPath("$._embedded.item.metadata['dc.title'][0].value", is("SimpleTitle")))
                             .andExpect(jsonPath("$._embedded.item.metadata['dc.date.issued'][0].value", is(today)))
                             .andExpect(jsonPath("$._embedded.item.metadata['cris.policy.eperson'][0].value",
-                                                is(user.getEmail())))
+                                                is(user.getName())))
                             .andExpect(jsonPath("$._embedded.item.metadata['cris.policy.eperson'][0].authority",
                                                 is(user.getID().toString())))
                             .andExpect(jsonPath("$._embedded.item.metadata['cris.policy.group'][0].value",
@@ -3637,6 +3630,7 @@ public class WorkspaceItemRestRepositoryIT extends AbstractControllerIntegration
                                                                                  "2019-01-01", "ExtraEntry"))));
     }
 
+    @Test
     public void patchReplaceMetadataOnItemStillInSubmissionTest() throws Exception {
         context.turnOffAuthorisationSystem();
 
@@ -7562,6 +7556,7 @@ public class WorkspaceItemRestRepositoryIT extends AbstractControllerIntegration
             .andExpect(jsonPath("$.sections.upload.files[0].accessConditions", empty()));
     }
 
+    @Ignore
     public void deleteWorkspaceItemWithMinRelationshipsTest() throws Exception {
         context.turnOffAuthorisationSystem();
 
@@ -10003,6 +9998,7 @@ public class WorkspaceItemRestRepositoryIT extends AbstractControllerIntegration
                    )));
     }
 
+    @Test
     public void verifyBitstreamPolicyNotDuplicatedTest() throws Exception {
         context.turnOffAuthorisationSystem();
 

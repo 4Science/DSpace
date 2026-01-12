@@ -4,7 +4,7 @@
     <groupId>org.dspace</groupId>
     <artifactId>dspace-parent</artifactId>
     <packaging>pom</packaging>
-    <version>cris-2025.01.00-SNAPSHOT</version>
+    <version>cris-2025.02.00-SNAPSHOT</version>
     <name>DSpace Parent Project</name>
     <description>
    	DSpace-CRIS is an open source extension of DSpace (http://www.dspace.org) providing out of box support for the CRIS / RIMS and moder Institution Repository use cases with advanced features and optimized configurations
@@ -19,29 +19,29 @@
     <properties>
         <!--=== GENERAL / DSPACE-API DEPENDENCIES ===-->
         <java.version>17</java.version>
-        <spring.version>6.2.8</spring.version>
-        <spring-boot.version>3.5.3</spring-boot.version>
-        <spring-security.version>6.5.1</spring-security.version> <!-- sync with version used by spring-boot-->
+        <spring.version>6.2.14</spring.version>
+        <spring-boot.version>3.5.8</spring-boot.version>
+        <spring-security.version>6.5.7</spring-security.version> <!-- sync with version used by spring-boot-->
         <hibernate.version>6.4.10.Final</hibernate.version>
-        <hibernate-validator.version>8.0.2.Final</hibernate-validator.version>
-        <postgresql.driver.version>42.7.7</postgresql.driver.version>
+        <hibernate-validator.version>8.0.3.Final</hibernate-validator.version>
+        <postgresql.driver.version>42.7.8</postgresql.driver.version>
         <!-- update to version 10.11.0 and newer will cause runtime problems due to some
             graaljs dependency (< 21.2.0) as said here: https://github.com/flyway/flyway/issues/3882 -->
         <flyway.version>10.10.0</flyway.version>
         <solr.client.version>8.11.4</solr.client.version>
 
-        <ehcache.version>3.10.8</ehcache.version>
-        <errorprone.version>2.38.0</errorprone.version>
+        <ehcache.version>3.11.1</ehcache.version>
+        <errorprone.version>2.42.0</errorprone.version>
         <!-- NOTE: when updating jackson.version, also sync jackson-databind.version below -->
-        <jackson.version>2.19.1</jackson.version>
-        <jackson-databind.version>2.19.1</jackson-databind.version>
+        <jackson.version>2.20.1</jackson.version>
+        <jackson-annotations.version>2.20</jackson-annotations.version>
         <jakarta-annotation.version>2.1.1</jakarta-annotation.version>
-        <jaxb-api.version>4.0.2</jaxb-api.version>
-        <jaxb-runtime.version>4.0.5</jaxb-runtime.version>
+        <jaxb-api.version>4.0.4</jaxb-api.version>
+        <jaxb-runtime.version>4.0.6</jaxb-runtime.version>
         <jcache-version>1.1.1</jcache-version>
         <!-- NOTE: Jetty needed for Solr, Handle Server & tests -->
-        <jetty.version>9.4.57.v20241219</jetty.version>
-        <log4j.version>2.24.3</log4j.version>
+        <jetty.version>9.4.58.v20250814</jetty.version>
+        <log4j.version>2.25.2</log4j.version>
         <pdfbox-version>3.0.5</pdfbox-version>
         <rome.version>1.19.0</rome.version>
         <!-- SLF4J is not used, but specified for dependency convergence issues between many dependencies -->
@@ -49,13 +49,15 @@
         <tika.version>3.2.3</tika.version>
         <picocli.version>4.7.6</picocli.version>
         <!-- Sync BouncyCastle & ASM with whatever version Tika uses -->
+        <!-- WARNING: BouncyCastle is also required by the maven-gpg-plugin to sign code during release. Do not update
+             unless the new BouncyCastle version is compatible both with tika-parsers and maven-gpg-plugin. -->
         <bouncycastle.version>1.81</bouncycastle.version>
         <asm.version>8.0.1</asm.version>
         <!-- Jersey is used to integrate with external sources/services -->
-        <jersey.version>3.1.10</jersey.version>
+        <jersey.version>3.1.11</jersey.version>
         <!--=== SERVER WEBAPP DEPENDENCIES ===-->
         <!-- Library for reading JSON documents: https://github.com/json-path/JsonPath (used by Server webapp) -->
-        <json-path.version>2.9.0</json-path.version>
+        <json-path.version>2.10.0</json-path.version>
         <!-- Library for managing JSON Web Tokens (JWT): https://bitbucket.org/connect2id/nimbus-jose-jwt/wiki/Home
              (used by Server webapp) -->
         <nimbus-jose-jwt.version>9.48</nimbus-jose-jwt.version>
@@ -113,7 +115,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-enforcer-plugin</artifactId>
-                    <version>3.5.0</version>
+                    <version>3.6.2</version>
                     <executions>
                         <execution>
                             <id>enforce-java</id>
@@ -164,7 +166,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-compiler-plugin</artifactId>
-                    <version>3.14.0</version>
+                    <version>3.14.1</version>
                     <configuration>
                         <release>${java.version}</release>
                         <!-- Turn on http://errorprone.info (requires fork=true & below compilerArgs)-->
@@ -201,7 +203,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-jar-plugin</artifactId>
-                    <version>3.4.2</version>
+                    <version>3.5.0</version>
                     <configuration>
                         <archive>
                             <manifest>
@@ -215,7 +217,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-war-plugin</artifactId>
-                    <version>3.4.0</version>
+                    <version>3.5.1</version>
                     <configuration>
                         <failOnMissingWebXml>false</failOnMissingWebXml>
                         <!-- Filter the web.xml (needed for IDE compatibility/debugging) -->
@@ -232,7 +234,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-surefire-plugin</artifactId>
-                    <version>3.5.3</version>
+                    <version>3.5.4</version>
                     <configuration>
                         <!-- Allow for the ability to pass JVM memory flags for Unit Tests. Since
                              maven-surefire-plugin forks a new JVM, it ignores MAVEN_OPTS.-->
@@ -259,7 +261,7 @@
                 <!-- Used to run Integration tests (when enabled by -DskipIntegrationTests=false) -->
                 <plugin>
                     <artifactId>maven-failsafe-plugin</artifactId>
-                    <version>3.5.3</version>
+                    <version>3.5.4</version>
                     <configuration>
                         <!-- Allow for the ability to pass JVM memory flags for Unit Tests. Since
                              maven-failsafe-plugin forks a new JVM, it ignores MAVEN_OPTS.-->
@@ -320,14 +322,14 @@
                         <dependency>
                             <groupId>com.puppycrawl.tools</groupId>
                             <artifactId>checkstyle</artifactId>
-                            <version>10.25.0</version>
+                            <version>10.26.1</version>
                         </dependency>
                     </dependencies>
                 </plugin>
                 <plugin>
                     <groupId>com.github.spotbugs</groupId>
                     <artifactId>spotbugs-maven-plugin</artifactId>
-                    <version>4.9.3.0</version>
+                    <version>4.9.8.2</version>
                     <configuration>
                         <effort>Max</effort>
                         <threshold>Low</threshold>
@@ -337,7 +339,7 @@
                         <dependency>
                             <groupId>com.github.spotbugs</groupId>
                             <artifactId>spotbugs</artifactId>
-                            <version>4.9.3</version>
+                            <version>4.9.8</version>
                         </dependency>
                     </dependencies>
                     <executions>
@@ -367,17 +369,17 @@
                 </plugin>
                 <plugin>
                     <artifactId>maven-assembly-plugin</artifactId>
-                    <version>3.7.1</version>
+                    <version>3.8.0</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-dependency-plugin</artifactId>
-                    <version>3.8.1</version>
+                    <version>3.9.0</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-resources-plugin</artifactId>
-                    <version>3.3.1</version>
+                    <version>3.4.0</version>
                 </plugin>
                 <!-- Used to validate License Headers (see build process) -->
                 <plugin>
@@ -389,13 +391,13 @@
                 <plugin>
                     <groupId>org.sonatype.central</groupId>
                     <artifactId>central-publishing-maven-plugin</artifactId>
-                    <version>0.8.0</version>
+                    <version>0.9.0</version>
                 </plugin>
                 <!-- Used to generate JavaDocs for new releases (see release profile). -->
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-javadoc-plugin</artifactId>
-                    <version>3.11.2</version>
+                    <version>3.12.0</version>
                     <configuration>
                         <!-- Never fail a build based on Javadoc errors -->
                         <failOnError>false</failOnError>
@@ -410,7 +412,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-source-plugin</artifactId>
-                    <version>3.3.1</version>
+                    <version>3.4.0</version>
                 </plugin>
                 <!-- Used for custom Groovy code that fills out the 'agnostic.build.dir' needed to
                      set 'dspace.dir' for our testing environment -->
@@ -423,13 +425,13 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-gpg-plugin</artifactId>
-                    <version>3.2.7</version>
+                    <version>3.2.8</version>
                 </plugin>
                 <!-- Used for code coverage reporting (see 'measure-test-coverage' profile) -->
                 <plugin>
                     <groupId>org.jacoco</groupId>
                     <artifactId>jacoco-maven-plugin</artifactId>
-                    <version>0.8.13</version>
+                    <version>0.8.14</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
@@ -446,7 +448,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-release-plugin</artifactId>
-                <version>3.1.1</version>
+                <version>3.2.0</version>
                 <configuration>
                     <!-- During release:prepare and release:perform, pass the "release" property to enable the
                      "release" profile (and enable/disable other profiles based on whether they need releasing) -->
@@ -514,7 +516,7 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>xml-maven-plugin</artifactId>
-                <version>1.1.0</version>
+                <version>1.2.0</version>
                 <executions>
                     <execution>
                         <id>validate-ALL-xml-and-xsl</id>
@@ -616,10 +618,10 @@
             </build>
         </profile>
 
-        <!-- Allow for passing extra memory to Unit/Integration tests.
-             By default this gives unit tests 1GB of memory max (when tests are enabled),
-             unless tweaked on commandline (e.g. "-Dtest.argLine=-Xmx512m"). Since
-             m-surefire-p and m-failsafe-p both fork a new JVM for testing, they ignores MAVEN_OPTS. -->
+      <!-- Profile which sets our default system properties for all Unit/Integration tests.
+           By default, this sets UTF-8 encoding for all tests and gives tests 1GB of memory max.
+           Both m-surefire-p and m-failsafe-p are unable to use MAVEN_OPTS because they fork a new JVM for testing.
+           These default settings may be overridden via the commandline (e.g. "-Dtest.argLine=-Xmx512m"). -->
         <profile>
             <id>test-argLine</id>
             <activation>
@@ -628,7 +630,7 @@
                 </property>
             </activation>
             <properties>
-                <test.argLine>-Xmx1024m</test.argLine>
+                <test.argLine>-Xmx1024m -Dfile.encoding=UTF-8</test.argLine>
             </properties>
         </profile>
 
@@ -781,7 +783,7 @@
                     <plugin>
                         <groupId>org.codehaus.mojo</groupId>
                         <artifactId>license-maven-plugin</artifactId>
-                        <version>2.5.0</version>
+                        <version>2.7.0</version>
                         <!-- This plugin only needs to be run on the Parent POM
                              as it aggregates results from all child POMs. -->
                         <inherited>false</inherited>
@@ -1310,73 +1312,73 @@
             <dependency>
                 <groupId>org.dspace</groupId>
                 <artifactId>dspace-api</artifactId>
-                <version>cris-2025.01.00-SNAPSHOT</version>
+                <version>cris-2025.02.00-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>org.dspace</groupId>
                 <artifactId>dspace-api</artifactId>
                 <type>test-jar</type>
-                <version>cris-2025.01.00-SNAPSHOT</version>
+                <version>cris-2025.02.00-SNAPSHOT</version>
                 <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>org.dspace.modules</groupId>
                 <artifactId>additions</artifactId>
-                <version>cris-2025.01.00-SNAPSHOT</version>
+                <version>cris-2025.02.00-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>org.dspace.modules</groupId>
                 <artifactId>server</artifactId>
                 <classifier>classes</classifier>
-                <version>cris-2025.01.00-SNAPSHOT</version>
+                <version>cris-2025.02.00-SNAPSHOT</version>
             </dependency>
 
             <dependency>
                 <groupId>org.dspace</groupId>
                 <artifactId>dspace-sword</artifactId>
-                <version>cris-2025.01.00-SNAPSHOT</version>
+                <version>cris-2025.02.00-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>org.dspace</groupId>
                 <artifactId>dspace-swordv2</artifactId>
-                <version>cris-2025.01.00-SNAPSHOT</version>
+                <version>cris-2025.02.00-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>org.dspace</groupId>
                 <artifactId>dspace-oai</artifactId>
-                <version>cris-2025.01.00-SNAPSHOT</version>
+                <version>cris-2025.02.00-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>org.dspace</groupId>
                 <artifactId>dspace-services</artifactId>
-                <version>cris-2025.01.00-SNAPSHOT</version>
+                <version>cris-2025.02.00-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>org.dspace</groupId>
                 <artifactId>dspace-server-webapp</artifactId>
                 <type>test-jar</type>
-                <version>cris-2025.01.00-SNAPSHOT</version>
+                <version>cris-2025.02.00-SNAPSHOT</version>
                 <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>org.dspace</groupId>
                 <artifactId>dspace-rdf</artifactId>
-                <version>cris-2025.01.00-SNAPSHOT</version>
+                <version>cris-2025.02.00-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>org.dspace</groupId>
                 <artifactId>dspace-saml2</artifactId>
-                <version>cris-2025.01.00-SNAPSHOT</version>
+                <version>cris-2025.02.00-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>org.dspace</groupId>
                 <artifactId>dspace-iiif</artifactId>
-                <version>cris-2025.01.00-SNAPSHOT</version>
+                <version>cris-2025.02.00-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>org.dspace</groupId>
                 <artifactId>dspace-server-webapp</artifactId>
-                <version>cris-2025.01.00-SNAPSHOT</version>
+                <version>cris-2025.02.00-SNAPSHOT</version>
             </dependency>
             <!-- DSpace API Localization Packages -->
             <dependency>
@@ -1629,13 +1631,13 @@
             <dependency>
                 <groupId>com.healthmarketscience.jackcess</groupId>
                 <artifactId>jackcess</artifactId>
-                <version>4.0.8</version>
+                <version>4.0.10</version>
             </dependency>
             <!-- Tika and axiom-api (in dspace-swordv2) disagree on versions -->
             <dependency>
                 <groupId>org.apache.james</groupId>
                 <artifactId>apache-mime4j-core</artifactId>
-                <version>0.8.12</version>
+                <version>0.8.13</version>
             </dependency>
             <!-- Tika and solr-core disagree on versions of ASM -->
             <dependency>
@@ -1663,7 +1665,7 @@
             <dependency>
                 <groupId>org.checkerframework</groupId>
                 <artifactId>checker-qual</artifactId>
-                <version>3.49.5</version>
+                <version>3.52.0</version>
             </dependency>
 
             <!-- Several dependencies disagree on version of GSON including Jena, Google-OAuth-Client
@@ -1671,7 +1673,7 @@
             <dependency>
                 <groupId>com.google.code.gson</groupId>
                 <artifactId>gson</artifactId>
-                <version>2.13.1</version>
+                <version>2.13.2</version>
             </dependency>
 
             <!-- Reminder: Keep icu4j (in Parent POM) synced with version used by lucene-analyzers-icu below,
@@ -1858,12 +1860,12 @@
             <dependency>
                 <groupId>commons-cli</groupId>
                 <artifactId>commons-cli</artifactId>
-                <version>1.9.0</version>
+                <version>1.11.0</version>
             </dependency>
             <dependency>
                 <groupId>commons-codec</groupId>
                 <artifactId>commons-codec</artifactId>
-                <version>1.18.0</version>
+                <version>1.20.0</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.commons</groupId>
@@ -1873,7 +1875,7 @@
             <dependency>
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-configuration2</artifactId>
-                <version>2.12.0</version>
+                <version>2.13.0</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.commons</groupId>
@@ -1890,12 +1892,12 @@
             <dependency>
                 <groupId>commons-io</groupId>
                 <artifactId>commons-io</artifactId>
-                <version>2.19.0</version>
+                <version>2.21.0</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-lang3</artifactId>
-                <version>3.17.0</version>
+                <version>3.20.0</version>
             </dependency>
             <!-- NOTE: We don't use commons-logging, commons-compress or commons-csv directly,
                  but many dependencies rely on them. Only here specified to avoid dependency convergence issues. -->
@@ -1907,12 +1909,12 @@
             <dependency>
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-compress</artifactId>
-                <version>1.27.1</version>
+                <version>1.28.0</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-csv</artifactId>
-                <version>1.14.0</version>
+                <version>1.14.1</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.commons</groupId>
@@ -1922,17 +1924,17 @@
             <dependency>
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-text</artifactId>
-                <version>1.13.1</version>
+                <version>1.14.0</version>
             </dependency>
             <dependency>
                 <groupId>commons-validator</groupId>
                 <artifactId>commons-validator</artifactId>
-                <version>1.9.0</version>
+                <version>1.10.1</version>
             </dependency>
             <dependency>
                 <groupId>jakarta.activation</groupId>
                 <artifactId>jakarta.activation-api</artifactId>
-                <version>2.1.3</version>
+                <version>2.1.4</version>
             </dependency>
             <!-- Java Injection -->
             <dependency>
@@ -1944,14 +1946,14 @@
             <dependency>
                 <groupId>jakarta.mail</groupId>
                 <artifactId>jakarta.mail-api</artifactId>
-                <version>2.1.3</version>
+                <version>2.1.5</version>
                 <scope>provided</scope>
             </dependency>
             <!-- Jakarta mail default implementation/provider -->
             <dependency>
                 <groupId>org.eclipse.angus</groupId>
                 <artifactId>jakarta.mail</artifactId>
-                <version>2.0.3</version>
+                <version>2.0.5</version>
             </dependency>
             <dependency>
                 <groupId>jakarta.servlet</groupId>
@@ -2102,7 +2104,7 @@
             <dependency>
                 <groupId>com.h2database</groupId>
                 <artifactId>h2</artifactId>
-                <version>2.3.232</version>
+                <version>2.4.240</version>
                 <scope>test</scope>
             </dependency>
             <dependency>
@@ -2135,7 +2137,7 @@
             <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>
                 <artifactId>jackson-annotations</artifactId>
-                <version>${jackson.version}</version>
+                <version>${jackson-annotations.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>
@@ -2145,12 +2147,12 @@
             <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>
                 <artifactId>jackson-databind</artifactId>
-                <version>${jackson-databind.version}</version>
+                <version>${jackson.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.fasterxml.jackson.datatype</groupId>
                 <artifactId>jackson-datatype-jsr310</artifactId>
-                <version>${jackson-databind.version}</version>
+                <version>${jackson.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.google.guava</groupId>

@@ -12,7 +12,7 @@
 # This can be used to restore a "dspacedb" container from a pg_dump, or during upgrade to a new version of PostgreSQL.
 services:
   dspacedb:
-    image: 4science/dspace-cris-postgres-pgcrypto:${DSPACE_VER:-dspace-cris-2024_02_x}-loadsql
+    image: 4science/dspace-cris-postgres-pgcrypto:${DSPACE_VER:-dspace-cris-2025_02_x}-loadsql
     environment:
       # Location where the dump SQL file will be available on the running container
       - LOCALSQL=/tmp/pgdump.sql

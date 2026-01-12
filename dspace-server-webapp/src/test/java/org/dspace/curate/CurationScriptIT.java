@@ -732,6 +732,8 @@ public class CurationScriptIT extends AbstractControllerIntegrationTest {
                 .withMetadata("dc", "identifier", "uri", "demo.dspace.org/home")
                 // MetadataValueLinkChecker uri field with regular link
                 .withMetadata("dc", "description", null, "https://google.com")
+                // MetadataValueLinkChecker uri field with redirect link
+                .withMetadata("dc", "description", "uri", "http://google.com")
                 // MetadataValueLinkChecker uri field with non resolving link
                 .withMetadata("dc", "description", "uri", "https://www.atmire.com/broken-link")
                 .withSubject("ExtraEntry")
@@ -754,7 +756,9 @@ public class CurationScriptIT extends AbstractControllerIntegrationTest {
 
         // field that should be ignored
         assertFalse(checkIfInfoTextLoggedByHandler(handler, "demo.dspace.org/home"));
-        // regular link in field that should not be ignored (http) => expect OK
+        // redirect links in field that should not be ignored => expect OK (even though curl responds with 301)
+        assertTrue(checkIfInfoTextLoggedByHandler(handler, "http://google.com = 200 - OK"));
+        // regular link in field that should not be ignored => expect OK
         assertTrue(checkIfInfoTextLoggedByHandler(handler, "https://google.com = 200 - OK"));
         // nonexistent link in field that should not be ignored => expect 404
         assertTrue(checkIfInfoTextLoggedByHandler(handler, "https://www.atmire.com/broken-link = 404 - FAILED"));

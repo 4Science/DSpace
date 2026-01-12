@@ -65,14 +65,12 @@ services:
       java -XX:+UseParallelGC -XX:MaxRAMPercentage=75 org.springframework.boot.loader.launch.JarLauncher
   dspacedb:
     container_name: dspacedb
-    # Uses a custom Postgres image with pgcrypto installed
-    image: "${DOCKER_REGISTRY:-docker.io}/${DOCKER_OWNER:-4science}/dspace-cris-postgres-pgcrypto:${DSPACE_VER:-dspace-cris-2024_02_x}"
-    build:
-      # Must build out of subdirectory to have access to install script for pgcrypto
-      context: ./dspace/src/main/docker/dspace-postgres-pgcrypto/
-      dockerfile: Dockerfile
+    # Uses the base PostgreSQL image
+    image: "docker.io/postgres:${POSTGRES_VERSION:-15}"
     environment:
       PGDATA: /pgdata
+      POSTGRES_DB: dspace
+      POSTGRES_USER: dspace
       POSTGRES_PASSWORD: dspace
     networks:
       dspacenet:
