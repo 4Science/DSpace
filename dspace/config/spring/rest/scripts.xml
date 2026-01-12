@@ -64,9 +64,9 @@
         <property name="dspaceRunnableClass" value="org.dspace.app.bulkedit.CollectionExport"/>
     </bean>
 
-    <bean id="import-openaire-suggestions" class="org.dspace.app.suggestion.openaire.PublicationLoaderScriptConfiguration">
+    <bean id="import-openaire-suggestions" class="org.dspace.app.suggestion.script.PublicationLoaderScriptConfiguration">
         <property name="description" value="Imports suggestions from OpenAIRE for publication claim"/>
-        <property name="dspaceRunnableClass" value="org.dspace.app.suggestion.openaire.PublicationLoaderRunnable"/>
+        <property name="dspaceRunnableClass" value="org.dspace.app.suggestion.runnable.PublicationLoaderRunnable"/>
     </bean>
 
     <bean id="orcid-bulk-push" class="org.dspace.orcid.script.OrcidBulkPushScriptConfiguration" primary="true">
