@@ -125,7 +125,7 @@ jobs:
       image_name: 4science/dspace-cris-postgres-loadsql
       # Must build out of subdirectory to have access to install script.
       # NOTE: this context will build the image based on the Dockerfile in the specified directory
-      dockerfile_context: ./dspace/src/main/docker/dspace-cris-postgres-loadsql/
+      dockerfile_context: ./dspace/src/main/docker/dspace-postgres-loadsql/
     secrets:
       DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
       DOCKER_ACCESS_TOKEN: ${{ secrets.DOCKER_ACCESS_TOKEN }}
