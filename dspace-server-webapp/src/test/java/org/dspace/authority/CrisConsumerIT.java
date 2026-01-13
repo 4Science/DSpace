@@ -300,6 +300,9 @@ public class CrisConsumerIT extends AbstractControllerIntegrationTest {
 
         String authToken = getAuthToken(submitter.getEmail(), password);
 
+        submitter = context.reloadEntity(submitter);
+        context.setCurrentUser(submitter);
+
         InputStream firstFullText = new ByteArrayInputStream("First submission".getBytes());
 
         WorkspaceItem firstWsitem = WorkspaceItemBuilder.createWorkspaceItem(context, publicationCollection)
@@ -313,6 +316,9 @@ public class CrisConsumerIT extends AbstractControllerIntegrationTest {
                                                         .build();
 
         submitItemViaRest(authToken, firstWsitem.getID());
+
+        submitter = context.reloadEntity(submitter);
+        context.setCurrentUser(submitter);
 
         InputStream secondFullText = new ByteArrayInputStream("Second submission".getBytes());
 
@@ -388,6 +394,9 @@ public class CrisConsumerIT extends AbstractControllerIntegrationTest {
 
         String authToken = getAuthToken(submitter.getEmail(), password);
 
+        submitter = context.reloadEntity(submitter);
+        context.setCurrentUser(submitter);
+
         InputStream firstFullText = new ByteArrayInputStream("First submission".getBytes());
 
         WorkspaceItem firstWsitem = WorkspaceItemBuilder.createWorkspaceItem(context, publicationCollection)
@@ -399,6 +408,9 @@ public class CrisConsumerIT extends AbstractControllerIntegrationTest {
                                                         .build();
 
         submitItemViaRest(authToken, firstWsitem.getID());
+
+        submitter = context.reloadEntity(submitter);
+        context.setCurrentUser(submitter);
 
         InputStream secondFullText = new ByteArrayInputStream("First submission".getBytes());
 
@@ -506,6 +518,9 @@ public class CrisConsumerIT extends AbstractControllerIntegrationTest {
 
         String authToken = getAuthToken(submitter.getEmail(), password);
 
+        submitter = context.reloadEntity(submitter);
+        context.setCurrentUser(submitter);
+
         InputStream firstFullText = new ByteArrayInputStream("First submission".getBytes());
 
         WorkspaceItem firstWsitem = WorkspaceItemBuilder.createWorkspaceItem(context, publicationCollection)
@@ -517,6 +532,9 @@ public class CrisConsumerIT extends AbstractControllerIntegrationTest {
                                                         .build();
 
         submitItemViaRest(authToken, firstWsitem.getID());
+
+        submitter = context.reloadEntity(submitter);
+        context.setCurrentUser(submitter);
 
         InputStream secondFullText = new ByteArrayInputStream("Second submission".getBytes());
 
