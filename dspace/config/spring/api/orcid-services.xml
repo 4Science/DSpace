@@ -301,7 +301,7 @@
     <bean name="mapConverterOrcidToDSpacePublicationType" class="org.dspace.util.SimpleMapConverter" init-method="init">
 		<property name="converterNameFile" value="orcid/mapConverter-orcid-to-dspace-publication-type.properties" />
 		<property name="configurationService" ref="org.dspace.services.ConfigurationService" />
-		<property name="defaultValue" value="Controlled Vocabulary for Resource Type Genres::other"/>
+		<property name="defaultValue" value="other"/>
 	</bean>
     
     <bean name="mapConverterOrcidToDSpaceLanguageCode" class="org.dspace.util.SimpleMapConverter" init-method="init">

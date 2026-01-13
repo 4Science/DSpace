@@ -152,7 +152,7 @@ public class OrcidEntityFactoryServiceIT extends AbstractIntegrationTestWithData
             .withIssueDate("2021-04-30")
             .withDescriptionAbstract("Publication description")
             .withLanguage("en_US")
-            .withType("Controlled Vocabulary for Resource Type Genres::text::book")
+            .withType("text::book")
             .withIsPartOf("Journal")
             .withISBN(isbn)
             .withDoiIdentifier("doi-id")
@@ -382,7 +382,7 @@ public class OrcidEntityFactoryServiceIT extends AbstractIntegrationTestWithData
             .withTitle("Test publication")
             .withAuthor("Walter White")
             .withIssueDate("2021-04-30")
-            .withType("Controlled Vocabulary for Resource Type Genres::text::book")
+            .withType("text::book")
             .withRelationFunding("Test funding")
             .withRelationGrantno("123456")
             .build();
@@ -461,7 +461,7 @@ public class OrcidEntityFactoryServiceIT extends AbstractIntegrationTestWithData
             .withTitle("Test publication")
             .withAuthor("Walter White")
             .withIssueDate("2021-04-30")
-            .withType("Controlled Vocabulary for Resource Type Genres::text::book")
+            .withType("text::book")
             .withRelationFunding("Test funding")
             .build();
 
@@ -533,7 +533,7 @@ public class OrcidEntityFactoryServiceIT extends AbstractIntegrationTestWithData
             .withTitle("Test publication")
             .withAuthor("Walter White")
             .withIssueDate("2021-04-30")
-            .withType("Controlled Vocabulary for Resource Type Genres::text::book")
+            .withType("text::book")
             .withRelationFunding("Test funding")
             .withRelationGrantno(CrisConstants.PLACEHOLDER_PARENT_METADATA_VALUE)
             .build();
@@ -646,7 +646,7 @@ public class OrcidEntityFactoryServiceIT extends AbstractIntegrationTestWithData
             .withTitle("Test publication")
             .withAuthor("Walter White")
             .withIssueDate("2021-04-30")
-            .withType("Controlled Vocabulary for Resource Type Genres::text::book")
+            .withType("text::book")
             .withRelationFunding("Test funding", funding.getID().toString())
             .withRelationGrantno("123456")
             .build();
@@ -741,7 +741,7 @@ public class OrcidEntityFactoryServiceIT extends AbstractIntegrationTestWithData
             .withTitle("Test publication")
             .withAuthor("Walter White")
             .withIssueDate("2021-04-30")
-            .withType("Controlled Vocabulary for Resource Type Genres::text::book")
+            .withType("text::book")
             .withRelationFunding("Test funding", funding.getID().toString())
             .withRelationGrantno("123456")
             .build();
@@ -845,7 +845,7 @@ public class OrcidEntityFactoryServiceIT extends AbstractIntegrationTestWithData
             .withTitle("Test publication")
             .withAuthor("Walter White")
             .withIssueDate("2021-04-30")
-            .withType("Controlled Vocabulary for Resource Type Genres::text::book")
+            .withType("text::book")
             .withRelationFunding("Test funding", funding.getID().toString())
             .withRelationGrantno("123456")
             .build();
