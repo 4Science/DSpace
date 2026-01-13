@@ -136,7 +136,7 @@ public class CrisConsumer implements Consumer {
 
     }
 
-    private void consumeItem(Context context, Item item) throws Exception {
+    private void consumeItem(Context context, final Item item) throws Exception {
 
         addEntityTypeIfNotExist(context, item);
 
@@ -182,7 +182,6 @@ public class CrisConsumer implements Consumer {
             fillRelatedItem(context, metadata, relatedItem, relatedItemAlreadyPresent);
 
             choiceAuthorityService.setReferenceWithAuthority(metadata, relatedItem);
-
         }
 
     }

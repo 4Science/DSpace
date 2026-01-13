@@ -315,14 +315,14 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
         Optional<MetadataValue> colEntityType = getDSpaceEntityType(collection);
         Optional<MetadataValue> templateItemEntityType = getDSpaceEntityType(templateItem);
 
-        if (template && colEntityType.isPresent() && templateItemEntityType.isPresent() &&
+        if (colEntityType.isPresent() && templateItemEntityType.isPresent() &&
             !Strings.CS.equals(colEntityType.get().getValue(), templateItemEntityType.get().getValue())) {
             throw new IllegalStateException("The template item has entity type : (" +
                 templateItemEntityType.get().getValue() + ") different than collection entity type : " +
                 colEntityType.get().getValue());
         }
 
-        if (template && colEntityType.isPresent() && templateItemEntityType.isEmpty()) {
+        if (colEntityType.isPresent() && templateItemEntityType.isEmpty()) {
             MetadataValue original = colEntityType.get();
             MetadataField metadataField = original.getMetadataField();
             MetadataSchema metadataSchema = metadataField.getMetadataSchema();
