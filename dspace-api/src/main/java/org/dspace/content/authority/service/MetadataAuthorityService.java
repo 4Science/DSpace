@@ -14,7 +14,7 @@ import org.dspace.core.Constants;
 /**
  * Broker for metadata authority settings configured for each metadata field.
  *
- * Configuration keys, per metadata field (e.g. "dc.contributer.author")
+ * Configuration keys, per metadata field (e.g. "dc.contributor.author")
  *
  * # is field authority controlled (i.e. store authority, confidence values)?
  * {@code authority.controlled.<FIELD> = true}
@@ -42,7 +42,7 @@ import org.dspace.core.Constants;
 public interface MetadataAuthorityService {
 
     /**
-     * Predicate - is field allowing authority?
+     * Predicate - is field authority-controlled?
      *
      * @param metadataField metadata field
      * @param dsoType       the type of dspace object to consider (Item, Bitstream,
@@ -64,30 +64,28 @@ public interface MetadataAuthorityService {
     public boolean isAuthorityAllowed(String fieldKey, int dsoType, Collection collection);
 
     /**
-     * Predicate - is authority value required for field and the specificied dspace
-     * object?
+     * Predicate - is field authority-controlled?
      *
-     * @param metadataField metadata field
-     * @param dsoType       the type of dspace object to consider (Item, Bitstream,
-     *                      etc?.) as defined in the {@link Constants}
-     * @param collection    the DSpace collection that own or will own the DSpace
-     *                      Object. It can be <code>null</code>
+     * @param fieldKey field key
      * @return true/false
      */
-    public boolean isAuthorityRequired(MetadataField metadataField, int dsoType, Collection collection);
+    public boolean isAuthorityControlled(String fieldKey);
 
     /**
-     * Predicate - is authority value required for field and the specificied dspace object?
+     * Predicate - is authority value required for field?
      *
-     * @param fieldKey   field key
-     * @param dsoType    the type of dspace object to consider (Item, Bitstream,
-     *                   etc?.) as defined in the {@link Constants}
-     * @param collection the DSpace collection that own or will own the DSpace
-     *                   Object. It can be <code>null</code>
+     * @param metadataField metadata field
      * @return true/false
      */
-    public boolean isAuthorityRequired(String fieldKey, int dsoType, Collection collection);
+    public boolean isAuthorityRequired(MetadataField metadataField);
 
+    /**
+     * Predicate - is authority value required for field?
+     *
+     * @param fieldKey field key
+     * @return true/false
+     */
+    public boolean isAuthorityRequired(String fieldKey);
 
     /**
      * Construct a single key from the tuple of schema/element/qualifier

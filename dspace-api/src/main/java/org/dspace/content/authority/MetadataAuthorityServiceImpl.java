@@ -285,13 +285,19 @@ public class MetadataAuthorityServiceImpl implements MetadataAuthorityService {
     }
 
     @Override
-    public boolean isAuthorityRequired(MetadataField metadataField, int dsoType, Collection collection) {
+    public boolean isAuthorityControlled(String fieldKey) {
         init();
-        return isAuthorityRequired(makeFieldKey(metadataField), dsoType, collection);
+        return controlled.containsKey(fieldKey) && controlled.get(fieldKey);
     }
 
     @Override
-    public boolean isAuthorityRequired(String fieldKey, int dsoType, Collection collection) {
+    public boolean isAuthorityRequired(MetadataField metadataField) {
+        init();
+        return isAuthorityRequired(makeFieldKey(metadataField));
+    }
+
+    @Override
+    public boolean isAuthorityRequired(String fieldKey) {
         init();
         Boolean result = isAuthorityRequired.get(fieldKey);
         return (result != null) && result;

@@ -104,9 +104,11 @@ public class AuthorityLinkConsumer implements Consumer {
     private List<String> getLinkMetadata(Context context, Item item) throws DCInputsReaderException {
         List<DCInput> inputs = getAllInputsByCollection(item.getOwningCollection());
         return inputs.stream()
-            .filter(input -> input.getInputType().equalsIgnoreCase("link"))
-            .map(DCInput::getFieldName)
-            .collect(Collectors.toList());
+                     .filter(input -> input != null && input.getInputType() != null)
+                     .filter(input -> "link".equalsIgnoreCase(input.getInputType()))
+                     .map(DCInput::getFieldName)
+                     .filter(Objects::nonNull)
+                     .collect(Collectors.toList());
     }
 
     private List<DCInput> getAllInputsByCollection(Collection collection) throws DCInputsReaderException {

@@ -296,8 +296,7 @@ public abstract class DSpaceObjectServiceImpl<T extends DSpaceObject> implements
                     + authorities + "\"");
         }
 
-        boolean authorityRequired = metadataAuthorityService.isAuthorityRequired(metadataField, dso.getType(),
-                collection);
+        boolean authorityRequired = metadataAuthorityService.isAuthorityRequired(metadataField);
         // Throw an error if we are attempting to add empty values
         if (values == null || values.isEmpty()) {
             throw new IllegalArgumentException("Cannot add empty values to a new metadata field " +
