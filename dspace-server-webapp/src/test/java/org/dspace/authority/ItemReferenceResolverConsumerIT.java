@@ -111,7 +111,6 @@ public class ItemReferenceResolverConsumerIT extends AbstractControllerIntegrati
 
         Item itemWithOrcid = ItemBuilder.createItem(context, personCollection)
                                         .withTitle("Author")
-                                        .withEntityType("Person")
                                         .withOrcidIdentifier("0000-0002-1825-0097")
                                         .build();
 
@@ -159,7 +158,6 @@ public class ItemReferenceResolverConsumerIT extends AbstractControllerIntegrati
 
         Item itemWithOrcid = ItemBuilder.createItem(context, personCollection)
                                         .withTitle("Stephen King")
-                                        .withEntityType("Person")
                                         .withOrcidIdentifier("0000-0002-1825-0097")
                                         .build();
 
@@ -210,7 +208,6 @@ public class ItemReferenceResolverConsumerIT extends AbstractControllerIntegrati
 
         Item itemWithOrcid = ItemBuilder.createItem(context, personCollection)
                                         .withTitle("Howard Phillips Lovecraft")
-                                        .withEntityType("Person")
                                         .withOrcidIdentifier("0000-0002-1825-0097")
                                         .build();
 
@@ -260,7 +257,6 @@ public class ItemReferenceResolverConsumerIT extends AbstractControllerIntegrati
 
         Item itemWithRid = ItemBuilder.createItem(context, personCollection)
                                       .withTitle("Author")
-                                      .withEntityType("Person")
                                       .withResearcherIdentifier("0000-1111")
                                       .build();
 
@@ -307,7 +303,6 @@ public class ItemReferenceResolverConsumerIT extends AbstractControllerIntegrati
 
         Item itemWithIsni = ItemBuilder.createItem(context, personCollection)
                                        .withTitle("Author")
-                                       .withEntityType("Person")
                                        .withIsniIdentifier("AAA-BBB")
                                        .build();
 
@@ -355,7 +350,6 @@ public class ItemReferenceResolverConsumerIT extends AbstractControllerIntegrati
 
         Item itemWithRid = ItemBuilder.createItem(context, personCollection)
                                       .withTitle("Author")
-                                      .withEntityType("Person")
                                       .withOrcidIdentifier("0000-0002-1825-0097")
                                       .withResearcherIdentifier("0000-1111")
                                       .build();
@@ -404,7 +398,6 @@ public class ItemReferenceResolverConsumerIT extends AbstractControllerIntegrati
 
         Item itemWithRid = ItemBuilder.createItem(context, personCollection)
                                       .withTitle("Author")
-                                      .withEntityType("Person")
                                       .withResearcherIdentifier("0000-1111")
                                       .withResearcherIdentifier("2222-3333")
                                       .build();
@@ -441,7 +434,6 @@ public class ItemReferenceResolverConsumerIT extends AbstractControllerIntegrati
 
         WorkspaceItem author = WorkspaceItemBuilder.createWorkspaceItem(context, personCollection)
                                                    .withTitle("Author")
-                                                   .withEntityType("Person")
                                                    .withOrcidIdentifier("0000-0002-1825-0097")
                                                    .build();
 
@@ -485,7 +477,6 @@ public class ItemReferenceResolverConsumerIT extends AbstractControllerIntegrati
 
         Item author = ItemBuilder.createItem(context, personCollection)
                                  .withTitle("Author")
-                                 .withEntityType("Person")
                                  .withOrcidIdentifier("0000-0002-1825-0097")
                                  .build();
 
@@ -564,19 +555,16 @@ public class ItemReferenceResolverConsumerIT extends AbstractControllerIntegrati
 
         Item authorA = ItemBuilder.createItem(context, personCollection)
                                   .withTitle("Author A")
-                                  .withEntityType("Person")
                                   .withOrcidIdentifier("0000-0000-0000-0001")
                                   .build();
 
         Item authorB = ItemBuilder.createItem(context, personCollection)
                                   .withTitle("Author B")
-                                  .withEntityType("Person")
                                   .withOrcidIdentifier("0000-0000-0000-0002")
                                   .build();
 
         Item authorD = ItemBuilder.createItem(context, personCollection)
                                   .withTitle("Author D")
-                                  .withEntityType("Person")
                                   .withResearcherIdentifier("RID-01")
                                   .build();
 
@@ -658,6 +646,7 @@ public class ItemReferenceResolverConsumerIT extends AbstractControllerIntegrati
 
         WorkspaceItem authorItem = WorkspaceItemBuilder.createWorkspaceItem(context, personCollection)
                                                        .withTitle("Mario Rossi")
+                                                       .withIssueDate("2026-01-01")
                                                        .withFulltext("cv.pdf", null, "test".getBytes())
                                                        .withOrcidIdentifier("0000-0002-1825-0097")
                                                        .withSubmitter(submitter)
@@ -690,11 +679,6 @@ public class ItemReferenceResolverConsumerIT extends AbstractControllerIntegrati
     }
 
     private Collection createCollection(String name, String entityType) throws Exception {
-        return createCollection(name, entityType, null);
-    }
-
-
-    private Collection createCollection(String name, String entityType, String submissionDefinition) throws Exception {
         return CollectionBuilder.createCollection(context, parentCommunity)
                                 .withName(name)
                                 .withEntityType(entityType)
