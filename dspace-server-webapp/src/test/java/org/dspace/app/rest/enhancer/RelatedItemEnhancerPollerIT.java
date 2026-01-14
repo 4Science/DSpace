@@ -129,13 +129,13 @@ public class RelatedItemEnhancerPollerIT extends AbstractIntegrationTestWithData
         publication3 = context.reloadEntity(publication3);
 
         List<MetadataValue> metadataValues = publication.getMetadata();
-        assertThat(metadataValues, hasSize(11));
+        assertThat(metadataValues, hasSize(10));
         assertThat(metadataValues, hasItem(with("cris.virtual.department", "4Science")));
         assertThat(metadataValues, hasItem(with("cris.virtualsource.department", personId)));
         assertThat(metadataValues, hasItem(with("cris.virtual.orcid", PLACEHOLDER_PARENT_METADATA_VALUE)));
         assertThat(metadataValues, hasItem(with("cris.virtualsource.orcid", personId)));
         List<MetadataValue> metadataValues2 = publication2.getMetadata();
-        assertThat(metadataValues2, hasSize(17));
+        assertThat(metadataValues2, hasSize(16));
         assertThat(itemService.getMetadataByMetadataString(publication2, "cris.virtual.department"),
                 containsInAnyOrder(
                     withNoPlace("cris.virtual.department", "4Science"),
@@ -153,7 +153,7 @@ public class RelatedItemEnhancerPollerIT extends AbstractIntegrationTestWithData
                     withNoPlace("cris.virtualsource.orcid", personId),
                     withNoPlace("cris.virtualsource.orcid", person2Id)));
         List<MetadataValue> metadataValues3 = publication3.getMetadata();
-        assertThat(metadataValues3, hasSize(18));
+        assertThat(metadataValues3, hasSize(17));
         assertThat(itemService.getMetadataByMetadataString(publication3, "cris.virtual.department"),
                 containsInAnyOrder(
                     withNoPlace("cris.virtual.department", PLACEHOLDER_PARENT_METADATA_VALUE),
@@ -196,7 +196,7 @@ public class RelatedItemEnhancerPollerIT extends AbstractIntegrationTestWithData
         publication3 = context.reloadEntity(publication3);
 
         metadataValues = publication.getMetadata();
-        assertThat(metadataValues, hasSize(13));
+        assertThat(metadataValues, hasSize(12));
         assertThat(itemService.getMetadataByMetadataString(publication, "cris.virtual.department"),
                 containsInAnyOrder(
                     withNoPlace("cris.virtual.department", "4Science"),
@@ -208,7 +208,7 @@ public class RelatedItemEnhancerPollerIT extends AbstractIntegrationTestWithData
         assertThat(metadataValues, hasItem(with("cris.virtual.orcid", "1234-5678-9101")));
         assertThat(metadataValues, hasItem(with("cris.virtualsource.orcid", personId)));
         metadataValues2 = publication2.getMetadata();
-        assertThat(metadataValues2, hasSize(19));
+        assertThat(metadataValues2, hasSize(18));
         assertThat(itemService.getMetadataByMetadataString(publication2, "cris.virtual.department"),
                 containsInAnyOrder(
                     withNoPlace("cris.virtual.department", "4Science"),
@@ -228,7 +228,7 @@ public class RelatedItemEnhancerPollerIT extends AbstractIntegrationTestWithData
                     withNoPlace("cris.virtualsource.orcid", personId),
                     withNoPlace("cris.virtualsource.orcid", person2Id)));
         metadataValues3 = publication3.getMetadata();
-        assertThat(metadataValues3, hasSize(18));
+        assertThat(metadataValues3, hasSize(17));
         assertThat(itemService.getMetadataByMetadataString(publication3, "cris.virtual.department"),
                 containsInAnyOrder(
                     withNoPlace("cris.virtual.department", PLACEHOLDER_PARENT_METADATA_VALUE),
@@ -269,7 +269,7 @@ public class RelatedItemEnhancerPollerIT extends AbstractIntegrationTestWithData
         publication3 = context.reloadEntity(publication3);
 
         metadataValues = publication.getMetadata();
-        assertThat(metadataValues, hasSize(13));
+        assertThat(metadataValues, hasSize(12));
         assertThat(itemService.getMetadataByMetadataString(publication, "cris.virtual.department"),
                 containsInAnyOrder(
                     withNoPlace("cris.virtual.department", "4Science"),
@@ -281,7 +281,7 @@ public class RelatedItemEnhancerPollerIT extends AbstractIntegrationTestWithData
         assertThat(metadataValues, hasItem(with("cris.virtual.orcid", "1234-5678-9101")));
         assertThat(metadataValues, hasItem(with("cris.virtualsource.orcid", personId)));
         metadataValues2 = publication2.getMetadata();
-        assertThat(metadataValues2, hasSize(19));
+        assertThat(metadataValues2, hasSize(18));
         assertThat(itemService.getMetadataByMetadataString(publication2, "cris.virtual.department"),
                 containsInAnyOrder(
                     withNoPlace("cris.virtual.department", "4Science"),
@@ -301,7 +301,7 @@ public class RelatedItemEnhancerPollerIT extends AbstractIntegrationTestWithData
                     withNoPlace("cris.virtualsource.orcid", personId),
                     withNoPlace("cris.virtualsource.orcid", person2Id)));
         metadataValues3 = publication3.getMetadata();
-        assertThat(metadataValues3, hasSize(16));
+        assertThat(metadataValues3, hasSize(15));
         assertThat(itemService.getMetadataByMetadataString(publication3, "cris.virtual.department"),
                 containsInAnyOrder(
                     withNoPlace("cris.virtual.department", PLACEHOLDER_PARENT_METADATA_VALUE),
