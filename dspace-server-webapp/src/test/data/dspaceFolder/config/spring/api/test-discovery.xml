@@ -25,8 +25,8 @@
         <property name="additionalFields">
             <list>
                 <value>crisrp.name</value>
-                <value>crisrp.name.variant</value>
-                <value>crisrp.name.translated</value>
+                <value>person.name.variant</value>
+                <value>person.name.translated</value>
                 <value>person.givenName</value>
                 <value>person.familyName</value>
             </list>

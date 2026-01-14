@@ -1406,7 +1406,7 @@ it, please enter the types and the actual numbers or codes.</hint>
       </row>
       <row>
         <field>
-          <dc-schema>crisrp</dc-schema>
+          <dc-schema>person</dc-schema>
           <dc-element>name</dc-element>
           <dc-qualifier>translated</dc-qualifier>
           <label>Vernacular Name</label>
@@ -1418,7 +1418,7 @@ it, please enter the types and the actual numbers or codes.</hint>
       </row>
       <row>
         <field>
-          <dc-schema>crisrp</dc-schema>
+          <dc-schema>person</dc-schema>
           <dc-element>name</dc-element>
           <dc-qualifier>variant</dc-qualifier>
           <label>Variants</label>

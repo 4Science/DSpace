@@ -38,8 +38,8 @@ public class SolrServiceBestMatchIndexingPlugin implements SolrServiceIndexPlugi
 
     public final static String PUNCT_CHARS_REGEX = "\\p{Punct}";
 
-    protected static final List<String> FULLNAME_FIELDS = List.of("dc.title", "crisrp.name", "crisrp.name.variant",
-        "crisrp.name.translated");
+    protected static final List<String> FULLNAME_FIELDS = List.of("dc.title", "crisrp.name", "person.name.variant",
+        "person.name.translated");
 
     @Autowired
     private ItemService itemService;
