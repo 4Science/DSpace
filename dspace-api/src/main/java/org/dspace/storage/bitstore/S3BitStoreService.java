@@ -307,14 +307,6 @@ public class S3BitStoreService extends BaseBitStoreService {
         }
     }
 
-    private static Supplier<S3Presigner> amazonPresignerBuilderBy(Region region,
-                                                                StaticCredentialsProvider credentialsProvider) {
-        return () -> S3Presigner.builder()
-                                .region(region)
-                                .credentialsProvider(credentialsProvider)
-                                .build();
-    }
-
     /**
      * @param bucketName
      * @return whether or not the specified bucket exists
