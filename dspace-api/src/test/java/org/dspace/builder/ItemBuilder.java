@@ -130,7 +130,7 @@ public class ItemBuilder extends AbstractDSpaceObjectBuilder<Item> {
     }
 
     public ItemBuilder withEntityType(final String entityType) {
-        return addMetadataValue(item, "dspace", "entity", "type", entityType);
+        return setMetadataSingleValue(item, "dspace", "entity", "type", entityType);
     }
 
     public ItemBuilder withPublicationIssueNumber(final String issueNumber) {
