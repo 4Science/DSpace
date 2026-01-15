@@ -162,36 +162,92 @@ public class ItemAuthority implements ChoiceAuthority, LinkableEntityAuthority {
         }
     }
 
+    /**
+     * Converts Solr query results into a list of Choice objects.
+     *
+     * @param results           The Solr documents found.
+     * @param searchTitle       The default title to use if no specific title field is found.
+     * @param onlyExactMatches  Flag to determine if internal title forcing should be applied.
+     * @return A list of Choice objects representing the authority matches.
+     */
     private List<Choice> getChoiceListFromQueryResults(SolrDocumentList results, String searchTitle,
-        boolean onlyExactMatches) {
+                                                       boolean onlyExactMatches) {
         return results
             .stream()
             .map(doc -> {
                 String title = searchTitle;
-                List<String> objectNames = List.of();
-                if (onlyExactMatches && isForceInternalTitle() || !onlyExactMatches) {
-                    Object fieldValue = doc.getFieldValue("objectname");
-                    if (fieldValue != null) {
-                        if (fieldValue instanceof String) {
-                            title = (String) fieldValue;
-                        } else {
-                            objectNames = (ArrayList<String>) fieldValue;
-                            title = objectNames.get(0);
-                        }
+                List<String> objectNames = getSafeList(doc.getFieldValue("objectname"));
+
+                if (!onlyExactMatches || isForceInternalTitle()) {
+                    if (!objectNames.isEmpty()) {
+                        title = objectNames.get(0);
                     } else {
-                        title = ((ArrayList<String>) doc.getFieldValue("dc.title"))
-                            .stream()
-                            .findFirst()
-                            .orElse(searchTitle);
+                        // Check for dc.title as a first fallback
+                        Object dcTitleValue = doc.getFieldValue("dc.title");
+                        if (dcTitleValue != null) {
+                            title = getFirstValue(dcTitleValue, searchTitle);
+                        } else {
+                            // Secondary fallback: Construct title from Person Entity fields
+                            String lastName = getFirstValue(doc.getFieldValue("person.familyName"), "");
+                            String firstName = getFirstValue(doc.getFieldValue("person.givenName"), "");
+
+                            if (StringUtils.isNotBlank(lastName) || StringUtils.isNotBlank(firstName)) {
+                                title = (StringUtils.trimToEmpty(lastName) + ", " +
+                                    StringUtils.trimToEmpty(firstName)).trim();
+                            } else {
+                                // Extreme ratio: Use the search query string or a generic placeholder
+                                title = StringUtils.isNotBlank(searchTitle) ? searchTitle : "Untitled";
+                            }
+                        }
                     }
                 }
+
                 String uuid = (String) doc.getFieldValue("search.resourceid");
                 Map<String, String> extras = ItemAuthorityUtils.buildExtra(getPluginInstanceName(),
-                    doc, objectNames, uuid);
-                return new Choice(uuid,
-                    title,
-                    title, extras);
+                                                                           doc, objectNames, uuid);
+
+                return new Choice(uuid, title, title, extras);
             }).collect(Collectors.toList());
+    }
+
+    /**
+     * Safely extracts the first string value from a Solr field object.
+     * Solr may return a single Object (String) or a Collection (ArrayList) depending on
+     * the schema configuration and the number of values stored.
+     *
+     * @param value        The raw value from solrDocument.getFieldValue().
+     * @param defaultValue The value to return if the input is null or empty.
+     * @return The first string representation of the value, or the defaultValue.
+     */
+    private String getFirstValue(Object value, String defaultValue) {
+        if (value == null) {
+            return defaultValue;
+        }
+        if (value instanceof List<?> list) {
+            return list.isEmpty() ? defaultValue : list.get(0).toString();
+        }
+        return value.toString();
+    }
+
+    /**
+     * Safely converts a Solr field value into a List of Strings.
+     * Handles nulls, single Strings, and various List implementations.
+     * * @param value The raw value from Solr.
+     * @return A non-null List of Strings.
+     */
+    private List<String> getSafeList(Object value) {
+        if (value == null) {
+            return new ArrayList<>();
+        }
+        if (value instanceof List) {
+            return ((List<?>) value).stream()
+                                    .filter(Objects::nonNull)
+                                    .map(Object::toString)
+                                    .collect(Collectors.toList());
+        }
+        List<String> list = new ArrayList<>();
+        list.add(value.toString());
+        return list;
     }
 
     @Override
