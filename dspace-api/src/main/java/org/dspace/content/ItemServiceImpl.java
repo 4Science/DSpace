@@ -13,6 +13,7 @@ import static org.dspace.authority.service.AuthorityValueService.AUTHORITY_CLEAN
 import static org.dspace.authority.service.AuthorityValueService.REFERENCE;
 import static org.dspace.authority.service.AuthorityValueService.SPLIT;
 import static org.dspace.content.authority.Choices.CF_UNSET;
+import static org.dspace.core.Constants.ENTITY_TYPE_NONE;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -332,6 +333,9 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
                 addMetadata(context, item, metadataSchema.getName(), metadataField.getElement(),
                     metadataField.getQualifier(), original.getLanguage(), original.getValue());
             }
+        } else if (colEntityType.isEmpty() && templateItemEntityType.isEmpty()) {
+            // set default dspace entity type
+            setEntityType(context, item, ENTITY_TYPE_NONE);
         }
 
         if (template && (templateItem != null)) {
