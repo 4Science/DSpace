@@ -1052,6 +1052,56 @@ public class ItemAuthorityIT extends AbstractControllerIntegrationTest {
                                         "Author 2", "Author 2", "vocabularyEntry"))));
     }
 
+    @Test
+    public void entityTypeNoneAuthorityFilters() throws Exception {
+        context.turnOffAuthorisationSystem();
+
+        // 1. Configuration: Set up an ItemAuthority with entityType set to "none"
+        configurationService.setProperty("plugin.named.org.dspace.content.authority.ChoiceAuthority",
+                                         new String[] { "org.dspace.content.authority.ItemAuthority = NoneAuthority" });
+
+        configurationService.setProperty("choices.presentation.dc.contributor.author", "suggest");
+        configurationService.setProperty("authority.controlled.dc.contributor.author", "true");
+
+        // This triggers the filter bypass in ItemIndexFactoryImpl due to the "none" value
+        configurationService.setProperty("cris.ItemAuthority.NoneAuthority.entityType", "none");
+
+        // Clear caches to apply new configurations
+        pluginService.clearNamedPluginClasses();
+        choiceAuthorityService.clearCache();
+
+        parentCommunity = CommunityBuilder.createCommunity(context).build();
+        Collection col1 = CollectionBuilder.createCollection(context, parentCommunity).build();
+
+        // 2. Data creation: create items with different entity types
+        Item person = ItemBuilder.createItem(context, col1)
+                                 .withTitle("Test Person")
+                                 .withEntityType("Person").build();
+
+        Item orgUnit = ItemBuilder.createItem(context, col1)
+                                  .withTitle("Test OrgUnit")
+                                  .withEntityType("OrgUnit").build();
+
+        Item genericItem = ItemBuilder.createItem(context, col1)
+                                      .withTitle("Test Generic")
+                                      .build(); // Item without an explicit EntityType
+
+        context.restoreAuthSystemState();
+
+        // 3. Execution: Search for "Test"
+        String token = getAuthToken(eperson.getEmail(), password);
+        getClient(token)
+            .perform(get("/api/submission/vocabularies/NoneAuthority/entries").param("filter", "Test"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.page.totalElements", Matchers.is(1)))
+            .andExpect(jsonPath("$._embedded.entries", Matchers.contains(
+                ItemAuthorityMatcher.matchItemAuthorityProperties(
+                    genericItem.getID().toString(), "Test Generic", "Test Generic", "vocabularyEntry")
+            )))
+            .andExpect(jsonPath("$._embedded.entries[?(@.display == 'Test Person')]").isEmpty())
+            .andExpect(jsonPath("$._embedded.entries[?(@.display == 'Test OrgUnit')]").isEmpty());
+    }
+
     @Override
     @After
     // We need to cleanup the authorities cache once than the configuration has been restored
