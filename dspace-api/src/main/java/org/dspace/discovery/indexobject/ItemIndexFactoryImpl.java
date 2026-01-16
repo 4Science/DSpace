@@ -573,6 +573,12 @@ public class ItemIndexFactoryImpl extends DSpaceObjectIndexFactoryImpl<Indexable
                 }
             }
 
+            String entityType = itemService.getMetadataFirstValue(item, "dspace", "entity", "type", Item.ANY);
+            if (StringUtils.isBlank(entityType)) {
+                entityType = Constants.ENTITY_TYPE_NONE;
+                doc.addField("dspace.entity.type", entityType);
+            }
+
         } catch (Exception e) {
             log.error(LogHelper.getHeader(context, "item_metadata_discovery_error",
                     "Item identifier: " + item.getID()), e);
