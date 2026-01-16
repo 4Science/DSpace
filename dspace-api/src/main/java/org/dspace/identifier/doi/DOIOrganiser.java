@@ -442,7 +442,7 @@ public class DOIOrganiser {
      * @param doiRow        DOI to register
      * @param filter        logical item filter to override
      * @throws IllegalArgumentException
-     *                      if {@link doiRow} does not name an Item.
+     *                      if {@code doiRow} does not name an Item.
      * @throws IllegalStateException
      *                      on invalid DOI.
      * @throws RuntimeException
@@ -737,7 +737,7 @@ public class DOIOrganiser {
         DOI doiRow = null;
         String doi = null;
 
-        // detect it identifer is ItemID, handle or DOI.
+        // detect if identifier is ItemID, handle or DOI.
         // try to detect ItemID
         if (identifier
             .matches("[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[34][0-9a-fA-F]{3}-[89ab][0-9a-fA-F]{3}-[0-9a-fA-F]{12}")) {
