@@ -187,17 +187,8 @@ public class ItemAuthority implements ChoiceAuthority, LinkableEntityAuthority {
                         if (dcTitleValue != null) {
                             title = getFirstValue(dcTitleValue, searchTitle);
                         } else {
-                            // Secondary fallback: Construct title from Person Entity fields
-                            String lastName = getFirstValue(doc.getFieldValue("person.familyName"), "");
-                            String firstName = getFirstValue(doc.getFieldValue("person.givenName"), "");
-
-                            if (StringUtils.isNotBlank(lastName) || StringUtils.isNotBlank(firstName)) {
-                                title = (StringUtils.trimToEmpty(lastName) + ", " +
-                                    StringUtils.trimToEmpty(firstName)).trim();
-                            } else {
-                                // Extreme ratio: Use the search query string or a generic placeholder
-                                title = StringUtils.isNotBlank(searchTitle) ? searchTitle : "Untitled";
-                            }
+                            // Extreme ratio: Use the search query string or a generic placeholder
+                            title = StringUtils.isNotBlank(searchTitle) ? searchTitle : "Untitled";
                         }
                     }
                 }
