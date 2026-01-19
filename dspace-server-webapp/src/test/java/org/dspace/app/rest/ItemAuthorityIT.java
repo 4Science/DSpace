@@ -419,11 +419,13 @@ public class ItemAuthorityIT extends AbstractControllerIntegrationTest {
     }
 
     @Test
-    public void ePersonAuthorityUnauthorizedTest() throws Exception {
+    public void ePersonAuthorityPublicAccessTest() throws Exception {
 
+       // Test that EPersonAuthority is accessible to anonymous users
+       // as per https://github.com/DSpace/DSpace/pull/8600 requirement
        getClient().perform(get("/api/submission/vocabularies/EPersonAuthority/entries")
-                  .param("filter", "wrong text"))
-                  .andExpect(status().isUnauthorized());
+                  .param("filter", "text"))
+                  .andExpect(status().isOk());
     }
 
     @Test
