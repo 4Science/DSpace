@@ -37,7 +37,7 @@
        that you fully re-index after changing this setting as it can
        affect both how text is indexed and queried.
   -->
-  <luceneMatchVersion>7.7.2</luceneMatchVersion>
+  <luceneMatchVersion>9.8.0</luceneMatchVersion>
 
   <!-- <lib/> directives can be used to instruct Solr to load an Jars
        identified and use them to resolve any "plugins" specified in
@@ -75,11 +75,11 @@
        with their external dependencies.
     -->
   <!-- Include contributed libraries that we use in DSpace. -->
-  <lib dir='${solr.install.dir}/contrib/analysis-extras/lib/'
+  <lib dir='${solr.install.dir}/modules/analysis-extras/lib/'
        regex='icu4j-.*\.jar'/>
-  <lib dir='${solr.install.dir}/contrib/analysis-extras/lucene-libs/'
+  <lib dir='${solr.install.dir}/modules/analysis-extras/lib/'
        regex='lucene-analyzers-icu-.*\.jar'/>
-  <lib dir="${solr.install.dir}/contrib/extraction/lib" />
+  <lib dir="${solr.install.dir}/modules/extraction/lib" />
   <lib dir="${solr.install.dir}/dist/"
        regex="solr-cell-\d.*\.jar" />
 
@@ -1839,15 +1839,6 @@
      Custom response writers can be declared as needed...
     -->
     <queryResponseWriter name="velocity" class="solr.VelocityResponseWriter" startup="lazy"/>
-  
-
-  <!-- XSLT response writer transforms the XML output by any xslt file found
-       in Solr's conf/xslt directory.  Changes to xslt files are checked for
-       every xsltCacheLifetimeSeconds.  
-    -->
-  <queryResponseWriter name="xslt" class="solr.XSLTResponseWriter">
-    <int name="xsltCacheLifetimeSeconds">5</int>
-  </queryResponseWriter>
 
   <!-- Query Parsers
 
