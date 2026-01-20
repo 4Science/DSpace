@@ -120,6 +120,7 @@ public class SubmissionFormConverter implements DSpaceConverter<DCInputSet, Subm
 
                 // value-pair and vocabulary are a special kind of authorities
                 String inputType = dcinput.getInputType();
+
                 SelectableMetadata selMd = new SelectableMetadata();
                 if (isChoice(dcinput.getSchema(), dcinput.getElement(), dcinput.getQualifier(),
                              dcinput.getPairsType(), dcinput.getVocabulary(), formName)) {

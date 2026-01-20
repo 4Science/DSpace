@@ -204,10 +204,6 @@ public class WorkspaceItemBuilder extends AbstractBuilder<WorkspaceItem, Workspa
         return setMetadataSingleValue(MetadataSchemaEnum.DC.getName(), "title", null, title);
     }
 
-    public WorkspaceItemBuilder withTitleForLanguage(final String title, final String language) {
-        return addMetadataValue(MetadataSchemaEnum.DC.getName(), "title", null, language, title);
-    }
-
     public WorkspaceItemBuilder withIssueDate(final String issueDate) {
         return addMetadataValue(MetadataSchemaEnum.DC.getName(), "date", "issued", new DCDate(issueDate).toString());
     }

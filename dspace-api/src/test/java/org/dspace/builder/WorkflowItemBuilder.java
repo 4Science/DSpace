@@ -208,10 +208,6 @@ public class WorkflowItemBuilder extends AbstractBuilder<XmlWorkflowItem, XmlWor
         return setMetadataSingleValue(MetadataSchemaEnum.DC.getName(), "title", null, title);
     }
 
-    public WorkflowItemBuilder withTitleForLanguage(final String title, final String language) {
-        return addMetadataValue(MetadataSchemaEnum.DC.getName(), "title", null, language, title);
-    }
-
     /**
      * Set the dc.date.issued field.
      *
@@ -232,11 +228,24 @@ public class WorkflowItemBuilder extends AbstractBuilder<XmlWorkflowItem, XmlWor
         return addMetadataValue(MetadataSchemaEnum.DC.getName(), "contributor", "author", authorName);
     }
 
+    /**
+     * Set the dc.contributor.author field with authority
+     *
+     * @param authorName Author's full name.
+     * @param authority linked item UUID.
+     * @return this builder.
+     */
     public WorkflowItemBuilder withAuthor(String authorName, String authority) {
         return addMetadataValue(MetadataSchemaEnum.DC.getName(), "contributor", "author", null, authorName, authority,
                                 600);
     }
 
+    /**
+     * Set the oairecerif.author.affiliation field
+     *
+     * @param affilation Affiliation full name.
+     * @return this builder.
+     */
     public WorkflowItemBuilder withAuthorAffiliation(final String affilation) {
         return addMetadataValue(MetadataSchemaEnum.OAIRECERIF.getName(), "author", "affiliation", affilation);
     }
@@ -251,28 +260,14 @@ public class WorkflowItemBuilder extends AbstractBuilder<XmlWorkflowItem, XmlWor
         return addMetadataValue(MetadataSchemaEnum.DC.getName(), "subject", null, subject);
     }
 
-    public WorkflowItemBuilder withSubjectForLanguage(final String subject, final String language) {
-        return addMetadataValue(MetadataSchemaEnum.DC.getName(), "subject", null, language, subject);
-    }
-
-    public WorkflowItemBuilder withDoiIdentifier(final String doi) {
-        return addMetadataValue(MetadataSchemaEnum.DC.getName(), "identifier", "doi", doi);
-    }
-
-    public WorkflowItemBuilder withIsniIdentifier(String isni) {
-        return addMetadataValue("person", "identifier", "isni", isni);
-    }
-
-    public WorkflowItemBuilder withPatentNo(String patentNo) {
-        return addMetadataValue("dc", "identifier", "patentno", patentNo);
-    }
-
+    /**
+     * Set the dspace.entity.type field
+     *
+     * @param entityType Entity type name.
+     * @return this builder.
+     */
     public WorkflowItemBuilder withEntityType(String entityType) {
         return addMetadataValue("dspace", "entity", "type", entityType);
-    }
-
-    public WorkflowItemBuilder withIdentifierIsi(String isi) {
-        return addMetadataValue(MetadataSchemaEnum.DC.getName(), "identifier", "isi", isi);
     }
 
     /**

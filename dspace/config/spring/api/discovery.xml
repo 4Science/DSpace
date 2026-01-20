@@ -20,7 +20,7 @@
            http://www.springframework.org/schema/context/spring-context-3.0.xsd
            http://www.springframework.org/schema/util
            http://www.springframework.org/schema/util/spring-util-3.0.xsd"
-       default-autowire-candidates="*Service,*DAO,javax.sql.DataSource,*Plugin" default-lazy-init="true">
+    default-autowire-candidates="*Service,*DAO,javax.sql.DataSource,*Plugin" default-lazy-init="true">
 
     <context:annotation-config /> <!-- allows us to use spring annotations in beans -->
 
@@ -833,8 +833,8 @@
 
     <!--The workspace configuration settings for discovery -->
     <bean id="workspaceConfiguration"
-          class="org.dspace.discovery.configuration.DiscoveryConfiguration"
-          scope="prototype">
+        class="org.dspace.discovery.configuration.DiscoveryConfiguration"
+        scope="prototype">
         <property name="id" value="workspace" />
         <!--Which sidebar facets are to be displayed -->
         <property name="sidebarFacets">
@@ -984,8 +984,8 @@
 
     <!--The workflow configuration settings for discovery -->
     <bean id="workflowConfiguration"
-          class="org.dspace.discovery.configuration.DiscoveryConfiguration"
-          scope="prototype">
+        class="org.dspace.discovery.configuration.DiscoveryConfiguration"
+        scope="prototype">
         <property name="id" value="workflow" />
         <!--Which sidebar facets are to be displayed -->
         <property name="sidebarFacets">
@@ -1060,8 +1060,8 @@
 
     <!--The workflowAdmin configuration settings for discovery -->
     <bean id="workflowAdminConfiguration"
-          class="org.dspace.discovery.configuration.DiscoveryConfiguration"
-          scope="prototype">
+        class="org.dspace.discovery.configuration.DiscoveryConfiguration"
+        scope="prototype">
         <property name="id" value="workflowAdmin" />
         <!--Which sidebar facets are to be displayed -->
         <property name="sidebarFacets">
@@ -2282,31 +2282,31 @@
 
 
     <bean id="ldnMessageEntityBaseConfig"
-          class="org.dspace.discovery.configuration.DiscoveryConfiguration"
-          scope="prototype">
+        class="org.dspace.discovery.configuration.DiscoveryConfiguration"
+        scope="prototype">
         <property name="id" value="ldnMessages" />
         <!--Which sidebar facets are to be displayed -->
         <property name="sidebarFacets">
             <list>
-                <ref bean="searchFilterNotifyRelatedItem" />
-                <ref bean="searchFilterNotifyLdnService" />
-                <ref bean="searchFilterNotifyQueueStatus" />
-                <ref bean="searchFilterNotifyActivityStreamType" />
-                <ref bean="searchFilterNotifyCoarNotifyType" />
-                <ref bean="searchFilterNotifyLastStartTime" />
+            	<ref bean="searchFilterNotifyRelatedItem" />
+            	<ref bean="searchFilterNotifyLdnService" />
+            	<ref bean="searchFilterNotifyQueueStatus" />
+            	<ref bean="searchFilterNotifyActivityStreamType" />
+            	<ref bean="searchFilterNotifyCoarNotifyType" />
+            	<ref bean="searchFilterNotifyLastStartTime" />
             </list>
         </property>
         <!--The search filters which can be used on the discovery search page -->
         <property name="searchFilters">
             <list>
-                <ref bean="searchFilterNotifyRelatedItem" />
-                <ref bean="searchFilterNotifyOrigin" />
-                <ref bean="searchFilterNotifyTarget" />
-                <ref bean="searchFilterNotifyLdnService" />
-                <ref bean="searchFilterNotifyQueueStatus" />
-                <ref bean="searchFilterNotifyActivityStreamType" />
-                <ref bean="searchFilterNotifyCoarNotifyType" />
-                <ref bean="searchFilterNotifyLastStartTime" />
+            	<ref bean="searchFilterNotifyRelatedItem" />
+            	<ref bean="searchFilterNotifyOrigin" />
+            	<ref bean="searchFilterNotifyTarget" />
+            	<ref bean="searchFilterNotifyLdnService" />
+            	<ref bean="searchFilterNotifyQueueStatus" />
+            	<ref bean="searchFilterNotifyActivityStreamType" />
+            	<ref bean="searchFilterNotifyCoarNotifyType" />
+            	<ref bean="searchFilterNotifyLastStartTime" />
             </list>
         </property>
         <!--The sort filters for the discovery search-->
@@ -2314,12 +2314,12 @@
             <bean class="org.dspace.discovery.configuration.DiscoverySortConfiguration">
                 <property name="sortFields">
                     <list>
-                        <ref bean="sortLastModified"/>
-                        <ref bean="sortLastModifiedAsc"/>
-                        <ref bean="sortQueueLastStartTimeDesc"/>
-                        <ref bean="sortQueueLastStartTimeAsc"/>
-                        <ref bean="sortQueueAttemptsDesc"/>
-                        <ref bean="sortQueueAttemptsAsc"/>
+                    	<ref bean="sortLastModified"/>
+                    	<ref bean="sortLastModifiedAsc"/>
+                    	<ref bean="sortQueueLastStartTimeDesc"/>
+                    	<ref bean="sortQueueLastStartTimeAsc"/>
+                    	<ref bean="sortQueueAttemptsDesc"/>
+                    	<ref bean="sortQueueAttemptsAsc"/>
                     </list>
                 </property>
             </bean>
@@ -2336,7 +2336,7 @@
         <property name="defaultRpp" value="10" />
     </bean>
 
-    <!--TagCloud configuration bean for default discovery configuration-->
+     <!--TagCloud configuration bean for default discovery configuration-->
     <bean id="defaultTagCloudFacetConfiguration" class="org.dspace.discovery.configuration.TagCloudFacetConfiguration">
         <!-- Actual configuration of the tagcloud (colors, sorting, etc.) -->
         <property name="tagCloudConfiguration" ref="tagCloudConfiguration"/>
@@ -2793,7 +2793,7 @@
     </bean>
 
     <bean id="searchFilterObjectType"
-          class="org.dspace.discovery.configuration.DiscoverySearchFilterFacet">
+        class="org.dspace.discovery.configuration.DiscoverySearchFilterFacet">
         <property name="indexFieldName" value="resourcetype" />
         <property name="metadataFields">
             <list>
@@ -2803,7 +2803,7 @@
     </bean>
 
     <bean id="searchFilterObjectNamedType"
-          class="org.dspace.discovery.configuration.DiscoverySearchFilterFacet">
+        class="org.dspace.discovery.configuration.DiscoverySearchFilterFacet">
         <property name="indexFieldName" value="namedresourcetype" />
         <property name="type" value="authority" />
         <property name="metadataFields">
@@ -3141,7 +3141,7 @@
 
     <!-- Used only to READ "submitter" facets (managed programmatically at SolrServiceImpl) -->
     <bean id="searchFilterSubmitter"
-          class="org.dspace.discovery.configuration.DiscoverySearchFilterFacet">
+        class="org.dspace.discovery.configuration.DiscoverySearchFilterFacet">
         <property name="indexFieldName" value="submitter" />
         <property name="type" value="authority" />
         <property name="metadataFields">

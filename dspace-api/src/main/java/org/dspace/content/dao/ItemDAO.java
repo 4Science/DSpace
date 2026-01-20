@@ -194,7 +194,7 @@ public interface ItemDAO extends DSpaceObjectLegacySupportDAO<Item> {
      * @throws SQLException if database error
      */
     Iterator<Item> findAll(Context context, boolean archived,
-                           boolean withdrawn, boolean discoverable, Instant lastModified)
+                                  boolean withdrawn, boolean discoverable, Instant lastModified)
         throws SQLException;
 
     /**

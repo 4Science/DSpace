@@ -20,7 +20,9 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.apache.logging.log4j.Logger;
 import org.dspace.app.util.DCInput;
 import org.dspace.app.util.DCInputSet;
@@ -398,7 +400,7 @@ public final class ChoiceAuthorityServiceImpl implements ChoiceAuthorityService 
                     // or an xml vocabulary
                     String authorityName = null;
                     if (StringUtils.isNotBlank(dcinput.getPairsType())
-                            && !StringUtils.equals(dcinput.getInputType(), "qualdrop_value")) {
+                            && !Strings.CS.equals(dcinput.getInputType(), "qualdrop_value")) {
                         authorityName = dcinput.getPairsType();
                     } else if (StringUtils.isNotBlank(dcinput.getVocabulary())) {
                         authorityName = dcinput.getVocabulary();
@@ -725,15 +727,25 @@ public final class ChoiceAuthorityServiceImpl implements ChoiceAuthorityService 
             init();
             ChoiceAuthority source = this.getChoiceAuthorityByAuthorityName(nameVocab);
             if (source != null && source instanceof DSpaceControlledVocabulary) {
+
+                // First, check if this vocabulary index is disabled
+                String[] vocabulariesDisabled = configurationService
+                    .getArrayProperty("webui.browse.vocabularies.disabled");
+                if (vocabulariesDisabled != null && ArrayUtils.contains(vocabulariesDisabled, nameVocab)) {
+                    // Discard this vocabulary browse index
+                    return null;
+                }
+
                 Set<String> metadataFields = new HashSet<>();
                 Map<String, List<String>> formsToFields = this.authoritiesFormDefinitions.get(nameVocab);
+                // Vocabulary is not associated with any form definition, meaning it won't be a browse index
                 if (formsToFields == null) {
                     // no value-pairs has been found
                     return null;
                 }
                 for (Map.Entry<String, List<String>> formToField : formsToFields.entrySet()) {
                     metadataFields.addAll(formToField.getValue().stream().map(value ->
-                                    StringUtils.replace(value, "_", "."))
+                                    Strings.CS.replace(value, "_", "."))
                             .collect(Collectors.toList()));
                 }
                 DiscoverySearchFilterFacet matchingFacet = null;
@@ -757,6 +769,12 @@ public final class ChoiceAuthorityServiceImpl implements ChoiceAuthorityService 
                         break;
                     }
                 }
+
+                // If there is no matching facet, return null to ignore this vocabulary index
+                if (matchingFacet == null) {
+                    return null;
+                }
+
                 DSpaceControlledVocabularyIndex vocabularyIndex =
                         new DSpaceControlledVocabularyIndex((DSpaceControlledVocabulary) source, metadataFields,
                                 matchingFacet);

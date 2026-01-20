@@ -373,7 +373,7 @@ public class ItemIndexFactoryImpl extends DSpaceObjectIndexFactoryImpl<Indexable
                                                         .getInstance()
                                                         .getConfigurationService()
                                                         .getPropertyAsType(
-                                                            "discovery.index.authority.ignore-prefered",
+                                                                "discovery.index.authority.ignore-prefered",
                                                                 Boolean.FALSE),
                                                 true);
 
@@ -713,7 +713,7 @@ public class ItemIndexFactoryImpl extends DSpaceObjectIndexFactoryImpl<Indexable
      * @param separator the separator being used to separate lowercase and regular case
      */
     private void indexIfFilterTypeFacet(SolrInputDocument doc, DiscoverySearchFilter searchFilter, String value,
-                                        ZonedDateTime date, String authority, String preferedLabel, String separator) {
+                                   ZonedDateTime date, String authority, String preferedLabel, String separator) {
         if (searchFilter.getType().equals(DiscoveryConfigurationParameters.TYPE_TEXT)) {
             //Add a special filter
             //We use a separator to split up the lowercase and regular case, this is needed to

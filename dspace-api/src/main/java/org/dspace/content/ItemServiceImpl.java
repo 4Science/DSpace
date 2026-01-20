@@ -585,7 +585,7 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
         context.restoreAuthSystemState();
 
         context.addEvent(new Event(Event.CREATE, Constants.ITEM, item.getID(), null,
-                DetailType.DSO_SUMMARY, getIdentifiers(context, item)));
+                                   DetailType.DSO_SUMMARY, getIdentifiers(context, item)));
 
         log.info(LogHelper.getHeader(context, "create_item", "item_id=" + item.getID()));
 
@@ -1919,17 +1919,15 @@ prevent the generation of resource policy entry values with null dspace_object a
 
     @Override
     public MetadataValue addMetadata(Context context, Item dso, String schema, String element, String qualifier,
-                                     String lang, String value, String authority,
-                                     int confidence, int place) throws SQLException {
+            String lang, String value, String authority, int confidence, int place) throws SQLException {
 
         // We will not verify that they are valid entries in the registry
         // until update() is called.
         MetadataField metadataField = metadataFieldService.findByElement(context, schema, element, qualifier);
         if (metadataField == null) {
             throw new SQLException(
-                "bad_dublin_core schema=" + schema + "." + element + "." +
-                    qualifier + ". Metadata field does not " +
-                    "exist!");
+                "bad_dublin_core schema=" + schema + "." + element + "." + qualifier + ". Metadata field does not " +
+                "exist!");
         }
 
         final Supplier<Integer> placeSupplier = () -> place;

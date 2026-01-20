@@ -24,14 +24,14 @@ import org.dspace.core.Constants;
  * Broker for ChoiceAuthority plugins, and for other information configured
  * about the choice aspect of authority control for a metadata field.
  *
- * Configuration keys, per metadata field (e.g. "dc.contributer.author")
+ * Configuration keys, per metadata field (e.g. "dc.contributor.author")
  * {@code
  * # names the ChoiceAuthority plugin called for this field
  * choices.plugin.<FIELD> = name-of-plugin
  *
  * # mode of UI presentation desired in submission UI:
- * #  "select" is dropdown menu, "lookup" is an input type with search button, "suggest" is autocomplete/suggest
- * choices.presentation.<FIELD> = "select" | "suggest" | "lookup"
+ * #  "select" is dropdown menu, "lookup" is popup with selector, "suggest" is autocomplete/suggest
+ * choices.presentation.<FIELD> = "select" | "suggest"
  *
  * # is value "closed" to the set of these choices or are non-authority values permitted?
  * choices.closed.<FIELD> = true | false

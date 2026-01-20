@@ -742,9 +742,29 @@ public interface ItemService
     Iterator<Item> findArchivedByMetadataField(Context context, String metadataField, String value)
             throws SQLException, AuthorizeException;
 
-    Iterator<Item> findUnfilteredByMetadataField(
-        Context context, String schema, String element, String qualifier, String value
-    ) throws SQLException, AuthorizeException;
+    /**
+     * Find items based on a specific metadata field and value, bypassing standard
+     * status filters. If the value is <code>Item.ANY</code>, it returns all items
+     * containing at least one value for the specified field.
+     * <p>
+     * This method validates the existence of the schema and field before querying
+     * the DAO. It does not filter by archive status, meaning results may include
+     * workspace, workflow, or withdrawn items depending on the DAO implementation.
+     * </p>
+     *
+     * @param context   DSpace context object
+     * @param schema    metadata schema name (e.g., "dc")
+     * @param element   metadata element name (e.g., "identifier")
+     * @param qualifier metadata qualifier name (e.g., "uri"), or null
+     * @param value     the value to search for, or <code>Item.ANY</code> to match any value
+     * @return an iterator over the matching items
+     * @throws SQLException             if a database error occurs
+     * @throws AuthorizeException       if the user lacks sufficient privileges
+     * @throws IllegalArgumentException if the schema or metadata field does not exist
+     */
+    Iterator<Item> findUnfilteredByMetadataField(Context context,
+                                                 String schema, String element, String qualifier, String value)
+        throws SQLException, AuthorizeException;
 
     /**
      * Returns an iterator of Items possessing the passed metadata field, or only
@@ -760,9 +780,9 @@ public interface ItemService
      * @throws AuthorizeException if authorization error
      * @throws IOException        if IO error
      */
-    Iterator<Item> findByMetadataField(
-        Context context, String schema, String element, String qualifier, String value
-    ) throws SQLException, AuthorizeException, IOException;
+    Iterator<Item> findByMetadataField(Context context,
+                                              String schema, String element, String qualifier, String value)
+        throws SQLException, AuthorizeException, IOException;
 
     /**
      * Returns a list of items that match the given predicates, within the

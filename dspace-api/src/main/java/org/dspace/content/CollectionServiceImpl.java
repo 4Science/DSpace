@@ -1235,7 +1235,7 @@ public class CollectionServiceImpl extends DSpaceObjectServiceImpl<Collection> i
         return retriveCollectionByEntityType(context, null, entityType);
     }
 
-    public Collection retriveCollectionByEntityType(Context context, Community community, String entityType) {
+    private Collection retriveCollectionByEntityType(Context context, Community community, String entityType) {
         context.turnOffAuthorisationSystem();
         List<Collection> collections;
         try {

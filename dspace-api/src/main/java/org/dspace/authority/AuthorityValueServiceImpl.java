@@ -171,6 +171,11 @@ public class AuthorityValueServiceImpl implements AuthorityValueService {
         return find(queryString);
     }
 
+    @Override
+    public List<AuthorityValue> findOrcidHolders() {
+        String queryString = "orcid_id:*";
+        return find(queryString);
+    }
 
     @Override
     public List<AuthorityValue> findAll() {

@@ -25,8 +25,11 @@ import org.dspace.services.factory.DSpaceServicesFactory;
 public interface ChoiceAuthority extends NameAwarePlugin {
 
     /**
-     *
-     * @return
+     * Checks if this authority control mechanism is accessible to the public.
+     * It reads the configuration property <code>authority.<plugin-name>.public</code>
+     * to determine if anonymous users can search or retrieve entries from this authority.
+     * * @return <code>true</code> if the authority is configured as public,
+     * <code>false</code> otherwise (default).
      */
     default boolean isPublic() {
         ConfigurationService configurationService = DSpaceServicesFactory.getInstance().getConfigurationService();
@@ -121,7 +124,7 @@ public interface ChoiceAuthority extends NameAwarePlugin {
     /**
      * Scrollable authorities allows the scroll of the entries without applying
      * filter/query to the
-     * {@link #getMatches(String, String, Collection, int, int, String)}
+     * {@code #getMatches(String, String, Collection, int, int, String)}
      * 
      * @return <code>true</code> if scrollable, default <code>false</code>
      */
@@ -144,7 +147,7 @@ public interface ChoiceAuthority extends NameAwarePlugin {
      * Build the preferred choice associated with the authKey. The default
      * implementation delegate the creato to the {@link #getLabel(String, String)}
      * {@link #getValue(String, String)} and {@link #getExtra(String, String)}
-     * methods but can be directly overriden for better efficiency or special
+     * methods but can be directly overridden for better efficiency or special
      * scenario
      * 
      * @param authKey authority key known to this authority.

@@ -111,8 +111,8 @@ public class DSpaceControlledVocabulary extends SelfNamedPlugin implements Hiera
             }
             String vocabulariesPath = DSpaceServicesFactory.getInstance().getConfigurationService()
                                                            .getProperty("dspace.dir") +
-                File.separator + "config" +
-                File.separator + "controlled-vocabularies";
+                                                           File.separator + "config" +
+                                                           File.separator + "controlled-vocabularies";
             String[] xmlFiles = (new File(vocabulariesPath)).list(new xmlFilter());
             List<String> names = new ArrayList<>();
             for (String filename : xmlFiles) {
@@ -160,7 +160,7 @@ public class DSpaceControlledVocabulary extends SelfNamedPlugin implements Hiera
     protected String buildString(Node node) {
         if (node.getNodeType() == Node.DOCUMENT_NODE || (
             node.getParentNode() != null &&
-                node.getParentNode().getNodeType() == Node.DOCUMENT_NODE)) {
+            node.getParentNode().getNodeType() == Node.DOCUMENT_NODE)) {
             return ("");
         } else {
             String parentValue = buildString(node.getParentNode());
@@ -208,7 +208,7 @@ public class DSpaceControlledVocabulary extends SelfNamedPlugin implements Hiera
             return new Choices(true);
         }
         return new Choices(choices.toArray(new Choice[choices.size()]), start, total, Choices.CF_AMBIGUOUS,
-                           total > start + limit);
+                total > start + limit);
     }
 
     @Override
@@ -356,7 +356,7 @@ public class DSpaceControlledVocabulary extends SelfNamedPlugin implements Hiera
     }
 
     private Map<String, String> addOtherInformation(String parentCurr, String noteCurr,
-                                                    List<String> childrenCurr, String authorityCurr) {
+            List<String> childrenCurr, String authorityCurr) {
         Map<String, String> extras = new HashMap<>();
         if (StringUtils.isNotBlank(parentCurr)) {
             extras.put("parent", parentCurr);
@@ -493,7 +493,7 @@ public class DSpaceControlledVocabulary extends SelfNamedPlugin implements Hiera
                     }
                 }
                 return new Choices(choices.toArray(new Choice[choices.size()]), start, count,
-                                   Choices.CF_AMBIGUOUS, false);
+                        Choices.CF_AMBIGUOUS, false);
             }
         } catch (XPathExpressionException e) {
             log.warn(e.getMessage(), e);
@@ -505,7 +505,7 @@ public class DSpaceControlledVocabulary extends SelfNamedPlugin implements Hiera
     private Choice createChoiceFromNode(Node node) {
         if (node != null && !isRootElement(node)) {
             Choice choice = new Choice(getAuthority(node), getLabel(node), getValue(node),
-                                       isSelectable(node));
+                    isSelectable(node));
             choice.authorityName = this.vocabularyName;
             choice.extras = addOtherInformation(getParent(node), getNote(node), getChildren(node), getAuthority(node));
             return choice;
