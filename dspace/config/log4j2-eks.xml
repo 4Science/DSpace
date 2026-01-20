@@ -40,8 +40,21 @@
                     },
                     "level": { "$resolver": "level", "field": "name" },
                     "logger": { "$resolver": "logger", "field": "name" },
+                    "loggerFqcn": { "$resolver": "logger", "field": "fqcn" },
                     "thread": { "$resolver": "thread", "field": "name" },
-                    "message": { "$resolver": "message", "stringified": true }
+                    "threadId": { "$resolver": "thread", "field": "id" },
+                    "threadPriority": { "$resolver": "thread", "field": "priority" },
+                    "pid": { "$resolver": "pattern", "pattern": "%pid" },
+                    "host": { "$resolver": "pattern", "pattern": "${hostName}" },
+                    "marker": { "$resolver": "marker", "field": "name" },
+                    "endOfBatch": { "$resolver": "endOfBatch" },
+                    "message": { "$resolver": "message", "stringified": true },
+                    "contextMap": {
+                      "$resolver": "mdc",
+                      "excludes": [ "correlationID", "requestID" ]
+                    },
+                    "contextStack": { "$resolver": "ndc" },
+                    "exception": { "$resolver": "exception", "field": "stackTrace" }
               }'
             />
         </Appender>
