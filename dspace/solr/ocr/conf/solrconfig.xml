@@ -13,12 +13,12 @@
          that you fully re-index after changing this setting as it can
          affect both how text is indexed and queried.
     -->
-    <luceneMatchVersion>8.8.1</luceneMatchVersion>
+    <luceneMatchVersion>9.8.0</luceneMatchVersion>
 
     <lib dir="./lib" regex=".*\.jar" />
-    <lib dir='${solr.install.dir}/contrib/analysis-extras/lib/'
+    <lib dir='${solr.install.dir}//modules/analysis-extras/lib/'
          regex='icu4j-.*\.jar'/>
-    <lib dir='${solr.install.dir}/contrib/analysis-extras/lucene-libs/'
+    <lib dir='${solr.install.dir}//modules/analysis-extras/lib/'
          regex='lucene-analyzers-icu-.*\.jar'/>
 
     <!-- Settings for how updates are done internally -->
