@@ -44,6 +44,9 @@ import org.dspace.authorize.AuthorizeException;
 import org.dspace.authorize.ResourcePolicy;
 import org.dspace.authorize.factory.AuthorizeServiceFactory;
 import org.dspace.authorize.service.AuthorizeService;
+import org.dspace.content.authority.factory.ContentAuthorityServiceFactory;
+import org.dspace.content.authority.service.ChoiceAuthorityService;
+import org.dspace.content.authority.service.MetadataAuthorityService;
 import org.dspace.content.factory.ContentServiceFactory;
 import org.dspace.content.service.BitstreamFormatService;
 import org.dspace.content.service.ItemService;
@@ -51,8 +54,11 @@ import org.dspace.content.service.MetadataFieldService;
 import org.dspace.content.service.MetadataSchemaService;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
+import org.dspace.core.factory.CoreServiceFactory;
+import org.dspace.core.service.PluginService;
 import org.dspace.eperson.EPerson;
 import org.dspace.eperson.Group;
+import org.dspace.services.ConfigurationService;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -80,6 +86,17 @@ public class ItemTest extends AbstractDSpaceObjectTest {
     private BitstreamFormatService bitstreamFormatService = ContentServiceFactory.getInstance()
                                                                                  .getBitstreamFormatService();
     private MetadataFieldService metadataFieldService = ContentServiceFactory.getInstance().getMetadataFieldService();
+
+    private PluginService pluginService = CoreServiceFactory.getInstance().getPluginService();
+
+    private ChoiceAuthorityService choiceAuthorityService = ContentAuthorityServiceFactory
+        .getInstance().getChoiceAuthorityService();
+
+    private MetadataAuthorityService metadataAuthorityService = ContentAuthorityServiceFactory
+        .getInstance().getMetadataAuthorityService();
+
+    private ConfigurationService configurationService =
+        org.dspace.services.factory.DSpaceServicesFactory.getInstance().getConfigurationService();
 
     private Collection collection;
     private Community owningCommunity;
@@ -643,6 +660,20 @@ public class ItemTest extends AbstractDSpaceObjectTest {
 
     @Test
     public void testAddMetadata_list_with_virtual_metadata() throws Exception {
+        choiceAuthorityService.getChoiceAuthoritiesNames();
+        configurationService.setProperty("plugin.named.org.dspace.content.authority.ChoiceAuthority",
+                                         new String[] {
+                                             "org.dspace.content.authority.EPersonAuthority = EPersonAuthority",
+                                             "org.dspace.content.authority.OrcidAuthority = AuthorAuthority"
+                                         });
+        configurationService.setProperty("choices.plugin.dc.contributor.author", "AuthorAuthority");
+        configurationService.setProperty("choices.presentation.dc.contributor.author", "suggest");
+        configurationService.setProperty("authority.controlled.dc.contributor.author", "true");
+        configurationService.setProperty("cris.ItemAuthority.AuthorAuthority.entityType", "Person");
+        pluginService.clearNamedPluginClasses();
+        choiceAuthorityService.clearCache();
+        metadataAuthorityService.clearCache();
+
         String schema = "dc";
         String element = "contributor";
         String qualifier = "author";
@@ -744,8 +775,20 @@ public class ItemTest extends AbstractDSpaceObjectTest {
      * Test of addMetadata method, of class Item.
      */
     @Test
-    public void testAddMetadata_7args_2_noauthority() throws SQLException {
+    public void testAddMetadata_7args_2_noauthority() throws Exception {
         //by default has no authority
+        choiceAuthorityService.getChoiceAuthoritiesNames();
+        configurationService.setProperty("plugin.named.org.dspace.content.authority.ChoiceAuthority",
+                                         new String[] {
+                                             "org.dspace.content.authority.OrcidAuthority = EditorAuthority"
+                                         });
+        configurationService.setProperty("choices.plugin.dc.contributor.editor", "EditorAuthority");
+        configurationService.setProperty("choices.presentation.dc.contributor.editor", "suggest");
+        configurationService.setProperty("authority.controlled.dc.contributor.editor", "true");
+        configurationService.setProperty("cris.ItemAuthority.EditorAuthority.entityType", "Person");
+        pluginService.clearNamedPluginClasses();
+        choiceAuthorityService.clearCache();
+        metadataAuthorityService.clearCache();
 
         String schema = "dc";
         String element = "contributor";
