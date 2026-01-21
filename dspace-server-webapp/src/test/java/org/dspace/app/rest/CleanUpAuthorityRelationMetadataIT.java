@@ -24,8 +24,13 @@ import org.dspace.builder.CommunityBuilder;
 import org.dspace.builder.ItemBuilder;
 import org.dspace.content.Collection;
 import org.dspace.content.Item;
+import org.dspace.content.authority.service.ChoiceAuthorityService;
+import org.dspace.content.authority.service.MetadataAuthorityService;
+import org.dspace.core.service.PluginService;
 import org.dspace.services.ConfigurationService;
 import org.hamcrest.Matchers;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -37,8 +42,52 @@ public class CleanUpAuthorityRelationMetadataIT extends AbstractControllerIntegr
     @Autowired
     private ConfigurationService configurationService;
 
+    @Autowired
+    private PluginService pluginService;
+
+    @Autowired
+    private ChoiceAuthorityService choiceAuthorityService;
+
+    @Autowired
+    private MetadataAuthorityService metadataAuthorityService;
+
+
+    @Before
+    public void setupAuthorityConfiguration() throws Exception {
+        // Common authority configuration for all tests
+        choiceAuthorityService.getChoiceAuthoritiesNames();
+        
+        // Configure plugin and authority settings
+        configurationService.setProperty(
+            "plugin.named.org.dspace.content.authority.ChoiceAuthority",
+            new String[] { "org.dspace.content.authority.ItemAuthority = AuthorAuthority" }
+        );
+        
+        // Configure choice plugins and authority control
+        configurationService.setProperty("choices.plugin.dc.contributor.author", "AuthorAuthority");
+        configurationService.setProperty("authority.controlled.dc.contributor.author", "true");
+        configurationService.setProperty("cris.ItemAuthority.AuthorAuthority.entityType", "Person");
+        configurationService.setProperty("authority.controlled.person.affiliation.name", "true");
+        
+        // Clear caches again after authority configuration
+        pluginService.clearNamedPluginClasses();
+        choiceAuthorityService.clearCache();
+        metadataAuthorityService.clearCache();
+    }
+
     @Test
     public void checkBusinessModeWhileDeletionPersonItemTest() throws Exception {
+
+        configurationService.setProperty("item-deletion.authority-cleanup.enabled", true);
+        // configure BUSINESS_MODE for dc.contributor.author metadata
+        configurationService.setProperty(AUTHORITY_CLEANUP_PROPERTY_PREFIX + "dc.contributor.author",
+                                         AUTHORITY_CLEANUP_BUSINESS_MODE);
+
+        // Clear caches after test-specific configuration
+        pluginService.clearNamedPluginClasses();
+        choiceAuthorityService.clearCache();
+        metadataAuthorityService.clearCache();
+
         context.turnOffAuthorisationSystem();
 
         parentCommunity = CommunityBuilder.createCommunity(context)
@@ -89,10 +138,7 @@ public class CleanUpAuthorityRelationMetadataIT extends AbstractControllerIntegr
 
         context.restoreAuthSystemState();
 
-        configurationService.setProperty("item-deletion.authority-cleanup.enabled", true);
-        // configure BUSINESS_MODE for dc.contributor.author metadata
-        configurationService.setProperty(AUTHORITY_CLEANUP_PROPERTY_PREFIX + "dc.contributor.author",
-                                         AUTHORITY_CLEANUP_BUSINESS_MODE);
+
 
         String tokenAdmin = getAuthToken(admin.getEmail(), password);
         getClient(tokenAdmin).perform(get("/api/core/items/" + personItem.getID()))
@@ -140,6 +186,17 @@ public class CleanUpAuthorityRelationMetadataIT extends AbstractControllerIntegr
 
     @Test
     public void checkBusinessModeAndPersonItemWithoutAnyBusinessIdentifierTest() throws Exception {
+        configurationService.setProperty("authority.controlled.cris.virtual.department", "true");
+        configurationService.setProperty("item-deletion.authority-cleanup.enabled", true);
+        // configure BUSINESS_MODE for dc.contributor.author metadata
+        configurationService.setProperty(AUTHORITY_CLEANUP_PROPERTY_PREFIX + "dc.contributor.author",
+                                         AUTHORITY_CLEANUP_BUSINESS_MODE);
+        
+        // Clear caches after test-specific configuration
+        pluginService.clearNamedPluginClasses();
+        choiceAuthorityService.clearCache();
+        metadataAuthorityService.clearCache();
+
         context.turnOffAuthorisationSystem();
 
         parentCommunity = CommunityBuilder.createCommunity(context)
@@ -187,11 +244,6 @@ public class CleanUpAuthorityRelationMetadataIT extends AbstractControllerIntegr
                                           .build();
 
         context.restoreAuthSystemState();
-
-        configurationService.setProperty("item-deletion.authority-cleanup.enabled", true);
-        // configure BUSINESS_MODE for dc.contributor.author metadata
-        configurationService.setProperty(AUTHORITY_CLEANUP_PROPERTY_PREFIX + "dc.contributor.author",
-                                         AUTHORITY_CLEANUP_BUSINESS_MODE);
 
         String tokenAdmin = getAuthToken(admin.getEmail(), password);
         getClient(tokenAdmin).perform(get("/api/core/items/" + personItem.getID()))
@@ -238,6 +290,17 @@ public class CleanUpAuthorityRelationMetadataIT extends AbstractControllerIntegr
 
     @Test
     public void checkCleanAllModeWhileDeletionPersonItemTest() throws Exception {
+
+        configurationService.setProperty("item-deletion.authority-cleanup.enabled", true);
+        // configure CLEAN_ALL_MODE for dc.contributor.author metadata
+        configurationService.setProperty(AUTHORITY_CLEANUP_PROPERTY_PREFIX + "dc.contributor.author",
+                                         AUTHORITY_CLEANUP_CLEAN_ALL_MODE);
+
+        // Clear caches after test-specific configuration
+        pluginService.clearNamedPluginClasses();
+        choiceAuthorityService.clearCache();
+        metadataAuthorityService.clearCache();
+
         context.turnOffAuthorisationSystem();
 
         parentCommunity = CommunityBuilder.createCommunity(context)
@@ -287,11 +350,6 @@ public class CleanUpAuthorityRelationMetadataIT extends AbstractControllerIntegr
                                           .build();
 
         context.restoreAuthSystemState();
-
-        configurationService.setProperty("item-deletion.authority-cleanup.enabled", true);
-        // configure CLEAN_ALL_MODE for dc.contributor.author metadata
-        configurationService.setProperty(AUTHORITY_CLEANUP_PROPERTY_PREFIX + "dc.contributor.author",
-                                         AUTHORITY_CLEANUP_CLEAN_ALL_MODE);
 
         String tokenAdmin = getAuthToken(admin.getEmail(), password);
         getClient(tokenAdmin).perform(get("/api/core/items/" + personItem.getID()))
@@ -338,6 +396,17 @@ public class CleanUpAuthorityRelationMetadataIT extends AbstractControllerIntegr
 
     @Test
     public void checkWithoutAnyModeWhileDeletionPersonItemTest() throws Exception {
+        configurationService.setProperty("item-deletion.authority-cleanup.enabled", true);
+        // dc.contributor.author metadata with out any mode
+        configurationService.setProperty(AUTHORITY_CLEANUP_PROPERTY_PREFIX + "dc.contributor.author", "");
+        configurationService.setProperty(AUTHORITY_CLEANUP_PROPERTY_PREFIX + "default",
+                                         AUTHORITY_CLEANUP_BUSINESS_MODE);
+
+        // Clear caches after test-specific configuration
+        pluginService.clearNamedPluginClasses();
+        choiceAuthorityService.clearCache();
+        metadataAuthorityService.clearCache();
+
         context.turnOffAuthorisationSystem();
 
         parentCommunity = CommunityBuilder.createCommunity(context)
@@ -387,12 +456,6 @@ public class CleanUpAuthorityRelationMetadataIT extends AbstractControllerIntegr
                                           .build();
 
         context.restoreAuthSystemState();
-
-        configurationService.setProperty("item-deletion.authority-cleanup.enabled", true);
-        // dc.contributor.author metadata with out any mode
-        configurationService.setProperty(AUTHORITY_CLEANUP_PROPERTY_PREFIX + "dc.contributor.author", "");
-        configurationService.setProperty(AUTHORITY_CLEANUP_PROPERTY_PREFIX + "default",
-                                         AUTHORITY_CLEANUP_BUSINESS_MODE);
 
         String tokenAdmin = getAuthToken(admin.getEmail(), password);
         getClient(tokenAdmin).perform(get("/api/core/items/" + personItem.getID()))
@@ -440,6 +503,10 @@ public class CleanUpAuthorityRelationMetadataIT extends AbstractControllerIntegr
 
     @Test
     public void turnOffCleanupModeTest() throws Exception {
+        configurationService.setProperty("item-deletion.authority-cleanup.enabled", false);
+        // configure BUSINESS_MODE for dc.contributor.author metadata
+        configurationService.setProperty(AUTHORITY_CLEANUP_PROPERTY_PREFIX + "dc.contributor.author",
+                                         AUTHORITY_CLEANUP_BUSINESS_MODE);
         context.turnOffAuthorisationSystem();
 
         parentCommunity = CommunityBuilder.createCommunity(context)
@@ -489,11 +556,6 @@ public class CleanUpAuthorityRelationMetadataIT extends AbstractControllerIntegr
                                           .build();
 
         context.restoreAuthSystemState();
-
-        configurationService.setProperty("item-deletion.authority-cleanup.enabled", false);
-        // configure BUSINESS_MODE for dc.contributor.author metadata
-        configurationService.setProperty(AUTHORITY_CLEANUP_PROPERTY_PREFIX + "dc.contributor.author",
-                                         AUTHORITY_CLEANUP_BUSINESS_MODE);
 
         String tokenAdmin = getAuthToken(admin.getEmail(), password);
         getClient(tokenAdmin).perform(get("/api/core/items/" + personItem.getID()))

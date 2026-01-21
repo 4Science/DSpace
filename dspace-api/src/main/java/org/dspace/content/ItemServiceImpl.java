@@ -912,7 +912,7 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
         item.clearCollections();
         item.setOwningCollection(null);
 
-        // remore authority references
+        // remove authority references
         if (configurationService.getBooleanProperty("item-deletion.authority-cleanup.enabled", false)) {
             removeAuthorityReferences(context, item);
         }
