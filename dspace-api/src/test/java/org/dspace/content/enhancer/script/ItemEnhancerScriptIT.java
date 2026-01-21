@@ -38,10 +38,15 @@ import org.dspace.content.Collection;
 import org.dspace.content.Item;
 import org.dspace.content.MetadataValue;
 import org.dspace.content.WorkspaceItem;
+import org.dspace.content.authority.factory.ContentAuthorityServiceFactory;
+import org.dspace.content.authority.service.ChoiceAuthorityService;
+import org.dspace.content.authority.service.MetadataAuthorityService;
 import org.dspace.content.factory.ContentServiceFactory;
 import org.dspace.content.service.ItemService;
 import org.dspace.core.CrisConstants;
 import org.dspace.core.ReloadableEntity;
+import org.dspace.core.factory.CoreServiceFactory;
+import org.dspace.core.service.PluginService;
 import org.dspace.event.factory.EventServiceFactory;
 import org.dspace.event.service.EventService;
 import org.dspace.services.ConfigurationService;
@@ -56,6 +61,15 @@ public class ItemEnhancerScriptIT extends AbstractIntegrationTestWithDatabase {
     private static ConfigurationService configService = DSpaceServicesFactory.getInstance().getConfigurationService();
 
     private static final EventService eventService = EventServiceFactory.getInstance().getEventService();
+
+    private PluginService pluginService = CoreServiceFactory.getInstance().getPluginService();
+
+    private ChoiceAuthorityService choiceAuthorityService = ContentAuthorityServiceFactory
+        .getInstance().getChoiceAuthorityService();
+
+    private MetadataAuthorityService metadataAuthorityService = ContentAuthorityServiceFactory
+        .getInstance().getMetadataAuthorityService();
+
     private static boolean isEnabled;
     private static String[] consumers;
     private ItemService itemService;
@@ -89,8 +103,12 @@ public class ItemEnhancerScriptIT extends AbstractIntegrationTestWithDatabase {
     }
 
     @Before
-    public void setup() {
-
+    public void setup() throws Exception {
+        choiceAuthorityService.getChoiceAuthoritiesNames();
+        configService.setProperty("authority.controlled.dc.contributor.author", "true");
+        pluginService.clearNamedPluginClasses();
+        choiceAuthorityService.clearCache();
+        metadataAuthorityService.clearCache();
         configService.setProperty(ITEMENHANCER_ENABLED, false);
 
         itemService = ContentServiceFactory.getInstance().getItemService();
@@ -110,7 +128,11 @@ public class ItemEnhancerScriptIT extends AbstractIntegrationTestWithDatabase {
 
     @Test
     public void testItemsEnhancement() throws Exception {
-
+        choiceAuthorityService.getChoiceAuthoritiesNames();
+        configService.setProperty("authority.controlled.dc.contributor.editor", "true");
+        pluginService.clearNamedPluginClasses();
+        choiceAuthorityService.clearCache();
+        metadataAuthorityService.clearCache();
         context.turnOffAuthorisationSystem();
 
         Item firstAuthor = ItemBuilder.createItem(context, collection)
@@ -292,7 +314,11 @@ public class ItemEnhancerScriptIT extends AbstractIntegrationTestWithDatabase {
 
     @Test
     public void testItemEnhancementWithForce() throws Exception {
-
+        choiceAuthorityService.getChoiceAuthoritiesNames();
+        configService.setProperty("authority.controlled.dc.contributor.editor", "true");
+        pluginService.clearNamedPluginClasses();
+        choiceAuthorityService.clearCache();
+        metadataAuthorityService.clearCache();
         context.turnOffAuthorisationSystem();
 
         Item editor = ItemBuilder.createItem(context, collection)
@@ -434,7 +460,11 @@ public class ItemEnhancerScriptIT extends AbstractIntegrationTestWithDatabase {
 
     @Test
     public void testItemEnhancementSourceWithoutAuthority() throws Exception {
-
+        choiceAuthorityService.getChoiceAuthoritiesNames();
+        configService.setProperty("authority.controlled.dc.contributor.editor", "true");
+        pluginService.clearNamedPluginClasses();
+        choiceAuthorityService.clearCache();
+        metadataAuthorityService.clearCache();
         context.turnOffAuthorisationSystem();
 
         Item secondAuthor = ItemBuilder.createItem(context, collection)
