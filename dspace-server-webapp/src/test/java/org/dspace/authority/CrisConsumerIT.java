@@ -34,6 +34,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.sql.SQLException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
@@ -60,6 +61,7 @@ import org.dspace.content.WorkspaceItem;
 import org.dspace.content.authority.ChoiceAuthorityServiceImpl;
 import org.dspace.content.authority.service.MetadataAuthorityService;
 import org.dspace.content.service.ItemService;
+import org.dspace.core.service.PluginService;
 import org.dspace.eperson.EPerson;
 import org.dspace.external.OrcidRestConnector;
 import org.dspace.external.provider.impl.OrcidV3AuthorDataProvider;
@@ -117,15 +119,22 @@ public class CrisConsumerIT extends AbstractControllerIntegrationTest {
     private OrcidV3AuthorDataProvider orcidV3AuthorDataProvider;
 
     @Autowired
+    private PluginService pluginService;
+
+    @Autowired
     private MetadataAuthorityService metadataAuthorityService;
 
     @Override
     public void setUp() throws Exception {
         super.setUp();
+        choiceAuthorityService.getChoiceAuthoritiesNames(); // initialize the ChoiceAuthorityService
 
         context.turnOffAuthorisationSystem();
 
         configurationSetUp();
+        
+        // Setup base authority configuration that most tests use
+        setupBaseAuthorityConfiguration();
 
         submitter = EPersonBuilder.createEPerson(context)
                                   .withEmail("submitter@example.com")
@@ -179,6 +188,9 @@ public class CrisConsumerIT extends AbstractControllerIntegrationTest {
      */
     @Test
     public void testItemSubmission() throws Exception {
+        // AuthorAuthority configuration provided by setUp() method
+        // Add EditorAuthority configuration for dc.contributor.editor
+        addEditorAuthority();
 
         InputStream pdf = simpleArticle.getInputStream();
 
@@ -248,6 +260,8 @@ public class CrisConsumerIT extends AbstractControllerIntegrationTest {
      */
     @Test
     public void testItemMetadataModification() throws Exception {
+        // Replace default AuthorAuthority with JournalAuthority only
+        setupJournalAuthorityOnly();
 
         context.turnOffAuthorisationSystem();
         Item item = ItemBuilder.createItem(context, publicationCollection).build();
@@ -292,6 +306,9 @@ public class CrisConsumerIT extends AbstractControllerIntegrationTest {
      */
     @Test
     public void testDifferentItemsSubmission() throws Exception {
+        // AuthorAuthority configuration provided by setUp() method
+        // Add ProjectAuthority configuration for dc.relation.project
+        addProjectAuthority();
 
         context.turnOffAuthorisationSystem();
         Collection projectCollection = createCollection("Collection of projects", "Project", parentCommunity);
@@ -386,6 +403,9 @@ public class CrisConsumerIT extends AbstractControllerIntegrationTest {
      */
     @Test
     public void testItemsSubmissionWithDifferentEntityTypeAndSameValue() throws Exception {
+        // AuthorAuthority configuration provided by setUp() method
+        // Add ProjectAuthority configuration for dc.relation.project
+        addProjectAuthority();
 
         context.turnOffAuthorisationSystem();
         createCollection("Collection of projects", "Project", parentCommunity);
@@ -508,6 +528,8 @@ public class CrisConsumerIT extends AbstractControllerIntegrationTest {
      */
     @Test
     public void testDifferentItemsSubmissionWithUUIDStrategyForCrisSourceIdGenerationActive() throws Exception {
+        // Replace default AuthorAuthority with ProjectAuthority only
+        setupProjectAuthorityOnly();
 
         // activation of uuid strategy for crisSourceId generation
         configurationService.setProperty("cris.import.submission.strategy.uuid.dc_relation_project", true);
@@ -573,6 +595,9 @@ public class CrisConsumerIT extends AbstractControllerIntegrationTest {
      */
     @Test
     public void testItemSubmissionCreatesNotArchivedRelatedItem() throws Exception {
+        // AuthorAuthority configuration provided by setUp() method
+        // Add ProjectAuthority configuration for dc.relation.project
+        addProjectAuthority();
 
         // disable submission enabled entity but not for projects
         configurationService.setProperty("cris.import.submission.enabled.entity", false);
@@ -644,6 +669,8 @@ public class CrisConsumerIT extends AbstractControllerIntegrationTest {
      */
     @Test
     public void testItemWithManyAuthorsSubmission() throws Exception {
+        // Authority configuration (AuthorAuthority) provided by setUp() method
+
         InputStream pdf = simpleArticle.getInputStream();
 
         WorkspaceItem wsitem = WorkspaceItemBuilder.createWorkspaceItem(context, publicationCollection)
@@ -698,6 +725,7 @@ public class CrisConsumerIT extends AbstractControllerIntegrationTest {
 
     @Test
     public void testItemWithWillBeGeneratedAuthority() throws Exception {
+        // Authority configuration (AuthorAuthority) provided by setUp() method
 
         context.turnOffAuthorisationSystem();
 
@@ -732,6 +760,7 @@ public class CrisConsumerIT extends AbstractControllerIntegrationTest {
 
     @Test
     public void testItemWithWillBeGeneratedAuthorityAndNoRelatedItemFound() throws Exception {
+        // Authority configuration (AuthorAuthority) provided by setUp() method
 
         context.turnOffAuthorisationSystem();
 
@@ -758,6 +787,7 @@ public class CrisConsumerIT extends AbstractControllerIntegrationTest {
 
     @Test
     public void testItemWithWillBeReferencedAuthority() throws Exception {
+        // Authority configuration (AuthorAuthority) provided by setUp() method
 
         context.turnOffAuthorisationSystem();
 
@@ -794,6 +824,7 @@ public class CrisConsumerIT extends AbstractControllerIntegrationTest {
 
     @Test
     public void testItemWithWillBeReferencedAuthorityAndNoRelatedItemFound() throws Exception {
+        // Authority configuration (AuthorAuthority) provided by setUp() method
 
         context.turnOffAuthorisationSystem();
 
@@ -863,6 +894,7 @@ public class CrisConsumerIT extends AbstractControllerIntegrationTest {
 
     @Test
     public void testItemSubmissionWithSkipEmptyAuthorityMetadata() throws Exception {
+        // Authority configuration (AuthorAuthority) provided by setUp() method
 
         InputStream pdf = simpleArticle.getInputStream();
 
@@ -906,7 +938,10 @@ public class CrisConsumerIT extends AbstractControllerIntegrationTest {
 
     @Test
     public void testItemSubmissionWithSkipEmptyAuthorityMetadataFillAffiliation() throws Exception {
-
+        // AuthorAuthority configuration provided by setUp() method
+        // Add OrgUnitAuthority configuration for person.affiliation.name
+        addOrgUnitAuthority();
+        
         InputStream pdf = simpleArticle.getInputStream();
 
         WorkspaceItem wsitem = WorkspaceItemBuilder.createWorkspaceItem(context, publicationCollection)
@@ -958,6 +993,9 @@ public class CrisConsumerIT extends AbstractControllerIntegrationTest {
 
     @Test
     public void testItemSubmissionWithSkipEmptyAuthorityMetadataFillAffiliationAndConstantValue() throws Exception {
+        // AuthorAuthority configuration provided by setUp() method
+        // Add OrgUnitAuthority configuration for person.affiliation.name
+        addOrgUnitAuthority();
 
         InputStream pdf = simpleArticle.getInputStream();
 
@@ -1015,6 +1053,9 @@ public class CrisConsumerIT extends AbstractControllerIntegrationTest {
 
     @Test
     public void testItemSubmissionWithSkipEmptyAuthorityAndSkipEmptyAuthorityMetadata() throws Exception {
+        // AuthorAuthority configuration provided by setUp() method
+        // Add EditorAuthority configuration for dc.contributor.editor
+        addEditorAuthority();
 
         InputStream pdf = simpleArticle.getInputStream();
 
@@ -1056,6 +1097,7 @@ public class CrisConsumerIT extends AbstractControllerIntegrationTest {
 
     @Test
     public void testItemWithWillBeReferencedAuthorityAndValueOverwriting() throws Exception {
+        // Authority configuration (AuthorAuthority) provided by setUp() method
 
         context.turnOffAuthorisationSystem();
 
@@ -1089,6 +1131,7 @@ public class CrisConsumerIT extends AbstractControllerIntegrationTest {
 
     @Test
     public void testOrcidImportFiller() throws Exception {
+        // Authority configuration (AuthorAuthority) provided by setUp() method
 
         OrcidRestConnector mockOrcidConnector = Mockito.mock(OrcidRestConnector.class);
         OrcidRestConnector orcidConnector = orcidV3AuthorDataProvider.getOrcidRestConnector();
@@ -1166,14 +1209,9 @@ public class CrisConsumerIT extends AbstractControllerIntegrationTest {
     public void testSherpaImportFiller() throws Exception {
 
         try {
-            configurationService.setProperty("authority.controlled.dc.relation.journal", "true");
-            configurationService.setProperty("choices.plugin.dc.relation.journal", "JournalAuthority");
-            configurationService.setProperty("choices.presentation.dc.relation.journal", "suggest");
-            configurationService.setProperty("choices.closed.dc.relation.journal", "true");
-            configurationService.setProperty("cris.ItemAuthority.JournalAuthority.entityType", "Journal");
-            configurationService.setProperty("cris.ItemAuthority.JournalAuthority.relationshipType", "Journal");
-            metadataAuthorityService.clearCache();
-            choiceAuthorityService.clearCache();
+            // AuthorAuthority configuration provided by setUp() method
+            // Add JournalAuthority with special Sherpa configurations
+            addJournalAuthorityWithSherpaConfig();
 
             String issn = "2731-0582";
 
@@ -1314,5 +1352,162 @@ public class CrisConsumerIT extends AbstractControllerIntegrationTest {
 
     private String generateMd5Hash(String value) {
         return DigestUtils.md5Hex(value.toUpperCase());
+    }
+
+    // ============================================================================
+    // Authority Configuration Helper Methods
+    // ============================================================================
+
+    /**
+     * Clears all authority-related caches to ensure configuration changes take effect.
+     * CRITICAL: This must be called after any authority configuration changes.
+     */
+    private void clearAllAuthorityCaches() throws Exception {
+        try {
+            pluginService.clearNamedPluginClasses();  // Can throw SubmissionConfigReaderException
+            choiceAuthorityService.clearCache();
+            metadataAuthorityService.clearCache();  // Critical for authority config reload
+        } catch (Exception e) {
+            throw new Exception("Failed to clear authority caches: " + e.getMessage(), e);
+        }
+    }
+
+    /**
+     * Sets up base authority configuration with AuthorAuthority for dc.contributor.author.
+     * This is the most common authority configuration used by majority of tests.
+     */
+    private void setupBaseAuthorityConfiguration() throws Exception {
+        configurationService.setProperty(
+            "plugin.named.org.dspace.content.authority.ChoiceAuthority",
+            new String[] { "org.dspace.content.authority.ItemAuthority = AuthorAuthority" }
+        );
+        configurationService.setProperty("choices.plugin.dc.contributor.author", "AuthorAuthority");
+        configurationService.setProperty("choices.presentation.dc.contributor.author", "suggest");
+        configurationService.setProperty("authority.controlled.dc.contributor.author", "true");
+        configurationService.setProperty("cris.ItemAuthority.AuthorAuthority.entityType", "Person");
+        
+        clearAllAuthorityCaches();
+    }
+
+    /**
+     * Adds EditorAuthority configuration for dc.contributor.editor metadata.
+     * Preserves existing plugin configurations.
+     */
+    private void addEditorAuthority() throws Exception {
+        // Get existing plugin configuration and add EditorAuthority
+        String[] existingPlugins = configurationService
+            .getArrayProperty("plugin.named.org.dspace.content.authority.ChoiceAuthority");
+        String[] newPlugins = Arrays.copyOf(existingPlugins, existingPlugins.length + 1);
+        newPlugins[newPlugins.length - 1] = "org.dspace.content.authority.OrcidAuthority = EditorAuthority";
+        
+        configurationService.setProperty("plugin.named.org.dspace.content.authority.ChoiceAuthority", newPlugins);
+        configurationService.setProperty("choices.plugin.dc.contributor.editor", "EditorAuthority");
+        configurationService.setProperty("choices.presentation.dc.contributor.editor", "suggest");
+        configurationService.setProperty("authority.controlled.dc.contributor.editor", "true");
+        
+        clearAllAuthorityCaches();
+    }
+
+    /**
+     * Adds ProjectAuthority configuration for dc.relation.project metadata.
+     * Preserves existing plugin configurations.
+     */
+    private void addProjectAuthority() throws Exception {
+        String[] existingPlugins = configurationService
+            .getArrayProperty("plugin.named.org.dspace.content.authority.ChoiceAuthority");
+        String[] newPlugins = Arrays.copyOf(existingPlugins, existingPlugins.length + 1);
+        newPlugins[newPlugins.length - 1] = "org.dspace.content.authority.ItemAuthority = ProjectAuthority";
+        
+        configurationService.setProperty("plugin.named.org.dspace.content.authority.ChoiceAuthority", newPlugins);
+        configurationService.setProperty("choices.plugin.dc.relation.project", "ProjectAuthority");
+        configurationService.setProperty("choices.presentation.dc.relation.project", "suggest");
+        configurationService.setProperty("authority.controlled.dc.relation.project", "true");
+        configurationService.setProperty("cris.ItemAuthority.ProjectAuthority.entityType", "Project");
+        
+        clearAllAuthorityCaches();
+    }
+
+    /**
+     * Adds JournalAuthority configuration for dc.relation.journal metadata.
+     * Preserves existing plugin configurations.
+     */
+    private void addJournalAuthority() throws Exception {
+        String[] existingPlugins = configurationService
+            .getArrayProperty("plugin.named.org.dspace.content.authority.ChoiceAuthority");
+        String[] newPlugins = Arrays.copyOf(existingPlugins, existingPlugins.length + 1);
+        newPlugins[newPlugins.length - 1] = "org.dspace.content.authority.ItemAuthority = JournalAuthority";
+        
+        configurationService.setProperty("plugin.named.org.dspace.content.authority.ChoiceAuthority", newPlugins);
+        configurationService.setProperty("choices.plugin.dc.relation.journal", "JournalAuthority");
+        configurationService.setProperty("choices.presentation.dc.relation.journal", "suggest");
+        configurationService.setProperty("authority.controlled.dc.relation.journal", "true");
+        configurationService.setProperty("cris.ItemAuthority.JournalAuthority.entityType", "Journal");
+        
+        clearAllAuthorityCaches();
+    }
+
+    /**
+     * Adds OrgUnitAuthority configuration for person.affiliation.name metadata.
+     * Preserves existing plugin configurations.
+     */
+    private void addOrgUnitAuthority() throws Exception {
+        String[] existingPlugins = configurationService
+            .getArrayProperty("plugin.named.org.dspace.content.authority.ChoiceAuthority");
+        String[] newPlugins = Arrays.copyOf(existingPlugins, existingPlugins.length + 1);
+        newPlugins[newPlugins.length - 1] = "org.dspace.content.authority.ItemAuthority = OrgUnitAuthority";
+        
+        configurationService.setProperty("plugin.named.org.dspace.content.authority.ChoiceAuthority", newPlugins);
+        configurationService.setProperty("choices.plugin.person.affiliation.name", "OrgUnitAuthority");
+        configurationService.setProperty("choices.presentation.person.affiliation.name", "suggest");
+        configurationService.setProperty("authority.controlled.person.affiliation.name", "true");
+        configurationService.setProperty("cris.ItemAuthority.OrgUnitAuthority.entityType", "OrgUnit");
+        
+        clearAllAuthorityCaches();
+    }
+
+    /**
+     * Special configuration for Sherpa journal import tests.
+     * Adds JournalAuthority with additional Sherpa-specific configurations.
+     */
+    private void addJournalAuthorityWithSherpaConfig() throws Exception {
+        addJournalAuthority();
+        
+        // Additional Sherpa-specific configurations
+        configurationService.setProperty("choices.closed.dc.relation.journal", "true");
+        configurationService.setProperty("cris.ItemAuthority.JournalAuthority.relationshipType", "Journal");
+        
+        clearAllAuthorityCaches();
+    }
+
+    /**
+     * Replaces AuthorAuthority with ProjectAuthority only (for tests that don't need AuthorAuthority).
+     */
+    private void setupProjectAuthorityOnly() throws Exception {
+        configurationService.setProperty(
+            "plugin.named.org.dspace.content.authority.ChoiceAuthority",
+            new String[] { "org.dspace.content.authority.ItemAuthority = ProjectAuthority" }
+        );
+        configurationService.setProperty("choices.plugin.dc.relation.project", "ProjectAuthority");
+        configurationService.setProperty("choices.presentation.dc.relation.project", "suggest");
+        configurationService.setProperty("authority.controlled.dc.relation.project", "true");
+        configurationService.setProperty("cris.ItemAuthority.ProjectAuthority.entityType", "Project");
+        
+        clearAllAuthorityCaches();
+    }
+
+    /**
+     * Replaces AuthorAuthority with JournalAuthority only (for tests that don't need AuthorAuthority).
+     */
+    private void setupJournalAuthorityOnly() throws Exception {
+        configurationService.setProperty(
+            "plugin.named.org.dspace.content.authority.ChoiceAuthority",
+            new String[] { "org.dspace.content.authority.ItemAuthority = JournalAuthority" }
+        );
+        configurationService.setProperty("choices.plugin.dc.relation.journal", "JournalAuthority");
+        configurationService.setProperty("choices.presentation.dc.relation.journal", "suggest");
+        configurationService.setProperty("authority.controlled.dc.relation.journal", "true");
+        configurationService.setProperty("cris.ItemAuthority.JournalAuthority.entityType", "Journal");
+        
+        clearAllAuthorityCaches();
     }
 }
