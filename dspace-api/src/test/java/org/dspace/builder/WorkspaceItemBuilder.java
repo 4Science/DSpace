@@ -204,6 +204,10 @@ public class WorkspaceItemBuilder extends AbstractBuilder<WorkspaceItem, Workspa
         return setMetadataSingleValue(MetadataSchemaEnum.DC.getName(), "title", null, title);
     }
 
+    public WorkspaceItemBuilder withTitleForLanguage(final String title, final String language) {
+        return addMetadataValue(MetadataSchemaEnum.DC.getName(), "title", null, language, title);
+    }
+
     public WorkspaceItemBuilder withIssueDate(final String issueDate) {
         return addMetadataValue(MetadataSchemaEnum.DC.getName(), "date", "issued", new DCDate(issueDate).toString());
     }
@@ -240,6 +244,10 @@ public class WorkspaceItemBuilder extends AbstractBuilder<WorkspaceItem, Workspa
 
     public WorkspaceItemBuilder withIssn(String issn) {
         return addMetadataValue(MetadataSchemaEnum.DC.getName(), "identifier", "issn", issn);
+    }
+
+    public WorkspaceItemBuilder withSubjectForLanguage(final String subject, final String language) {
+        return addMetadataValue(MetadataSchemaEnum.DC.getName(), "subject", null, language, subject);
     }
 
     public WorkspaceItemBuilder withEntityType(final String entityType) {

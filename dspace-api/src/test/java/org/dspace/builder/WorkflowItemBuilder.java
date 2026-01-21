@@ -208,6 +208,10 @@ public class WorkflowItemBuilder extends AbstractBuilder<XmlWorkflowItem, XmlWor
         return setMetadataSingleValue(MetadataSchemaEnum.DC.getName(), "title", null, title);
     }
 
+    public WorkflowItemBuilder withTitleForLanguage(final String title, final String language) {
+        return addMetadataValue(MetadataSchemaEnum.DC.getName(), "title", null, language, title);
+    }
+
     /**
      * Set the dc.date.issued field.
      *
@@ -258,6 +262,10 @@ public class WorkflowItemBuilder extends AbstractBuilder<XmlWorkflowItem, XmlWor
      */
     public WorkflowItemBuilder withSubject(final String subject) {
         return addMetadataValue(MetadataSchemaEnum.DC.getName(), "subject", null, subject);
+    }
+
+    public WorkflowItemBuilder withSubjectForLanguage(final String subject, final String language) {
+        return addMetadataValue(MetadataSchemaEnum.DC.getName(), "subject", null, language, subject);
     }
 
     /**

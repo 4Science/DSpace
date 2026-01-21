@@ -79,12 +79,20 @@ public class ItemBuilder extends AbstractDSpaceObjectBuilder<Item> {
                                 "date", "issued", new DCDate(issueDate).toString());
     }
 
+    public ItemBuilder withTitleForLanguage(final String title, final String language) {
+        return addMetadataValue(item, MetadataSchemaEnum.DC.getName(), "title", null, language, title);
+    }
+
     public ItemBuilder withIdentifierOther(final String identifierOther) {
         return addMetadataValue(item, MetadataSchemaEnum.DC.getName(), "identifier", "other", identifierOther);
     }
 
     public ItemBuilder withAuthor(final String authorName) {
         return addMetadataValue(item, MetadataSchemaEnum.DC.getName(), "contributor", "author", authorName);
+    }
+
+    public ItemBuilder withAuthorForLanguage(String authorName, String language) {
+        return addMetadataValue(item, MetadataSchemaEnum.DC.getName(), "contributor", "author", language, authorName);
     }
 
     public ItemBuilder withAuthor(final String authorName, final String authority, final int confidence) {
@@ -126,6 +134,10 @@ public class ItemBuilder extends AbstractDSpaceObjectBuilder<Item> {
 
     public ItemBuilder withSubject(final String subject) {
         return addMetadataValue(item, MetadataSchemaEnum.DC.getName(), "subject", null, subject);
+    }
+
+    public ItemBuilder withSubjectForLanguage(final String subject, final String language) {
+        return addMetadataValue(item, MetadataSchemaEnum.DC.getName(), "subject", null, language, subject);
     }
 
     public ItemBuilder withSubject(final String subject, final String authority, final int confidence) {
