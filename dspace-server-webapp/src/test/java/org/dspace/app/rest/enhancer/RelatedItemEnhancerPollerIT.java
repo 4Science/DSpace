@@ -34,10 +34,15 @@ import org.dspace.builder.ItemBuilder;
 import org.dspace.content.Collection;
 import org.dspace.content.Item;
 import org.dspace.content.MetadataValue;
+import org.dspace.content.authority.factory.ContentAuthorityServiceFactory;
+import org.dspace.content.authority.service.ChoiceAuthorityService;
+import org.dspace.content.authority.service.MetadataAuthorityService;
 import org.dspace.content.enhancer.service.ItemEnhancerService;
 import org.dspace.content.factory.ContentServiceFactory;
 import org.dspace.content.service.ItemService;
 import org.dspace.core.ReloadableEntity;
+import org.dspace.core.factory.CoreServiceFactory;
+import org.dspace.core.service.PluginService;
 import org.dspace.services.ConfigurationService;
 import org.dspace.utils.DSpace;
 import org.junit.Before;
@@ -53,7 +58,7 @@ public class RelatedItemEnhancerPollerIT extends AbstractIntegrationTestWithData
     private Collection collection;
 
     @Before
-    public void setup() throws InterruptedException {
+    public void setup() throws Exception {
         final DSpace dspace = new DSpace();
         ConfigurationService configurationService = dspace.getConfigurationService();
         configurationService.setProperty("item.enable-virtual-metadata", false);
@@ -64,6 +69,20 @@ public class RelatedItemEnhancerPollerIT extends AbstractIntegrationTestWithData
         poller.setItemService(itemService);
         // cleanup the queue from any items left behind by other tests
         poller.pollItemToUpdateAndProcess();
+        PluginService pluginService = CoreServiceFactory.getInstance().getPluginService();
+        ChoiceAuthorityService choiceAuthorityService = ContentAuthorityServiceFactory
+            .getInstance().getChoiceAuthorityService();
+        choiceAuthorityService.getChoiceAuthoritiesNames(); // initialize the ChoiceAuthorityService
+        MetadataAuthorityService metadataAuthorityService = ContentAuthorityServiceFactory
+            .getInstance().getMetadataAuthorityService();
+        configurationService.setProperty("choices.plugin.dc.contributor.author", "AuthorAuthority");
+        configurationService.setProperty("choices.presentation.dc.contributor.author", "suggest");
+        configurationService.setProperty("authority.controlled.dc.contributor.author", "true");
+        configurationService.setProperty("cris.ItemAuthority.AuthorAuthority.entityType", "Person");
+        pluginService.clearNamedPluginClasses();
+        choiceAuthorityService.clearCache();
+        metadataAuthorityService.clearCache();
+
         context.turnOffAuthorisationSystem();
         parentCommunity = CommunityBuilder.createCommunity(context)
             .withName("Parent Community")
@@ -77,6 +96,8 @@ public class RelatedItemEnhancerPollerIT extends AbstractIntegrationTestWithData
 
     @Test
     public void testUpdateRelatedItemAreProcessed() throws Exception {
+
+
 
         context.turnOffAuthorisationSystem();
 
