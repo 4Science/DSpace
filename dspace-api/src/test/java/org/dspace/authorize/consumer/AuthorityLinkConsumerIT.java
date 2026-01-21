@@ -18,9 +18,16 @@ import org.dspace.builder.WorkspaceItemBuilder;
 import org.dspace.content.Collection;
 import org.dspace.content.Item;
 import org.dspace.content.WorkspaceItem;
+import org.dspace.content.authority.factory.ContentAuthorityServiceFactory;
+import org.dspace.content.authority.service.ChoiceAuthorityService;
+import org.dspace.content.authority.service.MetadataAuthorityService;
 import org.dspace.content.factory.ContentServiceFactory;
 import org.dspace.content.service.InstallItemService;
 import org.dspace.content.service.ItemService;
+import org.dspace.core.factory.CoreServiceFactory;
+import org.dspace.core.service.PluginService;
+import org.dspace.services.ConfigurationService;
+import org.dspace.services.factory.DSpaceServicesFactory;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -36,11 +43,29 @@ public class AuthorityLinkConsumerIT extends AbstractIntegrationTestWithDatabase
 
     private InstallItemService installItemService = ContentServiceFactory.getInstance().getInstallItemService();
 
+    private PluginService pluginService = CoreServiceFactory.getInstance().getPluginService();
+
+    private ChoiceAuthorityService choiceAuthorityService = ContentAuthorityServiceFactory
+        .getInstance().getChoiceAuthorityService();
+
+    private MetadataAuthorityService metadataAuthorityService = ContentAuthorityServiceFactory
+        .getInstance().getMetadataAuthorityService();
+
+    private ConfigurationService configurationService =
+        DSpaceServicesFactory.getInstance().getConfigurationService();
+
     private Collection collection;
 
     @Before
-    public void setup() {
+    public void setup() throws Exception {
         context.turnOffAuthorisationSystem();
+
+        // Configure authority settings for the test
+        choiceAuthorityService.getChoiceAuthoritiesNames();
+        configurationService.setProperty("authority.controlled.oairecerif.identifier.url", "true");
+        pluginService.clearNamedPluginClasses();
+        choiceAuthorityService.clearCache();
+        metadataAuthorityService.clearCache();
 
         parentCommunity = CommunityBuilder.createCommunity(context)
             .withName("Parent Community")
