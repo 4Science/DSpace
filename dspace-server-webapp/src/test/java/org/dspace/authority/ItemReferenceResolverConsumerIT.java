@@ -28,8 +28,11 @@ import org.dspace.builder.WorkspaceItemBuilder;
 import org.dspace.content.Collection;
 import org.dspace.content.Item;
 import org.dspace.content.WorkspaceItem;
+import org.dspace.content.authority.service.ChoiceAuthorityService;
+import org.dspace.content.authority.service.MetadataAuthorityService;
 import org.dspace.content.factory.ContentServiceFactory;
 import org.dspace.content.service.InstallItemService;
+import org.dspace.core.service.PluginService;
 import org.dspace.eperson.EPerson;
 import org.dspace.services.ConfigurationService;
 import org.junit.Before;
@@ -56,9 +59,18 @@ public class ItemReferenceResolverConsumerIT extends AbstractControllerIntegrati
     @Autowired
     private ConfigurationService configurationService;
 
+    @Autowired
+    private PluginService pluginService;
+
+    @Autowired
+    private ChoiceAuthorityService choiceAuthorityService;
+
+    @Autowired
+    private MetadataAuthorityService metadataAuthorityService;
+
     @Before
     public void setup() throws Exception {
-
+        choiceAuthorityService.getChoiceAuthoritiesNames(); // initialize the ChoiceAuthorityService
         installItemService = ContentServiceFactory.getInstance().getInstallItemService();
 
         context.turnOffAuthorisationSystem();
@@ -176,7 +188,18 @@ public class ItemReferenceResolverConsumerIT extends AbstractControllerIntegrati
     }
 
     @Test
-    public void testItemReferenceResolverConsumerOrcidMetadataTitleNotToUpdate() throws SQLException {
+    public void testItemReferenceResolverConsumerOrcidMetadataTitleNotToUpdate() throws Exception {
+
+        configurationService.setProperty("plugin.named.org.dspace.content.authority.ChoiceAuthority",
+                                         new String[] { "org.dspace.content.authority.OrcidAuthority = AuthorAuthority" });
+        configurationService.setProperty("choices.plugin.dc.contributor.author", "AuthorAuthority");
+        configurationService.setProperty("choices.presentation.dc.contributor.author", "suggest");
+        configurationService.setProperty("authority.controlled.dc.contributor.author", "true");
+        configurationService.setProperty("cris.ItemAuthority.AuthorAuthority.entityType", "Person");
+        pluginService.clearNamedPluginClasses();
+        choiceAuthorityService.clearCache();
+        metadataAuthorityService.clearCache();
+
         //When cris.item-reference-resolution.override-metadata-value is true update Title
         context.turnOffAuthorisationSystem();
         boolean previousOverrideMetadataValue = configurationService
