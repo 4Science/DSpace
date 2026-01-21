@@ -191,7 +191,9 @@ public class ItemReferenceResolverConsumerIT extends AbstractControllerIntegrati
     public void testItemReferenceResolverConsumerOrcidMetadataTitleNotToUpdate() throws Exception {
 
         configurationService.setProperty("plugin.named.org.dspace.content.authority.ChoiceAuthority",
-                                         new String[] { "org.dspace.content.authority.OrcidAuthority = AuthorAuthority" });
+                                         new String[] {
+                                             "org.dspace.content.authority.OrcidAuthority = AuthorAuthority"
+                                            });
         configurationService.setProperty("choices.plugin.dc.contributor.author", "AuthorAuthority");
         configurationService.setProperty("choices.presentation.dc.contributor.author", "suggest");
         configurationService.setProperty("authority.controlled.dc.contributor.author", "true");
