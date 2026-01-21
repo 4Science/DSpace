@@ -77,6 +77,7 @@ public class DSpaceControlledVocabulary extends SelfNamedPlugin implements Hiera
     protected InputSource vocabulary = null;
     protected Boolean suggestHierarchy = false;
     protected Boolean storeHierarchy = true;
+    protected boolean storeAuthority = false;
     protected String hierarchyDelimiter = "::";
     protected Integer preloadLevel = 1;
     protected String valueAttribute = labelAttribute;
@@ -88,9 +89,8 @@ public class DSpaceControlledVocabulary extends SelfNamedPlugin implements Hiera
 
     @Override
     public boolean storeAuthorityInMetadata() {
-        // For backward compatibility controlled vocabularies don't store the node id in
-        // the metadatavalue
-        return false;
+        init(null);
+        return storeAuthority;
     }
 
     public static String[] getPluginNames() {
@@ -133,6 +133,9 @@ public class DSpaceControlledVocabulary extends SelfNamedPlugin implements Hiera
                 File.separator + "controlled-vocabularies" + File.separator;
             String configurationPrefix = "vocabulary.plugin." + vocabularyName;
             storeHierarchy = config.getBooleanProperty(configurationPrefix + ".hierarchy.store", storeHierarchy);
+            storeAuthority = config.getBooleanProperty(configurationPrefix + ".authority.store",
+                                                       config.getBooleanProperty("vocabulary.plugin.authority.store",
+                                                                                 false));
             boolean storeIDs = config.getBooleanProperty(configurationPrefix + ".storeIDs", false);
             suggestHierarchy = config.getBooleanProperty(configurationPrefix + ".hierarchy.suggest", suggestHierarchy);
             preloadLevel = config.getIntProperty(configurationPrefix + ".hierarchy.preloadLevel", preloadLevel);
