@@ -132,7 +132,7 @@ public class CrisConsumerIT extends AbstractControllerIntegrationTest {
         context.turnOffAuthorisationSystem();
 
         configurationSetUp();
-        
+
         // Setup base authority configuration that most tests use
         setupBaseAuthorityConfiguration();
 
@@ -941,7 +941,7 @@ public class CrisConsumerIT extends AbstractControllerIntegrationTest {
         // AuthorAuthority configuration provided by setUp() method
         // Add OrgUnitAuthority configuration for person.affiliation.name
         addOrgUnitAuthority();
-        
+
         InputStream pdf = simpleArticle.getInputStream();
 
         WorkspaceItem wsitem = WorkspaceItemBuilder.createWorkspaceItem(context, publicationCollection)
@@ -1385,7 +1385,7 @@ public class CrisConsumerIT extends AbstractControllerIntegrationTest {
         configurationService.setProperty("choices.presentation.dc.contributor.author", "suggest");
         configurationService.setProperty("authority.controlled.dc.contributor.author", "true");
         configurationService.setProperty("cris.ItemAuthority.AuthorAuthority.entityType", "Person");
-        
+
         clearAllAuthorityCaches();
     }
 
@@ -1399,12 +1399,12 @@ public class CrisConsumerIT extends AbstractControllerIntegrationTest {
             .getArrayProperty("plugin.named.org.dspace.content.authority.ChoiceAuthority");
         String[] newPlugins = Arrays.copyOf(existingPlugins, existingPlugins.length + 1);
         newPlugins[newPlugins.length - 1] = "org.dspace.content.authority.OrcidAuthority = EditorAuthority";
-        
+
         configurationService.setProperty("plugin.named.org.dspace.content.authority.ChoiceAuthority", newPlugins);
         configurationService.setProperty("choices.plugin.dc.contributor.editor", "EditorAuthority");
         configurationService.setProperty("choices.presentation.dc.contributor.editor", "suggest");
         configurationService.setProperty("authority.controlled.dc.contributor.editor", "true");
-        
+
         clearAllAuthorityCaches();
     }
 
@@ -1417,13 +1417,13 @@ public class CrisConsumerIT extends AbstractControllerIntegrationTest {
             .getArrayProperty("plugin.named.org.dspace.content.authority.ChoiceAuthority");
         String[] newPlugins = Arrays.copyOf(existingPlugins, existingPlugins.length + 1);
         newPlugins[newPlugins.length - 1] = "org.dspace.content.authority.ItemAuthority = ProjectAuthority";
-        
+
         configurationService.setProperty("plugin.named.org.dspace.content.authority.ChoiceAuthority", newPlugins);
         configurationService.setProperty("choices.plugin.dc.relation.project", "ProjectAuthority");
         configurationService.setProperty("choices.presentation.dc.relation.project", "suggest");
         configurationService.setProperty("authority.controlled.dc.relation.project", "true");
         configurationService.setProperty("cris.ItemAuthority.ProjectAuthority.entityType", "Project");
-        
+
         clearAllAuthorityCaches();
     }
 
@@ -1436,13 +1436,13 @@ public class CrisConsumerIT extends AbstractControllerIntegrationTest {
             .getArrayProperty("plugin.named.org.dspace.content.authority.ChoiceAuthority");
         String[] newPlugins = Arrays.copyOf(existingPlugins, existingPlugins.length + 1);
         newPlugins[newPlugins.length - 1] = "org.dspace.content.authority.ItemAuthority = JournalAuthority";
-        
+
         configurationService.setProperty("plugin.named.org.dspace.content.authority.ChoiceAuthority", newPlugins);
         configurationService.setProperty("choices.plugin.dc.relation.journal", "JournalAuthority");
         configurationService.setProperty("choices.presentation.dc.relation.journal", "suggest");
         configurationService.setProperty("authority.controlled.dc.relation.journal", "true");
         configurationService.setProperty("cris.ItemAuthority.JournalAuthority.entityType", "Journal");
-        
+
         clearAllAuthorityCaches();
     }
 
@@ -1455,13 +1455,13 @@ public class CrisConsumerIT extends AbstractControllerIntegrationTest {
             .getArrayProperty("plugin.named.org.dspace.content.authority.ChoiceAuthority");
         String[] newPlugins = Arrays.copyOf(existingPlugins, existingPlugins.length + 1);
         newPlugins[newPlugins.length - 1] = "org.dspace.content.authority.ItemAuthority = OrgUnitAuthority";
-        
+
         configurationService.setProperty("plugin.named.org.dspace.content.authority.ChoiceAuthority", newPlugins);
         configurationService.setProperty("choices.plugin.person.affiliation.name", "OrgUnitAuthority");
         configurationService.setProperty("choices.presentation.person.affiliation.name", "suggest");
         configurationService.setProperty("authority.controlled.person.affiliation.name", "true");
         configurationService.setProperty("cris.ItemAuthority.OrgUnitAuthority.entityType", "OrgUnit");
-        
+
         clearAllAuthorityCaches();
     }
 
@@ -1471,11 +1471,11 @@ public class CrisConsumerIT extends AbstractControllerIntegrationTest {
      */
     private void addJournalAuthorityWithSherpaConfig() throws Exception {
         addJournalAuthority();
-        
+
         // Additional Sherpa-specific configurations
         configurationService.setProperty("choices.closed.dc.relation.journal", "true");
         configurationService.setProperty("cris.ItemAuthority.JournalAuthority.relationshipType", "Journal");
-        
+
         clearAllAuthorityCaches();
     }
 
@@ -1491,7 +1491,7 @@ public class CrisConsumerIT extends AbstractControllerIntegrationTest {
         configurationService.setProperty("choices.presentation.dc.relation.project", "suggest");
         configurationService.setProperty("authority.controlled.dc.relation.project", "true");
         configurationService.setProperty("cris.ItemAuthority.ProjectAuthority.entityType", "Project");
-        
+
         clearAllAuthorityCaches();
     }
 
@@ -1507,7 +1507,7 @@ public class CrisConsumerIT extends AbstractControllerIntegrationTest {
         configurationService.setProperty("choices.presentation.dc.relation.journal", "suggest");
         configurationService.setProperty("authority.controlled.dc.relation.journal", "true");
         configurationService.setProperty("cris.ItemAuthority.JournalAuthority.entityType", "Journal");
-        
+
         clearAllAuthorityCaches();
     }
 }

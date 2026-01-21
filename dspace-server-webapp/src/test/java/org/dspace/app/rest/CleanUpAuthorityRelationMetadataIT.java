@@ -29,7 +29,6 @@ import org.dspace.content.authority.service.MetadataAuthorityService;
 import org.dspace.core.service.PluginService;
 import org.dspace.services.ConfigurationService;
 import org.hamcrest.Matchers;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,19 +55,19 @@ public class CleanUpAuthorityRelationMetadataIT extends AbstractControllerIntegr
     public void setupAuthorityConfiguration() throws Exception {
         // Common authority configuration for all tests
         choiceAuthorityService.getChoiceAuthoritiesNames();
-        
+
         // Configure plugin and authority settings
         configurationService.setProperty(
             "plugin.named.org.dspace.content.authority.ChoiceAuthority",
             new String[] { "org.dspace.content.authority.ItemAuthority = AuthorAuthority" }
         );
-        
+
         // Configure choice plugins and authority control
         configurationService.setProperty("choices.plugin.dc.contributor.author", "AuthorAuthority");
         configurationService.setProperty("authority.controlled.dc.contributor.author", "true");
         configurationService.setProperty("cris.ItemAuthority.AuthorAuthority.entityType", "Person");
         configurationService.setProperty("authority.controlled.person.affiliation.name", "true");
-        
+
         // Clear caches again after authority configuration
         pluginService.clearNamedPluginClasses();
         choiceAuthorityService.clearCache();
@@ -191,7 +190,7 @@ public class CleanUpAuthorityRelationMetadataIT extends AbstractControllerIntegr
         // configure BUSINESS_MODE for dc.contributor.author metadata
         configurationService.setProperty(AUTHORITY_CLEANUP_PROPERTY_PREFIX + "dc.contributor.author",
                                          AUTHORITY_CLEANUP_BUSINESS_MODE);
-        
+
         // Clear caches after test-specific configuration
         pluginService.clearNamedPluginClasses();
         choiceAuthorityService.clearCache();

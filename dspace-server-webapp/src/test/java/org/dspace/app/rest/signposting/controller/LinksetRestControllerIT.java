@@ -48,8 +48,6 @@ import org.dspace.content.service.BitstreamService;
 import org.dspace.content.service.ItemService;
 import org.dspace.content.service.RelationshipTypeService;
 import org.dspace.core.Constants;
-import org.dspace.core.factory.CoreServiceFactory;
-import org.dspace.core.service.PluginService;
 import org.dspace.eperson.Group;
 import org.dspace.services.ConfigurationService;
 import org.dspace.util.SimpleMapConverter;
