@@ -34,9 +34,16 @@ import org.dspace.content.Item;
 import org.dspace.content.MetadataSchema;
 import org.dspace.content.MetadataValue;
 import org.dspace.content.WorkspaceItem;
+import org.dspace.content.authority.factory.ContentAuthorityServiceFactory;
+import org.dspace.content.authority.service.ChoiceAuthorityService;
+import org.dspace.content.authority.service.MetadataAuthorityService;
 import org.dspace.content.factory.ContentServiceFactory;
 import org.dspace.content.service.ItemService;
 import org.dspace.core.ReloadableEntity;
+import org.dspace.core.factory.CoreServiceFactory;
+import org.dspace.core.service.PluginService;
+import org.dspace.services.ConfigurationService;
+import org.dspace.services.factory.DSpaceServicesFactory;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -46,10 +53,28 @@ public class ItemEnhancerConsumerIT extends AbstractIntegrationTestWithDatabase 
 
     private Collection collection;
 
+    private PluginService pluginService = CoreServiceFactory.getInstance().getPluginService();
+
+    private ChoiceAuthorityService choiceAuthorityService = ContentAuthorityServiceFactory
+        .getInstance().getChoiceAuthorityService();
+
+    private MetadataAuthorityService metadataAuthorityService = ContentAuthorityServiceFactory
+        .getInstance().getMetadataAuthorityService();
+
+    private ConfigurationService configurationService =
+        DSpaceServicesFactory.getInstance().getConfigurationService();
+
     @Before
-    public void setup() {
+    public void setup() throws Exception {
 
         itemService = ContentServiceFactory.getInstance().getItemService();
+
+        // Common authority configuration for most tests
+        choiceAuthorityService.getChoiceAuthoritiesNames();
+        configurationService.setProperty("authority.controlled.dc.contributor.author", "true");
+        pluginService.clearNamedPluginClasses();
+        choiceAuthorityService.clearCache();
+        metadataAuthorityService.clearCache();
 
         context.turnOffAuthorisationSystem();
         parentCommunity = CommunityBuilder.createCommunity(context)
@@ -116,6 +141,11 @@ public class ItemEnhancerConsumerIT extends AbstractIntegrationTestWithDatabase 
 
     @Test
     public void testManyMetadataValuesEnhancement() throws Exception {
+        // This test needs additional editor authority control
+        configurationService.setProperty("authority.controlled.dc.contributor.editor", "true");
+        pluginService.clearNamedPluginClasses();
+        choiceAuthorityService.clearCache();
+        metadataAuthorityService.clearCache();
 
         context.turnOffAuthorisationSystem();
 
@@ -216,6 +246,12 @@ public class ItemEnhancerConsumerIT extends AbstractIntegrationTestWithDatabase 
     @Test
     public void testEnhancementWithMetadataRemoval() throws Exception {
 
+        choiceAuthorityService.getChoiceAuthoritiesNames();
+        configurationService.setProperty("authority.controlled.dc.contributor.author", "true");
+        pluginService.clearNamedPluginClasses();
+        choiceAuthorityService.clearCache();
+        metadataAuthorityService.clearCache();
+
         context.turnOffAuthorisationSystem();
 
         Item person1 = ItemBuilder.createItem(context, collection)
@@ -313,6 +349,13 @@ public class ItemEnhancerConsumerIT extends AbstractIntegrationTestWithDatabase 
 
     @Test
     public void testWithWorkspaceItem() throws Exception {
+        // Configure authority settings for this specific test
+        choiceAuthorityService.getChoiceAuthoritiesNames();
+        configurationService.setProperty("authority.controlled.dc.contributor.author", "true");
+        pluginService.clearNamedPluginClasses();
+        choiceAuthorityService.clearCache();
+        metadataAuthorityService.clearCache();
+
         context.turnOffAuthorisationSystem();
 
         Item person = ItemBuilder.createItem(context, collection)
@@ -341,6 +384,12 @@ public class ItemEnhancerConsumerIT extends AbstractIntegrationTestWithDatabase 
     @Test
     @SuppressWarnings("unchecked")
     public void testEnhancementAfterItemUpdate() throws Exception {
+
+        choiceAuthorityService.getChoiceAuthoritiesNames();
+        configurationService.setProperty("authority.controlled.dc.contributor.author", "true");
+        pluginService.clearNamedPluginClasses();
+        choiceAuthorityService.clearCache();
+        metadataAuthorityService.clearCache();
 
         context.turnOffAuthorisationSystem();
 
@@ -397,6 +446,13 @@ public class ItemEnhancerConsumerIT extends AbstractIntegrationTestWithDatabase 
 
     @Test
     public void testMultipleRelatedItemValuesEnhancement() throws Exception {
+
+        choiceAuthorityService.getChoiceAuthoritiesNames();
+        configurationService.setProperty("authority.controlled.dc.contributor.author", "true");
+        configurationService.setProperty("authority.controlled.dc.contributor.editor", "true");
+        pluginService.clearNamedPluginClasses();
+        choiceAuthorityService.clearCache();
+        metadataAuthorityService.clearCache();
 
         context.turnOffAuthorisationSystem();
         MetadataSchema schema = ContentServiceFactory.getInstance()
@@ -468,6 +524,12 @@ public class ItemEnhancerConsumerIT extends AbstractIntegrationTestWithDatabase 
 
     @Test
     public void testSingleMetadataJournalAnceEnhancement() throws Exception {
+        // Configure authority settings for this specific test
+        choiceAuthorityService.getChoiceAuthoritiesNames();
+        configurationService.setProperty("authority.controlled.dc.relation.journal", "true");
+        pluginService.clearNamedPluginClasses();
+        choiceAuthorityService.clearCache();
+        metadataAuthorityService.clearCache();
 
         context.turnOffAuthorisationSystem();
 
