@@ -45,6 +45,7 @@ public class SolrSuggestAuthorityIT extends AbstractControllerIntegrationTest {
 
     @Before
     public void setup() throws SubmissionConfigReaderException {
+        choiceAuthorityService.getChoiceAuthoritiesNames(); // initialize the ChoiceAuthorityService
         context.turnOffAuthorisationSystem();
         configurationService.setProperty("plugin.named.org.dspace.content.authority.ChoiceAuthority",
                 new String[] { "org.dspace.content.authority.SolrSuggestAuthority = SolrSuggestSubjectAuthority" });

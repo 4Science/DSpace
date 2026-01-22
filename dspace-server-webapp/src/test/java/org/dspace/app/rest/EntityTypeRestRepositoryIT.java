@@ -419,9 +419,6 @@ public class EntityTypeRestRepositoryIT extends AbstractEntityIntegrationTest {
             .getExternalDataProvider("pubmed")).getSupportedEntityTypes();
         List<String> originalSuggestionSupportedTypes = ((AbstractExternalDataProvider) externalDataService
             .getExternalDataProvider("suggestion")).getSupportedEntityTypes();
-        List<String>
-            originalOpenaireProjectSupportedTypes = ((AbstractExternalDataProvider) externalDataService
-            .getExternalDataProvider("openaireProject")).getSupportedEntityTypes();
 
         try {
             ((AbstractExternalDataProvider) externalDataService.getExternalDataProvider("mock"))
@@ -430,8 +427,6 @@ public class EntityTypeRestRepositoryIT extends AbstractEntityIntegrationTest {
                     .setSupportedEntityTypes(Arrays.asList("Publication"));
             ((AbstractExternalDataProvider) externalDataService.getExternalDataProvider("suggestion"))
                     .setSupportedEntityTypes(Arrays.asList("Publication"));
-            ((AbstractExternalDataProvider) externalDataService.getExternalDataProvider("openaireProject"))
-                .setSupportedEntityTypes(Arrays.asList("Publication"));
 
             // these are similar to the previous checks but now we have restricted the mock and pubmed providers
             // to support only publication, this mean that there are no providers suitable for funding
@@ -458,8 +453,6 @@ public class EntityTypeRestRepositoryIT extends AbstractEntityIntegrationTest {
                     .setSupportedEntityTypes(originalPubmedSupportedTypes);
             ((AbstractExternalDataProvider) externalDataService.getExternalDataProvider("suggestion"))
                     .setSupportedEntityTypes(originalSuggestionSupportedTypes);
-            ((AbstractExternalDataProvider) externalDataService.getExternalDataProvider("openaireProject"))
-                .setSupportedEntityTypes(originalOpenaireProjectSupportedTypes);
         }
 
     }
