@@ -16,7 +16,6 @@
                 </entry>
                 <entry key="ORCID" value-ref="orcidImportFiller" />
                 <entry key="ISSN" value-ref="sherpaImportFiller" />
-                <entry key="OPENAIRE-PROJECT-ID" value-ref="openaireProjectImportFiller" />
             </map>
         </property>
     </bean>
@@ -117,12 +116,6 @@
     <bean class="org.dspace.authority.filler.ExternalDataProviderImportFiller" id="sherpaImportFiller" >
        <constructor-arg name="externalDataProvider" ref="org.dspace.external.provider.impl.SHERPAv2JournalISSNDataProvider"/>
        <constructor-arg name="authorityIdentifier" value="ISSN"/>
-    </bean>
-
-
-    <bean class="org.dspace.authority.filler.ExternalDataProviderImportFiller" id="openaireProjectImportFiller" >
-       <constructor-arg name="externalDataProvider" ref="openaireLiveImportDataProvider"/>
-       <constructor-arg name="authorityIdentifier" value="OPENAIRE-PROJECT-ID"/>
     </bean>
 
     <bean class="org.dspace.authority.service.ItemSearcherMapper" name="org.dspace.authority.service.ItemSearcherMapper">
