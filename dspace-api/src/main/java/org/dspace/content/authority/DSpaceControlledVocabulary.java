@@ -468,6 +468,15 @@ public class DSpaceControlledVocabulary extends SelfNamedPlugin implements Hiera
     private String getAuthority(Node node) {
         Node idAttr = node.getAttributes().getNamedItem("id");
         if (null != idAttr) { // 'id' is optional
+            return getPluginInstanceName() + ID_SPLITTER + idAttr.getNodeValue();
+        } else {
+            return null;
+        }
+    }
+
+    private String getNodeId(Node node) {
+        Node idAttr = node.getAttributes().getNamedItem("id");
+        if (null != idAttr) { // 'id' is optional
             return idAttr.getNodeValue();
         } else {
             return null;
@@ -507,10 +516,13 @@ public class DSpaceControlledVocabulary extends SelfNamedPlugin implements Hiera
 
     private Choice createChoiceFromNode(Node node) {
         if (node != null && !isRootElement(node)) {
-            Choice choice = new Choice(getAuthority(node), getLabel(node), getValue(node),
+            Choice choice = new Choice(
+                getAuthority(node),
+                getLabel(node),
+                getValue(node),
                     isSelectable(node));
             choice.authorityName = this.vocabularyName;
-            choice.extras = addOtherInformation(getParent(node), getNote(node), getChildren(node), getAuthority(node));
+            choice.extras = addOtherInformation(getParent(node), getNote(node), getChildren(node), getNodeId(node));
             return choice;
         }
         return null;
