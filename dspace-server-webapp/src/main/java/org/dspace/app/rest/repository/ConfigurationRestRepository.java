@@ -43,7 +43,7 @@ public class ConfigurationRestRepository extends DSpaceRestRepository<PropertyRe
         return configurationService.getArrayProperty("rest.properties.exposed");
     }
 
-    protected String[] getAdminRestrictedProperties() {
+    protected String[] getAdminExposedProperties() {
         return configurationService.getArrayProperty("admin.rest.properties.exposed");
     }
 
@@ -67,11 +67,13 @@ public class ConfigurationRestRepository extends DSpaceRestRepository<PropertyRe
     @PreAuthorize("permitAll()")
     public PropertyRest findOne(Context context, String property) {
         List<String> exposedProperties = Arrays.asList(getExposedProperties());
-        List<String> adminRestrictedProperties = Arrays.asList(getAdminRestrictedProperties());
+        List<String> adminExposedProperties = Arrays.asList(getAdminExposedProperties());
 
         if (!configurationService.hasProperty(property) ||
-            (adminRestrictedProperties.contains(property) && !isCurrentUserAdmin(context)) ||
-            (!exposedProperties.contains(property) && !isCurrentUserAdmin(context))) {
+            (
+                !exposedProperties.contains(property) &&
+                (!isCurrentUserAdmin(context) || !adminExposedProperties.contains(property))
+            )) {
             throw new ResourceNotFoundException("No such configuration property: " + property);
         }
 
