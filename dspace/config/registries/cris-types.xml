@@ -193,6 +193,13 @@
 
     <dc-type>
         <schema>cris</schema>
+        <element>cms</element>
+        <qualifier>privacy-policy</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>cris</schema>
         <element>customurl</element>
         <scope_note></scope_note>
     </dc-type>
