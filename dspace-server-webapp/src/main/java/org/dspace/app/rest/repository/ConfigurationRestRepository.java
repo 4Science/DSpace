@@ -67,7 +67,7 @@ public class ConfigurationRestRepository extends DSpaceRestRepository<PropertyRe
     @PreAuthorize("permitAll()")
     public PropertyRest findOne(Context context, String property) {
         List<String> exposedProperties = Arrays.asList(getExposedProperties());
-        List<String> adminRestrictedProperties = Arrays.asList(getAdminRestrictedProperties());
+        List<String> adminExposedProperties = Arrays.asList(getAdminExposedProperties());
 
         if (!configurationService.hasProperty(property) ||
             (
