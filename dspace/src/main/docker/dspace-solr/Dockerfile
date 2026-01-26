@@ -26,8 +26,7 @@ ENV SOLR_OPTS="-Dsolr.config.lib.enabled=true" \
     QAEVENT_CONFIGSET_PATH=/opt/solr/server/solr/configsets/qaevent/conf \
     SEARCH_CONFIGSET_PATH=/opt/solr/server/solr/configsets/search/conf \
     STATISTICS_CONFIGSET_PATH=/opt/solr/server/solr/configsets/statistics/conf \
-    SUGGESTION_CONFIGSET_PATH=/opt/solr/server/solr/configsets/suggestion/conf \
-    SOLR_LIB_PATH=/opt/solr-${SOLR_VERSION}/server/solr-webapp/webapp/WEB-INF/lib
+    SUGGESTION_CONFIGSET_PATH=/opt/solr/server/solr/configsets/suggestion/conf
 
 USER root
 
@@ -36,7 +35,7 @@ RUN mkdir -p $AUDIT_CONFIGSET_PATH $AUTHORITY_CONFIGSET_PATH $DEDUP_CONFIGSET_PA
     $STATISTICS_CONFIGSET_PATH $SUGGESTION_CONFIGSET_PATH \
     $OCR_LIB_PATH $JTS_CORE_LIB_PATH
 
-COPY --chown=solr:solr ./dspace/solr/ocr/lib/* /opt/solr-${SOLR_VERSION}/server/solr-webapp/webapp/WEB-INF/lib
+COPY --chown=solr:solr ./dspace/solr/ocr/lib/* /opt/solr/lib
 
 COPY --chown=solr:solr ./dspace/solr/audit/conf/* $AUDIT_CONFIGSET_PATH/
 COPY --chown=solr:solr ./dspace/solr/authority/conf/* $AUTHORITY_CONFIGSET_PATH/
