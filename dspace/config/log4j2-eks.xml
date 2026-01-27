@@ -11,7 +11,48 @@
     <Appenders>
         <!-- JSON console appender for org.dspace -->
         <Appender name="ConsoleJson" type="Console">
-            <Layout type="JsonLayout" complete="false" compact="true" eventEol="true"/>
+            <!--<Layout
+                    type="JsonLayout"
+                    complete="false"
+                    compact="true"
+                    eventEol="true"
+                    properties="true"
+            />-->
+            <JsonTemplateLayout
+                eventTemplate='{
+                    "timestamp": {
+                      "$resolver": "timestamp",
+                      "pattern": {
+                        "format": "yyyy-MM-dd&apos;T&apos;HH:mm:ss.SSS&apos;Z&apos;",
+                        "timeZone": "UTC",
+                        "locale": "en_US"
+                      }
+                    },
+                    "correlationID": {
+                      "$resolver": "mdc",
+                      "key": "correlationID",
+                      "default": "unknown"
+                    },
+                    "requestID": {
+                      "$resolver": "mdc",
+                      "key": "requestID",
+                      "default": "unknown"
+                    },
+                    "level": { "$resolver": "level", "field": "name" },
+                    "logger": { "$resolver": "logger", "field": "name" },
+                    "loggerFqcn": { "$resolver": "logger", "field": "fqcn" },
+                    "thread": { "$resolver": "thread", "field": "name" },
+                    "threadId": { "$resolver": "thread", "field": "id" },
+                    "threadPriority": { "$resolver": "thread", "field": "priority" },
+                    "pid": { "$resolver": "pattern", "pattern": "%pid", "stackTraceEnabled": false },
+                    "host": { "$resolver": "pattern", "pattern": "${hostName}", "stackTraceEnabled": false },
+                    "marker": { "$resolver": "marker", "field": "name" },
+                    "endOfBatch": { "$resolver": "endOfBatch" },
+                    "message": { "$resolver": "message", "stringified": true },
+                    "contextStack": { "$resolver": "ndc" },
+                    "exception": { "$resolver": "exception", "field": "stackTrace", "stackTrace": { "stringified": true } }
+              }'
+            />
         </Appender>
 
     </Appenders>

@@ -7,7 +7,7 @@
     <parent>
         <artifactId>modules</artifactId>
         <groupId>org.dspace</groupId>
-        <version>cris-2025.01.00-SNAPSHOT</version>
+        <version>cris-2025.02.00-SNAPSHOT</version>
         <relativePath>..</relativePath>
     </parent>
 
@@ -387,7 +387,18 @@
             <artifactId>lucene-analyzers-icu</artifactId>
             <scope>test</scope>
         </dependency>
+        <!-- Include hamcrest exparity for date matcher in overlay tests -->
+        <dependency>
+            <groupId>org.exparity</groupId>
+            <artifactId>hamcrest-date</artifactId>
+            <version>2.0.8</version>
+            <scope>test</scope>
+        </dependency>
 
     </dependencies>
 
+
+  <scm>
+    <tag>dspace-9.2</tag>
+  </scm>
 </project>

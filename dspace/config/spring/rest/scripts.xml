@@ -64,16 +64,16 @@
         <property name="dspaceRunnableClass" value="org.dspace.app.bulkedit.CollectionExport"/>
     </bean>
 
-    <bean id="import-openaire-suggestions" class="org.dspace.app.suggestion.openaire.PublicationLoaderScriptConfiguration">
+    <bean id="import-openaire-suggestions" class="org.dspace.app.suggestion.script.PublicationLoaderScriptConfiguration">
         <property name="description" value="Imports suggestions from OpenAIRE for publication claim"/>
-        <property name="dspaceRunnableClass" value="org.dspace.app.suggestion.openaire.PublicationLoaderRunnable"/>
+        <property name="dspaceRunnableClass" value="org.dspace.app.suggestion.runnable.PublicationLoaderRunnable"/>
     </bean>
 
     <bean id="orcid-bulk-push" class="org.dspace.orcid.script.OrcidBulkPushScriptConfiguration" primary="true">
         <property name="description" value="Perform the bulk synchronization of all the BATCH configured ORCID entities placed in the ORCID queue"/>
         <property name="dspaceRunnableClass" value="org.dspace.orcid.script.OrcidBulkPush"/>
     </bean>
-    
+
     <bean id="orcid-bulk-pull" class="org.dspace.orcid.script.OrcidBulkPullScriptConfiguration" primary="true">
         <property name="description" value="Perform a bulk pull from the ORCID registry for all the profiles with an ORCID id set"/>
         <property name="dspaceRunnableClass" value="org.dspace.orcid.script.OrcidBulkPull"/>
@@ -97,6 +97,11 @@
     <bean name="metadata-export-search" class="org.dspace.app.bulkedit.MetadataExportSearchScriptConfiguration">
         <property name="description" value="export metadata from a discovery search" />
         <property name="dspaceRunnableClass" value="org.dspace.app.bulkedit.MetadataExportSearch" />
+    </bean>
+
+    <bean name="metadata-export-filtered-items-report" class="org.dspace.app.bulkedit.MetadataExportFilteredItemsReportScriptConfiguration">
+        <property name="description" value="Export metadata from item results in a Metadata Query Report" />
+        <property name="dspaceRunnableClass" value="org.dspace.app.bulkedit.MetadataExportFilteredItemsReport" />
     </bean>
 
     <bean id="import" class="org.dspace.app.itemimport.ItemImportScriptConfiguration" primary="true">

@@ -7,7 +7,7 @@
  */
 package org.dspace.app.rest.model;
 
-import java.util.Date;
+import java.time.Instant;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonProperty.Access;
@@ -30,7 +30,7 @@ public class EPersonRest extends DSpaceObjectRest {
 
     private String netid;
 
-    private Date lastActive;
+    private Instant lastActive;
 
     private boolean canLogIn;
 
@@ -64,11 +64,11 @@ public class EPersonRest extends DSpaceObjectRest {
         this.netid = netid;
     }
 
-    public Date getLastActive() {
+    public Instant getLastActive() {
         return lastActive;
     }
 
-    public void setLastActive(Date lastActive) {
+    public void setLastActive(Instant lastActive) {
         this.lastActive = lastActive;
     }
 

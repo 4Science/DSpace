@@ -117,10 +117,13 @@ public class CollectionRestRepository extends DSpaceObjectRestRepository<Collect
     private CollectionRoleService collectionRoleService;
 
     @Autowired
-    private EntityTypeService entityTypeService ;
+    private EntityTypeService entityTypeService;
 
     @Autowired
     SearchService searchService;
+
+    @Autowired
+    private ObjectMapper mapper;
 
     @Autowired
     CollectionService collectionService;
@@ -424,7 +427,6 @@ public class CollectionRestRepository extends DSpaceObjectRestRepository<Collect
         }
 
         HttpServletRequest req = getRequestService().getCurrentRequest().getHttpServletRequest();
-        ObjectMapper mapper = new ObjectMapper();
         CollectionRest collectionRest;
         try {
             ServletInputStream input = req.getInputStream();
@@ -457,7 +459,7 @@ public class CollectionRestRepository extends DSpaceObjectRestRepository<Collect
         throws RepositoryMethodNotImplementedException, SQLException, AuthorizeException {
         CollectionRest collectionRest;
         try {
-            collectionRest = new ObjectMapper().readValue(jsonNode.toString(), CollectionRest.class);
+            collectionRest = mapper.readValue(jsonNode.toString(), CollectionRest.class);
         } catch (IOException e) {
             throw new UnprocessableEntityException("Error parsing collection json: " + e.getMessage());
         }
@@ -708,7 +710,6 @@ public class CollectionRestRepository extends DSpaceObjectRestRepository<Collect
 
     private GroupRest populateGroupInformation(Context context, HttpServletRequest request, Group group)
         throws SQLException, AuthorizeException {
-        ObjectMapper mapper = new ObjectMapper();
         GroupRest groupRest = new GroupRest();
         try {
             ServletInputStream input = request.getInputStream();

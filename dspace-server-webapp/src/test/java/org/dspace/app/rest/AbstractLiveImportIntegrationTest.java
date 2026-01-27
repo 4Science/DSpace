@@ -8,6 +8,7 @@
 package org.dspace.app.rest;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -15,11 +16,12 @@ import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.http.ProtocolVersion;
 import org.apache.http.StatusLine;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.entity.BasicHttpEntity;
-import org.apache.tools.ant.filters.StringInputStream;
 import org.dspace.app.rest.test.AbstractControllerIntegrationTest;
 import org.dspace.importer.external.datamodel.ImportRecord;
 import org.dspace.importer.external.metadatamapping.MetadatumDTO;
@@ -47,15 +49,16 @@ public class AbstractLiveImportIntegrationTest extends AbstractControllerIntegra
     private void checkMetadataValue(List<MetadatumDTO> list, List<MetadatumDTO> list2) {
         assertEquals(list.size(), list2.size());
         for (int i = 0; i < list.size(); i++) {
-            sameMetadatum(list.get(i), list2.get(i));
+            assertTrue("'" + list.get(i).toString() + "' should be equal to '" + list2.get(i).toString() + "'",
+                       sameMetadatum(list.get(i), list2.get(i)));
         }
     }
 
-    private void sameMetadatum(MetadatumDTO metadatum, MetadatumDTO metadatum2) {
-        assertEquals(metadatum.getSchema(), metadatum2.getSchema());
-        assertEquals(metadatum.getElement(), metadatum2.getElement());
-        assertEquals(metadatum.getQualifier(), metadatum2.getQualifier());
-        assertEquals(metadatum.getValue(), metadatum2.getValue());
+    private boolean sameMetadatum(MetadatumDTO metadatum, MetadatumDTO metadatum2) {
+        return StringUtils.equals(metadatum.getSchema(), metadatum2.getSchema()) &&
+            StringUtils.equals(metadatum.getElement(), metadatum2.getElement()) &&
+            StringUtils.equals(metadatum.getQualifier(), metadatum2.getQualifier()) &&
+            StringUtils.equals(metadatum.getValue(), metadatum2.getValue());
     }
 
     protected MetadatumDTO createMetadatumDTO(String schema, String element, String qualifier, String value) {
@@ -71,7 +74,7 @@ public class AbstractLiveImportIntegrationTest extends AbstractControllerIntegra
             throws UnsupportedEncodingException {
         BasicHttpEntity basicHttpEntity = new BasicHttpEntity();
         basicHttpEntity.setChunked(true);
-        basicHttpEntity.setContent(new StringInputStream(xmlExample));
+        basicHttpEntity.setContent(IOUtils.toInputStream(xmlExample));
 
         CloseableHttpResponse response = mock(CloseableHttpResponse.class);
         when(response.getStatusLine()).thenReturn(statusLine(statusCode, reason));

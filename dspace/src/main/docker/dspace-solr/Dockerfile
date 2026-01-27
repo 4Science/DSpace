@@ -7,14 +7,18 @@
 #
 
 # To build use root as context for (easier) access to solr cfgs
-# docker build --build-arg SOLR_VERSION=8.11.4 -f ./dspace/src/main/docker/dspace-solr/Dockerfile .
+# docker build --build-arg SOLR_VERSION=9.8 -f ./dspace/src/main/docker/dspace-solr/Dockerfile .
 # This will be published as 4science/dspace-cris-solr:$DSPACE_VERSION
 
-ARG SOLR_VERSION=8.11.4
+ARG SOLR_VERSION=9.8
 
-FROM docker.io/solr:${SOLR_VERSION}-slim
-ARG SOLR_VERSION
-ENV AUDIT_CONFIGSET_PATH=/opt/solr/server/solr/configsets/audit/conf \
+# NOTE: Cannot use the "-slim" image because it doesn't include the extra modules needed for DSpace (e.g. icu4j)
+FROM docker.io/solr:${SOLR_VERSION}
+
+# Customize SOLR_OPTS to enable "<lib>" tags in solrconfig.xml files
+# Also set several environment variables to save configset paths used below
+ENV SOLR_OPTS="-Dsolr.config.lib.enabled=true" \
+    AUDIT_CONFIGSET_PATH=/opt/solr/server/solr/configsets/audit/conf \
     AUTHORITY_CONFIGSET_PATH=/opt/solr/server/solr/configsets/authority/conf \
     DEDUP_CONFIGSET_PATH=/opt/solr/server/solr/configsets/dedup/conf \
     OAI_CONFIGSET_PATH=/opt/solr/server/solr/configsets/oai/conf \
@@ -22,8 +26,7 @@ ENV AUDIT_CONFIGSET_PATH=/opt/solr/server/solr/configsets/audit/conf \
     QAEVENT_CONFIGSET_PATH=/opt/solr/server/solr/configsets/qaevent/conf \
     SEARCH_CONFIGSET_PATH=/opt/solr/server/solr/configsets/search/conf \
     STATISTICS_CONFIGSET_PATH=/opt/solr/server/solr/configsets/statistics/conf \
-    SUGGESTION_CONFIGSET_PATH=/opt/solr/server/solr/configsets/suggestion/conf \
-    SOLR_LIB_PATH=/opt/solr-${SOLR_VERSION}/server/solr-webapp/webapp/WEB-INF/lib
+    SUGGESTION_CONFIGSET_PATH=/opt/solr/server/solr/configsets/suggestion/conf
 
 USER root
 
@@ -32,7 +35,7 @@ RUN mkdir -p $AUDIT_CONFIGSET_PATH $AUTHORITY_CONFIGSET_PATH $DEDUP_CONFIGSET_PA
     $STATISTICS_CONFIGSET_PATH $SUGGESTION_CONFIGSET_PATH \
     $OCR_LIB_PATH $JTS_CORE_LIB_PATH
 
-COPY --chown=solr:solr ./dspace/solr/ocr/lib/* /opt/solr-${SOLR_VERSION}/server/solr-webapp/webapp/WEB-INF/lib
+COPY --chown=solr:solr ./dspace/solr/ocr/lib/* /opt/solr/lib
 
 COPY --chown=solr:solr ./dspace/solr/audit/conf/* $AUDIT_CONFIGSET_PATH/
 COPY --chown=solr:solr ./dspace/solr/authority/conf/* $AUTHORITY_CONFIGSET_PATH/

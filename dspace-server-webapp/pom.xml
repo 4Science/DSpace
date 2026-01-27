@@ -13,7 +13,7 @@
     <parent>
         <groupId>org.dspace</groupId>
         <artifactId>dspace-parent</artifactId>
-        <version>cris-2025.01.00-SNAPSHOT</version>
+        <version>cris-2025.02.00-SNAPSHOT</version>
         <relativePath>..</relativePath>
     </parent>
 
@@ -153,9 +153,9 @@
                         </goals>
                         <configuration>
                             <source>
-                                project.properties['agnostic.build.dir'] = project.build.directory.replace(File.separator, '/');
+                                project.properties['agnostic.build.dir'] = project.build.directory.replace(File.separator, '/')
                                 log.info("Initializing Maven property 'agnostic.build.dir' to: {}", project.properties['agnostic.build.dir']);
-                            </source>
+                           </source>
                         </configuration>
                     </execution>
                 </executions>
@@ -453,7 +453,7 @@
             <artifactId>spring-boot-starter-aop</artifactId>
             <version>${spring-boot.version}</version>
         </dependency>
-        
+
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-actuator</artifactId>
@@ -636,6 +636,10 @@
         </dependency>
         <dependency>
             <groupId>org.dspace</groupId>
+            <artifactId>dspace-saml2</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.dspace</groupId>
             <artifactId>dspace-rdf</artifactId>
         </dependency>
         <dependency>
@@ -726,7 +730,7 @@
         <dependency>
             <groupId>org.apache.httpcomponents.client5</groupId>
             <artifactId>httpclient5</artifactId>
-            <version>5.5</version>
+            <version>5.5.1</version>
             <scope>test</scope>
         </dependency>
         <dependency>

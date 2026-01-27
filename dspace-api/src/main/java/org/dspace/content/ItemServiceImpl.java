@@ -17,10 +17,9 @@ import static org.dspace.content.authority.Choices.CF_UNSET;
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.SQLException;
+import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.Date;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -217,6 +216,7 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
     @Autowired
     private List<ItemSearcherByMetadata> itemSearcherByMetadata;
 
+
     protected ItemServiceImpl() {
     }
 
@@ -224,10 +224,7 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
     public Thumbnail getThumbnail(Context context, Item item, boolean requireOriginal) throws SQLException {
         // Search the thumbnail using the configuration
         Thumbnail thumbnail = thumbnailLayoutTabConfigurationStrategy(context, item, requireOriginal);
-        if (thumbnail != null) {
-            return thumbnail;
-        }
-        return null;
+        return thumbnail;
     }
 
     /**
@@ -282,10 +279,9 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
     private Thumbnail retrieveThumbnailFromFields(Context context, Item item,
             List<CrisLayoutField> thumbFields) throws SQLException {
         for (CrisLayoutField thumbField : thumbFields) {
-            if (!(thumbField instanceof CrisLayoutFieldBitstream)) {
+            if (!(thumbField instanceof CrisLayoutFieldBitstream thumbFieldBitstream)) {
                 continue;
             }
-            CrisLayoutFieldBitstream thumbFieldBitstream = (CrisLayoutFieldBitstream)thumbField;
             String bundle = thumbFieldBitstream.getBundle();
             MetadataField metadata = thumbFieldBitstream.getMetadataField();
             String value = thumbFieldBitstream.getMetadataValue();
@@ -550,27 +546,27 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
     }
 
     @Override
-    public Iterator<Item> findInArchiveOrWithdrawnDiscoverableModifiedSince(Context context, Date since)
-            throws SQLException {
+    public Iterator<Item> findInArchiveOrWithdrawnDiscoverableModifiedSince(Context context, Instant since)
+        throws SQLException {
         return itemDAO.findAll(context, true, true, true, since);
     }
 
     @Override
-    public Iterator<Item> findInArchiveOrWithdrawnNonDiscoverableModifiedSince(Context context, Date since)
-            throws SQLException {
+    public Iterator<Item> findInArchiveOrWithdrawnNonDiscoverableModifiedSince(Context context, Instant since)
+        throws SQLException {
         return itemDAO.findAll(context, true, true, false, since);
     }
 
     @Override
     public void updateLastModified(Context context, Item item) throws SQLException, AuthorizeException {
-        item.setLastModified(new Date());
+        item.setLastModified(Instant.now());
         update(context, item);
         //Also fire a modified event since the item HAS been modified
         context.addEvent(new Event(Event.MODIFY, Constants.ITEM, item.getID(), null, getIdentifiers(context, item)));
     }
 
     @Override
-    public void updateLastModifiedDate(Context context, Item item, Date lastModifiedDate)
+    public void updateLastModifiedDate(Context context, Item item, Instant lastModifiedDate)
         throws SQLException, AuthorizeException {
 
         if (!canEdit(context, item)) {
@@ -678,7 +674,7 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
 
         // now add authorization policies from owning item
         // hmm, not very "multiple-inclusion" friendly
-        authorizeService.inheritPolicies(context, item, bundle);
+        authorizeService.inheritPolicies(context, item, bundle, true);
 
         // Add the bundle to in-memory list
         item.addBundle(bundle);
@@ -864,7 +860,7 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
 
         if (item.isMetadataModified() || item.isModified()) {
             // Set the last modified date
-            item.setLastModified(new Date());
+            item.setLastModified(Instant.now());
 
             itemDAO.save(context, item);
 
@@ -1091,7 +1087,8 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
         List<String> controlledFields = getAuthorityControlledFieldsByItemEntityType(deletedItem);
 
         Iterator<Item> itemsToFixAuthority =
-               this.findRelatedItemsByAuthorityControlledFields(context, deletedItem, Arrays.asList(uuidOfDeletedItem));
+               this.findRelatedItemsByAuthorityControlledFields(context, deletedItem,
+                                                                Collections.singletonList(uuidOfDeletedItem));
 
         while (itemsToFixAuthority.hasNext()) {
             Item itemToProcess = itemsToFixAuthority.next();
@@ -1125,10 +1122,7 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
     }
 
     public boolean isValidMetadata(String metadataField) {
-        if (metadataField.split(Pattern.quote(".")).length > 3) {
-            return false;
-        }
-        return true;
+        return metadataField.split(Pattern.quote(".")).length <= 3;
     }
 
     private void applyCleanUpMode(Context context, Item deletedItem, Item itemToProcess,
@@ -1139,7 +1133,8 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
                 replaceAuthorityWithItemBusinessIdentifier(deletedItem, metadataValueWithAuthorityToUpdate);
                 break;
             case AUTHORITY_CLEANUP_CLEAN_ALL_MODE:
-                removeMetadataValues(context, itemToProcess, Arrays.asList(metadataValueWithAuthorityToUpdate));
+                removeMetadataValues(context, itemToProcess,
+                                     Collections.singletonList(metadataValueWithAuthorityToUpdate));
                 break;
             default:
                 log.error("The configured mode:" + cleanUpMode + " for metadata:"
@@ -1305,7 +1300,7 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
         throws SQLException, AuthorizeException {
         // Bundles should inherit from DEFAULT_ITEM_READ so that if the item is readable, the files
         // can be listed (even if they are themselves not readable as per DEFAULT_BITSTREAM_READ or other
-        // policies or embargos applied
+        // policies or embargoes applied
         List<ResourcePolicy> defaultCollectionBundlePolicies = authorizeService
                 .getPoliciesActionFilter(context, collection, Constants.DEFAULT_ITEM_READ);
         // Bitstreams should inherit from DEFAULT_BITSTREAM_READ
@@ -1339,8 +1334,8 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
             // if come from InstallItem: remove all submission/workflow policies
             authorizeService.removeAllPoliciesByDSOAndType(context, mybundle, ResourcePolicy.TYPE_SUBMISSION);
             authorizeService.removeAllPoliciesByDSOAndType(context, mybundle, ResourcePolicy.TYPE_WORKFLOW);
-            addCustomPoliciesNotInPlace(context, mybundle, defaultItemPolicies);
-            addDefaultPoliciesNotInPlace(context, mybundle, defaultCollectionBundlePolicies);
+            authorizeService.addCustomPoliciesNotInPlace(context, mybundle, defaultItemPolicies);
+            authorizeService.addDefaultPoliciesNotInPlace(context, mybundle, defaultCollectionBundlePolicies);
 
             for (Bitstream bitstream : mybundle.getBitstreams()) {
                 // If collection has default READ policies, remove the bundle's READ policies.
@@ -1386,8 +1381,8 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
         throws SQLException, AuthorizeException {
         authorizeService.removeAllPoliciesByDSOAndType(context, bitstream, ResourcePolicy.TYPE_SUBMISSION);
         authorizeService.removeAllPoliciesByDSOAndType(context, bitstream, ResourcePolicy.TYPE_WORKFLOW);
-        addCustomPoliciesNotInPlace(context, bitstream, defaultItemPolicies);
-        addDefaultPoliciesNotInPlace(context, bitstream, defaultCollectionPolicies);
+        authorizeService.addCustomPoliciesNotInPlace(context, bitstream, defaultItemPolicies);
+        authorizeService.addDefaultPoliciesNotInPlace(context, bitstream, defaultCollectionPolicies);
     }
 
     @Override
@@ -1430,7 +1425,7 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
             authorizeService.removeAllPoliciesByDSOAndType(context, item, ResourcePolicy.TYPE_WORKFLOW);
 
             // add default policies only if not already in place
-            addDefaultPoliciesNotInPlace(context, item, defaultCollectionPolicies);
+            authorizeService.addDefaultPoliciesNotInPlace(context, item, defaultCollectionPolicies);
         } finally {
             context.restoreAuthSystemState();
         }
@@ -2029,8 +2024,8 @@ prevent the generation of resource policy entry values with null dspace_object a
     }
 
     @Override
-    public Iterator<Item> findByLastModifiedSince(Context context, Date last)
-            throws SQLException {
+    public Iterator<Item> findByLastModifiedSince(Context context, Instant last)
+        throws SQLException {
         return itemDAO.findByLastModifiedSince(context, last);
     }
 
@@ -2059,10 +2054,7 @@ prevent the generation of resource policy entry values with null dspace_object a
 
     @Override
     public boolean canCreateNewVersion(Context context, Item item) throws SQLException {
-        boolean userAuthorized = false;
-        if (authorizeService.isAdmin(context, item)) {
-            userAuthorized = true;
-        }
+        boolean userAuthorized = authorizeService.isAdmin(context, item);
 
         if (context.getCurrentUser() != null
             && context.getCurrentUser().equals(item.getSubmitter())) {
@@ -2218,8 +2210,8 @@ prevent the generation of resource policy entry values with null dspace_object a
 
         final Supplier<Integer> placeSupplier = () -> place;
 
-        return addMetadata(context, dso, metadataField, lang, Arrays.asList(value),
-                Arrays.asList(authority), Arrays.asList(confidence), placeSupplier)
+        return addMetadata(context, dso, metadataField, lang, Collections.singletonList(value),
+                           Collections.singletonList(authority), List.of(confidence), placeSupplier)
                 .stream().findFirst().orElse(null);
     }
 
@@ -2238,8 +2230,8 @@ prevent the generation of resource policy entry values with null dspace_object a
                     ". Metadata field does not exist!");
         }
         final Supplier<Integer> placeSupplier = () -> place;
-        return addMetadata(context, dso, metadataField, lang, Arrays.asList(value),
-                Arrays.asList(authority), Arrays.asList(confidence), placeSupplier, securityValue)
+        return addMetadata(context, dso, metadataField, lang, Collections.singletonList(value),
+                           Collections.singletonList(authority), List.of(confidence), placeSupplier, securityValue)
                 .stream().findFirst().orElse(null);
 
     }
