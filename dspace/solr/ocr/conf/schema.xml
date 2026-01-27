@@ -51,9 +51,9 @@
             <analyzer type="index">
                 <!-- For loading external files as field values during indexing. If not
                      loading OCR files from disk, you must comment out this filter. -->
-                <!-- <charFilter class="de.digitalcollections.solrocr.lucene.filters.ExternalUtf8ContentFilterFactory" /> -->
+                <!-- <charFilter class="solrocr.filters.ExternalUtf8ContentFilterFactory" /> -->
                 <!-- For converting OCR to plaintext -->
-                <charFilter class="de.digitalcollections.solrocr.lucene.filters.OcrCharFilterFactory" />
+                <charFilter class="solrocr.OcrCharFilterFactory" />
                 <tokenizer class="solr.StandardTokenizerFactory"/>
                 <filter class="solr.LowerCaseFilterFactory"/>
                 <filter class="solr.SynonymFilterFactory" synonyms="synonyms.txt" ignoreCase="true" expand="false"/>
