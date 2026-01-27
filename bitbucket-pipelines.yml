@@ -304,6 +304,24 @@ definitions:
           - step: *integration-tests-slow
           - step: *integration-tests-dspace-api
 
+    - step: &merge-prod-into-test
+        name: Merge prod into test
+        image: atlassian/default-image:4
+        script:
+          - export PROD_BRANCH="$BITBUCKET_BRANCH"
+          - export TEST_BRANCH="test/${PROD_BRANCH#prod/}"
+          - git fetch origin $TEST_BRANCH || true
+          - if git ls-remote --exit-code --heads origin $TEST_BRANCH; then
+              git remote set-branches --add origin $TEST_BRANCH;
+              git fetch origin $TEST_BRANCH;
+              git checkout -b $TEST_BRANCH origin/$TEST_BRANCH;
+              git merge --no-ff origin/$PROD_BRANCH -m "Merge $PROD_BRANCH into $TEST_BRANCH [ci skip]";
+              git push https://${DSPACE_REPO_USER}:${DSPACE_REPO_TOKEN}@${DSPACE_REPO} $TEST_BRANCH;
+            else
+              echo "Branch $TEST_BRANCH does not exist, no merge performed.";
+            fi
+
+
 pipelines:
   branches:
     'main-cris':
@@ -325,6 +343,7 @@ pipelines:
       - step: *deploy-on-dev
       - step: *deploy-on-staging
       - step: *build-and-push-solr9
+      - step: *merge-prod-into-test
     'test/**':
       - step: *check-branch-name-allowed
       - step: *install
