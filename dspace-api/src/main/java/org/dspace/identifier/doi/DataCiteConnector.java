@@ -71,14 +71,6 @@ public class DataCiteConnector
     // Configuration property names
     static final String CFG_USER = "identifier.doi.user";
     static final String CFG_PASSWORD = "identifier.doi.password";
-    static final String CFG_PREFIX
-        = "identifier.doi.prefix";
-    static final String CFG_PUBLISHER
-        = "crosswalk.dissemination.DataCite.publisher";
-    static final String CFG_DATAMANAGER
-        = "crosswalk.dissemination.DataCite.dataManager";
-    static final String CFG_HOSTINGINSTITUTION
-        = "crosswalk.dissemination.DataCite.hostingInstitution";
     static final String CFG_NAMESPACE
         = "crosswalk.dissemination.DataCite.namespace";
 
