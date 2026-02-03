@@ -380,6 +380,11 @@ pipelines:
       - step: *install
       - step: *build-and-push
       - step: *deploy-on-staging
+    deploy-on-test:
+      - step: *check-branch-name-allowed
+      - step: *install
+      - step: *build-and-push
+      - step: *deploy-on-test
     e2e-test:
       - step: *install
       - step: *build-and-push
