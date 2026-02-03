@@ -22,13 +22,13 @@ import static org.dspace.core.Constants.READ;
 import static org.dspace.core.Constants.WRITE;
 import static org.dspace.orcid.OrcidOperation.DELETE;
 import static org.dspace.profile.OrcidEntitySyncPreference.ALL;
+import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.emptyOrNullString;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -5276,9 +5276,12 @@ public class ItemRestRepositoryIT extends AbstractControllerIntegrationTest {
         Collection owningCollection = CollectionBuilder.createCollection(context, parentCommunity)
                                                        .withName("Owning Collection")
                                                        .build();
+
         Item item = ItemBuilder.createItem(context, owningCollection)
-                               .withTitle("Test item")
-                               .build();
+                                .withTitle("Test item")
+                                .withDataCiteRights("embargo")
+                                .withDataCiteAvailable(LocalDate.now().plusDays(20).toString())
+                                .build();
         Bundle originalBundle = BundleBuilder.createBundle(context, item)
                                              .withName(Constants.DEFAULT_BUNDLE_NAME)
                                              .build();
