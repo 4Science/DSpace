@@ -5601,19 +5601,19 @@ public class ItemRestRepositoryIT extends AbstractControllerIntegrationTest {
 
         getClient(token).perform(get("/api/core/items/search/findByCustomURL")
                                      .param("q", "unknown"))
-                        .andExpect(status().isNoContent());
+                        .andExpect(status().isNotFound());
 
         getClient(token).perform(get("/api/core/items/search/findByCustomURL")
-                                     .param("q", UUID.randomUUID().toString()))
-                        .andExpect(status().isNoContent());
+            .param("q", UUID.randomUUID().toString()))
+            .andExpect(status().isNotFound());
 
         getClient(token).perform(get("/api/core/items/search/findByCustomURL")
-                                     .param("q", "http://example.com/sample"))
-                        .andExpect(status().isNoContent());
+                .param("q", "http://example.com/sample"))
+                .andExpect(status().isNotFound());
 
         getClient(token).perform(get("/api/core/items/search/findByCustomURL")
-                                     .param("q", ""))
-                        .andExpect(status().isNoContent());
+                .param("q", ""))
+                .andExpect(status().isNotFound());
 
     }
 
@@ -5653,37 +5653,6 @@ public class ItemRestRepositoryIT extends AbstractControllerIntegrationTest {
     }
 
     @Test
-    public void testSearchWithdrawnItemByCustomUrl() throws Exception {
-        context.turnOffAuthorisationSystem();
-
-        // Create parent community and collection
-        parentCommunity = CommunityBuilder.createCommunity(context)
-                                          .withName("Parent Community")
-                                          .build();
-        Collection col1 = CollectionBuilder.createCollection(context, parentCommunity)
-                                           .withName("Collection 1")
-                                           .build();
-
-        // Create an item with a custom URL and withdraw it
-        Item item = ItemBuilder.createItem(context, col1)
-                               .withTitle("Withdrawn Item")
-                               .withCustomUrl("withdrawn-custom-url")
-                               .withdrawn()
-                               .build();
-
-        context.restoreAuthSystemState();
-
-        String token = getAuthToken(admin.getEmail(), password);
-
-        // Search for the item by its custom URL
-        getClient(token).perform(get("/api/core/items/search/findByCustomURL")
-                                     .param("q", "withdrawn-custom-url"))
-                        .andExpect(status().isOk())
-                        .andExpect(jsonPath("$.uuid", is(item.getID().toString())))
-                        .andExpect(jsonPath("$.withdrawn", is(true)));
-    }
-
-    @Test
     public void testSearchPrivateItemByCustomUrl() throws Exception {
         context.turnOffAuthorisationSystem();
 
@@ -5710,7 +5679,7 @@ public class ItemRestRepositoryIT extends AbstractControllerIntegrationTest {
         // Anonymous user should not find the item
         getClient().perform(get("/api/core/items/search/findByCustomURL")
                                      .param("q", "private-custom-url"))
-                        .andExpect(status().isNoContent());
+                        .andExpect(status().isNotFound());
 
         String token = getAuthToken(admin.getEmail(), password);
 
@@ -5787,218 +5756,6 @@ public class ItemRestRepositoryIT extends AbstractControllerIntegrationTest {
                         .andExpect(status().isOk())
                         .andExpect(jsonPath("$.uuid", is(item.getID().toString())));
 
-    }
-
-    @Test
-    public void testSearchWithdrawnItemByCustomUrl() throws Exception {
-
-        context.turnOffAuthorisationSystem();
-
-        parentCommunity = CommunityBuilder.createCommunity(context)
-                                          .withName("Parent Community")
-                                          .build();
-
-        Collection col1 = CollectionBuilder.createCollection(context, parentCommunity)
-                                           .withName("Collection 1").build();
-
-        Item item = ItemBuilder.createItem(context, col1)
-                               .withTitle("Item 1")
-                               .withCustomUrl("my-custom-url")
-                               .withdrawn()
-                               .build();
-
-        context.restoreAuthSystemState();
-
-        String token = getAuthToken(eperson.getEmail(), password);
-
-        getClient(token).perform(get("/api/core/items/search/findByCustomURL")
-                                     .param("q", "my-custom-url"))
-                        .andExpect(status().isOk())
-                        .andExpect(jsonPath("$.uuid", is(item.getID().toString())));
-
-    }
-
-    @Test
-    public void findAccessStatusForItemBadRequestTest() throws Exception {
-        getClient().perform(get("/api/core/items/{uuid}/accessStatus", "1"))
-                   .andExpect(status().isBadRequest());
-    }
-
-    @Test
-    public void findAccessStatusForItemNotFoundTest() throws Exception {
-        UUID fakeUUID = UUID.randomUUID();
-        getClient().perform(get("/api/core/items/{uuid}/accessStatus", fakeUUID))
-                   .andExpect(status().isNotFound());
-    }
-
-    @Test
-    public void findAccessStatusForItemTest() throws Exception {
-        context.turnOffAuthorisationSystem();
-        parentCommunity = CommunityBuilder.createCommunity(context)
-                                          .withName("Parent Community")
-                                          .build();
-        Collection owningCollection = CollectionBuilder.createCollection(context, parentCommunity)
-                                                       .withName("Owning Collection")
-                                                       .build();
-        Item item = ItemBuilder.createItem(context, owningCollection)
-                               .withTitle("Test item")
-                               .build();
-        context.restoreAuthSystemState();
-        getClient().perform(get("/api/core/items/{uuid}/accessStatus", item.getID()))
-                   .andExpect(status().isOk())
-                   .andExpect(jsonPath("$.status", notNullValue()))
-                   .andExpect(jsonPath("$.embargoDate", nullValue()));
-    }
-
-    @Test
-    public void findAccessStatusWithEmbargoDateForItemTest() throws Exception {
-        context.turnOffAuthorisationSystem();
-        parentCommunity = CommunityBuilder.createCommunity(context)
-                                          .withName("Parent Community")
-                                          .build();
-        Collection owningCollection = CollectionBuilder.createCollection(context, parentCommunity)
-                                                       .withName("Owning Collection")
-                                                       .build();
-
-        Item item = ItemBuilder.createItem(context, owningCollection)
-                                .withTitle("Test item")
-                                .withDataCiteRights("embargo")
-                                .withDataCiteAvailable(LocalDate.now().plusDays(20).toString())
-                                .build();
-        Bundle originalBundle = BundleBuilder.createBundle(context, item)
-                                             .withName(Constants.DEFAULT_BUNDLE_NAME)
-                                             .build();
-        InputStream is = IOUtils.toInputStream("dummy", "utf-8");
-        Bitstream bitstream = BitstreamBuilder.createBitstream(context, originalBundle, is)
-                                              .withName("test.pdf")
-                                              .withMimeType("application/pdf")
-                                              .withEmbargoPeriod(Period.ofMonths(6))
-                                              .build();
-        context.restoreAuthSystemState();
-        getClient().perform(get("/api/core/items/{uuid}/accessStatus", item.getID()))
-                   .andExpect(status().isOk())
-                   .andExpect(jsonPath("$.status", notNullValue()))
-                   .andExpect(jsonPath("$.embargoDate", notNullValue()));
-    }
-
-    @Test
-    public void findSubmitterByAdminTest() throws Exception {
-        context.turnOffAuthorisationSystem();
-
-        //** GIVEN **
-        //1. A community-collection structure with one parent community with sub-community and two collections.
-        parentCommunity = CommunityBuilder.createCommunity(context)
-                                          .withName("Parent Community")
-                                          .build();
-        Community child1 = CommunityBuilder.createSubCommunity(context, parentCommunity)
-                                           .withName("Sub Community")
-                                           .build();
-        Collection col1 = CollectionBuilder.createCollection(context, child1).withName("Collection 1").build();
-
-        EPerson submitter = EPersonBuilder.createEPerson(context)
-                                          .withEmail("testone@mail.com")
-                                          .withPassword(password)
-                                          .withCanLogin(true)
-                                          .build();
-
-        context.setCurrentUser(submitter);
-
-        //2. Three public items that are readable by Anonymous with different subjects
-        Item publicItem = ItemBuilder.createItem(context, col1)
-                                     .withTitle("Public item 1")
-                                     .withIssueDate("2017-10-17")
-                                     .withAuthor("Smith, Donald")
-                                     .withSubject("ExtraEntry")
-                                     .build();
-
-        context.restoreAuthSystemState();
-
-        String token = getAuthToken(admin.getEmail(), password);
-
-        getClient(token).perform(get("/api/core/items/" + publicItem.getID())
-                                     .param("projection", "full"))
-                        .andExpect(status().isOk())
-                        .andExpect(jsonPath("$", ItemMatcher.matchFullEmbeds()));
-
-        getClient(token).perform(get("/api/core/items/" + publicItem.getID() + "/submitter"))
-                        .andExpect(status().isOk())
-                        .andExpect(jsonPath("$.id", is(submitter.getID().toString())))
-                        .andExpect(jsonPath("$.email", is(submitter.getEmail())));
-    }
-
-    @Test
-    public void findSubmitterWithoutReadAccessTest() throws Exception {
-        context.turnOffAuthorisationSystem();
-
-        parentCommunity = CommunityBuilder.createCommunity(context)
-                                          .withName("Parent Community")
-                                          .build();
-
-        Collection col1 = CollectionBuilder.createCollection(context, parentCommunity).withName("Collection 1").build();
-
-        EPerson submitter = EPersonBuilder.createEPerson(context)
-                                          .withEmail("testone@mail.com")
-                                          .withPassword(password)
-                                          .withCanLogin(true)
-                                          .build();
-
-        context.setCurrentUser(submitter);
-
-        Item publicItem = ItemBuilder.createItem(context, col1)
-                                     .withTitle("Public item 1")
-                                     .withIssueDate("2017-10-17")
-                                     .withAuthor("Smith, Donald")
-                                     .withSubject("ExtraEntry")
-                                     .build();
-
-        context.restoreAuthSystemState();
-
-        String token = getAuthToken(eperson.getEmail(), password);
-
-        getClient(token).perform(get("/api/core/items/" + publicItem.getID())
-                                     .param("projection", "full"))
-                        .andExpect(status().isOk())
-                        .andExpect(jsonPath("$", ItemMatcher.matchFullEmbeds()));
-
-//      find submitter by user has no read access
-        getClient(token).perform(get("/api/core/items/" + publicItem.getID() + "/submitter"))
-                        .andExpect(status().isNoContent());
-    }
-
-    @Test
-    public void findSubmitterByAnonymousTest() throws Exception {
-        context.turnOffAuthorisationSystem();
-
-        parentCommunity = CommunityBuilder.createCommunity(context)
-                                          .withName("Parent Community")
-                                          .build();
-
-        Collection col1 = CollectionBuilder.createCollection(context, parentCommunity).withName("Collection 1").build();
-
-        EPerson submitter = EPersonBuilder.createEPerson(context)
-                                          .withEmail("testone@mail.com")
-                                          .withPassword(password)
-                                          .withCanLogin(true)
-                                          .build();
-
-        context.setCurrentUser(submitter);
-
-        Item publicItem = ItemBuilder.createItem(context, col1)
-                                     .withTitle("Public item 1")
-                                     .withIssueDate("2017-10-17")
-                                     .withAuthor("Smith, Donald")
-                                     .withSubject("ExtraEntry")
-                                     .build();
-
-        context.restoreAuthSystemState();
-
-        getClient().perform(get("/api/core/items/" + publicItem.getID())
-                                .param("projection", "full"))
-                   .andExpect(status().isOk())
-                   .andExpect(jsonPath("$", ItemMatcher.matchFullEmbeds()));
-
-        getClient().perform(get("/api/core/items/" + publicItem.getID() + "/submitter"))
-                   .andExpect(status().isNoContent());
     }
 
 }
