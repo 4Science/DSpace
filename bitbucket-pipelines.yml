@@ -234,7 +234,7 @@ definitions:
           - export BRANCH_FILE=$(echo "$BITBUCKET_BRANCH" | awk -F'/' '{if(NF==1)val=$1;else if(NF==2)val=$2;else if(NF==3)val=$2;else val=$3;gsub(/_/, "-", val);print tolower(val)}')
           - git clone https://x-token-auth:${DSPACE_VALUES_ACCESS_TOKEN}@${DSPACE_VALUES_REPO}
           - cd dspace-values
-          - '[ -f "test/${BRANCH_FILE}" ] && sed -i "/^rest:/,/^[^ ]/s/\(tag: \).*/\1${BRANCH_NAME}-${HASH_COMMIT}/" "staging/${BRANCH_FILE}" && sed -i "s/^\([[:space:]]*replicaCount:\) 0/\1 1/" "test/${BRANCH_FILE}"'
+          - '[ -f */test/"${BRANCH_FILE}" ] && sed -i "/^rest:/,/^[^ ]/s/\(tag: \).*/\1${BRANCH_NAME}-${HASH_COMMIT}/" */test/"${BRANCH_FILE}" && sed -i "s/^\([[:space:]]*replicaCount:\) 0/\1 1/" */test/"${BRANCH_FILE}"'
           - git config --global user.email "${BB_USER}"
           - git config --global user.name "${BB_EMAIL}"
           - git commit -am "Update TAG with ${BRANCH_NAME}-${HASH_COMMIT}" || echo "No changes to commit"
@@ -279,7 +279,7 @@ definitions:
           - export BRANCH_FILE=$(echo "$BITBUCKET_BRANCH" | awk -F'/' '{if(NF==1)val=$1;else if(NF==2)val=$2;else if(NF==3)val=$2;else val=$3;gsub(/_/, "-", val);print tolower(val)}')
           - git clone https://x-token-auth:${DSPACE_VALUES_ACCESS_TOKEN}@${DSPACE_VALUES_REPO}
           - cd dspace-values
-          - '[ -f "test/${BRANCH_FILE}" ] && sed -i "s/^\([[:space:]]*replicaCount:\) 0/\1 1/" "test/${BRANCH_FILE}"'
+          - '[ -f */test/"${BRANCH_FILE}" ] && sed -i "s/^\([[:space:]]*replicaCount:\) 0/\1 1/" */test/"${BRANCH_FILE}"'
           - git config --global user.email "${BB_USER}"
           - git config --global user.name "${BB_EMAIL}"
           - git commit -am "Enable test environment for ${BRANCH_NAME}" || echo "No changes to commit"
@@ -304,6 +304,24 @@ definitions:
           - step: *integration-tests-slow
           - step: *integration-tests-dspace-api
 
+    - step: &merge-prod-into-test
+        name: Merge prod into test
+        image: atlassian/default-image:4
+        script:
+          - export PROD_BRANCH="$BITBUCKET_BRANCH"
+          - export TEST_BRANCH="test/${PROD_BRANCH#prod/}"
+          - git fetch origin $TEST_BRANCH || true
+          - if git ls-remote --exit-code --heads origin $TEST_BRANCH; then
+              git remote set-branches --add origin $TEST_BRANCH;
+              git fetch origin $TEST_BRANCH;
+              git checkout -b $TEST_BRANCH origin/$TEST_BRANCH;
+              git merge --no-ff origin/$PROD_BRANCH -m "Merge $PROD_BRANCH into $TEST_BRANCH [ci skip]";
+              git push https://${DSPACE_REPO_USER}:${DSPACE_REPO_TOKEN}@${DSPACE_REPO} $TEST_BRANCH;
+            else
+              echo "Branch $TEST_BRANCH does not exist, no merge performed.";
+            fi
+
+
 pipelines:
   branches:
     'main-cris':
@@ -325,6 +343,7 @@ pipelines:
       - step: *deploy-on-dev
       - step: *deploy-on-staging
       - step: *build-and-push-solr8
+      - step: *merge-prod-into-test
     'test/**':
       - step: *check-branch-name-allowed
       - step: *install
@@ -361,6 +380,11 @@ pipelines:
       - step: *install
       - step: *build-and-push
       - step: *deploy-on-staging
+    deploy-on-test:
+      - step: *check-branch-name-allowed
+      - step: *install
+      - step: *build-and-push
+      - step: *deploy-on-test
     e2e-test:
       - step: *install
       - step: *build-and-push
