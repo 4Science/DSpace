@@ -12,7 +12,6 @@ import java.net.MalformedURLException;
 import java.util.Arrays;
 
 import org.apache.solr.client.solrj.SolrServerException;
-import org.dspace.app.audit.AuditService;
 import org.dspace.app.audit.AuditSolrServiceImpl;
 import org.dspace.app.deduplication.service.impl.SolrDedupServiceImpl;
 import org.dspace.app.rest.DiscoverableEndpointsService;

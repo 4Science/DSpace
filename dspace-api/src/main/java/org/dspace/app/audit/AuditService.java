@@ -7,14 +7,11 @@
  */
 package org.dspace.app.audit;
 
-import java.io.IOException;
 import java.sql.SQLException;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
-import org.apache.solr.client.solrj.SolrClient;
-import org.apache.solr.client.solrj.SolrServerException;
 import org.dspace.core.Context;
 import org.dspace.event.Event;
 
