@@ -19,6 +19,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.apache.logging.log4j.Logger;
 import org.dspace.content.dao.pojo.ItemUuidAndRelationshipId;
 import org.dspace.content.service.ItemService;
@@ -186,9 +187,9 @@ public class RelationshipMetadataServiceImpl implements RelationshipMetadataServ
         int place = 0;
         boolean isLeftwards;
         final boolean sameLeftType = Objects.isNull(relationshipType.getLeftType()) ||
-                                         StringUtils.equals(relationshipType.getLeftType().getLabel(), entityType);
+            Strings.CS.equals(relationshipType.getLeftType().getLabel(), entityType);
         final boolean sameRightType = Objects.isNull(relationshipType.getRightType()) ||
-                                          StringUtils.equals(relationshipType.getRightType().getLabel(), entityType);
+            Strings.CS.equals(relationshipType.getRightType().getLabel(), entityType);
         if (sameLeftType &&
                 item.getID().equals(relationship.getLeftItem().getID())) {
             hashMaps = virtualMetadataPopulator.getMap().get(relationshipType.getLeftwardType());

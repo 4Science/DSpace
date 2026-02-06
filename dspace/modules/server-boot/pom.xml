@@ -77,7 +77,7 @@
         </dependency>
         <dependency>
             <groupId>org.mockito</groupId>
-            <artifactId>mockito-inline</artifactId>
+            <artifactId>mockito-core</artifactId>
             <scope>test</scope>
         </dependency>
         <!-- Solr Core is only needed for Integration Tests (to run a MockSolrServer) -->
@@ -96,6 +96,10 @@
                 <exclusion>
                     <groupId>org.antlr</groupId>
                     <artifactId>antlr4-runtime</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.logging.log4j</groupId>
+                    <artifactId>log4j-slf4j-impl</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>
@@ -124,8 +128,4 @@
         </plugins>
     </build>
 
-
-  <scm>
-    <tag>dspace-9.2</tag>
-  </scm>
 </project>

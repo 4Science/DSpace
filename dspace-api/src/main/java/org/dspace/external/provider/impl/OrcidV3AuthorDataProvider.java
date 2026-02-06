@@ -19,6 +19,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.dspace.content.MetadataFieldName;
@@ -279,7 +280,7 @@ public class OrcidV3AuthorDataProvider extends AbstractExternalDataProvider {
 
     @Override
     public boolean supports(String source) {
-        return StringUtils.equalsIgnoreCase(sourceIdentifier, source);
+        return Strings.CI.equals(sourceIdentifier, source);
     }
 
     @Override

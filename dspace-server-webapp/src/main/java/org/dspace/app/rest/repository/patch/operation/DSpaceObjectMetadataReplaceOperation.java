@@ -11,6 +11,7 @@ import java.sql.SQLException;
 import java.util.List;
 
 import org.apache.logging.log4j.Logger;
+import org.dspace.app.audit.MetadataEvent;
 import org.dspace.app.rest.converter.ItemConverter;
 import org.dspace.app.rest.exception.DSpaceBadRequestException;
 import org.dspace.app.rest.exception.UnprocessableEntityException;
@@ -175,6 +176,7 @@ public class DSpaceObjectMetadataReplaceOperation<R extends DSpaceObject> extend
                 existingMdv.setConfidence(metadataValue.getConfidence());
                 existingMdv.setLanguage(metadataValue.getLanguage());
                 existingMdv.setValue(metadataValue.getValue());
+                dso.addMetadataEventDetails(new MetadataEvent(existingMdv, MetadataEvent.MODIFY));
                 dsoService.setMetadataModified(dso);
                 existingMdv.setSecurityLevel(metadataValue.getSecurityLevel());
             } else {
@@ -217,6 +219,7 @@ public class DSpaceObjectMetadataReplaceOperation<R extends DSpaceObject> extend
                 if (propertyOfMd.equals("value")) {
                     existingMdv.setValue(valueMdProperty);
                 }
+                dso.addMetadataEventDetails(new MetadataEvent(existingMdv, MetadataEvent.MODIFY));
                 dsoService.setMetadataModified(dso);
             } else {
                 throw new UnprocessableEntityException("There is no metadata of this type at that index");

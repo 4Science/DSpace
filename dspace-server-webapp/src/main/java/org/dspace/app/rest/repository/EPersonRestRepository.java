@@ -16,6 +16,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.dspace.app.rest.DiscoverableEndpointsService;
@@ -187,7 +188,7 @@ public class EPersonRestRepository extends DSpaceObjectRestRepository<EPerson, E
         }
         String emailFromJson = epersonRest.getEmail();
         if (StringUtils.isNotBlank(emailFromJson)) {
-            if (!StringUtils.equalsIgnoreCase(registrationData.getEmail(), emailFromJson)) {
+            if (!Strings.CI.equals(registrationData.getEmail(), emailFromJson)) {
                 throw new DSpaceBadRequestException("The email resulting from the token does not match the email given"
                                                         + " in the json body. Email from token: " +
                                                     registrationData.getEmail() + " email from the json body: "
@@ -241,7 +242,7 @@ public class EPersonRestRepository extends DSpaceObjectRestRepository<EPerson, E
 
     private boolean canRegisterExternalAccount(RegistrationData registration, EPersonRest epersonRest) {
         return accountService.isTokenValidForCreation(registration) &&
-            StringUtils.equals(registration.getNetId(), epersonRest.getNetid());
+            Strings.CS.equals(registration.getNetId(), epersonRest.getNetid());
     }
 
     @Override
@@ -356,7 +357,7 @@ public class EPersonRestRepository extends DSpaceObjectRestRepository<EPerson, E
                          Patch patch) throws AuthorizeException, SQLException {
         boolean passwordChangeFound = false;
         for (Operation operation : patch.getOperations()) {
-            if (StringUtils.equalsIgnoreCase(operation.getPath(), "/password")) {
+            if (Strings.CI.equals(operation.getPath(), "/password")) {
                 passwordChangeFound = true;
             }
         }
@@ -366,7 +367,7 @@ public class EPersonRestRepository extends DSpaceObjectRestRepository<EPerson, E
                                                     "changing the password");
             }
         } else {
-            if (passwordChangeFound && !StringUtils.equals(context.getAuthenticationMethod(), "password")) {
+            if (passwordChangeFound && !Strings.CS.equals(context.getAuthenticationMethod(), "password")) {
                 throw new AccessDeniedException("Refused to perform the EPerson patch based to change the password " +
                                                         "for non \"password\" authentication");
             }

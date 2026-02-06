@@ -34,6 +34,7 @@ import java.util.stream.Stream;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.dspace.app.bulkaccesscontrol.exception.BulkAccessControlException;
@@ -251,7 +252,7 @@ public class BulkAccessControl extends DSpaceRunnable<BulkAccessControlScriptCon
         if (StringUtils.isEmpty(mode)) {
             handler.logError("item mode node must be provided");
             throw new BulkAccessControlException("item mode node must be provided");
-        } else if (!(StringUtils.equalsAny(mode, ADD_MODE, REPLACE_MODE))) {
+        } else if (!(Strings.CS.equalsAny(mode, ADD_MODE, REPLACE_MODE))) {
             handler.logError("wrong value for item mode<" + mode + ">");
             throw new BulkAccessControlException("wrong value for item mode<" + mode + ">");
         } else if (ADD_MODE.equals(mode) && isEmpty(accessConditions)) {
@@ -284,7 +285,7 @@ public class BulkAccessControl extends DSpaceRunnable<BulkAccessControlScriptCon
         if (StringUtils.isEmpty(mode)) {
             handler.logError("bitstream mode node must be provided");
             throw new BulkAccessControlException("bitstream mode node must be provided");
-        } else if (!(StringUtils.equalsAny(mode, ADD_MODE, REPLACE_MODE))) {
+        } else if (!(Strings.CS.equalsAny(mode, ADD_MODE, REPLACE_MODE))) {
             handler.logError("wrong value for bitstream mode<" + mode + ">");
             throw new BulkAccessControlException("wrong value for bitstream mode<" + mode + ">");
         } else if (ADD_MODE.equals(mode) && isEmpty(accessConditions)) {

@@ -92,6 +92,7 @@ public class DSpaceControlledVocabulary extends SelfNamedPlugin implements Hiera
         if (pluginNames == null) {
             initPluginNames();
         }
+
         return ArrayUtils.clone(pluginNames);
     }
 

@@ -18,7 +18,7 @@
 
     <properties>
         <!--=== GENERAL / DSPACE-API DEPENDENCIES ===-->
-        <java.version>17</java.version>
+        <java.version>21</java.version>
         <spring.version>6.2.14</spring.version>
         <spring-boot.version>3.5.8</spring-boot.version>
         <spring-security.version>6.5.7</spring-security.version> <!-- sync with version used by spring-boot-->
@@ -41,8 +41,8 @@
         <jcache-version>1.1.1</jcache-version>
         <!-- NOTE: Jetty needed for Solr, Handle Server & tests -->
         <jetty.version>9.4.58.v20250814</jetty.version>
-        <log4j.version>2.25.2</log4j.version>
-        <pdfbox-version>3.0.5</pdfbox-version>
+        <log4j.version>2.25.3</log4j.version>
+        <pdfbox-version>3.0.6</pdfbox-version>
         <rome.version>1.19.0</rome.version>
         <!-- SLF4J is not used, but specified for dependency convergence issues between many dependencies -->
         <slf4j.version>2.0.17</slf4j.version>
@@ -52,7 +52,7 @@
         <!-- WARNING: BouncyCastle is also required by the maven-gpg-plugin to sign code during release. Do not update
              unless the new BouncyCastle version is compatible both with tika-parsers and maven-gpg-plugin. -->
         <bouncycastle.version>1.81</bouncycastle.version>
-        <asm.version>8.0.1</asm.version>
+        <asm.version>9.9</asm.version>
         <!-- Jersey is used to integrate with external sources/services -->
         <jersey.version>3.1.11</jersey.version>
         <!--=== SERVER WEBAPP DEPENDENCIES ===-->
@@ -477,8 +477,6 @@
                     <!-- Add some default DSpace exclusions not covered by <useDefaultExcludes>
                          Individual Maven projects may choose to override these defaults. -->
                     <excludes>
-						<!-- temporary copy of a modified apache commons-configuration2 class, see https://issues.apache.org/jira/browse/CONFIGURATION-846 -->
-                        <exclude>**/src/main/java/org/dspace/servicemanager/config/DSpaceConfigurationPropertySource.java</exclude>
                         <exclude>**/src/test/resources/**</exclude>
                         <exclude>**/src/test/data/**</exclude>
                         <exclude>**/src/main/license/**</exclude>
@@ -830,7 +828,7 @@
                                         <!-- JBoss Transaction API claims this license, but it is dual licensed with CDDL being one: https://github.com/jboss/jboss-transaction-api_spec -->
                                         <licenseMerge>Common Development and Distribution License (CDDL)|GNU General Public License, Version 2 with the Classpath Exception</licenseMerge>
                                         <licenseMerge>Eclipse Distribution License, Version 1.0|Eclipse Distribution License (EDL), Version 1.0|Eclipse Distribution License - v 1.0|Eclipse Distribution License v. 1.0|EDL 1.0</licenseMerge>
-                                        <licenseMerge>Eclipse Public License|Eclipse Public License - Version 1.0|Eclipse Public License - v 1.0|EPL 1.0 license|Eclipse Public License (EPL), Version 1.0|Eclipse Public License 1.0|Eclipse Public License v1.0|Eclipse Public License, Version 1.0|EPL 1.0|EPL 2.0|Eclipse Public License - v 2.0|EPL-2.0|Eclipse Public License 2.0|Eclipse Public License v. 2.0|Eclipse Public License, Version 2.0|Eclipse Public License v2.0</licenseMerge>
+                                        <licenseMerge>Eclipse Public License|Eclipse Public License - Version 1.0|Eclipse Public License - v 1.0|EPL 1.0 license|Eclipse Public License (EPL), Version 1.0|Eclipse Public License 1.0|Eclipse Public License v1.0|Eclipse Public License, Version 1.0|EPL 1.0|EPL 2.0|Eclipse Public License - v 2.0|EPL-2.0|Eclipse Public License 2.0|Eclipse Public License v. 2.0|Eclipse Public License, Version 2.0</licenseMerge>
                                         <!-- JUnit claims this license but is actually Eclipse Public License: http://junit.org/license.html -->
                                         <licenseMerge>Eclipse Public License|Common Public License Version 1.0</licenseMerge>
                                         <!-- Jersey is dual licensed as EPL but lists its main license as GPL: https://github.com/eclipse-ee4j/jersey#licensing-and-governance -->
@@ -1579,6 +1577,12 @@
                 <groupId>org.apache.solr</groupId>
                 <artifactId>solr-solrj</artifactId>
                 <version>${solr.client.version}</version>
+                <exclusions>
+                    <exclusion>  <!-- declare the exclusion here -->
+                        <groupId>org.apache.logging.log4j</groupId>
+                        <artifactId>log4j-slf4j-impl</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>org.apache.lucene</groupId>
@@ -2088,10 +2092,11 @@
                 <version>4.13.2</version>
                 <scope>test</scope>
             </dependency>
+            <!-- Mockito 5.x is required for Java 21 compatibility (mockito-inline is now merged into mockito-core) -->
             <dependency>
                 <groupId>org.mockito</groupId>
-                <artifactId>mockito-inline</artifactId>
-                <version>3.12.4</version>
+                <artifactId>mockito-core</artifactId>
+                <version>5.21.0</version>
                 <scope>test</scope>
             </dependency>
             <!-- H2 is an in-memory database used for Unit/Integration tests -->
@@ -2329,7 +2334,7 @@
         <connection>scm:git:git@github.com:4Science/DSpace.git</connection>
         <developerConnection>scm:git:git@github.com:4Science/DSpace.git</developerConnection>
         <url>https://github.com:4Science/DSpace</url>
-        <tag>dspace-cris-2024.02.02</tag>
+        <tag>HEAD</tag>
     </scm>
 
 

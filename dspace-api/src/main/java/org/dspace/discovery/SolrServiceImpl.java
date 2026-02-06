@@ -37,6 +37,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.collections4.Transformer;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.apache.logging.log4j.Logger;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
@@ -360,7 +361,7 @@ public class SolrServiceImpl implements SearchService, IndexingService {
                 getIndexFactories();
             int indexObject = 0;
             for (IndexFactory indexableObjectService : indexableObjectServices) {
-                if (type == null || StringUtils.equals(indexableObjectService.getType(), type)) {
+                if (type == null || Strings.CS.equals(indexableObjectService.getType(), type)) {
                     final Iterator<IndexableObject> indexableObjects = indexableObjectService.findAll(context);
                     while (indexableObjects.hasNext()) {
                         final IndexableObject indexableObject = indexableObjects.next();
@@ -1467,9 +1468,9 @@ public class SolrServiceImpl implements SearchService, IndexingService {
         if (DiscoverySortFunctionConfiguration.SORT_FUNCTION.equals(type)) {
             return metadataField;
         }
-        if (StringUtils.equalsIgnoreCase(DiscoverySortConfiguration.SCORE, metadataField)) {
+        if (Strings.CI.equals(DiscoverySortConfiguration.SCORE, metadataField)) {
             return DiscoverySortConfiguration.SCORE;
-        } else if (StringUtils.equals(type, DiscoveryConfigurationParameters.TYPE_DATE)) {
+        } else if (Strings.CS.equals(type, DiscoveryConfigurationParameters.TYPE_DATE)) {
             return metadataField + "_dt";
         } else {
             return metadataField + "_sort";

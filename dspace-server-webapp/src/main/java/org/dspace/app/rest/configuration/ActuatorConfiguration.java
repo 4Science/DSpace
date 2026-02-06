@@ -13,6 +13,7 @@ import java.util.Arrays;
 
 import org.apache.solr.client.solrj.SolrServerException;
 import org.dspace.app.audit.AuditService;
+import org.dspace.app.audit.AuditSolrServiceImpl;
 import org.dspace.app.deduplication.service.impl.SolrDedupServiceImpl;
 import org.dspace.app.rest.DiscoverableEndpointsService;
 import org.dspace.app.rest.health.EPersonGroupHealthIndicator;
@@ -92,7 +93,7 @@ public class ActuatorConfiguration {
     @Bean
     @ConditionalOnEnabledHealthIndicator("solrAudit")
     @ConditionalOnProperty("solr.audit.server")
-    public SolrHealthIndicator solrAuditHealthIndicator(AuditService auditService)
+    public SolrHealthIndicator solrAuditHealthIndicator(AuditSolrServiceImpl auditService)
         throws MalformedURLException, SolrServerException, IOException {
         return new SolrHealthIndicator(auditService.getSolr());
     }

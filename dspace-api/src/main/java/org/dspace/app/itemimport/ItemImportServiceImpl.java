@@ -61,6 +61,7 @@ import org.apache.commons.io.FileDeleteStrategy;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -209,7 +210,7 @@ public class ItemImportServiceImpl implements ItemImportService, InitializingBea
             }
         }
         // clean work dir path from duplicate separators
-        tempWorkDir = StringUtils.replace(tempWorkDir, File.separator + File.separator, File.separator);
+        tempWorkDir = Strings.CS.replace(tempWorkDir, File.separator + File.separator, File.separator);
     }
 
     // File listing filter to look for metadata files
@@ -604,7 +605,7 @@ public class ItemImportServiceImpl implements ItemImportService, InitializingBea
 
         Item item = null;
 
-        String mf[] = metaKey.split("\\.");
+        String[] mf = metaKey.split("\\.");
         if (mf.length < 2) {
             throw new Exception("Bad metadata field in reference: '" + metaKey +
                 "' (expected syntax is schema.element[.qualifier])");
@@ -911,7 +912,7 @@ public class ItemImportServiceImpl implements ItemImportService, InitializingBea
 
         // Load any additional metadata schemas
         File folder = new File(path);
-        File file[] = folder.listFiles(metadataFileFilter);
+        File[] file = folder.listFiles(metadataFileFilter);
         for (int i = 0; i < file.length; i++) {
             loadDublinCore(c, myitem, file[i].getAbsolutePath());
         }
@@ -969,7 +970,7 @@ public class ItemImportServiceImpl implements ItemImportService, InitializingBea
 
         // only add metadata if it is no test and there is an actual value
         if (!isTest && StringUtils.isNotBlank(value)) {
-            if (StringUtils.equals(schema, MetadataSchemaEnum.RELATION.getName())) {
+            if (Strings.CS.equals(schema, MetadataSchemaEnum.RELATION.getName())) {
                 Item relationItem = resolveItem(context, value);
                 if (relationItem == null) {
                     throw new IllegalArgumentException("No item found with id=" + value);
@@ -1465,11 +1466,11 @@ public class ItemImportServiceImpl implements ItemImportService, InitializingBea
 
         if (bundleName == null) {
             // is it license.txt?
-            if ("license.txt".equals(fileName)) {
-                newBundleName = "LICENSE";
+            if (Constants.LICENSE_BITSTREAM_NAME.equals(fileName)) {
+                newBundleName = Constants.LICENSE_BUNDLE_NAME;
             } else {
                 // call it ORIGINAL
-                newBundleName = "ORIGINAL";
+                newBundleName = Constants.CONTENT_BUNDLE_NAME;
             }
         }
 
@@ -1533,11 +1534,11 @@ public class ItemImportServiceImpl implements ItemImportService, InitializingBea
 
         if (StringUtils.isBlank(bundleName)) {
             // is it license.txt?
-            if (bitstreamPath.endsWith("license.txt")) {
-                newBundleName = "LICENSE";
+            if (bitstreamPath.endsWith(Constants.LICENSE_BITSTREAM_NAME)) {
+                newBundleName = Constants.LICENSE_BUNDLE_NAME;
             } else {
                 // call it ORIGINAL
-                newBundleName = "ORIGINAL";
+                newBundleName = Constants.CONTENT_BUNDLE_NAME;
             }
         }
 
@@ -2029,7 +2030,7 @@ public class ItemImportServiceImpl implements ItemImportService, InitializingBea
                         //regex supports either windows or *nix file paths
                         String[] entryChunks = entryName.split("/|\\\\");
                         if (entryChunks.length > 2) {
-                            if (StringUtils.equals(sourceDirForZip, sourcedir)) {
+                            if (Strings.CS.equals(sourceDirForZip, sourcedir)) {
                                 sourceDirForZip = sourcedir + "/" + entryChunks[0];
                             }
                         }
@@ -2051,7 +2052,7 @@ public class ItemImportServiceImpl implements ItemImportService, InitializingBea
             zf.close();
         }
 
-        if (!StringUtils.equals(sourceDirForZip, sourcedir)) {
+        if (!Strings.CS.equals(sourceDirForZip, sourcedir)) {
             sourcedir = sourceDirForZip;
             logInfo("Set sourceDir using path inside of Zip: " + sourcedir);
         }
