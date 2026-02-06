@@ -273,6 +273,7 @@
         <!--Which sidebar facets are to be displayed-->
         <property name="sidebarFacets">
             <list>
+                <ref bean="searchFilterType" />
                 <ref bean="searchFilterAuthor" />
                 <ref bean="searchFilterSubject" />
                 <ref bean="searchFilterIssued" />
@@ -280,6 +281,7 @@
                 <!-- <ref bean="searchFilterHasGeospatialMetadata"/> -->
                 <ref bean="searchFilterEntityType"/>
                 <ref bean="searchFilterAccessStatus" />
+                <ref bean="searchFilterLanguage" />
             </list>
         </property>
         <!-- Set TagCloud configuration per discovery configuration -->
