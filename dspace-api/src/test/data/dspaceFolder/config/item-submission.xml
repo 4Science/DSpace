@@ -576,6 +576,7 @@
             <step id="collection" />
             <step id="event" />
         </submission-process>
+
         <submission-process name="product">
             <step id="collection" />
             <step id="product" />

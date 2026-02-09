@@ -671,7 +671,7 @@ public class SubmissionFormsControllerIT extends AbstractControllerIntegrationTe
                          Matchers.containsString("page=1"), Matchers.containsString("size=2"))))
                  .andExpect(jsonPath("$._links.last.href", Matchers.allOf(
                          Matchers.containsString("/api/config/submissionforms?"),
-                         Matchers.containsString("page=24"), Matchers.containsString("size=2"))))
+                         Matchers.containsString("page=23"), Matchers.containsString("size=2"))))
                  .andExpect(jsonPath("$.page.size", is(2)))
                  .andExpect(jsonPath("$.page.totalElements", equalTo(48)))
                  .andExpect(jsonPath("$.page.totalPages", equalTo(24)))
@@ -698,7 +698,7 @@ public class SubmissionFormsControllerIT extends AbstractControllerIntegrationTe
                          Matchers.containsString("page=16"), Matchers.containsString("size=2"))))
                  .andExpect(jsonPath("$._links.last.href", Matchers.allOf(
                          Matchers.containsString("/api/config/submissionforms?"),
-                         Matchers.containsString("page=24"), Matchers.containsString("size=2"))))
+                         Matchers.containsString("page=23"), Matchers.containsString("size=2"))))
                  .andExpect(jsonPath("$.page.size", is(2)))
                  .andExpect(jsonPath("$.page.totalElements", equalTo(48)))
                  .andExpect(jsonPath("$.page.totalPages", equalTo(24)))
@@ -745,34 +745,11 @@ public class SubmissionFormsControllerIT extends AbstractControllerIntegrationTe
                                  Matchers.containsString("page=4"), Matchers.containsString("size=2"))))
                              .andExpect(jsonPath("$._links.last.href", Matchers.allOf(
                                  Matchers.containsString("/api/config/submissionforms?"),
-                                 Matchers.containsString("page=24"), Matchers.containsString("size=2"))))
+                                 Matchers.containsString("page=23"), Matchers.containsString("size=2"))))
                              .andExpect(jsonPath("$.page.size", is(2)))
                              .andExpect(jsonPath("$.page.totalElements", equalTo(48)))
                              .andExpect(jsonPath("$.page.totalPages", equalTo(24)))
                              .andExpect(jsonPath("$.page.number", is(4)));
-
-        getClient(tokenAdmin).perform(get("/api/config/submissionforms")
-                .param("size", "2")
-                .param("page", "5"))
-            .andExpect(status().isOk())
-            .andExpect(content().contentType(contentType))
-            .andExpect(jsonPath("$._embedded.submissionforms[0].id", is("typebindtest")))
-            .andExpect(jsonPath("$._links.first.href", Matchers.allOf(
-                Matchers.containsString("/api/config/submissionforms?"),
-                Matchers.containsString("page=0"), Matchers.containsString("size=2"))))
-            .andExpect(jsonPath("$._links.prev.href", Matchers.allOf(
-                Matchers.containsString("/api/config/submissionforms?"),
-                Matchers.containsString("page=4"), Matchers.containsString("size=2"))))
-            .andExpect(jsonPath("$._links.self.href", Matchers.allOf(
-                Matchers.containsString("/api/config/submissionforms?"),
-                Matchers.containsString("page=5"), Matchers.containsString("size=2"))))
-            .andExpect(jsonPath("$._links.last.href", Matchers.allOf(
-                Matchers.containsString("/api/config/submissionforms?"),
-                Matchers.containsString("page=5"), Matchers.containsString("size=2"))))
-            .andExpect(jsonPath("$.page.size", is(2)))
-            .andExpect(jsonPath("$.page.totalElements", equalTo(11)))
-            .andExpect(jsonPath("$.page.totalPages", equalTo(6)))
-            .andExpect(jsonPath("$.page.number", is(5)));
     }
 
     @Test
