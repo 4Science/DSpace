@@ -91,7 +91,7 @@ public class ActuatorConfiguration {
 
     @Bean
     @ConditionalOnEnabledHealthIndicator("solrAudit")
-    @ConditionalOnProperty("solr.audit.server")
+    @ConditionalOnProperty("audit.solr.server")
     public SolrHealthIndicator solrAuditHealthIndicator(AuditSolrServiceImpl auditService)
         throws MalformedURLException, SolrServerException, IOException {
         return new SolrHealthIndicator(auditService.getSolr());
