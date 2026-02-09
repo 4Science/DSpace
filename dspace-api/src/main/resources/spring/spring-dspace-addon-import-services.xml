@@ -176,6 +176,11 @@
     </bean>
     <bean id="CrossRefMetadataFieldMapping" class="org.dspace.importer.external.crossref.CrossRefFieldMapping"/>
 
+    <bean id="CoreImportService" class="org.dspace.importer.external.core.CoreImportMetadataSourceServiceImpl" scope="singleton">
+        <property name="metadataFieldMapping" ref="coreMetadataFieldMapping"/>
+    </bean>
+    <bean id="coreMetadataFieldMapping" class="org.dspace.importer.external.core.CoreFieldMapping"/>
+
     <bean id="EpoImportService" class="org.dspace.importer.external.epo.service.EpoImportMetadataSourceServiceImpl" scope="singleton">
         <property name="metadataFieldMapping" ref="epoMetadataFieldMapping"/>
         <property name="consumerKey" value="${epo.consumerKey}" />

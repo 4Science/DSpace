@@ -1,0 +1,639 @@
+{
+  "totalHits": 14548621,
+  "limit": 10,
+  "offset": 0,
+  "results": [
+    {
+      "acceptedDate": "2007-12-13T00:00:00",
+      "arxivId": "0704.0959",
+      "authors": [
+        {
+          "name": "Doi, Takumi"
+        }
+      ],
+      "citationCount": 0,
+      "contributors": [],
+      "outputs": [
+        "https://api.core.ac.uk/v3/outputs/489166511"
+      ],
+      "createdDate": "2012-04-13T14:15:38",
+      "dataProviders": [
+        {
+          "id": 144,
+          "name": "",
+          "url": "https://api.core.ac.uk/v3/data-providers/144",
+          "logo": "https://api.core.ac.uk/data-providers/144/logo"
+        },
+        {
+          "id": 4786,
+          "name": "",
+          "url": "https://api.core.ac.uk/v3/data-providers/4786",
+          "logo": "https://api.core.ac.uk/data-providers/4786/logo"
+        }
+      ],
+      "depositedDate": "2007-01-01T00:00:00",
+      "abstract": "test",
+      "documentType": "research",
+      "doi": "10.1143/ptps.168.45",
+      "downloadUrl": "http://arxiv.org/abs/0704.0959",
+      "fieldOfStudy": "physics",
+      "fullText": "Not available for public API users.",
+      "id": 542484,
+      "identifiers": [
+        {
+          "identifier": "oai:arxiv.org:0704.0959",
+          "type": "OAI_ID"
+        },
+        {
+          "identifier": "2051688763",
+          "type": "MAG_ID"
+        },
+        {
+          "identifier": "1934270",
+          "type": "CORE_ID"
+        },
+        {
+          "identifier": "489166511",
+          "type": "CORE_ID"
+        },
+        {
+          "identifier": "10.1143/ptps.168.45",
+          "type": "DOI"
+        },
+        {
+          "identifier": "0704.0959",
+          "type": "ARXIV_ID"
+        }
+      ],
+      "title": "Theoretical Status of Pentaquarks",
+      "language": {
+        "code": "en",
+        "name": "English"
+      },
+      "magId": "2051688763",
+      "oaiIds": [
+        "oai:arxiv.org:0704.0959"
+      ],
+      "publishedDate": "2007-01-01T00:00:00",
+      "publisher": "'Japan Society of Applied Physics'",
+      "pubmedId": null,
+      "references": [],
+      "sourceFulltextUrls": [
+        "http://arxiv.org/abs/0704.0959",
+        "http://arxiv.org/pdf/0704.0959"
+      ],
+      "updatedDate": "2021-12-27T17:42:07",
+      "yearPublished": 2007,
+      "journals": [
+        {
+          "title": null,
+          "identifiers": [
+            "0375-9687"
+          ]
+        }
+      ],
+      "links": [
+        {
+          "type": "download",
+          "url": "http://arxiv.org/abs/0704.0959"
+        },
+        {
+          "type": "display",
+          "url": "https://core.ac.uk/works/542484"
+        }
+      ]
+    },
+    {
+      "acceptedDate": "2005-01-04T00:00:00",
+      "arxivId": "cond-mat/0410383",
+      "authors": [
+        {
+          "name": "Doi, Masao"
+        },
+        {
+          "name": "Uneyama, Takashi"
+        }
+      ],
+      "citationCount": 0,
+      "contributors": [
+        ""
+      ],
+      "outputs": [
+        "https://api.core.ac.uk/v3/outputs/265751642"
+      ],
+      "createdDate": "2012-04-13T14:21:16",
+      "dataProviders": [
+        {
+          "id": 144,
+          "name": "",
+          "url": "https://api.core.ac.uk/v3/data-providers/144",
+          "logo": "https://api.core.ac.uk/data-providers/144/logo"
+        },
+        {
+          "id": 4786,
+          "name": "",
+          "url": "https://api.core.ac.uk/v3/data-providers/4786",
+          "logo": "https://api.core.ac.uk/data-providers/4786/logo"
+        }
+      ],
+      "depositedDate": "2005-01-01T00:00:00",
+      "abstract": "test",
+      "documentType": "research",
+      "doi": "10.1021/ma049385m",
+      "downloadUrl": "http://arxiv.org/abs/cond-mat/0410383",
+      "fieldOfStudy": null,
+      "fullText": "Not available for public API users.",
+      "id": 906279,
+      "identifiers": [
+        {
+          "identifier": "cond-mat/0410383",
+          "type": "ARXIV_ID"
+        },
+        {
+          "identifier": "oai:arxiv.org:cond-mat/0410383",
+          "type": "OAI_ID"
+        },
+        {
+          "identifier": "2374246",
+          "type": "CORE_ID"
+        },
+        {
+          "identifier": "10.1021/ma049385m",
+          "type": "DOI"
+        },
+        {
+          "identifier": "2096072138",
+          "type": "MAG_ID"
+        },
+        {
+          "identifier": "265751642",
+          "type": "CORE_ID"
+        }
+      ],
+      "title": "Density Functional Theory for Block Copolymer Melts and Blends",
+      "language": {
+        "code": "en",
+        "name": "English"
+      },
+      "magId": null,
+      "oaiIds": [
+        "oai:arxiv.org:cond-mat/0410383"
+      ],
+      "publishedDate": "2004-10-15T00:00:00",
+      "publisher": "'American Chemical Society (ACS)'",
+      "pubmedId": null,
+      "references": [],
+      "sourceFulltextUrls": [
+        "http://arxiv.org/abs/cond-mat/0410383"
+      ],
+      "updatedDate": "2021-04-12T18:18:56",
+      "yearPublished": 2004,
+      "journals": [
+        {
+          "title": null,
+          "identifiers": [
+            "0024-9297"
+          ]
+        }
+      ],
+      "links": [
+        {
+          "type": "download",
+          "url": "http://arxiv.org/abs/cond-mat/0410383"
+        },
+        {
+          "type": "display",
+          "url": "https://core.ac.uk/works/906279"
+        }
+      ]
+    },
+    {
+      "acceptedDate": "",
+      "arxivId": null,
+      "authors": [
+        {
+          "name": "Doi, Mitsuharu"
+        },
+        {
+          "name": "Ishii, Tadao"
+        }
+      ],
+      "citationCount": 0,
+      "contributors": [],
+      "outputs": [
+        "https://api.core.ac.uk/v3/outputs/338162609",
+        "https://api.core.ac.uk/v3/outputs/12529156"
+      ],
+      "createdDate": "2013-07-26T11:43:34",
+      "dataProviders": [
+        {
+          "id": 5412,
+          "name": "",
+          "url": "https://api.core.ac.uk/v3/data-providers/5412",
+          "logo": "https://api.core.ac.uk/data-providers/5412/logo"
+        },
+        {
+          "id": 493,
+          "name": "",
+          "url": "https://api.core.ac.uk/v3/data-providers/493",
+          "logo": "https://api.core.ac.uk/data-providers/493/logo"
+        }
+      ],
+      "depositedDate": "",
+      "abstract": "test",
+      "documentType": "research",
+      "doi": "10.18926/15701",
+      "downloadUrl": "https://core.ac.uk/download/12529156.pdf",
+      "fieldOfStudy": null,
+      "fullText": "Not available for public API users.",
+      "id": 5346152,
+      "identifiers": [
+        {
+          "identifier": "10.18926/15701",
+          "type": "DOI"
+        },
+        {
+          "identifier": "oai:eprintsoudir.lib.okayama-u.ac.jp:15701",
+          "type": "OAI_ID"
+        },
+        {
+          "identifier": "338162609",
+          "type": "CORE_ID"
+        },
+        {
+          "identifier": "12529156",
+          "type": "CORE_ID"
+        }
+      ],
+      "title": "Anomalous Electric Fields in n-InSb under High Magnetic Fields. I-Experiment",
+      "language": {
+        "code": "en",
+        "name": "English"
+      },
+      "magId": null,
+      "oaiIds": [
+        "oai:eprintsoudir.lib.okayama-u.ac.jp:15701"
+      ],
+      "publishedDate": "1976-07-20T00:00:00",
+      "publisher": "岡山大学工学部",
+      "pubmedId": null,
+      "references": [
+        {
+          "id": 16868720,
+          "title": "1) T.Morimoto and K.Yoshida:",
+          "authors": [],
+          "date": "1974",
+          "doi": "10.1007/978-1-4684-2691-5_66",
+          "raw": "1) T.Morimoto and K.Yoshida: Froc. 12th LT Conference, Kyoto (1970) 557. 2) T.Morimoto and K.Yoshida: Froc. 13th LT Conference, Boulder (1974) 379.",
+          "cites": null
+        },
+        {
+          "id": 16868722,
+          "title": "5) T.Morimoto: Phys. Letters 50A",
+          "authors": [],
+          "date": "1974",
+          "doi": null,
+          "raw": "5) T.Morimoto: Phys. Letters 50A (1974) 183.",
+          "cites": null
+        },
+        {
+          "id": 16868723,
+          "title": "7) T.Morimoto: private communication, Bul1.Inst. Atomic Energy,",
+          "authors": [],
+          "date": "1973",
+          "doi": null,
+          "raw": "7) T.Morimoto: private communication, Bul1.Inst. Atomic Energy, Kyoto Univ. 44 (1973) 1.",
+          "cites": null
+        },
+        {
+          "id": 16868721,
+          "title": "M.Yamamoto and J.Kawamoto: Phys. Letters 49A",
+          "authors": [],
+          "date": "1974",
+          "doi": null,
+          "raw": "4) T.Morimoto, M.Yamamoto and J.Kawamoto: Phys. Letters 49A (1974) 261.",
+          "cites": null
+        }
+      ],
+      "sourceFulltextUrls": [],
+      "updatedDate": "2022-02-28T07:30:11",
+      "yearPublished": 1976,
+      "journals": [
+        {
+          "title": null,
+          "identifiers": [
+            "issn:0475-0071",
+            "0475-0071"
+          ]
+        }
+      ],
+      "links": [
+        {
+          "type": "download",
+          "url": "https://core.ac.uk/download/12529156.pdf"
+        },
+        {
+          "type": "reader",
+          "url": "https://core.ac.uk/reader/12529156"
+        },
+        {
+          "type": "thumbnail_m",
+          "url": "https://core.ac.uk/image/12529156/large"
+        },
+        {
+          "type": "thumbnail_l",
+          "url": "https://core.ac.uk/image/12529156/large"
+        },
+        {
+          "type": "display",
+          "url": "https://core.ac.uk/works/5346152"
+        }
+      ]
+    },
+    {
+      "acceptedDate": "2018-03-26T00:00:00",
+      "arxivId": "1710.06553",
+      "authors": [
+        {
+          "name": "Doi, Takahiro M."
+        },
+        {
+          "name": "Tsutsui, Shoichiro"
+        }
+      ],
+      "citationCount": 0,
+      "contributors": [],
+      "outputs": [
+        "https://api.core.ac.uk/v3/outputs/297087728",
+        "https://api.core.ac.uk/v3/outputs/192161440"
+      ],
+      "createdDate": "2017-11-21T00:01:47",
+      "dataProviders": [
+        {
+          "id": 144,
+          "name": "",
+          "url": "https://api.core.ac.uk/v3/data-providers/144",
+          "logo": "https://api.core.ac.uk/data-providers/144/logo"
+        },
+        {
+          "id": 4786,
+          "name": "",
+          "url": "https://api.core.ac.uk/v3/data-providers/4786",
+          "logo": "https://api.core.ac.uk/data-providers/4786/logo"
+        },
+        {
+          "id": 8515,
+          "name": "",
+          "url": "https://api.core.ac.uk/v3/data-providers/8515",
+          "logo": "https://api.core.ac.uk/data-providers/8515/logo"
+        }
+      ],
+      "depositedDate": "2018-01-01T00:00:00",
+      "abstract": "test",
+      "documentType": "research",
+      "doi": "10.1051/epjconf/201817511016",
+      "downloadUrl": "http://arxiv.org/abs/1710.06553",
+      "fieldOfStudy": null,
+      "fullText": "Not available for public API users.",
+      "id": 45146469,
+      "identifiers": [
+        {
+          "identifier": "10.1051/epjconf/201817511016",
+          "type": "DOI"
+        },
+        {
+          "identifier": "oai:arxiv.org:1710.06553",
+          "type": "OAI_ID"
+        },
+        {
+          "identifier": "oai:edpsciences.org:dkey/10.1051/epjconf/201817511016",
+          "type": "OAI_ID"
+        },
+        {
+          "identifier": "129350318",
+          "type": "CORE_ID"
+        },
+        {
+          "identifier": "2766830865",
+          "type": "MAG_ID"
+        },
+        {
+          "identifier": "297087728",
+          "type": "CORE_ID"
+        },
+        {
+          "identifier": "info:doi/10.1051%2fepjconf%2f201817511016",
+          "type": "OAI_ID"
+        },
+        {
+          "identifier": "1710.06553",
+          "type": "ARXIV_ID"
+        },
+        {
+          "identifier": "192161440",
+          "type": "CORE_ID"
+        }
+      ],
+      "title": "On a modification method of Lefschetz thimbles",
+      "language": {
+        "code": "en",
+        "name": "English"
+      },
+      "magId": null,
+      "oaiIds": [
+        "oai:edpsciences.org:dkey/10.1051/epjconf/201817511016",
+        "info:doi/10.1051%2fepjconf%2f201817511016",
+        "oai:arxiv.org:1710.06553"
+      ],
+      "publishedDate": "2017-10-17T01:00:00",
+      "publisher": "'EDP Sciences'",
+      "pubmedId": null,
+      "references": [],
+      "sourceFulltextUrls": [
+        "http://arxiv.org/abs/1710.06553"
+      ],
+      "updatedDate": "2024-02-21T18:18:38",
+      "yearPublished": 2017,
+      "journals": [
+        {
+          "title": "EPJ Web of Conferences",
+          "identifiers": [
+            "2100-014X"
+          ]
+        }
+      ],
+      "links": [
+        {
+          "type": "download",
+          "url": "http://arxiv.org/abs/1710.06553"
+        },
+        {
+          "type": "display",
+          "url": "https://core.ac.uk/works/45146469"
+        }
+      ]
+    },
+    {
+      "acceptedDate": "2009-01-16T00:00:00",
+      "arxivId": "0809.3758",
+      "authors": [
+        {
+          "name": "Debabrata Panja"
+        },
+        {
+          "name": "M. Doi"
+        }
+      ],
+      "citationCount": 0,
+      "contributors": [
+        "Quantum Condensed Matter Theory (ITFA, IoP, FNWI)"
+      ],
+      "outputs": [
+        "https://api.core.ac.uk/v3/outputs/301410484",
+        "https://api.core.ac.uk/v3/outputs/555766752",
+        "https://api.core.ac.uk/v3/outputs/85784248",
+        "https://api.core.ac.uk/v3/outputs/207734798",
+        "https://api.core.ac.uk/v3/outputs/489606185"
+      ],
+      "createdDate": "2012-04-13T14:16:39",
+      "dataProviders": [
+        {
+          "id": 144,
+          "name": "",
+          "url": "https://api.core.ac.uk/v3/data-providers/144",
+          "logo": "https://api.core.ac.uk/data-providers/144/logo"
+        },
+        {
+          "id": 4786,
+          "name": "",
+          "url": "https://api.core.ac.uk/v3/data-providers/4786",
+          "logo": "https://api.core.ac.uk/data-providers/4786/logo"
+        },
+        {
+          "id": 708,
+          "name": "",
+          "url": "https://api.core.ac.uk/v3/data-providers/708",
+          "logo": "https://api.core.ac.uk/data-providers/708/logo"
+        },
+        {
+          "id": 10861,
+          "name": "",
+          "url": "https://api.core.ac.uk/v3/data-providers/10861",
+          "logo": "https://api.core.ac.uk/data-providers/10861/logo"
+        },
+        {
+          "id": 15629,
+          "name": "",
+          "url": "https://api.core.ac.uk/v3/data-providers/15629",
+          "logo": "https://api.core.ac.uk/data-providers/15629/logo"
+        }
+      ],
+      "depositedDate": "2009-01-16T00:00:00",
+      "abstract": "test",
+      "documentType": "research",
+      "doi": "10.1103/physreve.79.011803",
+      "downloadUrl": "https://core.ac.uk/download/489606185.pdf",
+      "fieldOfStudy": null,
+      "fullText": "Not available for public API users.",
+      "id": 613618,
+      "identifiers": [
+        {
+          "identifier": "10.1103/physreve.79.011803",
+          "type": "DOI"
+        },
+        {
+          "identifier": "85784248",
+          "type": "CORE_ID"
+        },
+        {
+          "identifier": "oai:arxiv.org:0809.3758",
+          "type": "OAI_ID"
+        },
+        {
+          "identifier": "2017362",
+          "type": "CORE_ID"
+        },
+        {
+          "identifier": "oai:dare.uva.nl:openaire_cris_publications/abfa32fa-bb8b-4116-ac34-73eb73d86b41",
+          "type": "OAI_ID"
+        },
+        {
+          "identifier": "555766752",
+          "type": "CORE_ID"
+        },
+        {
+          "identifier": "301410484",
+          "type": "CORE_ID"
+        },
+        {
+          "identifier": "489606185",
+          "type": "CORE_ID"
+        },
+        {
+          "identifier": "0809.3758",
+          "type": "ARXIV_ID"
+        },
+        {
+          "identifier": "207734798",
+          "type": "CORE_ID"
+        },
+        {
+          "identifier": "oai:dare.uva.nl:publications/abfa32fa-bb8b-4116-ac34-73eb73d86b41",
+          "type": "OAI_ID"
+        }
+      ],
+      "title": "Response of Single Polymers to Localized Step Strains",
+      "language": {
+        "code": "en",
+        "name": "English"
+      },
+      "magId": null,
+      "oaiIds": [
+        "oai:arxiv.org:0809.3758",
+        "oai:dare.uva.nl:publications/abfa32fa-bb8b-4116-ac34-73eb73d86b41",
+        "oai:dare.uva.nl:openaire_cris_publications/abfa32fa-bb8b-4116-ac34-73eb73d86b41"
+      ],
+      "publishedDate": "2008-12-12T00:00:00",
+      "publisher": "'American Physical Society (APS)'",
+      "pubmedId": null,
+      "references": [],
+      "sourceFulltextUrls": [
+        "http://arxiv.org/abs/0809.3758",
+        "https://pure.uva.nl/ws/files/755040/83094_314254.pdf"
+      ],
+      "updatedDate": "2023-04-13T21:14:34",
+      "yearPublished": 2008,
+      "journals": [
+        {
+          "title": null,
+          "identifiers": [
+            "1539-3755"
+          ]
+        }
+      ],
+      "links": [
+        {
+          "type": "download",
+          "url": "https://core.ac.uk/download/489606185.pdf"
+        },
+        {
+          "type": "reader",
+          "url": "https://core.ac.uk/reader/489606185"
+        },
+        {
+          "type": "thumbnail_m",
+          "url": "https://core.ac.uk/image/489606185/large"
+        },
+        {
+          "type": "thumbnail_l",
+          "url": "https://core.ac.uk/image/489606185/large"
+        },
+        {
+          "type": "display",
+          "url": "https://core.ac.uk/works/613618"
+        }
+      ]
+    }
+  ],
+  "searchId": "66c4207bbaf0908bb004c320c32cdb2a"
+}

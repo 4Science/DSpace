@@ -46,6 +46,7 @@ public class ExternalSourcesByEntityTypesIT extends AbstractControllerIntegratio
                                 ExternalSourceMatcher.matchExternalSource("pubmed", "pubmed", false),
                                 ExternalSourceMatcher.matchExternalSource("scopus", "scopus", false),
                                 ExternalSourceMatcher.matchExternalSource("suggestion", "suggestion", false),
+                                ExternalSourceMatcher.matchExternalSource("core", "core", false),
                                 ExternalSourceMatcher.matchExternalSource("crossref", "crossref", false),
                                 ExternalSourceMatcher.matchExternalSource("orcidWorks", "orcidWorks", false),
                                 ExternalSourceMatcher
