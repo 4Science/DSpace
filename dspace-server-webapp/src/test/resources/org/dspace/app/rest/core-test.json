@@ -1,0 +1,452 @@
+{
+  "totalHits": 3754174,
+  "limit": 10,
+  "offset": 0,
+  "results": [
+    {
+      "acceptedDate": "",
+      "arxivId": "0710.3894",
+      "authors": [
+        {
+          "name": "David Borthwick"
+        },
+        {
+          "name": "David Borthwick"
+        }
+      ],
+      "citationCount": 0,
+      "contributors": [
+        "The Pennsylvania State University CiteSeerX Archives"
+      ],
+      "outputs": [
+        "https://api.core.ac.uk/v3/outputs/102578183"
+      ],
+      "createdDate": "2012-04-13T14:16:03",
+      "dataProviders": [
+        {
+          "id": 144,
+          "name": "",
+          "url": "https://api.core.ac.uk/v3/data-providers/144",
+          "logo": "https://api.core.ac.uk/data-providers/144/logo"
+        },
+        {
+          "id": 145,
+          "name": "",
+          "url": "https://api.core.ac.uk/v3/data-providers/145",
+          "logo": "https://api.core.ac.uk/data-providers/145/logo"
+        }
+      ],
+      "depositedDate": "",
+      "abstract": "test",
+      "documentType": "research",
+      "doi": null,
+      "downloadUrl": "http://arxiv.org/abs/0710.3894",
+      "fieldOfStudy": null,
+      "fullText": "Not available for public API users.",
+      "id": 569623,
+      "identifiers": [
+        {
+          "identifier": "oai:arxiv.org:0710.3894",
+          "type": "OAI_ID"
+        },
+        {
+          "identifier": "102578183",
+          "type": "CORE_ID"
+        },
+        {
+          "identifier": "oai:citeseerx.psu:10.1.1.113.4416",
+          "type": "OAI_ID"
+        },
+        {
+          "identifier": "20798960",
+          "type": "CORE_ID"
+        },
+        {
+          "identifier": "1964153",
+          "type": "CORE_ID"
+        },
+        {
+          "identifier": "oai:citeseerx.psu:10.1.1.636.4056",
+          "type": "OAI_ID"
+        },
+        {
+          "identifier": "0710.3894",
+          "type": "ARXIV_ID"
+        }
+      ],
+      "title": "Upper and lower bounds on resonances for manifolds hyperbolic near\n  infinity",
+      "language": {
+        "code": "en",
+        "name": "English"
+      },
+      "magId": null,
+      "oaiIds": [
+        "oai:citeseerx.psu:10.1.1.636.4056",
+        "oai:citeseerx.psu:10.1.1.113.4416",
+        "oai:arxiv.org:0710.3894"
+      ],
+      "publishedDate": "2008-01-18T00:00:00",
+      "publisher": "",
+      "pubmedId": null,
+      "references": [],
+      "sourceFulltextUrls": [
+        "http://citeseerx.ist.psu.edu/viewdoc/summary?doi=10.1.1.113.4416",
+        "http://arxiv.org/abs/0710.3894",
+        "https://open.library.emory.edu/publications/emory:d63tf/pdf/"
+      ],
+      "updatedDate": "2020-12-24T11:50:32",
+      "yearPublished": 2008,
+      "journals": [],
+      "links": [
+        {
+          "type": "download",
+          "url": "http://arxiv.org/abs/0710.3894"
+        },
+        {
+          "type": "display",
+          "url": "https://core.ac.uk/works/569623"
+        }
+      ]
+    },
+    {
+      "acceptedDate": "2004-12-02T00:00:00",
+      "arxivId": null,
+      "authors": [
+        {
+          "name": "Bode"
+        },
+        {
+          "name": "Bode"
+        },
+        {
+          "name": "Bode"
+        },
+        {
+          "name": "Bode"
+        },
+        {
+          "name": "Campbell"
+        },
+        {
+          "name": "David"
+        },
+        {
+          "name": "David"
+        },
+        {
+          "name": "David"
+        },
+        {
+          "name": "David"
+        },
+        {
+          "name": "David"
+        },
+        {
+          "name": "David"
+        },
+        {
+          "name": "David"
+        },
+        {
+          "name": "Diehl"
+        },
+        {
+          "name": "Gierer"
+        },
+        {
+          "name": "Herlands"
+        },
+        {
+          "name": "Sproull"
+        },
+        {
+          "name": "Yaross"
+        }
+      ],
+      "citationCount": 0,
+      "contributors": [
+        "The Pennsylvania State University CiteSeerX Archives"
+      ],
+      "outputs": [
+        "https://api.core.ac.uk/v3/outputs/216403420",
+        "https://api.core.ac.uk/v3/outputs/12164257",
+        "https://api.core.ac.uk/v3/outputs/210051386"
+      ],
+      "createdDate": "2013-07-19T16:22:17",
+      "dataProviders": [
+        {
+          "id": 145,
+          "name": "",
+          "url": "https://api.core.ac.uk/v3/data-providers/145",
+          "logo": "https://api.core.ac.uk/data-providers/145/logo"
+        },
+        {
+          "id": 4786,
+          "name": "",
+          "url": "https://api.core.ac.uk/v3/data-providers/4786",
+          "logo": "https://api.core.ac.uk/data-providers/4786/logo"
+        },
+        {
+          "id": 454,
+          "name": "",
+          "url": "https://api.core.ac.uk/v3/data-providers/454",
+          "logo": "https://api.core.ac.uk/data-providers/454/logo"
+        },
+        {
+          "id": 3225,
+          "name": "",
+          "url": "https://api.core.ac.uk/v3/data-providers/3225",
+          "logo": "https://api.core.ac.uk/data-providers/3225/logo"
+        }
+      ],
+      "depositedDate": "1980-04-01T00:00:00",
+      "abstract": "test",
+      "documentType": "research",
+      "doi": "10.1016/0012-1606(80)90370-x",
+      "downloadUrl": "https://core.ac.uk/download/12164257.pdf",
+      "fieldOfStudy": "biology",
+      "fullText": "Not available for public API users.",
+      "id": 5226210,
+      "identifiers": [
+        {
+          "identifier": "12164257",
+          "type": "CORE_ID"
+        },
+        {
+          "identifier": "oai:epub.ub.uni-muenchen.de:3367",
+          "type": "OAI_ID"
+        },
+        {
+          "identifier": "2096385690",
+          "type": "MAG_ID"
+        },
+        {
+          "identifier": "22983415",
+          "type": "CORE_ID"
+        },
+        {
+          "identifier": "10.1016/0012-1606(80)90370-x",
+          "type": "DOI"
+        },
+        {
+          "identifier": "216403420",
+          "type": "CORE_ID"
+        },
+        {
+          "identifier": "oai:citeseerx.psu:10.1.1.333.8471",
+          "type": "OAI_ID"
+        },
+        {
+          "identifier": "210051386",
+          "type": "CORE_ID"
+        }
+      ],
+      "title": "Distribution of interstitial stem cells in Hydra",
+      "language": {
+        "code": "en",
+        "name": "English"
+      },
+      "magId": "2096385690",
+      "oaiIds": [
+        "oai:citeseerx.psu:10.1.1.333.8471",
+        "oai:epub.ub.uni-muenchen.de:3367"
+      ],
+      "publishedDate": "1979-01-01T00:00:00",
+      "publisher": "'Elsevier BV'",
+      "pubmedId": null,
+      "references": [
+        {
+          "id": 8150862,
+          "title": "A quantitative method for maceration of Hydra tissue.",
+          "authors": [],
+          "date": "1973",
+          "doi": null,
+          "raw": "DAVID,  C.  N.  (1973).  A quantitative  method  for maceration  of  Hydra  tissue.  Wilhelm  Roux  Arch. Entwicklungsmech.  Organismen  171,259-268.",
+          "cites": null
+        },
+        {
+          "id": 8150864,
+          "title": "Cell cycle kinetics and development of H.ydra attenuata.",
+          "authors": [],
+          "date": "1972",
+          "doi": null,
+          "raw": "DAVID,  C.  N.,  and  CAMPBELL,  R.  (1972).  Cell  cycle kinetics  and  development  of  H.ydra  attenuata.  I. Epithelial  cells.  J.  Cell  Sci.  11,  557-568.",
+          "cites": null
+        },
+        {
+          "id": 8150866,
+          "title": "Cell cycle kinetics and development of Hydra attenuata. III. Nerve and nematocyte differentiation.",
+          "authors": [],
+          "date": "1974",
+          "doi": null,
+          "raw": "DAVID,  C.  N.,  and  GIERER,  A.  (1974).  Cell  cycle  kinetics  and  development  of  Hydra  attenuata.  III.  Nerve and  nematocyte  differentiation.  J.  Cell  Sci.  16,359-375.",
+          "cites": null
+        },
+        {
+          "id": 8150868,
+          "title": "Characterization of interstitial stem cells in Hydra by cloning.",
+          "authors": [],
+          "date": "1977",
+          "doi": null,
+          "raw": "DAVID,  C.  N.,  and  MURPHY,  S.  (1977).  Characterization  of  interstitial  stem  cells  in  Hydra  by  cloning. Develop.  Biol.  58,  372-383.",
+          "cites": null
+        },
+        {
+          "id": 8150859,
+          "title": "Constraints on the relative sizes of the cell populations in Hydra attenuata.",
+          "authors": [],
+          "date": "1977",
+          "doi": null,
+          "raw": "BODE,  H.,  FLICK,  K.,  and  BODE,  P.  (1977).  Constraints on  the  relative  sizes  of  the  cell  populations  in  Hydra attenuata.  J.  Cell  Sci.  24,  31-50.",
+          "cites": null
+        },
+        {
+          "id": 8150865,
+          "title": "Distribution of interstitial cells and differentiating nematocytes in nests in Hydra attenuata.",
+          "authors": [],
+          "date": "1974",
+          "doi": null,
+          "raw": "DAVID,  C.  N.,  and  CHALLONER,  D.  (1974).  Distribution of  interstitial  cells  and  differentiating  nematocytes in  nests  in  Hydra  attenuata.  Amer.  Zool.  14,  537-542.",
+          "cites": null
+        },
+        {
+          "id": 8150871,
+          "title": "Oriented migration of interstitial cells and nematocytes in Hydra attenuata.",
+          "authors": [],
+          "date": "1974",
+          "doi": null,
+          "raw": "HERLANDS,  R.,  and  BODE,  H.  (1974).  Oriented  migration  of  interstitial  cells  and  nematocytes  in  Hydra attenuata.  Wilhelm  Roux  Arch.  Entwicklungsmech.  Organismen  176,67-88.",
+          "cites": null
+        },
+        {
+          "id": 8150857,
+          "title": "Quantitative analysis of cell types during growth and morphogenesis in Hydra. Wilhelm Roux Arch.",
+          "authors": [],
+          "date": "1973",
+          "doi": null,
+          "raw": "BODE,  H.,  BERKING,  S.,  DAVID,  C.  N.,  GIERER,  A., SCHALLER,  H.,  and  TRENKNER,  E.  (1973).  Quantitative  analysis  of  cell  types  during  growth  and  morphogenesis  in  Hydra.  Wilhelm  Roux  Arch.  Entwicklungsmech.  Organismen  171,  269-285.",
+          "cites": null
+        },
+        {
+          "id": 8150870,
+          "title": "Regeneration of Hydra from reaggregated cells.",
+          "authors": [],
+          "date": "1972",
+          "doi": null,
+          "raw": "GIERER,  A.,  BERKING,  A.,  BODE,  H.,  DAVID,  C.  N., FLICK,  K.,  HANSMANN,  G.,  SCHALLER,  C.,  and TRENKNER,  E.  (1972).  Regeneration  of  Hydra  from reaggregated  cells.  Nature  New  Biol.  239,  98-101.",
+          "cites": null
+        },
+        {
+          "id": 8150858,
+          "title": "Regulation of a multipotent stem cell, the interstitial cell of Hydra.",
+          "authors": [],
+          "date": "1978",
+          "doi": null,
+          "raw": "BODE,  H.,  and  DAVID,  C.  N.  (1978).  Regulation  of  a multipotent  stem  cell,  the  interstitial  cell  of  Hydra. Prog.  Biopkys.  MOE.  Biol.  33,  189-296.",
+          "cites": null
+        },
+        {
+          "id": 8150860,
+          "title": "Regulation of interstitial cell differentiation in Hydra attenuata. I. Homeostatic control of interstitial cell population size.",
+          "authors": [],
+          "date": "1976",
+          "doi": null,
+          "raw": "BODE,  H.  G.,  FLICK,  K.  M.,  and  SMITH,  G.  S.  (1976). Regulation  of  interstitial  cell  differentiation  in  Hydra  attenuata.  I.  Homeostatic  control  of  interstitial cell  population  size.  J.  Cell  Sci.  20,  29-46.",
+          "cites": null
+        },
+        {
+          "id": 8150873,
+          "title": "Regulation of interstitial cell differentiation in Hydra attenuata. IV. Nerve cell commitment in head regeneration is position-dependent.",
+          "authors": [],
+          "date": "1978",
+          "doi": null,
+          "raw": "YAROSS,  M.,  and  BODE,  H.  (1978).  Regulation  of  interstitial  cell  differentiation  in  Hydra  attenuata.  IV. Nerve  cell  commitment  in  head  regeneration  is  position-dependent.  J.  Cell  Sci.  34,  27-38.",
+          "cites": null
+        },
+        {
+          "id": 8150867,
+          "title": "Regulation of the self-renewal probability in Hydra stem cell clones.",
+          "authors": [],
+          "date": "1978",
+          "doi": null,
+          "raw": "DAVID,  C.  N.,  and  MACWILLIAMS,  H.  (1978).  Regulation  of  the  self-renewal  probability  in  Hydra  stem cell  clones.  Proc.  Nat.  Acad.  Sci.  USA  75,886-890.",
+          "cites": null
+        },
+        {
+          "id": 8150863,
+          "title": "Stem cell differentiation in Hydra.",
+          "authors": [],
+          "date": "1975",
+          "doi": null,
+          "raw": "DAVID,  C.  N.  (1975).  Stem  cell  differentiation  in  Hydra.  In  “Microbiology  1975,”  pp.  435-441.  Amer. Sot.  for  Microbial.,  Boston.",
+          "cites": null
+        },
+        {
+          "id": 8150872,
+          "title": "Stem cell growth and differentiation in Hydra attenuata. I. Regulation of the self-renewal probability in multiclone aggregates.",
+          "authors": [],
+          "date": "1979",
+          "doi": null,
+          "raw": "SPROULL,  F.,  and  DAVID,  C.  N.  (1979).  Stem  cell growth  and  differentiation  in  Hydra  attenuata.  I. Regulation  of  the  self-renewal  probability  in  multiclone  aggregates.  J.  Cell  Sci.  38,  155-169.",
+          "cites": null
+        },
+        {
+          "id": 8150869,
+          "title": "The role of interstitial cells in the maintenance of Hydra. I. Specific destruction of interstitial cells in normal, sexual and non-budding animals.",
+          "authors": [],
+          "date": "1964",
+          "doi": null,
+          "raw": "DIEHL,  F.,  and  BURNETT,  A.  L.  (1964).  The  role  of interstitial  cells  in  the  maintenance  of  Hydra.  I. Specific  destruction  of  interstitial  cells  in  normal, sexual  and  non-budding  animals.  J.  Exp.  Zool.  155, 253-259.",
+          "cites": null
+        },
+        {
+          "id": 8150861,
+          "title": "Tissue dynamics of steady state growth in Hydra littoralis.",
+          "authors": [],
+          "date": "1967",
+          "doi": null,
+          "raw": "CAMPBELL,  R.  D.  (1967).  Tissue  dynamics  of  steady state  growth  in  Hydra  littoralis.  II.  Patterns  of tissue  movement.  J.  Morphol.  121,  19-28.",
+          "cites": null
+        }
+      ],
+      "sourceFulltextUrls": [
+        "https://epub.ub.uni-muenchen.de/3367/1/041.pdf",
+        "http://citeseerx.ist.psu.edu/viewdoc/summary?doi=10.1.1.333.8471",
+        "http://epub.ub.uni-muenchen.de/3367/1/041.pdf"
+      ],
+      "updatedDate": "2022-02-28T03:47:44",
+      "yearPublished": 1979,
+      "journals": [
+        {
+          "title": null,
+          "identifiers": [
+            "0012-1606"
+          ]
+        }
+      ],
+      "links": [
+        {
+          "type": "download",
+          "url": "https://core.ac.uk/download/12164257.pdf"
+        },
+        {
+          "type": "reader",
+          "url": "https://core.ac.uk/reader/12164257"
+        },
+        {
+          "type": "thumbnail_m",
+          "url": "https://core.ac.uk/image/12164257/large"
+        },
+        {
+          "type": "thumbnail_l",
+          "url": "https://core.ac.uk/image/12164257/large"
+        },
+        {
+          "type": "display",
+          "url": "https://core.ac.uk/works/5226210"
+        }
+      ]
+    }
+  ]
+}
