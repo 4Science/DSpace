@@ -15,7 +15,17 @@ ENV DATA_FOLDER=/data \
     VAR_DIR=/dspace/var \
     OAI_DIR=/dspace/var/oai
 
-RUN useradd -m -d /home/dspace -s /bin/bash dspace
+ENV BASE_GROUP_GID=1000 BASE_GROUP_NAME=ubuntu
+
+RUN if [ "$(getent group $BASE_GROUP_GID)" ]; then \
+        echo "Group with GID $BASE_GROUP_GID already exists, skipping group creation"; \
+        BASE_GROUP_NAME="$(getent group $BASE_GROUP_GID | cut -d: -f1)"; \
+        echo "Using existing group '$BASE_GROUP_NAME' with GID $BASE_GROUP_GID for dspace user"; \
+    else \
+        groupadd -g $BASE_GROUP_GID $BASE_GROUP_NAME; \
+    fi && \
+    groupadd -g 1001 dspace && \
+    useradd -m -d /home/dspace -s /bin/bash -u 1001 -g dspace -G $BASE_GROUP_NAME dspace
 
 COPY --chown=dspace ./dspace/modules/server-boot/target/server-boot-*.jar /home/dspace/server-boot.jar
 RUN java -Djarmode=tools -jar /home/dspace/server-boot.jar extract --destination $DSPACE_INSTALL --libraries lib
