@@ -16,6 +16,7 @@ import org.dspace.AbstractUnitTest;
 import org.dspace.services.ConfigurationService;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 
 /**
@@ -28,6 +29,7 @@ public class RegexPasswordValidatorTest extends AbstractUnitTest {
     @Mock
     private ConfigurationService configurationService;
 
+    @InjectMocks
     private RegexPasswordValidator regexPasswordValidator;
 
     @Before

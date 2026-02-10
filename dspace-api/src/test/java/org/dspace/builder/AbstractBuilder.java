@@ -14,7 +14,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.dspace.alerts.service.SystemWideAlertService;
-import org.dspace.app.audit.AuditService;
+import org.dspace.app.audit.AuditSolrServiceImpl;
 import org.dspace.app.ldn.factory.NotifyServiceFactory;
 import org.dspace.app.ldn.service.LDNMessageService;
 import org.dspace.app.ldn.service.NotifyPatternToTriggerService;
@@ -131,7 +131,6 @@ public abstract class AbstractBuilder<T, S> {
     static CrisLayoutBoxService crisLayoutBoxService;
     static CrisLayoutFieldService crisLayoutFieldService;
     static CrisLayoutMetadataGroupService crisLayoutMetadataGroupService;
-    static AuditService auditService;
     static CrisMetricsService crisMetricsService;
     static CrisLayoutMetric2BoxService crisLayoutMetric2BoxService;
     static HarvestedCollectionService harvestedCollectionService;
@@ -147,6 +146,7 @@ public abstract class AbstractBuilder<T, S> {
     static NotifyService notifyService;
     static NotifyServiceInboundPatternService inboundPatternService;
     static NotifyPatternToTriggerService notifyPatternToTriggerService;
+    static AuditSolrServiceImpl auditSolrService;
 
     static QAEventService qaEventService;
     static SolrSuggestionStorageService solrSuggestionService;
@@ -214,7 +214,6 @@ public abstract class AbstractBuilder<T, S> {
         crisLayoutBoxService = CrisLayoutServiceFactory.getInstance().getBoxService();
         crisLayoutFieldService = CrisLayoutServiceFactory.getInstance().getFieldService();
         crisLayoutMetadataGroupService = CrisLayoutServiceFactory.getInstance().getMetadataGroupService();
-        auditService = new DSpace().getSingletonService(AuditService.class);
         crisMetricsService = CrisMetricsServiceFactory.getInstance().getCrisMetricsService();
         harvestedCollectionService = HarvestServiceFactory.getInstance().getHarvestedCollectionService();
         crisLayoutMetric2BoxService = CrisLayoutServiceFactory.getInstance().getMetric2BoxService();
@@ -238,7 +237,7 @@ public abstract class AbstractBuilder<T, S> {
         qaEventService = new DSpace().getSingletonService(QAEventService.class);
         solrSuggestionService = new DSpace().getSingletonService(SolrSuggestionStorageService.class);
         ldnMessageService = NotifyServiceFactory.getInstance().getLDNMessageService();
-        doiService = IdentifierServiceFactory.getInstance().getDOIService();
+        auditSolrService = new DSpace().getSingletonService(AuditSolrServiceImpl.class);
         doiDao = new DSpace().getSingletonService(DOIDAOImpl.class);
     }
 

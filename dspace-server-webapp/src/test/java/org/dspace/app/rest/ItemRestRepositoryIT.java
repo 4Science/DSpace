@@ -3887,8 +3887,7 @@ public class ItemRestRepositoryIT extends AbstractControllerIntegrationTest {
 
         // Delete public item with copyVirtualMetadata isAuthorOfPublication relationship id
         getClient(token).perform(delete("/api/core/items/" + publication1.getID())
-                                     .param(REQUESTPARAMETER_COPYVIRTUALMETADATA,
-                                            String.valueOf(isAuthorOfPublication.getID())))
+                        .param(REQUESTPARAMETER_COPYVIRTUALMETADATA, String.valueOf(isAuthorOfPublication.getID())))
                         .andExpect(status().is(204));
         // The non-deleted item of the relationships the delete item had (other sides) still has the
         // relationship Metadata
@@ -3922,8 +3921,7 @@ public class ItemRestRepositoryIT extends AbstractControllerIntegrationTest {
 
         // Delete public item with copyVirtualMetadata id of relationship neither item has
         getClient(token).perform(delete("/api/core/items/" + publication1.getID())
-                                     .param(REQUESTPARAMETER_COPYVIRTUALMETADATA,
-                                            String.valueOf(isJournalVolumeOfIssueRelationshipType.getID())))
+           .param(REQUESTPARAMETER_COPYVIRTUALMETADATA, String.valueOf(isJournalVolumeOfIssueRelationshipType.getID())))
                         .andExpect(status().is(204));
         // The non-deleted item of the relationships the delete item had (other sides) doesn't still have the
         // relationship Metadata
@@ -3942,8 +3940,7 @@ public class ItemRestRepositoryIT extends AbstractControllerIntegrationTest {
 
         //Delete public item with copyVirtualMetadata = all
         getClient(token).perform(delete("/api/core/items/" + publication1.getID())
-                                     .param(REQUESTPARAMETER_COPYVIRTUALMETADATA,
-                                            COPYVIRTUAL_ALL))
+                        .param(REQUESTPARAMETER_COPYVIRTUALMETADATA, COPYVIRTUAL_ALL))
                         .andExpect(status().is(204));
         // The non-deleted item of the relationships the delete item had (other sides) now still has the
         // relationship Metadata
@@ -3965,8 +3962,7 @@ public class ItemRestRepositoryIT extends AbstractControllerIntegrationTest {
 
         //Delete public item with copyVirtualMetadata = configured
         getClient(token).perform(delete("/api/core/items/" + publication1.getID())
-                                     .param(REQUESTPARAMETER_COPYVIRTUALMETADATA,
-                                            COPYVIRTUAL_CONFIGURED))
+                        .param(REQUESTPARAMETER_COPYVIRTUALMETADATA, COPYVIRTUAL_CONFIGURED))
                         .andExpect(status().is(204));
         // The non-deleted item of the relationships the delete item had (other sides) now still has the
         // relationship Metadata
@@ -4033,8 +4029,7 @@ public class ItemRestRepositoryIT extends AbstractControllerIntegrationTest {
 
         //Delete public item with copyVirtualMetadata = configured
         getClient(token).perform(delete("/api/core/items/" + publication1.getID())
-                                     .param(REQUESTPARAMETER_COPYVIRTUALMETADATA,
-                                            COPYVIRTUAL_CONFIGURED))
+                        .param(REQUESTPARAMETER_COPYVIRTUALMETADATA, COPYVIRTUAL_CONFIGURED))
                         .andExpect(status().is(204));
         // The non-deleted item of the relationships the delete item had (other sides) now still has the
         // relationship Metadata

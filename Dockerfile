@@ -4,11 +4,11 @@
 #
 # - note: default tag for branch: dspace/dspace: dspace/dspace:dspace-8_x
 
-# This Dockerfile uses JDK17 by default.
+# This Dockerfile uses JDK21 by default.
 # To build with other versions, use "--build-arg JDK_VERSION=[value]"
-ARG JDK_VERSION=17
+ARG JDK_VERSION=21
 # The Docker version tag to build from
-ARG DSPACE_VERSION=dspace-cris-2025_02_x
+ARG DSPACE_VERSION=latest
 # The Docker registry to use for DSpace images. Defaults to "docker.io"
 # NOTE: non-DSpace images are hardcoded to use "docker.io" and are not impacted by this build argument
 ARG DOCKER_REGISTRY=docker.io
@@ -18,6 +18,7 @@ FROM ${DOCKER_REGISTRY}/4science/dspace-cris-dependencies:${DSPACE_VERSION} AS b
 ARG TARGET_DIR=dspace-installer
 WORKDIR /app
 # The dspace-installer directory will be written to /install
+USER root
 RUN mkdir -p /install /install/config /install/bin /install/solr /install/var \
     && chown -Rv dspace: /install \
     && chown -Rv dspace: /app

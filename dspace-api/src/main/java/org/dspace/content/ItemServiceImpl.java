@@ -34,6 +34,7 @@ import java.util.stream.Stream;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.apache.logging.log4j.Logger;
 import org.dspace.app.metrics.service.CrisMetricsService;
 import org.dspace.app.requestitem.RequestItem;
@@ -79,6 +80,7 @@ import org.dspace.eperson.EPerson;
 import org.dspace.eperson.Group;
 import org.dspace.eperson.service.GroupService;
 import org.dspace.eperson.service.SubscribeService;
+import org.dspace.event.DetailType;
 import org.dspace.event.Event;
 import org.dspace.harvest.HarvestedItem;
 import org.dspace.harvest.service.HarvestedItemService;
@@ -420,7 +422,7 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
         Optional<MetadataValue> templateItemEntityType = getDSpaceEntityType(templateItem);
 
         if (colEntityType.isPresent() && templateItemEntityType.isPresent() &&
-            !StringUtils.equals(colEntityType.get().getValue(), templateItemEntityType.get().getValue())) {
+            !Strings.CS.equals(colEntityType.get().getValue(), templateItemEntityType.get().getValue())) {
             throw new IllegalStateException("The template item has entity type : (" +
                 templateItemEntityType.get().getValue() + ") different than collection entity type : " +
                 colEntityType.get().getValue());
@@ -681,7 +683,8 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
         bundle.addItem(item);
 
         context.addEvent(new Event(Event.ADD, Constants.ITEM, item.getID(),
-                Constants.BUNDLE, bundle.getID(), bundle.getName(),
+            Constants.BUNDLE, bundle.getID(),
+            bundle.getName(), DetailType.DSO_NAME,
                 getIdentifiers(context, item)));
     }
 
@@ -695,7 +698,8 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
             + item.getID() + ",bundle_id=" + bundle.getID()));
 
         context.addEvent(new Event(Event.REMOVE, Constants.ITEM, item.getID(),
-                Constants.BUNDLE, bundle.getID(), bundle.getName(), getIdentifiers(context, item)));
+            Constants.BUNDLE, bundle.getID(), bundle.getName(), DetailType.DSO_NAME,
+            getIdentifiers(context, item)));
 
         bundleService.delete(context, bundle);
     }
@@ -761,8 +765,8 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
         update(context, item);
         context.restoreAuthSystemState();
 
-        context.addEvent(new Event(Event.CREATE, Constants.ITEM, item.getID(),
-                null, getIdentifiers(context, item)));
+        context.addEvent(new Event(Event.CREATE, Constants.ITEM, item.getID(), null,
+                                   DetailType.DSO_SUMMARY, getIdentifiers(context, item)));
 
         log.info(LogHelper.getHeader(context, "create_item", "item_id=" + item.getID()));
 
@@ -773,7 +777,7 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
     public void removeDSpaceLicense(Context context, Item item) throws SQLException, AuthorizeException, IOException {
         // get all bundles with name "LICENSE" (these are the DSpace license
         // bundles)
-        List<Bundle> bunds = getBundles(item, "LICENSE");
+        List<Bundle> bunds = getBundles(item, Constants.LICENSE_BUNDLE_NAME);
 
         for (Bundle bund : bunds) {
             // FIXME: probably serious troubles with Authorizations
@@ -865,8 +869,10 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
             itemDAO.save(context, item);
 
             if (item.isMetadataModified()) {
-                context.addEvent(new Event(Event.MODIFY_METADATA, item.getType(), item.getID(), item.getDetails(),
+                context.addEvent(new Event(Event.MODIFY_METADATA, item.getType(), item.getID(),
+                    item.getMetadataEventDetails(), DetailType.DSO_SUMMARY,
                         getIdentifiers(context, item)));
+                item.clearMetadataEventDetails();
             }
 
             context.addEvent(new Event(Event.MODIFY, Constants.ITEM, item.getID(),
@@ -916,7 +922,7 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
         update(context, item);
 
         context.addEvent(new Event(Event.MODIFY, Constants.ITEM, item.getID(),
-                "WITHDRAW", getIdentifiers(context, item)));
+            "WITHDRAW", DetailType.ACTION, getIdentifiers(context, item)));
 
         // switch all READ authorization policies to WITHDRAWN_READ
         authorizeService.switchPoliciesAction(context, item, Constants.READ, Constants.WITHDRAWN_READ);
@@ -971,7 +977,7 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
         update(context, item);
 
         context.addEvent(new Event(Event.MODIFY, Constants.ITEM, item.getID(),
-                "REINSTATE", getIdentifiers(context, item)));
+            "REINSTATE", DetailType.ACTION, getIdentifiers(context, item)));
 
         // restore all WITHDRAWN_READ authorization policies back to READ
         for (Bundle bnd : item.getBundles()) {
@@ -1014,7 +1020,7 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
         authorizeService.authorizeAction(context, item, Constants.REMOVE);
 
         context.addEvent(new Event(Event.DELETE, Constants.ITEM, item.getID(),
-                item.getHandle(), getIdentifiers(context, item)));
+            item.getHandle(), DetailType.HANDLE, getIdentifiers(context, item)));
 
         log.info(LogHelper.getHeader(context, "delete_item", "item_id="
             + item.getID()));
@@ -1207,8 +1213,8 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
             + item.getID() + ",bundle_id=" + b.getID()));
 
         context
-                .addEvent(new Event(Event.REMOVE, Constants.ITEM, item.getID(),
-                    Constants.BUNDLE, b.getID(), b.getName()));
+            .addEvent(new Event(Event.REMOVE, Constants.ITEM, item.getID(), Constants.BUNDLE, b.getID(),
+                b.getName(), DetailType.DSO_NAME));
     }
 
     protected void removeVersion(Context context, Item item) throws AuthorizeException, SQLException {
@@ -1435,11 +1441,6 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
     public void move(Context context, Item item, Collection from, Collection to)
         throws SQLException, AuthorizeException, IOException {
 
-        // If the two collections are the same, do nothing.
-        if (from.equals(to)) {
-            return;
-        }
-
         // Use the normal move method, and default to not inherit permissions
         this.move(context, item, from, to, false);
     }
@@ -1452,6 +1453,11 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
         // only do write authorization if user is not an editor
         if (!canEdit(context, item)) {
             authorizeService.authorizeAction(context, item, Constants.WRITE);
+        }
+
+        // If the two collections are the same, do nothing.
+        if (from.equals(to)) {
+            return;
         }
 
         // Move the Item from one Collection to the other

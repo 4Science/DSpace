@@ -64,7 +64,7 @@
         <property name="description" value="Mocking a script for testing purposes" />
         <property name="dspaceRunnableClass" value="org.dspace.scripts.impl.MockDSpaceRunnableScript"/>
     </bean>
-    
+
     <bean id="bulk-import" class="org.dspace.app.bulkedit.BulkImportCliScriptConfiguration">
         <property name="description" value="Perform the bulk import of an excel file with a list of item to add, update or remove"/>
         <property name="dspaceRunnableClass" value="org.dspace.app.bulkedit.BulkImportCli"/>
@@ -176,8 +176,8 @@
         <property name="dspaceRunnableClass" value="org.dspace.app.bulkaccesscontrol.BulkAccessControlCli"/>
     </bean>
 
-    <bean id="dspace-object-deletion" class="org.dspace.deletion.process.DSpaceObjectDeletionProcessScriptConfiguration" primary="true">
-        <property name="description" value="DSpace object deletion process"/>
+    <bean id="object-deletion" class="org.dspace.deletion.process.DSpaceObjectDeletionProcessScriptConfiguration" primary="true">
+        <property name="description" value="Permanently delete the given object along with all child objects. WARNING: This action cannot be undone." />
         <property name="dspaceRunnableClass" value="org.dspace.deletion.process.DSpaceObjectDeletionProcess"/>
     </bean>
 

@@ -23,7 +23,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.ServletInputStream;
 import jakarta.servlet.http.HttpServletRequest;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.dspace.app.customurl.CustomUrlService;
 import org.dspace.app.rest.Parameter;
 import org.dspace.app.rest.SearchRestMethod;
@@ -258,7 +258,7 @@ public class ItemRestRepository extends DSpaceObjectRestRepository<Item, ItemRes
             throw new AccessDeniedException("Current user not authorized for this operation");
         }
 
-        if (StringUtils.equals(uuid.toString(), itemRest.getId())) {
+        if (Strings.CS.equals(uuid.toString(), itemRest.getId())) {
             metadataConverter.setMetadata(context, item, itemRest.getMetadata());
         } else {
             throw new IllegalArgumentException("The UUID in the Json and the UUID in the url do not match: "

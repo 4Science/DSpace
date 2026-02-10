@@ -14,7 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.dspace.authorize.AuthorizeException;
@@ -56,7 +56,7 @@ public class PREMISCrosswalk
     private final String schemaLocation =
         PREMIS_NS.getURI() + " http://www.loc.gov/standards/premis/PREMIS-v1-0.xsd";
 
-    private static final Namespace namespaces[] = {PREMIS_NS};
+    private static final Namespace[] namespaces = {PREMIS_NS};
 
     protected BitstreamService bitstreamService
             = ContentServiceFactory.getInstance().getBitstreamService();
@@ -126,8 +126,8 @@ public class PREMISCrosswalk
                         String md = fixity.getChildTextTrim("messageDigest", PREMIS_NS);
                         String b_alg = bitstream.getChecksumAlgorithm();
                         String b_md = bitstream.getChecksum();
-                        if (StringUtils.equals(alg, b_alg)) {
-                            if (StringUtils.equals(md, b_md)) {
+                        if (Strings.CS.equals(alg, b_alg)) {
+                            if (Strings.CS.equals(md, b_md)) {
                                 log.debug("Bitstream checksum agrees with PREMIS: " + bitstream.getName());
                             } else {
                                 throw new MetadataValidationException(

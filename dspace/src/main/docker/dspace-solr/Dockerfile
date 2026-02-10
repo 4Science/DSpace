@@ -12,28 +12,38 @@
 
 ARG SOLR_VERSION=9.8
 
+# NOTE: "solrconfigs" is a placeholder stage. It MUST be populated at runtime.
+# usage: docker build --build-context solrconfigs=[path-to-dspace/solr]
+#    or: via "additional_contexts" in docker-compose
+FROM scratch AS solrconfigs
+
 # NOTE: Cannot use the "-slim" image because it doesn't include the extra modules needed for DSpace (e.g. icu4j)
 FROM docker.io/solr:${SOLR_VERSION}
 
 # Customize SOLR_OPTS to enable "<lib>" tags in solrconfig.xml files
 # Also set several environment variables to save configset paths used below
 ENV SOLR_OPTS="-Dsolr.config.lib.enabled=true" \
-    AUDIT_CONFIGSET_PATH=/opt/solr/server/solr/configsets/audit/conf \
     AUTHORITY_CONFIGSET_PATH=/opt/solr/server/solr/configsets/authority/conf \
-    DEDUP_CONFIGSET_PATH=/opt/solr/server/solr/configsets/dedup/conf \
     OAI_CONFIGSET_PATH=/opt/solr/server/solr/configsets/oai/conf \
-    OCR_CONFIGSET_PATH=/opt/solr/server/solr/configsets/ocr/conf \
-    QAEVENT_CONFIGSET_PATH=/opt/solr/server/solr/configsets/qaevent/conf \
     SEARCH_CONFIGSET_PATH=/opt/solr/server/solr/configsets/search/conf \
     STATISTICS_CONFIGSET_PATH=/opt/solr/server/solr/configsets/statistics/conf \
-    SUGGESTION_CONFIGSET_PATH=/opt/solr/server/solr/configsets/suggestion/conf
+    QAEVENT_CONFIGSET_PATH=/opt/solr/server/solr/configsets/qaevent/conf  \
+    SUGGESTION_CONFIGSET_PATH=/opt/solr/server/solr/configsets/suggestion/conf \
+    AUDIT_CONFIGSET_PATH=/opt/solr/server/solr/configsets/audit/conf
+    DEDUP_CONFIGSET_PATH=/opt/solr/server/solr/configsets/dedup/conf \
+    OCR_CONFIGSET_PATH=/opt/solr/server/solr/configsets/ocr/conf \
 
 USER root
 
-RUN mkdir -p $AUDIT_CONFIGSET_PATH $AUTHORITY_CONFIGSET_PATH $DEDUP_CONFIGSET_PATH $OAI_CONFIGSET_PATH \
-    $OCR_CONFIGSET_PATH $QAEVENT_CONFIGSET_PATH $SEARCH_CONFIGSET_PATH \
-    $STATISTICS_CONFIGSET_PATH $SUGGESTION_CONFIGSET_PATH \
-    $OCR_LIB_PATH $JTS_CORE_LIB_PATH
+RUN mkdir -p $AUTHORITY_CONFIGSET_PATH && \
+    mkdir -p $OAI_CONFIGSET_PATH && \
+    mkdir -p $SEARCH_CONFIGSET_PATH && \
+    mkdir -p $STATISTICS_CONFIGSET_PATH && \
+    mkdir -p $QAEVENT_CONFIGSET_PATH && \
+    mkdir -p $SUGGESTION_CONFIGSET_PATH && \
+    mkdir -p $AUDIT_CONFIGSET_PATH && \
+    mkdir -p $DEDUP_CONFIGSET_PATH && \
+    mkdir -p $OCR_CONFIGSET_PATH
 
 COPY --chown=solr:solr ./dspace/solr/ocr/lib/* /opt/solr/lib
 

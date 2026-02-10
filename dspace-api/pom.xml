@@ -611,7 +611,7 @@
         </dependency>
         <dependency>
             <groupId>org.mockito</groupId>
-            <artifactId>mockito-inline</artifactId>
+            <artifactId>mockito-core</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -700,6 +700,10 @@
                 <exclusion>
                     <artifactId>jetty-xml</artifactId>
                     <groupId>org.eclipse.jetty</groupId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.logging.log4j</groupId>
+                    <artifactId>log4j-slf4j-impl</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>
@@ -917,11 +921,13 @@
             <version>${json-path.version}</version>
         </dependency>
 
-        <!-- Useful for testing command-line tools -->
+        <!-- Useful for testing command-line tools that call System.exit() -->
+        <!-- Note: system-lambda replaces system-rules for Java 21 compatibility -->
+        <!-- (system-rules uses SecurityManager which is removed in Java 21) -->
         <dependency>
             <groupId>com.github.stefanbirkner</groupId>
-            <artifactId>system-rules</artifactId>
-            <version>1.19.0</version>
+            <artifactId>system-lambda</artifactId>
+            <version>1.2.1</version>
             <scope>test</scope>
         </dependency>
 
