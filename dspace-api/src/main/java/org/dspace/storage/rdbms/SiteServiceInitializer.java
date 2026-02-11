@@ -63,6 +63,7 @@ public class SiteServiceInitializer implements Callback {
             context.complete();
         } catch (Exception e) {
             log.error("Error attempting to add/update default Site object", e);
+            throw new RuntimeException(e);
         } finally {
             // Clean up our context, if it still exists & it was never completed
             if (context != null && context.isValid()) {
