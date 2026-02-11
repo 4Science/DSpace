@@ -88,7 +88,7 @@ services:
     image: "${DOCKER_REGISTRY:-docker.io}/${DOCKER_OWNER:-4science}/dspace-cris-solr:${DSPACE_VER:-dspace-cris-2025_02_x-test}"
     build:
       context: .
-      dockerfile: ./dspace/src/main/docker/dspace-solr/Dockerfile
+      dockerfile: ./dspace/src/main/docker/dspace-solr/Dockerfile9
       # Provide path to Solr configs necessary to build Docker image
       args:
         SOLR_VERSION: "${SOLR_VER:-9.8}"
