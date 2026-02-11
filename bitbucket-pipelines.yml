@@ -315,7 +315,7 @@ definitions:
               git remote set-branches --add origin $TEST_BRANCH;
               git fetch origin $TEST_BRANCH;
               git checkout -b $TEST_BRANCH origin/$TEST_BRANCH;
-              git merge --no-ff origin/$PROD_BRANCH -m "Merge $PROD_BRANCH into $TEST_BRANCH [ci skip]";
+              git merge --no-ff origin/$PROD_BRANCH -m "Merge $PROD_BRANCH into $TEST_BRANCH";
               git push https://${DSPACE_REPO_USER}:${DSPACE_REPO_TOKEN}@${DSPACE_REPO} $TEST_BRANCH;
             else
               echo "Branch $TEST_BRANCH does not exist, no merge performed.";
