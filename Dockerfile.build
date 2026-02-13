@@ -15,8 +15,11 @@ ENV DATA_FOLDER=/data \
     VAR_DIR=/dspace/var \
     OAI_DIR=/dspace/var/oai
 
-ENV BASE_GROUP_GID=1000 BASE_GROUP_NAME=ubuntu
+RUN curl -L -o /tmp/certificate.crt https://www.tbs-x509.com/Comodo_AAA_Certificate_Services.crt && \
+    keytool -import -trustcacerts -alias comodo -file /tmp/certificate.crt -keystore $JAVA_HOME/lib/security/cacerts -storepass changeit -noprompt && \
+    rm /tmp/certificate.crt
 
+ENV BASE_GROUP_GID=1000 BASE_GROUP_NAME=ubuntu
 RUN if [ "$(getent group $BASE_GROUP_GID)" ]; then \
         echo "Group with GID $BASE_GROUP_GID already exists, skipping group creation"; \
         BASE_GROUP_NAME="$(getent group $BASE_GROUP_GID | cut -d: -f1)"; \
