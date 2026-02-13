@@ -635,6 +635,19 @@
             </Definition>
         </Filter>
 
+        <Filter id="publicationOrJournalSetFilter">
+	    <Definition>
+		<Or>
+		    <LeftCondition>
+			<Custom ref="publicationSetFilter" />
+		    </LeftCondition>
+		    <RightCondition>
+		        <Custom ref="journalSetFilter" />
+		    </RightCondition>
+		</Or>
+	    </Definition>
+        </Filter>
+
         <!-- This condition determines if an Item has a "dc.type" field
              which contains "Thesis". -->
         <CustomCondition id="thesisDocumentTypeCondition">
@@ -829,20 +842,6 @@
                 </list>
             </Configuration>
         </CustomCondition>
-
-
-        <Filter id="publicationOrJournalSetFilter">
-            <Definition>
-            	<Or>
-            		<LeftCondition>
-						<Custom ref="publicationSetFilter" />
-					</LeftCondition>
-                	<RightCondition>
-                		<Custom ref="journalSetFilter" />
-                	</RightCondition>
-                </Or>
-            </Definition>
-        </Filter>
 
         <CustomCondition id="publicationSetFilter">
             <Class>org.dspace.xoai.filter.DSpaceAtLeastOneMetadataFilter</Class>
