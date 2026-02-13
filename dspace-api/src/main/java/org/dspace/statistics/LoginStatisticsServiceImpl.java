@@ -12,6 +12,9 @@ import static org.dspace.util.UUIDUtils.fromString;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -100,8 +103,16 @@ public class LoginStatisticsServiceImpl implements LoginStatisticsService {
         }
 
         StatisticsSolrDateFilter dateFilter = new StatisticsSolrDateFilter();
-        dateFilter.setStartDate(startDate != null ? startDate : new Date(0L));
-        dateFilter.setEndDate(endDate != null ? endDate : new Date());
+        dateFilter.setStartDate(
+            startDate != null
+                ? LocalDateTime.ofInstant(startDate.toInstant(), ZoneId.systemDefault())
+                : LocalDateTime.ofEpochSecond(0, 0, ZoneOffset.UTC)
+        );
+        dateFilter.setEndDate(
+            endDate != null
+                ? LocalDateTime.ofInstant(endDate.toInstant(), ZoneId.systemDefault())
+                : LocalDateTime.now(ZoneId.systemDefault())
+        );
         return Optional.of(dateFilter.toQuery());
     }
 

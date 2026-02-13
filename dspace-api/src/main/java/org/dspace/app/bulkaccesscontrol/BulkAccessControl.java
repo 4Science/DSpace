@@ -16,10 +16,10 @@ import static org.dspace.core.Constants.CONTENT_BUNDLE_NAME;
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.SQLException;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -34,6 +34,7 @@ import java.util.stream.Stream;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.dspace.app.bulkaccesscontrol.exception.BulkAccessControlException;
@@ -165,7 +166,7 @@ public class BulkAccessControl extends DSpaceRunnable<BulkAccessControlScriptCon
         }
 
         ObjectMapper mapper = new ObjectMapper();
-        mapper.setTimeZone(TimeZone.getTimeZone("UTC"));
+        mapper.setTimeZone(TimeZone.getTimeZone(ZoneOffset.UTC));
         BulkAccessControlInput accessControl;
         context = new Context(Context.Mode.BATCH_EDIT);
         setEPerson(context);
@@ -251,7 +252,7 @@ public class BulkAccessControl extends DSpaceRunnable<BulkAccessControlScriptCon
         if (StringUtils.isEmpty(mode)) {
             handler.logError("item mode node must be provided");
             throw new BulkAccessControlException("item mode node must be provided");
-        } else if (!(StringUtils.equalsAny(mode, ADD_MODE, REPLACE_MODE))) {
+        } else if (!(Strings.CS.equalsAny(mode, ADD_MODE, REPLACE_MODE))) {
             handler.logError("wrong value for item mode<" + mode + ">");
             throw new BulkAccessControlException("wrong value for item mode<" + mode + ">");
         } else if (ADD_MODE.equals(mode) && isEmpty(accessConditions)) {
@@ -284,7 +285,7 @@ public class BulkAccessControl extends DSpaceRunnable<BulkAccessControlScriptCon
         if (StringUtils.isEmpty(mode)) {
             handler.logError("bitstream mode node must be provided");
             throw new BulkAccessControlException("bitstream mode node must be provided");
-        } else if (!(StringUtils.equalsAny(mode, ADD_MODE, REPLACE_MODE))) {
+        } else if (!(Strings.CS.equalsAny(mode, ADD_MODE, REPLACE_MODE))) {
             handler.logError("wrong value for bitstream mode<" + mode + ">");
             throw new BulkAccessControlException("wrong value for bitstream mode<" + mode + ">");
         } else if (ADD_MODE.equals(mode) && isEmpty(accessConditions)) {
@@ -349,7 +350,7 @@ public class BulkAccessControl extends DSpaceRunnable<BulkAccessControlScriptCon
      * check the validation of access condition,
      * the access condition name must equal to one of configured access conditions,
      * then call {@link AccessConditionOption#validateResourcePolicy(
-     * Context, String, Date, Date)} if exception happens so, it's invalid.
+     * Context, String, LocalDate, LocalDate)} if exception happens so, it's invalid.
      *
      * @param accessCondition the accessCondition
      * @throws BulkAccessControlException if the accessCondition is invalid
@@ -785,8 +786,8 @@ public class BulkAccessControl extends DSpaceRunnable<BulkAccessControlScriptCon
 
         String name = accessCondition.getName();
         String description = accessCondition.getDescription();
-        Date startDate = accessCondition.getStartDate();
-        Date endDate = accessCondition.getEndDate();
+        LocalDate startDate = accessCondition.getStartDate();
+        LocalDate endDate = accessCondition.getEndDate();
 
         try {
             accessConditionOption.createResourcePolicy(context, obj, name, description, startDate, endDate);
@@ -840,7 +841,7 @@ public class BulkAccessControl extends DSpaceRunnable<BulkAccessControlScriptCon
     }
 
     private void AppendAccessConditionsInfo(StringBuilder message, List<AccessCondition> accessConditions) {
-        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        DateTimeFormatter dateFormat = DateTimeFormatter.ISO_LOCAL_DATE;
         message.append("{");
 
         for (int i = 0; i <  accessConditions.size(); i++) {

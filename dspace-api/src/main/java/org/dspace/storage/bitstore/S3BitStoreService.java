@@ -7,8 +7,6 @@
  */
 package org.dspace.storage.bitstore;
 
-import static java.lang.String.valueOf;
-
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -195,6 +193,14 @@ public class S3BitStoreService extends BaseBitStoreService {
         };
     }
 
+    private static Supplier<S3Presigner> amazonPresignerBuilderBy(Region region,
+                                                                StaticCredentialsProvider credentialsProvider) {
+        return () -> S3Presigner.builder()
+                                .region(region)
+                                .credentialsProvider(credentialsProvider)
+                                .build();
+    }
+
     public S3BitStoreService() {}
 
     /**
@@ -204,6 +210,17 @@ public class S3BitStoreService extends BaseBitStoreService {
      */
     protected S3BitStoreService(S3AsyncClient s3AsyncClient) {
         this.s3AsyncClient = s3AsyncClient;
+    }
+
+    /**
+     * This constructor is used for test purpose.
+     *
+     * @param s3AsyncClient AmazonS3 service
+     * @param presigner     S3Presigner service
+     */
+    protected S3BitStoreService(S3AsyncClient s3AsyncClient, S3Presigner presigner) {
+        this.s3AsyncClient = s3AsyncClient;
+        this.presigner = presigner;
     }
 
     @Override
@@ -225,7 +242,7 @@ public class S3BitStoreService extends BaseBitStoreService {
         }
 
         try {
-            S3Presigner.Builder presignerBuilder = S3Presigner.builder();
+
             if (StringUtils.isNotBlank(getAwsAccessKey()) && StringUtils.isNotBlank(getAwsSecretKey())) {
                 log.warn("Use local defined S3 credentials");
                 // region
@@ -250,7 +267,11 @@ public class S3BitStoreService extends BaseBitStoreService {
                                 minPartSizeBytes, maxConcurrency)
                         );
 
-                presignerBuilder = presignerBuilder.region(region).credentialsProvider(credentialsProvider);
+                presigner =
+                    FunctionalUtils.getDefaultOrBuild(
+                        this.presigner,
+                        amazonPresignerBuilderBy(region, credentialsProvider)
+                    );
 
                 log.warn("S3 Region set to: " + region.id());
             } else {
@@ -259,9 +280,12 @@ public class S3BitStoreService extends BaseBitStoreService {
                         this.s3AsyncClient,
                         amazonClientBuilderBy(null, null , endpoint, targetThroughputGbps,
                                 minPartSizeBytes, maxConcurrency));
-            }
 
-            presigner = presignerBuilder.build();
+                presigner = FunctionalUtils.getDefaultOrBuild(
+                    this.presigner,
+                    S3Presigner::create
+                );
+            }
 
             // bucket name
             if (StringUtils.isEmpty(bucketName)) {
@@ -407,7 +431,7 @@ public class S3BitStoreService extends BaseBitStoreService {
             HeadObjectResponse response = s3AsyncClient.headObject(r -> r.bucket(bucketName).key(objectKey)).join();
 
             putValueIfExistsKey(attrs, metadata, "size_bytes", response.contentLength());
-            putValueIfExistsKey(attrs, metadata, "modified", valueOf(response.lastModified().toEpochMilli()));
+            putValueIfExistsKey(attrs, metadata, "modified", String.valueOf(response.lastModified().toEpochMilli()));
             putValueIfExistsKey(attrs, metadata, "checksum_algorithm", CSA);
 
             if (attrs.contains("checksum")) {
@@ -701,7 +725,7 @@ public class S3BitStoreService extends BaseBitStoreService {
             PresignedGetObjectRequest presignedGetObjectRequest =
                 presigner.presignGetObject(
                     builder -> builder.signatureDuration(presignDuration())
-                                             .getObjectRequest(getObjectRequest)
+                                      .getObjectRequest(getObjectRequest)
                 );
 
             String presignedUrl = presignedGetObjectRequest.url().toString();

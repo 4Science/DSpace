@@ -9,6 +9,8 @@ package org.dspace.ctask.general;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,6 +18,7 @@ import org.apache.http.client.config.CookieSpecs;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.logging.log4j.Logger;
 import org.dspace.app.client.DSpaceHttpClientFactory;
@@ -145,7 +148,8 @@ public class BasicLinkChecker extends AbstractCurationTask {
                                             .setRedirectsEnabled(true)
                                             .build();
         try (CloseableHttpClient httpClient = DSpaceHttpClientFactory.getInstance().buildWithRequestConfig(config)) {
-            CloseableHttpResponse httpResponse = httpClient.execute(new HttpGet(url));
+            URI uri = new URIBuilder(url).build();
+            CloseableHttpResponse httpResponse = httpClient.execute(new HttpGet(uri));
             int statusCode = httpResponse.getStatusLine().getStatusCode();
             int maxRedirect = configurationService.getIntProperty("curate.checklinks.max-redirect", 0);
             if ((statusCode == HttpURLConnection.HTTP_MOVED_TEMP || statusCode == HttpURLConnection.HTTP_MOVED_PERM ||
@@ -157,6 +161,9 @@ public class BasicLinkChecker extends AbstractCurationTask {
                 }
             }
             return statusCode;
+        } catch (URISyntaxException e) {
+            log.error("Invalid URL: ", url, e);
+            return 0;
         } catch (IOException ioe) {
             // Must be a bad URL
             log.debug("Bad link: " + ioe.getMessage());
@@ -165,7 +172,7 @@ public class BasicLinkChecker extends AbstractCurationTask {
     }
 
     /**
-     * Internal utitity method to get a description of the handle
+     * Internal utility method to get a description of the handle
      *
      * @param item The item to get a description of
      * @return The handle, or in workflow

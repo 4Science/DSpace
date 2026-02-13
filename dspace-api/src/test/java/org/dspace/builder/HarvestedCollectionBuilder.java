@@ -66,7 +66,7 @@ public class HarvestedCollectionBuilder extends AbstractBuilder<HarvestedCollect
     }
 
     public HarvestedCollectionBuilder withLastHarvested(Date lastHarvested) {
-        this.harvestedCollection.setLastHarvested(lastHarvested);
+        this.harvestedCollection.setLastHarvested(lastHarvested.toInstant());
         return this;
     }
 

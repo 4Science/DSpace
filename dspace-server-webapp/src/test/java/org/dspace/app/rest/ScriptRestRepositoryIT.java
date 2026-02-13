@@ -122,6 +122,8 @@ public class ScriptRestRepositoryIT extends AbstractControllerIntegrationTest {
 
     @Autowired
     private ChoiceAuthorityService choiceAuthorityService;
+    @Autowired
+    private ObjectMapper mapper;
 
     @After
     public void after() throws SubmissionConfigReaderException {
@@ -139,7 +141,7 @@ public class ScriptRestRepositoryIT extends AbstractControllerIntegrationTest {
 
         String italianLanguage = "it";
         String ukranianLanguage = "uk";
-        String[] supportedLanguage = { italianLanguage, ukranianLanguage };
+        String[] supportedLanguage = {italianLanguage, ukranianLanguage};
         configurationService.setProperty("webui.supported.locales", supportedLanguage);
         metadataAuthorityService.clearCache();
         choiceAuthorityService.clearCache();
@@ -154,7 +156,7 @@ public class ScriptRestRepositoryIT extends AbstractControllerIntegrationTest {
 
         List<ParameterValueRest> list = parameters.stream()
                                                   .map(dSpaceCommandLineParameter -> dSpaceRunnableParameterConverter
-                                                          .convert(dSpaceCommandLineParameter, Projection.DEFAULT))
+                                                      .convert(dSpaceCommandLineParameter, Projection.DEFAULT))
                                                   .collect(Collectors.toList());
 
         String token = getAuthToken(admin.getEmail(), password);
@@ -167,69 +169,69 @@ public class ScriptRestRepositoryIT extends AbstractControllerIntegrationTest {
         AtomicReference<Integer> idRef1 = new AtomicReference<>();
 
         parentCommunity = CommunityBuilder.createCommunity(context)
-            .withName("Parent Community")
-            .build();
+                                          .withName("Parent Community")
+                                          .build();
 
         Collection col1 = CollectionBuilder.createCollection(context, parentCommunity, "123456789/language-test-1")
-                .withName("Collection 1")
-                .withEntityType("Publication")
-                .build();
+                                           .withName("Collection 1")
+                                           .withEntityType("Publication")
+                                           .build();
 
-            String italianTitle = "Item Italiano";
-            ItemBuilder.createItem(context, col1)
-                .withTitle(italianTitle)
-                .withIssueDate("2022-07-12")
-                .withAuthor("Italiano, Multilanguage")
-                .withLanguage(italianLanguage)
-                .build();
+        String italianTitle = "Item Italiano";
+        ItemBuilder.createItem(context, col1)
+                   .withTitle(italianTitle)
+                   .withIssueDate("2022-07-12")
+                   .withAuthor("Italiano, Multilanguage")
+                   .withLanguage(italianLanguage)
+                   .build();
 
-            String ukranianTitle = "Item Yкраїнська";
-            ItemBuilder.createItem(context, col1)
-                .withTitle(ukranianTitle)
-                .withIssueDate("2022-07-12")
-                .withAuthor("Yкраїнська, Multilanguage")
-                .withLanguage(ukranianLanguage)
-                .build();
+        String ukranianTitle = "Item Yкраїнська";
+        ItemBuilder.createItem(context, col1)
+                   .withTitle(ukranianTitle)
+                   .withIssueDate("2022-07-12")
+                   .withAuthor("Yкраїнська, Multilanguage")
+                   .withLanguage(ukranianLanguage)
+                   .build();
 
         context.restoreAuthSystemState();
 
         try {
 
             getClient(token)
-                    .perform(
-                            multipart("/api/system/scripts/bulk-item-export/processes")
-                             .param("properties", new Gson().toJson(list))
-                             .header("Accept-Language", ukranianLanguage)
-                     )
-                    .andExpect(status().isAccepted())
-                    .andExpect(jsonPath("$", is(
-                            ProcessMatcher.matchProcess("bulk-item-export",
-                                                        String.valueOf(admin.getID()),
-                                                        parameters,
-                                                        acceptableProcessStatuses))))
-                    .andDo(result -> idRef1
-                            .set(read(result.getResponse().getContentAsString(), "$.processId")));
+                .perform(
+                    multipart("/api/system/scripts/bulk-item-export/processes")
+                        .param("properties", new Gson().toJson(list))
+                        .header("Accept-Language", ukranianLanguage)
+                )
+                .andExpect(status().isAccepted())
+                .andExpect(jsonPath("$", is(
+                    ProcessMatcher.matchProcess("bulk-item-export",
+                                                String.valueOf(admin.getID()),
+                                                parameters,
+                                                acceptableProcessStatuses))))
+                .andDo(result -> idRef1
+                    .set(read(result.getResponse().getContentAsString(), "$.processId")));
             MvcResult mvcResult = getClient(token)
-                    .perform(get("/api/system/processes/" + idRef1.get() + "/files"))
-                    .andReturn();
+                .perform(get("/api/system/processes/" + idRef1.get() + "/files"))
+                .andReturn();
 
             processes.add(idRef1);
 
             JSONArray publicationsJsonId = read(mvcResult.getResponse().getContentAsString(),
-                    "$._embedded.files[?(@.name=='publications.json')].id");
+                                                "$._embedded.files[?(@.name=='publications.json')].id");
             getClient(token)
-                    .perform(get("/api/core/bitstreams/" + publicationsJsonId.get(0).toString() + "/content"))
-                    .andExpect(
-                            jsonPath(
-                                "$.items",
-                                allOf(
-                                    hasJsonPath("[*].language", contains(italianLanguage)),
-                                    hasJsonPath("[*].title", contains(italianTitle)),
-                                    not(hasJsonPath("[*].language", contains(ukranianLanguage))),
-                                    not(hasJsonPath("[*].title", contains(ukranianTitle)))
-                                )
-                            )
-                    );
+                .perform(get("/api/core/bitstreams/" + publicationsJsonId.get(0).toString() + "/content"))
+                .andExpect(
+                    jsonPath(
+                        "$.items",
+                        allOf(
+                            hasJsonPath("[*].language", contains(italianLanguage)),
+                            hasJsonPath("[*].title", contains(italianTitle)),
+                            not(hasJsonPath("[*].language", contains(ukranianLanguage))),
+                            not(hasJsonPath("[*].title", contains(ukranianTitle)))
+                        )
+                    )
+                );
 
             AtomicReference<Integer> idRef2 = new AtomicReference<>();
             parameters.clear();
@@ -239,54 +241,54 @@ public class ScriptRestRepositoryIT extends AbstractControllerIntegrationTest {
             parameters.add(new DSpaceCommandLineParameter("-sf", "language=Italiano,equals"));
 
             list = parameters
-                    .stream()
-                    .map(
-                            dSpaceCommandLineParameter ->
-                                dSpaceRunnableParameterConverter
-                                    .convert(dSpaceCommandLineParameter, Projection.DEFAULT)
-                    )
-                    .collect(Collectors.toList());
+                .stream()
+                .map(
+                    dSpaceCommandLineParameter ->
+                        dSpaceRunnableParameterConverter
+                            .convert(dSpaceCommandLineParameter, Projection.DEFAULT)
+                )
+                .collect(Collectors.toList());
 
             getClient(token)
-            .perform(
+                .perform(
                     multipart("/api/system/scripts/bulk-item-export/processes")
-                     .param("properties", new Gson().toJson(list))
-                     .header("Accept-Language", italianLanguage)
-             )
-            .andExpect(status().isAccepted())
-            .andExpect(jsonPath("$", is(
+                        .param("properties", new Gson().toJson(list))
+                        .header("Accept-Language", italianLanguage)
+                )
+                .andExpect(status().isAccepted())
+                .andExpect(jsonPath("$", is(
                     ProcessMatcher.matchProcess("bulk-item-export",
                                                 String.valueOf(admin.getID()),
                                                 parameters,
                                                 acceptableProcessStatuses))))
-            .andDo(result -> idRef2
+                .andDo(result -> idRef2
                     .set(read(result.getResponse().getContentAsString(), "$.processId")));
 
             processes.add(idRef2);
 
             mvcResult = getClient(token)
-                    .perform(get("/api/system/processes/" + idRef2.get() + "/files"))
-                    .andReturn();
+                .perform(get("/api/system/processes/" + idRef2.get() + "/files"))
+                .andReturn();
             publicationsJsonId = read(mvcResult.getResponse().getContentAsString(),
-                    "$._embedded.files[?(@.name=='publications.json')].id");
+                                      "$._embedded.files[?(@.name=='publications.json')].id");
             getClient(token)
-                    .perform(
-                            get("/api/core/bitstreams/" + publicationsJsonId.get(0).toString() + "/content")
+                .perform(
+                    get("/api/core/bitstreams/" + publicationsJsonId.get(0).toString() + "/content")
+                )
+                .andExpect(
+                    jsonPath(
+                        "$.items",
+                        allOf(
+                            hasJsonPath("[*].language", contains(italianLanguage)),
+                            hasJsonPath("[*].title", contains(italianTitle)),
+                            not(hasJsonPath("[*].language", contains(ukranianLanguage))),
+                            not(hasJsonPath("[*].title", contains(ukranianTitle)))
+                        )
                     )
-                    .andExpect(
-                            jsonPath(
-                                "$.items",
-                                allOf(
-                                    hasJsonPath("[*].language", contains(italianLanguage)),
-                                    hasJsonPath("[*].title", contains(italianTitle)),
-                                    not(hasJsonPath("[*].language", contains(ukranianLanguage))),
-                                    not(hasJsonPath("[*].title", contains(ukranianTitle)))
-                                )
-                            )
-                    );
+                );
         } finally {
             for (AtomicReference<Integer> atomicReference : processes) {
-                ProcessBuilder.deleteProcess(atomicReference .get());
+                ProcessBuilder.deleteProcess(atomicReference.get());
             }
         }
 
@@ -297,7 +299,7 @@ public class ScriptRestRepositoryIT extends AbstractControllerIntegrationTest {
         String token = getAuthToken(admin.getEmail(), password);
 
         getClient(token).perform(get("/api/system/scripts")
-                        .param("size", "100"))
+                                     .param("size", "100"))
                         .andExpect(status().isOk())
                         .andExpect(jsonPath("$._embedded.scripts", containsInAnyOrder(
                             scriptConfigurations
@@ -315,7 +317,7 @@ public class ScriptRestRepositoryIT extends AbstractControllerIntegrationTest {
         String token = getAuthToken(admin.getEmail(), password);
 
         getClient(token).perform(get("/api/system/scripts")
-                        .param("size", String.valueOf(scriptConfigurations.size())))
+                                     .param("size", String.valueOf(scriptConfigurations.size())))
                         .andExpect(status().isOk())
                         .andExpect(jsonPath("$._embedded.scripts", contains(
                             scriptConfigurations
@@ -350,53 +352,53 @@ public class ScriptRestRepositoryIT extends AbstractControllerIntegrationTest {
     public void findAllScriptsLocalAdminsTest() throws Exception {
         context.turnOffAuthorisationSystem();
         EPerson comAdmin = EPersonBuilder.createEPerson(context)
-                .withEmail("comAdmin@example.com")
-                .withPassword(password).build();
+                                         .withEmail("comAdmin@example.com")
+                                         .withPassword(password).build();
         EPerson colAdmin = EPersonBuilder.createEPerson(context)
-                .withEmail("colAdmin@example.com")
-                .withPassword(password).build();
+                                         .withEmail("colAdmin@example.com")
+                                         .withPassword(password).build();
         EPerson itemAdmin = EPersonBuilder.createEPerson(context)
-                .withEmail("itemAdmin@example.com")
-                .withPassword(password).build();
+                                          .withEmail("itemAdmin@example.com")
+                                          .withPassword(password).build();
         Community community = CommunityBuilder.createCommunity(context)
-                                          .withName("Community")
-                                          .withAdminGroup(comAdmin)
-                                          .build();
+                                              .withName("Community")
+                                              .withAdminGroup(comAdmin)
+                                              .build();
         Collection collection = CollectionBuilder.createCollection(context, community)
-                                                .withName("Collection")
-                                                .withAdminGroup(colAdmin)
-                                                .build();
+                                                 .withName("Collection")
+                                                 .withAdminGroup(colAdmin)
+                                                 .build();
         ItemBuilder.createItem(context, collection).withAdminUser(itemAdmin)
-                .withTitle("Test item to curate").build();
+                   .withTitle("Test item to curate").build();
         context.restoreAuthSystemState();
         ScriptConfiguration curateScriptConfiguration =
-                scriptConfigurations.stream().filter(scriptConfiguration
-                        -> scriptConfiguration.getName().equals("curate"))
-            .findAny().get();
+            scriptConfigurations.stream().filter(scriptConfiguration
+                                                     -> scriptConfiguration.getName().equals("curate"))
+                                .findAny().get();
 
         // the local admins have at least access to the curate script
         // and not access to process-cleaner script
         String comAdminToken = getAuthToken(comAdmin.getEmail(), password);
         getClient(comAdminToken).perform(get("/api/system/scripts").param("size", "100"))
-                        .andExpect(status().isOk())
-                        .andExpect(jsonPath("$._embedded.scripts", Matchers.hasItem(
-                                ScriptMatcher.matchScript(curateScriptConfiguration.getName(),
-                                        curateScriptConfiguration.getDescription()))))
-                        .andExpect(jsonPath("$.page.totalElements", greaterThanOrEqualTo(1)));
+                                .andExpect(status().isOk())
+                                .andExpect(jsonPath("$._embedded.scripts", Matchers.hasItem(
+                                    ScriptMatcher.matchScript(curateScriptConfiguration.getName(),
+                                                              curateScriptConfiguration.getDescription()))))
+                                .andExpect(jsonPath("$.page.totalElements", greaterThanOrEqualTo(1)));
         String colAdminToken = getAuthToken(colAdmin.getEmail(), password);
         getClient(colAdminToken).perform(get("/api/system/scripts").param("size", "100"))
-                        .andExpect(status().isOk())
-                        .andExpect(jsonPath("$._embedded.scripts", Matchers.hasItem(
-                                ScriptMatcher.matchScript(curateScriptConfiguration.getName(),
-                                        curateScriptConfiguration.getDescription()))))
-                        .andExpect(jsonPath("$.page.totalElements", greaterThanOrEqualTo(1)));
+                                .andExpect(status().isOk())
+                                .andExpect(jsonPath("$._embedded.scripts", Matchers.hasItem(
+                                    ScriptMatcher.matchScript(curateScriptConfiguration.getName(),
+                                                              curateScriptConfiguration.getDescription()))))
+                                .andExpect(jsonPath("$.page.totalElements", greaterThanOrEqualTo(1)));
         String itemAdminToken = getAuthToken(itemAdmin.getEmail(), password);
         getClient(itemAdminToken).perform(get("/api/system/scripts").param("size", "100"))
-                        .andExpect(status().isOk())
-                        .andExpect(jsonPath("$._embedded.scripts", Matchers.hasItem(
-                                ScriptMatcher.matchScript(curateScriptConfiguration.getName(),
-                                        curateScriptConfiguration.getDescription()))))
-                        .andExpect(jsonPath("$.page.totalElements", greaterThanOrEqualTo(1)));
+                                 .andExpect(status().isOk())
+                                 .andExpect(jsonPath("$._embedded.scripts", Matchers.hasItem(
+                                     ScriptMatcher.matchScript(curateScriptConfiguration.getName(),
+                                                               curateScriptConfiguration.getDescription()))))
+                                 .andExpect(jsonPath("$.page.totalElements", greaterThanOrEqualTo(1)));
     }
 
     @Test
@@ -415,12 +417,12 @@ public class ScriptRestRepositoryIT extends AbstractControllerIntegrationTest {
         getClient(token).perform(get("/api/system/scripts").param("size", "1"))
                         .andExpect(status().isOk())
                         .andExpect(jsonPath("$._embedded.scripts", Matchers.not(Matchers.hasItem(
-                ScriptMatcher.matchScript(scriptConfigurations.get(10).getName(),
-                    scriptConfigurations.get(10).getDescription())
+                            ScriptMatcher.matchScript(scriptConfigurations.get(11).getName(),
+                                                      scriptConfigurations.get(11).getDescription())
                         ))))
                         .andExpect(jsonPath("$._embedded.scripts", hasItem(
-                                ScriptMatcher.matchScript(alphabeticScripts.get(0).getName(),
-                                                          alphabeticScripts.get(0).getDescription())
+                            ScriptMatcher.matchScript(alphabeticScripts.get(0).getName(),
+                                                      alphabeticScripts.get(0).getDescription())
                         )))
                         .andExpect(jsonPath("$._links.first.href", Matchers.allOf(
                             Matchers.containsString("/api/system/scripts?"),
@@ -432,8 +434,8 @@ public class ScriptRestRepositoryIT extends AbstractControllerIntegrationTest {
                             Matchers.containsString("/api/system/scripts?"),
                             Matchers.containsString("page=1"), Matchers.containsString("size=1"))))
                         .andExpect(jsonPath("$._links.last.href", Matchers.allOf(
-                                Matchers.containsString("/api/system/scripts?"),
-                                Matchers.containsString("page=" + lastPage), Matchers.containsString("size=1"))))
+                            Matchers.containsString("/api/system/scripts?"),
+                            Matchers.containsString("page=" + lastPage), Matchers.containsString("size=1"))))
                         .andExpect(jsonPath("$.page.size", is(1)))
                         .andExpect(jsonPath("$.page.number", is(0)))
                         .andExpect(jsonPath("$.page.totalPages", is(totalPages)))
@@ -444,19 +446,19 @@ public class ScriptRestRepositoryIT extends AbstractControllerIntegrationTest {
                         .andExpect(status().isOk())
                         .andExpect(
                             jsonPath("$._embedded.scripts",
-                                not(
-                                    hasItem(
-                                        ScriptMatcher.matchScript(
-                                            scriptConfigurations.get(10).getName(),
-                                            scriptConfigurations.get(10).getDescription()
-                                        )
-                                    )
-                                )
+                                     not(
+                                         hasItem(
+                                             ScriptMatcher.matchScript(
+                                                 scriptConfigurations.get(10).getName(),
+                                                 scriptConfigurations.get(10).getDescription()
+                                             )
+                                         )
+                                     )
                             )
                         )
                         .andExpect(jsonPath("$._embedded.scripts", hasItem(
-                                ScriptMatcher.matchScript(alphabeticScripts.get(1).getName(),
-                                                          alphabeticScripts.get(1).getDescription())
+                            ScriptMatcher.matchScript(alphabeticScripts.get(1).getName(),
+                                                      alphabeticScripts.get(1).getDescription())
                         )))
                         .andExpect(jsonPath("$._links.first.href", Matchers.allOf(
                             Matchers.containsString("/api/system/scripts?"),
@@ -471,8 +473,8 @@ public class ScriptRestRepositoryIT extends AbstractControllerIntegrationTest {
                             Matchers.containsString("/api/system/scripts?"),
                             Matchers.containsString("page=2"), Matchers.containsString("size=1"))))
                         .andExpect(jsonPath("$._links.last.href", Matchers.allOf(
-                                Matchers.containsString("/api/system/scripts?"),
-                                Matchers.containsString("page=" + lastPage), Matchers.containsString("size=1"))))
+                            Matchers.containsString("/api/system/scripts?"),
+                            Matchers.containsString("page=" + lastPage), Matchers.containsString("size=1"))))
                         .andExpect(jsonPath("$.page.size", is(1)))
                         .andExpect(jsonPath("$.page.number", is(1)))
                         .andExpect(jsonPath("$.page.totalPages", is(totalPages)))
@@ -502,296 +504,297 @@ public class ScriptRestRepositoryIT extends AbstractControllerIntegrationTest {
     public void findOneScriptByNameLocalAdminsTest() throws Exception {
         context.turnOffAuthorisationSystem();
         EPerson comAdmin = EPersonBuilder.createEPerson(context)
-                .withEmail("comAdmin@example.com")
-                .withPassword(password).build();
+                                         .withEmail("comAdmin@example.com")
+                                         .withPassword(password).build();
         EPerson colAdmin = EPersonBuilder.createEPerson(context)
-                .withEmail("colAdmin@example.com")
-                .withPassword(password).build();
+                                         .withEmail("colAdmin@example.com")
+                                         .withPassword(password).build();
         EPerson itemAdmin = EPersonBuilder.createEPerson(context)
-                .withEmail("itemAdmin@example.com")
-                .withPassword(password).build();
+                                          .withEmail("itemAdmin@example.com")
+                                          .withPassword(password).build();
         Community community = CommunityBuilder.createCommunity(context)
-                                          .withName("Community")
-                                          .withAdminGroup(comAdmin)
-                                          .build();
+                                              .withName("Community")
+                                              .withAdminGroup(comAdmin)
+                                              .build();
         Collection collection = CollectionBuilder.createCollection(context, community)
-                                                .withName("Collection")
-                                                .withAdminGroup(colAdmin)
-                                                .build();
+                                                 .withName("Collection")
+                                                 .withAdminGroup(colAdmin)
+                                                 .build();
         ItemBuilder.createItem(context, collection).withAdminUser(itemAdmin)
-                .withTitle("Test item to curate").build();
+                   .withTitle("Test item to curate").build();
         context.restoreAuthSystemState();
         ScriptConfiguration curateScriptConfiguration =
-                scriptConfigurations.stream().filter(scriptConfiguration
-                        -> scriptConfiguration.getName().equals("curate"))
-            .findAny().get();
+            scriptConfigurations.stream().filter(scriptConfiguration
+                                                     -> scriptConfiguration.getName().equals("curate"))
+                                .findAny().get();
 
         String comAdminToken = getAuthToken(comAdmin.getEmail(), password);
         String colAdminToken = getAuthToken(colAdmin.getEmail(), password);
         String itemAdminToken = getAuthToken(itemAdmin.getEmail(), password);
         getClient(comAdminToken).perform(get("/api/system/scripts/" + curateScriptConfiguration.getName()))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$", ScriptMatcher
-                .matchScript(
-                        curateScriptConfiguration.getName(),
-                        curateScriptConfiguration.getDescription())));
+                                .andExpect(status().isOk())
+                                .andExpect(jsonPath("$", ScriptMatcher
+                                    .matchScript(
+                                        curateScriptConfiguration.getName(),
+                                        curateScriptConfiguration.getDescription())));
         getClient(colAdminToken).perform(get("/api/system/scripts/" + curateScriptConfiguration.getName()))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$", ScriptMatcher
-                .matchScript(
-                        curateScriptConfiguration.getName(),
-                        curateScriptConfiguration.getDescription())));
+                                .andExpect(status().isOk())
+                                .andExpect(jsonPath("$", ScriptMatcher
+                                    .matchScript(
+                                        curateScriptConfiguration.getName(),
+                                        curateScriptConfiguration.getDescription())));
         getClient(itemAdminToken).perform(get("/api/system/scripts/" + curateScriptConfiguration.getName()))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$", ScriptMatcher
-                .matchScript(
-                        curateScriptConfiguration.getName(),
-                        curateScriptConfiguration.getDescription())));
+                                 .andExpect(status().isOk())
+                                 .andExpect(jsonPath("$", ScriptMatcher
+                                     .matchScript(
+                                         curateScriptConfiguration.getName(),
+                                         curateScriptConfiguration.getDescription())));
     }
 
     @Test
     public void findBulkImportScriptByAdminsTest() throws Exception {
         context.turnOffAuthorisationSystem();
         EPerson comAdmin = EPersonBuilder.createEPerson(context)
-                .withEmail("comAdmin@example.com")
-                .withPassword(password).build();
+                                         .withEmail("comAdmin@example.com")
+                                         .withPassword(password).build();
         EPerson colAdmin = EPersonBuilder.createEPerson(context)
-                .withEmail("colAdmin@example.com")
-                .withPassword(password).build();
+                                         .withEmail("colAdmin@example.com")
+                                         .withPassword(password).build();
         EPerson itemAdmin = EPersonBuilder.createEPerson(context)
-                .withEmail("itemAdmin@example.com")
-                .withPassword(password).build();
+                                          .withEmail("itemAdmin@example.com")
+                                          .withPassword(password).build();
         Community community = CommunityBuilder.createCommunity(context)
-                                          .withName("Community")
-                                          .withAdminGroup(comAdmin)
-                                          .build();
+                                              .withName("Community")
+                                              .withAdminGroup(comAdmin)
+                                              .build();
         Collection collection = CollectionBuilder.createCollection(context, community)
-                                                .withName("Collection")
-                                                .withAdminGroup(colAdmin)
-                                                .build();
+                                                 .withName("Collection")
+                                                 .withAdminGroup(colAdmin)
+                                                 .build();
         ItemBuilder.createItem(context, collection).withAdminUser(itemAdmin)
-                .withTitle("Test item").build();
+                   .withTitle("Test item").build();
         context.restoreAuthSystemState();
         ScriptConfiguration bulkImportScriptConfiguration =
-                scriptConfigurations.stream().filter(scriptConfiguration
-                        -> scriptConfiguration.getName().equals("bulk-import"))
-            .findAny().get();
+            scriptConfigurations.stream().filter(scriptConfiguration
+                                                     -> scriptConfiguration.getName().equals("bulk-import"))
+                                .findAny().get();
 
         String comAdminToken = getAuthToken(comAdmin.getEmail(), password);
         String colAdminToken = getAuthToken(colAdmin.getEmail(), password);
         String itemAdminToken = getAuthToken(itemAdmin.getEmail(), password);
         getClient(comAdminToken).perform(get("/api/system/scripts/" + bulkImportScriptConfiguration.getName()))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$", ScriptMatcher
-                .matchScript(
-                        bulkImportScriptConfiguration.getName(),
-                        bulkImportScriptConfiguration.getDescription())));
+                                .andExpect(status().isOk())
+                                .andExpect(jsonPath("$", ScriptMatcher
+                                    .matchScript(
+                                        bulkImportScriptConfiguration.getName(),
+                                        bulkImportScriptConfiguration.getDescription())));
         getClient(colAdminToken).perform(get("/api/system/scripts/" + bulkImportScriptConfiguration.getName()))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$", ScriptMatcher
-                .matchScript(
-                        bulkImportScriptConfiguration.getName(),
-                        bulkImportScriptConfiguration.getDescription())));
+                                .andExpect(status().isOk())
+                                .andExpect(jsonPath("$", ScriptMatcher
+                                    .matchScript(
+                                        bulkImportScriptConfiguration.getName(),
+                                        bulkImportScriptConfiguration.getDescription())));
         getClient(itemAdminToken).perform(get("/api/system/scripts/" + bulkImportScriptConfiguration.getName()))
-            .andExpect(status().isForbidden());
+                                 .andExpect(status().isForbidden());
     }
 
     @Test
     public void findBulkAccessControlScriptByAdminsTest() throws Exception {
         context.turnOffAuthorisationSystem();
         EPerson comAdmin = EPersonBuilder.createEPerson(context)
-                .withEmail("comAdmin@example.com")
-                .withPassword(password).build();
+                                         .withEmail("comAdmin@example.com")
+                                         .withPassword(password).build();
         EPerson colAdmin = EPersonBuilder.createEPerson(context)
-                .withEmail("colAdmin@example.com")
-                .withPassword(password).build();
+                                         .withEmail("colAdmin@example.com")
+                                         .withPassword(password).build();
         EPerson itemAdmin = EPersonBuilder.createEPerson(context)
-                .withEmail("itemAdmin@example.com")
-                .withPassword(password).build();
+                                          .withEmail("itemAdmin@example.com")
+                                          .withPassword(password).build();
         Community community = CommunityBuilder.createCommunity(context)
-                .withName("Community")
-                .withAdminGroup(comAdmin)
-                .build();
+                                              .withName("Community")
+                                              .withAdminGroup(comAdmin)
+                                              .build();
         Collection collection = CollectionBuilder.createCollection(context, community)
-                .withName("Collection")
-                .withAdminGroup(colAdmin)
-                .build();
+                                                 .withName("Collection")
+                                                 .withAdminGroup(colAdmin)
+                                                 .build();
         ItemBuilder.createItem(context, collection).withAdminUser(itemAdmin)
-                .withTitle("Test item").build();
+                   .withTitle("Test item").build();
         context.restoreAuthSystemState();
         ScriptConfiguration scriptConfiguration =
-                scriptConfigurations.stream().filter(configuration
-                                -> configuration.getName().equals("bulk-access-control"))
-                        .findAny().get();
+            scriptConfigurations.stream().filter(configuration
+                                                     -> configuration.getName().equals("bulk-access-control"))
+                                .findAny().get();
 
         String comAdminToken = getAuthToken(comAdmin.getEmail(), password);
         String colAdminToken = getAuthToken(colAdmin.getEmail(), password);
         String itemAdminToken = getAuthToken(itemAdmin.getEmail(), password);
         getClient(comAdminToken).perform(get("/api/system/scripts/" + scriptConfiguration.getName()))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$", ScriptMatcher
-                        .matchScript(
-                                scriptConfiguration.getName(),
-                                scriptConfiguration.getDescription())));
+                                .andExpect(status().isOk())
+                                .andExpect(jsonPath("$", ScriptMatcher
+                                    .matchScript(
+                                        scriptConfiguration.getName(),
+                                        scriptConfiguration.getDescription())));
         getClient(colAdminToken).perform(get("/api/system/scripts/" + scriptConfiguration.getName()))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$", ScriptMatcher
-                        .matchScript(
-                                scriptConfiguration.getName(),
-                                scriptConfiguration.getDescription())));
+                                .andExpect(status().isOk())
+                                .andExpect(jsonPath("$", ScriptMatcher
+                                    .matchScript(
+                                        scriptConfiguration.getName(),
+                                        scriptConfiguration.getDescription())));
         getClient(itemAdminToken).perform(get("/api/system/scripts/" + scriptConfiguration.getName()))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$", ScriptMatcher
-                        .matchScript(
-                                scriptConfiguration.getName(),
-                                scriptConfiguration.getDescription())));
+                                 .andExpect(status().isOk())
+                                 .andExpect(jsonPath("$", ScriptMatcher
+                                     .matchScript(
+                                         scriptConfiguration.getName(),
+                                         scriptConfiguration.getDescription())));
     }
 
     @Test
     public void findCollectionExportScriptByAdminsTest() throws Exception {
         context.turnOffAuthorisationSystem();
         EPerson comAdmin = EPersonBuilder.createEPerson(context)
-                .withEmail("comAdmin@example.com")
-                .withPassword(password).build();
+                                         .withEmail("comAdmin@example.com")
+                                         .withPassword(password).build();
         EPerson colAdmin = EPersonBuilder.createEPerson(context)
-                .withEmail("colAdmin@example.com")
-                .withPassword(password).build();
+                                         .withEmail("colAdmin@example.com")
+                                         .withPassword(password).build();
         EPerson itemAdmin = EPersonBuilder.createEPerson(context)
-                .withEmail("itemAdmin@example.com")
-                .withPassword(password).build();
+                                          .withEmail("itemAdmin@example.com")
+                                          .withPassword(password).build();
         Community community = CommunityBuilder.createCommunity(context)
-                .withName("Community")
-                .withAdminGroup(comAdmin)
-                .build();
+                                              .withName("Community")
+                                              .withAdminGroup(comAdmin)
+                                              .build();
         Collection collection = CollectionBuilder.createCollection(context, community)
-                .withName("Collection")
-                .withAdminGroup(colAdmin)
-                .build();
+                                                 .withName("Collection")
+                                                 .withAdminGroup(colAdmin)
+                                                 .build();
         ItemBuilder.createItem(context, collection).withAdminUser(itemAdmin)
-                .withTitle("Test item").build();
+                   .withTitle("Test item").build();
         context.restoreAuthSystemState();
         ScriptConfiguration scriptConfiguration =
-                scriptConfigurations.stream().filter(configuration
-                                -> configuration.getName().equals("collection-export"))
-                        .findAny().get();
+            scriptConfigurations.stream().filter(configuration
+                                                     -> configuration.getName().equals("collection-export"))
+                                .findAny().get();
 
         String comAdminToken = getAuthToken(comAdmin.getEmail(), password);
         String colAdminToken = getAuthToken(colAdmin.getEmail(), password);
         String itemAdminToken = getAuthToken(itemAdmin.getEmail(), password);
         getClient(comAdminToken).perform(get("/api/system/scripts/" + scriptConfiguration.getName()))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$", ScriptMatcher
-                        .matchScript(
-                                scriptConfiguration.getName(),
-                                scriptConfiguration.getDescription())));
+                                .andExpect(status().isOk())
+                                .andExpect(jsonPath("$", ScriptMatcher
+                                    .matchScript(
+                                        scriptConfiguration.getName(),
+                                        scriptConfiguration.getDescription())));
         getClient(colAdminToken).perform(get("/api/system/scripts/" + scriptConfiguration.getName()))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$", ScriptMatcher
-                        .matchScript(
-                                scriptConfiguration.getName(),
-                                scriptConfiguration.getDescription())));
+                                .andExpect(status().isOk())
+                                .andExpect(jsonPath("$", ScriptMatcher
+                                    .matchScript(
+                                        scriptConfiguration.getName(),
+                                        scriptConfiguration.getDescription())));
         getClient(itemAdminToken).perform(get("/api/system/scripts/" + scriptConfiguration.getName()))
-                .andExpect(status().isForbidden());
+                                 .andExpect(status().isForbidden());
     }
 
     @Test
     public void findItemExportScriptTest() throws Exception {
         ScriptConfiguration scriptConfiguration =
-                scriptConfigurations.stream().filter(configuration
-                                -> configuration.getName().equals("item-export"))
-                        .findAny().get();
+            scriptConfigurations.stream().filter(configuration
+                                                     -> configuration.getName().equals("item-export"))
+                                .findAny().get();
 
         getClient().perform(get("/api/system/scripts/" + scriptConfiguration.getName()))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$", ScriptMatcher
-                        .matchScript(
-                                scriptConfiguration.getName(),
-                                scriptConfiguration.getDescription())));
+                   .andExpect(status().isOk())
+                   .andExpect(jsonPath("$", ScriptMatcher
+                       .matchScript(
+                           scriptConfiguration.getName(),
+                           scriptConfiguration.getDescription())));
     }
 
     @Test
     public void findBulkItemExportScriptByAdminsTest() throws Exception {
         context.turnOffAuthorisationSystem();
         EPerson comAdmin = EPersonBuilder.createEPerson(context)
-                .withEmail("comAdmin@example.com")
-                .withPassword(password).build();
+                                         .withEmail("comAdmin@example.com")
+                                         .withPassword(password).build();
         EPerson colAdmin = EPersonBuilder.createEPerson(context)
-                .withEmail("colAdmin@example.com")
-                .withPassword(password).build();
+                                         .withEmail("colAdmin@example.com")
+                                         .withPassword(password).build();
         EPerson itemAdmin = EPersonBuilder.createEPerson(context)
-                .withEmail("itemAdmin@example.com")
-                .withPassword(password).build();
+                                          .withEmail("itemAdmin@example.com")
+                                          .withPassword(password).build();
         Community community = CommunityBuilder.createCommunity(context)
-                .withName("Community")
-                .withAdminGroup(comAdmin)
-                .build();
+                                              .withName("Community")
+                                              .withAdminGroup(comAdmin)
+                                              .build();
         Collection collection = CollectionBuilder.createCollection(context, community)
-                .withName("Collection")
-                .withAdminGroup(colAdmin)
-                .build();
+                                                 .withName("Collection")
+                                                 .withAdminGroup(colAdmin)
+                                                 .build();
         ItemBuilder.createItem(context, collection).withAdminUser(itemAdmin)
-                .withTitle("Test item").build();
+                   .withTitle("Test item").build();
         context.restoreAuthSystemState();
         ScriptConfiguration scriptConfiguration =
-                scriptConfigurations.stream().filter(configuration
-                                -> configuration.getName().equals("bulk-item-export"))
-                        .findAny().get();
+            scriptConfigurations.stream().filter(configuration
+                                                     -> configuration.getName().equals("bulk-item-export"))
+                                .findAny().get();
 
         String comAdminToken = getAuthToken(comAdmin.getEmail(), password);
         String colAdminToken = getAuthToken(colAdmin.getEmail(), password);
         String itemAdminToken = getAuthToken(itemAdmin.getEmail(), password);
         String loggedInToken = getAuthToken(eperson.getEmail(), password);
         getClient(comAdminToken).perform(get("/api/system/scripts/" + scriptConfiguration.getName()))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$", ScriptMatcher
-                        .matchScript(
-                                scriptConfiguration.getName(),
-                                scriptConfiguration.getDescription())));
+                                .andExpect(status().isOk())
+                                .andExpect(jsonPath("$", ScriptMatcher
+                                    .matchScript(
+                                        scriptConfiguration.getName(),
+                                        scriptConfiguration.getDescription())));
         getClient(colAdminToken).perform(get("/api/system/scripts/" + scriptConfiguration.getName()))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$", ScriptMatcher
-                        .matchScript(
-                                scriptConfiguration.getName(),
-                                scriptConfiguration.getDescription())));
+                                .andExpect(status().isOk())
+                                .andExpect(jsonPath("$", ScriptMatcher
+                                    .matchScript(
+                                        scriptConfiguration.getName(),
+                                        scriptConfiguration.getDescription())));
         getClient(itemAdminToken).perform(get("/api/system/scripts/" + scriptConfiguration.getName()))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$", ScriptMatcher
-                        .matchScript(
-                                scriptConfiguration.getName(),
-                                scriptConfiguration.getDescription())));
+                                 .andExpect(status().isOk())
+                                 .andExpect(jsonPath("$", ScriptMatcher
+                                     .matchScript(
+                                         scriptConfiguration.getName(),
+                                         scriptConfiguration.getDescription())));
         getClient(loggedInToken).perform(get("/api/system/scripts/" + scriptConfiguration.getName()))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$", ScriptMatcher
-                        .matchScript(
-                                scriptConfiguration.getName(),
-                                scriptConfiguration.getDescription())));
+                                .andExpect(status().isOk())
+                                .andExpect(jsonPath("$", ScriptMatcher
+                                    .matchScript(
+                                        scriptConfiguration.getName(),
+                                        scriptConfiguration.getDescription())));
         getClient().perform(get("/api/system/scripts/" + scriptConfiguration.getName()))
-                .andExpect(status().isUnauthorized());
+                   .andExpect(status().isUnauthorized());
     }
 
     @Test
     public void findOneScriptByNameNotAuthenticatedTest() throws Exception {
         getClient().perform(get("/api/system/scripts/mock-script"))
-                        .andExpect(status().isUnauthorized());
+                   .andExpect(status().isUnauthorized());
     }
 
     @Test
     public void findOneScriptByNameTestAccessDenied() throws Exception {
         String[] excludedScripts = new String[] {"curate", "bulk-import",
-                "item-export", "bulk-item-export", "bulk-access-control",
-                "collection-export"};
+            "item-export", "bulk-item-export", "bulk-access-control",
+            "collection-export"};
 
         String token = getAuthToken(eperson.getEmail(), password);
         scriptConfigurations.stream().filter(scriptConfiguration ->
-                        !StringUtils.equalsAny(scriptConfiguration.getName(), excludedScripts))
-                .forEach(scriptConfiguration -> {
-                    try {
-                        getClient(token).perform(get("/api/system/scripts/" + scriptConfiguration.getName()))
-                                .andExpect(status().isForbidden());
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                });
+                                                 !StringUtils.equalsAny(scriptConfiguration.getName(), excludedScripts))
+                            .forEach(scriptConfiguration -> {
+                                try {
+                                    getClient(token).perform(
+                                                        get("/api/system/scripts/" + scriptConfiguration.getName()))
+                                                    .andExpect(status().isForbidden());
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
+                            });
     }
 
     @Test
@@ -810,24 +813,24 @@ public class ScriptRestRepositoryIT extends AbstractControllerIntegrationTest {
     public void postProcessNonAdminAuthorizeException() throws Exception {
         context.turnOffAuthorisationSystem();
         EPerson comAdmin = EPersonBuilder.createEPerson(context)
-                .withEmail("comAdmin@example.com")
-                .withPassword(password).build();
+                                         .withEmail("comAdmin@example.com")
+                                         .withPassword(password).build();
         EPerson colAdmin = EPersonBuilder.createEPerson(context)
-                .withEmail("colAdmin@example.com")
-                .withPassword(password).build();
+                                         .withEmail("colAdmin@example.com")
+                                         .withPassword(password).build();
         EPerson itemAdmin = EPersonBuilder.createEPerson(context)
-                .withEmail("itemAdmin@example.com")
-                .withPassword(password).build();
+                                          .withEmail("itemAdmin@example.com")
+                                          .withPassword(password).build();
         Community community = CommunityBuilder.createCommunity(context)
-                                          .withName("Community")
-                                          .withAdminGroup(comAdmin)
-                                          .build();
+                                              .withName("Community")
+                                              .withAdminGroup(comAdmin)
+                                              .build();
         Collection collection = CollectionBuilder.createCollection(context, community)
-                                                .withName("Collection")
-                                                .withAdminGroup(colAdmin)
-                                                .build();
+                                                 .withName("Collection")
+                                                 .withAdminGroup(colAdmin)
+                                                 .build();
         Item item = ItemBuilder.createItem(context, collection).withAdminUser(itemAdmin)
-                                .withTitle("Test item to curate").build();
+                               .withTitle("Test item to curate").build();
         context.restoreAuthSystemState();
 
         String token = getAuthToken(eperson.getEmail(), password);
@@ -837,11 +840,11 @@ public class ScriptRestRepositoryIT extends AbstractControllerIntegrationTest {
         getClient(token).perform(multipart("/api/system/scripts/mock-script/processes"))
                         .andExpect(status().isForbidden());
         getClient(comAdmin_token).perform(multipart("/api/system/scripts/mock-script/processes"))
-                        .andExpect(status().isForbidden());
+                                 .andExpect(status().isForbidden());
         getClient(colAdmin_token).perform(multipart("/api/system/scripts/mock-script/processes"))
-                        .andExpect(status().isForbidden());
+                                 .andExpect(status().isForbidden());
         getClient(itemAdmin_token).perform(multipart("/api/system/scripts/mock-script/processes"))
-                        .andExpect(status().isForbidden());
+                                  .andExpect(status().isForbidden());
     }
 
     @Test
@@ -857,14 +860,14 @@ public class ScriptRestRepositoryIT extends AbstractControllerIntegrationTest {
 
         try {
             getClient(token)
-                    .perform(multipart("/api/system/scripts/mock-script/processes"))
-                    .andExpect(status().isAccepted())
-                    .andExpect(jsonPath("$", is(
-                            ProcessMatcher.matchProcess("mock-script",
-                                                        String.valueOf(admin.getID()), new LinkedList<>(),
-                                                        ProcessStatus.FAILED))))
-                    .andDo(result -> idRef
-                            .set(read(result.getResponse().getContentAsString(), "$.processId")));
+                .perform(multipart("/api/system/scripts/mock-script/processes"))
+                .andExpect(status().isAccepted())
+                .andExpect(jsonPath("$", is(
+                    ProcessMatcher.matchProcess("mock-script",
+                                                String.valueOf(admin.getID()), new LinkedList<>(),
+                                                ProcessStatus.FAILED))))
+                .andDo(result -> idRef
+                    .set(read(result.getResponse().getContentAsString(), "$.processId")));
         } finally {
             ProcessBuilder.deleteProcess(idRef.get());
         }
@@ -882,7 +885,7 @@ public class ScriptRestRepositoryIT extends AbstractControllerIntegrationTest {
 
         List<ParameterValueRest> list = parameters.stream()
                                                   .map(dSpaceCommandLineParameter -> dSpaceRunnableParameterConverter
-                                                          .convert(dSpaceCommandLineParameter, Projection.DEFAULT))
+                                                      .convert(dSpaceCommandLineParameter, Projection.DEFAULT))
                                                   .collect(Collectors.toList());
 
         String token = getAuthToken(admin.getEmail(), password);
@@ -891,15 +894,15 @@ public class ScriptRestRepositoryIT extends AbstractControllerIntegrationTest {
 
         try {
             getClient(token)
-                    .perform(multipart("/api/system/scripts/mock-script/processes")
-                                 .param("properties", new ObjectMapper().writeValueAsString(list)))
-                    .andExpect(status().isAccepted())
-                    .andExpect(jsonPath("$", is(
-                            ProcessMatcher.matchProcess("mock-script",
-                                                        String.valueOf(admin.getID()), parameters,
-                                                        ProcessStatus.FAILED))))
-                    .andDo(result -> idRef
-                            .set(read(result.getResponse().getContentAsString(), "$.processId")));
+                .perform(multipart("/api/system/scripts/mock-script/processes")
+                             .param("properties", mapper.writeValueAsString(list)))
+                .andExpect(status().isAccepted())
+                .andExpect(jsonPath("$", is(
+                    ProcessMatcher.matchProcess("mock-script",
+                                                String.valueOf(admin.getID()), parameters,
+                                                ProcessStatus.FAILED))))
+                .andDo(result -> idRef
+                    .set(read(result.getResponse().getContentAsString(), "$.processId")));
         } finally {
             ProcessBuilder.deleteProcess(idRef.get());
         }
@@ -922,7 +925,7 @@ public class ScriptRestRepositoryIT extends AbstractControllerIntegrationTest {
 
         List<ParameterValueRest> list = parameters.stream()
                                                   .map(dSpaceCommandLineParameter -> dSpaceRunnableParameterConverter
-                                                          .convert(dSpaceCommandLineParameter, Projection.DEFAULT))
+                                                      .convert(dSpaceCommandLineParameter, Projection.DEFAULT))
                                                   .collect(Collectors.toList());
 
         String token = getAuthToken(admin.getEmail(), password);
@@ -935,16 +938,16 @@ public class ScriptRestRepositoryIT extends AbstractControllerIntegrationTest {
 
         try {
             getClient(token)
-                    .perform(multipart("/api/system/scripts/mock-script/processes")
-                                 .param("properties", new ObjectMapper().writeValueAsString(list)))
-                    .andExpect(status().isAccepted())
-                    .andExpect(jsonPath("$", is(
-                            ProcessMatcher.matchProcess("mock-script",
-                                                        String.valueOf(admin.getID()),
-                                                        parameters,
-                                                        acceptableProcessStatuses))))
-                    .andDo(result -> idRef
-                            .set(read(result.getResponse().getContentAsString(), "$.processId")));
+                .perform(multipart("/api/system/scripts/mock-script/processes")
+                             .param("properties", mapper.writeValueAsString(list)))
+                .andExpect(status().isAccepted())
+                .andExpect(jsonPath("$", is(
+                    ProcessMatcher.matchProcess("mock-script",
+                                                String.valueOf(admin.getID()),
+                                                parameters,
+                                                acceptableProcessStatuses))))
+                .andDo(result -> idRef
+                    .set(read(result.getResponse().getContentAsString(), "$.processId")));
         } finally {
             ProcessBuilder.deleteProcess(idRef.get());
         }
@@ -959,7 +962,7 @@ public class ScriptRestRepositoryIT extends AbstractControllerIntegrationTest {
 
         List<ParameterValueRest> list = parameters.stream()
                                                   .map(dSpaceCommandLineParameter -> dSpaceRunnableParameterConverter
-                                                          .convert(dSpaceCommandLineParameter, Projection.DEFAULT))
+                                                      .convert(dSpaceCommandLineParameter, Projection.DEFAULT))
                                                   .collect(Collectors.toList());
 
         String token = getAuthToken(admin.getEmail(), password);
@@ -972,16 +975,16 @@ public class ScriptRestRepositoryIT extends AbstractControllerIntegrationTest {
 
         try {
             getClient(token)
-                    .perform(multipart("/api/system/scripts/mock-script/processes")
-                                 .param("properties", new ObjectMapper().writeValueAsString(list)))
-                    .andExpect(status().isAccepted())
-                    .andExpect(jsonPath("$", is(
-                            ProcessMatcher.matchProcess("mock-script",
-                                                        String.valueOf(admin.getID()),
-                                                        parameters,
-                                                        acceptableProcessStatuses))))
-                    .andDo(result -> idRef
-                            .set(read(result.getResponse().getContentAsString(), "$.processId")));
+                .perform(multipart("/api/system/scripts/mock-script/processes")
+                             .param("properties", mapper.writeValueAsString(list)))
+                .andExpect(status().isAccepted())
+                .andExpect(jsonPath("$", is(
+                    ProcessMatcher.matchProcess("mock-script",
+                                                String.valueOf(admin.getID()),
+                                                parameters,
+                                                acceptableProcessStatuses))))
+                .andDo(result -> idRef
+                    .set(read(result.getResponse().getContentAsString(), "$.processId")));
 
 
             Process process = processService.find(context, idRef.get());
@@ -992,27 +995,26 @@ public class ScriptRestRepositoryIT extends AbstractControllerIntegrationTest {
                             .andExpect(status().isOk())
                             .andExpect(content().contentType(contentType))
                             .andExpect(jsonPath("$", BitstreamMatcher
-                                    .matchBitstreamEntryWithoutEmbed(bitstream.getID(), bitstream.getSizeBytes())));
+                                .matchBitstreamEntryWithoutEmbed(bitstream.getID(), bitstream.getSizeBytes())));
 
 
             MvcResult mvcResult = getClient(token)
-                    .perform(get("/api/core/bitstreams/" + bitstream.getID() + "/content")).andReturn();
+                .perform(get("/api/core/bitstreams/" + bitstream.getID() + "/content")).andReturn();
             String content = mvcResult.getResponse().getContentAsString();
 
             assertThat(content,
-                CoreMatchers.containsString("INFO mock-script - " + process.getID() + " @ The script has started"));
+                       CoreMatchers.containsString(
+                           "INFO mock-script - " + process.getID() + " @ The script has started"));
             assertThat(content, CoreMatchers.containsString(
-                               "INFO mock-script - " + process.getID() + " @ Logging INFO for Mock DSpace Script"));
+                "INFO mock-script - " + process.getID() + " @ Logging INFO for Mock DSpace Script"));
             assertThat(content,
                        CoreMatchers.containsString(
-                               "ERROR mock-script - " + process.getID() + " @ Logging ERROR for Mock DSpace Script"));
+                           "ERROR mock-script - " + process.getID() + " @ Logging ERROR for Mock DSpace Script"));
             assertThat(content,
                        CoreMatchers.containsString("WARNING mock-script - " + process
-                               .getID() + " @ Logging WARNING for Mock DSpace Script"));
+                           .getID() + " @ Logging WARNING for Mock DSpace Script"));
             assertThat(content, CoreMatchers
-                    .containsString("INFO mock-script - " + process.getID() + " @ The script has completed"));
-
-
+                .containsString("INFO mock-script - " + process.getID() + " @ The script has completed"));
 
 
         } finally {
@@ -1021,16 +1023,14 @@ public class ScriptRestRepositoryIT extends AbstractControllerIntegrationTest {
     }
 
 
-
-
     @Test
     public void postProcessAdminWithWrongContentTypeBadRequestException() throws Exception {
 
         String token = getAuthToken(admin.getEmail(), password);
 
         getClient(token)
-                .perform(post("/api/system/scripts/mock-script/processes"))
-                .andExpect(status().isBadRequest());
+            .perform(post("/api/system/scripts/mock-script/processes"))
+            .andExpect(status().isBadRequest());
 
         getClient(token).perform(post("/api/system/scripts/mock-script-invalid/processes"))
                         .andExpect(status().isNotFound());
@@ -1071,7 +1071,7 @@ public class ScriptRestRepositoryIT extends AbstractControllerIntegrationTest {
 
         List<ParameterValueRest> list = parameters.stream()
                                                   .map(dSpaceCommandLineParameter -> dSpaceRunnableParameterConverter
-                                                          .convert(dSpaceCommandLineParameter, Projection.DEFAULT))
+                                                      .convert(dSpaceCommandLineParameter, Projection.DEFAULT))
                                                   .collect(Collectors.toList());
 
         String token = getAuthToken(admin.getEmail(), password);
@@ -1084,18 +1084,18 @@ public class ScriptRestRepositoryIT extends AbstractControllerIntegrationTest {
 
         try {
             getClient(token)
-                    .perform(multipart("/api/system/scripts/mock-script/processes")
-                                 .file(bitstreamFile)
-                                 .characterEncoding("UTF-8")
-                                 .param("properties", new ObjectMapper().writeValueAsString(list)))
-                    .andExpect(status().isAccepted())
-                    .andExpect(jsonPath("$", is(
-                            ProcessMatcher.matchProcess("mock-script",
-                                                        String.valueOf(admin.getID()),
-                                                        parameters,
-                                                        acceptableProcessStatuses))))
-                    .andDo(result -> idRef
-                            .set(read(result.getResponse().getContentAsString(), "$.processId")));
+                .perform(multipart("/api/system/scripts/mock-script/processes")
+                             .file(bitstreamFile)
+                             .characterEncoding("UTF-8")
+                             .param("properties", mapper.writeValueAsString(list)))
+                .andExpect(status().isAccepted())
+                .andExpect(jsonPath("$", is(
+                    ProcessMatcher.matchProcess("mock-script",
+                                                String.valueOf(admin.getID()),
+                                                parameters,
+                                                acceptableProcessStatuses))))
+                .andDo(result -> idRef
+                    .set(read(result.getResponse().getContentAsString(), "$.processId")));
         } finally {
             ProcessBuilder.deleteProcess(idRef.get());
         }
@@ -1121,9 +1121,8 @@ public class ScriptRestRepositoryIT extends AbstractControllerIntegrationTest {
 
         List<ParameterValueRest> list = parameters.stream()
                                                   .map(dSpaceCommandLineParameter -> dSpaceRunnableParameterConverter
-                                                  .convert(dSpaceCommandLineParameter, Projection.DEFAULT))
+                                                      .convert(dSpaceCommandLineParameter, Projection.DEFAULT))
                                                   .collect(Collectors.toList());
-
 
 
         String token = getAuthToken(admin.getEmail(), password);
@@ -1136,12 +1135,13 @@ public class ScriptRestRepositoryIT extends AbstractControllerIntegrationTest {
 
         try {
             getClient(token).perform(post("/api/system/scripts/mock-script/processes")
-                            .contentType("multipart/form-data")
-                            .param("properties", new Gson().toJson(list)))
+                                         .contentType("multipart/form-data")
+                                         .param("properties", new Gson().toJson(list)))
                             .andExpect(status().isAccepted())
                             .andExpect(jsonPath("$", is(ProcessMatcher.matchProcess("mock-script",
-                                                        String.valueOf(admin.getID()),
-                                                        parameters, acceptableProcessStatuses))))
+                                                                                    String.valueOf(admin.getID()),
+                                                                                    parameters,
+                                                                                    acceptableProcessStatuses))))
                             .andDo(result -> idRef.set(read(result.getResponse().getContentAsString(), "$.processId")));
 
             Process process = processService.find(context, idRef.get());
@@ -1150,6 +1150,7 @@ public class ScriptRestRepositoryIT extends AbstractControllerIntegrationTest {
             for (Group group : groups) {
                 if (group.getID().equals(specialGroup.getID())) {
                     isPresent = true;
+                    break;
                 }
             }
             assertTrue(isPresent);
@@ -1164,25 +1165,25 @@ public class ScriptRestRepositoryIT extends AbstractControllerIntegrationTest {
         context.turnOffAuthorisationSystem();
 
         EPerson user = EPersonBuilder.createEPerson(context)
-            .withEmail("test@user.it")
-            .withNameInMetadata("Test", "User")
-            .build();
+                                     .withEmail("test@user.it")
+                                     .withNameInMetadata("Test", "User")
+                                     .build();
 
         parentCommunity = CommunityBuilder.createCommunity(context)
-            .withName("Parent Community")
-            .build();
+                                          .withName("Parent Community")
+                                          .build();
 
         Collection col1 = CollectionBuilder.createCollection(context, parentCommunity)
-            .withName("Collection 1")
-            .withEntityType("Publication")
-            .build();
+                                           .withName("Collection 1")
+                                           .withEntityType("Publication")
+                                           .build();
 
         Item item = ItemBuilder.createItem(context, col1)
-            .withTitle("Public item 1")
-            .withIssueDate("2017-10-17")
-            .withAuthor("Smith, Donald")
-            .withAuthor("Doe, John")
-            .build();
+                               .withTitle("Public item 1")
+                               .withIssueDate("2017-10-17")
+                               .withAuthor("Smith, Donald")
+                               .withAuthor("Doe, John")
+                               .build();
 
         context.restoreAuthSystemState();
 
@@ -1196,19 +1197,19 @@ public class ScriptRestRepositoryIT extends AbstractControllerIntegrationTest {
         parameters.add(new DSpaceCommandLineParameter("-f", "publication-cerif-xml"));
 
         List<ParameterValueRest> list = parameters.stream()
-            .map(dSpaceCommandLineParameter -> dSpaceRunnableParameterConverter
-                .convert(dSpaceCommandLineParameter, Projection.DEFAULT))
-            .collect(Collectors.toList());
+                                                  .map(dSpaceCommandLineParameter -> dSpaceRunnableParameterConverter
+                                                      .convert(dSpaceCommandLineParameter, Projection.DEFAULT))
+                                                  .collect(Collectors.toList());
 
         AtomicReference<Integer> idRef = new AtomicReference<>();
 
         try {
 
             getClient().perform(post("/api/system/scripts/item-export/processes")
-                .contentType("multipart/form-data")
-                .param("properties", new Gson().toJson(list)))
-                .andExpect(status().isAccepted())
-                .andDo(result -> idRef.set(read(result.getResponse().getContentAsString(), "$.processId")));
+                                    .contentType("multipart/form-data")
+                                    .param("properties", new Gson().toJson(list)))
+                       .andExpect(status().isAccepted())
+                       .andDo(result -> idRef.set(read(result.getResponse().getContentAsString(), "$.processId")));
 
             Process process = processService.find(context, idRef.get());
             assertNull(process.getEPerson());
@@ -1225,50 +1226,50 @@ public class ScriptRestRepositoryIT extends AbstractControllerIntegrationTest {
         String token = getAuthToken(admin.getEmail(), password);
 
         getClient(token).perform(get("/api/system/scripts/type-conversion-test"))
-            .andExpect(status().isOk())
-            .andExpect(
-                jsonPath(
-                    "$", ScriptMatcher
-                        .matchScript(
-                            "type-conversion-test",
-                            "Test the type conversion different option types"
+                        .andExpect(status().isOk())
+                        .andExpect(
+                            jsonPath(
+                                "$", ScriptMatcher
+                                    .matchScript(
+                                        "type-conversion-test",
+                                        "Test the type conversion different option types"
+                                    )
+                            )
                         )
-                )
-            )
-            .andExpect(
-                jsonPath(
-                    "$.parameters", containsInAnyOrder(
-                        allOf(
-                            hasJsonPath("$.name", is("-b")),
-                            hasJsonPath("$.description", is("option set to the boolean class")),
-                            hasJsonPath("$.type", is("boolean")),
-                            hasJsonPath("$.mandatory", is(false)),
-                            hasJsonPath("$.nameLong", is("--boolean"))
-                        ),
-                        allOf(
-                            hasJsonPath("$.name", is("-s")),
-                            hasJsonPath("$.description", is("string option with an argument")),
-                            hasJsonPath("$.type", is("String")),
-                            hasJsonPath("$.mandatory", is(false)),
-                            hasJsonPath("$.nameLong", is("--string"))
-                        ),
-                        allOf(
-                            hasJsonPath("$.name", is("-n")),
-                            hasJsonPath("$.description", is("string option without an argument")),
-                            hasJsonPath("$.type", is("boolean")),
-                            hasJsonPath("$.mandatory", is(false)),
-                            hasJsonPath("$.nameLong", is("--noargument"))
-                        ),
-                        allOf(
-                            hasJsonPath("$.name", is("-f")),
-                            hasJsonPath("$.description", is("file option with an argument")),
-                            hasJsonPath("$.type", is("InputStream")),
-                            hasJsonPath("$.mandatory", is(false)),
-                            hasJsonPath("$.nameLong", is("--file"))
-                        )
-                    )
-                )
-            );
+                        .andExpect(
+                            jsonPath(
+                                "$.parameters", containsInAnyOrder(
+                                    allOf(
+                                        hasJsonPath("$.name", is("-b")),
+                                        hasJsonPath("$.description", is("option set to the boolean class")),
+                                        hasJsonPath("$.type", is("boolean")),
+                                        hasJsonPath("$.mandatory", is(false)),
+                                        hasJsonPath("$.nameLong", is("--boolean"))
+                                    ),
+                                    allOf(
+                                        hasJsonPath("$.name", is("-s")),
+                                        hasJsonPath("$.description", is("string option with an argument")),
+                                        hasJsonPath("$.type", is("String")),
+                                        hasJsonPath("$.mandatory", is(false)),
+                                        hasJsonPath("$.nameLong", is("--string"))
+                                    ),
+                                    allOf(
+                                        hasJsonPath("$.name", is("-n")),
+                                        hasJsonPath("$.description", is("string option without an argument")),
+                                        hasJsonPath("$.type", is("boolean")),
+                                        hasJsonPath("$.mandatory", is(false)),
+                                        hasJsonPath("$.nameLong", is("--noargument"))
+                                    ),
+                                    allOf(
+                                        hasJsonPath("$.name", is("-f")),
+                                        hasJsonPath("$.description", is("file option with an argument")),
+                                        hasJsonPath("$.type", is("InputStream")),
+                                        hasJsonPath("$.mandatory", is(false)),
+                                        hasJsonPath("$.nameLong", is("--file"))
+                                    )
+                                )
+                            )
+                        );
     }
 
     //@Ignore
@@ -1294,13 +1295,13 @@ public class ScriptRestRepositoryIT extends AbstractControllerIntegrationTest {
 
             parentCommunity =
                 CommunityBuilder.createCommunity(context)
-                    .withName("Parent Community")
-                    .build();
+                                .withName("Parent Community")
+                                .build();
 
             Collection collection =
                 CollectionBuilder.createCollection(context, parentCommunity)
-                    .withName("Collection 1")
-                    .build();
+                                 .withName("Collection 1")
+                                 .build();
 
             Item firstPerson =
                 createItem(context, collection)
@@ -1342,106 +1343,106 @@ public class ScriptRestRepositoryIT extends AbstractControllerIntegrationTest {
 
             Item project =
                 ItemBuilder.createItem(context, collection)
-                    .withEntityType("Project")
-                    .withTitle("Test Project")
-                    .withInternalId("111-222-333")
-                    .withAcronym("TP")
-                    .withProjectStartDate("2020-01-01")
-                    .withProjectEndDate("2020-04-01")
-                    .build();
+                           .withEntityType("Project")
+                           .withTitle("Test Project")
+                           .withInternalId("111-222-333")
+                           .withAcronym("TP")
+                           .withProjectStartDate("2020-01-01")
+                           .withProjectEndDate("2020-04-01")
+                           .build();
 
             ItemBuilder.createItem(context, collection)
-                .withEntityType("Funding")
-                .withTitle("Test Funding")
-                .withType("Internal Funding")
-                .withFunder("Test Funder")
-                .withRelationProject("Test Project", project.getID().toString())
-                .build();
+                       .withEntityType("Funding")
+                       .withTitle("Test Funding")
+                       .withType("Internal Funding")
+                       .withFunder("Test Funder")
+                       .withRelationProject("Test Project", project.getID().toString())
+                       .build();
 
             Item funding =
                 ItemBuilder.createItem(context, collection)
-                    .withEntityType("Funding")
-                    .withTitle("Another Test Funding")
-                    .withType("Contract")
-                    .withFunder("Another Test Funder")
-                    .withAcronym("ATF-01")
-                    .build();
+                           .withEntityType("Funding")
+                           .withTitle("Another Test Funding")
+                           .withType("Contract")
+                           .withFunder("Another Test Funder")
+                           .withAcronym("ATF-01")
+                           .build();
 
             ItemBuilder.createItem(context, collection)
-                .withEntityType("Publication")
-                .withTitle("First Publication")
-                .withAlternativeTitle("Alternative publication title")
-                .withRelationPublication("Published in publication")
-                .withRelationDoi("doi:10.3972/test")
-                .withDoiIdentifier("doi:111.111/publication")
-                .withIsbnIdentifier("978-3-16-148410-0")
-                .withIssnIdentifier("2049-3630")
-                .withIsiIdentifier("111-222-333")
-                .withScopusIdentifier("99999999")
-                .withLanguage("en")
-                .withPublisher("Publication publisher")
-                .withVolume("V.01")
-                .withIssue("Issue")
-                .withSubject("test")
-                .withSubject("export")
-                .withIssueDate("2022-08-22")
-                .withAuthor("John Smith", firstPerson.getID().toString())
-                .withAuthorAffiliation(CrisConstants.PLACEHOLDER_PARENT_METADATA_VALUE)
-                .withAuthor("Walter White")
-                .withAuthorAffiliation("Company")
-                .withEditor("Editor")
-                .withEditorAffiliation("Editor Affiliation")
-                .withRelationProject("Test Project", project.getID().toString())
-                .withRelationFunding("Another Test Funding", funding.getID().toString())
-                .withRelationConference("The best Conference")
-                .withRelationProduct("DataSet")
-                .build();
+                       .withEntityType("Publication")
+                       .withTitle("First Publication")
+                       .withAlternativeTitle("Alternative publication title")
+                       .withRelationPublication("Published in publication")
+                       .withRelationDoi("doi:10.3972/test")
+                       .withDoiIdentifier("doi:111.111/publication")
+                       .withIsbnIdentifier("978-3-16-148410-0")
+                       .withIssnIdentifier("2049-3630")
+                       .withIsiIdentifier("111-222-333")
+                       .withScopusIdentifier("99999999")
+                       .withLanguage("en")
+                       .withPublisher("Publication publisher")
+                       .withVolume("V.01")
+                       .withIssue("Issue")
+                       .withSubject("test")
+                       .withSubject("export")
+                       .withIssueDate("2022-08-22")
+                       .withAuthor("John Smith", firstPerson.getID().toString())
+                       .withAuthorAffiliation(CrisConstants.PLACEHOLDER_PARENT_METADATA_VALUE)
+                       .withAuthor("Walter White")
+                       .withAuthorAffiliation("Company")
+                       .withEditor("Editor")
+                       .withEditorAffiliation("Editor Affiliation")
+                       .withRelationProject("Test Project", project.getID().toString())
+                       .withRelationFunding("Another Test Funding", funding.getID().toString())
+                       .withRelationConference("The best Conference")
+                       .withRelationProduct("DataSet")
+                       .build();
 
             ItemBuilder.createItem(context, collection)
-                .withEntityType("Publication")
-                .withTitle("Second Publication")
-                .withAlternativeTitle("Alternative publication title")
-                .withRelationPublication("Published in publication")
-                .withRelationDoi("doi:10.3973/test")
-                .withDoiIdentifier("doi:111.222/publication")
-                .withIsbnIdentifier("978-3-16-148410-0")
-                .withIssnIdentifier("2049-3630")
-                .withIsiIdentifier("111-222-333")
-                .withScopusIdentifier("99999999")
-                .withLanguage("en")
-                .withPublisher("Publication publisher")
-                .withVolume("V.01")
-                .withIssue("Issue")
-                .withSubject("test")
-                .withSubject("export")
-                .withType("Controlled Vocabulary for Resource Type Genres::text::review")
-                .withIssueDate("2022-08-22")
-                .withAuthor("Jessie Pinkman", secondPerson.getID().toString())
-                .withAuthorAffiliation(CrisConstants.PLACEHOLDER_PARENT_METADATA_VALUE)
-                .withAuthor("Walter White")
-                .withAuthorAffiliation("Company")
-                .withEditor("Editor")
-                .withEditorAffiliation("Editor Affiliation")
-                .withRelationProject("Test Project", project.getID().toString())
-                .withRelationFunding("Another Test Funding", funding.getID().toString())
-                .withRelationConference("The best Conference")
-                .withRelationProduct("DataSet")
-                .build();
+                       .withEntityType("Publication")
+                       .withTitle("Second Publication")
+                       .withAlternativeTitle("Alternative publication title")
+                       .withRelationPublication("Published in publication")
+                       .withRelationDoi("doi:10.3973/test")
+                       .withDoiIdentifier("doi:111.222/publication")
+                       .withIsbnIdentifier("978-3-16-148410-0")
+                       .withIssnIdentifier("2049-3630")
+                       .withIsiIdentifier("111-222-333")
+                       .withScopusIdentifier("99999999")
+                       .withLanguage("en")
+                       .withPublisher("Publication publisher")
+                       .withVolume("V.01")
+                       .withIssue("Issue")
+                       .withSubject("test")
+                       .withSubject("export")
+                       .withType("Controlled Vocabulary for Resource Type Genres::text::review")
+                       .withIssueDate("2022-08-22")
+                       .withAuthor("Jessie Pinkman", secondPerson.getID().toString())
+                       .withAuthorAffiliation(CrisConstants.PLACEHOLDER_PARENT_METADATA_VALUE)
+                       .withAuthor("Walter White")
+                       .withAuthorAffiliation("Company")
+                       .withEditor("Editor")
+                       .withEditorAffiliation("Editor Affiliation")
+                       .withRelationProject("Test Project", project.getID().toString())
+                       .withRelationFunding("Another Test Funding", funding.getID().toString())
+                       .withRelationConference("The best Conference")
+                       .withRelationProduct("DataSet")
+                       .build();
 
             Item restrictedItem =
                 ItemBuilder.createItem(context, collection)
-                    .withEntityType("Publication")
-                    .withTitle("Third Publication")
-                    .withSubject("export")
-                    .withAuthor("EPerson", eperson.getID().toString())
-                    .build();
+                           .withEntityType("Publication")
+                           .withTitle("Third Publication")
+                           .withSubject("export")
+                           .withAuthor("EPerson", eperson.getID().toString())
+                           .build();
 
             Item restrictedItem2 =
                 ItemBuilder.createItem(context, collection)
-                    .withEntityType("Publication")
-                    .withTitle("Fourth Publication")
-                    .withSubject("export")
-                    .build();
+                           .withEntityType("Publication")
+                           .withTitle("Fourth Publication")
+                           .withSubject("export")
+                           .build();
 
             resourcePolicyService.removeAllPolicies(context, restrictedItem);
             resourcePolicyService.removeAllPolicies(context, restrictedItem2);
@@ -1452,11 +1453,11 @@ public class ScriptRestRepositoryIT extends AbstractControllerIntegrationTest {
 
             List<ParameterValueRest> list =
                 parameters.stream()
-                    .map(
-                        dSpaceCommandLineParameter -> dSpaceRunnableParameterConverter
-                            .convert(dSpaceCommandLineParameter, Projection.DEFAULT)
-                    )
-                    .collect(Collectors.toList());
+                          .map(
+                              dSpaceCommandLineParameter -> dSpaceRunnableParameterConverter
+                                  .convert(dSpaceCommandLineParameter, Projection.DEFAULT)
+                          )
+                          .collect(Collectors.toList());
 
             String adminToken = getAuthToken(admin.getEmail(), password);
             List<ProcessStatus> acceptableProcessStatuses = new LinkedList<>();
@@ -1474,13 +1475,13 @@ public class ScriptRestRepositoryIT extends AbstractControllerIntegrationTest {
 
             String[] includedContents =
                 {
-                        "First Publication",
-                        "Second Publication"
+                    "First Publication",
+                    "Second Publication"
                 };
             String[] excludedContents =
                 {
-                        "Third Publication",
-                        "Fourth Publication"
+                    "Third Publication",
+                    "Fourth Publication"
                 };
             try {
                 getClient(adminToken)
@@ -1564,10 +1565,10 @@ public class ScriptRestRepositoryIT extends AbstractControllerIntegrationTest {
             expCross.setPubliclyReadable(false);
             includedContents =
                 new String[] {
-                        "First Publication",
-                        "Second Publication",
-                        "Third Publication",
-                        "Fourth Publication"
+                    "First Publication",
+                    "Second Publication",
+                    "Third Publication",
+                    "Fourth Publication"
                 };
             excludedContents = new String[] {};
             try {
@@ -1602,13 +1603,13 @@ public class ScriptRestRepositoryIT extends AbstractControllerIntegrationTest {
             configurationService.setProperty("bulk-export.limit.notLoggedIn", "2");
             includedContents =
                 new String[] {
-                        "First Publication",
-                        "Second Publication"
+                    "First Publication",
+                    "Second Publication"
                 };
             excludedContents =
                 new String[] {
-                        "Third Publication",
-                        "Fourth Publication"
+                    "Third Publication",
+                    "Fourth Publication"
                 };
             try {
                 // anonymous export
@@ -1644,13 +1645,13 @@ public class ScriptRestRepositoryIT extends AbstractControllerIntegrationTest {
             configurationService.setProperty("bulk-export.limit.notLoggedIn", 1);
             includedContents =
                 new String[] {
-                        "First Publication"
+                    "First Publication"
                 };
             excludedContents =
                 new String[] {
-                        "Second Publication",
-                        "Third Publication",
-                        "Fourth Publication"
+                    "Second Publication",
+                    "Third Publication",
+                    "Fourth Publication"
                 };
             try {
                 // anonymous export
@@ -1686,13 +1687,13 @@ public class ScriptRestRepositoryIT extends AbstractControllerIntegrationTest {
             configurationService.setProperty("bulk-export.limit.loggedIn", "2");
             includedContents =
                 new String[] {
-                        "First Publication",
-                        "Second Publication"
+                    "First Publication",
+                    "Second Publication"
                 };
             excludedContents =
                 new String[] {
-                        "Fourth Publication",
-                        "Third Publication"
+                    "Fourth Publication",
+                    "Third Publication"
                 };
             try {
                 // eperson export
@@ -1961,7 +1962,8 @@ public class ScriptRestRepositoryIT extends AbstractControllerIntegrationTest {
     }
 
     /**
-     * Fails to schedule the collection-export process through {@link org.dspace.app.rest.repository.ScriptRestRepository}
+     * Fails to schedule the collection-export process through
+     * {@link org.dspace.app.rest.repository.ScriptRestRepository}
      * whenever launched with a non collectionAdmin user.!
      */
     @Test

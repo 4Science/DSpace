@@ -138,7 +138,7 @@ public class ItemSimpleAuthorityMetadataGenerator implements ItemAuthorityExtraM
 
         if (values.contains("|||")) {
             // so it's multivalues
-            String splittedVals[] = values.split(Pattern.quote("|||"));
+            String[] splittedVals = values.split(Pattern.quote("|||"));
             return ArrayUtils.contains(splittedVals, valueToFind);
         }
         return values.equals(valueToFind);

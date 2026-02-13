@@ -42,6 +42,9 @@ public class ViewEventRestRepository extends AbstractDSpaceRestRepository {
     @Autowired
     private EventService eventService;
 
+    @Autowired
+    private ObjectMapper mapper;
+
     private static final Logger log = LoggerFactory.getLogger(ViewEventRestRepository.class);
 
     private final List<String> typeList = Arrays.asList(Constants.typeText);
@@ -50,8 +53,7 @@ public class ViewEventRestRepository extends AbstractDSpaceRestRepository {
 
         Context context = obtainContext();
         HttpServletRequest req = getRequestService().getCurrentRequest().getHttpServletRequest();
-        ObjectMapper mapper = new ObjectMapper();
-        ViewEventRest viewEventRest;
+        ViewEventRest viewEventRest = null;
         try {
             ServletInputStream input = req.getInputStream();
             viewEventRest = mapper.readValue(input, ViewEventRest.class);

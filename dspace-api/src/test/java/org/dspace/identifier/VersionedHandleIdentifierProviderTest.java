@@ -33,6 +33,9 @@ public class VersionedHandleIdentifierProviderTest extends AbstractIntegrationTe
 
     private String firstHandle;
 
+    // Save original providers to restore them after test
+    private List<IdentifierProvider> originalProviders;
+
     private Collection collection;
     private Item itemV1;
     private Item itemV2;
@@ -45,7 +48,11 @@ public class VersionedHandleIdentifierProviderTest extends AbstractIntegrationTe
         context.turnOffAuthorisationSystem();
 
         serviceManager = DSpaceServicesFactory.getInstance().getServiceManager();
-        identifierService = serviceManager.getServicesByType(IdentifierServiceImpl.class).get(0);
+        identifierService = serviceManager.getServicesByType(IdentifierServiceImpl.class).get((0));
+
+        // Save original providers to restore them later
+        originalProviders = new ArrayList<>(identifierService.getProviders());
+
         // Clean out providers to avoid any being used for creation of community and collection
         identifierService.setProviders(new ArrayList<>());
 
@@ -56,6 +63,15 @@ public class VersionedHandleIdentifierProviderTest extends AbstractIntegrationTe
                 .withName("Collection")
                 .withEntityType("Publication")
                 .build();
+    }
+
+    @Override
+    public void destroy() throws Exception {
+        super.destroy();
+        // Restore original providers to avoid affecting other tests
+        if (originalProviders != null && !originalProviders.isEmpty()) {
+            identifierService.setProviders(originalProviders);
+        }
     }
 
     private void registerProvider(Class type) {

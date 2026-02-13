@@ -15,6 +15,8 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 
 import java.sql.SQLException;
+import java.time.ZonedDateTime;
+import java.util.Date;
 
 import org.dspace.AbstractIntegrationTestWithDatabase;
 import org.dspace.app.matcher.LambdaMatcher;
@@ -394,7 +396,10 @@ public class TotalVisitPerPeriodGeneratorIT extends AbstractIntegrationTestWithD
     }
 
     private void view(DSpaceObject dso, String time) {
-        solrLoggerService.postView(dso, null, eperson, MultiFormatDateParser.parse(time));
+        ZonedDateTime zonedDateTime = MultiFormatDateParser.parse(time);
+        Date date = Date.from(zonedDateTime.toInstant());
+        solrLoggerService.postView(dso, null, eperson, date);
     }
+
 
 }

@@ -13,10 +13,12 @@ import static org.apache.commons.lang3.StringUtils.containsIgnoreCase;
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.Spliterators;
 import java.util.UUID;
 import java.util.regex.Pattern;
@@ -27,7 +29,10 @@ import java.util.stream.StreamSupport;
 import jakarta.annotation.Nullable;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.apache.logging.log4j.Logger;
+import org.dspace.app.requestitem.RequestItem;
+import org.dspace.app.requestitem.service.RequestItemService;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.authorize.service.AuthorizeService;
 import org.dspace.content.dao.BitstreamDAO;
@@ -39,7 +44,9 @@ import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.core.LogHelper;
 import org.dspace.core.exception.SQLRuntimeException;
+import org.dspace.event.DetailType;
 import org.dspace.event.Event;
+import org.dspace.event.EventDetail;
 import org.dspace.services.ConfigurationService;
 import org.dspace.storage.bitstore.service.BitstreamStorageService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -57,7 +64,7 @@ public class BitstreamServiceImpl extends DSpaceObjectServiceImpl<Bitstream> imp
      * log4j logger
      */
     private static final Logger log
-            = org.apache.logging.log4j.LogManager.getLogger();
+        = org.apache.logging.log4j.LogManager.getLogger();
 
 
     @Autowired(required = true)
@@ -74,6 +81,8 @@ public class BitstreamServiceImpl extends DSpaceObjectServiceImpl<Bitstream> imp
     protected BundleService bundleService;
     @Autowired(required = true)
     protected BitstreamStorageService bitstreamStorageService;
+    @Autowired(required = true)
+    protected RequestItemService requestItemService;
 
     @Autowired
     private ConfigurationService configurationService;
@@ -89,7 +98,7 @@ public class BitstreamServiceImpl extends DSpaceObjectServiceImpl<Bitstream> imp
         if (bitstream == null) {
             if (log.isDebugEnabled()) {
                 log.debug(LogHelper.getHeader(context, "find_bitstream",
-                                               "not_found,bitstream_id=" + id));
+                                              "not_found,bitstream_id=" + id));
             }
 
             return null;
@@ -98,7 +107,7 @@ public class BitstreamServiceImpl extends DSpaceObjectServiceImpl<Bitstream> imp
         // not null, return Bitstream
         if (log.isDebugEnabled()) {
             log.debug(LogHelper.getHeader(context, "find_bitstream",
-                                           "bitstream_id=" + id));
+                                          "bitstream_id=" + id));
         }
 
         return bitstream;
@@ -111,7 +120,7 @@ public class BitstreamServiceImpl extends DSpaceObjectServiceImpl<Bitstream> imp
 
     @Override
     public Bitstream clone(Context context, Bitstream bitstream)
-            throws SQLException, AuthorizeException {
+        throws SQLException, AuthorizeException {
         // Create a new bitstream with a new ID.
         Bitstream clonedBitstream = bitstreamDAO.create(context, new Bitstream());
         // Set the internal identifier, file size, checksum, and
@@ -136,14 +145,16 @@ public class BitstreamServiceImpl extends DSpaceObjectServiceImpl<Bitstream> imp
         UUID bitstreamID = bitstreamStorageService.store(context, bitstreamDAO.create(context, new Bitstream()), is);
 
         log.info(LogHelper.getHeader(context, "create_bitstream",
-                                      "bitstream_id=" + bitstreamID));
+                                     "bitstream_id=" + bitstreamID));
 
         // Set the format to "unknown"
         Bitstream bitstream = find(context, bitstreamID);
         setFormat(context, bitstream, null);
 
         context.addEvent(
-            new Event(Event.CREATE, Constants.BITSTREAM, bitstreamID, null, getIdentifiers(context, bitstream)));
+            new Event(Event.CREATE, Constants.BITSTREAM, bitstreamID,
+                bitstream.getChecksum(), DetailType.BITSTREAM_CHECKSUM,
+                getIdentifiers(context, bitstream)));
 
         return bitstream;
     }
@@ -156,6 +167,10 @@ public class BitstreamServiceImpl extends DSpaceObjectServiceImpl<Bitstream> imp
 
         Bitstream b = create(context, is);
         bundleService.addBitstream(context, bundle, b);
+        UUID itemUUID = getItem(b).stream().findFirst().map(Item::getID).orElse(null);
+        context.addEvent(
+            new Event(Event.CREATE, Constants.BITSTREAM, b.getID(), Constants.ITEM, itemUUID,
+                b.getChecksum(), DetailType.BITSTREAM_CHECKSUM, getIdentifiers(context, b)));
         return b;
     }
 
@@ -196,14 +211,15 @@ public class BitstreamServiceImpl extends DSpaceObjectServiceImpl<Bitstream> imp
             context, bitstream, assetstore, bitstreamPath);
 
         log.info(LogHelper.getHeader(context,
-                                      "create_bitstream",
-                                      "bitstream_id=" + bitstream.getID()));
+                                     "create_bitstream",
+                                     "bitstream_id=" + bitstream.getID()));
 
         // Set the format to "unknown"
         setFormat(context, bitstream, null);
 
         context.addEvent(new Event(Event.CREATE, Constants.BITSTREAM,
-                                   bitstream.getID(), "REGISTER", getIdentifiers(context, bitstream)));
+                bitstream.getID(), bitstream.getChecksum(), DetailType.BITSTREAM_CHECKSUM,
+                getIdentifiers(context, bitstream)));
 
         return bitstream;
     }
@@ -253,7 +269,7 @@ public class BitstreamServiceImpl extends DSpaceObjectServiceImpl<Bitstream> imp
         authorizeService.authorizeAction(context, bitstream, Constants.WRITE);
 
         log.info(LogHelper.getHeader(context, "update_bitstream",
-                                      "bitstream_id=" + bitstream.getID()));
+                                     "bitstream_id=" + bitstream.getID()));
         super.update(context, bitstream);
         if (bitstream.isModified()) {
             context.addEvent(new Event(Event.MODIFY, Constants.BITSTREAM, bitstream.getID(), null,
@@ -261,11 +277,15 @@ public class BitstreamServiceImpl extends DSpaceObjectServiceImpl<Bitstream> imp
             bitstream.setModified();
         }
         if (bitstream.isMetadataModified()) {
+            UUID itemUUID = getItem(bitstream).stream().findFirst().map(Item::getID).orElse(null);
             context.addEvent(
-                new Event(Event.MODIFY_METADATA, Constants.BITSTREAM, bitstream.getID(), bitstream.getDetails(),
-                          getIdentifiers(context, bitstream)));
+                    new Event(Event.MODIFY_METADATA, Constants.BITSTREAM, bitstream.getID(),
+                            Constants.ITEM, itemUUID,
+                            bitstream.getMetadataEventDetails(), DetailType.DSO_SUMMARY,
+                            getIdentifiers(context, bitstream)));
             bitstream.clearModified();
             bitstream.clearDetails();
+            bitstream.clearMetadataEventDetails();
         }
 
         bitstreamDAO.save(context, bitstream);
@@ -278,10 +298,16 @@ public class BitstreamServiceImpl extends DSpaceObjectServiceImpl<Bitstream> imp
         // Check authorisation
         authorizeService.authorizeAction(context, bitstream, Constants.DELETE);
         log.info(LogHelper.getHeader(context, "delete_bitstream",
-                                      "bitstream_id=" + bitstream.getID()));
+                                     "bitstream_id=" + bitstream.getID()));
 
-        context.addEvent(new Event(Event.DELETE, Constants.BITSTREAM, bitstream.getID(),
-                                   String.valueOf(bitstream.getSequenceID()), getIdentifiers(context, bitstream)));
+        ArrayList<EventDetail> detailList = new ArrayList<>();
+        detailList.add(new EventDetail(DetailType.BITSTREAM_SEQUENCE_ID, String.valueOf(bitstream.getSequenceID())));
+        detailList.add(new EventDetail(DetailType.BITSTREAM_CHECKSUM, bitstream.getChecksum()));
+
+        UUID itemUUID = getItem(bitstream).stream().findFirst().map(Item::getID).orElse(null);
+
+        context.addEvent(new Event(Event.DELETE, Constants.BITSTREAM, bitstream.getID(), Constants.ITEM, itemUUID,
+            detailList, getIdentifiers(context, bitstream)));
 
         // Remove bitstream itself
         bitstream.setDeleted(true);
@@ -300,6 +326,15 @@ public class BitstreamServiceImpl extends DSpaceObjectServiceImpl<Bitstream> imp
 
         //Remove all bundles from the bitstream object, clearing the connection in 2 ways
         bundles.clear();
+
+        // Remove any RequestItem entities associated with this bitstream ensuring there are no requests referencing
+        // a deleted bitstream
+        List<RequestItem> requestItems = requestItemService.findAll(context);
+        for (RequestItem requestItem : requestItems) {
+            if (bitstream.equals(requestItem.getBitstream())) {
+                requestItemService.delete(context, requestItem);
+            }
+        }
 
         // Remove policies only after the bitstream has been updated (otherwise the current user has not WRITE rights)
         authorizeService.removeAllPolicies(context, bitstream);
@@ -330,11 +365,7 @@ public class BitstreamServiceImpl extends DSpaceObjectServiceImpl<Bitstream> imp
         if (CollectionUtils.isNotEmpty(bundles)) {
             // the ADMIN action is not allowed on Bundle object so skip to the item
             Item item = (Item) bundleService.getParentObject(context, bundles.iterator().next());
-            if (item != null) {
-                return item;
-            } else {
-                return null;
-            }
+            return item;
         } else if (bitstream.getCommunity() != null) {
             return bitstream.getCommunity();
         } else if (bitstream.getCollection() != null) {
@@ -360,7 +391,7 @@ public class BitstreamServiceImpl extends DSpaceObjectServiceImpl<Bitstream> imp
         authorizeService.authorizeAction(context, bitstream, Constants.DELETE);
         if (!bitstream.isDeleted()) {
             throw new IllegalStateException("Bitstream " + bitstream.getID().toString()
-                    + " must be deleted before it can be removed from the database.");
+                                                + " must be deleted before it can be removed from the database.");
         }
         bitstreamDAO.delete(context, bitstream);
     }
@@ -400,7 +431,7 @@ public class BitstreamServiceImpl extends DSpaceObjectServiceImpl<Bitstream> imp
             List<Bitstream> bitstreams = bundle.getBitstreams();
             for (int j = 0; j < bitstreams.size(); j++) {
                 Bitstream bitstream = bitstreams.get(j);
-                if (StringUtils.equals(bitstream.getName(), bitstreamName)) {
+                if (Strings.CS.equals(bitstream.getName(), bitstreamName)) {
                     return bitstream;
                 }
             }
@@ -411,8 +442,8 @@ public class BitstreamServiceImpl extends DSpaceObjectServiceImpl<Bitstream> imp
     @Override
     public List<Bitstream> getBitstreamByBundleName(Item item, String bundleName) throws SQLException {
         return itemService.getBundles(item, bundleName).stream()
-            .flatMap(bundle -> bundle.getBitstreams().stream())
-            .collect(Collectors.toList());
+                          .flatMap(bundle -> bundle.getBitstreams().stream())
+                          .collect(Collectors.toList());
     }
 
     @Override
@@ -541,7 +572,7 @@ public class BitstreamServiceImpl extends DSpaceObjectServiceImpl<Bitstream> imp
 
     @Override
     public List<Bitstream> findShowableByItem(Context context, UUID itemId, String bundleName,
-            Map<String, String> filterMetadata) throws SQLException {
+                                              Map<String, String> filterMetadata) throws SQLException {
 
         return streamOf(bitstreamDAO.findShowableByItem(context, itemId, bundleName))
             .filter(bitstream -> hasAllMetadataValues(bitstream, filterMetadata))
@@ -551,7 +582,7 @@ public class BitstreamServiceImpl extends DSpaceObjectServiceImpl<Bitstream> imp
 
     @Override
     public List<Bitstream> findByItemAndBundleAndMetadata(Context context, Item item, String bundleName,
-        Map<String, String> filterMetadata) {
+                                                          Map<String, String> filterMetadata) {
 
         try {
 
@@ -578,7 +609,7 @@ public class BitstreamServiceImpl extends DSpaceObjectServiceImpl<Bitstream> imp
 
         try {
             return bitstream.getBundles().stream()
-                .anyMatch(bundle -> name.equals(bundle.getName()));
+                            .anyMatch(bundle -> name.equals(bundle.getName()));
         } catch (SQLException e) {
             throw new SQLRuntimeException(e);
         }
@@ -587,7 +618,8 @@ public class BitstreamServiceImpl extends DSpaceObjectServiceImpl<Bitstream> imp
 
     private boolean hasAllMetadataValues(Bitstream bitstream, Map<String, String> filterMetadata) {
         return filterMetadata.keySet().stream()
-            .allMatch(metadataField -> hasMetadataValue(bitstream, metadataField, filterMetadata.get(metadataField)));
+                             .allMatch(metadataField -> hasMetadataValue(bitstream, metadataField,
+                                                                         filterMetadata.get(metadataField)));
     }
 
     private boolean hasMetadataValue(Bitstream bitstream, String metadataField, String value) {
@@ -595,8 +627,9 @@ public class BitstreamServiceImpl extends DSpaceObjectServiceImpl<Bitstream> imp
             return true;
         }
         List<MetadataValue> metadata = bitstream.getMetadata().stream()
-                .filter(metadataValue -> metadataValue.getMetadataField().toString('.').equals(metadataField))
-                .collect(Collectors.toList());
+                                                .filter(metadataValue -> metadataValue.getMetadataField().toString('.')
+                                                                                      .equals(metadataField))
+                                                .collect(Collectors.toList());
         if (isNegativeMatch(value) && metadata.size() == 0) {
             return true;
         }
@@ -656,7 +689,7 @@ public class BitstreamServiceImpl extends DSpaceObjectServiceImpl<Bitstream> imp
         Bitstream bitstream = (Bitstream) dso;
 
         return bitstream.getBundles().stream()
-            .anyMatch(bundle -> "ORIGINAL".equals(bundle.getName()));
+                        .anyMatch(bundle -> "ORIGINAL".equals(bundle.getName()));
 
     }
 
@@ -681,8 +714,8 @@ public class BitstreamServiceImpl extends DSpaceObjectServiceImpl<Bitstream> imp
 
     private Optional<Item> getItem(Bitstream bitstream) throws SQLException {
         return bitstream.getBundles().stream()
-            .flatMap(bundle -> bundle.getItems().stream())
-            .findFirst();
+                        .flatMap(bundle -> bundle.getItems().stream())
+                        .findFirst();
     }
 
     private Optional<Bitstream> getThumbnail(Item item, String name) {
@@ -692,9 +725,9 @@ public class BitstreamServiceImpl extends DSpaceObjectServiceImpl<Bitstream> imp
         }
 
         return bundles.stream()
-            .flatMap(bundle -> bundle.getBitstreams().stream())
-            .filter(bitstream -> startsWith(bitstream.getName(), name))
-            .findFirst();
+                      .flatMap(bundle -> bundle.getBitstreams().stream())
+                      .filter(bitstream -> startsWith(bitstream.getName(), name))
+                      .findFirst();
     }
 
     private List<Bundle> getThumbnailBundles(Item item) {
@@ -705,4 +738,14 @@ public class BitstreamServiceImpl extends DSpaceObjectServiceImpl<Bitstream> imp
         }
     }
 
+
+    @Override
+    public boolean isInBundle(Bitstream bitstream, java.util.Collection<String> bundleNames) throws SQLException {
+        Set<String> bundles =
+            bitstream.getBundles()
+                     .stream()
+                     .map(Bundle::getName)
+                     .collect(Collectors.toSet());
+        return bundleNames.stream().anyMatch(bundles::contains);
+    }
 }

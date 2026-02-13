@@ -66,14 +66,13 @@ public class ConfigurationRestRepository extends DSpaceRestRepository<PropertyRe
     @Override
     @PreAuthorize("permitAll()")
     public PropertyRest findOne(Context context, String property) {
-        List<String> exposedProperties = Arrays.asList(getExposedProperties());
-        List<String> adminExposedProperties = Arrays.asList(getAdminExposedProperties());
+        if (
+            !isAdminAllowed(context, property) && !isExposed(property)
+        ) {
+            throw new ResourceNotFoundException("No such configuration property: " + property);
+        }
 
-        if (!configurationService.hasProperty(property) ||
-            (
-                !exposedProperties.contains(property) &&
-                (!isCurrentUserAdmin(context) || !adminExposedProperties.contains(property))
-            )) {
+        if (!configurationService.hasProperty(property)) {
             throw new ResourceNotFoundException("No such configuration property: " + property);
         }
 
@@ -82,6 +81,16 @@ public class ConfigurationRestRepository extends DSpaceRestRepository<PropertyRe
         propertyRest.setName(property);
         propertyRest.setValues(Arrays.asList(propertyValues));
         return propertyRest;
+    }
+
+    private boolean isExposed(String property) {
+        List<String> exposedProperties = Arrays.asList(getExposedProperties());
+        return exposedProperties.contains(property);
+    }
+
+    private boolean isAdminAllowed(Context context, String property) {
+        List<String> adminExposedProperties = Arrays.asList(getAdminExposedProperties());
+        return adminExposedProperties.contains(property) && isCurrentUserAdmin(context);
     }
 
     private boolean isCurrentUserAdmin(Context context) {

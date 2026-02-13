@@ -10,6 +10,8 @@ package org.dspace.app.rest;
 import static com.jayway.jsonpath.matchers.JsonPathMatchers.hasJsonPath;
 import static org.dspace.app.rest.matcher.AuditEventMatcher.matchAuditEvent;
 import static org.dspace.app.rest.matcher.AuditEventMatcher.matchAuditEventFullProjection;
+import static org.hamcrest.Matchers.allOf;
+import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -18,18 +20,23 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.io.InputStream;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.dspace.app.audit.AuditEvent;
-import org.dspace.app.audit.AuditService;
+import org.dspace.app.audit.AuditSolrServiceImpl;
 import org.dspace.app.rest.test.AbstractControllerIntegrationTest;
 import org.dspace.builder.AuditEventBuilder;
+import org.dspace.builder.BitstreamBuilder;
 import org.dspace.builder.CollectionBuilder;
 import org.dspace.builder.CommunityBuilder;
 import org.dspace.builder.ItemBuilder;
+import org.dspace.content.Bitstream;
 import org.dspace.content.Collection;
 import org.dspace.content.Item;
+import org.dspace.content.service.BitstreamService;
 import org.dspace.services.ConfigurationService;
 import org.hamcrest.Matchers;
 import org.junit.After;
@@ -40,6 +47,7 @@ import org.springframework.beans.factory.annotation.Autowired;
  * Integration Tests against the /api/system/auditevents endpoint
  */
 public class AuditEventRestRepositoryIT extends AbstractControllerIntegrationTest {
+    private final int TOTAL_ELEMENT = 19;
     private Collection collection;
 
     private Item item;
@@ -48,13 +56,14 @@ public class AuditEventRestRepositoryIT extends AbstractControllerIntegrationTes
     private ConfigurationService configurationService;
 
     @Autowired
-    private AuditService auditService;
+    private AuditSolrServiceImpl auditSolrService;
 
-    private void loadSomeObjects(boolean enabled) throws Exception {
-        if (enabled) {
-            // enable the audit system for this test
-            configurationService.setProperty("audit.enabled", true);
-        }
+    @Autowired
+    private BitstreamService bitstreamService;
+
+    private void loadSomeObjects() throws Exception {
+        auditSolrService.deleteEvents(context, null, null);
+
         // We turn off the authorization system in order to create the structure as
         // defined below
         context.turnOffAuthorisationSystem();
@@ -62,22 +71,24 @@ public class AuditEventRestRepositoryIT extends AbstractControllerIntegrationTes
         collection = CollectionBuilder.createCollection(context, parentCommunity).withName("My Collection").build();
         item = ItemBuilder.createItem(context, collection).withTitle("My Item").withAuthor("Test, Author")
                 .withIssueDate("2020-10-31").build();
-        auditService.commit();
+        context.commit();
+        auditSolrService.commit();
         context.restoreAuthSystemState();
     }
 
     @After
     public void cleanAuditCore() {
-        auditService.deleteEvents(context, null, null);
-        auditService.commit();
+        auditSolrService.deleteEvents(context, null, null);
+        auditSolrService.commit();
         // this is required if the configuration is not present in the files
         configurationService.setProperty("audit.enabled", false);
     }
 
     @Test
     public void findAllTest() throws Exception {
-        loadSomeObjects(true);
-        List<AuditEvent> events = auditService.findAllEvents(context, Integer.MAX_VALUE, 0, false);
+        configurationService.setProperty("audit.enabled", true);
+        loadSomeObjects();
+        List<AuditEvent> events = auditSolrService.findAllEvents(context, Integer.MAX_VALUE, 0, false);
         assertTrue(events.size() > 0);
         String adminToken = getAuthToken(admin.getEmail(), password);
         getClient(adminToken).perform(get("/api/system/auditevents").param("size", "100")).andExpect(status().isOk())
@@ -91,7 +102,8 @@ public class AuditEventRestRepositoryIT extends AbstractControllerIntegrationTes
 
     @Test
     public void findAllNotAdminTest() throws Exception {
-        loadSomeObjects(true);
+        configurationService.setProperty("audit.enabled", true);
+        loadSomeObjects();
         // anonymous cannot access the auditevents endpoint
         getClient().perform(get("/api/system/auditevents")).andExpect(status().isUnauthorized());
         // nor normal user
@@ -101,8 +113,9 @@ public class AuditEventRestRepositoryIT extends AbstractControllerIntegrationTes
 
     @Test
     public void findAllDisabledTest() throws Exception {
-        loadSomeObjects(false);
-        List<AuditEvent> events = auditService.findAllEvents(context, Integer.MAX_VALUE, 0, false);
+        configurationService.setProperty("audit.enabled", false);
+        loadSomeObjects();
+        List<AuditEvent> events = auditSolrService.findAllEvents(context, Integer.MAX_VALUE, 0, false);
         assertEquals(0, events.size());
         String adminToken = getAuthToken(admin.getEmail(), password);
         getClient(adminToken).perform(get("/api/system/auditevents")).andExpect(status().isNotFound());
@@ -110,10 +123,10 @@ public class AuditEventRestRepositoryIT extends AbstractControllerIntegrationTes
 
     @Test
     public void findAllPaginationTest() throws Exception {
-        loadSomeObjects(false);
+        configurationService.setProperty("audit.enabled", true);
+        loadSomeObjects();
         // enable now the audit system to have a predictable number of events
         context.turnOffAuthorisationSystem();
-        configurationService.setProperty("audit.enabled", true);
         AuditEvent audit = AuditEventBuilder.createAuditEvent(context).withEpersonUUID(eperson.getID())
                 .withDetail("some information").withEventType("ADD").withSubject(collection).withObject(item).build();
         AuditEvent auditWithMissingEperson = AuditEventBuilder.createAuditEvent(context)
@@ -122,21 +135,43 @@ public class AuditEventRestRepositoryIT extends AbstractControllerIntegrationTes
         AuditEvent auditWithMissingObject = AuditEventBuilder.createAuditEvent(context)
                 .withEpersonUUID(UUID.randomUUID()).withDetail("some information").withEventType("MODIFY")
                 .withSubject(UUID.randomUUID(), "ITEM").build();
-        auditService.commit();
+        auditSolrService.commit();
         context.restoreAuthSystemState();
         String adminToken = getAuthToken(admin.getEmail(), password);
         getClient(adminToken).perform(get("/api/system/auditevents")
-                    .param("size", "1")
-                    .param("projection", "full"))
+                    .param("projection", "full")
+                    .param("size", String.valueOf(TOTAL_ELEMENT)))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(contentType))
                 .andExpect(jsonPath("$._embedded.auditevents",
-                        Matchers.contains(matchAuditEventFullProjection(audit, false, false, false))));
+                        Matchers.hasItems(matchAuditEventFullProjection(audit, false, false, false))));
+
+        getClient(adminToken).perform(get("/api/system/auditevents")
+                .param("projection", "full")
+                .param("size", String.valueOf(TOTAL_ELEMENT)))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(contentType))
+            .andExpect(jsonPath("$._embedded.auditevents",
+                        Matchers.hasItems(matchAuditEvent(audit))));
+
+        getClient(adminToken).perform(get("/api/system/auditevents")
+                .param("projection", "full")
+                .param("size", String.valueOf(TOTAL_ELEMENT)))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(contentType))
+            .andExpect(jsonPath("$._embedded.auditevents",
+                        Matchers.hasItems(matchAuditEvent(auditWithMissingEperson))));
+
+        getClient(adminToken).perform(get("/api/system/auditevents")
+                .param("projection", "full")
+                .param("size", String.valueOf(TOTAL_ELEMENT)))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(contentType))
+            .andExpect(jsonPath("$._embedded.auditevents",
+                        Matchers.hasItems(matchAuditEvent(auditWithMissingObject))));
 
         getClient(adminToken).perform(get("/api/system/auditevents").param("size", "1")).andExpect(status().isOk())
                 .andExpect(content().contentType(contentType))
-                .andExpect(jsonPath("$._embedded.auditevents",
-                        Matchers.contains(matchAuditEvent(audit))))
                 .andExpect(
                         jsonPath("$._links.self.href", Matchers.containsString("/api/system/auditevents")))
                 .andExpect(jsonPath("$._links.next.href",
@@ -144,17 +179,16 @@ public class AuditEventRestRepositoryIT extends AbstractControllerIntegrationTes
                                 Matchers.containsString("page=1"), Matchers.containsString("size=1"))))
                 .andExpect(jsonPath("$._links.last.href",
                         Matchers.allOf(Matchers.containsString("/api/system/auditevents?"),
-                                Matchers.containsString("page=2"), Matchers.containsString("size=1"))))
+                                Matchers.containsString("page=" + (TOTAL_ELEMENT - 1)),
+                                Matchers.containsString("size=1"))))
                 .andExpect(jsonPath("$._links.first.href",
                         Matchers.allOf(Matchers.containsString("/api/system/auditevents?"),
                                 Matchers.containsString("page=0"), Matchers.containsString("size=1"))))
                 .andExpect(jsonPath("$._links.prev.href").doesNotExist())
                 .andExpect(jsonPath("$.page.size", is(1)))
-                .andExpect(jsonPath("$.page.totalElements", is(3)));
+                .andExpect(jsonPath("$.page.totalElements", is(TOTAL_ELEMENT)));
         getClient(adminToken).perform(get("/api/system/auditevents").param("size", "1").param("page", "1"))
                 .andExpect(status().isOk()).andExpect(content().contentType(contentType))
-                .andExpect(jsonPath("$._embedded.auditevents",
-                        Matchers.contains(matchAuditEvent(auditWithMissingEperson))))
                 .andExpect(
                         jsonPath("$._links.self.href", Matchers.containsString("/api/system/auditevents")))
                 .andExpect(jsonPath("$._links.next.href",
@@ -162,7 +196,8 @@ public class AuditEventRestRepositoryIT extends AbstractControllerIntegrationTes
                                 Matchers.containsString("page=2"), Matchers.containsString("size=1"))))
                 .andExpect(jsonPath("$._links.last.href",
                         Matchers.allOf(Matchers.containsString("/api/system/auditevents?"),
-                                Matchers.containsString("page=2"), Matchers.containsString("size=1"))))
+                                Matchers.containsString("page=" + (TOTAL_ELEMENT - 1)),
+                                Matchers.containsString("size=1"))))
                 .andExpect(jsonPath("$._links.first.href",
                         Matchers.allOf(Matchers.containsString("/api/system/auditevents?"),
                                 Matchers.containsString("page=0"), Matchers.containsString("size=1"))))
@@ -170,33 +205,31 @@ public class AuditEventRestRepositoryIT extends AbstractControllerIntegrationTes
                         Matchers.allOf(Matchers.containsString("/api/system/auditevents?"),
                                 Matchers.containsString("page=0"), Matchers.containsString("size=1"))))
                 .andExpect(jsonPath("$.page.size", is(1)))
-                .andExpect(jsonPath("$.page.totalElements", is(3)));
-        getClient(adminToken).perform(get("/api/system/auditevents").param("size", "1").param("page", "2"))
+                .andExpect(jsonPath("$.page.totalElements", is(TOTAL_ELEMENT)));
+        getClient(adminToken).perform(get("/api/system/auditevents").param("size", "10").param("page", "2"))
                 .andExpect(status().isOk()).andExpect(content().contentType(contentType))
-                .andExpect(jsonPath("$._embedded.auditevents",
-                        Matchers.contains(matchAuditEvent(auditWithMissingObject))))
                 .andExpect(
                         jsonPath("$._links.self.href", Matchers.containsString("/api/system/auditevents")))
                 .andExpect(jsonPath("$._links.next.href").doesNotExist())
                 .andExpect(jsonPath("$._links.last.href",
                         Matchers.allOf(Matchers.containsString("/api/system/auditevents?"),
-                                Matchers.containsString("page=2"), Matchers.containsString("size=1"))))
+                                Matchers.containsString("page=1"), Matchers.containsString("size=10"))))
                 .andExpect(jsonPath("$._links.first.href",
                         Matchers.allOf(Matchers.containsString("/api/system/auditevents?"),
-                                Matchers.containsString("page=0"), Matchers.containsString("size=1"))))
+                                Matchers.containsString("page=0"), Matchers.containsString("size=10"))))
                 .andExpect(jsonPath("$._links.prev.href",
                         Matchers.allOf(Matchers.containsString("/api/system/auditevents?"),
-                                Matchers.containsString("page=1"), Matchers.containsString("size=1"))))
-                .andExpect(jsonPath("$.page.size", is(1)))
-                .andExpect(jsonPath("$.page.totalElements", is(3)));
+                                Matchers.containsString("page=1"), Matchers.containsString("size=10"))))
+                .andExpect(jsonPath("$.page.size", is(10)))
+                .andExpect(jsonPath("$.page.totalElements", is(TOTAL_ELEMENT)));
     }
 
     @Test
     public void findOneTest() throws Exception {
-        loadSomeObjects(false);
+        configurationService.setProperty("audit.enabled", true);
+        loadSomeObjects();
         // enable now the audit system to have a predictable number of events
         context.turnOffAuthorisationSystem();
-        configurationService.setProperty("audit.enabled", true);
         AuditEvent audit = AuditEventBuilder.createAuditEvent(context).withEpersonUUID(eperson.getID())
                 .withDetail("some information").withEventType("ADD").withSubject(collection).withObject(item).build();
         AuditEvent auditWithMissingEperson = AuditEventBuilder.createAuditEvent(context)
@@ -208,7 +241,7 @@ public class AuditEventRestRepositoryIT extends AbstractControllerIntegrationTes
         AuditEvent auditWithMissingObjectAndSubject = AuditEventBuilder.createAuditEvent(context)
                 .withEpersonUUID(eperson.getID()).withDetail("some information").withEventType("ADD")
                 .withSubject(UUID.randomUUID(), "COLLECTION").withObject(UUID.randomUUID(), "ITEM").build();
-        auditService.commit();
+        auditSolrService.commit();
         context.restoreAuthSystemState();
 
         String adminToken = getAuthToken(admin.getEmail(), password);
@@ -257,13 +290,13 @@ public class AuditEventRestRepositoryIT extends AbstractControllerIntegrationTes
 
     @Test
     public void findOneNotAdminTest() throws Exception {
-        loadSomeObjects(false);
+        configurationService.setProperty("audit.enabled", true);
+        loadSomeObjects();
         // enable now the audit system to have a predictable number of events
         context.turnOffAuthorisationSystem();
-        configurationService.setProperty("audit.enabled", true);
         AuditEvent audit = AuditEventBuilder.createAuditEvent(context).withEpersonUUID(eperson.getID())
                 .withDetail("some information").withEventType("ADD").withSubject(collection).withObject(item).build();
-        auditService.commit();
+        auditSolrService.commit();
         context.restoreAuthSystemState();
         String epersonToken = getAuthToken(eperson.getEmail(), password);
         String auditUUID = audit.getUuid().toString();
@@ -281,8 +314,9 @@ public class AuditEventRestRepositoryIT extends AbstractControllerIntegrationTes
 
     @Test
     public void findByObjectTest() throws Exception {
-        loadSomeObjects(true);
-        List<AuditEvent> events = auditService.findEvents(context, item.getID(), null, null, Integer.MAX_VALUE, 0,
+        configurationService.setProperty("audit.enabled", true);
+        loadSomeObjects();
+        List<AuditEvent> events = auditSolrService.findEvents(item.getID(), null, null, Integer.MAX_VALUE, 0,
                 false);
         assertTrue(events.size() > 0);
         String adminToken = getAuthToken(admin.getEmail(), password);
@@ -306,7 +340,8 @@ public class AuditEventRestRepositoryIT extends AbstractControllerIntegrationTes
 
     @Test
     public void findByObjectNotAdminTest() throws Exception {
-        loadSomeObjects(true);
+        configurationService.setProperty("audit.enabled", true);
+        loadSomeObjects();
         // anonymous cannot access the auditevents endpoint
         getClient().perform(get("/api/system/auditevents/search/findByObject")
                         .param("object", item.getID().toString()))
@@ -320,8 +355,9 @@ public class AuditEventRestRepositoryIT extends AbstractControllerIntegrationTes
 
     @Test
     public void findByObjectDisabledTest() throws Exception {
-        loadSomeObjects(false);
-        List<AuditEvent> events = auditService.findAllEvents(context, Integer.MAX_VALUE, 0, false);
+        configurationService.setProperty("audit.enabled", false);
+        loadSomeObjects();
+        List<AuditEvent> events = auditSolrService.findAllEvents(context, Integer.MAX_VALUE, 0, false);
         assertEquals(0, events.size());
         String adminToken = getAuthToken(admin.getEmail(), password);
         getClient(adminToken).perform(get("/api/system/auditevents/search/findByObject")
@@ -331,10 +367,10 @@ public class AuditEventRestRepositoryIT extends AbstractControllerIntegrationTes
 
     @Test
     public void findByObjectPaginationTest() throws Exception {
-        loadSomeObjects(false);
+        configurationService.setProperty("audit.enabled", true);
+        loadSomeObjects();
         // enable now the audit system to have a predictable number of events
         context.turnOffAuthorisationSystem();
-        configurationService.setProperty("audit.enabled", true);
         AuditEvent audit = AuditEventBuilder.createAuditEvent(context).withEpersonUUID(eperson.getID())
                 .withDetail("some information").withEventType("ADD").withSubject(collection).withObject(item).build();
         AuditEvent auditWithMissingEperson = AuditEventBuilder.createAuditEvent(context)
@@ -343,19 +379,23 @@ public class AuditEventRestRepositoryIT extends AbstractControllerIntegrationTes
         AuditEvent auditWithMissingObject = AuditEventBuilder.createAuditEvent(context)
                 .withEpersonUUID(UUID.randomUUID()).withDetail("some information").withEventType("MODIFY")
                 .withSubject(UUID.randomUUID(), "ITEM").build();
-        auditService.commit();
+        auditSolrService.commit();
         context.restoreAuthSystemState();
 
         String adminToken = getAuthToken(admin.getEmail(), password);
+        getClient(adminToken).perform(get("/api/system/auditevents/search/findByObject")
+                .param("object", item.getID().toString())
+                .param("size", String.valueOf(TOTAL_ELEMENT)))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(contentType))
+            .andExpect(jsonPath("$._embedded.auditevents",
+                Matchers.hasItems(matchAuditEvent(audit))));
+
         getClient(adminToken).perform(get("/api/system/auditevents/search/findByObject")
                 .param("size", "1")
                 .param("object", item.getID().toString()))
             .andExpect(status().isOk())
             .andExpect(content().contentType(contentType))
-            .andExpect(jsonPath("$._embedded.auditevents",
-                    Matchers.contains(matchAuditEvent(audit))))
-            .andExpect(jsonPath("$.page.size", is(1)))
-            .andExpect(jsonPath("$.page.totalElements", is(2)))
             .andExpect(
                         jsonPath("$._links.self.href",
                                 Matchers.containsString("/api/system/auditevents/search/findByObject")))
@@ -366,25 +406,29 @@ public class AuditEventRestRepositoryIT extends AbstractControllerIntegrationTes
             .andExpect(jsonPath("$._links.last.href",
                     Matchers.allOf(
                             Matchers.containsString("/api/system/auditevents/search/findByObject?"),
-                            Matchers.containsString("page=1"), Matchers.containsString("size=1"))))
+                            Matchers.containsString("page=9"), Matchers.containsString("size=1"))))
             .andExpect(jsonPath("$._links.first.href",
                     Matchers.allOf(
                             Matchers.containsString("/api/system/auditevents/search/findByObject?"),
                             Matchers.containsString("page=0"), Matchers.containsString("size=1"))))
             .andExpect(jsonPath("$._links.prev.href").doesNotExist())
             .andExpect(jsonPath("$.page.size", is(1)))
-            .andExpect(jsonPath("$.page.totalElements", is(2)));
+            .andExpect(jsonPath("$.page.totalElements", is(10)));
+
+        getClient(adminToken).perform(get("/api/system/auditevents/search/findByObject")
+                .param("object", item.getID().toString())
+                .param("size", String.valueOf(TOTAL_ELEMENT)))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(contentType))
+            .andExpect(jsonPath("$._embedded.auditevents",
+                Matchers.hasItems(matchAuditEvent(auditWithMissingEperson))));
+
         getClient(adminToken).perform(get("/api/system/auditevents/search/findByObject")
                 .param("size", "1").param("page", "1")
                 .param("object", item.getID().toString()))
             .andExpect(status().isOk())
             .andExpect(content().contentType(contentType))
-            .andExpect(jsonPath("$._embedded.auditevents",
-                    Matchers.contains(matchAuditEvent(auditWithMissingEperson))))
-            .andExpect(jsonPath("$.page.size", is(1)))
-            .andExpect(jsonPath("$.page.totalElements", is(2)))
-            .andExpect(
-                        jsonPath("$._links.self.href",
+            .andExpect(jsonPath("$._links.self.href",
                                 Matchers.containsString("/api/system/auditevents/search/findByObject")))
             .andExpect(jsonPath("$._links.prev.href",
                     Matchers.allOf(
@@ -393,14 +437,68 @@ public class AuditEventRestRepositoryIT extends AbstractControllerIntegrationTes
             .andExpect(jsonPath("$._links.last.href",
                     Matchers.allOf(
                             Matchers.containsString("/api/system/auditevents/search/findByObject?"),
-                            Matchers.containsString("page=1"), Matchers.containsString("size=1"))))
+                            Matchers.containsString("page=9"), Matchers.containsString("size=1"))))
             .andExpect(jsonPath("$._links.first.href",
                     Matchers.allOf(
                             Matchers.containsString("/api/system/auditevents/search/findByObject?"),
                             Matchers.containsString("page=0"), Matchers.containsString("size=1"))))
-            .andExpect(jsonPath("$._links.next.href").doesNotExist())
             .andExpect(jsonPath("$.page.size", is(1)))
-            .andExpect(jsonPath("$.page.totalElements", is(2)));
+            .andExpect(jsonPath("$.page.totalElements", is(10)));
+    }
+
+    @Test
+    public void findByObjectBitstreamTest() throws Exception {
+        configurationService.setProperty("audit.enabled", true);
+        loadSomeObjects();
+        context.turnOffAuthorisationSystem();
+        Bitstream bitstream = BitstreamBuilder.createBitstream(context, item, InputStream.nullInputStream())
+                                              .withName("test image")
+                                              .withFormat("test format type")
+                                              .build();
+
+        bitstreamService.delete(context, bitstream);
+        context.commit();
+        auditSolrService.commit();
+        context.restoreAuthSystemState();
+
+        List<AuditEvent> events = auditSolrService.findEvents(bitstream.getID(), null, null, Integer.MAX_VALUE, 0,
+            false);
+        assertTrue(events.size() > 4);
+        String adminToken = getAuthToken(admin.getEmail(), password);
+        getClient(adminToken).perform(get("/api/system/auditevents/search/findByObject")
+                                 .param("size", "100")
+                                 .param("object", bitstream.getID().toString()))
+                             .andExpect(status().isOk())
+                             .andExpect(content().contentType(contentType))
+                             .andExpect(jsonPath("$._embedded.auditevents",
+                                 Matchers.hasSize(Math.min(events.size(), 100))))
+                             // all the audit events must have received a uuid when stored
+                             .andExpect(jsonPath("$._embedded.auditevents.*.id", Matchers.not(Matchers.empty())))
+                             // all the audit events must be related to the bitstream
+                             .andExpect(jsonPath("$._embedded.auditevents",
+                                 Matchers.everyItem(Matchers.anyOf(
+                                     hasJsonPath("$.subjectUUID", is(bitstream.getID().toString())),
+                                     hasJsonPath("$.objectUUID", is(bitstream.getID().toString()))
+                                 ))))
+                             .andExpect(jsonPath("$._embedded.auditevents",
+                                 Matchers.containsInAnyOrder(
+                                     events.stream()
+                                           .map(event ->
+                                               matchAuditEvent(event)).collect(
+                                               Collectors.toList())
+                                 )))
+                             .andExpect(jsonPath("$._embedded.auditevents",
+                                 hasItems(
+                                     allOf(
+                                         hasJsonPath("$.checksum", is(bitstream.getChecksum())),
+                                         hasJsonPath("$.eventType", is("CREATE"))
+                                     ),
+                                     allOf(
+                                         hasJsonPath("$.checksum", is(bitstream.getChecksum())),
+                                         hasJsonPath("$.eventType", is("DELETE"))
+                                     ))))
+                             .andExpect(jsonPath("$.page.size", is(100)))
+                             .andExpect(jsonPath("$.page.totalElements", is(events.size())));
     }
 
 }

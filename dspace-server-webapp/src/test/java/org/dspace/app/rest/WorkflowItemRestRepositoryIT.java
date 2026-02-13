@@ -923,7 +923,7 @@ public class WorkflowItemRestRepositoryIT extends AbstractControllerIntegrationT
         // submit a not existing workspaceitem
         getClient(authToken)
                 .perform(post(BASE_REST_SERVER_URL + "/api/workflow/workflowitems")
-                        .content("/api/submission/workspaceitems/" + UUID.randomUUID().toString())
+                        .content("/api/submission/workspaceitems/" + UUID.randomUUID())
                         .contentType(textUriContentType))
                 .andExpect(status().isUnprocessableEntity());
 
@@ -1402,7 +1402,6 @@ public class WorkflowItemRestRepositoryIT extends AbstractControllerIntegrationT
                                     // check the new title and untouched values
                                     Matchers.is(WorkflowItemMatcher.matchItemWithTitleAndDateIssuedAndSubject(witem,
                                             null, "2017-10-17", "ExtraEntry"))));
-        ;
 
         // verify that the patch changes have been persisted
         getClient(authToken).perform(get("/api/workflow/workflowitems/" + witem.getID()))
@@ -1578,7 +1577,6 @@ public class WorkflowItemRestRepositoryIT extends AbstractControllerIntegrationT
                                     // check if the new title if back and the other values untouched
                                     Matchers.is(WorkflowItemMatcher.matchItemWithTitleAndDateIssuedAndSubject(witem,
                                             "New Title", "2017-10-17", "ExtraEntry"))));
-        ;
 
         // verify that the patch changes have been persisted
         getClient(authToken).perform(get("/api/workflow/workflowitems/" + witem.getID()))
@@ -2949,7 +2947,7 @@ public class WorkflowItemRestRepositoryIT extends AbstractControllerIntegrationT
                 .andExpect(jsonPath("$.sections.funding['oairecerif.amount.currency'][0].value",
                         is("Euro")))
                 .andExpect(jsonPath("$.sections.funding['oairecerif.amount'][0].value",
-                        is("12312")));;
+                        is("12312")));
     }
 
     @Test

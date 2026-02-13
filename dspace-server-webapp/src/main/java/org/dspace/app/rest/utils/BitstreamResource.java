@@ -38,22 +38,23 @@ import org.springframework.util.DigestUtils;
  */
 public class BitstreamResource extends AbstractResource {
 
-    private static final Logger LOG = LogManager.getLogger(BitstreamResource.class);
+    static final Logger LOG = LogManager.getLogger(BitstreamResource.class);
 
-    private final String name;
-    private final UUID uuid;
-    private final UUID currentUserUUID;
-    private final boolean shouldGenerateCoverPage;
-    private final Set<UUID> currentSpecialGroups;
-    private final boolean skipAuthCheck;
+    protected final String name;
+    protected final UUID uuid;
+    protected final UUID currentUserUUID;
+    protected final boolean shouldGenerateCoverPage;
+    protected final Set<UUID> currentSpecialGroups;
+    protected final boolean skipAuthCheck;
 
-    private final BitstreamService bitstreamService = ContentServiceFactory.getInstance().getBitstreamService();
-    private final EPersonService ePersonService = EPersonServiceFactory.getInstance().getEPersonService();
-    private final CitationDocumentService citationDocumentService =
+
+    protected final BitstreamService bitstreamService = ContentServiceFactory.getInstance().getBitstreamService();
+    protected final EPersonService ePersonService = EPersonServiceFactory.getInstance().getEPersonService();
+    protected final CitationDocumentService citationDocumentService =
             new DSpace().getServiceManager()
                     .getServicesByType(CitationDocumentService.class).get(0);
 
-    private BitstreamDocument document;
+    protected BitstreamDocument document;
 
     public BitstreamResource(String name, UUID uuid, UUID currentUserUUID, Set<UUID> currentSpecialGroups,
         boolean shouldGenerateCoverPage, boolean skipAuth) {
@@ -73,7 +74,7 @@ public class BitstreamResource extends AbstractResource {
      * @param bitstream the pdf for which we want to generate a coverpage
      * @return a byte array containing the cover page
      */
-    private byte[] getCoverpageByteArray(Context context, Bitstream bitstream)
+    byte[] getCoverpageByteArray(Context context, Bitstream bitstream)
             throws IOException, SQLException, AuthorizeException {
         try {
             var citedDocument = citationDocumentService.makeCitedDocument(context, bitstream);
@@ -103,7 +104,7 @@ public class BitstreamResource extends AbstractResource {
     }
 
     @Override
-    public long contentLength() {
+    public long contentLength() throws IOException {
         fetchDocument();
 
         return document.length();
@@ -115,7 +116,7 @@ public class BitstreamResource extends AbstractResource {
         return document.etag();
     }
 
-    private void fetchDocument() {
+    void fetchDocument() {
         if (document != null) {
             return;
         }
@@ -140,7 +141,7 @@ public class BitstreamResource extends AbstractResource {
         LOG.debug("fetched document {} {}", shouldGenerateCoverPage, document);
     }
 
-    private String etag(Bitstream bitstream) {
+    String etag(Bitstream bitstream) {
 
          /* Ideally we would calculate the md5 checksum based on the document with coverpage.
           However it looks like the coverpage generation is not stable (e.g. if invoked twice it will return
@@ -159,7 +160,7 @@ public class BitstreamResource extends AbstractResource {
         return builder.toString();
     }
 
-    private Context initializeContext() throws SQLException {
+    Context initializeContext() throws SQLException {
         Context context = new Context();
         EPerson currentUser = ePersonService.find(context, currentUserUUID);
         context.setCurrentUser(currentUser);
@@ -170,5 +171,5 @@ public class BitstreamResource extends AbstractResource {
         return context;
     }
 
-    private record BitstreamDocument(String etag, long length, InputStream inputStream) {}
+    record BitstreamDocument(String etag, long length, InputStream inputStream) {}
 }

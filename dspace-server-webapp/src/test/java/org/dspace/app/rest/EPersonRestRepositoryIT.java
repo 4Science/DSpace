@@ -21,7 +21,6 @@ import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.Matchers.startsWith;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -50,7 +49,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.ws.rs.core.MediaType;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.dspace.app.rest.exception.EPersonNameNotProvidedException;
 import org.dspace.app.rest.exception.RESTEmptyWorkflowGroupException;
 import org.dspace.app.rest.jackson.IgnoreJacksonWriteOnlyAccess;
@@ -120,10 +119,12 @@ public class EPersonRestRepositoryIT extends AbstractControllerIntegrationTest {
     @Autowired
     private MetadataFieldService metadataFieldService;
 
+    @Autowired
+    private ObjectMapper mapper;
+
     @Test
     public void createTest() throws Exception {
         // we should check how to get it from Spring
-        ObjectMapper mapper = new ObjectMapper();
         EPersonRest data = new EPersonRest();
         EPersonRest dataFull = new EPersonRest();
         MetadataRest metadataRest = new MetadataRest();
@@ -189,7 +190,6 @@ public class EPersonRestRepositoryIT extends AbstractControllerIntegrationTest {
     public void createAnonAccessDeniedTest() throws Exception {
         context.turnOffAuthorisationSystem();
         // we should check how to get it from Spring
-        ObjectMapper mapper = new ObjectMapper();
         EPersonRest data = new EPersonRest();
         EPersonRest dataFull = new EPersonRest();
         MetadataRest metadataRest = new MetadataRest();
@@ -2112,7 +2112,8 @@ public class EPersonRestRepositoryIT extends AbstractControllerIntegrationTest {
         context.restoreAuthSystemState();
         String token = getAuthToken(asUser.getEmail(), password);
 
-        new MetadataPatchSuite().runWith(getClient(token), "/api/eperson/epersons/" + ePerson.getID(), expectedStatus);
+        new MetadataPatchSuite(mapper).runWith(getClient(token), "/api/eperson/epersons/" + ePerson.getID(),
+                                               expectedStatus);
     }
 
     @Test
@@ -2407,7 +2408,7 @@ public class EPersonRestRepositoryIT extends AbstractControllerIntegrationTest {
 
         PasswordHash newPasswordHash = ePersonService.getPasswordHash(ePerson);
         assertNotEquals(oldPassword, newPasswordHash);
-        assertTrue(registrationDataService.findByEmail(context, ePerson.getEmail()) == null);
+        assertNull(registrationDataService.findByEmail(context, ePerson.getEmail()));
 
         assertNull(registrationDataService.findByToken(context, tokenForEPerson));
     }
@@ -2540,7 +2541,6 @@ public class EPersonRestRepositoryIT extends AbstractControllerIntegrationTest {
     public void registerNewAccountPatchUpdatePasswordRandomUserUuidFail() throws Exception {
         context.turnOffAuthorisationSystem();
 
-        ObjectMapper mapper = new ObjectMapper();
         String newRegisterEmail = "new-register@fake-email.com";
         RegistrationRest registrationRest = new RegistrationRest();
         registrationRest.setEmail(newRegisterEmail);
@@ -2574,9 +2574,9 @@ public class EPersonRestRepositoryIT extends AbstractControllerIntegrationTest {
                             .andExpect(status().isUnauthorized());
 
             PasswordHash newPasswordHash = ePersonService.getPasswordHash(ePerson);
-            assertTrue(StringUtils.equalsIgnoreCase(oldPassword.getHashString(),newPasswordHash.getHashString()));
-            assertFalse(registrationDataService.findByEmail(context, ePerson.getEmail()) == null);
-            assertFalse(registrationDataService.findByEmail(context, newRegisterEmail) == null);
+            assertTrue(Strings.CI.equals(oldPassword.getHashString(),newPasswordHash.getHashString()));
+            assertNotNull(registrationDataService.findByEmail(context, ePerson.getEmail()));
+            assertNotNull(registrationDataService.findByEmail(context, newRegisterEmail));
         } finally {
             context.turnOffAuthorisationSystem();
             registrationDataService.delete(context, registrationDataService.findByEmail(context, ePerson.getEmail()));
@@ -2588,7 +2588,6 @@ public class EPersonRestRepositoryIT extends AbstractControllerIntegrationTest {
     @Test
     public void postEPersonWithTokenWithoutEmailProperty() throws Exception {
         configurationService.setProperty("authentication-password.regex-validation.pattern", "");
-        ObjectMapper mapper = new ObjectMapper();
 
         String newRegisterEmail = "new-register@fake-email.com";
         RegistrationRest registrationRest = new RegistrationRest();
@@ -2653,7 +2652,6 @@ public class EPersonRestRepositoryIT extends AbstractControllerIntegrationTest {
     @Test
     public void postEPersonWithTokenWithEmailProperty() throws Exception {
         configurationService.setProperty("authentication-password.regex-validation.pattern", "");
-        ObjectMapper mapper = new ObjectMapper();
 
         String newRegisterEmail = "new-register@fake-email.com";
         RegistrationRest registrationRest = new RegistrationRest();
@@ -2716,7 +2714,6 @@ public class EPersonRestRepositoryIT extends AbstractControllerIntegrationTest {
     @Test
     public void postEPersonWithTokenWithEmailAndSelfRegisteredProperty() throws Exception {
         configurationService.setProperty("authentication-password.regex-validation.pattern", "");
-        ObjectMapper mapper = new ObjectMapper();
 
         String newRegisterEmail = "new-register@fake-email.com";
         RegistrationRest registrationRest = new RegistrationRest();
@@ -2783,8 +2780,6 @@ public class EPersonRestRepositoryIT extends AbstractControllerIntegrationTest {
     @Test
     public void postEPersonWithTokenWithTwoTokensDifferentEmailProperty() throws Exception {
 
-        ObjectMapper mapper = new ObjectMapper();
-
         String newRegisterEmail = "new-register@fake-email.com";
         RegistrationRest registrationRest = new RegistrationRest();
         registrationRest.setEmail(newRegisterEmail);
@@ -2844,8 +2839,6 @@ public class EPersonRestRepositoryIT extends AbstractControllerIntegrationTest {
     @Test
     public void postEPersonWithRandomTokenWithEmailProperty() throws Exception {
 
-        ObjectMapper mapper = new ObjectMapper();
-
         String newRegisterEmail = "new-register@fake-email.com";
         RegistrationRest registrationRest = new RegistrationRest();
         registrationRest.setEmail(newRegisterEmail);
@@ -2892,8 +2885,6 @@ public class EPersonRestRepositoryIT extends AbstractControllerIntegrationTest {
 
     @Test
     public void postEPersonWithTokenWithEmailAndSelfRegisteredFalseProperty() throws Exception {
-
-        ObjectMapper mapper = new ObjectMapper();
 
         String newRegisterEmail = "new-register@fake-email.com";
         RegistrationRest registrationRest = new RegistrationRest();
@@ -2942,8 +2933,6 @@ public class EPersonRestRepositoryIT extends AbstractControllerIntegrationTest {
 
     @Test
     public void postEPersonWithTokenWithoutLastNameProperty() throws Exception {
-
-        ObjectMapper mapper = new ObjectMapper();
 
         String newRegisterEmail = "new-register@fake-email.com";
         RegistrationRest registrationRest = new RegistrationRest();
@@ -3010,8 +2999,6 @@ public class EPersonRestRepositoryIT extends AbstractControllerIntegrationTest {
 
     @Test
     public void postEPersonWithTokenWithoutFirstNameProperty() throws Exception {
-
-        ObjectMapper mapper = new ObjectMapper();
 
         String newRegisterEmail = "new-register@fake-email.com";
         RegistrationRest registrationRest = new RegistrationRest();
@@ -3080,8 +3067,6 @@ public class EPersonRestRepositoryIT extends AbstractControllerIntegrationTest {
     @Test
     public void postEPersonWithTokenWithoutPasswordProperty() throws Exception {
 
-        ObjectMapper mapper = new ObjectMapper();
-
         String newRegisterEmail = "new-register@fake-email.com";
         RegistrationRest registrationRest = new RegistrationRest();
         registrationRest.setEmail(newRegisterEmail);
@@ -3127,8 +3112,6 @@ public class EPersonRestRepositoryIT extends AbstractControllerIntegrationTest {
 
     @Test
     public void postEPersonWithWrongToken() throws Exception {
-
-        ObjectMapper mapper = new ObjectMapper();
         String newEmail = "new-email@fake-email.com";
 
         RegistrationRest registrationRest = new RegistrationRest();
@@ -3178,7 +3161,6 @@ public class EPersonRestRepositoryIT extends AbstractControllerIntegrationTest {
     @Test
     public void postEPersonWithTokenWithEmailPropertyAnonUser() throws Exception {
         configurationService.setProperty("authentication-password.regex-validation.pattern", "");
-        ObjectMapper mapper = new ObjectMapper();
 
         String newRegisterEmail = "new-register@fake-email.com";
         RegistrationRest registrationRest = new RegistrationRest();
@@ -3641,8 +3623,6 @@ public class EPersonRestRepositoryIT extends AbstractControllerIntegrationTest {
     public void validatePasswordRobustnessContainingAtLeastAnUpperCaseCharUnprocessableTest() throws Exception {
         configurationService.setProperty("authentication-password.regex-validation.pattern", "^(?=.*[A-Z])");
 
-        ObjectMapper mapper = new ObjectMapper();
-
         String newRegisterEmail = "new-register@fake-email.com";
         RegistrationRest registrationRest = new RegistrationRest();
         registrationRest.setEmail(newRegisterEmail);
@@ -3686,8 +3666,6 @@ public class EPersonRestRepositoryIT extends AbstractControllerIntegrationTest {
     @Test
     public void validatePasswordRobustnessContainingAtLeastAnUpperCaseCharTest() throws Exception {
         configurationService.setProperty("authentication-password.regex-validation.pattern", "^(?=.*[A-Z])");
-
-        ObjectMapper mapper = new ObjectMapper();
 
         String newRegisterEmail = "new-register@fake-email.com";
         RegistrationRest registrationRest = new RegistrationRest();
