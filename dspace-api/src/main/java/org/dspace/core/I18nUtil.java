@@ -234,7 +234,8 @@ public class I18nUtil {
         String fileName = "";
         final String FILE_TYPE = ".xml";
         String defsFilename = DSpaceServicesFactory.getInstance().getConfigurationService().getProperty("dspace.dir")
-                              + File.separator + "config/controlled-vocabularies/" + File.separator + vocabularyName;
+                              + File.separator + "config" + File.separator + "controlled-vocabularies"
+                              + File.separator + vocabularyName;
         fileName = getFilename(locale, defsFilename, FILE_TYPE);
         return fileName;
     }
