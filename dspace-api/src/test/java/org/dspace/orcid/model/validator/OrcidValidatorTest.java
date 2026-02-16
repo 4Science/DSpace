@@ -18,8 +18,8 @@ import static org.dspace.orcid.model.validator.OrcidValidationError.ORGANIZATION
 import static org.dspace.orcid.model.validator.OrcidValidationError.ORGANIZATION_CITY_REQUIRED;
 import static org.dspace.orcid.model.validator.OrcidValidationError.ORGANIZATION_COUNTRY_REQUIRED;
 import static org.dspace.orcid.model.validator.OrcidValidationError.ORGANIZATION_NAME_REQUIRED;
+import static org.dspace.orcid.model.validator.OrcidValidationError.ORGANIZATION_REQUIRED;
 import static org.dspace.orcid.model.validator.OrcidValidationError.PUBLICATION_DATE_INVALID;
-import static org.dspace.orcid.model.validator.OrcidValidationError.START_DATE_REQUIRED;
 import static org.dspace.orcid.model.validator.OrcidValidationError.TITLE_REQUIRED;
 import static org.dspace.orcid.model.validator.OrcidValidationError.TYPE_REQUIRED;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -43,6 +43,7 @@ import org.orcid.jaxb.model.common.Relationship;
 import org.orcid.jaxb.model.common.WorkType;
 import org.orcid.jaxb.model.v3.release.common.Amount;
 import org.orcid.jaxb.model.v3.release.common.DisambiguatedOrganization;
+import org.orcid.jaxb.model.v3.release.common.FuzzyDate;
 import org.orcid.jaxb.model.v3.release.common.Organization;
 import org.orcid.jaxb.model.v3.release.common.OrganizationAddress;
 import org.orcid.jaxb.model.v3.release.common.PublicationDate;
@@ -579,11 +580,22 @@ public class OrcidValidatorTest {
     public void testWithAffiliationValidationEnabled() {
 
         Qualification qualification = new Qualification();
-        qualification.setOrganization(buildValidOrganization());
+        qualification.setStartDate(FuzzyDate.valueOf(2024,7,24));
 
         List<OrcidValidationError> errors = validator.validate(qualification);
         assertThat(errors, hasSize(1));
-        assertThat(errors, containsInAnyOrder(START_DATE_REQUIRED));
+        assertThat(errors, containsInAnyOrder(ORGANIZATION_REQUIRED));
+    }
+
+    @Test
+    public void testValidAffiliation() {
+
+        Qualification qualification = new Qualification();
+        qualification.setOrganization(buildValidOrganization());
+        qualification.setStartDate(FuzzyDate.valueOf(2024,7,24));
+
+        List<OrcidValidationError> errors = validator.validate(qualification);
+        assertThat(errors, empty());
     }
 
     @Test
