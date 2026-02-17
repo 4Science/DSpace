@@ -35,10 +35,13 @@ import org.dspace.content.Collection;
 import org.dspace.content.Community;
 import org.dspace.content.EntityType;
 import org.dspace.content.Item;
+import org.dspace.content.MetadataValue;
 import org.dspace.content.Relationship;
 import org.dspace.content.factory.ContentServiceFactory;
 import org.dspace.content.service.ItemService;
 import org.dspace.content.service.RelationshipService;
+import org.dspace.content.authority.factory.ContentAuthorityServiceFactory;
+import org.dspace.content.authority.service.MetadataAuthorityService;
 import org.dspace.eperson.EPerson;
 import org.dspace.eperson.factory.EPersonServiceFactory;
 import org.dspace.eperson.service.EPersonService;
@@ -46,6 +49,8 @@ import org.dspace.scripts.DSpaceRunnable;
 import org.dspace.scripts.configuration.ScriptConfiguration;
 import org.dspace.scripts.factory.ScriptServiceFactory;
 import org.dspace.scripts.service.ScriptService;
+import org.dspace.services.ConfigurationService;
+import org.dspace.services.factory.DSpaceServicesFactory;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -58,6 +63,10 @@ public class MetadataImportIT extends AbstractIntegrationTestWithDatabase {
             = EPersonServiceFactory.getInstance().getEPersonService();
     private final RelationshipService relationshipService
             = ContentServiceFactory.getInstance().getRelationshipService();
+    private final ConfigurationService configurationService
+            = DSpaceServicesFactory.getInstance().getConfigurationService();
+    private final MetadataAuthorityService metadataAuthorityService
+            = ContentAuthorityServiceFactory.getInstance().getMetadataAuthorityService();
 
     private Collection collection;
     private Collection publicationCollection;
@@ -67,6 +76,18 @@ public class MetadataImportIT extends AbstractIntegrationTestWithDatabase {
     @Override
     public void setUp() throws Exception {
         super.setUp();
+        // Configure authority-controlled fields for testing (since config files may be incomplete)
+        // Ensure dc.contributor.author is explicitly configured
+        configurationService.setProperty("authority.controlled.dc.contributor.author", "true");
+        configurationService.setProperty("choices.plugin.dc.contributor.author", "AuthorAuthority");
+        // Configure dc.contributor.other as authority-controlled for testing
+        configurationService.setProperty("authority.controlled.dc.contributor.other", "true");
+        configurationService.setProperty("choices.plugin.dc.contributor.other", "AuthorAuthority");
+        // Reload configuration service to ensure properties are picked up
+        configurationService.reloadConfig();
+        // Clear cache to reload authority configuration
+        metadataAuthorityService.clearCache();
+
         context.turnOffAuthorisationSystem();
         Community community = CommunityBuilder.createCommunity(context).build();
         this.collection = CollectionBuilder.createCollection(context, community).build();
@@ -274,6 +295,88 @@ public class MetadataImportIT extends AbstractIntegrationTestWithDatabase {
         performImportScript(csv);
         item = findItemByName(itemTitle);
         assertEquals(0, itemService.getMetadata(item, "dc", "contributor", "author", Item.ANY).size());
+    }
+
+    @Test
+    public void metadataImportWithAuthorityContainingSeparatorTest() throws Exception {
+        // Test case that reproduces the bug: authority values containing the separator (::)
+        // This test verifies that CSV import correctly handles authorities like:
+        // "will be referenced::ORCID::0000-0002-5474-1918"
+        String[] csv = {
+            "id,collection,dc.title,dc.contributor.author",
+            "+," + collection.getHandle() + ",\"Test Import Authority\"," +
+            "\"Fischer, Frank::will be referenced::ORCID::0000-0002-5474-1918::600\""
+        };
+        performImportScript(csv);
+        Item importedItem = findItemByName("Test Import Authority");
+        List<MetadataValue> authorMetadata =
+            itemService.getMetadata(importedItem, "dc", "contributor", "author", Item.ANY);
+
+        assertEquals("Should have exactly one author metadata value", 1, authorMetadata.size());
+
+        MetadataValue authorValue = authorMetadata.get(0);
+        assertEquals("Value should be correctly parsed", "Fischer, Frank", authorValue.getValue());
+        assertEquals("Authority should contain full authority string with separators",
+                     "will be referenced::ORCID::0000-0002-5474-1918", authorValue.getAuthority());
+        assertEquals("Confidence should be correctly parsed", 600, authorValue.getConfidence());
+
+        context.turnOffAuthorisationSystem();
+        itemService.delete(context, itemService.find(context, importedItem.getID()));
+        context.restoreAuthSystemState();
+    }
+
+    @Test
+    public void metadataImportWithRORAuthorityContainingSeparatorTest() throws Exception {
+        // Test case with ROR-ID authority containing separators
+        String[] csv = {
+            "id,collection,dc.title,dc.contributor.other",
+            "+," + collection.getHandle() + ",\"Test Import ROR\"," +
+            "\"Chemnitz University of Technology::will be referenced::ROR-ID::https://ror.org/00a208s56::600\""
+        };
+        performImportScript(csv);
+        Item importedItem = findItemByName("Test Import ROR");
+        List<MetadataValue> otherMetadata =
+            itemService.getMetadata(importedItem, "dc", "contributor", "other", Item.ANY);
+
+        assertEquals("Should have exactly one contributor.other metadata value", 1, otherMetadata.size());
+
+        MetadataValue otherValue = otherMetadata.get(0);
+        assertEquals("Value should be correctly parsed", "Chemnitz University of Technology",
+                     otherValue.getValue());
+        assertEquals("Authority should contain full authority string with separators",
+                     "will be referenced::ROR-ID::https://ror.org/00a208s56", otherValue.getAuthority());
+        assertEquals("Confidence should be correctly parsed", 600, otherValue.getConfidence());
+
+        context.turnOffAuthorisationSystem();
+        itemService.delete(context, itemService.find(context, importedItem.getID()));
+        context.restoreAuthSystemState();
+    }
+
+    @Test
+    public void metadataImportWithTwoPartAuthorityTest() throws Exception {
+        // Test case with 2-part format (value::authority, no confidence)
+        String[] csv = {
+            "id,collection,dc.title,dc.contributor.author",
+            "+," + collection.getHandle() + ",\"Test Import 2Part\"," +
+            "\"Smith, John::will be referenced::ORCID::0000-0001-2345-6789\""
+        };
+        performImportScript(csv);
+        Item importedItem = findItemByName("Test Import 2Part");
+        List<MetadataValue> authorMetadata =
+            itemService.getMetadata(importedItem, "dc", "contributor", "author", Item.ANY);
+
+        assertEquals("Should have exactly one author metadata value", 1, authorMetadata.size());
+
+        MetadataValue authorValue = authorMetadata.get(0);
+        assertEquals("Value should be correctly parsed", "Smith, John", authorValue.getValue());
+        assertEquals("Authority should contain full authority string",
+                     "will be referenced::ORCID::0000-0001-2345-6789", authorValue.getAuthority());
+        // When no confidence is provided, should default to CF_ACCEPTED (600)
+        assertEquals("Confidence should default to CF_ACCEPTED", 600, authorValue.getConfidence());
+
+        context.turnOffAuthorisationSystem();
+        itemService.delete(context, itemService.find(context, importedItem.getID()));
+        context.restoreAuthSystemState();
     }
 
     private Item findItemByName(String name) throws Exception {

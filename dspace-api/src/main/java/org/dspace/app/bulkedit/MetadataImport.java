@@ -23,7 +23,6 @@ import java.util.UUID;
 
 import jakarta.annotation.Nullable;
 import org.apache.commons.cli.ParseException;
-import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Strings;
 import org.apache.logging.log4j.Logger;
@@ -1197,30 +1196,66 @@ public class MetadataImport extends DSpaceRunnable<MetadataImportScriptConfigura
 
     private void resolveValueAndAuthority(String value, BulkEditMetadataValue dcv) {
         // Cells with valid authority are composed of three parts ~ <value>, <authority>, <confidence>
-        // The value itself may also include the authority separator though
+        // The authority itself may also include the authority separator though (e.g., "will be referenced::ORCID::0000-0002-5474-1918" or "will be referenced::ROR-ID::https://ror.org/00a208s56::600")
         String[] parts = value.split(csv.getEscapedAuthoritySeparator());
 
         // If we don't have enough parts, assume the whole string is the value
-        if (parts.length < 3) {
+        if (parts.length < 2) {
             simplyCopyValue(value, dcv);
             return;
         }
 
-        try {
-            // The last part of the cell must be a confidence value (integer)
-            int confidence = Integer.parseInt(parts[parts.length - 1]);
-            String authority = parts[parts.length - 2];
-            String plainValue = String.join(
-                csv.getAuthoritySeparator(),
-                ArrayUtils.subarray(parts, 0, parts.length - 2)
-            );
-
-            dcv.setValue(plainValue);
-            dcv.setAuthority(authority);
-            dcv.setConfidence(confidence);
-        } catch (NumberFormatException e) {
-            // Otherwise assume the whole string is the value
-            simplyCopyValue(value, dcv);
+        // Handle case where authority itself contains the separator
+        // The format should be: value::authority::confidence
+        // If we have more than 3 parts, the authority contains the separator
+        if (parts.length == 2) {
+            // Only value and authority, no confidence
+            // When an authority is explicitly provided, use CF_ACCEPTED (consistent with line 1183)
+            // The old buggy code would have called simplyCopyValue() which ignores the authority
+            dcv.setValue(parts[0]);
+            dcv.setAuthority(parts[1]);
+            dcv.setConfidence(Choices.CF_ACCEPTED);
+        } else if (parts.length == 3) {
+            // Standard format: value::authority::confidence
+            try {
+                dcv.setValue(parts[0]);
+                dcv.setAuthority(parts[1]);
+                dcv.setConfidence(Integer.parseInt(parts[2]));
+            } catch (NumberFormatException e) {
+                // Last part is not numeric, so it's part of the authority
+                simplyCopyValue(value, dcv);
+            }
+        } else {
+            // Authority contains the separator - combine middle parts as authority
+            // Last part should be confidence if it's numeric
+            String lastPart = parts[parts.length - 1];
+            try {
+                int confidence = Integer.parseInt(lastPart);
+                // Last part is confidence, combine parts[1] to parts[length-2] as authority
+                StringBuilder authorityBuilder = new StringBuilder();
+                for (int i = 1; i < parts.length - 1; i++) {
+                    if (i > 1) {
+                        authorityBuilder.append(csv.getAuthoritySeparator());
+                    }
+                    authorityBuilder.append(parts[i]);
+                }
+                dcv.setValue(parts[0]);
+                dcv.setAuthority(authorityBuilder.toString());
+                dcv.setConfidence(confidence);
+            } catch (NumberFormatException e) {
+                // Last part is not numeric, so it's part of the authority
+                // Combine all parts except the first as authority
+                StringBuilder authorityBuilder = new StringBuilder();
+                for (int i = 1; i < parts.length; i++) {
+                    if (i > 1) {
+                        authorityBuilder.append(csv.getAuthoritySeparator());
+                    }
+                    authorityBuilder.append(parts[i]);
+                }
+                dcv.setValue(parts[0]);
+                dcv.setAuthority(authorityBuilder.toString());
+                dcv.setConfidence(Choices.CF_ACCEPTED);
+            }
         }
     }
 
