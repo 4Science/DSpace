@@ -80,8 +80,6 @@ import org.dspace.app.rest.model.patch.AddOperation;
 import org.dspace.app.rest.model.patch.Operation;
 import org.dspace.app.rest.model.patch.RemoveOperation;
 import org.dspace.app.rest.model.patch.ReplaceOperation;
-import org.dspace.app.rest.repository.WorkspaceItemRestRepository;
-import org.dspace.app.rest.submit.SubmissionService;
 import org.dspace.app.rest.test.AbstractControllerIntegrationTest;
 import org.dspace.authorize.ResourcePolicy;
 import org.dspace.authorize.service.AuthorizeService;
@@ -109,6 +107,7 @@ import org.dspace.content.MetadataFieldName;
 import org.dspace.content.Relationship;
 import org.dspace.content.RelationshipType;
 import org.dspace.content.WorkspaceItem;
+import org.dspace.content.authority.Choices;
 import org.dspace.content.service.CollectionService;
 import org.dspace.content.service.EntityTypeService;
 import org.dspace.content.service.ItemService;
@@ -131,7 +130,6 @@ import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mock.web.MockMultipartFile;
@@ -167,16 +165,7 @@ public class WorkspaceItemRestRepositoryIT extends AbstractControllerIntegration
     private AuthorizeService authorizeService;
 
     @Autowired
-    private WorkspaceItemRestRepository workspaceItemRestRepository;
-
-    @Autowired
     private OpenAireProjectImportMetadataSourceServiceImpl openAireService;
-
-    @Autowired
-    private SubmissionService submissionService;
-
-    @Mock
-    private SubmissionService mockedSubmissionService;
 
     private AccessConditionConfiguration accessConditionConfiguration;
 
@@ -7197,6 +7186,7 @@ public class WorkspaceItemRestRepositoryIT extends AbstractControllerIntegration
             assertThat(workspaceItem, notNullValue());
 
             List<ResourcePolicy> policies = authorizeService.getPolicies(context, workspaceItem.getItem());
+            // Without shared workspace: only submitter1 has policies (5 policies)
             assertThat(policies, hasSize(5));
 
             assertThat(policies, hasItem(matches(Constants.READ, submitter1, TYPE_SUBMISSION)));
@@ -7209,6 +7199,7 @@ public class WorkspaceItemRestRepositoryIT extends AbstractControllerIntegration
                                                       List.of(Map.of("value", "White, Walter")));
 
             String patchBody = getPatchContent(List.of(addOperation));
+            // Without shared workspace: submitter2 cannot modify submitter1's item
             getClient(getAuthToken(submitter2.getEmail(), password))
                 .perform(patch("/api/submission/workspaceitems/" + workspaceItem.getID())
                              .content(patchBody)
@@ -7221,6 +7212,460 @@ public class WorkspaceItemRestRepositoryIT extends AbstractControllerIntegration
 
         } finally {
             WorkspaceItemBuilder.deleteWorkspaceItem(idRef.get());
+        }
+    }
+
+    @Test
+    public void testNonSubmitterCannotAccessWorkspaceItem() throws Exception {
+        // DSC-2728 - Case 3: User without role cannot modify any workspace item
+        context.turnOffAuthorisationSystem();
+
+        EPerson submitter1 = EPersonBuilder.createEPerson(context)
+                                           .withEmail("submitter1@test.com")
+                                           .withPassword(password)
+                                           .build();
+
+        EPerson nonSubmitter = EPersonBuilder.createEPerson(context)
+                                             .withEmail("nonsubmitter@test.com")
+                                             .withPassword(password)
+                                             .build();
+
+        parentCommunity = CommunityBuilder.createCommunity(context)
+                                          .withName("Parent Community")
+                                          .build();
+
+        Collection col1 = CollectionBuilder.createCollection(context, parentCommunity)
+                                           .withName("Collection")
+                                           .withEntityType("Publication")
+                                           .withSubmitterGroup(submitter1)
+                                           .build();
+
+        context.restoreAuthSystemState();
+
+        AtomicReference<Integer> idRef = new AtomicReference<>();
+        try {
+            getClient(getAuthToken(submitter1.getEmail(), password))
+                .perform(post("/api/submission/workspaceitems")
+                             .param("owningCollection", col1.getID().toString())
+                             .contentType(org.springframework.http.MediaType.APPLICATION_JSON))
+                .andExpect(status().isCreated())
+                .andDo(result -> idRef.set(
+                    read(result.getResponse().getContentAsString(), "$.id")));
+
+            WorkspaceItem workspaceItem = workspaceItemService.find(context, idRef.get());
+            assertThat(workspaceItem, notNullValue());
+
+            Operation addOperation = new AddOperation("/sections/publication/dc.contributor.author",
+                                                      List.of(Map.of("value", "White, Walter")));
+
+            String patchBody = getPatchContent(List.of(addOperation));
+            // nonSubmitter should not be able to modify the workspace item
+            getClient(getAuthToken(nonSubmitter.getEmail(), password))
+                .perform(patch("/api/submission/workspaceitems/" + workspaceItem.getID())
+                             .content(patchBody)
+                             .contentType(MediaType.APPLICATION_JSON_PATCH_JSON))
+                .andExpect(status().isForbidden());
+
+            // nonSubmitter should not be able to delete the workspace item
+            getClient(getAuthToken(nonSubmitter.getEmail(), password))
+                .perform(delete("/api/submission/workspaceitems/" + workspaceItem.getID()))
+                .andExpect(status().isForbidden());
+
+            // nonSubmitter should not be able to see the workspace item
+            getClient(getAuthToken(nonSubmitter.getEmail(), password))
+                .perform(get("/api/submission/workspaceitems/" + workspaceItem.getID()))
+                .andExpect(status().isForbidden());
+
+        } finally {
+            WorkspaceItemBuilder.deleteWorkspaceItem(idRef.get());
+        }
+    }
+
+    @Test
+    public void testAuthorCanAccessSharedWorkspaceItem() throws Exception {
+        // DSC-2728 - Case 2: Author (non-submitter) can modify workspace item when configured
+        context.turnOffAuthorisationSystem();
+
+        EPerson submitter = EPersonBuilder.createEPerson(context)
+                                           .withEmail("submitter@test.com")
+                                           .withPassword(password)
+                                           .build();
+
+        EPerson author = EPersonBuilder.createEPerson(context)
+                                        .withEmail("author@test.com")
+                                        .withPassword(password)
+                                        .build();
+
+        parentCommunity = CommunityBuilder.createCommunity(context)
+                                          .withName("Parent Community")
+                                          .build();
+
+        Collection personCollection = CollectionBuilder.createCollection(context, parentCommunity)
+                                                        .withName("Person Collection")
+                                                        .withEntityType("Person")
+                                                        .build();
+
+        Collection pubCollection = CollectionBuilder.createCollection(context, parentCommunity)
+                                                     .withName("Publication Collection")
+                                                     .withEntityType("Publication")
+                                                     .withSubmitterGroup(submitter)
+                                                     .withSharedWorkspace()
+                                                     .build();
+
+        // Create author profile (Person entity) with owner metadata
+        Item authorProfile = ItemBuilder.createItem(context, personCollection)
+                                         .withTitle("Author Name")
+                                         .withIssueDate("2020-01-01")
+                                         .withDspaceObjectOwner(author)
+                                         .build();
+
+        context.restoreAuthSystemState();
+
+        AtomicReference<Integer> idRef = new AtomicReference<>();
+        try {
+            // Submitter creates a workspace item
+            getClient(getAuthToken(submitter.getEmail(), password))
+                .perform(post("/api/submission/workspaceitems")
+                             .param("owningCollection", pubCollection.getID().toString())
+                             .contentType(org.springframework.http.MediaType.APPLICATION_JSON))
+                .andExpect(status().isCreated())
+                .andDo(result -> idRef.set(
+                    read(result.getResponse().getContentAsString(), "$.id")));
+
+            WorkspaceItem workspaceItem = workspaceItemService.find(context, idRef.get());
+            assertThat(workspaceItem, notNullValue());
+
+            // Before adding author metadata, author should NOT be able to modify
+            Operation addOperation = new AddOperation("/sections/publication/dc.contributor.author",
+                                                      List.of(Map.of("value", "Test Author")));
+            String patchBody = getPatchContent(List.of(addOperation));
+
+            getClient(getAuthToken(author.getEmail(), password))
+                .perform(patch("/api/submission/workspaceitems/" + workspaceItem.getID())
+                             .content(patchBody)
+                             .contentType(MediaType.APPLICATION_JSON_PATCH_JSON))
+                .andExpect(status().isForbidden());
+
+            // Use PATCH to add author metadata with authority pointing to author profile
+            // Following the real API format with all required fields
+            String submitterToken = getAuthToken(submitter.getEmail(), password);
+            Map<String, Object> authorValue = new HashMap<>();
+            authorValue.put("value", "Author Name");
+            authorValue.put("authority", authorProfile.getID().toString());
+            authorValue.put("display", "Author Name");
+            authorValue.put("confidence", Choices.CF_ACCEPTED);
+
+
+            Operation addAuthorWithAuthority = new AddOperation("/sections/publication/dc.contributor.author",
+                List.of(authorValue));
+            String addAuthorPatchBody = getPatchContent(List.of(addAuthorWithAuthority));
+
+            getClient(submitterToken)
+                .perform(patch("/api/submission/workspaceitems/" + workspaceItem.getID())
+                             .content(addAuthorPatchBody)
+                             .contentType(MediaType.APPLICATION_JSON_PATCH_JSON))
+                .andExpect(status().isOk());
+
+            // Author should now be able to access (Solr permissions are indexed based on metadata with authorities)
+            getClient(getAuthToken(author.getEmail(), password))
+                .perform(get("/api/submission/workspaceitems/" + workspaceItem.getID()))
+                .andExpect(status().isOk());
+
+            // Verify author can also PATCH (modify) the workspace item
+            Operation authorPatchOperation = new AddOperation("/sections/publication/dc.title",
+                                                              List.of(Map.of("value", "Title by author")));
+            String authorPatchBody = getPatchContent(List.of(authorPatchOperation));
+            getClient(getAuthToken(author.getEmail(), password))
+                .perform(patch("/api/submission/workspaceitems/" + workspaceItem.getID())
+                             .content(authorPatchBody)
+                             .contentType(MediaType.APPLICATION_JSON_PATCH_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.sections.publication['dc.title'][0].value",
+                                    is("Title by author")));
+
+        } finally {
+            WorkspaceItemBuilder.deleteWorkspaceItem(idRef.get());
+        }
+    }
+
+    @Test
+    public void testOtherSubmitterCannotAccessNonSharedWorkspaceItem() throws Exception {
+        // DSC-2728 - Verify that without shared workspace, other submitters cannot access workspace items
+        context.turnOffAuthorisationSystem();
+
+        EPerson submitter1 = EPersonBuilder.createEPerson(context)
+                                           .withEmail("submitter1@test.com")
+                                           .withPassword(password)
+                                           .build();
+
+        EPerson submitter2 = EPersonBuilder.createEPerson(context)
+                                           .withEmail("submitter2@test.com")
+                                           .withPassword(password)
+                                           .build();
+
+        parentCommunity = CommunityBuilder.createCommunity(context)
+                                          .withName("Parent Community")
+                                          .build();
+
+        // Collection WITHOUT shared workspace - both users are submitters
+        Collection col1 = CollectionBuilder.createCollection(context, parentCommunity)
+                                           .withName("Collection")
+                                           .withEntityType("Publication")
+                                           .withSubmitterGroup(submitter1, submitter2)
+                                           .build();
+
+        context.restoreAuthSystemState();
+
+        AtomicReference<Integer> idRef = new AtomicReference<>();
+        try {
+            // Submitter1 creates a workspace item
+            getClient(getAuthToken(submitter1.getEmail(), password))
+                .perform(post("/api/submission/workspaceitems")
+                             .param("owningCollection", col1.getID().toString())
+                             .contentType(org.springframework.http.MediaType.APPLICATION_JSON))
+                .andExpect(status().isCreated())
+                .andDo(result -> idRef.set(
+                    read(result.getResponse().getContentAsString(), "$.id")));
+
+            WorkspaceItem workspaceItem = workspaceItemService.find(context, idRef.get());
+            assertThat(workspaceItem, notNullValue());
+
+            // Verify only 5 policies (only for submitter1, not for submitters group)
+            context.turnOffAuthorisationSystem();
+            List<ResourcePolicy> policies = authorizeService.getPolicies(context, workspaceItem.getItem());
+            assertThat(policies, hasSize(5));
+            context.restoreAuthSystemState();
+
+            // Submitter2 (another submitter) should NOT be able to see the item
+            getClient(getAuthToken(submitter2.getEmail(), password))
+                .perform(get("/api/submission/workspaceitems/" + workspaceItem.getID()))
+                .andExpect(status().isForbidden());
+
+            // Submitter2 should NOT be able to modify the item
+            Operation addOperation = new AddOperation("/sections/publication/dc.contributor.author",
+                                                      List.of(Map.of("value", "Test Author")));
+            String patchBody = getPatchContent(List.of(addOperation));
+
+            getClient(getAuthToken(submitter2.getEmail(), password))
+                .perform(patch("/api/submission/workspaceitems/" + workspaceItem.getID())
+                             .content(patchBody)
+                             .contentType(MediaType.APPLICATION_JSON_PATCH_JSON))
+                .andExpect(status().isForbidden());
+
+            // Submitter2 should NOT be able to delete the item
+            getClient(getAuthToken(submitter2.getEmail(), password))
+                .perform(delete("/api/submission/workspaceitems/" + workspaceItem.getID()))
+                .andExpect(status().isForbidden());
+
+            // Verify submitter1 (the owner) CAN still access and modify
+            getClient(getAuthToken(submitter1.getEmail(), password))
+                .perform(get("/api/submission/workspaceitems/" + workspaceItem.getID()))
+                .andExpect(status().isOk());
+
+        } finally {
+            WorkspaceItemBuilder.deleteWorkspaceItem(idRef.get());
+        }
+    }
+
+    @Test
+    public void testOtherSubmitterCanDiscoverSharedWorkspaceItem() throws Exception {
+        context.turnOffAuthorisationSystem();
+
+        EPerson submitter1 = EPersonBuilder.createEPerson(context)
+                                           .withEmail("submitter1_discovery@test.com")
+                                           .withPassword(password)
+                                           .build();
+
+        EPerson submitter2 = EPersonBuilder.createEPerson(context)
+                                           .withEmail("submitter2_discovery@test.com")
+                                           .withPassword(password)
+                                           .build();
+
+        parentCommunity = CommunityBuilder.createCommunity(context)
+                                          .withName("Parent Community Discovery")
+                                          .build();
+
+        Collection col1 = CollectionBuilder.createCollection(context, parentCommunity)
+                                           .withName("Collection Discovery")
+                                           .withEntityType("Publication")
+                                           .withSubmitterGroup(submitter1, submitter2)
+                                           .withSharedWorkspace()
+                                           .build();
+
+        context.restoreAuthSystemState();
+
+        AtomicReference<Integer> idRef = new AtomicReference<>();
+        try {
+            // Submitter1 creates a workspace item
+            getClient(getAuthToken(submitter1.getEmail(), password))
+                .perform(post("/api/submission/workspaceitems")
+                             .param("owningCollection", col1.getID().toString())
+                             .contentType(org.springframework.http.MediaType.APPLICATION_JSON))
+                .andExpect(status().isCreated())
+                .andDo(result -> idRef.set(
+                    read(result.getResponse().getContentAsString(), "$.id")));
+
+            WorkspaceItem workspaceItem = workspaceItemService.find(context, idRef.get());
+            assertThat(workspaceItem, notNullValue());
+            // Store the workspace item ID now while the session is still open
+            Integer workspaceItemId = workspaceItem.getID();
+
+            // Submitter2 (another submitter) should be able to discover the item
+            String tokenSubmitter2 = getAuthToken(submitter2.getEmail(), password);
+            getClient(tokenSubmitter2)
+                .perform(get("/api/discover/search/objects")
+                             .param("configuration", "otherworkspace")
+                             .param("projection", "preventMetadataSecurity")
+                             .param("embed", "metrics"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$._embedded.searchResult.page.totalElements", is(1)))
+                .andExpect(jsonPath("$._embedded.searchResult._embedded.objects[0]._embedded.indexableObject.id",
+                                    is(workspaceItemId)));
+
+        } finally {
+            WorkspaceItemBuilder.deleteWorkspaceItem(idRef.get());
+        }
+    }
+
+    @Test
+    public void testOtherSubmitterCannotDiscoverNonSharedWorkspaceItem() throws Exception {
+        context.turnOffAuthorisationSystem();
+
+        EPerson submitter1 = EPersonBuilder.createEPerson(context)
+                                           .withEmail("submitter1_nodiscovery@test.com")
+                                           .withPassword(password)
+                                           .build();
+
+        EPerson submitter2 = EPersonBuilder.createEPerson(context)
+                                           .withEmail("submitter2_nodiscovery@test.com")
+                                           .withPassword(password)
+                                           .build();
+
+        parentCommunity = CommunityBuilder.createCommunity(context)
+                                          .withName("Parent Community No Discovery")
+                                          .build();
+
+        Collection col1 = CollectionBuilder.createCollection(context, parentCommunity)
+                                           .withName("Collection No Discovery")
+                                           .withEntityType("Publication")
+                                           .withSubmitterGroup(submitter1, submitter2)
+                                           .build(); // No withSharedWorkspace()
+
+        context.restoreAuthSystemState();
+
+        AtomicReference<Integer> idRef = new AtomicReference<>();
+        try {
+            // Submitter1 creates a workspace item
+            getClient(getAuthToken(submitter1.getEmail(), password))
+                .perform(post("/api/submission/workspaceitems")
+                             .param("owningCollection", col1.getID().toString())
+                             .contentType(org.springframework.http.MediaType.APPLICATION_JSON))
+                .andExpect(status().isCreated())
+                .andDo(result -> idRef.set(
+                    read(result.getResponse().getContentAsString(), "$.id")));
+
+            WorkspaceItem workspaceItem = workspaceItemService.find(context, idRef.get());
+            assertThat(workspaceItem, notNullValue());
+
+            // Submitter2 (another submitter) should NOT be able to discover the item
+            String tokenSubmitter2 = getAuthToken(submitter2.getEmail(), password);
+            getClient(tokenSubmitter2)
+                .perform(get("/api/discover/search/objects")
+                             .param("configuration", "otherworkspace")
+                             .param("query", workspaceItem.getID().toString()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$._embedded.searchResult.page.totalElements", is(0)));
+
+        } finally {
+            WorkspaceItemBuilder.deleteWorkspaceItem(idRef.get());
+        }
+    }
+
+    @Test
+    public void testOtherSubmitterCanAccessSharedWorkspaceItem() throws Exception {
+        // DSC-2728 - Verify that with shared workspace, other submitters can access workspace items
+        context.turnOffAuthorisationSystem();
+
+        EPerson submitter1 = EPersonBuilder.createEPerson(context)
+                                           .withEmail("submitter1@test.com")
+                                           .withPassword(password)
+                                           .build();
+
+        EPerson submitter2 = EPersonBuilder.createEPerson(context)
+                                           .withEmail("submitter2@test.com")
+                                           .withPassword(password)
+                                           .build();
+
+        parentCommunity = CommunityBuilder.createCommunity(context)
+                                          .withName("Parent Community")
+                                          .build();
+
+        // Collection WITH shared workspace - both users are submitters
+        Collection col1 = CollectionBuilder.createCollection(context, parentCommunity)
+                                           .withName("Collection")
+                                           .withEntityType("Publication")
+                                           .withSubmitterGroup(submitter1, submitter2)
+                                           .withSharedWorkspace()
+                                           .build();
+
+        context.restoreAuthSystemState();
+
+        AtomicReference<Integer> idRef = new AtomicReference<>();
+        try {
+            // Submitter1 creates a workspace item
+            getClient(getAuthToken(submitter1.getEmail(), password))
+                .perform(post("/api/submission/workspaceitems")
+                             .param("owningCollection", col1.getID().toString())
+                             .contentType(org.springframework.http.MediaType.APPLICATION_JSON))
+                .andExpect(status().isCreated())
+                .andDo(result -> idRef.set(
+                    read(result.getResponse().getContentAsString(), "$.id")));
+
+            WorkspaceItem workspaceItem = workspaceItemService.find(context, idRef.get());
+            assertThat(workspaceItem, notNullValue());
+
+            // Verify 10 policies (5 for submitter1 + 5 for submitters group)
+            context.turnOffAuthorisationSystem();
+            List<ResourcePolicy> policies = authorizeService.getPolicies(context, workspaceItem.getItem());
+            assertThat(policies, hasSize(10));
+            assertThat(policies, hasItem(matches(Constants.READ, submitter1, TYPE_SUBMISSION)));
+            assertThat(policies, hasItem(matches(Constants.WRITE, submitter1, TYPE_SUBMISSION)));
+            assertThat(policies, hasItem(matches(Constants.READ, col1.getSubmitters(), TYPE_SUBMISSION)));
+            assertThat(policies, hasItem(matches(Constants.WRITE, col1.getSubmitters(), TYPE_SUBMISSION)));
+            context.restoreAuthSystemState();
+
+            // Submitter2 (another submitter) CAN see the item
+            getClient(getAuthToken(submitter2.getEmail(), password))
+                .perform(get("/api/submission/workspaceitems/" + workspaceItem.getID()))
+                .andExpect(status().isOk());
+
+            // Submitter2 CAN modify the item
+            Operation addOperation = new AddOperation("/sections/publication/dc.contributor.author",
+                                                      List.of(Map.of("value", "Modified by submitter2")));
+            String patchBody = getPatchContent(List.of(addOperation));
+
+            getClient(getAuthToken(submitter2.getEmail(), password))
+                .perform(patch("/api/submission/workspaceitems/" + workspaceItem.getID())
+                             .content(patchBody)
+                             .contentType(MediaType.APPLICATION_JSON_PATCH_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.sections.publication['dc.contributor.author'][0].value",
+                                    is("Modified by submitter2")));
+
+            // Submitter2 CAN delete the item
+            getClient(getAuthToken(submitter2.getEmail(), password))
+                .perform(delete("/api/submission/workspaceitems/" + workspaceItem.getID()))
+                .andExpect(status().isNoContent());
+
+            // Verify the item was deleted
+            getClient(getAuthToken(submitter1.getEmail(), password))
+                .perform(get("/api/submission/workspaceitems/" + workspaceItem.getID()))
+                .andExpect(status().isNotFound());
+
+        } finally {
+            if (idRef.get() != null) {
+                WorkspaceItemBuilder.deleteWorkspaceItem(idRef.get());
+            }
         }
     }
 
