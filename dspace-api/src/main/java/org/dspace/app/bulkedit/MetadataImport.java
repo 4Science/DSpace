@@ -23,7 +23,6 @@ import java.util.UUID;
 
 import jakarta.annotation.Nullable;
 import org.apache.commons.cli.ParseException;
-import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Strings;
 import org.apache.logging.log4j.Logger;
@@ -1197,7 +1196,7 @@ public class MetadataImport extends DSpaceRunnable<MetadataImportScriptConfigura
 
     private void resolveValueAndAuthority(String value, BulkEditMetadataValue dcv) {
         // Cells with valid authority are composed of three parts ~ <value>, <authority>, <confidence>
-        // The authority itself may also include the authority separator though (e.g., "will be referenced::ORCID::0000-0002-5474-1918" or "Chemnitz University of Technology::will be referenced::ROR-ID::https://ror.org/00a208s56::600")
+        // The authority itself may also include the authority separator though (e.g., "will be referenced::ORCID::0000-0002-5474-1918" or "will be referenced::ROR-ID::https://ror.org/00a208s56::600")
         String[] parts = value.split(csv.getEscapedAuthoritySeparator());
 
         // If we don't have enough parts, assume the whole string is the value
