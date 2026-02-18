@@ -21,6 +21,8 @@ import org.dspace.app.rest.converter.ConverterService;
 import org.dspace.app.rest.exception.RepositoryMethodNotImplementedException;
 import org.dspace.app.rest.model.StatisticsSupportRest;
 import org.dspace.app.rest.model.UsageReportRest;
+import org.dspace.app.rest.projection.Projection;
+import org.dspace.app.rest.projection.PreventPointsCalculationProjection;
 import org.dspace.app.rest.utils.DSpaceObjectUtils;
 import org.dspace.app.rest.utils.UsageReportUtils;
 import org.dspace.content.DSpaceObject;
@@ -54,14 +56,13 @@ public class StatisticsRestRepository extends DSpaceRestRepository<UsageReportRe
         UUID uuidObject = UUID.fromString(StringUtils.substringBefore(id, "_"));
         String reportId = StringUtils.substringAfter(id, "_");
 
-        UsageReportRest usageReportRest = null;
+        UsageReportRest usageReportRest;
         try {
             DSpaceObject dso = dspaceObjectUtil.findDSpaceObject(context, uuidObject);
             if (dso == null) {
                 throw new ResourceNotFoundException("No DSO found with uuid: " + uuidObject);
             }
             usageReportRest = usageReportUtils.createUsageReport(context, dso, reportId);
-
         } catch (ParseException | SolrServerException | IOException | SQLException e) {
             throw new RuntimeException(e.getMessage(), e);
         }
@@ -71,11 +72,12 @@ public class StatisticsRestRepository extends DSpaceRestRepository<UsageReportRe
     @PreAuthorize("permitAll()")
     @SearchRestMethod(name = "object")
     public Page<UsageReportRest> findByObject(@Parameter(value = "uri", required = true) String uri,
-            @Parameter(value = "category") String category, Pageable pageable,
+                                              @Parameter(value = "category") String category,
                                               @Parameter(value = "startDate") String startDate,
-                                              @Parameter(value = "endDate") String endDate) {
+                                              @Parameter(value = "endDate") String endDate,
+                                               Pageable pageable) {
         UUID uuid = UUID.fromString(StringUtils.substringAfterLast(uri, "/"));
-        List<UsageReportRest> usageReportsOfItem = null;
+        List<UsageReportRest> usageReportsOfItem;
         try {
             Context context = obtainContext();
             DSpaceObject dso = dspaceObjectUtil.findDSpaceObject(context, uuid);
@@ -85,11 +87,13 @@ public class StatisticsRestRepository extends DSpaceRestRepository<UsageReportRe
             if (category != null && !usageReportUtils.categoryExists(dso, category)) {
                 throw new IllegalArgumentException("The specified category doesn't exists: " + category);
             }
-            usageReportsOfItem = usageReportUtils.getUsageReportsOfDSO(context, dso, category, startDate, endDate);
+            Projection projection = utils.obtainProjection();
+            boolean includePoints = !(projection instanceof PreventPointsCalculationProjection);
+            usageReportsOfItem = usageReportUtils.getUsageReportsOfDSO(context, dso, category, startDate, endDate,
+                                                                       includePoints);
         } catch (SQLException | ParseException | SolrServerException | IOException e) {
             throw new RuntimeException(e.getMessage(), e);
         }
-
         return converter.toRestPage(usageReportsOfItem, pageable, usageReportsOfItem.size(), utils.obtainProjection());
     }
 

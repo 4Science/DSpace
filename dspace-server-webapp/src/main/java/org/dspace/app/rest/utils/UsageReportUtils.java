@@ -93,10 +93,13 @@ public class UsageReportUtils {
      * @param context   DSpace context
      * @param dso       DSpaceObject we want all available usage reports of
      * @param category  if not null, limit the reports to the ones included in the specified category
+     * @param startDate start date for the statistics
+     * @param endDate   end date for the statistics
+     * @param includePoints if true, calculate the points data; if false, skip points calculation for performance
      * @return List of usage reports, applicable to the given DSO
      */
     public List<UsageReportRest> getUsageReportsOfDSO(Context context, DSpaceObject dso, String category,
-                                                      String startDate, String endDate)
+                                                      String startDate, String endDate, boolean includePoints)
         throws SQLException, ParseException, SolrServerException, IOException {
         List<UsageReportCategoryRest> categories = configuration.getCategories(dso);
         List<String> reportIds = new ArrayList();
@@ -106,7 +109,11 @@ public class UsageReportUtils {
                 for (Entry<String, UsageReportGenerator> entry : cat.getReports().entrySet()) {
                     if (!reportIds.contains(entry.getKey())) {
                         reportIds.add(entry.getKey());
-                        reports.add(createUsageReport(context, dso, entry.getKey(), startDate, endDate));
+                        if (includePoints) {
+                            reports.add(createUsageReport(context, dso, entry.getKey(), startDate, endDate));
+                        } else {
+                            reports.add(createUsageReportWithoutPoints(dso, entry.getKey()));
+                        }
                     }
                 }
             }
@@ -145,8 +152,7 @@ public class UsageReportUtils {
             return usageReportRest;
         } else {
             throw new ResourceNotFoundException("The given report id can't be resolved: " + reportId + "; "
-                    + "available reports: TotalVisits, TotalVisitsPerMonth, "
-                    + "TotalDownloads, TopCountries, TopCities");
+                    + "available reports: TotalVisits, TotalVisitsPerMonth, TotalDownloads, TopCountries, TopCities");
         }
     }
 
@@ -159,6 +165,28 @@ public class UsageReportUtils {
             usageReportRest.setId(dso.getID() + "_" + reportId);
             usageReportRest.setReportType(generator.getReportType());
             usageReportRest.setViewMode(generator.getViewMode());
+            return usageReportRest;
+        } else {
+            throw new ResourceNotFoundException("The given report id can't be resolved: " + reportId + "; "
+                    + "available reports: TotalVisits, TotalVisitsPerMonth, TotalDownloads, TopCountries, TopCities");
+        }
+    }
+
+    /**
+     * Creates a usage report without points data (for performance optimization).
+     *
+     * @param dso      DSpace object we want a stat usage report on
+     * @param reportId Type of usage report requested
+     * @return Rest object containing the stat usage report without points
+     */
+    public UsageReportRest createUsageReportWithoutPoints(DSpaceObject dso, String reportId) {
+        UsageReportGenerator generator = configuration.getReportGenerator(dso, reportId);
+        if (generator != null) {
+            UsageReportRest usageReportRest = new UsageReportRest();
+            usageReportRest.setId(dso.getID() + "_" + reportId);
+            usageReportRest.setReportType(generator.getReportType());
+            usageReportRest.setViewMode(generator.getViewMode());
+            usageReportRest.setPoints(new ArrayList<>());
             return usageReportRest;
         } else {
             throw new ResourceNotFoundException("The given report id can't be resolved: " + reportId + "; "
