@@ -70,7 +70,7 @@ public class StatisticsCategoryRestRepository extends DSpaceRestRepository<Usage
             if (dso == null) {
                 throw new IllegalArgumentException("No DSO found with uuid: " + uuid);
             }
-            usageReportsCategoriesOfItem = usageReportUtils.getUsageReportsCategoriesOfDSO(context, dso);
+            usageReportsCategoriesOfItem = usageReportUtils.getUsageReportsCategoriesOfDSO(dso);
         } catch (SQLException | ParseException | SolrServerException | IOException e) {
             throw new RuntimeException(e.getMessage(), e);
         }
