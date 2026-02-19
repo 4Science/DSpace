@@ -3301,12 +3301,6 @@ public class StatisticsRestRepositoryIT extends AbstractControllerIntegrationTes
                 .andExpect(jsonPath("$._embedded.usagereports[3].points", empty()));
     }
 
-    private LocalDate toLocalDate(Date date) {
-        return date.toInstant()
-            .atZone(ZoneId.systemDefault())
-            .toLocalDate();
-    }
-
     private List<UsageReportPointRest> getLastMonthVisitPoints(int viewsLastMonth) {
         return getListOfVisitsPerMonthsPoints(viewsLastMonth, 0);
     }
