@@ -10,7 +10,7 @@
     <parent>
         <artifactId>modules</artifactId>
         <groupId>org.dspace</groupId>
-        <version>cris-2025.02.00</version>
+        <version>cris-2025.02.01-SNAPSHOT</version>
         <relativePath>..</relativePath>
     </parent>
 
@@ -126,6 +126,6 @@
 
 
   <scm>
-    <tag>dspace-cris-2025.02.00</tag>
+    <tag>dspace-9.2</tag>
   </scm>
 </project>
