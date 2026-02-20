@@ -75,7 +75,7 @@
         <software.amazon.awssdk.crt.version>0.38.12</software.amazon.awssdk.crt.version>
 
         <!--=== ADDON DEPENDENCIES ===-->
-        <addons.version>[cris-2025.01.00-SNAPSHOT,cris-2025.01.00.9999-SNAPSHOT)</addons.version>
+        <addons.version>[cris-2025.02.00,cris-2025.02.00.9999)</addons.version>
         <addon-iiif.version>${addons.version}</addon-iiif.version>
         <addon-ocr.version>${addons.version}</addon-ocr.version>
         <addon-docviewer.version>${addons.version}</addon-docviewer.version>
