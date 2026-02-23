@@ -51,7 +51,7 @@
                     <dc-schema>dc</dc-schema>
                     <dc-element>description</dc-element>
                     <dc-qualifier>audiovideo</dc-qualifier>
-                    <repeatable>false</repeatable>
+                    <repeatable>true</repeatable>
                     <label>Audio or Video media type</label>
                     <input-type value-pairs-name="audio_video_media_type">qualdrop_value</input-type>
                     <hint>Select Audio or Video media type</hint>
@@ -64,7 +64,7 @@
                     <dc-element>description</dc-element>
                     <dc-qualifier>audiotranscript</dc-qualifier>
                     <repeatable>true</repeatable>
-                    <label>Transcription</label>
+                    <label>Audio Transcription</label>
                     <input-type>textarea</input-type>
                     <hint>Enter a transcription for the file</hint>
                     <required></required>
