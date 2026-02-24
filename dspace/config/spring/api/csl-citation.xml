@@ -24,7 +24,6 @@
         <property name="issued" value="dc.date.issued"/>
         <property name="author" value="dc.contributor.author"/>
         <property name="editor" value="dc.contributor.editor"/>
-        <property name="containerTitle" value="dc.relation.ispartof"/>
         <property name="containerTitle" ref="containerTitleRules" />
         <property name="edition" value="oaire.citation.edition" />
         <!-- <property name="page-first" value="oaire.citation.startPage"/> -->
