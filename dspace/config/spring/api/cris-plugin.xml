@@ -1,4 +1,127 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    The contents of this file are subject to the license and copyright
+    detailed in the LICENSE and NOTICE files at the root of the source
+    tree and available online at
+
+    http://www.dspace.org/license/
+
+-->
+<!--
+    CRIS AUTHORITY IMPORT AND REFERENCE RESOLUTION CONFIGURATION
+    
+    This file configures the CRIS authority import and reference resolution system,
+    which enables automatic creation and linking of entity items (Person, OrgUnit, Project, Journal)
+    when authority-controlled metadata is added to items.
+    
+    MAIN COMPONENTS:
+    
+    1. AUTHORITY IMPORT FILLERS (AuthorityImportFillerHolder)
+       - Define how to populate new entity items when they are created via authority import
+       - Support multiple data sources: Internal metadata, ORCID API, SHERPA/RoMEO API
+       - Map source metadata fields to target entity metadata fields
+       
+    2. ITEM REFERENCE RESOLVERS (ItemSearcherMapper)
+       - Define how to find existing entity items by identifier (ORCID, DOI, ISSN, etc.)
+       - Enable linking to existing entities instead of creating duplicates
+       - Support multiple identifier types with custom search strategies
+    
+    WORKFLOW:
+    
+    When a user adds authority-controlled metadata to an item (e.g., dc.contributor.author):
+    
+    A) IF authority value uses "will be generated::" prefix (e.g., "will be generated::ORCID::0000-0001-2345-6789"):
+       1. ItemSearcherMapper searches for existing entity with that identifier
+       2. If found: Links to existing entity (sets authority to entity UUID)
+          - Does NOT modify the existing entity (preserves original data)
+       3. If not found: Creates new entity using configured AuthorityImportFiller
+          a) Fetches data from external source (ORCID API, Open Policy Finder API, etc.)
+          b) Populates entity metadata using configured field mappings
+          c) Links parent item to new entity (sets authority to entity UUID)
+
+    B) IF authority value uses "will be referenced::" prefix (e.g., "will be referenced::ORCID::0000-0001-2345-6789"):
+       1. ItemSearcherMapper searches for existing entity with that identifier
+       2. If found: Links to existing entity (sets authority to entity UUID)
+          - Keeps the original metadata value from parent item (e.g., "Walter White")
+          - Does NOT modify the existing entity
+       3. If not found: Does NOT create entity; sets confidence to CF_UNSET
+          - Authority value remains as "will be referenced::..." (unresolved)
+          - Indicates a reference to a non-existent entity
+
+    C) IF authority value is a plain UUID (e.g., "12345678-90ab-cdef-1234-567890abcdef"):
+       1. Links directly to existing entity with that UUID
+       2. Optionally fetches additional metadata to populate parent item fields
+
+    D) IF authority value is blank or not set:
+       1. Generates dspace.sourceId using MD5 hash of metadata value (or UUID if configured)
+       2. Creates new entity using internal metadata mappings (SOURCE_INTERNAL)
+       3. Populates entity from parent item metadata (e.g., oairecerif.author.affiliation)
+
+       Note: Can be disabled via cris-consumer.skip-empty-authority = true
+
+    EXAMPLE SCENARIOS:
+
+    1. Adding author with ORCID using "will be generated":
+       User adds: dc.contributor.author = "John Doe"
+                  authority = "will be generated::ORCID::0000-0001-2345-6789"
+       System:
+       - Searches for Person with person.identifier.orcid = "0000-0001-2345-6789"
+       - If not found:
+         * Fetches ORCID profile via OrcidV3AuthorDataProvider
+         * Creates Person entity with data from ORCID (name, affiliation, bio, etc.)
+         * Sets dc.contributor.author authority to Person UUID
+       - If found:
+         * Links to existing Person (does NOT modify existing entity data)
+         * Sets dc.contributor.author authority to Person UUID
+
+    2. Adding author with ORCID using "will be referenced":
+       User adds: dc.contributor.author = "Walter White"
+                  authority = "will be referenced::ORCID::0000-0002-9079-593X"
+       System:
+       - Searches for Person with person.identifier.orcid = "0000-0002-9079-593X"
+       - If found:
+         * Links to existing Person
+         * Keeps "Walter White" as the value (does NOT replace with Person title)
+         * Sets authority to Person UUID
+       - If not found:
+         * Does NOT create entity
+         * Leaves authority as "will be referenced::ORCID::0000-0002-9079-593X"
+         * Sets confidence to CF_UNSET (indicates unresolved reference)
+
+    3. Adding journal by ISSN:
+       User adds: dc.relation.ispartof = "Nature"
+                  authority = "will be generated::ISSN::0028-0836"
+       System:
+       - Searches for Journal with dc.identifier.issn = "0028-0836"
+       - If not found:
+         * Fetches journal data via OpenPolicyFinderJournalISSNDataProvider
+         * Creates Journal entity with OA policies, publisher info, etc.
+         * Sets dc.relation.ispartof authority to Journal UUID
+    
+    4. Adding project by OpenAIRE ID:
+       User adds: dc.relation.funding = "H2020 Project" 
+                  authority = "will be referenced::OPENAIRE-PROJECT-ID::12345"
+       System:
+       - Searches for Project with oairecerif.funding.identifier = "12345"
+       - If found: Links to existing Project entity
+       - If not found: Authority remains unresolved (no automatic creation)
+       - Sets dc.relation.funding authority to Project UUID (if found)
+    
+    5. Adding author without authority (internal metadata import):
+       User adds: dc.contributor.author = "Jane Smith"
+                  oairecerif.author.affiliation = "MIT"
+                  authority = (blank)
+       System:
+       - Generates dspace.sourceId = MD5("JANE SMITH") or random UUID
+       - Searches for Person with matching dspace.sourceId
+       - If not found:
+         * Creates Person entity with dc.title = "Jane Smith"
+         * Copies oairecerif.author.affiliation → person.affiliation.name = "MIT"
+         * Sets constant person.jobTitle = "Worker"
+         * Sets dc.contributor.author authority to Person UUID
+
+-->
 <beans xmlns="http://www.springframework.org/schema/beans"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xmlns:util="http://www.springframework.org/schema/util"
@@ -15,15 +138,35 @@
 					<bean class="org.dspace.authority.filler.ItemMetadataImportFiller" parent="fullItemMetadataConfiguration" />
 				</entry>
                 <entry key="ORCID" value-ref="orcidImportFiller" />
-                <entry key="ISSN" value-ref="sherpaImportFiller" />
+                <entry key="ISSN" value-ref="opfImportFiller" />
                 <entry key="OPENAIRE-PROJECT-ID" value-ref="openaireProjectImportFiller" />
                 <entry key="ROR-ID" value-ref="rorOrgUnitImportFiller" />
 			</map>
 		</property>
 	</bean>
 
-	<bean class="org.dspace.authority.filler.ItemMetadataImportFiller" id="fullItemMetadataConfiguration" abstract="true">
-		<property name="itemService" ref="org.dspace.content.ItemServiceImpl" />
+	<!-- Template configuration for internal metadata-based import.
+	     Defines field mappings from parent item metadata to new entity metadata.
+	     Each entry maps a parent item metadata field to a set of entity metadata fields.
+	     
+	     MAPPING STRUCTURE:
+	     - Key: Parent item metadata field (e.g., dc.contributor.author)
+	     - Value: MetadataConfiguration with:
+	       * updateEnabled: If true, updates entity when parent metadata changes
+	       * mapping: Map of source fields to target entity fields
+	     
+	     MAPPING TYPES:
+	     1. Direct mapping: Source field from parent → target field in entity
+	        Example: oairecerif.author.affiliation → person.affiliation.name
+	     
+	     2. Constant value: Hardcoded value → target field in entity
+	        Example: constant.person.jobTitle → person.jobTitle (value: "Worker")
+	     
+	     NOTE: These mappings only apply when using SOURCE_INTERNAL as the data source.
+	     External sources (ORCID, Open Policy Finder) use their own data providers. -->
+	<bean class="org.dspace.authority.filler.ItemMetadataImportFiller" id="fullItemMetadataConfiguration"
+		  abstract="true">
+		<property name="itemService" ref="org.dspace.content.ItemServiceImpl"/>
 		<property name="configurations">
 			<map>
 				<entry key="dc.contributor.author">
@@ -102,7 +245,7 @@
 			</map>
 		</property>
 	</bean>
-	
+
 	<bean class="org.dspace.authority.filler.ExternalDataProviderImportFiller" id="orcidImportFiller" >
 	   <constructor-arg name="externalDataProvider" ref="org.dspace.external.provider.impl.OrcidV3AuthorDataProvider"/>
 	   <constructor-arg name="authorityIdentifier" value="ORCID"/>
@@ -118,7 +261,7 @@
        <constructor-arg name="externalDataProvider" ref="openaireLiveImportDataProvider"/>
        <constructor-arg name="authorityIdentifier" value="OPENAIRE-PROJECT-ID"/>
     </bean>
-    
+
     <bean class="org.dspace.authority.filler.ExternalDataProviderImportFiller" id="rorOrgUnitImportFiller" >
        <constructor-arg name="externalDataProvider" ref="rorDataProvider"/>
        <constructor-arg name="authorityIdentifier" value="ROR-ID"/>
@@ -146,27 +289,27 @@
 			<bean class="org.dspace.authority.service.impl.ItemSearcherById"></bean>
 		</constructor-arg>
 	</bean>
-	
+
 	<bean class="org.dspace.authority.service.impl.ItemSearcherByMetadata" name="itemSearcherByORCID">
 		<constructor-arg value="person.identifier.orcid"></constructor-arg>
 		<constructor-arg value="ORCID"></constructor-arg>
 	</bean>
-	
+
 	<bean class="org.dspace.authority.service.impl.ItemSearcherByMetadata" name="itemSearcherByRID">
 		<constructor-arg value="person.identifier.rid"></constructor-arg>
 		<constructor-arg value="RID"></constructor-arg>
 	</bean>
-	
+
 	<bean class="org.dspace.authority.service.impl.ItemSearcherByMetadata" name="itemSearcherByDOI">
 		<constructor-arg value="dc.identifier.doi"></constructor-arg>
 		<constructor-arg value="DOI"></constructor-arg>
 	</bean>
-	
+
 	<bean class="org.dspace.authority.service.impl.ItemSearcherByMetadata" name="itemSearcherByURL">
 		<constructor-arg value="oairecerif.identifier.url"></constructor-arg>
 		<constructor-arg value="URL"></constructor-arg>
 	</bean>
-	
+
 	<bean class="org.dspace.authority.service.impl.ItemSearcherByMetadata" name="itemSearcherByISNI">
 		<constructor-arg value="person.identifier.isni"></constructor-arg>
 		<constructor-arg value="ISNI"></constructor-arg>
@@ -186,18 +329,18 @@
 		<constructor-arg value="cris.legacyId"></constructor-arg>
 		<constructor-arg value="LEGACY-ID"></constructor-arg>
 	</bean>
-	
+
 	<bean class="org.dspace.authority.service.impl.ItemSearcherByMetadata" name="itemSearcherByScopusAuthorId">
         <constructor-arg value="person.identifier.scopus-author-id"></constructor-arg>
         <constructor-arg value="SCOPUS-AUTHOR-ID"></constructor-arg>
     </bean>
-    
+
     <bean class="org.dspace.authority.service.impl.ItemSearcherByMetadata" name="itemSearcherByRorId">
         <constructor-arg value="organization.identifier.ror"></constructor-arg>
         <constructor-arg value="ROR-ID"></constructor-arg>
     </bean>
-	
+
 	<bean class="org.dspace.authority.service.impl.ItemSearchServiceImpl" name="org.dspace.authority.service.ItemSearchService"/>
 	<bean class="org.dspace.authority.service.impl.ItemReferenceResolverServiceImpl" name="org.dspace.authority.service.ItemReferenceResolverService"/>
-	
+
 </beans>
