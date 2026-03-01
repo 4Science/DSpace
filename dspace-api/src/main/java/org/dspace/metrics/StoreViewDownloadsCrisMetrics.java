@@ -218,8 +218,9 @@ public class StoreViewDownloadsCrisMetrics extends
                 context.commit();
             }
         }
-        handler.logInfo("Found " + countFoundItems + type);
+        handler.logInfo("Found " + countFoundItems + " metrics of type " + type);
         handler.logInfo("Added " + countAddedItems + " metrics");
+        handler.logInfo("Updated " + countUpdatedItems + " metrics");
         handler.logInfo("Update end");
         context.commit();
     }
