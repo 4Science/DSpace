@@ -17,7 +17,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
-import javax.el.MethodNotFoundException;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -141,7 +140,7 @@ public class CoreImportMetadataSourceServiceIT extends AbstractLiveImportIntegra
         }
     }
 
-    @Test(expected = MethodNotFoundException.class)
+    @Test(expected = UnsupportedOperationException.class)
     public void coreImportMetadataFindMatchingRecordsTest() throws Exception {
         context.turnOffAuthorisationSystem();
 

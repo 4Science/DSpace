@@ -76,7 +76,7 @@ public class ExternalSourcesRestControllerIT extends AbstractControllerIntegrati
                        ExternalSourceMatcher.matchExternalSource("crossref", "crossref", false),
                        ExternalSourceMatcher.matchExternalSource("orcidWorks", "orcidWorks", false)
                    )))
-                   .andExpect(jsonPath("$.page.totalElements", Matchers.is(16)));
+                   .andExpect(jsonPath("$.page.totalElements", Matchers.is(17)));
     }
 
     @Test
