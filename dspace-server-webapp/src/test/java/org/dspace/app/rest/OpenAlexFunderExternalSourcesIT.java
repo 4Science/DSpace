@@ -57,7 +57,7 @@ public class OpenAlexFunderExternalSourcesIT extends AbstractControllerIntegrati
 
     @Test
     public void findOneOpenalexImportFunderExternalExternalSourceTest() throws Exception {
-        getClient().perform(get("/api/integration/externalsources?size=25")).andExpect(status().isOk())
+        getClient().perform(get("/api/integration/externalsources?size=26")).andExpect(status().isOk())
                    .andExpect(jsonPath("$._embedded.externalsources", Matchers.hasItem(
                        ExternalSourceMatcher.matchExternalSource("openalexFunder",
                                                                  "openalexFunder", false))));
