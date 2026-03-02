@@ -18,7 +18,7 @@
 
     <properties>
         <!--=== GENERAL / DSPACE-API DEPENDENCIES ===-->
-        <java.version>17</java.version>
+        <java.version>21</java.version>
         <spring.version>6.2.14</spring.version>
         <spring-boot.version>3.5.8</spring-boot.version>
         <spring-security.version>6.5.7</spring-security.version> <!-- sync with version used by spring-boot-->
