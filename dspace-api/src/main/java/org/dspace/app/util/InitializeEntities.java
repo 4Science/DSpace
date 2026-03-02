@@ -62,15 +62,35 @@ public class InitializeEntities {
      * @throws ParseException       If something goes wrong with the parsing
      */
     public static void main(String[] argv) throws SQLException, AuthorizeException, ParseException {
+        runInitializeEntities(argv);
+        // Note: Do NOT call System.exit() on success - let the JVM exit naturally.
+        // This allows launcher.xml scripts to be called via reflection in tests.
+    }
+
+    /**
+     * Run the initialize-entities logic.
+     * This method is called by main() for CLI usage and directly by tests.
+     *
+     * @param argv the command line arguments
+     * @throws SQLException       if database error
+     * @throws AuthorizeException if authorization error
+     * @throws ParseException     if command line parsing error
+     */
+    public static void runInitializeEntities(String[] argv) throws SQLException, AuthorizeException, ParseException {
         InitializeEntities initializeEntities = new InitializeEntities();
         // Set up command-line options and parse arguments
         CommandLineParser parser = new DefaultParser();
         Options options = createCommandLineOptions();
-        CommandLine line = parser.parse(options,argv);
+        CommandLine line = parser.parse(options, argv);
         // First of all, check if the help option was entered or a required argument is missing
-        checkHelpEntered(options, line);
+        if (checkHelpEntered(options, line)) {
+            return;
+        }
         // Get the file location from the command line
         String fileLocation = getFileLocationFromCommandLine(line);
+        if (fileLocation == null) {
+            return;
+        }
         // Run the script
         initializeEntities.run(fileLocation);
     }
@@ -80,18 +100,19 @@ public class InitializeEntities {
      * @param options the defined command-line options
      * @param line the parsed command-line arguments
      */
-    private static void checkHelpEntered(Options options, CommandLine line) {
+    private static boolean checkHelpEntered(Options options, CommandLine line) {
         if (line.hasOption("h") || !line.hasOption("f")) {
             HelpFormatter formatter = new HelpFormatter();
             formatter.printHelp("Initialize Entities", options);
-            System.exit(0);
+            return true;
         }
+        return false;
     }
 
     /**
-     * Get the file path from the command-line argument. Exits with exit code 1 if no file argument was entered.
+     * Get the file path from the command-line argument.
      * @param line the parsed command-line arguments
-     * @return the file path
+     * @return the file path, or null if no file argument was entered
      */
     private static String getFileLocationFromCommandLine(CommandLine line) {
         String query = line.getOptionValue("f");

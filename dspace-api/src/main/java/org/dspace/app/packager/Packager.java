@@ -126,14 +126,39 @@ public class Packager {
     protected boolean submit = true;
     protected boolean userInteractionEnabled = true;
 
-    // die from illegal command line
+    /**
+     * Signal a usage error and exit.
+     * Throws PackagerExitException instead of calling System.exit() directly
+     * to allow for proper testing when called via reflection.
+     *
+     * @param msg the error message to display
+     */
     protected static void usageError(String msg) {
         System.out.println(msg);
         System.out.println(" (run with -h flag for details)");
-        System.exit(1);
+        throw new PackagerExitException(1, msg);
     }
 
+    /**
+     * Main entry point. When called via ScriptLauncher, exceptions will be
+     * caught and handled by the launcher. For success, the method returns normally.
+     * For errors, PackagerExitException is thrown and propagates up.
+     *
+     * @param argv command line arguments
+     * @throws Exception if an error occurs
+     */
     public static void main(String[] argv) throws Exception {
+        runPackager(argv);
+    }
+
+    /**
+     * Main packager logic, separated from main() to allow testing.
+     * Throws PackagerExitException instead of calling System.exit() directly.
+     *
+     * @param argv command line arguments
+     * @throws Exception if an error occurs
+     */
+    protected static void runPackager(String[] argv) throws Exception {
         Options options = new Options();
         options.addOption("p", "parent", true,
                           "Handle(s) of parent Community or Collection into which to ingest object (repeatable)");
@@ -236,7 +261,6 @@ public class Packager {
                     System.out.println("  " + pn[i]);
                 }
             }
-            System.exit(0);
         }
 
         //look for flag to disable all user interaction
@@ -303,7 +327,7 @@ public class Packager {
             System.err.println("Error - missing a REQUIRED argument or option.\n");
             HelpFormatter myhelp = new HelpFormatter();
             myhelp.printHelp("PackageManager  [options]  package-file|-\n", options);
-            System.exit(0);
+            return;
         }
 
         // find the EPerson, assign to context
@@ -337,7 +361,7 @@ public class Packager {
                 }
             }
 
-            String choiceString = null;
+            String choiceString;
             if (myPackager.userInteractionEnabled) {
                 BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
                 System.out.println("\n\nWARNING -- You are running the packager in REPLACE mode.");
@@ -368,7 +392,7 @@ public class Packager {
                     e.printStackTrace();
                     context.abort();
                     System.out.println(e);
-                    System.exit(1);
+                    throw new PackagerExitException(1);
                 }
             }
 
@@ -409,13 +433,13 @@ public class Packager {
 
                 //commit all changes & exit successfully
                 context.complete();
-                System.exit(0);
+                return;
             } catch (Exception e) {
                 // abort all operations
                 e.printStackTrace();
                 context.abort();
                 System.out.println(e);
-                System.exit(1);
+                throw new PackagerExitException(1);
             }
         } else {
             // else, if DISSEMINATE mode
@@ -438,7 +462,6 @@ public class Packager {
             //disseminate the requested object
             myPackager.disseminate(context, dip, dso, pkgParams, sourceFile);
         }
-        System.exit(0);
     }
 
     /**
