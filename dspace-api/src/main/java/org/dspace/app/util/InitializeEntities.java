@@ -119,7 +119,7 @@ public class InitializeEntities {
         if (StringUtils.isEmpty(query)) {
             System.out.println("No file location was entered");
             log.info("No file location was entered");
-            System.exit(1);
+            return null;
         }
         return query;
     }
