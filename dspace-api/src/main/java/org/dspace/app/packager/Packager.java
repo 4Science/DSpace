@@ -376,17 +376,13 @@ public class Packager {
                 //user interaction disabled -- default answer to 'yes', otherwise script won't continue
                 choiceString = "y";
             }
-
             if (choiceString.equalsIgnoreCase("y")) {
                 System.out.println("Beginning replacement process...");
-
                 try {
                     //replace the object from the source file
                     myPackager.replace(context, sip, pkgParams, sourceFile, objToReplace);
-
                     //commit all changes & exit successfully
                     context.complete();
-                    System.exit(0);
                 } catch (Exception e) {
                     // abort all operations
                     e.printStackTrace();
@@ -395,7 +391,6 @@ public class Packager {
                     throw new PackagerExitException(1);
                 }
             }
-
         } else if (myPackager.submit || pkgParams.restoreModeEnabled()) {
             //else if normal SUBMIT mode (or basic RESTORE mode -- which is a special type of submission)
             context.setMode(Context.Mode.BATCH_EDIT);
@@ -492,7 +487,7 @@ public class Packager {
 
         if (!pkgFile.exists()) {
             System.out.println("\nERROR: Package located at " + sourceFile + " does not exist!");
-            System.exit(1);
+            throw new PackagerExitException(1, "Package file does not exist: " + sourceFile);
         }
 
         System.out.println("\nIngesting package located at " + sourceFile);
@@ -688,7 +683,7 @@ public class Packager {
 
         if (!pkgFile.exists()) {
             System.out.println("\nPackage located at " + sourceFile + " does not exist!");
-            System.exit(1);
+            throw new PackagerExitException(1, "Package file does not exist: " + sourceFile);
         }
 
         System.out.println("\nReplacing DSpace object(s) with package located at " + sourceFile);
@@ -751,4 +746,5 @@ public class Packager {
             throw new PackageException(e);
         }
     }
+
 }
