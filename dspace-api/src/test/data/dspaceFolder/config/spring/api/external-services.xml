@@ -112,7 +112,7 @@
     <bean id="coreLiveImportDataProvider" class="org.dspace.external.provider.impl.LiveImportDataProvider">
         <property name="metadataSource" ref="CoreImportService"/>
         <property name="sourceIdentifier" value="core"/>
-        <property name="recordIdMetadata" value="dc.identifier.doi"/>
+        <property name="recordIdMetadata" value="dc.identifier.other"/>
         <property name="supportedEntityTypes">
             <list>
                 <value>Publication</value>
