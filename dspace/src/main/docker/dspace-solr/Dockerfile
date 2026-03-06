@@ -29,9 +29,9 @@ ENV SOLR_OPTS="-Dsolr.config.lib.enabled=true" \
     STATISTICS_CONFIGSET_PATH=/opt/solr/server/solr/configsets/statistics/conf \
     QAEVENT_CONFIGSET_PATH=/opt/solr/server/solr/configsets/qaevent/conf  \
     SUGGESTION_CONFIGSET_PATH=/opt/solr/server/solr/configsets/suggestion/conf \
-    AUDIT_CONFIGSET_PATH=/opt/solr/server/solr/configsets/audit/conf
+    AUDIT_CONFIGSET_PATH=/opt/solr/server/solr/configsets/audit/conf \
     DEDUP_CONFIGSET_PATH=/opt/solr/server/solr/configsets/dedup/conf \
-    OCR_CONFIGSET_PATH=/opt/solr/server/solr/configsets/ocr/conf \
+    OCR_CONFIGSET_PATH=/opt/solr/server/solr/configsets/ocr/conf
 
 USER root
 
