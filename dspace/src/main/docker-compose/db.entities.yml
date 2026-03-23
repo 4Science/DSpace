@@ -8,7 +8,7 @@
 
 services:
   dspacedb:
-    image: 4science/dspace-cris-postgres-pgcrypto:${DSPACE_VER:-2025_02_x}-loadsql
+    image: 4science/dspace-cris-postgres-loadsql:${DSPACE_VER:-dspace-cris-2025_02_x}
     environment:
       # This SQL is available from https://github.com/DSpace-Labs/AIP-Files/releases/tag/demo-entities-data
       LOADSQL: https://github.com/4Science/DSpace-CRIS-Files/releases/download/cris-2025.02.00/db-entities.sql
