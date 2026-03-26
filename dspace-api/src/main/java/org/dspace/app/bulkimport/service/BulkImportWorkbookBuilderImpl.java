@@ -360,9 +360,7 @@ public class BulkImportWorkbookBuilderImpl implements BulkImportWorkbookBuilder 
         if (StringUtils.isBlank(language)) {
             sheet.appendValueOnLastRow(header, formatMetadataValue(metadataValue), METADATA_SEPARATOR);
             return;
-        }
-
-        if (isLanguageSupported(sheet.getCollection(), language, header, sheet.isNestedMetadata())) {
+        } else {
             String headerWithLanguage = header + LANGUAGE_SEPARATOR_PREFIX + language + LANGUAGE_SEPARATOR_SUFFIX;
             sheet.appendHeaderIfNotPresent(headerWithLanguage);
             sheet.appendValueOnLastRow(headerWithLanguage, formatMetadataValue(metadataValue), METADATA_SEPARATOR);

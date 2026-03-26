@@ -81,11 +81,10 @@ public class BulkItemExportIT extends AbstractIntegrationTestWithDatabase {
         File xml = new File("person.xml");
         xml.deleteOnExit();
 
-        String[] args = new String[] { "bulk-item-export", "-t", "Person", "-f", "person-xml",
-            "-e", eperson.getEmail() };
+        String[] args = new String[] { "bulk-item-export", "-t", "Person", "-f", "person-xml" };
         TestDSpaceRunnableHandler handler = new TestDSpaceRunnableHandler();
 
-        handleScript(args, ScriptLauncher.getConfig(kernelImpl), handler, kernelImpl, null);
+        handleScript(args, ScriptLauncher.getConfig(kernelImpl), handler, kernelImpl, eperson);
 
         assertThat(handler.getErrorMessages(), empty());
         assertThat(handler.getInfoMessages(), hasItem("Found 3 items to export"));
@@ -114,11 +113,10 @@ public class BulkItemExportIT extends AbstractIntegrationTestWithDatabase {
         File xml = new File("person.xml");
         xml.deleteOnExit();
 
-        String[] args = new String[] { "bulk-item-export", "-t", "Person", "-f", "person-xml", "-q", "Edward",
-            "-e", eperson.getEmail() };
+        String[] args = new String[] { "bulk-item-export", "-t", "Person", "-f", "person-xml", "-q", "Edward" };
         TestDSpaceRunnableHandler handler = new TestDSpaceRunnableHandler();
 
-        handleScript(args, ScriptLauncher.getConfig(kernelImpl), handler, kernelImpl, null);
+        handleScript(args, ScriptLauncher.getConfig(kernelImpl), handler, kernelImpl, eperson);
 
         assertThat(handler.getErrorMessages(), empty());
         assertThat(handler.getInfoMessages(), hasItem("Found 2 items to export"));
@@ -148,10 +146,10 @@ public class BulkItemExportIT extends AbstractIntegrationTestWithDatabase {
         xml.deleteOnExit();
 
         String[] args = new String[] { "bulk-item-export", "-t", "Person", "-f", "person-xml",
-            "-sf", "subject=Science", "-e", eperson.getEmail() };
+            "-sf", "subject=Science" };
         TestDSpaceRunnableHandler handler = new TestDSpaceRunnableHandler();
 
-        handleScript(args, ScriptLauncher.getConfig(kernelImpl), handler, kernelImpl, null);
+        handleScript(args, ScriptLauncher.getConfig(kernelImpl), handler, kernelImpl, eperson);
 
         assertThat(handler.getErrorMessages(), empty());
         assertThat(handler.getInfoMessages(), hasItem("Found 2 items to export"));
@@ -181,10 +179,10 @@ public class BulkItemExportIT extends AbstractIntegrationTestWithDatabase {
         xml.deleteOnExit();
 
         String[] args = new String[] { "bulk-item-export", "-t", "Person", "-f", "person-xml",
-            "-sf", "subject=Science&title=Walter White", "-e", eperson.getEmail() };
+            "-sf", "subject=Science&title=Walter White" };
         TestDSpaceRunnableHandler handler = new TestDSpaceRunnableHandler();
 
-        handleScript(args, ScriptLauncher.getConfig(kernelImpl), handler, kernelImpl, null);
+        handleScript(args, ScriptLauncher.getConfig(kernelImpl), handler, kernelImpl, eperson);
 
         assertThat(handler.getErrorMessages(), empty());
         assertThat(handler.getInfoMessages(), hasItem("Found 1 items to export"));
@@ -214,10 +212,10 @@ public class BulkItemExportIT extends AbstractIntegrationTestWithDatabase {
         xml.deleteOnExit();
 
         String[] args = new String[] { "bulk-item-export", "-t", "Person", "-f", "person-xml",
-            "-s", collection.getID().toString(), "-e", eperson.getEmail() };
+            "-s", collection.getID().toString() };
         TestDSpaceRunnableHandler handler = new TestDSpaceRunnableHandler();
 
-        handleScript(args, ScriptLauncher.getConfig(kernelImpl), handler, kernelImpl, null);
+        handleScript(args, ScriptLauncher.getConfig(kernelImpl), handler, kernelImpl, eperson);
 
         assertThat(handler.getErrorMessages(), empty());
         assertThat(handler.getInfoMessages(), hasItem("Found 2 items to export"));
@@ -270,10 +268,10 @@ public class BulkItemExportIT extends AbstractIntegrationTestWithDatabase {
         xml.deleteOnExit();
 
         String[] args = new String[] { "bulk-item-export", "-t", "Person", "-f", "person-xml",
-            "-s", orgUnitId, "-c", "RELATION.OrgUnit.people", "-e", eperson.getEmail() };
+            "-s", orgUnitId, "-c", "RELATION.OrgUnit.people" };
         TestDSpaceRunnableHandler handler = new TestDSpaceRunnableHandler();
 
-        handleScript(args, ScriptLauncher.getConfig(kernelImpl), handler, kernelImpl, null);
+        handleScript(args, ScriptLauncher.getConfig(kernelImpl), handler, kernelImpl, eperson);
 
         assertThat(handler.getErrorMessages(), empty());
         assertThat(handler.getInfoMessages(), hasItem("Found 2 items to export"));
@@ -306,10 +304,10 @@ public class BulkItemExportIT extends AbstractIntegrationTestWithDatabase {
         xml.deleteOnExit();
 
         String[] args = new String[] { "bulk-item-export", "-t", "Person", "-f", "person-xml",
-            "-s", collection.getID().toString(), "-sf", "subject=Science", "-q", "Edward", "-e", eperson.getEmail() };
+            "-s", collection.getID().toString(), "-sf", "subject=Science", "-q", "Edward" };
         TestDSpaceRunnableHandler handler = new TestDSpaceRunnableHandler();
 
-        handleScript(args, ScriptLauncher.getConfig(kernelImpl), handler, kernelImpl, null);
+        handleScript(args, ScriptLauncher.getConfig(kernelImpl), handler, kernelImpl, eperson);
 
         assertThat(handler.getErrorMessages(), empty());
         assertThat(handler.getInfoMessages(), hasItem("Found 1 items to export"));
@@ -338,11 +336,10 @@ public class BulkItemExportIT extends AbstractIntegrationTestWithDatabase {
         File xml = new File("person.xml");
         xml.deleteOnExit();
 
-        String[] args = new String[] { "bulk-item-export", "-t", "Person", "-f", "person-xml", "-so", "dc.title,ASC",
-            "-e", eperson.getEmail() };
+        String[] args = new String[] { "bulk-item-export", "-t", "Person", "-f", "person-xml", "-so", "dc.title,ASC" };
         TestDSpaceRunnableHandler handler = new TestDSpaceRunnableHandler();
 
-        handleScript(args, ScriptLauncher.getConfig(kernelImpl), handler, kernelImpl, null);
+        handleScript(args, ScriptLauncher.getConfig(kernelImpl), handler, kernelImpl, eperson);
 
         assertThat(handler.getErrorMessages(), empty());
         assertThat(handler.getInfoMessages(), hasItem("Found 3 items to export"));
@@ -371,11 +368,10 @@ public class BulkItemExportIT extends AbstractIntegrationTestWithDatabase {
         File xml = new File("person.xml");
         xml.deleteOnExit();
 
-        String[] args = new String[] { "bulk-item-export", "-t", "Person", "-f", "person-xml", "-so", "dc.title,DESC",
-            "-e", eperson.getEmail() };
+        String[] args = new String[] { "bulk-item-export", "-t", "Person", "-f", "person-xml", "-so", "dc.title,DESC" };
         TestDSpaceRunnableHandler handler = new TestDSpaceRunnableHandler();
 
-        handleScript(args, ScriptLauncher.getConfig(kernelImpl), handler, kernelImpl, null);
+        handleScript(args, ScriptLauncher.getConfig(kernelImpl), handler, kernelImpl, eperson);
 
         assertThat(handler.getErrorMessages(), empty());
         assertThat(handler.getInfoMessages(), hasItem("Found 3 items to export"));
@@ -394,10 +390,10 @@ public class BulkItemExportIT extends AbstractIntegrationTestWithDatabase {
     @Test
     public void testBulkItemExportWithoutExportFormat() throws Exception {
 
-        String[] args = new String[] { "bulk-item-export", "-t", "Person", "-e", eperson.getEmail() };
+        String[] args = new String[] { "bulk-item-export", "-t", "Person" };
         TestDSpaceRunnableHandler handler = new TestDSpaceRunnableHandler();
 
-        handleScript(args, ScriptLauncher.getConfig(kernelImpl), handler, kernelImpl, null);
+        handleScript(args, ScriptLauncher.getConfig(kernelImpl), handler, kernelImpl, eperson);
 
         List<String> errorMessages = handler.getErrorMessages();
         assertThat(errorMessages, hasSize(1));
@@ -407,10 +403,10 @@ public class BulkItemExportIT extends AbstractIntegrationTestWithDatabase {
     @Test
     public void testBulkItemExportWithInvalidFormat() throws Exception {
 
-        String[] args = new String[] { "bulk-item-export", "-t", "Person", "-f", "invalid", "-e", eperson.getEmail() };
+        String[] args = new String[] { "bulk-item-export", "-t", "Person", "-f", "invalid" };
         TestDSpaceRunnableHandler handler = new TestDSpaceRunnableHandler();
 
-        handleScript(args, ScriptLauncher.getConfig(kernelImpl), handler, kernelImpl, null);
+        handleScript(args, ScriptLauncher.getConfig(kernelImpl), handler, kernelImpl, eperson);
 
         List<String> errorMessages = handler.getErrorMessages();
         assertThat(errorMessages, hasSize(1));
@@ -420,11 +416,10 @@ public class BulkItemExportIT extends AbstractIntegrationTestWithDatabase {
     @Test
     public void testBulkItemExportWithInvalidFilter() throws Exception {
 
-        String[] args = new String[] { "bulk-item-export", "-t", "Person", "-f", "person-xml", "-sf", "testFilter",
-            "-e", eperson.getEmail() };
+        String[] args = new String[] { "bulk-item-export", "-t", "Person", "-f", "person-xml", "-sf", "testFilter" };
         TestDSpaceRunnableHandler handler = new TestDSpaceRunnableHandler();
 
-        handleScript(args, ScriptLauncher.getConfig(kernelImpl), handler, kernelImpl, null);
+        handleScript(args, ScriptLauncher.getConfig(kernelImpl), handler, kernelImpl, eperson);
 
         List<String> errorMessages = handler.getErrorMessages();
         assertThat(errorMessages, hasSize(1));
@@ -434,10 +429,10 @@ public class BulkItemExportIT extends AbstractIntegrationTestWithDatabase {
     @Test
     public void testBulkItemExportWithoutEntityType() throws Exception {
 
-        String[] args = new String[] { "bulk-item-export", "-f", "person-xml", "-e", eperson.getEmail() };
+        String[] args = new String[] { "bulk-item-export", "-f", "person-xml" };
         TestDSpaceRunnableHandler handler = new TestDSpaceRunnableHandler();
 
-        handleScript(args, ScriptLauncher.getConfig(kernelImpl), handler, kernelImpl, null);
+        handleScript(args, ScriptLauncher.getConfig(kernelImpl), handler, kernelImpl, eperson);
 
         assertThat(handler.getErrorMessages(), empty());
         assertThat(handler.getInfoMessages(), contains("Found 0 items to export",
@@ -462,11 +457,10 @@ public class BulkItemExportIT extends AbstractIntegrationTestWithDatabase {
         File xml = new File("person.xml");
         xml.deleteOnExit();
 
-        String[] args = new String[] { "bulk-item-export", "-t", "Person", "-f", "person-xml", "-q", "Edward",
-            "-e", eperson.getEmail() };
+        String[] args = new String[] { "bulk-item-export", "-t", "Person", "-f", "person-xml", "-q", "Edward" };
         TestDSpaceRunnableHandler handler = new TestDSpaceRunnableHandler();
 
-        handleScript(args, ScriptLauncher.getConfig(kernelImpl), handler, kernelImpl, null);
+        handleScript(args, ScriptLauncher.getConfig(kernelImpl), handler, kernelImpl, eperson);
 
         assertThat(handler.getErrorMessages(), empty());
         assertThat(handler.getInfoMessages(), hasItem("Found 1 items to export"));
@@ -498,10 +492,10 @@ public class BulkItemExportIT extends AbstractIntegrationTestWithDatabase {
         xml.deleteOnExit();
 
         String[] args = new String[] { "bulk-item-export", "-t", "Person", "-f", "person-xml",
-            "-q", "Edward", "-c", "workspace", "-e", eperson.getEmail() };
+            "-q", "Edward", "-c", "workspace" };
         TestDSpaceRunnableHandler handler = new TestDSpaceRunnableHandler();
 
-        handleScript(args, ScriptLauncher.getConfig(kernelImpl), handler, kernelImpl, null);
+        handleScript(args, ScriptLauncher.getConfig(kernelImpl), handler, kernelImpl, eperson);
 
         assertThat(handler.getErrorMessages(), empty());
         assertThat(handler.getInfoMessages(), hasItem("Found 3 items to export"));
@@ -530,14 +524,13 @@ public class BulkItemExportIT extends AbstractIntegrationTestWithDatabase {
 
         String items = item1.getID().toString() + ";" + item2.getID().toString();
 
-        String[] args = new String[] { "bulk-item-export", "-si", items, "-f", "publication-chicago",
-            "-e", eperson.getEmail() };
+        String[] args = new String[] { "bulk-item-export", "-si", items, "-f", "publication-chicago" };
 
         TestDSpaceRunnableHandler handler = new TestDSpaceRunnableHandler();
         File txt = new File("publications.txt");
         txt.deleteOnExit();
 
-        handleScript(args, ScriptLauncher.getConfig(kernelImpl), handler, kernelImpl, null);
+        handleScript(args, ScriptLauncher.getConfig(kernelImpl), handler, kernelImpl, eperson);
 
         try (FileInputStream fis = new FileInputStream(txt)) {
             String content = IOUtils.toString(fis, Charset.defaultCharset());
@@ -569,29 +562,24 @@ public class BulkItemExportIT extends AbstractIntegrationTestWithDatabase {
         File xml = new File("person.xml");
         xml.deleteOnExit();
 
-        String[] adminArgs = new String[] { "bulk-item-export", "-t", "Person", "-f", "person-xml",
-            "-so", "dc.title,ASC", "-e", admin.getEmail() };
+        String[] args = new String[] { "bulk-item-export", "-t", "Person", "-f", "person-xml", "-so", "dc.title,ASC" };
         TestDSpaceRunnableHandler handler = new TestDSpaceRunnableHandler();
 
-        handleScript(adminArgs, ScriptLauncher.getConfig(kernelImpl), handler, kernelImpl, null);
+        handleScript(args, ScriptLauncher.getConfig(kernelImpl), handler, kernelImpl, admin);
 
         assertThat(handler.getErrorMessages(), empty());
         assertThat(handler.getInfoMessages(), hasItem("Found 3 items to export"));
         assertThat("The xml file should be created", xml.exists(), is(true));
 
         // eperson is the collection admin, so the output will be the same as the admin.
-        String[] epersonArgs = new String[] { "bulk-item-export", "-t", "Person", "-f", "person-xml",
-            "-so", "dc.title,ASC", "-e", eperson.getEmail() };
-        handleScript(epersonArgs, ScriptLauncher.getConfig(kernelImpl), handler, kernelImpl, null);
+        handleScript(args, ScriptLauncher.getConfig(kernelImpl), handler, kernelImpl, eperson);
 
         assertThat(handler.getErrorMessages(), empty());
         assertThat(handler.getInfoMessages(), hasItem("Found 3 items to export"));
         assertThat("The xml file should be created", xml.exists(), is(true));
 
         // member is a newly created eperson, so it will be treated as a generic logged user.
-        String[] memberArgs = new String[] { "bulk-item-export", "-t", "Person", "-f", "person-xml",
-            "-so", "dc.title,ASC", "-e", member.getEmail() };
-        handleScript(memberArgs, ScriptLauncher.getConfig(kernelImpl), handler, kernelImpl, null);
+        handleScript(args, ScriptLauncher.getConfig(kernelImpl), handler, kernelImpl, member);
 
         assertThat(handler.getErrorMessages(), empty());
         assertThat(handler.getInfoMessages(), hasItem("Export will be limited to 2 items."));
@@ -599,7 +587,6 @@ public class BulkItemExportIT extends AbstractIntegrationTestWithDatabase {
         assertThat("The xml file should be created", xml.exists(), is(true));
 
         // null eperson, so it will be treated as there is no user logged in.
-        String[] args = new String[] { "bulk-item-export", "-t", "Person", "-f", "person-xml", "-so", "dc.title,ASC" };
         handleScript(args, ScriptLauncher.getConfig(kernelImpl), handler, kernelImpl, null);
 
         assertThat(handler.getErrorMessages(), empty());
@@ -612,178 +599,246 @@ public class BulkItemExportIT extends AbstractIntegrationTestWithDatabase {
     }
 
     @Test
-    public void bulkItemExportWithDateIssuedAndLeftLimitTest() throws Exception {
+    public void testBulkItemExportWithMultipleLanguages() throws Exception {
+
         context.turnOffAuthorisationSystem();
-        createItem(collection, "Edward Red", "Science", "Person");
-        createPublication("Title Publication1 2025", "subject one", "2025");
-        createPublication("Test Publication bulk-import", "subject2", "2025-03-15");
-        createPublication("Title Publication 2024", "subject33", "2024");
-        createPublication("TitlePublication", "subject4", "2024-11-21");
-        createPublication("Tets 2023", "subject", "2023");
-        createPublication("Title Publication 4sciecnce", "subject99", "2023-06-20");
+        ItemBuilder.createItem(context, collection)
+                .withTitleForLanguage("Edward Red", "en")
+                .withTitleForLanguage("Edward Red it", "it")
+                .withSubjectForLanguage("Edward subject", "en")
+                .withSubjectForLanguage("Edward subject it", "it")
+                .withEntityType("Person")
+                .build();
+        ItemBuilder.createItem(context, collection)
+                .withTitleForLanguage("My publication", "en")
+                .withSubjectForLanguage("", "en")
+                .withEntityType("Publication")
+                .build();
         context.restoreAuthSystemState();
         context.commit();
 
-        File csv = new File("publications.csv");
-        csv.deleteOnExit();
+        File xml = new File("person.xml");
+        xml.deleteOnExit();
 
-        String[] args = new String[] { "bulk-item-export",
-                                       "-t", "Publication",
-                                       "-f", "publication-csv",
-                                       "-sf", "dateIssued=[2025 TO *],equals",
-                                       "-c", "site",
-                                       "-so", "score,DESC",
-                                       "-e", eperson.getEmail() };
-
+        String[] args = new String[] { "bulk-item-export", "-t", "Person", "-f", "person-xml" };
         TestDSpaceRunnableHandler handler = new TestDSpaceRunnableHandler();
-        handleScript(args, ScriptLauncher.getConfig(kernelImpl), handler, kernelImpl, null);
+
+        handleScript(args, ScriptLauncher.getConfig(kernelImpl), handler, kernelImpl, eperson);
+
+        assertThat(handler.getErrorMessages(), empty());
+        assertThat(handler.getInfoMessages(), hasItem("Found 1 items to export"));
+        assertThat("The xml file should be created", xml.exists(), is(true));
+
+        try (FileInputStream fis = new FileInputStream(xml)) {
+            String content = IOUtils.toString(fis, Charset.defaultCharset());
+            assertThat(content, containsString("<preferred-name>Edward Red</preferred-name>"));
+            assertThat(content, containsString("<preferred-name>Edward Red it</preferred-name>"));
+            assertThat(content, containsString("<interest>Edward subject</interest>"));
+            assertThat(content, containsString("<interest>Edward subject it</interest>"));
+            assertThat(content, not(containsString("<preferred-name>My publication</preferred-name>")));
+        }
+    }
+
+    @Test
+    public void testBulkItemExportWithQueryAndMultipleLanguages() throws Exception {
+
+        context.turnOffAuthorisationSystem();
+        ItemBuilder.createItem(context, collection)
+                .withTitle("Edward Red")
+                .withTitleForLanguage("Edward Red it", "it")
+                .withSubject("Edward subject")
+                .withEntityType("Person")
+                .build();
+        ItemBuilder.createItem(context, collection)
+                .withTitle("My publication")
+                .withSubjectForLanguage("", "en")
+                .withEntityType("Publication")
+                .build();
+        ItemBuilder.createItem(context, collection)
+                .withTitle("Edward Smith")
+                .withTitleForLanguage("Edward Smith it", "it")
+                .withSubject("Subject")
+                .withEntityType("Person")
+                .build();
+        ItemBuilder.createItem(context, collection)
+                .withTitle("John Smith")
+                .withTitleForLanguage("John Smith it", "it")
+                .withSubject("Subject")
+                .withEntityType("Person")
+                .build();
+        context.restoreAuthSystemState();
+        context.commit();
+
+        File xml = new File("person.xml");
+        xml.deleteOnExit();
+
+        String[] args = new String[] { "bulk-item-export", "-t", "Person", "-f", "person-xml", "-q", "Edward" };
+        TestDSpaceRunnableHandler handler = new TestDSpaceRunnableHandler();
+
+        handleScript(args, ScriptLauncher.getConfig(kernelImpl), handler, kernelImpl, eperson);
 
         assertThat(handler.getErrorMessages(), empty());
         assertThat(handler.getInfoMessages(), hasItem("Found 2 items to export"));
-        assertThat("The xml file should be created", csv.exists(), is(true));
+        assertThat("The xml file should be created", xml.exists(), is(true));
 
-        try (FileInputStream file = new FileInputStream(csv)) {
-            String content = IOUtils.toString(file, Charset.defaultCharset());
-            // check that only 2025 publications was exported
-            assertThat(content, containsString("\"Test Publication bulk-import\",\"\",\"\",\"\",\"2025-03-15\""));
-            assertThat(content, containsString("\"Title Publication1 2025\",\"\",\"\",\"\",\"2025\""));
-            // check that others publications wasn't exported
-            assertThat(content, not(containsString("\"Title Publication 2024\"")));
-            assertThat(content, not(containsString("\"TitlePublication\"")));
-            assertThat(content, not(containsString("\"Tets 2023\"")));
-            assertThat(content, not(containsString("\"Title Publication 4sciecnce\"")));
+        try (FileInputStream fis = new FileInputStream(xml)) {
+            String content = IOUtils.toString(fis, Charset.defaultCharset());
+            assertThat(content, containsString("<preferred-name>Edward Red</preferred-name>"));
+            assertThat(content, containsString("<preferred-name>Edward Red it</preferred-name>"));
+            assertThat(content, containsString("<preferred-name>Edward Smith</preferred-name>"));
+            assertThat(content, containsString("<preferred-name>Edward Smith it</preferred-name>"));
+            assertThat(content, not(containsString("<preferred-name>John Smith</preferred-name>")));
+            assertThat(content, not(containsString("<preferred-name>Company</preferred-name>")));
         }
     }
 
     @Test
-    public void bulkItemExportWithDateIssuedAndLeftLimitWithoutOperatorEqualsTest() throws Exception {
+    public void testBulkItemExportWithSingleFilterAndMultipleLanguages() throws Exception {
+
         context.turnOffAuthorisationSystem();
-        createItem(collection, "Edward Red", "Science", "Person");
-        createPublication("Title Publication1 2025", "subject one", "2025");
-        createPublication("Test Publication bulk-import", "subject2", "2025-03-15");
-        createPublication("Title Publication 2024", "subject33", "2024");
-        createPublication("TitlePublication", "subject4", "2024-11-21");
-        createPublication("Tets 2023", "subject", "2023");
-        createPublication("Title Publication 4sciecnce", "subject99", "2023-06-20");
+        ItemBuilder.createItem(context, collection)
+                .withTitle("Edward Red")
+                .withTitleForLanguage("Edward Red it", "it")
+                .withSubjectForLanguage("Subject", "en")
+                .withEntityType("Person")
+                .build();
+        ItemBuilder.createItem(context, collection)
+                .withTitle("John Smith")
+                .withSubjectForLanguage("Subject it", "it")
+                .withEntityType("Person")
+                .build();
+        ItemBuilder.createItem(context, collection)
+                .withTitle("Edward Smith")
+                .withTitleForLanguage("Edward Smith it", "it")
+                .withSubject("Science")
+                .withSubjectForLanguage("Science it", "it")
+                .withEntityType("Person")
+                .build();
         context.restoreAuthSystemState();
         context.commit();
 
-        File csv = new File("publications.csv");
-        csv.deleteOnExit();
+        File xml = new File("person.xml");
+        xml.deleteOnExit();
 
-        String[] args = new String[] { "bulk-item-export",
-                                       "-t", "Publication",
-                                       "-f", "publication-csv",
-                                       "-sf", "dateIssued=[2025 TO *]",
-                                       "-c", "site",
-                                       "-so", "score,DESC",
-                                       "-e", eperson.getEmail() };
-
+        String[] args = new String[] { "bulk-item-export", "-t", "Person", "-f", "person-xml",
+                "-sf", "subject=Subject" };
         TestDSpaceRunnableHandler handler = new TestDSpaceRunnableHandler();
-        handleScript(args, ScriptLauncher.getConfig(kernelImpl), handler, kernelImpl, null);
 
-        assertThat(handler.getErrorMessages(), empty());
-        assertThat(handler.getInfoMessages(), hasItem("Found 3 items to export"));
-        assertThat("The xml file should be created", csv.exists(), is(true));
-
-        try (FileInputStream file = new FileInputStream(csv)) {
-            String content = IOUtils.toString(file, Charset.defaultCharset());
-            assertThat(content, containsString("\"Test Publication bulk-import\",\"\",\"\",\"\",\"2025-03-15\""));
-            assertThat(content, containsString("\"Title Publication1 2025\",\"\",\"\",\"\",\"2025\""));
-            assertThat(content, containsString("\"TitlePublication\",\"\",\"\",\"\",\"2024-11-21\""));
-
-            assertThat(content, not(containsString("\"Title Publication 2024\"")));
-            assertThat(content, not(containsString("\"Tets 2023\"")));
-            assertThat(content, not(containsString("\"Title Publication 4sciecnce\"")));
-        }
-    }
-
-    @Test
-    public void bulkItemExportWithDateIssuedAndRightLimitTest() throws Exception {
-        context.turnOffAuthorisationSystem();
-        createItem(collection, "Edward Red", "Science", "Person");
-        createPublication("Title Publication1 2025", "subject one", "2025");
-        createPublication("Test Publication bulk-import", "subject2", "2025-03-15");
-        createPublication("Title Publication 2024", "subject33", "2024");
-        createPublication("TitlePublication", "subject4", "2024-11-21");
-        createPublication("Tets 2023", "subject", "2023");
-        createPublication("Title Publication 4sciecnce", "subject99", "2023-06-20");
-        context.restoreAuthSystemState();
-        context.commit();
-
-        File csv = new File("publications.csv");
-        csv.deleteOnExit();
-
-        String[] args = new String[] { "bulk-item-export",
-                                       "-t", "Publication",
-                                       "-f", "publication-csv",
-                                       "-sf", "dateIssued=[* TO 2024],equals",
-                                       "-c", "site",
-                                       "-so", "score,DESC",
-                                       "-e", eperson.getEmail() };
-
-        TestDSpaceRunnableHandler handler = new TestDSpaceRunnableHandler();
-        handleScript(args, ScriptLauncher.getConfig(kernelImpl), handler, kernelImpl, null);
-
-        assertThat(handler.getErrorMessages(), empty());
-        assertThat(handler.getInfoMessages(), hasItem("Found 4 items to export"));
-        assertThat("The xml file should be created", csv.exists(), is(true));
-
-        try (FileInputStream file = new FileInputStream(csv)) {
-            String content = IOUtils.toString(file, Charset.defaultCharset());
-            // check that only until 2024 publications was exported
-            assertThat(content, containsString("\"Title Publication 2024\",\"\",\"\",\"\",\"2024\""));
-            assertThat(content, containsString("\"TitlePublication\",\"\",\"\",\"\",\"2024-11-21\""));
-            assertThat(content, containsString("\"Tets 2023\",\"\",\"\",\"\",\"2023\""));
-            assertThat(content, containsString("\"Title Publication 4sciecnce\",\"\",\"\",\"\",\"2023-06-20\""));
-            // check that others publications wasn't exported
-            assertThat(content, not(containsString("\"Test Publication bulk-import\"")));
-            assertThat(content, not(containsString("\"Title Publication1 2025\"")));
-        }
-    }
-
-    @Test
-    public void bulkItemExportWithDateIssuedAndOnlySpecificYearTest() throws Exception {
-        context.turnOffAuthorisationSystem();
-        createItem(collection, "Edward Red", "Science", "Person");
-        createPublication("Title Publication1 2025", "subject one", "2025");
-        createPublication("Test Publication bulk-import", "subject2", "2025-03-15");
-        createPublication("Title Publication 2024", "subject33", "2024");
-        createPublication("TitlePublication", "subject4", "2024-11-21");
-        createPublication("Tets 2023", "subject", "2023");
-        createPublication("Title Publication 4sciecnce", "subject99", "2023-06-20");
-        context.restoreAuthSystemState();
-        context.commit();
-
-        File csv = new File("publications.csv");
-        csv.deleteOnExit();
-
-        String[] args = new String[] { "bulk-item-export",
-                                       "-t", "Publication",
-                                       "-f", "publication-csv",
-                                       "-sf", "dateIssued=[2024 TO 2024],equals",
-                                       "-c", "site",
-                                       "-so", "score,DESC",
-                                       "-e", eperson.getEmail() };
-
-        TestDSpaceRunnableHandler handler = new TestDSpaceRunnableHandler();
-        handleScript(args, ScriptLauncher.getConfig(kernelImpl), handler, kernelImpl, null);
+        handleScript(args, ScriptLauncher.getConfig(kernelImpl), handler, kernelImpl, eperson);
 
         assertThat(handler.getErrorMessages(), empty());
         assertThat(handler.getInfoMessages(), hasItem("Found 2 items to export"));
-        assertThat("The xml file should be created", csv.exists(), is(true));
+        assertThat("The xml file should be created", xml.exists(), is(true));
 
-        try (FileInputStream file = new FileInputStream(csv)) {
-            String content = IOUtils.toString(file, Charset.defaultCharset());
-            // check that only 2024 publications was exported
-            assertThat(content, containsString("\"Title Publication 2024\",\"\",\"\",\"\",\"2024\""));
-            assertThat(content, containsString("\"TitlePublication\",\"\",\"\",\"\",\"2024-11-21\""));
+        try (FileInputStream fis = new FileInputStream(xml)) {
+            String content = IOUtils.toString(fis, Charset.defaultCharset());
+            assertThat(content, containsString("<preferred-name>Edward Red</preferred-name>"));
+            assertThat(content, containsString("<preferred-name>John Smith</preferred-name>"));
+            assertThat(content, not(containsString("<preferred-name>Edward Smith</preferred-name>")));
+        }
+    }
 
-            // check that others publications wasn't exported
-            assertThat(content, not(containsString("\"Test Publication bulk-import\"")));
-            assertThat(content, not(containsString("\"Title Publication1 2025\"")));
-            assertThat(content, not(containsString("\"Tets 2023\"")));
-            assertThat(content, not(containsString("\"Title Publication 4sciecnce\"")));
+    @Test
+    public void testBulkItemExportWithManyFiltersAndMultipleLanguages() throws Exception {
+
+        context.turnOffAuthorisationSystem();
+        ItemBuilder.createItem(context, collection)
+                .withTitleForLanguage("Edward Red", "en")
+                .withTitleForLanguage("Edward Red it", "it")
+                .withSubject("Science")
+                .withEntityType("Person")
+                .build();
+        ItemBuilder.createItem(context, collection)
+                .withTitle("My publication")
+                .withSubjectForLanguage("Science", "en")
+                .withEntityType("Publication")
+                .build();
+        ItemBuilder.createItem(context, collection)
+                .withTitle("Edward Smith")
+                .withTitleForLanguage("Edward Smith it", "it")
+                .withSubjectForLanguage("Science it", "it")
+                .withEntityType("Person")
+                .build();
+        ItemBuilder.createItem(context, collection)
+                .withTitle("John Smith")
+                .withTitleForLanguage("John Smith it", "it")
+                .withSubject("Subject")
+                .withEntityType("Person")
+                .build();
+        context.restoreAuthSystemState();
+        context.commit();
+
+        File xml = new File("person.xml");
+        xml.deleteOnExit();
+
+        String[] args = new String[] { "bulk-item-export", "-t", "Person", "-f", "person-xml",
+                "-sf", "subject=Science&title=Edward Red it" };
+        TestDSpaceRunnableHandler handler = new TestDSpaceRunnableHandler();
+
+        handleScript(args, ScriptLauncher.getConfig(kernelImpl), handler, kernelImpl, eperson);
+
+        assertThat(handler.getErrorMessages(), empty());
+        assertThat(handler.getInfoMessages(), hasItem("Found 1 items to export"));
+        assertThat("The xml file should be created", xml.exists(), is(true));
+
+        try (FileInputStream fis = new FileInputStream(xml)) {
+            String content = IOUtils.toString(fis, Charset.defaultCharset());
+            assertThat(content, containsString("<preferred-name>Edward Red it</preferred-name>"));
+            assertThat(content, not(containsString("<preferred-name>Edward Smith</preferred-name>")));
+            assertThat(content, not(containsString("<preferred-name>My publication</preferred-name>")));
+            assertThat(content, not(containsString("<preferred-name>John Smith</preferred-name>")));
+        }
+    }
+
+    @Test
+    public void testBulkItemExportWithScopeAndMultipleLanguages() throws Exception {
+        context.turnOffAuthorisationSystem();
+        Collection anotherCollection = createCollection(context, community).withAdminGroup(eperson).build();
+        ItemBuilder.createItem(context, collection)
+                .withTitleForLanguage("Edward Red", "en")
+                .withTitleForLanguage("Edward Red it", "it")
+                .withSubject("Science")
+                .withEntityType("Person")
+                .build();
+        ItemBuilder.createItem(context, collection)
+                .withTitle("My publication")
+                .withSubjectForLanguage("Science", "en")
+                .withEntityType("Publication")
+                .build();
+        ItemBuilder.createItem(context, anotherCollection)
+                .withTitle("Walter White")
+                .withTitleForLanguage("Walter White it", "it")
+                .withSubjectForLanguage("Science it", "it")
+                .withEntityType("Person")
+                .build();
+        ItemBuilder.createItem(context, collection)
+                .withTitle("John Smith")
+                .withTitleForLanguage("John Smith it", "it")
+                .withSubject("Subject")
+                .withEntityType("Person")
+                .build();
+        context.restoreAuthSystemState();
+        context.commit();
+
+        File xml = new File("person.xml");
+        xml.deleteOnExit();
+
+        String[] args = new String[] { "bulk-item-export", "-t", "Person", "-f", "person-xml",
+                "-s", collection.getID().toString() };
+        TestDSpaceRunnableHandler handler = new TestDSpaceRunnableHandler();
+
+        handleScript(args, ScriptLauncher.getConfig(kernelImpl), handler, kernelImpl, eperson);
+
+        assertThat(handler.getErrorMessages(), empty());
+        assertThat(handler.getInfoMessages(), hasItem("Found 2 items to export"));
+        assertThat("The xml file should be created", xml.exists(), is(true));
+
+        try (FileInputStream fis = new FileInputStream(xml)) {
+            String content = IOUtils.toString(fis, Charset.defaultCharset());
+            assertThat(content, containsString("<preferred-name>John Smith</preferred-name>"));
+            assertThat(content, containsString("<preferred-name>Edward Red</preferred-name>"));
+            assertThat(content, not(containsString("<preferred-name>Walter White</preferred-name>")));
+            assertThat(content, not(containsString("<preferred-name>My publication</preferred-name>")));
         }
     }
 
@@ -795,17 +850,8 @@ public class BulkItemExportIT extends AbstractIntegrationTestWithDatabase {
             .build();
     }
 
-    private Item createPublication(String title, String subject, String dateIssued) {
-        return ItemBuilder.createItem(context, collection)
-                          .withTitle(title)
-                          .withSubject(subject)
-                          .withIssueDate(dateIssued)
-                          .withEntityType("Publication")
-                          .build();
-    }
-
     private EPerson createEPerson() {
-        return EPersonBuilder.createEPerson(context).withEmail("member@email.com").build();
+        return EPersonBuilder.createEPerson(context).build();
     }
 
     private WorkspaceItem createWorkspaceItem(Collection collection, String title, String subject, String entityType) {

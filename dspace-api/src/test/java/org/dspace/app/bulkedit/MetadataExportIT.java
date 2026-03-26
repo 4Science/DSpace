@@ -74,6 +74,36 @@ public class MetadataExportIT
         assertTrue(fileContent.contains(String.valueOf(item.getID())));
     }
 
+    @Test
+    public void metadataExportToCsvTestWithMultipleLanguages() throws Exception {
+        context.turnOffAuthorisationSystem();
+        Community community = CommunityBuilder.createCommunity(context)
+                .build();
+        Collection collection = CollectionBuilder.createCollection(context, community)
+                .build();
+        Item item = ItemBuilder.createItem(context, collection)
+                .withAuthor("Donald, Smith")
+                .withAuthorForLanguage("Donald, Smith it", "it")
+                .build();
+        context.restoreAuthSystemState();
+        String fileLocation = configurationService.getProperty("dspace.dir")
+                + testProps.get("test.exportcsv").toString();
+
+        String[] args = new String[] {"metadata-export",
+                "-i", String.valueOf(item.getHandle()),
+                "-f", fileLocation};
+        TestDSpaceRunnableHandler testDSpaceRunnableHandler
+                = new TestDSpaceRunnableHandler();
+
+        ScriptLauncher.handleScript(args, ScriptLauncher.getConfig(kernelImpl),
+                testDSpaceRunnableHandler, kernelImpl);
+        File file = new File(fileLocation);
+        String fileContent = IOUtils.toString(new FileInputStream(file), StandardCharsets.UTF_8);
+        assertTrue(fileContent.contains("Donald, Smith"));
+        assertTrue(fileContent.contains("Donald, Smith it"));
+        assertTrue(fileContent.contains(String.valueOf(item.getID())));
+    }
+
     @Test(expected = ParseException.class)
     public void metadataExportWithoutFileParameter()
         throws IllegalAccessException, InstantiationException, ParseException {
@@ -130,6 +160,36 @@ public class MetadataExportIT
         File file = new File(fileLocation);
         String fileContent = IOUtils.toString(new FileInputStream(file), StandardCharsets.UTF_8);
         assertTrue(fileContent.contains("Donald, Smith"));
+        assertTrue(fileContent.contains(String.valueOf(item.getID())));
+    }
+
+    @Test
+    public void metadataExportToCsvTestUUIDWithMultipleLanguages() throws Exception {
+        context.turnOffAuthorisationSystem();
+        Community community = CommunityBuilder.createCommunity(context)
+                .build();
+        Collection collection = CollectionBuilder.createCollection(context, community)
+                .build();
+        Item item = ItemBuilder.createItem(context, collection)
+                .withAuthorForLanguage("Donald, Smith en", "en")
+                .withAuthorForLanguage("Donald, Smith it", "it")
+                .build();
+        context.restoreAuthSystemState();
+        String fileLocation = configurationService.getProperty("dspace.dir")
+                + testProps.get("test.exportcsv").toString();
+
+        String[] args = new String[] {"metadata-export",
+                "-i", String.valueOf(item.getID()),
+                "-f", fileLocation};
+        TestDSpaceRunnableHandler testDSpaceRunnableHandler
+                = new TestDSpaceRunnableHandler();
+
+        ScriptLauncher.handleScript(args, ScriptLauncher.getConfig(kernelImpl),
+                testDSpaceRunnableHandler, kernelImpl);
+        File file = new File(fileLocation);
+        String fileContent = IOUtils.toString(new FileInputStream(file), StandardCharsets.UTF_8);
+        assertTrue(fileContent.contains("Donald, Smith en"));
+        assertTrue(fileContent.contains("Donald, Smith it"));
         assertTrue(fileContent.contains(String.valueOf(item.getID())));
     }
 

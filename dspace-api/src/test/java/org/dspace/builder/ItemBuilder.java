@@ -351,6 +351,10 @@ public class ItemBuilder extends AbstractDSpaceObjectBuilder<Item> {
         return setMetadataSingleValue(item, "person", "jobTitle", null, jobTitle);
     }
 
+    public ItemBuilder withJobTitleForLanguage(String jobTitle, String language) {
+        return addMetadataValue(item, "person", "jobTitle", null, language, jobTitle);
+    }
+
     public ItemBuilder withPersonMainAffiliation(String affiliation) {
         return addMetadataValue(item, "person", "affiliation", "name", affiliation);
     }

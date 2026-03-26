@@ -194,6 +194,82 @@ public class XlsCrosswalkIT extends AbstractIntegrationTestWithDatabase {
     }
 
     @Test
+    public void testDisseminateManyPersonsWithLanguages() throws Exception {
+
+        context.turnOffAuthorisationSystem();
+
+        Item firstItem = createFullPersonItem();
+
+        Item secondItem = createItem(context, collection)
+                .withEntityType("Person")
+                .withTitle("Edward Red")
+                .withTitleForLanguage("Edward Red it", "it")
+                .withGivenName("Edward")
+                .withFamilyName("Red")
+                .withBirthDate("1982-05-21")
+                .withGender("M")
+                .withPersonAffiliation("OrgUnit")
+                .withPersonAffiliationStartDate("2015-01-01")
+                .withPersonAffiliationRole("Developer")
+                .withPersonAffiliationEndDate(PLACEHOLDER_PARENT_METADATA_VALUE)
+                .build();
+
+        Item thirdItem = createItem(context, collection)
+                .withEntityType("Person")
+                .withTitleForLanguage("Adam White", "en")
+                .withTitleForLanguage("Adam White it", "it")
+                .withGivenName("Adam")
+                .withFamilyName("White")
+                .withBirthDate("1962-03-23")
+                .withGender("M")
+                .withJobTitle("Researcher")
+                .withPersonMainAffiliation("University of Rome")
+                .withPersonKnowsLanguages("English")
+                .withPersonKnowsLanguages("Italian")
+                .withPersonEducation("School")
+                .withPersonEducationStartDate("2000-01-01")
+                .withPersonEducationEndDate("2005-01-01")
+                .withPersonEducationRole("Student")
+                .build();
+
+        context.restoreAuthSystemState();
+
+        xlsCrosswalk = (XlsCrosswalk) crosswalkMapper.getByType("person-xls");
+        assertThat(xlsCrosswalk, notNullValue());
+        xlsCrosswalk.setDCInputsReader(dcInputsReader);
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        xlsCrosswalk.disseminate(context, Arrays.asList(firstItem, secondItem, thirdItem).iterator(), baos);
+
+        Workbook workbook = WorkbookFactory.create(new ByteArrayInputStream(baos.toByteArray()));
+        assertThat(workbook.getNumberOfSheets(), equalTo(1));
+
+        Sheet sheet = workbook.getSheetAt(0);
+        assertThat(sheet.getPhysicalNumberOfRows(), equalTo(4));
+
+        assertThat(getRowValues(sheet.getRow(0)), contains("Preferred name", "Full name", "Vernacular name", "Variants",
+                "Given name", "Family name", "Birth-date", "Gender", "Job title", "Main affiliation", "Working groups",
+                "Personal sites", "Email", "Interests", "ORCID", "Scopus author ids", "Researcher ids", "Affiliations",
+                "Biography", "Educations", "Country", "Qualifications", "Knows languages"));
+
+        assertThat(getRowValues(sheet.getRow(1)), contains("John Smith", "John Smith", "JOHN SMITH", "J.S.||Smith John",
+                "John", "Smith", "1992-06-26", "M", "Researcher", "University", "First work group||Second work group",
+                "www.test.com/Test||www.john-smith.com||www.site.com/Site", "test@test.com", "Science",
+                "0000-0002-9079-5932", "111", "r1||r2", "Company/2018-01-01//Developer",
+                "Biography: \n\t\"This is my biography\"", "School/2000-01-01/2005-01-01/Student", "England",
+                "First Qualification/2015-01-01/2016-01-01||Second Qualification/2016-01-02", "English||Italian"));
+
+        assertThat(getRowValues(sheet.getRow(2)), contains("Edward Red||Edward Red it", "", "", "",
+                "Edward", "Red", "1982-05-21", "M", "", "", "", "", "", "", "", "", "",
+                "OrgUnit/2015-01-01//Developer", "", "", "", "", ""));
+
+        assertThat(getRowValues(sheet.getRow(3)), contains("Adam White||Adam White it", "", "", "", "Adam",
+                "White", "1962-03-23", "M", "Researcher", "University of Rome", "", "", "", "", "", "", "", "", "",
+                "School/2000-01-01/2005-01-01/Student", "", "", "English||Italian"));
+
+    }
+
+    @Test
     public void testDisseminateSinglePerson() throws Exception {
 
         context.turnOffAuthorisationSystem();
@@ -248,6 +324,67 @@ public class XlsCrosswalkIT extends AbstractIntegrationTestWithDatabase {
             "Walter", "White", "1962-03-23", "M", "Professor", "High School", "", "", "", "", "0000-0002-9079-5932",
             "", "", "", "", "School/1968-09-01/1973-06-10/Student||University/1980-09-01/1985-06-10/Student", "",
             "Qualification", "English"));
+
+    }
+
+    @Test
+    public void testDisseminateSinglePersonWithMultipleLanguages() throws Exception {
+
+        context.turnOffAuthorisationSystem();
+
+        Item item = createItem(context, collection)
+                .withEntityType("Person")
+                .withTitle("Walter White")
+                .withVariantName("Heisenberg")
+                .withVariantName("W.W.")
+                .withGivenName("Walter")
+                .withFamilyName("White")
+                .withBirthDate("1962-03-23")
+                .withGender("M")
+                .withJobTitle("Professor")
+                .withJobTitleForLanguage("Professor en", "en")
+                .withJobTitleForLanguage("Professor it", "it")
+                .withPersonMainAffiliation("High School")
+                .withPersonKnowsLanguages("English")
+                .withPersonEducation("School")
+                .withPersonEducationStartDate("1968-09-01")
+                .withPersonEducationEndDate("1973-06-10")
+                .withPersonEducationRole("Student")
+                .withPersonEducation("University")
+                .withPersonEducationStartDate("1980-09-01")
+                .withPersonEducationEndDate("1985-06-10")
+                .withPersonEducationRole("Student")
+                .withOrcidIdentifier("0000-0002-9079-5932")
+                .withPersonQualification("Qualification")
+                .withPersonQualificationStartDate(PLACEHOLDER_PARENT_METADATA_VALUE)
+                .withPersonQualificationEndDate(PLACEHOLDER_PARENT_METADATA_VALUE)
+                .build();
+
+        context.restoreAuthSystemState();
+
+        xlsCrosswalk = (XlsCrosswalk) crosswalkMapper.getByType("person-xls");
+        assertThat(xlsCrosswalk, notNullValue());
+        xlsCrosswalk.setDCInputsReader(dcInputsReader);
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        xlsCrosswalk.disseminate(context, item, baos);
+
+        Workbook workbook = WorkbookFactory.create(new ByteArrayInputStream(baos.toByteArray()));
+        assertThat(workbook.getNumberOfSheets(), equalTo(1));
+
+        Sheet sheet = workbook.getSheetAt(0);
+        assertThat(sheet.getPhysicalNumberOfRows(), equalTo(2));
+
+        assertThat(getRowValues(sheet.getRow(0)), contains("Preferred name", "Full name", "Vernacular name", "Variants",
+                "Given name", "Family name", "Birth-date", "Gender", "Job title", "Main affiliation", "Working groups",
+                "Personal sites", "Email", "Interests", "ORCID", "Scopus author ids", "Researcher ids", "Affiliations",
+                "Biography", "Educations", "Country", "Qualifications", "Knows languages"));
+
+        assertThat(getRowValues(sheet.getRow(1)), contains("Walter White", "", "", "Heisenberg||W.W.",
+                "Walter", "White", "1962-03-23", "M", "Professor||Professor en||Professor it", "High School", "", "",
+                "", "", "0000-0002-9079-5932", "", "", "", "",
+                "School/1968-09-01/1973-06-10/Student||University/1980-09-01/1985-06-10/Student", "",
+                "Qualification", "English"));
 
     }
 

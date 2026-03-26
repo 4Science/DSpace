@@ -129,4 +129,122 @@ public class CollectionExportIT extends AbstractIntegrationTestWithDatabase {
 
 
     }
+
+    @Test
+    public void testWithNotCollectionAdminWithMultipleLanguages() throws Exception {
+
+        context.turnOffAuthorisationSystem();
+
+        Collection collection = createCollection(context, community)
+                .withSubmissionDefinition("patent")
+                .withAdminGroup(eperson)
+                .build();
+
+        Item item = ItemBuilder.createItem(context, collection)
+                .withTitle("Test patent")
+                .withAuthorForLanguage("White, Walter", "en")
+                .withAuthorForLanguage("White, Walter it", "it")
+                .withIssueDate("2020-01-01")
+                .withLanguage("en")
+                .withSubject("test")
+                .withSubject("export")
+                .build();
+
+        context.commit();
+        context.restoreAuthSystemState();
+
+        String[] args = new String[] { "collection-export", "-c", collection.getID().toString() };
+        TestDSpaceRunnableHandler handler = new TestDSpaceRunnableHandler();
+
+        handleScript(args, ScriptLauncher.getConfig(kernelImpl), handler, kernelImpl, eperson);
+        assertThat("Expected no errors", handler.getErrorMessages(), emptyCollectionOf(String.class));
+        assertThat("Expected no warnings", handler.getWarningMessages(), emptyCollectionOf(String.class));
+
+        List<String> infos = handler.getInfoMessages();
+        assertThat("Expected 1 info message", infos, hasSize(1));
+        assertThat(infos.get(0), containsString("Items exported successfully into file named items.xls"));
+
+        File file = new File("items.xls");
+        file.deleteOnExit();
+
+        try (FileInputStream fis = new FileInputStream(file)) {
+
+            Workbook workbook = WorkbookFactory.create(fis);
+            assertThat(workbook.getNumberOfSheets(), equalTo(2));
+
+            Sheet sheet = workbook.getSheetAt(0);
+            assertThat(sheet.getPhysicalNumberOfRows(), equalTo(2));
+            assertThat(getRowValues(sheet.getRow(0), 21), contains("ID", "DISCOVERABLE", "dc.title",
+                    "dcterms.dateAccepted", "dc.date.issued", "dc.contributor.author", "dcterms.rightsHolder",
+                    "dc.publisher", "dc.identifier.patentno", "dc.identifier.patentnumber", "dc.type",
+                    "dc.identifier.applicationnumber", "dc.date.filled", "dc.language.iso",
+                    "dc.subject", "dc.description.abstract", "dc.relation", "dc.relation.patent",
+                    "dc.relation.references", "dc.contributor.author[en]", "dc.contributor.author[it]"));
+            assertThat(getRowValues(sheet.getRow(1), 21), contains(item.getID().toString(), "Y", "Test patent", "",
+                    "2020-01-01", "", "", "", "", "", "", "", "", "en", "test||export", "", "", "", "",
+                    "White, Walter", "White, Walter it"));
+
+        }
+
+
+    }
+
+    @Test
+    public void testWithNotCollectionAdminWithNoLanguageAndDefinedLanguage() throws Exception {
+
+        context.turnOffAuthorisationSystem();
+
+        Collection collection = createCollection(context, community)
+                .withSubmissionDefinition("patent")
+                .withAdminGroup(eperson)
+                .build();
+
+        Item item = ItemBuilder.createItem(context, collection)
+                .withTitle("Test patent")
+                .withAuthor("White, Walter")
+                .withAuthorForLanguage("White, Walter it", "it")
+                .withIssueDate("2020-01-01")
+                .withLanguage("en")
+                .withSubject("test")
+                .withSubject("export")
+                .build();
+
+        context.commit();
+        context.restoreAuthSystemState();
+
+        String[] args = new String[] { "collection-export", "-c", collection.getID().toString() };
+        TestDSpaceRunnableHandler handler = new TestDSpaceRunnableHandler();
+
+        handleScript(args, ScriptLauncher.getConfig(kernelImpl), handler, kernelImpl, eperson);
+        assertThat("Expected no errors", handler.getErrorMessages(), emptyCollectionOf(String.class));
+        assertThat("Expected no warnings", handler.getWarningMessages(), emptyCollectionOf(String.class));
+
+        List<String> infos = handler.getInfoMessages();
+        assertThat("Expected 1 info message", infos, hasSize(1));
+        assertThat(infos.get(0), containsString("Items exported successfully into file named items.xls"));
+
+        File file = new File("items.xls");
+        file.deleteOnExit();
+
+        try (FileInputStream fis = new FileInputStream(file)) {
+
+            Workbook workbook = WorkbookFactory.create(fis);
+            assertThat(workbook.getNumberOfSheets(), equalTo(2));
+
+            Sheet sheet = workbook.getSheetAt(0);
+            assertThat(sheet.getPhysicalNumberOfRows(), equalTo(2));
+            assertThat(getRowValues(sheet.getRow(0), 20), contains("ID", "DISCOVERABLE", "dc.title",
+                    "dcterms.dateAccepted", "dc.date.issued", "dc.contributor.author", "dcterms.rightsHolder",
+                    "dc.publisher", "dc.identifier.patentno", "dc.identifier.patentnumber", "dc.type",
+                    "dc.identifier.applicationnumber", "dc.date.filled", "dc.language.iso",
+                    "dc.subject", "dc.description.abstract", "dc.relation", "dc.relation.patent",
+                    "dc.relation.references", "dc.contributor.author[it]"));
+            assertThat(getRowValues(sheet.getRow(1), 20), contains(item.getID().toString(), "Y", "Test patent", "",
+                    "2020-01-01", "White, Walter", "", "", "", "", "", "", "", "en", "test||export", "", "", "", "",
+                    "White, Walter it"));
+
+        }
+
+
+    }
 }
