@@ -7,6 +7,8 @@
  */
 package org.dspace.content.integration.crosswalks.script;
 
+import org.apache.commons.cli.Options;
+
 /**
  * Extension of {@link BulkItemExportScriptConfiguration} for CLI.
  *
@@ -15,5 +17,14 @@ package org.dspace.content.integration.crosswalks.script;
  */
 public class BulkItemExportCliScriptConfiguration<T extends BulkItemExportCli>
     extends BulkItemExportScriptConfiguration<T> {
+
+    @Override
+    public Options getOptions() {
+        Options options = super.getOptions();
+        options.addOption("e", "email", true, "email address of user");
+        options.getOption("e").setRequired(false);
+        super.options = options;
+        return options;
+    }
 
 }
