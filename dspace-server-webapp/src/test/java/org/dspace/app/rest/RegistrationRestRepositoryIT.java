@@ -38,7 +38,7 @@ import java.util.List;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletResponse;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.dspace.app.rest.matcher.RegistrationMatcher;
 import org.dspace.app.rest.model.RegistrationRest;
 import org.dspace.app.rest.model.patch.AddOperation;
@@ -79,6 +79,9 @@ public class RegistrationRestRepositoryIT extends AbstractControllerIntegrationT
     private ConfigurationService configurationService;
     @Autowired
     private RegistrationRestRepository registrationRestRepository;
+    @Autowired
+    private ObjectMapper mapper;
+
     private static MockedStatic<Email> emailMockedStatic;
 
     @After
@@ -157,7 +160,6 @@ public class RegistrationRestRepositoryIT extends AbstractControllerIntegrationT
     }
 
     private void createTokenForEmail(String email) throws Exception {
-        ObjectMapper mapper = new ObjectMapper();
         RegistrationRest registrationRest = new RegistrationRest();
         registrationRest.setEmail(email);
         getClient().perform(post("/api/eperson/registrations")
@@ -172,7 +174,6 @@ public class RegistrationRestRepositoryIT extends AbstractControllerIntegrationT
         List<RegistrationData> registrationDataList = registrationDataDAO.findAll(context, RegistrationData.class);
         assertEquals(0, registrationDataList.size());
 
-        ObjectMapper mapper = new ObjectMapper();
         RegistrationRest registrationRest = new RegistrationRest();
         registrationRest.setEmail(eperson.getEmail());
 
@@ -184,7 +185,7 @@ public class RegistrationRestRepositoryIT extends AbstractControllerIntegrationT
                        .andExpect(status().isCreated());
             registrationDataList = registrationDataDAO.findAll(context, RegistrationData.class);
             assertEquals(1, registrationDataList.size());
-            assertTrue(StringUtils.equalsIgnoreCase(registrationDataList.get(0).getEmail(), eperson.getEmail()));
+            assertTrue(Strings.CI.equals(registrationDataList.get(0).getEmail(), eperson.getEmail()));
 
             String newEmail = "newEPersonTest@gmail.com";
             registrationRest.setEmail(newEmail);
@@ -195,8 +196,8 @@ public class RegistrationRestRepositoryIT extends AbstractControllerIntegrationT
                        .andExpect(status().isCreated());
             registrationDataList = registrationDataDAO.findAll(context, RegistrationData.class);
             assertTrue(registrationDataList.size() == 2);
-            assertTrue(StringUtils.equalsIgnoreCase(registrationDataList.get(0).getEmail(), newEmail) ||
-                           StringUtils.equalsIgnoreCase(registrationDataList.get(1).getEmail(), newEmail));
+            assertTrue(Strings.CI.equals(registrationDataList.get(0).getEmail(), newEmail) ||
+                           Strings.CI.equals(registrationDataList.get(1).getEmail(), newEmail));
             configurationService.setProperty("user.registration", false);
 
             newEmail = "newEPersonTestTwo@gmail.com";
@@ -208,8 +209,47 @@ public class RegistrationRestRepositoryIT extends AbstractControllerIntegrationT
                        .andExpect(status().is(HttpServletResponse.SC_UNAUTHORIZED));
 
             assertEquals(2, registrationDataList.size());
-            assertTrue(!StringUtils.equalsIgnoreCase(registrationDataList.get(0).getEmail(), newEmail) &&
-                           !StringUtils.equalsIgnoreCase(registrationDataList.get(1).getEmail(), newEmail));
+            assertTrue(!Strings.CI.equals(registrationDataList.get(0).getEmail(), newEmail) &&
+                           !Strings.CI.equals(registrationDataList.get(1).getEmail(), newEmail));
+        } finally {
+            Iterator<RegistrationData> iterator = registrationDataList.iterator();
+            while (iterator.hasNext()) {
+                RegistrationData registrationData = iterator.next();
+                registrationDataDAO.delete(context, registrationData);
+            }
+        }
+    }
+
+    @Test
+    public void registrationWithExistingEmailTest() throws Exception {
+        List<RegistrationData> registrationDataList = registrationDataDAO.findAll(context, RegistrationData.class);
+        assertEquals(0, registrationDataList.size());
+
+        RegistrationRest registrationRest = new RegistrationRest();
+        registrationRest.setEmail(eperson.getEmail());
+
+        try {
+            // First registration
+            getClient().perform(post("/api/eperson/registrations")
+                            .param(TYPE_QUERY_PARAM, TYPE_REGISTER)
+                            .content(mapper.writeValueAsBytes(registrationRest))
+                            .contentType(contentType))
+                    .andExpect(status().isCreated());
+
+            registrationDataList = registrationDataDAO.findAll(context, RegistrationData.class);
+            assertEquals(1, registrationDataList.size());
+            assertTrue(Strings.CI.equals(registrationDataList.get(0).getEmail(), eperson.getEmail()));
+
+            // Try to register the same email again
+            getClient().perform(post("/api/eperson/registrations")
+                            .param(TYPE_QUERY_PARAM, TYPE_REGISTER)
+                            .content(mapper.writeValueAsBytes(registrationRest))
+                            .contentType(contentType))
+                    .andExpect(status().isCreated()); // or .isUnprocessableEntity() depending on API behavior
+
+            // Make sure the duplicate was not created
+            registrationDataList = registrationDataDAO.findAll(context, RegistrationData.class);
+            assertEquals(1, registrationDataList.size());
         } finally {
             Iterator<RegistrationData> iterator = registrationDataList.iterator();
             while (iterator.hasNext()) {
@@ -228,7 +268,6 @@ public class RegistrationRestRepositoryIT extends AbstractControllerIntegrationT
             String email = "testPerson@test.com";
             registrationRest.setEmail(email);
 
-            ObjectMapper mapper = new ObjectMapper();
             getClient().perform(post("/api/eperson/registrations")
                                     .param(TYPE_QUERY_PARAM, TYPE_REGISTER)
                                     .content(mapper.writeValueAsBytes(registrationRest))
@@ -236,7 +275,7 @@ public class RegistrationRestRepositoryIT extends AbstractControllerIntegrationT
                        .andExpect(status().isCreated());
             registrationDataList = registrationDataDAO.findAll(context, RegistrationData.class);
             assertEquals(1, registrationDataList.size());
-            assertTrue(StringUtils.equalsIgnoreCase(registrationDataList.get(0).getEmail(), email));
+            assertTrue(Strings.CI.equals(registrationDataList.get(0).getEmail(), email));
         } finally {
             Iterator<RegistrationData> iterator = registrationDataList.iterator();
             while (iterator.hasNext()) {
@@ -255,7 +294,6 @@ public class RegistrationRestRepositoryIT extends AbstractControllerIntegrationT
             String email = "testPerson@bladibla.com";
             registrationRest.setEmail(email);
 
-            ObjectMapper mapper = new ObjectMapper();
             getClient().perform(post("/api/eperson/registrations")
                                     .param(TYPE_QUERY_PARAM, TYPE_REGISTER)
                                     .content(mapper.writeValueAsBytes(registrationRest))
@@ -286,7 +324,6 @@ public class RegistrationRestRepositoryIT extends AbstractControllerIntegrationT
             RegistrationRest registrationRest = new RegistrationRest();
             registrationRest.setEmail(email);
 
-            ObjectMapper mapper = new ObjectMapper();
             getClient().perform(post("/api/eperson/registrations")
                                     .param(TYPE_QUERY_PARAM, TYPE_REGISTER)
                                     .content(mapper.writeValueAsBytes(registrationRest))
@@ -294,7 +331,7 @@ public class RegistrationRestRepositoryIT extends AbstractControllerIntegrationT
                        .andExpect(status().isCreated());
             registrationDataList = registrationDataDAO.findAll(context, RegistrationData.class);
             assertEquals(1, registrationDataList.size());
-            assertTrue(StringUtils.equalsIgnoreCase(registrationDataList.get(0).getEmail(), email));
+            assertTrue(Strings.CI.equals(registrationDataList.get(0).getEmail(), email));
         } finally {
             Iterator<RegistrationData> iterator = registrationDataList.iterator();
             while (iterator.hasNext()) {
@@ -312,7 +349,6 @@ public class RegistrationRestRepositoryIT extends AbstractControllerIntegrationT
         try {
             assertEquals(0, registrationDataList.size());
 
-            ObjectMapper mapper = new ObjectMapper();
             RegistrationRest registrationRest = new RegistrationRest();
             registrationRest.setEmail(eperson.getEmail());
             getClient().perform(post("/api/eperson/registrations")
@@ -322,7 +358,7 @@ public class RegistrationRestRepositoryIT extends AbstractControllerIntegrationT
                        .andExpect(status().isCreated());
             registrationDataList = registrationDataDAO.findAll(context, RegistrationData.class);
             assertEquals(1, registrationDataList.size());
-            assertTrue(StringUtils.equalsIgnoreCase(registrationDataList.get(0).getEmail(), eperson.getEmail()));
+            assertTrue(Strings.CI.equals(registrationDataList.get(0).getEmail(), eperson.getEmail()));
         } finally {
             Iterator<RegistrationData> iterator = registrationDataList.iterator();
             while (iterator.hasNext()) {
@@ -341,7 +377,6 @@ public class RegistrationRestRepositoryIT extends AbstractControllerIntegrationT
         try {
             assertEquals(0, registrationDataList.size());
 
-            ObjectMapper mapper = new ObjectMapper();
             RegistrationRest registrationRest = new RegistrationRest();
             registrationRest.setEmail(eperson.getEmail());
             getClient().perform(post("/api/eperson/registrations")
@@ -367,11 +402,10 @@ public class RegistrationRestRepositoryIT extends AbstractControllerIntegrationT
         String originVresion = configurationService.getProperty("google.recaptcha.version");
         reloadCaptchaProperties("true", "test-secret", "v2");
 
-        ObjectMapper mapper = new ObjectMapper();
         RegistrationRest registrationRest = new RegistrationRest();
         registrationRest.setEmail(eperson.getEmail());
 
-        // when reCAPTCHA enabled and request doesn't contain "X-Recaptcha-Token” header
+        // when reCAPTCHA enabled and request doesn't contain "x-captcha-payload” header
         getClient().perform(post("/api/eperson/registrations")
                             .param(TYPE_QUERY_PARAM, TYPE_REGISTER)
                    .content(mapper.writeValueAsBytes(registrationRest))
@@ -388,15 +422,14 @@ public class RegistrationRestRepositoryIT extends AbstractControllerIntegrationT
         String originVresion = configurationService.getProperty("google.recaptcha.version");
         reloadCaptchaProperties("true", "test-secret", "v2");
 
-        ObjectMapper mapper = new ObjectMapper();
         RegistrationRest registrationRest = new RegistrationRest();
         registrationRest.setEmail(eperson.getEmail());
 
         String captchaToken = "invalid-captcha-Token";
-        // when reCAPTCHA enabled and request contains Invalid "X-Recaptcha-Token” header
+        // when reCAPTCHA enabled and request contains Invalid "x-captcha-payload” header
         getClient().perform(post("/api/eperson/registrations")
                    .param(TYPE_QUERY_PARAM, TYPE_REGISTER)
-                   .header("X-Recaptcha-Token", captchaToken)
+                   .header("x-captcha-payload", captchaToken)
                    .content(mapper.writeValueAsBytes(registrationRest))
                    .contentType(contentType))
                    .andExpect(status().isForbidden());
@@ -426,42 +459,41 @@ public class RegistrationRestRepositoryIT extends AbstractControllerIntegrationT
         List<RegistrationData> registrationDataList = registrationDataDAO.findAll(context, RegistrationData.class);
         assertEquals(0, registrationDataList.size());
 
-        ObjectMapper mapper = new ObjectMapper();
         RegistrationRest registrationRest = new RegistrationRest();
         registrationRest.setEmail(eperson.getEmail());
         try {
-            // will throw InvalidReCaptchaException because 'X-Recaptcha-Token' not equal captchaToken
+            // will throw InvalidReCaptchaException because 'x-captcha-payload' not equal captchaToken
             getClient().perform(post("/api/eperson/registrations")
                        .param(TYPE_QUERY_PARAM, TYPE_REGISTER)
-                       .header("X-Recaptcha-Token", captchaToken1)
+                       .header("x-captcha-payload", captchaToken1)
                        .content(mapper.writeValueAsBytes(registrationRest))
                        .contentType(contentType))
                        .andExpect(status().isForbidden());
 
             getClient().perform(post("/api/eperson/registrations")
                        .param(TYPE_QUERY_PARAM, TYPE_REGISTER)
-                       .header("X-Recaptcha-Token", captchaToken)
+                       .header("x-captcha-payload", captchaToken)
                        .content(mapper.writeValueAsBytes(registrationRest))
                        .contentType(contentType))
                        .andExpect(status().isCreated());
 
             registrationDataList = registrationDataDAO.findAll(context, RegistrationData.class);
             assertEquals(1, registrationDataList.size());
-            assertTrue(StringUtils.equalsIgnoreCase(registrationDataList.get(0).getEmail(), eperson.getEmail()));
+            assertTrue(Strings.CI.equals(registrationDataList.get(0).getEmail(), eperson.getEmail()));
 
             String newEmail = "newEPersonTest@gmail.com";
             registrationRest.setEmail(newEmail);
             getClient().perform(post("/api/eperson/registrations")
                        .param(TYPE_QUERY_PARAM, TYPE_REGISTER)
-                       .header("X-Recaptcha-Token", captchaToken)
+                       .header("x-captcha-payload", captchaToken)
                        .content(mapper.writeValueAsBytes(registrationRest))
                        .contentType(contentType))
                        .andExpect(status().isCreated());
 
             registrationDataList = registrationDataDAO.findAll(context, RegistrationData.class);
             assertTrue(registrationDataList.size() == 2);
-            assertTrue(StringUtils.equalsIgnoreCase(registrationDataList.get(0).getEmail(), newEmail) ||
-                       StringUtils.equalsIgnoreCase(registrationDataList.get(1).getEmail(), newEmail));
+            assertTrue(Strings.CI.equals(registrationDataList.get(0).getEmail(), newEmail) ||
+                       Strings.CI.equals(registrationDataList.get(1).getEmail(), newEmail));
 
             configurationService.setProperty("user.registration", false);
 
@@ -469,14 +501,14 @@ public class RegistrationRestRepositoryIT extends AbstractControllerIntegrationT
             registrationRest.setEmail(newEmail);
             getClient().perform(post("/api/eperson/registrations")
                        .param(TYPE_QUERY_PARAM, TYPE_REGISTER)
-                       .header("X-Recaptcha-Token", captchaToken)
+                       .header("x-captcha-payload", captchaToken)
                        .content(mapper.writeValueAsBytes(registrationRest))
                        .contentType(contentType))
                        .andExpect(status().is(HttpServletResponse.SC_UNAUTHORIZED));
 
             assertEquals(2, registrationDataList.size());
-            assertTrue(!StringUtils.equalsIgnoreCase(registrationDataList.get(0).getEmail(), newEmail) &&
-                       !StringUtils.equalsIgnoreCase(registrationDataList.get(1).getEmail(), newEmail));
+            assertTrue(!Strings.CI.equals(registrationDataList.get(0).getEmail(), newEmail) &&
+                       !Strings.CI.equals(registrationDataList.get(1).getEmail(), newEmail));
         } finally {
             registrationRestRepository.setCaptchaService(captchaService);
             Iterator<RegistrationData> iterator = registrationDataList.iterator();
@@ -497,7 +529,6 @@ public class RegistrationRestRepositoryIT extends AbstractControllerIntegrationT
 
     @Test
     public void accountEndpoint_WithoutAccountTypeParam() throws Exception {
-        ObjectMapper mapper = new ObjectMapper();
         RegistrationRest registrationRest = new RegistrationRest();
         registrationRest.setEmail(eperson.getEmail());
         getClient().perform(post("/api/eperson/registrations")
@@ -508,7 +539,6 @@ public class RegistrationRestRepositoryIT extends AbstractControllerIntegrationT
 
     @Test
     public void accountEndpoint_WrongAccountTypeParam() throws Exception {
-        ObjectMapper mapper = new ObjectMapper();
         RegistrationRest registrationRest = new RegistrationRest();
         registrationRest.setEmail(eperson.getEmail());
         getClient().perform(post("/api/eperson/registrations")

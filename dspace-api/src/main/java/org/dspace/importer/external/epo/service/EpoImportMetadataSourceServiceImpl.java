@@ -28,6 +28,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.apache.http.HttpException;
 import org.apache.http.client.utils.URIBuilder;
 import org.apache.jena.ext.xerces.impl.dv.util.Base64;
@@ -109,7 +110,7 @@ public class EpoImportMetadataSourceServiceImpl extends AbstractImportMetadataSo
     }
 
     /**
-     * Set the costumer epo secret
+     * Set the customer epo secret
      * @param consumerSecret the customer epo secret
      */
     public void setConsumerSecret(String consumerSecret) {
@@ -320,7 +321,8 @@ public class EpoImportMetadataSourceServiceImpl extends AbstractImportMetadataSo
                 List<ImportRecord> records = search.call().stream()
                      .filter(r -> r.getValue(dateFilled.getSchema(), dateFilled.getElement(), dateFilled.getQualifier())
                             .stream()
-                            .anyMatch(m -> StringUtils.equals(m.getValue(), id.split(APP_NO_DATE_SEPARATOR_REGEX)[1])
+                            .anyMatch(m -> Strings.CS.equals(m.getValue(),
+                                        id.split(APP_NO_DATE_SEPARATOR_REGEX)[1])
                       ))
                      .limit(1).collect(Collectors.toList());
                 return records;

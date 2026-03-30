@@ -34,7 +34,7 @@ public class AuthorityNameAuthorityFilterTest {
 
         // Test set up ItemAuthority is EntityOrg - Organization 1
         Mockito.when(authority.getPluginInstanceName()).thenReturn("Organization 1");
-        Mockito.when(authority.getLinkedEntityType()).thenReturn("EntityOrg");
+        Mockito.when(authority.getLinkedEntityTypes()).thenReturn(new String[] {"EntityOrg"});
 
         List<String> queries = entityTypeAuthorityFilter.getFilterQueries(authority);
 
@@ -52,7 +52,7 @@ public class AuthorityNameAuthorityFilterTest {
 
         // Test set up ItemAuthority is EntityAnother - Organization 1
         Mockito.when(authority.getPluginInstanceName()).thenReturn("Organization 2");
-        Mockito.when(authority.getLinkedEntityType()).thenReturn("EntityAnother");
+        Mockito.when(authority.getLinkedEntityTypes()).thenReturn(new String[] {"EntityAnother"});
 
         List<String> queries = entityTypeAuthorityFilter.getFilterQueries(authority);
 
@@ -70,7 +70,7 @@ public class AuthorityNameAuthorityFilterTest {
 
         // Test set up ItemAuthority is EntityAnother - Organization 1
         Mockito.when(authority.getPluginInstanceName()).thenReturn("Organization 1");
-        Mockito.when(authority.getLinkedEntityType()).thenReturn("EntityOrg");
+        Mockito.when(authority.getLinkedEntityTypes()).thenReturn(new String[] {"EntityOrg"});
 
         List<String> queries = entityTypeAuthorityFilter.getFilterQueries(authority);
 
@@ -90,7 +90,7 @@ public class AuthorityNameAuthorityFilterTest {
 
         // Test set up ItemAuthority is EntityAnother - Organization 1
         Mockito.when(authority.getPluginInstanceName()).thenReturn("Organization 3");
-        Mockito.when(authority.getLinkedEntityType()).thenReturn("EntityAnother");
+        Mockito.when(authority.getLinkedEntityTypes()).thenReturn(new String[] {"EntityAnother"});
 
         List<String> queries = entityTypeAuthorityFilter.getFilterQueries(authority);
 

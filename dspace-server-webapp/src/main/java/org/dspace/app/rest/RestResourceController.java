@@ -31,7 +31,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.apache.logging.log4j.Logger;
 import org.dspace.app.rest.converter.ConverterService;
 import org.dspace.app.rest.converter.JsonPatchConverter;
@@ -1012,7 +1012,7 @@ public class RestResourceController implements InitializingBean {
      * @param model
      */
     private void checkModelPluralForm(String apiCategory, String model) {
-        if (StringUtils.equals(utils.makeSingular(model), model)) {
+        if (Strings.CS.equals(utils.makeSingular(model), model)) {
             throw new RepositoryNotFoundException(apiCategory, model);
         }
     }
@@ -1099,7 +1099,7 @@ public class RestResourceController implements InitializingBean {
         UriComponentsBuilder uriComponentsBuilder = UriComponentsBuilder.newInstance();
 
         for (String key : parameters.keySet()) {
-            if (!StringUtils.equals(key, "embed") && !StringUtils.startsWith(key, "embed.")) {
+            if (!Strings.CS.equals(key, "embed") && !Strings.CS.startsWith(key, "embed.")) {
                 uriComponentsBuilder.queryParam(key, parameters.get(key));
             }
         }

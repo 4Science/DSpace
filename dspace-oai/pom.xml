@@ -8,7 +8,7 @@
     <parent>
         <artifactId>dspace-parent</artifactId>
         <groupId>org.dspace</groupId>
-        <version>cris-2025.01.00-SNAPSHOT</version>
+        <version>cris-2026.01.00-SNAPSHOT</version>
         <relativePath>..</relativePath>
     </parent>
 
@@ -172,7 +172,7 @@
         </dependency>
         <dependency>
             <groupId>org.mockito</groupId>
-            <artifactId>mockito-inline</artifactId>
+            <artifactId>mockito-core</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>

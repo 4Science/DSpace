@@ -19,9 +19,7 @@ import static org.orcid.jaxb.model.common.SequenceType.ADDITIONAL;
 import static org.orcid.jaxb.model.common.SequenceType.FIRST;
 
 import java.sql.SQLException;
-import java.time.LocalDate;
-import java.time.ZoneId;
-import java.util.Date;
+import java.time.ZonedDateTime;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -98,13 +96,11 @@ public class OrcidCommonObjectFactoryImpl implements OrcidCommonObjectFactory {
             return empty();
         }
 
-        Date date = MultiFormatDateParser.parse(metadataValue.getValue());
+        ZonedDateTime date = MultiFormatDateParser.parse(metadataValue.getValue());
         if (date == null) {
             return empty();
         }
-
-        LocalDate localDate = convertToLocalDate(date);
-        return of(FuzzyDate.valueOf(localDate.getYear(), localDate.getMonthValue(), localDate.getDayOfMonth()));
+        return of(FuzzyDate.valueOf(date.getYear(), date.getMonthValue(), date.getDayOfMonth()));
     }
 
     @Override
@@ -322,10 +318,6 @@ public class OrcidCommonObjectFactoryImpl implements OrcidCommonObjectFactory {
     private ContributorEmail getContributorEmail(Item authorItem) {
         String email = getMetadataValue(authorItem, contributorEmailField);
         return isNotBlank(email) ? new ContributorEmail(email) : null;
-    }
-
-    private LocalDate convertToLocalDate(Date date) {
-        return date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
     }
 
     public String getOrganizationCityField() {

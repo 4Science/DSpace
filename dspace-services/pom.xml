@@ -9,7 +9,7 @@
     <parent>
         <groupId>org.dspace</groupId>
         <artifactId>dspace-parent</artifactId>
-        <version>cris-2025.01.00-SNAPSHOT</version>
+        <version>cris-2026.01.00-SNAPSHOT</version>
         <relativePath>..</relativePath>
     </parent>
 
@@ -120,7 +120,7 @@
         </dependency>
         <dependency>
             <groupId>org.mockito</groupId>
-            <artifactId>mockito-inline</artifactId>
+            <artifactId>mockito-core</artifactId>
             <scope>test</scope>
         </dependency>
         <!-- SPECIAL CASE - need JUNIT at build time and testing time -->

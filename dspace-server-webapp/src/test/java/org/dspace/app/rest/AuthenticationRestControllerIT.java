@@ -61,6 +61,7 @@ import org.dspace.app.rest.model.EPersonRest;
 import org.dspace.app.rest.projection.DefaultProjection;
 import org.dspace.app.rest.test.AbstractControllerIntegrationTest;
 import org.dspace.app.rest.utils.Utils;
+import org.dspace.authenticate.OrcidAuthenticationBean;
 import org.dspace.builder.BitstreamBuilder;
 import org.dspace.builder.BundleBuilder;
 import org.dspace.builder.CollectionBuilder;
@@ -74,6 +75,7 @@ import org.dspace.content.Collection;
 import org.dspace.content.Item;
 import org.dspace.eperson.EPerson;
 import org.dspace.eperson.Group;
+import org.dspace.orcid.client.OrcidConfiguration;
 import org.dspace.services.ConfigurationService;
 import org.hamcrest.Matchers;
 import org.junit.Before;
@@ -102,7 +104,16 @@ public class AuthenticationRestControllerIT extends AbstractControllerIntegratio
     private AuthorizationFeatureService authorizationFeatureService;
 
     @Autowired
+    private OrcidConfiguration orcidConfiguration;
+
+    @Autowired
+    private OrcidAuthenticationBean orcidAuthentication;
+
+    @Autowired
     private Utils utils;
+
+    @Autowired
+    private ObjectMapper mapper;
 
     public static final String[] PASS_ONLY = {"org.dspace.authenticate.PasswordAuthentication"};
     public static final String[] SHIB_ONLY = {"org.dspace.authenticate.ShibAuthentication"};
@@ -938,7 +949,7 @@ public class AuthenticationRestControllerIT extends AbstractControllerIntegratio
         //request a new token
         token = getAuthToken(eperson.getEmail(), password);
 
-        //Check if we succesfully authenticated again
+        //Check if we successfully authenticated again
         getClient(token).perform(get("/api/authn/status"))
                         .andExpect(status().isOk())
                         .andExpect(jsonPath("$.okay", is(true)))
@@ -1760,8 +1771,6 @@ public class AuthenticationRestControllerIT extends AbstractControllerIntegratio
 
     // Get a short-lived token based on an active login token
     private String getShortLivedToken(String loginToken) throws Exception {
-        ObjectMapper mapper = new ObjectMapper();
-
         MvcResult mvcResult = getClient(loginToken).perform(post("/api/authn/shortlivedtokens"))
             .andReturn();
 
@@ -1878,5 +1887,100 @@ public class AuthenticationRestControllerIT extends AbstractControllerIntegratio
             return false;
         }
     }
+
+    @Test
+    public void testShibbolethStaffMappedToStaffAndMembers() throws Exception {
+        context.turnOffAuthorisationSystem();
+
+        GroupBuilder.createGroup(context)
+                .withName("Staff")
+                .build();
+        GroupBuilder.createGroup(context)
+                .withName("Member")
+                .build();
+
+        configurationService.setProperty("plugin.sequence.org.dspace.authenticate.AuthenticationMethod", SHIB_ONLY);
+        configurationService.setProperty("authentication-shibboleth.role.staff", "Staff, Member");
+        configurationService.setProperty("authentication-shibboleth.default-roles", "staff");
+        configurationService.setProperty("authentication-shibboleth.netid-header", "mail");
+        configurationService.setProperty("authentication-shibboleth.email-header", "mail");
+
+        context.restoreAuthSystemState();
+
+        String shibToken = getClient().perform(post("/api/authn/login")
+                        .requestAttr("mail", eperson.getEmail())
+                        .requestAttr("SHIB-SCOPED-AFFILIATION", "staff"))
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getHeader(AUTHORIZATION_HEADER).replace(AUTHORIZATION_TYPE, "");
+
+        getClient(shibToken).perform(get("/api/authn/status").param("projection", "full"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.okay", is(true)))
+                .andExpect(jsonPath("$.authenticated", is(true)))
+                .andExpect(jsonPath("$.authenticationMethod", is("shibboleth")))
+                .andExpect(jsonPath("$._embedded.specialGroups._embedded.specialGroups",
+                        Matchers.containsInAnyOrder(
+                                matchGroupWithName("Staff"),
+                                matchGroupWithName("Member")
+                        )
+                ));
+
+        getClient(shibToken).perform(get("/api/authn/status/specialGroups").param("projection", "full"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$._embedded.specialGroups",
+                        Matchers.containsInAnyOrder(
+                                matchGroupWithName("Staff"),
+                                matchGroupWithName("Member")
+                        )
+                ));
+    }
+
+    @Test
+    public void testPasswordLoginNotMappedToStaffAndMembers() throws Exception {
+        context.turnOffAuthorisationSystem();
+
+        GroupBuilder.createGroup(context)
+                .withName("Staff")
+                .build();
+        GroupBuilder.createGroup(context)
+                .withName("Member")
+                .build();
+        GroupBuilder.createGroup(context)
+                .withName("specialGroupPwd")
+                .build();
+
+
+        configurationService.setProperty("plugin.sequence.org.dspace.authenticate.AuthenticationMethod",
+                "org.dspace.authenticate.PasswordAuthentication, org.dspace.authenticate.ShibAuthentication");
+        configurationService.setProperty("authentication-shibboleth.role.staff", "Staff, Member");
+        configurationService.setProperty("authentication-shibboleth.default-roles", "staff");
+        configurationService.setProperty("authentication-shibboleth.netid-header", "mail");
+        configurationService.setProperty("authentication-shibboleth.email-header", "mail");
+        configurationService.setProperty("authentication-password.login.specialgroup", "specialGroupPwd");
+
+        context.restoreAuthSystemState();
+
+        String passwordToken = getAuthToken(eperson.getEmail(), password);
+
+        getClient(passwordToken).perform(get("/api/authn/status").param("projection", "full"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.okay", is(true)))
+                .andExpect(jsonPath("$.authenticated", is(true)))
+                .andExpect(jsonPath("$.authenticationMethod", is("password")))
+                .andExpect(jsonPath("$._embedded.specialGroups._embedded.specialGroups",
+                        Matchers.containsInAnyOrder(
+                                matchGroupWithName("specialGroupPwd")
+                        )
+                ));
+
+        getClient(passwordToken).perform(get("/api/authn/status/specialGroups").param("projection", "full"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$._embedded.specialGroups",
+                        Matchers.containsInAnyOrder(
+                                matchGroupWithName("specialGroupPwd")
+                        )
+                ));
+    }
+
 }
 

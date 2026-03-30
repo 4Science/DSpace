@@ -72,6 +72,9 @@ public class LDNInboxControllerIT extends AbstractControllerIntegrationTest {
     @Autowired
     private LDNMessageService ldnMessageService;
 
+    @Autowired
+    private ObjectMapper mapper;
+
     private QAEventService qaEventService = new DSpace().getSingletonService(QAEventService.class);
 
     @Autowired
@@ -112,7 +115,6 @@ public class LDNInboxControllerIT extends AbstractControllerIntegrationTest {
         String message = announceEndorsement.replaceAll("<<object>>", object);
         message = message.replaceAll("<<object_handle>>", object);
 
-        ObjectMapper mapper = new ObjectMapper();
         Notification notification = mapper.readValue(message, Notification.class);
         getClient()
             .perform(post("/ldn/inbox")
@@ -147,7 +149,6 @@ public class LDNInboxControllerIT extends AbstractControllerIntegrationTest {
         String message = announceReview.replaceAll("<<object>>", object);
         message = message.replaceAll("<<object_handle>>", object);
 
-        ObjectMapper mapper = new ObjectMapper();
         Notification notification = mapper.readValue(message, Notification.class);
         getClient()
             .perform(post("/ldn/inbox")
@@ -171,7 +172,6 @@ public class LDNInboxControllerIT extends AbstractControllerIntegrationTest {
         InputStream offerEndorsementStream = getClass().getResourceAsStream("ldn_offer_endorsement_badrequest.json");
         String message = IOUtils.toString(offerEndorsementStream, Charset.defaultCharset());
         offerEndorsementStream.close();
-        ObjectMapper mapper = new ObjectMapper();
         Notification notification = mapper.readValue(message, Notification.class);
         getClient()
             .perform(post("/ldn/inbox")
@@ -202,7 +202,6 @@ public class LDNInboxControllerIT extends AbstractControllerIntegrationTest {
         offerReviewStream.close();
         String message = announceReview.replaceAll("<<object_handle>>", object);
 
-        ObjectMapper mapper = new ObjectMapper();
         Notification notification = mapper.readValue(message, Notification.class);
         getClient()
             .perform(post("/ldn/inbox")
@@ -221,7 +220,6 @@ public class LDNInboxControllerIT extends AbstractControllerIntegrationTest {
         String ackMessage = ackReview.replaceAll("<<object_handle>>", object);
         ackMessage = ackMessage.replaceAll("<<ldn_offer_review_uuid>>",
             "urn:uuid:0370c0fb-bb78-4a9b-87f5-bed307a509de");
-        ObjectMapper ackMapper = new ObjectMapper();
         Notification ackNotification = mapper.readValue(ackMessage, Notification.class);
         getClient()
             .perform(post("/ldn/inbox")
@@ -300,7 +298,6 @@ public class LDNInboxControllerIT extends AbstractControllerIntegrationTest {
         String message = announceRelationship.replaceAll("<<object>>", object);
         message = message.replaceAll("<<object_handle>>", object);
 
-        ObjectMapper mapper = new ObjectMapper();
         Notification notification = mapper.readValue(message, Notification.class);
         getClient()
             .perform(post("/ldn/inbox")
@@ -321,7 +318,6 @@ public class LDNInboxControllerIT extends AbstractControllerIntegrationTest {
     private void checkStoredLDNMessage(Notification notification, LDNMessageEntity ldnMessage, String object)
         throws Exception {
 
-        ObjectMapper mapper = new ObjectMapper();
         Notification storedMessage = mapper.readValue(ldnMessage.getMessage(), Notification.class);
 
         assertNotNull(ldnMessage);
@@ -364,7 +360,6 @@ public class LDNInboxControllerIT extends AbstractControllerIntegrationTest {
         String message = announceEndorsement.replaceAll("<<object>>", object);
         message = message.replaceAll("<<object_handle>>", object);
 
-        ObjectMapper mapper = new ObjectMapper();
         Notification notification = mapper.readValue(message, Notification.class);
         getClient()
             .perform(post("/ldn/inbox").with(remoteHost("mydocker.url", "172.23.0.1"))
@@ -401,7 +396,6 @@ public class LDNInboxControllerIT extends AbstractControllerIntegrationTest {
         String message = announceEndorsement.replaceAll("<<object>>", object);
         message = message.replaceAll("<<object_handle>>", object);
 
-        ObjectMapper mapper = new ObjectMapper();
         Notification notification = mapper.readValue(message, Notification.class);
         getClient()
             .perform(post("/ldn/inbox")
@@ -438,7 +432,6 @@ public class LDNInboxControllerIT extends AbstractControllerIntegrationTest {
         String message = announceEndorsement.replaceAll("<<object>>", object);
         message = message.replaceAll("<<object_handle>>", object);
 
-        ObjectMapper mapper = new ObjectMapper();
         Notification notification = mapper.readValue(message, Notification.class);
         getClient()
             .perform(post("/ldn/inbox").with(remoteHost("mydocker.url", "172.23.0.1"))

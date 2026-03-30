@@ -142,7 +142,7 @@ public class EPersonRestAuthenticationProvider implements AuthenticationProvider
 
                 } else {
                     log.info(LogHelper.getHeader(context, "failed_login",
-                                                 "email={}, result={}"), name, authenticateResult);
+                            "email={}, result={}"), name, authenticateResult);
                     throw new BadCredentialsException("Login failed");
                 }
             }

@@ -7,8 +7,9 @@
  */
 package org.dspace.content.integration.crosswalks.virtualfields;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Stream;
 
@@ -32,7 +33,7 @@ public class VirtualFieldDateFormatter implements VirtualField {
 
     private final static String CURRENT_TIMESTAMP = "TIMESTAMP";
 
-    private ItemService itemService;
+    private final ItemService itemService;
 
     public VirtualFieldDateFormatter(ItemService itemService) {
         this.itemService = itemService;
@@ -57,21 +58,21 @@ public class VirtualFieldDateFormatter implements VirtualField {
 
     }
 
-    private Stream<Date> getDates(Item item, String fieldToFormat) {
-        if (CURRENT_TIMESTAMP.equals(fieldToFormat.toUpperCase())) {
-            return Stream.of(new Date());
+    private Stream<ZonedDateTime> getDates(Item item, String fieldToFormat) {
+        if (CURRENT_TIMESTAMP.equalsIgnoreCase(fieldToFormat)) {
+            return Stream.of(ZonedDateTime.now());
         }
 
         String metadataField = fieldToFormat.replaceAll("-", ".");
         return itemService.getMetadataByMetadataString(item, metadataField).stream()
             .filter(metadataValue -> metadataValue.getValue() != null)
             .map(metadataValue -> MultiFormatDateParser.parse(metadataValue.getValue()))
-            .filter(date -> date != null);
+                          .filter(Objects::nonNull);
     }
 
-    private Optional<String> formatDate(Date dateToFormat, String pattern) {
+    private Optional<String> formatDate(ZonedDateTime dateToFormat, String pattern) {
         try {
-            return Optional.of(new SimpleDateFormat(pattern).format(dateToFormat));
+            return Optional.of(DateTimeFormatter.ofPattern(pattern).format(dateToFormat));
         } catch (IllegalArgumentException ex) {
             LOGGER.warn("Invalid pattern specified for date formatter virtual field: " + pattern, ex);
             return Optional.empty();

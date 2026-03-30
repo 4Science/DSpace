@@ -14,7 +14,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.dspace.alerts.service.SystemWideAlertService;
-import org.dspace.app.audit.AuditService;
+import org.dspace.app.audit.AuditSolrServiceImpl;
 import org.dspace.app.ldn.factory.NotifyServiceFactory;
 import org.dspace.app.ldn.service.LDNMessageService;
 import org.dspace.app.ldn.service.NotifyPatternToTriggerService;
@@ -56,6 +56,8 @@ import org.dspace.eperson.service.SubscribeService;
 import org.dspace.externalservices.scopus.factory.CrisMetricsServiceFactory;
 import org.dspace.harvest.factory.HarvestServiceFactory;
 import org.dspace.harvest.service.HarvestedCollectionService;
+import org.dspace.identifier.dao.DOIDAO;
+import org.dspace.identifier.dao.impl.DOIDAOImpl;
 import org.dspace.identifier.factory.IdentifierServiceFactory;
 import org.dspace.identifier.service.DOIService;
 import org.dspace.layout.factory.CrisLayoutServiceFactory;
@@ -129,14 +131,12 @@ public abstract class AbstractBuilder<T, S> {
     static CrisLayoutBoxService crisLayoutBoxService;
     static CrisLayoutFieldService crisLayoutFieldService;
     static CrisLayoutMetadataGroupService crisLayoutMetadataGroupService;
-    static AuditService auditService;
     static CrisMetricsService crisMetricsService;
     static CrisLayoutMetric2BoxService crisLayoutMetric2BoxService;
     static HarvestedCollectionService harvestedCollectionService;
     static SubscribeService subscribeService;
     static RequestItemService requestItemService;
     static VersioningService versioningService;
-    static DOIService doiService;
     static OrcidHistoryService orcidHistoryService;
     static OrcidQueueService orcidQueueService;
     static OrcidTokenService orcidTokenService;
@@ -146,10 +146,13 @@ public abstract class AbstractBuilder<T, S> {
     static NotifyService notifyService;
     static NotifyServiceInboundPatternService inboundPatternService;
     static NotifyPatternToTriggerService notifyPatternToTriggerService;
+    static AuditSolrServiceImpl auditSolrService;
 
     static QAEventService qaEventService;
     static SolrSuggestionStorageService solrSuggestionService;
     static LDNMessageService ldnMessageService;
+    static DOIService doiService;
+    static DOIDAO doiDao;
 
     protected Context context;
 
@@ -211,7 +214,6 @@ public abstract class AbstractBuilder<T, S> {
         crisLayoutBoxService = CrisLayoutServiceFactory.getInstance().getBoxService();
         crisLayoutFieldService = CrisLayoutServiceFactory.getInstance().getFieldService();
         crisLayoutMetadataGroupService = CrisLayoutServiceFactory.getInstance().getMetadataGroupService();
-        auditService = new DSpace().getSingletonService(AuditService.class);
         crisMetricsService = CrisMetricsServiceFactory.getInstance().getCrisMetricsService();
         harvestedCollectionService = HarvestServiceFactory.getInstance().getHarvestedCollectionService();
         crisLayoutMetric2BoxService = CrisLayoutServiceFactory.getInstance().getMetric2BoxService();
@@ -235,6 +237,8 @@ public abstract class AbstractBuilder<T, S> {
         qaEventService = new DSpace().getSingletonService(QAEventService.class);
         solrSuggestionService = new DSpace().getSingletonService(SolrSuggestionStorageService.class);
         ldnMessageService = NotifyServiceFactory.getInstance().getLDNMessageService();
+        auditSolrService = new DSpace().getSingletonService(AuditSolrServiceImpl.class);
+        doiDao = new DSpace().getSingletonService(DOIDAOImpl.class);
     }
 
 
@@ -276,7 +280,6 @@ public abstract class AbstractBuilder<T, S> {
         harvestedCollectionService = null;
         requestItemService = null;
         versioningService = null;
-        doiService = null;
         orcidTokenService = null;
         notifyService = null;
         inboundPatternService = null;
@@ -287,6 +290,7 @@ public abstract class AbstractBuilder<T, S> {
         subscribeService = null;
         supervisionOrderService = null;
         ldnMessageService = null;
+        doiService = null;
     }
 
     public static void cleanupObjects() throws Exception {

@@ -9,11 +9,10 @@ package org.dspace.access.status;
 
 import static org.dspace.content.Item.ANY;
 
-import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
-import java.util.Date;
 
+import org.dspace.content.AccessStatus;
 import org.dspace.content.Item;
 import org.dspace.content.MetadataFieldName;
 import org.dspace.content.factory.ContentServiceFactory;
@@ -29,57 +28,56 @@ import org.dspace.services.factory.DSpaceServicesFactory;
  *
  * @author Mohamed Eskander (mohamed.eskander at 4science.com)
  */
-public class MetadataAccessStatusHelper implements AccessStatusHelper {
+public class MetadataAccessStatusHelper extends DefaultAccessStatusHelper {
 
-    protected ItemService itemService = ContentServiceFactory.getInstance().getItemService();
-    private ConfigurationService  configurationService =
-            DSpaceServicesFactory.getInstance().getConfigurationService();
-
-    private String accessStatusMetadata;
-    private String availabilityDateMetadata;
+    private final ConfigurationService configurationService =
+        DSpaceServicesFactory.getInstance().getConfigurationService();
+    private final String accessStatusMetadata;
+    private final String availabilityDateMetadata;
 
     public MetadataAccessStatusHelper() {
         super();
         this.accessStatusMetadata = configurationService.getProperty(
-                "access.status.access-status-metadata", "datacite.rights");
+            "access.status.access-status-metadata", "datacite.rights");
         this.availabilityDateMetadata = configurationService.getProperty(
-                "access.status.availability-date-metadata", "datacite.available");
+            "access.status.availability-date-metadata", "datacite.available");
     }
 
     /**
      * Determines the access status of an item based on metadata.
      *
-     * @param context     the DSpace context
-     * @param item        the item to check for embargoes
-     * @param threshold   the embargo threshold date
+     * @param context   the DSpace context
+     * @param item      the item to check for embargoes
+     * @param threshold the embargo threshold date
      * @return an access status value
      */
     @Override
-    public String getAccessStatusFromItem(Context context, Item item, Date threshold) {
-
+    public AccessStatus getAccessStatusFromItem(Context context, Item item, LocalDate threshold, String type) {
         if (item == null) {
-            return UNKNOWN;
+            return new AccessStatus(UNKNOWN, null);
         }
-
+        ItemService itemService =
+            ContentServiceFactory.getInstance().getItemService();
         String status = itemService.getMetadataFirstValue(item,
-                new MetadataFieldName(accessStatusMetadata), ANY);
+                                                          new MetadataFieldName(accessStatusMetadata), ANY);
         String date = itemService.getMetadataFirstValue(item,
-                new MetadataFieldName(availabilityDateMetadata), ANY);
+                                                        new MetadataFieldName(availabilityDateMetadata), ANY);
 
         if (status == null) {
-            return UNKNOWN;
+            return new AccessStatus(UNKNOWN, null);
         }
 
+        LocalDate embargoDate = null;
         if (EMBARGO.equals(status)) {
             if (date != null) {
-                LocalDate embargoDate = parseDate(date);
+                embargoDate = parseDate(date);
                 if (embargoDate == null || embargoDate.isBefore(LocalDate.now())) {
-                    return OPEN_ACCESS;
+                    return new AccessStatus(OPEN_ACCESS, embargoDate);
                 }
             }
         }
 
-        return AccessStatus.toAccessStatus(status).getStatus();
+        return AccessStatus.toAccessStatus(status, embargoDate);
     }
 
     private LocalDate parseDate(String dateStr) {
@@ -89,24 +87,4 @@ public class MetadataAccessStatusHelper implements AccessStatusHelper {
             return null;
         }
     }
-
-    /**
-     *
-     * @param context     the DSpace context
-     * @param item        the item to embargo
-     * @return an embargo date
-     */
-    @Override
-    public String getEmbargoFromItem(Context context, Item item, Date threshold) throws SQLException {
-
-        // If Item status is not "embargo" then return a null embargo date.
-        String accessStatus = getAccessStatusFromItem(context, item, threshold);
-
-        if (item == null || !accessStatus.equals(EMBARGO)) {
-            return null;
-        }
-
-        return itemService.getMetadataFirstValue(item, new MetadataFieldName(availabilityDateMetadata), ANY);
-    }
-
 }

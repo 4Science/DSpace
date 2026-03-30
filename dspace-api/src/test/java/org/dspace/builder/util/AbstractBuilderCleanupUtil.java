@@ -23,6 +23,7 @@ import org.dspace.builder.CrisLayoutBoxBuilder;
 import org.dspace.builder.CrisLayoutMetric2BoxBuilder;
 import org.dspace.builder.CrisLayoutTabBuilder;
 import org.dspace.builder.CrisMetricsBuilder;
+import org.dspace.builder.DOIBuilder;
 import org.dspace.builder.EPersonBuilder;
 import org.dspace.builder.EntityTypeBuilder;
 import org.dspace.builder.GroupBuilder;
@@ -92,6 +93,7 @@ public class AbstractBuilderCleanupUtil {
         map.put(MetadataSchemaBuilder.class.getName(), new ArrayList<>());
         map.put(SiteBuilder.class.getName(), new ArrayList<>());
         map.put(ProcessBuilder.class.getName(), new ArrayList<>());
+        map.put(DOIBuilder.class.getName(), new ArrayList<>());
     }
 
     /**

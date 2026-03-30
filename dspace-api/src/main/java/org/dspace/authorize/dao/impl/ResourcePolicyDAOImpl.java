@@ -10,8 +10,8 @@ package org.dspace.authorize.dao.impl;
 import static java.util.Collections.emptyList;
 
 import java.sql.SQLException;
+import java.time.LocalDate;
 import java.util.Collections;
-import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
@@ -462,7 +462,7 @@ public class ResourcePolicyDAOImpl extends AbstractHibernateDAO<ResourcePolicy> 
         Query query = createQuery(context, sqlQuery);
         query.setParameter("dsoIds", dsoIds);
         query.setParameter("actionId", actionID);
-        query.setParameter("date", new Date());
+        query.setParameter("date", LocalDate.now());
         return query.getResultList();
 
     }

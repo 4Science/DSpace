@@ -12,6 +12,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import java.util.List;
 import java.util.regex.Pattern;
 
+import jakarta.inject.Inject;
 import org.dspace.AbstractIntegrationTestWithDatabase;
 import org.dspace.builder.CollectionBuilder;
 import org.dspace.builder.CommunityBuilder;
@@ -20,25 +21,37 @@ import org.dspace.builder.WorkflowItemBuilder;
 import org.dspace.content.Collection;
 import org.dspace.content.Community;
 import org.dspace.content.MetadataValue;
-import org.dspace.content.factory.ContentServiceFactory;
 import org.dspace.content.service.ItemService;
 import org.dspace.core.Context;
+import org.dspace.core.LegacyPluginServiceImpl;
 import org.dspace.ctask.testing.MarkerTask;
 import org.dspace.curate.Curator;
 import org.dspace.eperson.EPerson;
+import org.dspace.util.DSpaceConfigurationInitializer;
+import org.dspace.util.DSpaceKernelInitializer;
 import org.dspace.xmlworkflow.storedcomponents.XmlWorkflowItem;
-import org.junit.Ignore;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringRunner;
 
 /**
  * Test the attachment of curation tasks to workflows.
  *
  * @author mwood
  */
-@Ignore
-public class WorkflowCurationIT extends AbstractIntegrationTestWithDatabase {
-
-    private ItemService itemService = ContentServiceFactory.getInstance().getItemService();
+@RunWith(SpringRunner.class)
+@ContextConfiguration(
+        initializers = { DSpaceKernelInitializer.class, DSpaceConfigurationInitializer.class },
+        locations = { "classpath:spring/*.xml" }
+)
+public class WorkflowCurationIT
+        extends AbstractIntegrationTestWithDatabase {
+    @Inject
+    private ItemService itemService;
+    @Autowired
+    private LegacyPluginServiceImpl legacyPluginService;
 
     /**
      * Basic smoke test of a curation task attached to a workflow step.
@@ -49,7 +62,7 @@ public class WorkflowCurationIT extends AbstractIntegrationTestWithDatabase {
     public void curationTest()
             throws Exception {
         context.turnOffAuthorisationSystem();
-
+        legacyPluginService.clearNamedPluginClasses();
         //** GIVEN **
 
         // A submitter;

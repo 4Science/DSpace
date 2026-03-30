@@ -8,7 +8,7 @@
 package org.dspace.content.dao;
 
 import java.sql.SQLException;
-import java.util.Date;
+import java.time.Instant;
 import java.util.List;
 
 import org.dspace.content.ProcessStatus;
@@ -29,7 +29,7 @@ public interface ProcessDAO extends GenericDAO<Process> {
      * @return          The list of all Process objects in the database sorted on scriptname
      * @throws SQLException If something goes wrong
      */
-    public List<Process> findAllSortByScript(Context context) throws SQLException;
+    List<Process> findAllSortByScript(Context context) throws SQLException;
 
     /**
      * This method will return all the Process objects in the database in a list and it'll be sorted by start time.
@@ -38,7 +38,7 @@ public interface ProcessDAO extends GenericDAO<Process> {
      * @return          The list of all Process objects in the database sorted by starttime
      * @throws SQLException If something goes wrong
      */
-    public List<Process> findAllSortByStartTime(Context context) throws SQLException;
+    List<Process> findAllSortByStartTime(Context context) throws SQLException;
 
     /**
      * Returns a list of all Process objects in the database
@@ -86,6 +86,19 @@ public interface ProcessDAO extends GenericDAO<Process> {
         throws SQLException;
 
     /**
+     * Find all the processes with one of the given status and with a creation time
+     * older than the specified date.
+     *
+     * @param context  The relevant DSpace context
+     * @param statuses the statuses of the processes to search for
+     * @param date     the creation date to search for
+     * @return The list of all Processes which match requirements
+     * @throws SQLException If something goes wrong
+     */
+    List<Process> findByStatusAndCreationTimeOlderThan(Context context, List<ProcessStatus> statuses, Instant date)
+        throws SQLException;
+
+    /**
      * Returns a list of all Process objects in the database by the given user.
      *
      * @param context The relevant DSpace context
@@ -106,18 +119,5 @@ public interface ProcessDAO extends GenericDAO<Process> {
      * @throws SQLException If something goes wrong
      */
     int countByUser(Context context, EPerson user) throws SQLException;
-
-    /**
-     * Find all the processes with one of the given status and with a creation time
-     * older than the specified date.
-     *
-     * @param  context      The relevant DSpace context
-     * @param  statuses     the statuses of the processes to search for
-     * @param  date         the creation date to search for
-     * @return              The list of all Processes which match requirements
-     * @throws SQLException If something goes wrong
-     */
-    List<Process> findByStatusAndCreationTimeOlderThan(Context context, List<ProcessStatus> statuses, Date date)
-        throws SQLException;
 
 }

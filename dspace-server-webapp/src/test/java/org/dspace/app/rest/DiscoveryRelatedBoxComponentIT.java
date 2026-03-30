@@ -243,14 +243,14 @@ public class DiscoveryRelatedBoxComponentIT extends AbstractControllerIntegratio
                 .andExpect(jsonPath("$._embedded.facets", Matchers.containsInAnyOrder(
                         FacetEntryMatcher.anyFacet("graphitemtype", "chart.pie"),
                         FacetEntryMatcher.anyFacet("graphpubldate", "chart.bar"),
-                        FacetEntryMatcher.authorFacet(false),
+                        FacetEntryMatcher.authorFacet(),
                         FacetEntryMatcher.anyFacet("editor", "text"),
                         FacetEntryMatcher.anyFacet("organization", "text"),
                         FacetEntryMatcher.anyFacet("funding", "text"),
                         FacetEntryMatcher.anyFacet("itemtype", "hierarchical"),
-                        FacetEntryMatcher.subjectFacet(false),
-                        FacetEntryMatcher.dateIssuedFacet(false),
-                        FacetEntryMatcher.hasContentInOriginalBundleFacet(false)
+                        FacetEntryMatcher.subjectFacet(),
+                        FacetEntryMatcher.dateIssuedFacet(),
+                        FacetEntryMatcher.hasContentInOriginalBundleFacet()
                 )))
                 //There always needs to be a self link available
                 .andExpect(jsonPath("$._links.self.href", containsString("/api/discover/search/objects")))
@@ -283,14 +283,14 @@ public class DiscoveryRelatedBoxComponentIT extends AbstractControllerIntegratio
                 .andExpect(jsonPath("$._embedded.facets", Matchers.containsInAnyOrder(
                     FacetEntryMatcher.anyFacet("graphitemtype", "chart.pie"),
                     FacetEntryMatcher.anyFacet("graphpubldate", "chart.bar"),
-                    FacetEntryMatcher.authorFacet(false),
+                    FacetEntryMatcher.authorFacet(),
                     FacetEntryMatcher.anyFacet("editor", "text"),
                     FacetEntryMatcher.anyFacet("organization", "text"),
                     FacetEntryMatcher.anyFacet("funding", "text"),
                     FacetEntryMatcher.anyFacet("itemtype", "hierarchical"),
-                    FacetEntryMatcher.subjectFacet(false),
-                    FacetEntryMatcher.dateIssuedFacet(false),
-                    FacetEntryMatcher.hasContentInOriginalBundleFacet(false)
+                    FacetEntryMatcher.subjectFacet(),
+                    FacetEntryMatcher.dateIssuedFacet(),
+                    FacetEntryMatcher.hasContentInOriginalBundleFacet()
                 )))
                 //There always needs to be a self link available
                 .andExpect(jsonPath("$._links.self.href", containsString("/api/discover/search/objects")))
@@ -325,14 +325,14 @@ public class DiscoveryRelatedBoxComponentIT extends AbstractControllerIntegratio
                 .andExpect(jsonPath("$._embedded.facets", Matchers.containsInAnyOrder(
                     FacetEntryMatcher.anyFacet("graphitemtype", "chart.pie"),
                     FacetEntryMatcher.anyFacet("graphpubldate", "chart.bar"),
-                    FacetEntryMatcher.authorFacet(false),
+                    FacetEntryMatcher.authorFacet(),
                     FacetEntryMatcher.anyFacet("editor", "text"),
                     FacetEntryMatcher.anyFacet("organization", "text"),
                     FacetEntryMatcher.anyFacet("funding", "text"),
                     FacetEntryMatcher.anyFacet("itemtype", "hierarchical"),
-                    FacetEntryMatcher.subjectFacet(false),
-                    FacetEntryMatcher.dateIssuedFacet(false),
-                    FacetEntryMatcher.hasContentInOriginalBundleFacet(false)
+                    FacetEntryMatcher.subjectFacet(),
+                    FacetEntryMatcher.dateIssuedFacet(),
+                    FacetEntryMatcher.hasContentInOriginalBundleFacet()
                 )))
                 //There always needs to be a self link available
                 .andExpect(jsonPath("$._links.self.href", containsString("/api/discover/search/objects")))

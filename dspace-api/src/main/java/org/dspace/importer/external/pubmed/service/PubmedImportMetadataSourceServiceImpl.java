@@ -13,6 +13,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.StringReader;
+import java.time.Instant;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -56,6 +57,7 @@ public class PubmedImportMetadataSourceServiceImpl extends AbstractImportMetadat
 
     private String urlFetch;
     private String urlSearch;
+    private String apiKey;
 
     private int attempt = 3;
 
@@ -211,6 +213,9 @@ public class PubmedImportMetadataSourceServiceImpl extends AbstractImportMetadat
         @Override
         public Integer call() throws Exception {
             URIBuilder uriBuilder = new URIBuilder(urlSearch);
+            if (StringUtils.isNotBlank(apiKey)) {
+                uriBuilder.addParameter("api_key", apiKey);
+            }
             uriBuilder.addParameter("db", "pubmed");
             uriBuilder.addParameter("term", query.getParameterAsClass("query", String.class));
             Map<String, Map<String, String>> params = new HashMap<String, Map<String,String>>();
@@ -287,6 +292,9 @@ public class PubmedImportMetadataSourceServiceImpl extends AbstractImportMetadat
             List<ImportRecord> records = new LinkedList<ImportRecord>();
 
             URIBuilder uriBuilder = new URIBuilder(urlSearch);
+            if (StringUtils.isNotBlank(apiKey)) {
+                uriBuilder.addParameter("api_key", apiKey);
+            }
             uriBuilder.addParameter("db", "pubmed");
             uriBuilder.addParameter("retstart", start.toString());
             uriBuilder.addParameter("retmax", count.toString());
@@ -298,13 +306,13 @@ public class PubmedImportMetadataSourceServiceImpl extends AbstractImportMetadat
             while (StringUtils.isBlank(response) && countAttempt <= attempt) {
                 countAttempt++;
 
-                long time = System.currentTimeMillis() - lastRequest;
+                long time = Instant.now().toEpochMilli() - lastRequest;
                 if ((time) < interRequestTime) {
                     Thread.sleep(interRequestTime - time);
                 }
 
                 response = liveImportClient.executeHttpGetRequest(1000, uriBuilder.toString(), params);
-                lastRequest = System.currentTimeMillis();
+                lastRequest = Instant.now().toEpochMilli();
             }
 
             if (StringUtils.isBlank(response)) {
@@ -317,6 +325,9 @@ public class PubmedImportMetadataSourceServiceImpl extends AbstractImportMetadat
             String webEnv = getSingleElementValue(response, "WebEnv");
 
             URIBuilder uriBuilder2 = new URIBuilder(urlFetch);
+            if (StringUtils.isNotBlank(apiKey)) {
+                uriBuilder2.addParameter("api_key", apiKey);
+            }
             uriBuilder2.addParameter("db", "pubmed");
             uriBuilder2.addParameter("retstart", start.toString());
             uriBuilder2.addParameter("retmax", count.toString());
@@ -328,13 +339,13 @@ public class PubmedImportMetadataSourceServiceImpl extends AbstractImportMetadat
             countAttempt = 0;
             while (StringUtils.isBlank(response2) && countAttempt <= attempt) {
                 countAttempt++;
-                long time = System.currentTimeMillis() - lastRequest;
+                long time = Instant.now().toEpochMilli() - lastRequest;
                 if ((time) < interRequestTime) {
                     Thread.sleep(interRequestTime - time);
                 }
                 response2 = liveImportClient.executeHttpGetRequest(1000, uriBuilder2.toString(), params2);
 
-                lastRequest = System.currentTimeMillis();
+                lastRequest = Instant.now().toEpochMilli();
             }
 
             if (StringUtils.isBlank(response2)) {
@@ -391,6 +402,9 @@ public class PubmedImportMetadataSourceServiceImpl extends AbstractImportMetadat
         public ImportRecord call() throws Exception {
 
             URIBuilder uriBuilder = new URIBuilder(urlFetch);
+            if (StringUtils.isNotBlank(apiKey)) {
+                uriBuilder.addParameter("api_key", apiKey);
+            }
             uriBuilder.addParameter("db", "pubmed");
             uriBuilder.addParameter("retmode", "xml");
             uriBuilder.addParameter("id", query.getParameterAsClass("id", String.class));
@@ -431,6 +445,9 @@ public class PubmedImportMetadataSourceServiceImpl extends AbstractImportMetadat
         public Collection<ImportRecord> call() throws Exception {
 
             URIBuilder uriBuilder = new URIBuilder(urlSearch);
+            if (StringUtils.isNotBlank(apiKey)) {
+                uriBuilder.addParameter("api_key", apiKey);
+            }
             uriBuilder.addParameter("db", "pubmed");
             uriBuilder.addParameter("usehistory", "y");
             uriBuilder.addParameter("term", query.getParameterAsClass("term", String.class));
@@ -441,13 +458,13 @@ public class PubmedImportMetadataSourceServiceImpl extends AbstractImportMetadat
             int countAttempt = 0;
             while (StringUtils.isBlank(response) && countAttempt <= attempt) {
                 countAttempt++;
-                long time = System.currentTimeMillis() - lastRequest;
+                long time = Instant.now().toEpochMilli() - lastRequest;
                 if ((time) < interRequestTime) {
                     Thread.sleep(interRequestTime - time);
                 }
 
                 response = liveImportClient.executeHttpGetRequest(1000, uriBuilder.toString(), params);
-                lastRequest = System.currentTimeMillis();
+                lastRequest = Instant.now().toEpochMilli();
             }
 
             if (StringUtils.isBlank(response)) {
@@ -460,6 +477,9 @@ public class PubmedImportMetadataSourceServiceImpl extends AbstractImportMetadat
             String queryKey = getSingleElementValue(response, "QueryKey");
 
             URIBuilder uriBuilder2 = new URIBuilder(urlFetch);
+            if (StringUtils.isNotBlank(apiKey)) {
+                uriBuilder.addParameter("api_key", apiKey);
+            }
             uriBuilder2.addParameter("db", "pubmed");
             uriBuilder2.addParameter("retmode", "xml");
             uriBuilder2.addParameter("WebEnv", webEnv);
@@ -470,12 +490,12 @@ public class PubmedImportMetadataSourceServiceImpl extends AbstractImportMetadat
             countAttempt = 0;
             while (StringUtils.isBlank(response2) && countAttempt <= attempt) {
                 countAttempt++;
-                long time = System.currentTimeMillis() - lastRequest;
+                long time = Instant.now().toEpochMilli() - lastRequest;
                 if ((time) < interRequestTime) {
                     Thread.sleep(interRequestTime - time);
                 }
                 response2 = liveImportClient.executeHttpGetRequest(1000, uriBuilder2.toString(), params2);
-                lastRequest = System.currentTimeMillis();
+                lastRequest = Instant.now().toEpochMilli();
             }
 
             if (StringUtils.isBlank(response2)) {
@@ -533,6 +553,10 @@ public class PubmedImportMetadataSourceServiceImpl extends AbstractImportMetadat
 
     public void setUrlSearch(String urlSearch) {
         this.urlSearch = urlSearch;
+    }
+
+    public void setApiKey(String apiKey) {
+        this.apiKey = apiKey;
     }
 
 }

@@ -109,12 +109,12 @@ public class QDCCrosswalk extends SelfNamedPlugin
     private final Map<String, String> element2qdc = new HashMap<>();
 
     // the XML namespaces from config file for this name.
-    private Namespace namespaces[] = null;
+    private Namespace[] namespaces = null;
 
     private static final Namespace DCTERMS_NS =
         Namespace.getNamespace("dcterms", "http://purl.org/dc/terms/");
 
-    // sentinal: done init?
+    // sentinel: done init?
     private boolean inited = false;
 
     // my plugin name
@@ -139,7 +139,7 @@ public class QDCCrosswalk extends SelfNamedPlugin
      * Fill in the plugin-name table from DSpace configuration entries
      * for configuration files for flavors of QDC crosswalk:
      */
-    private static String aliases[] = null;
+    private static String[] aliases = null;
 
     static {
         initStatic();
@@ -433,7 +433,7 @@ public class QDCCrosswalk extends SelfNamedPlugin
             if ("qualifieddc".equals(me.getName())) {
                 ingest(context, dso, me.getChildren(), createMissingMetadataFields);
             } else if (element2qdc.containsKey(key)) {
-                String qdc[] = (element2qdc.get(key)).split("\\.");
+                String[] qdc = (element2qdc.get(key)).split("\\.");
 
                 MetadataField metadataField;
                 if (qdc.length == 3) {

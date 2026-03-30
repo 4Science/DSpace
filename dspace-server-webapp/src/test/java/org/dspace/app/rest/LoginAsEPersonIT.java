@@ -58,6 +58,9 @@ public class LoginAsEPersonIT extends AbstractControllerIntegrationTest {
     @Autowired
     private GroupService groupService;
 
+    @Autowired
+    private ObjectMapper mapper;
+
     @Before
     public void setup() {
         configurationService.setProperty("webui.user.assumelogin", true);
@@ -247,8 +250,6 @@ public class LoginAsEPersonIT extends AbstractControllerIntegrationTest {
                                                   .andExpect(jsonPath("$._embedded.collection.id",
                                                                       is(col1.getID().toString()))).andReturn();
 
-        ObjectMapper mapper = new ObjectMapper();
-
         String content = mvcResult.getResponse().getContentAsString();
         Map<String,Object> map = mapper.readValue(content, Map.class);
         String workspaceItemId = String.valueOf(map.get("id"));
@@ -262,7 +263,7 @@ public class LoginAsEPersonIT extends AbstractControllerIntegrationTest {
     /**
      * Test claiming of a pool task with the LoginOnBehalfOf header. Thus checking that an admin can impersonate
      * an eperson to claim a pooltask and checking later on that the owner of this claimedTask is indeed
-     * the reviwer
+     * the reviewer
      *
      * @throws Exception
      */
@@ -382,7 +383,7 @@ public class LoginAsEPersonIT extends AbstractControllerIntegrationTest {
         getClient().perform(get("/api/core/items/" + publicItem.getID()))
                    .andExpect(status().isOk());
 
-        // Check publicItem bitstream creation (shuold be stored in bundle)
+        // Check publicItem bitstream creation (should be stored in bundle)
         getClient().perform(get("/api/core/items/" + publicItem.getID() + "/bundles"))
                    .andExpect(status().isOk())
                    .andExpect(content().contentType(contentType))

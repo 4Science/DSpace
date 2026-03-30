@@ -7,7 +7,7 @@
  */
 package org.dspace.content.dto;
 
-import java.util.Date;
+import java.time.LocalDate;
 
 import org.dspace.authorize.ResourcePolicy;
 
@@ -18,7 +18,6 @@ import org.dspace.authorize.ResourcePolicy;
  * database, this will typically be used when transferring data.
  *
  * @author Luca Giamminonni (luca.giamminonni at 4Science)
- *
  */
 public class ResourcePolicyDTO {
 
@@ -30,16 +29,17 @@ public class ResourcePolicyDTO {
 
     private final String type;
 
-    private final Date startDate;
+    private final LocalDate startDate;
 
-    private final Date endDate;
+    private final LocalDate endDate;
 
     public ResourcePolicyDTO(ResourcePolicy resourcePolicy) {
         this(resourcePolicy.getRpName(), resourcePolicy.getRpDescription(), resourcePolicy.getAction(),
-            resourcePolicy.getRpType(), resourcePolicy.getStartDate(), resourcePolicy.getEndDate());
+             resourcePolicy.getRpType(), resourcePolicy.getStartDate(), resourcePolicy.getEndDate());
     }
 
-    public ResourcePolicyDTO(String name, String description, int action, String type, Date startDate, Date endDate) {
+    public ResourcePolicyDTO(String name, String description, int action, String type, LocalDate startDate,
+                             LocalDate endDate) {
         this.name = name;
         this.description = description;
         this.action = action;
@@ -52,11 +52,11 @@ public class ResourcePolicyDTO {
         return name;
     }
 
-    public Date getStartDate() {
+    public LocalDate getStartDate() {
         return startDate;
     }
 
-    public Date getEndDate() {
+    public LocalDate getEndDate() {
         return endDate;
     }
 

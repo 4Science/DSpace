@@ -113,39 +113,19 @@ jobs:
       REDEPLOY_SANDBOX_URL: ${{ secrets.REDEPLOY_SANDBOX_SOLR_URL }}
       REDEPLOY_DEMO_URL: ${{ secrets.REDEPLOY_DEMO_SOLR_URL }}
 
-  ###########################################################
-  # Build/Push the '4science/dspace-cris-postgres-pgcrypto' image
-  ###########################################################
-  dspace-cris-postgres-pgcrypto:
-    # Ensure this job never runs on forked repos. It's only executed for '4science/dspace'
+  ########################################################
+  # Build/Push the '4science/dspace-cris-postgres-loadsql' image
+  ########################################################
+  dspace-cris-postgres-loadsql:
+    # Ensure this job never runs on forked repos. It's only executed for 'dspace/dspace'
     if: github.repository == '4science/dspace'
     uses: ./.github/workflows/reusable-docker-build.yml
     with:
-      build_id: dspace-cris-postgres-pgcrypto-prod
-      image_name: 4science/dspace-cris-postgres-pgcrypto
-      # Must build out of subdirectory to have access to install script for pgcrypto.
+      build_id: dspace-cris-postgres-loadsql
+      image_name: 4science/dspace-cris-postgres-loadsql
+      # Must build out of subdirectory to have access to install script.
       # NOTE: this context will build the image based on the Dockerfile in the specified directory
-      dockerfile_context: ./dspace/src/main/docker/dspace-postgres-pgcrypto/
-    secrets:
-      DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-      DOCKER_ACCESS_TOKEN: ${{ secrets.DOCKER_ACCESS_TOKEN }}
-
-  ########################################################################
-  # Build/Push the '4science/dspace-cris-postgres-pgcrypto' image (-loadsql tag)
-  ########################################################################
-  dspace-cris-postgres-pgcrypto-loadsql:
-    # Ensure this job never runs on forked repos. It's only executed for '4science/dspace'
-    if: github.repository == '4science/dspace'
-    uses: ./.github/workflows/reusable-docker-build.yml
-    with:
-      build_id: dspace-cris-postgres-pgcrypto-loadsql
-      image_name: 4science/dspace-cris-postgres-pgcrypto
-      # Must build out of subdirectory to have access to install script for pgcrypto.
-      # NOTE: this context will build the image based on the Dockerfile in the specified directory
-      dockerfile_context: ./dspace/src/main/docker/dspace-postgres-pgcrypto-curl/
-      # Suffix all tags with "-loadsql". Otherwise, it uses the same
-      # tagging logic as the primary '4science/dspace-cris-postgres-pgcrypto' image above.
-      tags_flavor: suffix=-loadsql
+      dockerfile_context: ./dspace/src/main/docker/dspace-postgres-loadsql/
     secrets:
       DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
       DOCKER_ACCESS_TOKEN: ${{ secrets.DOCKER_ACCESS_TOKEN }}
@@ -158,7 +138,7 @@ jobs:
     if: github.repository == '4science/dspace'
     runs-on: ubuntu-latest
     # Must run after all major images are built
-    needs: [dspace-cris, dspace-cris-test, dspace-cris-cli, dspace-cris-postgres-pgcrypto, dspace-cris-solr]
+    needs: [dspace-cris, dspace-cris-test, dspace-cris-cli, dspace-cris-solr]
     env:
       # Override defaults dspace.server.url because backend starts at http://127.0.0.1:8080
       dspace__P__server__P__url: http://127.0.0.1:8080/server

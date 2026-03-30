@@ -7,8 +7,8 @@
  */
 package org.dspace.eperson;
 
+import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -28,8 +28,6 @@ import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
-import jakarta.persistence.Temporal;
-import jakarta.persistence.TemporalType;
 import org.dspace.core.Context;
 import org.dspace.core.ReloadableEntity;
 import org.hibernate.annotations.SortNatural;
@@ -43,31 +41,6 @@ import org.hibernate.annotations.SortNatural;
 @Table(name = "registrationdata")
 public class RegistrationData implements ReloadableEntity<Integer> {
 
-    @Id
-    @Column(name = "registrationdata_id")
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "registrationdata_seq")
-    @SequenceGenerator(name = "registrationdata_seq", sequenceName = "registrationdata_seq", allocationSize = 1)
-    private Integer id;
-
-    /**
-     * Contains the email used to register the user.
-     */
-    @Column(name = "email", length = 64)
-    private String email;
-
-    /**
-     * Contains the unique id generated fot the user.
-     */
-    @Column(name = "token", length = 48)
-    private String token;
-
-    /**
-     * Expiration date of this registration data.
-     */
-    @Column(name = "expires")
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date expires;
-
     @ManyToMany(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST})
     @JoinTable(
         name = "registrationdata2group",
@@ -75,8 +48,32 @@ public class RegistrationData implements ReloadableEntity<Integer> {
         inverseJoinColumns = {@JoinColumn(name = "group_id")}
     )
     private final List<Group> groups = new ArrayList<Group>();
-
-
+    /**
+     * Contains the external id provided by the external service
+     * accordingly to the registration type.
+     */
+    @Column(name = "net_id", length = 64)
+    private final String netId;
+    @Id
+    @Column(name = "registrationdata_id")
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "registrationdata_seq")
+    @SequenceGenerator(name = "registrationdata_seq", sequenceName = "registrationdata_seq", allocationSize = 1)
+    private Integer id;
+    /**
+     * Contains the email used to register the user.
+     */
+    @Column(name = "email", length = 64)
+    private String email;
+    /**
+     * Contains the unique id generated fot the user.
+     */
+    @Column(name = "token", length = 48)
+    private String token;
+    /**
+     * Expiration date of this registration data.
+     */
+    @Column(name = "expires")
+    private Instant expires;
     /**
      * Metadata linked to this registration data
      */
@@ -88,7 +85,6 @@ public class RegistrationData implements ReloadableEntity<Integer> {
         orphanRemoval = true
     )
     private SortedSet<RegistrationDataMetadata> metadata = new TreeSet<>();
-
     /**
      * External service used to register the user.
      * Allowed values are inside {@link RegistrationTypeEnum}
@@ -96,13 +92,6 @@ public class RegistrationData implements ReloadableEntity<Integer> {
     @Column(name = "registration_type")
     @Enumerated(EnumType.STRING)
     private RegistrationTypeEnum registrationType;
-
-    /**
-     * Contains the external id provided by the external service
-     * accordingly to the registration type.
-     */
-    @Column(name = "net_id", length = 64)
-    private final String netId;
 
     /**
      * Protected constructor, create object using:
@@ -140,11 +129,11 @@ public class RegistrationData implements ReloadableEntity<Integer> {
         this.token = token;
     }
 
-    public Date getExpires() {
+    public Instant getExpires() {
         return expires;
     }
 
-    void setExpires(Date expires) {
+    void setExpires(Instant expires) {
         this.expires = expires;
     }
 

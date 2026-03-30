@@ -9,10 +9,10 @@ package org.dspace.eperson;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -22,6 +22,7 @@ import java.util.UUID;
 import org.apache.commons.codec.DecoderException;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.apache.logging.log4j.Logger;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.authorize.factory.AuthorizeServiceFactory;
@@ -45,6 +46,7 @@ import org.dspace.eperson.dao.EPersonDAO;
 import org.dspace.eperson.service.EPersonService;
 import org.dspace.eperson.service.GroupService;
 import org.dspace.eperson.service.SubscribeService;
+import org.dspace.event.DetailType;
 import org.dspace.event.Event;
 import org.dspace.orcid.service.OrcidTokenService;
 import org.dspace.qaevent.dao.QAEventsDAO;
@@ -344,11 +346,11 @@ public class EPersonServiceImpl extends DSpaceObjectServiceImpl<EPerson> impleme
         try {
             delete(context, ePerson, true);
         } catch (AuthorizeException ex) {
-            log.error("This AuthorizeException: " + ex + " occured while deleting Eperson with the ID: " +
+            log.error("This AuthorizeException: " + ex + " occurred while deleting Eperson with the ID: " +
                       ePerson.getID());
             throw new AuthorizeException(ex);
         } catch (IOException ex) {
-            log.error("This IOException: " + ex + " occured while deleting Eperson with the ID: " + ePerson.getID());
+            log.error("This IOException: " + ex + " occurred while deleting Eperson with the ID: " + ePerson.getID());
             throw new AuthorizeException(ex);
         } catch (EPersonDeletionException e) {
             throw new IllegalStateException(e);
@@ -401,7 +403,7 @@ public class EPersonServiceImpl extends DSpaceObjectServiceImpl<EPerson> impleme
 
                 while (constraintsIterator.hasNext()) {
                     String tableName = constraintsIterator.next();
-                    if (StringUtils.equals(tableName, "item") || StringUtils.equals(tableName, "workspaceitem")) {
+                    if (Strings.CS.equals(tableName, "item") || Strings.CS.equals(tableName, "workspaceitem")) {
                         Iterator<Item> itemIterator = itemService.findBySubmitter(context, ePerson, true);
 
                         VersionHistoryService versionHistoryService = VersionServiceFactory.getInstance()
@@ -433,7 +435,7 @@ public class EPersonServiceImpl extends DSpaceObjectServiceImpl<EPerson> impleme
                                 itemService.update(context, item);
                             }
                         }
-                    } else if (StringUtils.equals(tableName, "cwf_claimtask")) {
+                    } else if (Strings.CS.equals(tableName, "cwf_claimtask")) {
                          // Unclaim all XmlWorkflow tasks
                         ClaimedTaskService claimedTaskService = XmlWorkflowServiceFactory
                                                                 .getInstance().getClaimedTaskService();
@@ -452,18 +454,18 @@ public class EPersonServiceImpl extends DSpaceObjectServiceImpl<EPerson> impleme
                                                                               ePerson, task.getStepID());
                             } catch (WorkflowConfigurationException ex) {
                                 log.error("This WorkflowConfigurationException: " + ex +
-                                          " occured while deleting Eperson with the ID: " + ePerson.getID());
+                                          " occurred while deleting Eperson with the ID: " + ePerson.getID());
                                 throw new AuthorizeException(new EPersonDeletionException(Collections
                                                                                           .singletonList(tableName)));
                             }
                         }
-                    } else if (StringUtils.equals(tableName, "resourcepolicy")) {
+                    } else if (Strings.CS.equals(tableName, "resourcepolicy")) {
                         // we delete the EPerson, it won't need any rights anymore.
                         authorizeService.removeAllEPersonPolicies(context, ePerson);
-                    } else if (StringUtils.equals(tableName, "cwf_pooltask")) {
+                    } else if (Strings.CS.equals(tableName, "cwf_pooltask")) {
                         PoolTaskService poolTaskService = XmlWorkflowServiceFactory.getInstance().getPoolTaskService();
                         poolTaskService.deleteByEperson(context, ePerson);
-                    } else if (StringUtils.equals(tableName, "cwf_workflowitemrole")) {
+                    } else if (Strings.CS.equals(tableName, "cwf_workflowitemrole")) {
                         WorkflowItemRoleService workflowItemRoleService = XmlWorkflowServiceFactory.getInstance()
                                                                           .getWorkflowItemRoleService();
                         workflowItemRoleService.deleteByEPerson(context, ePerson);
@@ -478,7 +480,8 @@ public class EPersonServiceImpl extends DSpaceObjectServiceImpl<EPerson> impleme
                 throw new EPersonDeletionException(constraintList);
             }
         }
-        context.addEvent(new Event(Event.DELETE, Constants.EPERSON, ePerson.getID(), ePerson.getEmail(),
+        context.addEvent(new Event(Event.DELETE, Constants.EPERSON, ePerson.getID(),
+                ePerson.getEmail(), DetailType.EPERSON_EMAIL,
                 getIdentifiers(context, ePerson)));
 
         // XXX FIXME: This sidesteps the object model code so it won't
@@ -696,7 +699,7 @@ public class EPersonServiceImpl extends DSpaceObjectServiceImpl<EPerson> impleme
     }
 
     @Override
-    public List<EPerson> findNotActiveSince(Context context, Date date) throws SQLException {
+    public List<EPerson> findNotActiveSince(Context context, Instant date) throws SQLException {
         return ePersonDAO.findNotActiveSince(context, date);
     }
 

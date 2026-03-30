@@ -59,8 +59,7 @@ public class VirtualFieldPersonName implements VirtualField {
                 case LAST_NAME:
                     return new String[] { title.split(",")[0].trim() };
                 default:
-                    throw new IllegalArgumentException("Invalid qualifier for personName virtual field: "
-                + qualifier);
+                    throw new IllegalArgumentException("Invalid qualifier for personName virtual field: " + qualifier);
             }
         } catch (ArrayIndexOutOfBoundsException e) {
             log.warn("Something went wrong for metadata: " + title, e);

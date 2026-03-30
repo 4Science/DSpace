@@ -30,7 +30,7 @@ import java.util.function.Predicate;
 
 import jakarta.xml.bind.JAXBContext;
 import jakarta.xml.bind.Unmarshaller;
-import org.apache.commons.codec.binary.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.dspace.AbstractIntegrationTestWithDatabase;
 import org.dspace.builder.CollectionBuilder;
 import org.dspace.builder.CommunityBuilder;
@@ -149,7 +149,7 @@ public class OrcidPublicationDataProviderIT extends AbstractIntegrationTestWithD
         assertThat(metadata, has(metadata("dc.date.issued", "2011")));
         assertThat(metadata, has(metadata("dc.source", "Test Journal")));
         assertThat(metadata, has(metadata("dc.language.iso", "it")));
-        assertThat(metadata, has(metadata("dc.type", "Controlled Vocabulary for Resource Type Genres::other")));
+        assertThat(metadata, has(metadata("dc.type", "other")));
         assertThat(metadata, has(metadata("dc.identifier.doi", "10.11234.12")));
         assertThat(metadata, has(metadata("dc.contributor.author", "Walter White")));
         assertThat(metadata, has(metadata("dc.title", "The elements of style and the survey of ophthalmology.")));
@@ -169,8 +169,7 @@ public class OrcidPublicationDataProviderIT extends AbstractIntegrationTestWithD
         assertThat(metadata, has(metadata("dc.contributor.author", "John White")));
         assertThat(metadata, has(metadata("dc.contributor.editor", "Jesse Pinkman")));
         assertThat(metadata, has(metadata("dc.title", "Another cautionary tale.")));
-        assertThat(metadata, has(metadata("dc.type", "Controlled Vocabulary for "
-            + "Resource Type Genres::text::periodical::journal")));
+        assertThat(metadata, has(metadata("dc.type", "text::journal::journal article")));
 
         ExternalDataObject thirdObject = externalObjects.get(2);
         assertThat(thirdObject.getDisplayValue(), is("Branch artery occlusion in a young woman."));
@@ -182,8 +181,7 @@ public class OrcidPublicationDataProviderIT extends AbstractIntegrationTestWithD
         assertThat(metadata, hasSize(3));
         assertThat(metadata, has(metadata("dc.date.issued", "1985-07-01")));
         assertThat(metadata, has(metadata("dc.title", "Branch artery occlusion in a young woman.")));
-        assertThat(metadata, has(metadata("dc.type", "Controlled Vocabulary for "
-            + "Resource Type Genres::text::periodical::journal")));
+        assertThat(metadata, has(metadata("dc.type", "text::journal::journal article")));
 
         verify(orcidClientMock).getReadPublicAccessToken();
         verify(orcidClientMock).getWorks(ACCESS_TOKEN, ORCID);
@@ -353,8 +351,7 @@ public class OrcidPublicationDataProviderIT extends AbstractIntegrationTestWithD
         assertThat(metadata, has(metadata("dc.contributor.author", "John White")));
         assertThat(metadata, has(metadata("dc.contributor.editor", "Jesse Pinkman")));
         assertThat(metadata, has(metadata("dc.title", "Another cautionary tale.")));
-        assertThat(metadata, has(metadata("dc.type", "Controlled Vocabulary for "
-            + "Resource Type Genres::text::periodical::journal")));
+        assertThat(metadata, has(metadata("dc.type", "text::journal::journal article")));
 
         verify(orcidClientMock).getReadPublicAccessToken();
         verify(orcidClientMock).getObject(ACCESS_TOKEN, ORCID, "277902", Work.class);
@@ -407,10 +404,10 @@ public class OrcidPublicationDataProviderIT extends AbstractIntegrationTestWithD
     }
 
     private Predicate<MetadataValueDTO> metadata(String schema, String element, String qualifier, String value) {
-        return dto -> StringUtils.equals(schema, dto.getSchema())
-            && StringUtils.equals(element, dto.getElement())
-            && StringUtils.equals(qualifier, dto.getQualifier())
-            && StringUtils.equals(value, dto.getValue());
+        return dto -> Strings.CS.equals(schema, dto.getSchema())
+            && Strings.CS.equals(element, dto.getElement())
+            && Strings.CS.equals(qualifier, dto.getQualifier())
+            && Strings.CS.equals(value, dto.getValue());
     }
 
     private OrcidTokenResponseDTO buildTokenResponse(String accessToken) {

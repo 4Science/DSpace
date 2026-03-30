@@ -9,7 +9,7 @@ package org.dspace.xoai.app;
 
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.time.LocalDate;
 import java.util.List;
 
 import com.lyncode.xoai.dataprovider.xml.xoai.Element;
@@ -52,11 +52,11 @@ public class FulltextAccessElementItemCompilePlugin implements XOAIExtensionItem
         String coarURI = "http://purl.org/coar/access_right/c_14cb";
         String euTermURI = "info:eu-repo/semantics/closedAccess";
         String accessName = "metadata only access";
-        Date embargoEndDate = null;
+        LocalDate embargoEndDate = null;
         try {
             anonGroup = gServ.findByName(context, Group.ANONYMOUS);
             List<Bundle> bnds = item.getBundles(Constants.CONTENT_BUNDLE_NAME);
-            Date now = new Date();
+            LocalDate now = LocalDate.now();
 
             main: for (Bundle bnd : bnds) {
                 for (Bitstream b : bnd.getBitstreams()) {
@@ -66,7 +66,7 @@ public class FulltextAccessElementItemCompilePlugin implements XOAIExtensionItem
                             // we found an embargo or an openaccess bitstream
                             // exclude temporary access from computation
                             if (rp.getEndDate() == null) {
-                                if (rp.getStartDate() == null || rp.getStartDate().before(now)) {
+                                if (rp.getStartDate() == null || rp.getStartDate().isBefore(now)) {
                                     embargoEndDate = null;
                                     coarURI = "http://purl.org/coar/access_right/c_abf2";
                                     euTermURI = "info:eu-repo/semantics/openAccess";
@@ -78,7 +78,7 @@ public class FulltextAccessElementItemCompilePlugin implements XOAIExtensionItem
                                     euTermURI = "info:eu-repo/semantics/embargoedAccess";
                                     accessName = "embargoed access";
                                     embargoEndDate = embargoEndDate == null ? rp.getEndDate()
-                                        : (embargoEndDate.after(rp.getEndDate()) ? rp.getEndDate() : embargoEndDate);
+                                        : (embargoEndDate.isAfter(rp.getEndDate()) ? rp.getEndDate() : embargoEndDate);
                                 }
                             }
                         } else if (embargoEndDate == null) {

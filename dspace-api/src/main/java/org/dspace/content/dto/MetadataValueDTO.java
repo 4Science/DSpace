@@ -56,7 +56,7 @@ public class MetadataValueDTO {
      * @param schema        The schema to be assigned to this MetadataValueDTO object
      * @param element       The element to be assigned to this MetadataValueDTO object
      * @param qualifier     The qualifier to be assigned to this MetadataValueDTO object
-     * @param language      The language to be assigend to this MetadataValueDTO object
+     * @param language      The language to be assigned to this MetadataValueDTO object
      * @param value         The value to be assigned to this MetadataValueDTO object
      * @param authority     The authority to be assigned to this MetadataValueDTO object
      * @param confidence    The confidence to be assigned to this MetadataValueDTO object
@@ -96,11 +96,11 @@ public class MetadataValueDTO {
 
     /**
      * Constructor for the MetadataValueDTO class
-     * @param schema    The schema to be assigned to this MetadataValueDTO object
-     * @param element   The element to be assigned to this MetadataValueDTO object
-     * @param qualifier The qualifier to be assigned to this MetadataValueDTO object
-     * @param language  The language to be assigend to this MetadataValueDTO object
-     * @param value     The value to be assigned to this MetadataValueDTO object
+     * @param schema        The schema to be assigned to this MetadataValueDTO object
+     * @param element       The element to be assigned to this MetadataValueDTO object
+     * @param qualifier     The qualifier to be assigned to this MetadataValueDTO object
+     * @param language      The language to be assigned to this MetadataValueDTO object
+     * @param value         The value to be assigned to this MetadataValueDTO object
      */
     public MetadataValueDTO(String schema, String element, String qualifier, String language, String value) {
         this.schema = schema;

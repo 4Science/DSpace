@@ -304,7 +304,7 @@ public class OrcidAuthenticationBean implements AuthenticationMethod {
         try {
             return orcidClient.getPerson(token.getAccessToken(), token.getOrcid());
         } catch (Exception ex) {
-            LOGGER.error("An error occurs retriving the ORCID record with id {}",
+            LOGGER.error("An error occurs retrieving the ORCID record with id {}",
                     token.getOrcid(), ex);
             return null;
         }
@@ -346,7 +346,7 @@ public class OrcidAuthenticationBean implements AuthenticationMethod {
         try {
             return orcidClient.getAccessToken(code);
         } catch (Exception ex) {
-            LOGGER.error("An error occurs retriving the ORCID access_token", ex);
+            LOGGER.error("An error occurs retrieving the ORCID access_token", ex);
             return null;
         }
     }

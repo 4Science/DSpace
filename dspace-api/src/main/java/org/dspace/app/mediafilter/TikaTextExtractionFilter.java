@@ -39,7 +39,7 @@ public class TikaTextExtractionFilter
     extends MediaFilter {
     private final static Logger log = LogManager.getLogger();
     private static final int DEFAULT_MAX_CHARS = 100_000;
-    private static final int DEFAULT_MAX_ARRAY = 100_000_000;
+    private static final int DEFAULT_MAX_ARRAY = 1_000_000;
 
     @Override
     public String getFilteredName(String oldFilename) {

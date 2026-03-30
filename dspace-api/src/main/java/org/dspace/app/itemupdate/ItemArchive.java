@@ -97,7 +97,7 @@ public class ItemArchive {
 
             //The code to search for local schema files was copied from org.dspace.app.itemimport
             // .ItemImportServiceImpl.java
-            File file[] = dir.listFiles(new LocalSchemaFilenameFilter());
+            File[] file = dir.listFiles(new LocalSchemaFilenameFilter());
             for (int i = 0; i < file.length; i++) {
                 is = new FileInputStream(file[i]);
                 itarch.dtomList.addAll(MetadataUtilities.loadDublinCore(XMLUtils.getDocumentBuilder(), is));
@@ -207,7 +207,7 @@ public class ItemArchive {
         throws SQLException, Exception {
         DtoMetadata dtom = getMetadataField("dc.identifier.uri");
         if (dtom == null) {
-            throw new Exception("No dc.identier.uri field found for handle");
+            throw new Exception("No dc.identifier.uri field found for handle");
         }
 
         this.addUndoMetadataField(dtom);  //seed the undo list with the uri

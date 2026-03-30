@@ -21,7 +21,7 @@ import org.apache.solr.common.SolrInputDocument;
  */
 public class YearSolrIndexAdder implements IndexAdder {
 
-    private static final DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+    private static final DateTimeFormatter DTF = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
     private static final String SOLR_POSTFIX_YEAR = ".year";
 
@@ -32,8 +32,10 @@ public class YearSolrIndexAdder implements IndexAdder {
             document.addField(solrFieldName, value);
             document.addField(solrFieldName.concat(SOLR_POSTFIX_KEYWORD), value);
             document.addField(solrFieldName.concat(SOLR_POSTFIX_FILTER), value);
-            int year = LocalDate.parse(value, dtf).getYear();
+
+            int year = LocalDate.parse(value, DTF).getYear();
             document.addField(solrFieldName.concat(SOLR_POSTFIX_YEAR), year);
         }
     }
 }
+

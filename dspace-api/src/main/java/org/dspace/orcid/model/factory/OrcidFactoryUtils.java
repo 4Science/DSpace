@@ -37,7 +37,6 @@ import org.json.JSONTokener;
  * contributors and external ids configuration).
  *
  * @author Luca Giamminonni (luca.giamminonni at 4science.it)
- *
  */
 public final class OrcidFactoryUtils {
 
@@ -102,8 +101,8 @@ public final class OrcidFactoryUtils {
         );
         if (StringUtils.isBlank(clientSecret) || StringUtils.isBlank(clientId) || StringUtils.isBlank(oauthUrl)) {
             String missingParams = (StringUtils.isBlank(clientId) ? "clientId " : "") +
-                                   (StringUtils.isBlank(clientSecret) ? "clientSecret " : "") +
-                                   (StringUtils.isBlank(oauthUrl) ? "oauthUrl" : "");
+                (StringUtils.isBlank(clientSecret) ? "clientSecret " : "") +
+                (StringUtils.isBlank(oauthUrl) ? "oauthUrl" : "");
             log.error("Cannot retrieve ORCID access token: missing required parameters:{} ", missingParams.trim());
             return Optional.empty();
         }

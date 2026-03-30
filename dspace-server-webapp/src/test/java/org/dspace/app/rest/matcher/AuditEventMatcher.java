@@ -18,7 +18,6 @@ import java.util.UUID;
 
 import org.dspace.app.audit.AuditEvent;
 import org.hamcrest.Matcher;
-import org.hamcrest.Matchers;
 
 public class AuditEventMatcher {
 
@@ -35,23 +34,25 @@ public class AuditEventMatcher {
         return allOf(
                 matchProperties(audit),
                 matchLinks(audit),
-                matchEmbedds(audit, missingSubject, missingObject, missingEperson));
+                matchEmbeds(audit, missingSubject, missingObject, missingEperson));
     }
 
     public static Matcher<? super Object> matchProperties(AuditEvent audit) {
         return allOf(
-            audit.getUuid() != null ?
-                hasJsonPath("$.id", is(audit.getUuid().toString())) :
-                    hasJsonPath("$.id", Matchers.not(Matchers.empty())),
-            hasJsonPath("$.detail", is(audit.getDetail())),
             hasJsonPath("$.subjectUUID", is(uuidStr(audit.getSubjectUUID()))),
             hasJsonPath("$.subjectType", is(audit.getSubjectType())),
             hasJsonPath("$.objectUUID", is(uuidStr(audit.getObjectUUID()))),
             hasJsonPath("$.objectType", is(audit.getObjectType())),
+            hasJsonPath("$.metadataField", is(audit.getMetadataField())),
+            hasJsonPath("$.value", is(audit.getValue())),
+            hasJsonPath("$.authority", is(audit.getAuthority())),
+            hasJsonPath("$.confidence", is(audit.getConfidence())),
+            hasJsonPath("$.place", is(audit.getPlace())),
+            hasJsonPath("$.action", is(audit.getAction())),
+            hasJsonPath("$.checksum", is(audit.getChecksum())),
             //we should apply the date formatter to make the check
             //hasJsonPath("$.timeStamp", is(audit.getDatetime())),
-            hasJsonPath("$.type", is("auditevent")),
-            hasJsonPath("$.uniqueType", is("system.auditevent")));
+            hasJsonPath("$.type", is("auditevent")));
      }
 
     public static Matcher<? super Object> matchLinks(AuditEvent audit) {
@@ -78,8 +79,8 @@ public class AuditEventMatcher {
         }
     }
 
-    public static Matcher<? super Object> matchEmbedds(AuditEvent audit, boolean missingSubject, boolean missingObject,
-            boolean missingEperson) {
+    public static Matcher<? super Object> matchEmbeds(AuditEvent audit, boolean missingSubject, boolean missingObject,
+                                                      boolean missingEperson) {
         return allOf(
                 audit.getSubjectUUID() == null || missingSubject ?
                     hasJsonPath("$._embedded.subject", is(nullValue())) :

@@ -8,11 +8,11 @@
 package org.dspace.app.rest;
 
 import static com.jayway.jsonpath.JsonPath.read;
-import static org.exparity.hamcrest.date.DateMatchers.within;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
@@ -31,8 +31,11 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.sql.SQLException;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
-import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.UUID;
@@ -43,7 +46,6 @@ import com.fasterxml.jackson.databind.ObjectWriter;
 import jakarta.servlet.http.Cookie;
 import org.dspace.app.requestitem.RequestItem;
 import org.dspace.app.requestitem.service.RequestItemService;
-import org.dspace.app.rest.converter.RequestItemConverter;
 import org.dspace.app.rest.matcher.RequestCopyMatcher;
 import org.dspace.app.rest.model.RequestItemRest;
 import org.dspace.app.rest.repository.RequestItemRepository;
@@ -57,39 +59,35 @@ import org.dspace.builder.RequestItemBuilder;
 import org.dspace.content.Bitstream;
 import org.dspace.content.Collection;
 import org.dspace.content.Item;
+import org.dspace.content.factory.ContentServiceFactory;
 import org.dspace.services.ConfigurationService;
+import org.exparity.hamcrest.date.LocalDateTimeMatchers;
 import org.hamcrest.Matchers;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
 
 /**
- *
  * @author Mark H. Wood <mwood@iupui.edu>
  */
 public class RequestItemRepositoryIT
-        extends AbstractControllerIntegrationTest {
-    /** Where to find {@link RequestItem}s in the local URL namespace. */
+    extends AbstractControllerIntegrationTest {
+    /**
+     * Where to find {@link RequestItem}s in the local URL namespace.
+     */
     public static final String URI_ROOT = REST_SERVER_URL
-            + RequestItemRest.CATEGORY + '/'
-            + RequestItemRest.PLURAL_NAME;
-
-    public static final String URI_SINGULAR_ROOT = REST_SERVER_URL
-            + RequestItemRest.CATEGORY + '/'
-            + RequestItemRest.NAME;
-
-    @Autowired(required = true)
-    RequestItemConverter requestItemConverter;
+        + RequestItemRest.CATEGORY + '/'
+        + RequestItemRest.PLURAL_NAME;
 
     @Autowired(required = true)
     RequestItemService requestItemService;
 
     @Autowired
-    ApplicationContext applicationContext;
+    private ConfigurationService configurationService;
 
     @Autowired
-    private ConfigurationService configurationService;
+    private ObjectMapper mapper;
 
     private Collection collection;
 
@@ -97,33 +95,52 @@ public class RequestItemRepositoryIT
 
     private Bitstream bitstream;
 
+    private Map<String, Object> altchaPayload;
+
+    @After
+    public void tearDown() {
+        configurationService.setProperty("captcha.provider", "google");
+    }
+
     @Before
     public void init()
-            throws SQLException, AuthorizeException, IOException {
+        throws SQLException, AuthorizeException, IOException {
         context.turnOffAuthorisationSystem();
         context.setCurrentUser(eperson);
 
         parentCommunity = CommunityBuilder
-                .createCommunity(context)
-                .withName("Community")
-                .build();
+            .createCommunity(context)
+            .withName("Community")
+            .build();
 
         collection = CollectionBuilder
-                .createCollection(context, parentCommunity)
-                .withName("Collection")
-                .withAdminGroup(eperson)
-                .build();
+            .createCollection(context, parentCommunity)
+            .withName("Collection")
+            .withAdminGroup(eperson)
+            .build();
 
         item = ItemBuilder
-                .createItem(context, collection)
-                .withTitle("Item")
-                .build();
+            .createItem(context, collection)
+            .withTitle("Item")
+            .build();
 
         InputStream is = new ByteArrayInputStream(new byte[0]);
         bitstream = BitstreamBuilder
-                .createBitstream(context, item, is)
-                .withName("Bitstream")
-                .build();
+            .createBitstream(context, item, is)
+            .withName("Bitstream")
+            .build();
+
+        altchaPayload = new HashMap<>();
+        altchaPayload.put("challenge", "a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3");
+        altchaPayload.put("salt", "salt123");
+        altchaPayload.put("number", 1);
+        altchaPayload.put("signature", "f5cd3ed4161f5f3c914c5778e716d6b446fa277086bbb8fd3e2b0c4b89f18833");
+        altchaPayload.put("algorithm", "SHA-256");
+
+        // Set up altcha configuration
+        configurationService.setProperty("captcha.provider", "altcha");
+        configurationService.setProperty("altcha.algorithm", "SHA-256");
+        configurationService.setProperty("altcha.hmac.key", "onetwothreesecret");
 
         context.restoreAuthSystemState();
     }
@@ -135,9 +152,9 @@ public class RequestItemRepositoryIT
      */
     @Test
     public void testFindAll()
-            throws Exception {
+        throws Exception {
         getClient().perform(get(URI_ROOT))
-                .andExpect(status().isMethodNotAllowed());
+                   .andExpect(status().isMethodNotAllowed());
     }
 
     /**
@@ -147,20 +164,20 @@ public class RequestItemRepositoryIT
      */
     @Test
     public void testFindOneAuthenticated()
-            throws Exception {
+        throws Exception {
         // Create a request.
         RequestItem request = RequestItemBuilder
-                .createRequestItem(context, item, bitstream)
-                .build();
+            .createRequestItem(context, item, bitstream)
+            .build();
 
         // Test:  can we find it?
         String authToken = getAuthToken(eperson.getEmail(), password);
         final String uri = URI_ROOT + '/' + request.getToken();
         getClient(authToken).perform(get(uri))
-                   .andExpect(status().isOk()) // Can we find it?
-                   .andExpect(content().contentType(contentType))
-                   .andExpect(jsonPath("$", Matchers.is(
-                       RequestCopyMatcher.matchRequestCopy(request))));
+                            .andExpect(status().isOk()) // Can we find it?
+                            .andExpect(content().contentType(contentType))
+                            .andExpect(jsonPath("$", Matchers.is(
+                                RequestCopyMatcher.matchRequestCopy(request))));
     }
 
     /**
@@ -170,11 +187,11 @@ public class RequestItemRepositoryIT
      */
     @Test
     public void testFindOneNotAuthenticated()
-            throws Exception {
+        throws Exception {
         // Create a request.
         RequestItem request = RequestItemBuilder
-                .createRequestItem(context, item, bitstream)
-                .build();
+            .createRequestItem(context, item, bitstream)
+            .build();
 
         // Test:  can we find it?
         final String uri = URI_ROOT + '/' + request.getToken();
@@ -192,22 +209,22 @@ public class RequestItemRepositoryIT
      */
     @Test
     public void testFindOneNonexistent()
-            throws Exception {
+        throws Exception {
         String uri = URI_ROOT + "/impossible";
         getClient().perform(get(uri))
-                .andExpect(status().isNotFound());
+                   .andExpect(status().isNotFound());
     }
 
     /**
      * Test of createAndReturn method, with an authenticated user.
      *
-     * @throws java.sql.SQLException passed through.
+     * @throws java.sql.SQLException                   passed through.
      * @throws org.dspace.authorize.AuthorizeException passed through.
-     * @throws java.io.IOException passed through.
+     * @throws java.io.IOException                     passed through.
      */
     @Test
     public void testCreateAndReturnAuthenticated()
-            throws SQLException, AuthorizeException, IOException, Exception {
+        throws Exception {
         // Fake up a request in REST form.
         RequestItemRest rir = new RequestItemRest();
         rir.setAllfiles(true);
@@ -217,50 +234,47 @@ public class RequestItemRepositoryIT
         rir.setRequestMessage(RequestItemBuilder.REQ_MESSAGE);
 
         // Create it and see if it was created correctly.
-        ObjectMapper mapper = new ObjectMapper();
         String authToken = getAuthToken(eperson.getEmail(), password);
         try {
-                getClient(authToken)
-                        .perform(post(URI_ROOT)
-                                .content(mapper.writeValueAsBytes(rir))
-                                .contentType(contentType))
-                        .andExpect(status().isCreated())
-                        // verify the body is empty
-                        .andExpect(jsonPath("$").doesNotExist());
+            getClient(authToken)
+                .perform(post(URI_ROOT)
+                             .content(mapper.writeValueAsBytes(rir))
+                             .contentType(contentType))
+                .andExpect(status().isCreated())
+                // verify the body is empty
+                .andExpect(jsonPath("$").doesNotExist());
         } finally {
-                Iterator<RequestItem> itemRequests = requestItemService.findByItem(context, item);
-                String token = null;
-                for (Iterator<RequestItem> it = itemRequests; it.hasNext();) {
-                        RequestItem requestItem = it.next();
-                        // Find the created request via the eperson email
-                        if (requestItem.getReqEmail().equals(eperson.getEmail())) {
-                                // Verify request data
-                                assertEquals(eperson.getFullName(), requestItem.getReqName());
-                                assertEquals(item.getID(), requestItem.getItem().getID());
-                                assertEquals(RequestItemBuilder.REQ_MESSAGE, requestItem.getReqMessage());
-                                assertEquals(true, requestItem.isAllfiles());
-                                assertNotNull(requestItem.getToken());
-                                token = requestItem.getToken();
-                        }
+            Iterator<RequestItem> itemRequests = requestItemService.findByItem(context, item);
+            String token = null;
+            for (Iterator<RequestItem> it = itemRequests; it.hasNext(); ) {
+                RequestItem requestItem = it.next();
+                // Find the created request via the eperson email
+                if (requestItem.getReqEmail().equals(eperson.getEmail())) {
+                    // Verify request data
+                    assertEquals(eperson.getFullName(), requestItem.getReqName());
+                    assertEquals(item.getID(), requestItem.getItem().getID());
+                    assertEquals(RequestItemBuilder.REQ_MESSAGE, requestItem.getReqMessage());
+                    assertTrue(requestItem.isAllfiles());
+                    assertNotNull(requestItem.getToken());
+                    token = requestItem.getToken();
                 }
-                // Cleanup created request
-                RequestItemBuilder.deleteRequestItem(token);
+            }
+            // Cleanup created request
+            RequestItemBuilder.deleteRequestItem(token);
         }
-}
+    }
 
     /**
      * Test of createAndReturn method, with an UNauthenticated user.
      * This should succeed:  anyone can file a request.
      *
-     * @throws java.sql.SQLException passed through.
+     * @throws java.sql.SQLException                   passed through.
      * @throws org.dspace.authorize.AuthorizeException passed through.
-     * @throws java.io.IOException passed through.
+     * @throws java.io.IOException                     passed through.
      */
     @Test
     public void testCreateAndReturnNotAuthenticated()
-            throws SQLException, AuthorizeException, IOException, Exception {
-        System.out.println("createAndReturn (not authenticated)");
-
+        throws Exception {
         // Fake up a request in REST form.
         RequestItemRest rir = new RequestItemRest();
         rir.setAllfiles(false);
@@ -269,50 +283,53 @@ public class RequestItemRepositoryIT
         rir.setRequestEmail(RequestItemBuilder.REQ_EMAIL);
         rir.setRequestMessage(RequestItemBuilder.REQ_MESSAGE);
         rir.setRequestName(RequestItemBuilder.REQ_NAME);
+        String base64Payload =
+            "eyJjaGFsbGVuZ2UiOiJhNjY1YTQ1OTIwNDIyZjlkNDE3ZTQ4NjdlZmRjNGZiOGEwNGExZ" +
+                "jNmZmYxZmEwN2U5OThlODZmN2Y3YTI3YWUzIiwic2FsdCI6InNhbHQxMjMiLCJudW1iZX" +
+                "IiOjEsInNpZ25hdHVyZSI6ImY1Y2QzZWQ0MTYxZjVmM2M5MTRjNTc3OGU3MTZkNmI0NDZ" +
+                "mYTI3NzA4NmJiYjhmZDNlMmIwYzRiODlmMTg4MzMiLCJhbGdvcml0aG0iOiJTSEEtMjU2In0=";
 
         // Create it and see if it was created correctly.
-        ObjectMapper mapper = new ObjectMapper();
         try {
-                getClient().perform(post(URI_ROOT)
-                                .content(mapper.writeValueAsBytes(rir))
-                                .contentType(contentType))
-                        .andExpect(status().isCreated())
-                        // verify the body is empty
-                        .andExpect(jsonPath("$").doesNotExist());
+            getClient().perform(post(URI_ROOT)
+                                    .header("x-captcha-payload", base64Payload)
+                                    .content(mapper.writeValueAsBytes(rir))
+                                    .contentType(contentType))
+                       .andExpect(status().isCreated())
+                       // verify the body is empty
+                       .andExpect(jsonPath("$").doesNotExist());
         } finally {
-                Iterator<RequestItem> itemRequests = requestItemService.findByItem(context, item);
-                String token = null;
-                for (Iterator<RequestItem> it = itemRequests; it.hasNext();) {
-                        RequestItem requestItem = it.next();
-                        // Find the created request via the eperson email
-                        if (requestItem.getReqEmail().equals(RequestItemBuilder.REQ_EMAIL)) {
-                                // Verify request data
-                                assertEquals(item.getID(), requestItem.getItem().getID());
-                                assertEquals(RequestItemBuilder.REQ_MESSAGE, requestItem.getReqMessage());
-                                assertEquals(RequestItemBuilder.REQ_NAME, requestItem.getReqName());
-                                assertEquals(bitstream.getID(), requestItem.getBitstream().getID());
-                                assertEquals(false, requestItem.isAllfiles());
-                                assertNotNull(requestItem.getToken());
-                                token = requestItem.getToken();
-                        }
+            Iterator<RequestItem> itemRequests = requestItemService.findByItem(context, item);
+            String token = null;
+            for (Iterator<RequestItem> it = itemRequests; it.hasNext(); ) {
+                RequestItem requestItem = it.next();
+                // Find the created request via the eperson email
+                if (requestItem.getReqEmail().equals(RequestItemBuilder.REQ_EMAIL)) {
+                    // Verify request data
+                    assertEquals(item.getID(), requestItem.getItem().getID());
+                    assertEquals(RequestItemBuilder.REQ_MESSAGE, requestItem.getReqMessage());
+                    assertEquals(RequestItemBuilder.REQ_NAME, requestItem.getReqName());
+                    assertEquals(bitstream.getID(), requestItem.getBitstream().getID());
+                    assertFalse(requestItem.isAllfiles());
+                    assertNotNull(requestItem.getToken());
+                    token = requestItem.getToken();
                 }
-                // Cleanup created request
-                RequestItemBuilder.deleteRequestItem(token);
+            }
+            // Cleanup created request
+            RequestItemBuilder.deleteRequestItem(token);
         }
     }
 
     /**
      * Test of createAndReturn method, with various errors.
      *
-     * @throws java.sql.SQLException passed through.
+     * @throws java.sql.SQLException                   passed through.
      * @throws org.dspace.authorize.AuthorizeException passed through.
-     * @throws java.io.IOException passed through.
+     * @throws java.io.IOException                     passed through.
      */
     @Test
     public void testCreateAndReturnBadRequest()
-            throws SQLException, AuthorizeException, IOException, Exception {
-        System.out.println("createAndReturn (bad requests)");
-
+        throws Exception {
         // Fake up a request in REST form.
         RequestItemRest rir = new RequestItemRest();
         rir.setBitstreamId(bitstream.getID().toString());
@@ -323,60 +340,59 @@ public class RequestItemRepositoryIT
         rir.setAllfiles(false);
 
         // Try to create it, with various malformations.
-        ObjectMapper mapper = new ObjectMapper();
         String authToken = getAuthToken(eperson.getEmail(), password);
 
         // Test missing bitstream ID
         rir.setBitstreamId(null);
         getClient(authToken)
-                .perform(post(URI_ROOT)
-                        .content(mapper.writeValueAsBytes(rir))
-                        .contentType(contentType))
-                .andExpect(status().isUnprocessableEntity());
+            .perform(post(URI_ROOT)
+                         .content(mapper.writeValueAsBytes(rir))
+                         .contentType(contentType))
+            .andExpect(status().isUnprocessableEntity());
 
         // Test unknown bitstream ID
         rir.setBitstreamId(UUID.randomUUID().toString());
         getClient(authToken)
-                .perform(post(URI_ROOT)
-                        .content(mapper.writeValueAsBytes(rir))
-                        .contentType(contentType))
-                .andExpect(status().isUnprocessableEntity());
+            .perform(post(URI_ROOT)
+                         .content(mapper.writeValueAsBytes(rir))
+                         .contentType(contentType))
+            .andExpect(status().isUnprocessableEntity());
 
         rir.setBitstreamId(bitstream.getID().toString());
 
         // Test missing item ID
         rir.setItemId(null);
         getClient(authToken)
-                .perform(post(URI_ROOT)
-                        .content(mapper.writeValueAsBytes(rir))
-                        .contentType(contentType))
-                .andExpect(status().isUnprocessableEntity());
+            .perform(post(URI_ROOT)
+                         .content(mapper.writeValueAsBytes(rir))
+                         .contentType(contentType))
+            .andExpect(status().isUnprocessableEntity());
 
         // Test unknown item ID
         rir.setItemId(UUID.randomUUID().toString());
         getClient(authToken)
-                .perform(post(URI_ROOT)
-                        .content(mapper.writeValueAsBytes(rir))
-                        .contentType(contentType))
-                .andExpect(status().isUnprocessableEntity());
+            .perform(post(URI_ROOT)
+                         .content(mapper.writeValueAsBytes(rir))
+                         .contentType(contentType))
+            .andExpect(status().isUnprocessableEntity());
 
         rir.setItemId(item.getID().toString());
 
         // Test missing email
         rir.setRequestEmail(null);
         getClient() // Unauthenticated so that email is required.
-                .perform(post(URI_ROOT)
-                        .content(mapper.writeValueAsBytes(rir))
-                        .contentType(contentType))
-                .andExpect(status().isUnprocessableEntity());
+                    .perform(post(URI_ROOT)
+                                 .content(mapper.writeValueAsBytes(rir))
+                                 .contentType(contentType))
+                    .andExpect(status().isUnprocessableEntity());
 
         // Test bad email
         rir.setRequestEmail("<script>window.location='http://evil.example.com/';</script>");
         getClient() // Unauthenticated so that email is required.
-                .perform(post(URI_ROOT)
-                        .content(mapper.writeValueAsBytes(rir))
-                        .contentType(contentType))
-                .andExpect(status().isUnprocessableEntity());
+                    .perform(post(URI_ROOT)
+                                 .content(mapper.writeValueAsBytes(rir))
+                                 .contentType(contentType))
+                    .andExpect(status().isUnprocessableEntity());
     }
 
     /**
@@ -388,8 +404,7 @@ public class RequestItemRepositoryIT
      */
     @Test
     public void testCreateWithInvalidCSRF()
-            throws Exception {
-
+        throws Exception {
         // Login via password to retrieve a valid token
         String token = getAuthToken(eperson.getEmail(), password);
 
@@ -410,21 +425,20 @@ public class RequestItemRepositoryIT
         rir.setRequestName(RequestItemBuilder.REQ_NAME);
         rir.setAllfiles(false);
 
-        ObjectMapper mapper = new ObjectMapper();
         getClient().perform(post(URI_ROOT)
-                .content(mapper.writeValueAsBytes(rir))
-                .contentType(contentType)
-                .with(invalidCsrfToken())
-                .secure(true)
-                .cookie(cookies))
-                // Should return a 403 Forbidden, for an invalid CSRF token
-                .andExpect(status().isForbidden())
-                // Verify it includes our custom error reason (from DSpaceApiExceptionControllerAdvice)
-                .andExpect(status().reason(containsString("Invalid CSRF token")))
-                // And, a new/updated token should be returned (as both server-side cookie and header)
-                // This is handled by DSpaceAccessDeniedHandler
-                .andExpect(cookie().exists("DSPACE-XSRF-COOKIE"))
-                .andExpect(header().exists("DSPACE-XSRF-TOKEN"));
+                                .content(mapper.writeValueAsBytes(rir))
+                                .contentType(contentType)
+                                .with(invalidCsrfToken())
+                                .secure(true)
+                                .cookie(cookies))
+                   // Should return a 403 Forbidden, for an invalid CSRF token
+                   .andExpect(status().isForbidden())
+                   // Verify it includes our custom error reason (from DSpaceApiExceptionControllerAdvice)
+                   .andExpect(status().reason(containsString("Invalid CSRF token")))
+                   // And, a new/updated token should be returned (as both server-side cookie and header)
+                   // This is handled by DSpaceAccessDeniedHandler
+                   .andExpect(cookie().exists("DSPACE-XSRF-COOKIE"))
+                   .andExpect(header().exists("DSPACE-XSRF-TOKEN"));
 
         //Logout
         getClient(token).perform(post("/api/authn/logout"))
@@ -433,14 +447,14 @@ public class RequestItemRepositoryIT
 
     @Test
     public void testDelete()
-            throws Exception {
+        throws Exception {
         System.out.println("delete");
 
         RequestItem request = RequestItemBuilder
-                .createRequestItem(context, item, bitstream)
-                .build();
+            .createRequestItem(context, item, bitstream)
+            .build();
         getClient().perform(delete(URI_ROOT + '/' + request.getToken()))
-                .andExpect(status().isMethodNotAllowed());
+                   .andExpect(status().isMethodNotAllowed());
     }
 
     /**
@@ -450,7 +464,7 @@ public class RequestItemRepositoryIT
      */
     @Test
     public void testUntrustedOrigin()
-            throws Exception {
+        throws Exception {
         System.out.println("testUntrustedOrigin");
 
         // First, get a valid login token
@@ -466,10 +480,10 @@ public class RequestItemRepositoryIT
         // Test token cannot be used from an *untrusted* Origin
         // (NOTE: this Origin is NOT listed in our 'rest.cors.allowed-origins' configuration)
         getClient(token).perform(get(URI_ROOT)
-                .header("Origin", "https://example.org"))
-                // should result in a 403 error as Spring Security
-                //returns that for untrusted origins
-                .andExpect(status().isForbidden());
+                                     .header("Origin", "https://example.org"))
+                        // should result in a 403 error as Spring Security
+                        //returns that for untrusted origins
+                        .andExpect(status().isForbidden());
 
         //Logout
         getClient(token).perform(post("/api/authn/logout"))
@@ -478,122 +492,123 @@ public class RequestItemRepositoryIT
 
     /**
      * Test of put method, of class RequestItemRepository.
+     *
      * @throws java.lang.Exception passed through.
      */
     @Test
     public void testPut()
-            throws Exception {
+        throws Exception {
         System.out.println("put");
 
         // Create an item request to approve.
         RequestItem itemRequest = RequestItemBuilder
-                .createRequestItem(context, item, bitstream)
-                .build();
+            .createRequestItem(context, item, bitstream)
+            .build();
 
         // Create the HTTP request body.
         Map<String, String> parameters = Map.of(
-                "acceptRequest", "true",
-                "subject", "subject",
-                "responseMessage", "Request accepted",
-                "suggestOpenAccess", "true");
-        String content = new ObjectMapper()
-                .writer()
-                .writeValueAsString(parameters);
+            "acceptRequest", "true",
+            "subject", "subject",
+            "accessPeriod", "+1DAY",
+            "responseMessage", "Request accepted",
+            "suggestOpenAccess", "true");
+        String content = mapper
+            .writer()
+            .writeValueAsString(parameters);
 
         // Send the request.
         String authToken = getAuthToken(eperson.getEmail(), password);
         AtomicReference<String> requestTokenRef = new AtomicReference<>();
         getClient(authToken).perform(put(URI_ROOT + '/' + itemRequest.getToken())
-                .contentType(contentType)
-                .content(content))
-                .andExpect(status().isOk()
-                )
-                .andDo((var result) -> requestTokenRef.set(
-                        read(result.getResponse().getContentAsString(), "token")));
+                                         .contentType(contentType)
+                                         .content(content))
+                            .andExpect(status().isOk()
+                            )
+                            .andDo((var result) -> requestTokenRef.set(
+                                read(result.getResponse().getContentAsString(), "token")));
         RequestItem foundRequest
-                = requestItemService.findByToken(context, requestTokenRef.get());
+            = requestItemService.findByToken(context, requestTokenRef.get());
         assertTrue("acceptRequest should be true", foundRequest.isAccept_request());
         assertThat("decision_date must be within a minute of now",
-                foundRequest.getDecision_date(),
-                within(1, ChronoUnit.MINUTES, new Date()));
+                   foundRequest.getDecision_date().atZone(ZoneOffset.UTC).toLocalDateTime(),
+                   LocalDateTimeMatchers.within(1, ChronoUnit.MINUTES, LocalDateTime.now()));
     }
 
     @Test
     public void testPutUnauthenticated()
-            throws Exception {
+        throws Exception {
         System.out.println("put unauthenticated request");
         RequestItem itemRequest = RequestItemBuilder
-                .createRequestItem(context, item, bitstream)
-                .build();
+            .createRequestItem(context, item, bitstream)
+            .build();
 
         Map<String, String> parameters;
         String content;
 
-        ObjectWriter mapperWriter = new ObjectMapper().writer();
+        ObjectWriter mapperWriter = mapper.writer();
 
         // Unauthenticated user should be allowed.
         parameters = Map.of(
-                "acceptRequest", "true",
-                "subject", "put unauthenticated",
-                "responseMessage", "Request accepted",
-                "suggestOpenAccess", "false");
+            "acceptRequest", "true",
+            "subject", "put unauthenticated",
+            "responseMessage", "Request accepted",
+            "suggestOpenAccess", "false");
 
         content = mapperWriter.writeValueAsString(parameters);
         getClient().perform(put(URI_ROOT + '/' + itemRequest.getToken())
-                .contentType(contentType)
-                .content(content))
-                .andExpect(status().isOk());
+                                .contentType(contentType)
+                                .content(content))
+                   .andExpect(status().isOk());
     }
 
     @Test
     public void testPutBadRequest()
-            throws Exception {
+        throws Exception {
         // Create an item request to approve.
         RequestItem itemRequest = RequestItemBuilder
-                .createRequestItem(context, item, bitstream)
-                .build();
+            .createRequestItem(context, item, bitstream)
+            .build();
 
         String authToken;
         Map<String, String> parameters;
         String content;
 
-        ObjectWriter mapperWriter = new ObjectMapper().writer();
+        ObjectWriter mapperWriter = mapper.writer();
 
         // Missing acceptRequest
         parameters = Map.of(
-                "subject", "subject",
-                "responseMessage", "Request accepted");
+            "subject", "subject",
+            "responseMessage", "Request accepted");
         content = mapperWriter.writeValueAsString(parameters);
         authToken = getAuthToken(eperson.getEmail(), password);
         getClient(authToken).perform(put(URI_ROOT + '/' + itemRequest.getToken())
-                .contentType(contentType)
-                .content(content))
-                .andExpect(status().isUnprocessableEntity());
+                                         .contentType(contentType)
+                                         .content(content))
+                            .andExpect(status().isUnprocessableEntity());
     }
 
     @Test
     public void testPutCompletedRequest()
-            throws Exception {
-
+        throws Exception {
         // Create an item request that is already denied.
         RequestItem itemRequest = RequestItemBuilder
-                .createRequestItem(context, item, bitstream)
-                .withAcceptRequest(false)
-                .withDecisionDate(new Date())
-                .build();
+            .createRequestItem(context, item, bitstream)
+            .withAcceptRequest(false)
+            .withDecisionDate(Instant.now())
+            .build();
 
         // Try to accept it again.
         Map<String, String> parameters = Map.of(
-                "acceptRequest", "true",
-                "subject", "subject",
-                "responseMessage", "Request accepted");
-        ObjectWriter mapperWriter = new ObjectMapper().writer();
+            "acceptRequest", "true",
+            "subject", "subject",
+            "responseMessage", "Request accepted");
+        ObjectWriter mapperWriter = mapper.writer();
         String content = mapperWriter.writeValueAsString(parameters);
         String authToken = getAuthToken(eperson.getEmail(), password);
         getClient(authToken).perform(put(URI_ROOT + '/' + itemRequest.getToken())
-                .contentType(contentType)
-                .content(content))
-                .andExpect(status().isUnprocessableEntity());
+                                         .contentType(contentType)
+                                         .content(content))
+                            .andExpect(status().isUnprocessableEntity());
     }
 
     /**
@@ -611,18 +626,49 @@ public class RequestItemRepositoryIT
      */
     @Test
     public void testGetLinkTokenEmailWithSubPath() throws MalformedURLException, URISyntaxException {
-        RequestItemRepository instance = applicationContext.getBean(
-                RequestItemRest.CATEGORY + '.' + RequestItemRest.PLURAL_NAME,
-                RequestItemRepository.class);
         String currentDspaceUrl = configurationService.getProperty("dspace.ui.url");
         String newDspaceUrl = currentDspaceUrl + "/subdir";
         // Add a /subdir to the url for this test
         configurationService.setProperty("dspace.ui.url", newDspaceUrl);
         String expectedUrl = newDspaceUrl + "/request-a-copy/token";
-        String generatedLink = instance.getLinkTokenEmail("token");
+        String generatedLink = requestItemService.getLinkTokenEmail("token");
         // The URLs should match
         assertEquals(expectedUrl, generatedLink);
         configurationService.reloadConfig();
+    }
+
+    /**
+     * Test that deleting a bitstream also removes any {@link RequestItem} entities associated with it.
+     */
+    @Test
+    public void testDeleteBitstreamRemovesRequestItem() throws Exception {
+        // Fake up a request in REST form.
+        RequestItemRest rir = new RequestItemRest();
+        rir.setAllfiles(false);
+        rir.setItemId(item.getID().toString());
+        rir.setBitstreamId(bitstream.getID().toString());
+        rir.setRequestEmail(eperson.getEmail());
+        rir.setRequestName(eperson.getFullName());
+        rir.setRequestMessage(RequestItemBuilder.REQ_MESSAGE);
+
+        // Create it and see if it was created correctly.
+        ObjectMapper mapper = new ObjectMapper();
+        String authToken = getAuthToken(eperson.getEmail(), password);
+
+        getClient(authToken)
+            .perform(post(URI_ROOT)
+                         .content(mapper.writeValueAsBytes(rir))
+                         .contentType(contentType))
+            .andExpect(status().isCreated())
+            // verify the body is empty
+            .andExpect(jsonPath("$").doesNotExist());
+
+        // Delete associated Bitstream
+        ContentServiceFactory.getInstance().getBitstreamService().delete(context, bitstream);
+
+        // Verify that all RequestItems related to this bitstream have been removed
+        Iterator<RequestItem> itemRequests = requestItemService.findByItem(context, item);
+        assertFalse(itemRequests.hasNext());
     }
 
     /**
@@ -630,12 +676,9 @@ public class RequestItemRepositoryIT
      */
     @Test
     public void testGetLinkTokenEmailWithoutSubPath() throws MalformedURLException, URISyntaxException {
-        RequestItemRepository instance = applicationContext.getBean(
-                RequestItemRest.CATEGORY + '.' + RequestItemRest.PLURAL_NAME,
-                RequestItemRepository.class);
         String currentDspaceUrl = configurationService.getProperty("dspace.ui.url");
         String expectedUrl = currentDspaceUrl + "/request-a-copy/token";
-        String generatedLink = instance.getLinkTokenEmail("token");
+        String generatedLink = requestItemService.getLinkTokenEmail("token");
         // The URLs should match
         assertEquals(expectedUrl, generatedLink);
         configurationService.reloadConfig();

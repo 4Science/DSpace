@@ -642,6 +642,17 @@ it, please enter the types and the actual numbers or codes.</hint>
       </row>
     </form>
     <form name="publication_bibliographic_details">
+     <row>
+        <field>
+          <dc-schema>dc</dc-schema>
+          <dc-element>publisher</dc-element>
+          <label>Publisher</label>
+          <input-type>onebox</input-type>
+          <repeatable>true</repeatable>
+          <required />
+          <hint>The publisher or publishers of this publication</hint>
+        </field>
+      </row>
       <row>
         <field>
           <dc-schema>dc</dc-schema>

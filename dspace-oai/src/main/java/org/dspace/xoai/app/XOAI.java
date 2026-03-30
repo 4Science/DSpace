@@ -18,10 +18,12 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.ConnectException;
 import java.sql.SQLException;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Date;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -166,21 +168,22 @@ public class XOAI {
                     System.out.println("There are no indexed documents, using full import.");
                     result = this.indexAll();
                 } else {
-                    result = this.index((Date) results.get(0).getFieldValue("item.lastmodified"));
+                    result = this.index(((java.util.Date) results.get(0).getFieldValue("item.lastmodified"))
+                                            .toInstant());
                 }
             }
 
             solrServerResolver.getServer().commit();
 
             // Set last compilation date
-            xoaiLastCompilationCacheService.put(new Date());
+            xoaiLastCompilationCacheService.put(Instant.now());
             return result;
         } catch (DSpaceSolrException | SolrServerException | IOException ex) {
             throw new DSpaceSolrIndexerException(ex.getMessage(), ex);
         }
     }
 
-    private int index(Date last) throws DSpaceSolrIndexerException, IOException {
+    private int index(Instant last) throws DSpaceSolrIndexerException, IOException {
         System.out.println("Incremental import. Searching for documents modified after: " + last.toString());
         /*
          * Index all changed or new items or items whose visibility is viable to change
@@ -209,7 +212,8 @@ public class XOAI {
      *         since the last update.
      * @throws DSpaceSolrIndexerException e
      */
-    private Iterator<Item> getItemsWithPossibleChangesBefore(Date last) throws DSpaceSolrIndexerException, IOException {
+    private Iterator<Item> getItemsWithPossibleChangesBefore(Instant last)
+        throws DSpaceSolrIndexerException, IOException {
         try {
             SolrQuery params = new SolrQuery("item.willChangeStatus:true").addField("item.id").setRows(100)
                     .addSort("item.handle", SolrQuery.ORDER.asc);
@@ -233,7 +237,7 @@ public class XOAI {
                     Item item = itemService.find(context, UUID.fromString((String) document.getFieldValue("item.id")));
                     if (nonNull(item)) {
                         if (nonNull(item.getLastModified())) {
-                            if (item.getLastModified().before(last)) {
+                            if (item.getLastModified().isBefore(last)) {
                                 items.add(item);
                             }
                         } else {
@@ -365,26 +369,26 @@ public class XOAI {
      * @return date
      * @throws SQLException e
      */
-    private Date getMostRecentModificationDate(Item item) throws SQLException {
-        List<Date> dates = new LinkedList<>();
+    private Instant getMostRecentModificationDate(Item item) throws SQLException {
+        List<Instant> dates = new LinkedList<>();
         List<ResourcePolicy> policies = authorizeService.getPoliciesActionFilter(context, item, Constants.READ);
         for (ResourcePolicy policy : policies) {
             if ((policy.getGroup() != null) && (policy.getGroup().getName().equals("Anonymous"))) {
                 if (policy.getStartDate() != null) {
-                    dates.add(policy.getStartDate());
+                    dates.add(policy.getStartDate().atStartOfDay(ZoneOffset.UTC).toInstant());
                 }
                 if (policy.getEndDate() != null) {
-                    dates.add(policy.getEndDate());
+                    dates.add(policy.getEndDate().atStartOfDay(ZoneOffset.UTC).toInstant());
                 }
             }
             context.uncacheEntity(policy);
         }
         dates.add(item.getLastModified());
         Collections.sort(dates);
-        Date now = new Date();
-        Date lastChange = null;
-        for (Date d : dates) {
-            if (d.before(now)) {
+        Instant now = Instant.now();
+        Instant lastChange = null;
+        for (Instant d : dates) {
+            if (d.isBefore(now)) {
                 lastChange = d;
             }
         }
@@ -517,10 +521,10 @@ public class XOAI {
         List<ResourcePolicy> policies = authorizeService.getPoliciesActionFilter(context, item, Constants.READ);
         for (ResourcePolicy policy : policies) {
             if ((policy.getGroup() != null) && (policy.getGroup().getName().equals("Anonymous"))) {
-                if (policy.getStartDate() != null && policy.getStartDate().after(new Date())) {
+                if (policy.getStartDate() != null && policy.getStartDate().isAfter(LocalDate.now(ZoneOffset.UTC))) {
                     return true;
                 }
-                if (policy.getEndDate() != null && policy.getEndDate().after(new Date())) {
+                if (policy.getEndDate() != null && policy.getEndDate().isAfter(LocalDate.now(ZoneOffset.UTC))) {
                     return true;
                 }
             }
@@ -623,7 +627,7 @@ public class XOAI {
 
             if (!line.hasOption('h') && run) {
                 System.out.println("OAI 2.0 manager action started");
-                long start = System.currentTimeMillis();
+                long start = Instant.now().toEpochMilli();
 
                 String command = line.getArgs()[0];
 
@@ -654,7 +658,7 @@ public class XOAI {
                 }
 
                 System.out.println("OAI 2.0 manager action ended. It took "
-                        + ((System.currentTimeMillis() - start) / 1000) + " seconds.");
+                        + ((Instant.now().toEpochMilli() - start) / 1000) + " seconds.");
             } else {
                 usage();
             }
@@ -679,7 +683,7 @@ public class XOAI {
     private void compile() throws CompilingException {
         Iterator<Item> iterator;
         try {
-            Date last = xoaiLastCompilationCacheService.get();
+            Instant last = xoaiLastCompilationCacheService.get();
 
             if (last == null) {
                 System.out.println("Retrieving all items to be compiled");
@@ -697,7 +701,7 @@ public class XOAI {
                 xoaiItemCacheService.put(item, retrieveMetadata(context, item));
             }
 
-            xoaiLastCompilationCacheService.put(new Date());
+            xoaiLastCompilationCacheService.put(Instant.now());
         } catch (SQLException | IOException e) {
             throw new CompilingException(e);
         }

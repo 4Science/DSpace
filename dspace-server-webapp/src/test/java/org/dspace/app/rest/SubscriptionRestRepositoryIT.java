@@ -60,6 +60,9 @@ public class SubscriptionRestRepositoryIT extends AbstractControllerIntegrationT
     @Autowired
     private ResourcePolicyService resourcePolicyService;
 
+    @Autowired
+    private ObjectMapper mapper;
+
     private Community subCommunity;
     private Collection collection;
 
@@ -471,12 +474,10 @@ public class SubscriptionRestRepositoryIT extends AbstractControllerIntegrationT
 
         context.restoreAuthSystemState();
 
-        ObjectMapper objectMapper = new ObjectMapper();
-
         getClient().perform(post("/api/core/subscriptions")
                    .param("resource", collection.getID().toString())
                    .param("eperson_id", eperson.getID().toString())
-                   .content(objectMapper.writeValueAsString(subscriptionRest))
+                   .content(mapper.writeValueAsString(subscriptionRest))
                    .contentType(contentType))
                    .andExpect(status().isUnauthorized());
     }
@@ -503,7 +504,7 @@ public class SubscriptionRestRepositoryIT extends AbstractControllerIntegrationT
             getClient(tokenAdmin).perform(post("/api/core/subscriptions")
                                  .param("resource", collection.getID().toString())
                                  .param("eperson_id", eperson.getID().toString())
-                                 .content(new ObjectMapper().writeValueAsString(map))
+                                 .content(mapper.writeValueAsString(map))
                                  .contentType(MediaType.APPLICATION_JSON_VALUE))
                        .andExpect(status().isCreated())
                        .andExpect(jsonPath("$.subscriptionType", is("content")))
@@ -539,7 +540,7 @@ public class SubscriptionRestRepositoryIT extends AbstractControllerIntegrationT
             getClient(tokenEPerson).perform(post("/api/core/subscriptions")
                                    .param("resource", collection.getID().toString())
                                    .param("eperson_id", eperson.getID().toString())
-                                   .content(new ObjectMapper().writeValueAsString(map))
+                                   .content(mapper.writeValueAsString(map))
                                    .contentType(MediaType.APPLICATION_JSON_VALUE))
                        .andExpect(status().isCreated())
                        .andExpect(jsonPath("$.subscriptionType", is("content")))
@@ -579,7 +580,7 @@ public class SubscriptionRestRepositoryIT extends AbstractControllerIntegrationT
             getClient(tokenEPerson).perform(post("/api/core/subscriptions")
                                    .param("resource", item1.getID().toString())
                                    .param("eperson_id", eperson.getID().toString())
-                                   .content(new ObjectMapper().writeValueAsString(map))
+                                   .content(mapper.writeValueAsString(map))
                                    .contentType(MediaType.APPLICATION_JSON_VALUE))
                                    .andExpect(status().isCreated())
                                    .andExpect(jsonPath("$.subscriptionType", is("content")))
@@ -619,7 +620,7 @@ public class SubscriptionRestRepositoryIT extends AbstractControllerIntegrationT
             getClient(tokenAdmin).perform(post("/api/core/subscriptions")
                                  .param("resource", item1.getID().toString())
                                  .param("eperson_id", eperson.getID().toString())
-                                 .content(new ObjectMapper().writeValueAsString(map))
+                                 .content(mapper.writeValueAsString(map))
                                  .contentType(MediaType.APPLICATION_JSON_VALUE))
                                  .andExpect(status().isCreated())
                                  .andExpect(jsonPath("$.subscriptionType", is("content")))
@@ -652,7 +653,7 @@ public class SubscriptionRestRepositoryIT extends AbstractControllerIntegrationT
         getClient(tokenAdmin).perform(post("/api/core/subscriptions")
                              .param("resource", UUID.randomUUID().toString())
                              .param("eperson_id", eperson.getID().toString())
-                             .content(new ObjectMapper().writeValueAsString(map))
+                             .content(mapper.writeValueAsString(map))
                              .contentType(MediaType.APPLICATION_JSON_VALUE))
                              .andExpect(status().isBadRequest());
     }
@@ -675,7 +676,7 @@ public class SubscriptionRestRepositoryIT extends AbstractControllerIntegrationT
         String tokenAdmin = getAuthToken(admin.getEmail(), password);
         getClient(tokenAdmin).perform(post("/api/core/subscriptions")
                              .param("eperson_id", eperson.getID().toString())
-                             .content(new ObjectMapper().writeValueAsString(map))
+                             .content(mapper.writeValueAsString(map))
                              .contentType(MediaType.APPLICATION_JSON_VALUE))
                              .andExpect(status().isUnprocessableEntity());
     }
@@ -699,7 +700,7 @@ public class SubscriptionRestRepositoryIT extends AbstractControllerIntegrationT
         getClient(tokenEPerson).perform(post("/api/core/subscriptions")
                                .param("resource", collection.getID().toString())
                                .param("eperson_id", eperson.getID().toString())
-                               .content(new ObjectMapper().writeValueAsString(map))
+                               .content(mapper.writeValueAsString(map))
                                .contentType(MediaType.APPLICATION_JSON_VALUE))
                                .andExpect(status().isUnprocessableEntity());
     }
@@ -723,7 +724,7 @@ public class SubscriptionRestRepositoryIT extends AbstractControllerIntegrationT
         getClient(tokenEPerson).perform(post("/api/core/subscriptions")
                                .param("resource", collection.getID().toString())
                                .param("eperson_id", eperson.getID().toString())
-                               .content(new ObjectMapper().writeValueAsString(map))
+                               .content(mapper.writeValueAsString(map))
                                .contentType(MediaType.APPLICATION_JSON_VALUE))
                                .andExpect(status().isUnprocessableEntity());
     }
@@ -747,7 +748,7 @@ public class SubscriptionRestRepositoryIT extends AbstractControllerIntegrationT
         getClient(tokenEPerson).perform(post("/api/core/subscriptions")
                                .param("resource", collection.getID().toString())
                                .param("eperson_id", eperson.getID().toString())
-                               .content(new ObjectMapper().writeValueAsString(map))
+                               .content(mapper.writeValueAsString(map))
                                .contentType(MediaType.APPLICATION_JSON_VALUE))
                                .andExpect(status().isUnprocessableEntity());
     }
@@ -771,7 +772,7 @@ public class SubscriptionRestRepositoryIT extends AbstractControllerIntegrationT
         getClient(tokenEPerson).perform(post("/api/core/subscriptions")
                                .param("resource", collection.getID().toString())
                                .param("eperson_id", eperson.getID().toString())
-                               .content(new ObjectMapper().writeValueAsString(map))
+                               .content(mapper.writeValueAsString(map))
                                .contentType(MediaType.APPLICATION_JSON_VALUE))
                                .andExpect(status().isUnprocessableEntity());
     }
@@ -800,7 +801,7 @@ public class SubscriptionRestRepositoryIT extends AbstractControllerIntegrationT
         getClient(tokenEPerson).perform(post("/api/core/subscriptions")
                                .param("resource", collection.getID().toString())
                                .param("eperson_id", user.getID().toString())
-                               .content(new ObjectMapper().writeValueAsString(map))
+                               .content(mapper.writeValueAsString(map))
                                .contentType(MediaType.APPLICATION_JSON_VALUE))
                                .andExpect(status().isForbidden());
     }
@@ -877,7 +878,6 @@ public class SubscriptionRestRepositoryIT extends AbstractControllerIntegrationT
                 "content", collection, admin, subscriptionParameterList).build();
         context.restoreAuthSystemState();
 
-        ObjectMapper objectMapper = new ObjectMapper();
         Map<String, Object> newSubscription = new HashMap<>();
         newSubscription.put("subscriptionType", "content");
         List<Map<String, Object>> list = new ArrayList<>();
@@ -888,7 +888,7 @@ public class SubscriptionRestRepositoryIT extends AbstractControllerIntegrationT
         newSubscription.put("subscriptionParameterList", list);
 
         getClient().perform(put("/api/core/subscriptions/" + subscription.getID())
-                   .content(objectMapper.writeValueAsString(newSubscription))
+                   .content(mapper.writeValueAsString(newSubscription))
                    .contentType(MediaType.APPLICATION_JSON_VALUE))
                    .andExpect(status().isUnauthorized());
     }
@@ -905,7 +905,6 @@ public class SubscriptionRestRepositoryIT extends AbstractControllerIntegrationT
                                     "content", collection, admin, subscriptionParameterList).build();
         context.restoreAuthSystemState();
 
-        ObjectMapper objectMapper = new ObjectMapper();
         Map<String, Object> newSubscription = new HashMap<>();
         newSubscription.put("subscriptionType", "content");
         List<Map<String, Object>> list = new ArrayList<>();
@@ -917,7 +916,7 @@ public class SubscriptionRestRepositoryIT extends AbstractControllerIntegrationT
 
         String token = getAuthToken(eperson.getEmail(), password);
         getClient(token).perform(put("/api/core/subscriptions/" + subscription.getID())
-                        .content(objectMapper.writeValueAsString(newSubscription))
+                        .content(mapper.writeValueAsString(newSubscription))
                         .contentType(MediaType.APPLICATION_JSON_VALUE))
                         .andExpect(status().isForbidden());
     }
@@ -934,7 +933,6 @@ public class SubscriptionRestRepositoryIT extends AbstractControllerIntegrationT
                                     "content", collection, eperson, subscriptionParameterList).build();
         context.restoreAuthSystemState();
 
-        ObjectMapper objectMapper = new ObjectMapper();
         Map<String, Object> newSubscription = new HashMap<>();
         newSubscription.put("subscriptionType", "content");
         List<Map<String, Object>> list = new ArrayList<>();
@@ -946,7 +944,7 @@ public class SubscriptionRestRepositoryIT extends AbstractControllerIntegrationT
 
         String tokenSubscriber = getAuthToken(eperson.getEmail(), password);
         getClient(tokenSubscriber).perform(put("/api/core/subscriptions/" + subscription.getID())
-                                  .content(objectMapper.writeValueAsString(newSubscription))
+                                  .content(mapper.writeValueAsString(newSubscription))
                                   .contentType(MediaType.APPLICATION_JSON_VALUE))
                                   .andExpect(status().isOk())
                                   .andExpect(content().contentType(contentType))
@@ -969,7 +967,6 @@ public class SubscriptionRestRepositoryIT extends AbstractControllerIntegrationT
                                     "content", collection, eperson, subscriptionParameterList).build();
         context.restoreAuthSystemState();
 
-        ObjectMapper objectMapper = new ObjectMapper();
         Map<String, Object> newSubscription = new HashMap<>();
         newSubscription.put("subscriptionType", "content");
         List<Map<String, Object>> list = new ArrayList<>();
@@ -981,7 +978,7 @@ public class SubscriptionRestRepositoryIT extends AbstractControllerIntegrationT
 
         String tokenSubscriber = getAuthToken(eperson.getEmail(), password);
         getClient(tokenSubscriber).perform(put("/api/core/subscriptions/" + subscription.getID())
-                                  .content(objectMapper.writeValueAsString(newSubscription))
+                                  .content(mapper.writeValueAsString(newSubscription))
                                   .contentType(MediaType.APPLICATION_JSON_VALUE))
                                   .andExpect(status().isUnprocessableEntity());
     }
@@ -998,7 +995,6 @@ public class SubscriptionRestRepositoryIT extends AbstractControllerIntegrationT
                                     "content", collection, eperson, subscriptionParameterList).build();
         context.restoreAuthSystemState();
 
-        ObjectMapper objectMapper = new ObjectMapper();
         Map<String, Object> newSubscription = new HashMap<>();
         newSubscription.put("subscriptionType", "content");
         List<Map<String, Object>> list = new ArrayList<>();
@@ -1010,7 +1006,7 @@ public class SubscriptionRestRepositoryIT extends AbstractControllerIntegrationT
 
         String tokenSubscriber = getAuthToken(eperson.getEmail(), password);
         getClient(tokenSubscriber).perform(put("/api/core/subscriptions/" + subscription.getID())
-                                  .content(objectMapper.writeValueAsString(newSubscription))
+                                  .content(mapper.writeValueAsString(newSubscription))
                                   .contentType(MediaType.APPLICATION_JSON_VALUE))
                                   .andExpect(status().isUnprocessableEntity());
     }
@@ -1027,7 +1023,6 @@ public class SubscriptionRestRepositoryIT extends AbstractControllerIntegrationT
                                     "content", collection, eperson, subscriptionParameterList).build();
         context.restoreAuthSystemState();
 
-        ObjectMapper objectMapper = new ObjectMapper();
         Map<String, Object> newSubscription = new HashMap<>();
         newSubscription.put("subscriptionType", "InvalidType");
         List<Map<String, Object>> list = new ArrayList<>();
@@ -1039,7 +1034,7 @@ public class SubscriptionRestRepositoryIT extends AbstractControllerIntegrationT
 
         String tokenSubscriber = getAuthToken(eperson.getEmail(), password);
         getClient(tokenSubscriber).perform(put("/api/core/subscriptions/" + subscription.getID())
-                                  .content(objectMapper.writeValueAsString(newSubscription))
+                                  .content(mapper.writeValueAsString(newSubscription))
                                   .contentType(MediaType.APPLICATION_JSON_VALUE))
                                   .andExpect(status().isUnprocessableEntity());
     }
@@ -1056,7 +1051,6 @@ public class SubscriptionRestRepositoryIT extends AbstractControllerIntegrationT
                                     "content", collection, eperson, subscriptionParameterList).build();
         context.restoreAuthSystemState();
 
-        ObjectMapper objectMapper = new ObjectMapper();
         Map<String, Object> newSubscription = new HashMap<>();
         newSubscription.put("subscriptionType", "content");
         List<Map<String, Object>> list = new ArrayList<>();
@@ -1068,7 +1062,7 @@ public class SubscriptionRestRepositoryIT extends AbstractControllerIntegrationT
 
         String tokenAdmin = getAuthToken(admin.getEmail(), password);
         getClient(tokenAdmin).perform(put("/api/core/subscriptions/" + subscription.getID())
-                             .content(objectMapper.writeValueAsString(newSubscription))
+                             .content(mapper.writeValueAsString(newSubscription))
                              .contentType(MediaType.APPLICATION_JSON_VALUE))
                              .andExpect(status().isOk())
                              .andExpect(content().contentType(contentType))

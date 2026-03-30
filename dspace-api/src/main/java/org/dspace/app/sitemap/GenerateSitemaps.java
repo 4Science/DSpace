@@ -12,7 +12,6 @@ import static org.dspace.discovery.SearchUtils.RESOURCE_TYPE_FIELD;
 import java.io.File;
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.cli.CommandLine;
@@ -67,6 +66,19 @@ public class GenerateSitemaps {
     private GenerateSitemaps() { }
 
     public static void main(String[] args) throws Exception {
+        runGenerateSitemaps(args);
+        // Note: Do NOT call System.exit() on success - let the JVM exit naturally.
+        // This allows launcher.xml scripts to be called via reflection in tests.
+    }
+
+    /**
+     * Run the generate-sitemaps logic.
+     * This method is called by main() for CLI usage and directly by tests.
+     *
+     * @param args the command line arguments
+     * @throws Exception if an error occurs during sitemap generation
+     */
+    public static void runGenerateSitemaps(String[] args) throws Exception {
         final String usage = GenerateSitemaps.class.getCanonicalName();
 
         CommandLineParser parser = new DefaultParser();
@@ -89,17 +101,17 @@ public class GenerateSitemaps {
             line = parser.parse(options, args);
         } catch (ParseException pe) {
             hf.printHelp(usage, options);
-            System.exit(1);
+            return;
         }
 
         if (line.hasOption('h')) {
             hf.printHelp(usage, options);
-            System.exit(0);
+            return;
         }
 
         if (line.getArgs().length != 0) {
             hf.printHelp(usage, options);
-            System.exit(1);
+            return;
         }
 
         /*
@@ -111,7 +123,7 @@ public class GenerateSitemaps {
             System.err
                 .println("Nothing to do (no sitemap to generate)");
             hf.printHelp(usage, options);
-            System.exit(1);
+            return;
         }
 
         // Note the negation (CLI options indicate NOT to generate a sitemap)
@@ -122,8 +134,6 @@ public class GenerateSitemaps {
         if (line.hasOption('d')) {
             deleteSitemaps();
         }
-
-        System.exit(0);
     }
 
     /**
@@ -143,7 +153,7 @@ public class GenerateSitemaps {
     public static void deleteSitemaps() throws IOException {
         File outputDir = new File(configurationService.getProperty("sitemap.dir"));
         if (!outputDir.exists() && !outputDir.isDirectory()) {
-            log.error("Unable to delete sitemaps directory, doesn't exist or isn't a directort");
+            log.error("Unable to delete sitemaps directory, doesn't exist or isn't a directory");
         } else {
             FileUtils.deleteDirectory(outputDir);
         }
@@ -261,7 +271,6 @@ public class GenerateSitemaps {
                     } else {
                         url = uiURLStem + "items/" + doc.getID();
                     }
-                    Date lastMod = doc.getLastModified();
                     c.uncacheEntity(doc.getIndexedObject());
 
                     if (makeHTMLMap) {
