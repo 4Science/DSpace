@@ -123,9 +123,7 @@ public interface WorkflowItemService<T extends WorkflowItem> extends InProgressS
      * @param  collection   the collection to check
      * @return              true if the given collection has a workflow configured,
      *                      false otherwise
-     * @throws SQLException An exception that provides information on a database
-     *                      access error or other errors.
      */
-    public boolean isWorkflowConfigured(Context context, Collection collection) throws SQLException;
+    boolean isWorkflowConfigured(Context context, Collection collection);
 
 }
