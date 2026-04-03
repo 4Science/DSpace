@@ -53,7 +53,7 @@
                     <dc-qualifier>audiovideo</dc-qualifier>
                     <repeatable>true</repeatable>
                     <label>Audio or Video media type</label>
-                    <input-type value-pairs-name="audio_video_media_type">qualdrop_value</input-type>
+                    <input-type value-pairs-name="audio_video_media_type">dropdown</input-type>
                     <hint>Select Audio or Video media type</hint>
                     <required></required>
                 </field>
