@@ -28,9 +28,6 @@ import org.dspace.app.metrics.CrisMetrics;
 import org.dspace.app.metrics.service.CrisMetricsService;
 import org.dspace.app.metrics.service.CrisMetricsServiceImpl;
 import org.dspace.authorize.AuthorizeException;
-import org.dspace.content.Collection;
-import org.dspace.content.DSpaceObject;
-import org.dspace.content.Item;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.discovery.IndexingService;
@@ -54,14 +51,9 @@ public class StoreViewDownloadsCrisMetrics extends
     private SearchService searchService;
     private static final Logger log = LogManager.getLogger(StoreViewDownloadsCrisMetrics.class);
     private Context context;
-    private UpdateCrisMetricsInSolrDocService updateCrisMetricsInSolrDocService;
 
     @Override
     public void setup() throws ParseException {
-        updateCrisMetricsInSolrDocService = new DSpace()
-                .getServiceManager()
-                .getServiceByName(UpdateCrisMetricsInSolrDocService.class.getName(),
-                        UpdateCrisMetricsInSolrDocService.class);
         crisMetricsService = new DSpace().getServiceManager()
                 .getServiceByName(CrisMetricsServiceImpl.class.getName(),
                         CrisMetricsServiceImpl.class);
@@ -175,8 +167,6 @@ public class StoreViewDownloadsCrisMetrics extends
         if (last_week != null) {
             newMetrics.setDeltaPeriod1(metricCount - last_week);
         }
-        //if there are values one month before
-        Double last_month = getDeltaPeriod(dSpaceObject.getID(), "month", metricType);
         if (last_month != null) {
             newMetrics.setDeltaPeriod2(metricCount - last_month);
         }
@@ -197,7 +187,7 @@ public class StoreViewDownloadsCrisMetrics extends
         int countFoundItems = 0;
         int countAddedItems = 0;
         int countUpdatedItems = 0;
-        handler.logInfo("Addition start");
+        handler.logInfo("Addition start " + Constants.typeText[type]);
         TotalDownloadsAndVisitsGenerator totalDownloadsAndVisitsGenerator = new TotalDownloadsAndVisitsGenerator();
         QueryResponse response = null;
         int start = 0;
@@ -244,8 +234,9 @@ public class StoreViewDownloadsCrisMetrics extends
                 }
             }
         }
-        handler.logInfo("Found " + countFoundItems + type);
+        handler.logInfo("Found " + countFoundItems + " " + Constants.typeText[type]);
         handler.logInfo("Added " + countAddedItems + " metrics");
+        handler.logInfo("Updated " + countUpdatedItems + " metrics");
         handler.logInfo("Update end");
         context.commit();
     }
