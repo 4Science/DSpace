@@ -1737,33 +1737,8 @@ public class SolrServiceImpl implements SearchService, IndexingService {
         try {
             SolrInputDocument solrInDoc = new SolrInputDocument();
             solrInDoc.addField(SearchUtils.RESOURCE_UNIQUE_ID, id.get());
-            req.add(SearchUtils.addMetricFieldsInSolrDoc(metric, solrInDoc, null));
+            req.add(SearchUtils.addMetricFieldsInSolrDoc(metric, solrInDoc));
             solrClient.request(req);
-        } catch (SolrServerException | IOException e) {
-            log.error(e.getMessage(), e);
-        }
-    }
-
-    @Override
-    public void updateLastPublicationImport(Context context, Item item, String serviceName, String lastImport) {
-        UpdateRequest req = new UpdateRequest();
-        SolrClient solrClient = solrSearchCore.getSolr();
-        Optional<String> id = findUniqueId(Constants.ITEM, item.getID());
-        if (id.isEmpty()) {
-            log.warn("Unable to define unique id for item {}", metric.getResource().getID());
-            return;
-        }
-        try {
-            SolrInputDocument solrInDoc = new SolrInputDocument();
-            solrInDoc.addField(SearchUtils.RESOURCE_UNIQUE_ID, id.get());
-            Map<String, Object> lastFieldMap = Collections.singletonMap("set", lastImport);
-            String lastField = "cris.lastimport." + serviceName + "-publication";
-            String lastFieldDt = lastField + "_dt";
-            solrInDoc.addField(lastField, lastFieldMap);
-            solrInDoc.addField(lastFieldDt, lastFieldMap);
-            req.add(solrInDoc);
-            solrClient.request(req);
-            solrClient.commit();
         } catch (SolrServerException | IOException e) {
             log.error(e.getMessage(), e);
         }

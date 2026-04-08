@@ -6,18 +6,17 @@
  * http://www.dspace.org/license/
  */
 package org.dspace.app.metrics;
+
 import java.util.Date;
 import java.util.UUID;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
-import org.dspace.content.DSpaceObject;
 import org.dspace.core.Constants;
 import org.dspace.core.ReloadableEntity;
 import org.hibernate.Length;
