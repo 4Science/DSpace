@@ -11,28 +11,109 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.dspace.app.rest.matcher.ItemAuthorityMatcher;
 import org.dspace.app.rest.test.AbstractControllerIntegrationTest;
+import org.dspace.content.authority.DCInputAuthority;
 import org.dspace.content.authority.ItemAuthority;
+import org.dspace.content.authority.service.ChoiceAuthorityService;
+import org.dspace.content.authority.zdb.ZDBAuthorityValue;
+import org.dspace.content.authority.zdb.ZDBService;
+import org.dspace.content.authority.zdb.ZDBServicesFactory;
+import org.dspace.content.authority.zdb.ZDBServicesFactoryImpl;
+import org.dspace.core.service.PluginService;
 import org.dspace.services.ConfigurationService;
 import org.hamcrest.Matchers;
+import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Import;
 
 /**
  * This class handles ZDBAuthority related IT.
  *
  * @author Luca Giamminonni (luca.giamminonni at 4Science.it)
  */
-@Import(ZDBAuthorityTestConfig.class)
 public class ZDBAuthorityIT extends AbstractControllerIntegrationTest {
+
+    public static final String ZDB_AUTHORITY =
+        "org.dspace.content.authority.ZDBAuthority = ZDBAuthority";
+
+    private static MockedStatic<ZDBServicesFactory> mockZDBServiceFactory;
 
     @Autowired
     private ConfigurationService configurationService;
 
+    @Autowired
+    protected ChoiceAuthorityService choiceAuthorityService;
+
+    @Autowired
+    protected PluginService pluginService;
+
+    private ZDBService zdbService;
+
+    @BeforeClass
+    public static void init() {
+        mockZDBServiceFactory = Mockito.mockStatic(ZDBServicesFactory.class);
+    }
+
+    @AfterClass
+    public static void close() {
+        mockZDBServiceFactory.close();
+    }
+
+    @Before
+    public void setup() throws IOException {
+
+        this.configurationService.setProperty("cris.zdb.search.url", null);
+        this.configurationService.setProperty("cris.zdb.detail.url", null);
+
+        zdbService = Mockito.mock(ZDBService.class);
+
+        // Create factory with mocked service - generators will be loaded from ServiceManager
+        ZDBServicesFactoryImpl zdbServiceFactory = new ZDBServicesFactoryImpl(zdbService);
+
+        Mockito.when(
+                   zdbService.list(Mockito.eq("Acta AND Mathematica AND informatica"), Mockito.anyInt(),
+                                   Mockito.anyInt()))
+               .thenReturn(createMockResults());
+
+        // Mock the static factory method to return our factory with mocked service
+        mockZDBServiceFactory.when(ZDBServicesFactory::getInstance).thenReturn(zdbServiceFactory);
+
+        // Register the authority plugin
+        configurationService.setProperty(
+            "plugin.named.org.dspace.content.authority.ChoiceAuthority",
+            new String[] {ZDB_AUTHORITY}
+        );
+    }
+
+    @After
+    public void tearDown() throws Exception {
+        DCInputAuthority.reset();
+        pluginService.clearNamedPluginClasses();
+        choiceAuthorityService.clearCache();
+    }
+
     @Test
     public void zdbAuthorityTest() throws Exception {
+        // Configure ZDB authority source
+        configurationService.setProperty("cris.ItemAuthority.ZDBAuthority.source", "zdb");
+
+        // Reset authorities and trigger re-initialization with mock factory
+        DCInputAuthority.reset();
+        pluginService.clearNamedPluginClasses();
+        choiceAuthorityService.getChoiceAuthoritiesNames();
+        choiceAuthorityService.clearCache();
+        DCInputAuthority.getPluginNames();
+
         String token = getAuthToken(eperson.getEmail(), password);
         getClient(token).perform(get("/api/submission/vocabularies/ZDBAuthority/entries")
             .param("filter", "Acta AND Mathematica AND informatica"))
@@ -79,5 +160,35 @@ public class ZDBAuthorityIT extends AbstractControllerIntegrationTest {
     private String getSource() {
         return configurationService.getProperty(
             "cris.ItemAuthority.ZDBAuthority.source", ItemAuthority.DEFAULT);
+    }
+
+    private List<ZDBAuthorityValue> createMockResults() {
+        List<ZDBAuthorityValue> results = new ArrayList<>();
+        // Create the first entry
+        ZDBAuthorityValue zdb1 = new ZDBAuthorityValue();
+        zdb1.setServiceId("1447228-4");
+        zdb1.setValue("Acta mathematica et informatica");
+        zdb1.addOtherMetadata("journalZDBID", "1447228-4");
+        zdb1.addOtherMetadata("journalTitle", "Acta mathematica et informatica");
+
+        // Create the second entry
+        ZDBAuthorityValue zdb2 = new ZDBAuthorityValue();
+        zdb2.setServiceId("1194912-0");
+        zdb2.setValue("Acta mathematica Universitatis Ostraviensis");
+        zdb2.addOtherMetadata("journalZDBID", "1194912-0");
+        zdb2.addOtherMetadata("journalTitle", "Acta mathematica Universitatis Ostraviensis");
+        zdb2.addOtherMetadata("journalIssn", "1211-4774");
+
+        // Create the third entry
+        ZDBAuthorityValue zdb3 = new ZDBAuthorityValue();
+        zdb3.setServiceId("2618143-5");
+        zdb3.setValue("Acta mathematica Universitatis Ostraviensis");
+        zdb3.addOtherMetadata("journalZDBID", "2618143-5");
+        zdb3.addOtherMetadata("journalTitle", "Acta mathematica Universitatis Ostraviensis");
+
+        results.add(zdb1);
+        results.add(zdb2);
+        results.add(zdb3);
+        return results;
     }
 }
