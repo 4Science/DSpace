@@ -71,7 +71,11 @@ import software.amazon.awssdk.services.s3.model.HeadObjectResponse;
  * @author Luca Giamminonni (luca.giamminonni at 4science.com)
  */
 public class S3BitStoreServiceIT extends AbstractIntegrationTestWithDatabase {
-    private static DockerImageName localstackName = DockerImageName.parse("localstack/localstack:stable");
+
+    // LocalStack 4.14.0 is the last release under semantic versioning (4.x) and the community (free) license.
+    // After this version, LocalStack switched to calendar versioning (YYYY.MM.x)
+    // and became a paid product, requiring a valid LOCALSTACK_AUTH_TOKEN.
+    private static DockerImageName localstackName = DockerImageName.parse("localstack/localstack:4.14.0");
 
     @SuppressWarnings("resource")
     private static LocalStackContainer localstackContainer = new LocalStackContainer(localstackName).withServices("s3");
