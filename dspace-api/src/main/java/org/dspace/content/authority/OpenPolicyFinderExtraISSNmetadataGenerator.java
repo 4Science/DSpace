@@ -12,18 +12,18 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
-import org.dspace.app.sherpa.v2.SHERPAJournal;
+import org.dspace.app.openpolicyfinder.v2.OpenPolicyFinderJournal;
 
 /**
  * @author Mykhaylo Boychuk (mykhaylo.boychuk at 4science.com)
  */
-public class SherpaExtraISSNmetadataGenerator implements SherpaExtraMetadataGenerator {
+public class OpenPolicyFinderExtraISSNmetadataGenerator implements OpenPolicyFinderExtraMetadataGenerator {
 
     private String relatedInputFormMetadata;
 
     @Override
-    public Map<String, String> build(SHERPAJournal journal) {
-        Map<String, String> extras = new HashMap<String, String>();
+    public Map<String, String> build(OpenPolicyFinderJournal journal) {
+        Map<String, String> extras = new HashMap<>();
         List<String> issns = journal.getIssns();
         String value = issns.isEmpty() ? StringUtils.EMPTY : issns.get(0);
         extras.put("data-" + this.relatedInputFormMetadata, value);

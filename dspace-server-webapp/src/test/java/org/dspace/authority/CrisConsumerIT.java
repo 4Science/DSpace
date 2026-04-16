@@ -35,6 +35,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.sql.SQLException;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
@@ -62,6 +63,7 @@ import org.dspace.content.WorkspaceItem;
 import org.dspace.content.authority.ChoiceAuthorityServiceImpl;
 import org.dspace.content.authority.service.MetadataAuthorityService;
 import org.dspace.content.service.ItemService;
+import org.dspace.core.service.PluginService;
 import org.dspace.eperson.EPerson;
 import org.dspace.external.OrcidRestConnector;
 import org.dspace.external.provider.impl.OrcidV3AuthorDataProvider;
@@ -119,6 +121,9 @@ public class CrisConsumerIT extends AbstractControllerIntegrationTest {
     private OrcidV3AuthorDataProvider orcidV3AuthorDataProvider;
 
     @Autowired
+    private PluginService pluginService;
+
+    @Autowired
     private MetadataAuthorityService metadataAuthorityService;
 
     @Override
@@ -148,7 +153,6 @@ public class CrisConsumerIT extends AbstractControllerIntegrationTest {
         context.setCurrentUser(submitter);
 
         context.restoreAuthSystemState();
-
     }
 
     @Override

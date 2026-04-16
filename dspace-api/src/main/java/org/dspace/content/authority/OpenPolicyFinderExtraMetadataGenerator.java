@@ -9,13 +9,13 @@ package org.dspace.content.authority;
 
 import java.util.Map;
 
-import org.dspace.app.sherpa.v2.SHERPAJournal;
+import org.dspace.app.openpolicyfinder.v2.OpenPolicyFinderJournal;
 
 /**
  * @author Mykhaylo Boychuk (mykhaylo.boychuk at 4science.com)
  */
-public interface SherpaExtraMetadataGenerator {
+public interface OpenPolicyFinderExtraMetadataGenerator {
 
-    public Map<String, String> build(SHERPAJournal journal);
+    Map<String, String> build(OpenPolicyFinderJournal journal);
 
 }

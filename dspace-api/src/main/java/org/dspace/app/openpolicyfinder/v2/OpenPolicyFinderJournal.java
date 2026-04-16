@@ -27,7 +27,7 @@ public class OpenPolicyFinderJournal implements Serializable {
     private List<String> titles;
     private String url;
     private List<String> issns;
-    private String romeoPub;
+    private String publisherDisplay;
     private String zetoPub;
     private OpenPolicyFinderPublisher publisher;
     private List<OpenPolicyFinderPublisher> publishers;
@@ -62,12 +62,12 @@ public class OpenPolicyFinderJournal implements Serializable {
         this.issns = issns;
     }
 
-    public String getRomeoPub() {
-        return romeoPub;
+    public String getPublisherDisplay() {
+        return publisherDisplay;
     }
 
-    public void setRomeoPub(String romeoPub) {
-        this.romeoPub = romeoPub;
+    public void setPublisherDisplay(String publisherDisplay) {
+        this.publisherDisplay = publisherDisplay;
     }
 
     public String getZetoPub() {

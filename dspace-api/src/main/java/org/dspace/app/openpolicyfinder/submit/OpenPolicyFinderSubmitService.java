@@ -20,8 +20,9 @@ import org.dspace.core.Context;
 import org.dspace.core.LogHelper;
 
 /**
- * OpenPolicyFinderSubmitService is
- * @see
+ * OpenPolicyFinderSubmitService is responsible for querying the Open Policy Finder API
+ * during item submission to retrieve journal publishing policies by ISSN.
+ *
  * @author Kim Shepherd
  */
 public class OpenPolicyFinderSubmitService {
