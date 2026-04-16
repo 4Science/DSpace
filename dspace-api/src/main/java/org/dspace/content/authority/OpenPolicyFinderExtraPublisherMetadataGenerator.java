@@ -12,20 +12,20 @@ import java.util.Map;
 import java.util.Objects;
 
 import org.apache.commons.lang.StringUtils;
-import org.dspace.app.sherpa.v2.SHERPAJournal;
-import org.dspace.app.sherpa.v2.SHERPAPublisher;
+import org.dspace.app.openpolicyfinder.v2.OpenPolicyFinderJournal;
+import org.dspace.app.openpolicyfinder.v2.OpenPolicyFinderPublisher;
 
 /**
  * @author Mykhaylo Boychuk (mykhaylo.boychuk at 4science.com)
  */
-public class SherpaExtraIPublisherMetadataGenerator implements SherpaExtraMetadataGenerator {
+public class OpenPolicyFinderExtraPublisherMetadataGenerator implements OpenPolicyFinderExtraMetadataGenerator {
 
     private String relatedInputFormMetadata;
 
     @Override
-    public Map<String, String> build(SHERPAJournal journal) {
-        Map<String, String> extras = new HashMap<String, String>();
-        SHERPAPublisher publisher = journal.getPublisher();
+    public Map<String, String> build(OpenPolicyFinderJournal journal) {
+        Map<String, String> extras = new HashMap<>();
+        OpenPolicyFinderPublisher publisher = journal.getPublisher();
         String publisherName = Objects.nonNull(publisher) ? publisher.getName() : StringUtils.EMPTY;
         extras.put("data-" + this.relatedInputFormMetadata, publisherName);
         extras.put(this.relatedInputFormMetadata, publisherName);

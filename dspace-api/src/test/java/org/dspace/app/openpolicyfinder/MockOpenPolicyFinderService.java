@@ -16,13 +16,13 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 import org.apache.commons.collections.CollectionUtils;
-import org.dspace.app.sherpa.v2.SHERPAFormat;
+import org.dspace.app.openpolicyfinder.v2.OpenPolicyFinderFormat;
 import org.dspace.app.openpolicyfinder.v2.OpenPolicyFinderPublisherResponse;
 import org.dspace.app.openpolicyfinder.v2.OpenPolicyFinderResponse;
 
 /**
- * Mock implementation for Open Policy Finder API service (used by Open Policy Finder submit service to check
- * journal policies).
+ * Mock implementation for Open Policy Finder API service
+ * (used by Open Policy Finder submit service to check journal policies).
  * This class will return mock Open Policy Finder responses so they can be parsed and turned
  * into external data objects downstream.
  *
@@ -32,11 +32,10 @@ public class MockOpenPolicyFinderService extends OpenPolicyFinderService {
 
     /**
      * Simple overridden performRequest so that we do attempt to build the URI but rather than make
-     * an actual HTTP call, return parsed OpenPolicyFinderResponse for The Lancet based on known-good JSON stored with
-     * our
-     * test resources.
-     * If URI creation, parsing, or IO fails along the way, a OpenPolicyFinderResponse with an error message set will be
-     * returned.
+     * an actual HTTP call, return parsed OpenPolicyFinderResponse for
+     * The Lancet based on known-good JSON stored with our test resources.
+     * If URI creation, parsing, or IO fails along the way,
+     * a OpenPolicyFinderResponse with an error message set will be returned.
      *
      * @param value a journal / publication name, or ID, etc.
      * @return OpenPolicyFinderResponse
@@ -45,10 +44,11 @@ public class MockOpenPolicyFinderService extends OpenPolicyFinderService {
     public OpenPolicyFinderResponse performRequest(String type, String field, String predicate, String value,
                                          int start, int limit) {
         try {
-            String endpoint = configurationService.getProperty("openpolicyfinder.url",configurationService.getProperty("sherpa.romeo.url",
+            String endpoint = configurationService.getProperty("openpolicyfinder.url",
+                                                               configurationService.getProperty("sherpa.romeo.url",
                                                                "https://api.openpolicyfinder.jisc.ac.uk/retrieve"));
             String apiKey = configurationService.getProperty("openpolicyfinder.apikey",
-                configurationService.getProperty("sherpa.romeo.apikey"));
+                                                             configurationService.getProperty("sherpa.romeo.apikey"));
 
             // Rather than search, we will simply attempt to build the URI using the real prepare method
             // so that any errors there are caught, and will return a valid response for The Lancet
@@ -69,8 +69,7 @@ public class MockOpenPolicyFinderService extends OpenPolicyFinderService {
                 }
 
                 // Parse JSON input stream and return response for later evaluation
-                OpenPolicyFinderResponse response = new OpenPolicyFinderResponse(content, OpenPolicyFinderResponse.ResponseFormat.JSON);
-
+                OpenPolicyFinderResponse response = new OpenPolicyFinderResponse(content, OpenPolicyFinderFormat.JSON);
                 if (response != null) {
                     applyStartAndLimit(response.getJournals(), start, limit);
                 }
@@ -105,14 +104,14 @@ public class MockOpenPolicyFinderService extends OpenPolicyFinderService {
      * @return OpenPolicyFinderResponse
      */
     @Override
-    public OpenPolicyFinderPublisherResponse performPublisherRequest(String type, String field,
-                                                                       String predicate, String value,
-                                                                       int start, int limit) {
+    public OpenPolicyFinderPublisherResponse performPublisherRequest(String type, String field, String predicate,
+                                                                     String value, int start, int limit) {
         try {
-            String endpoint = configurationService.getProperty("openpolicyfinder.url",configurationService.getProperty("sherpa.romeo.url",
-                                                               "https://api.openpolicyfinder.jisc.ac.uk/retrieve"));
+            String endpoint = configurationService.getProperty("openpolicyfinder.url",
+                    configurationService.getProperty("sherpa.romeo.url",
+                                                        "https://api.openpolicyfinder.jisc.ac.uk/retrieve"));
             String apiKey = configurationService.getProperty("openpolicyfinder.apikey",
-                configurationService.getProperty("sherpa.romeo.apikey"));
+                                                               configurationService.getProperty("sherpa.romeo.apikey"));
 
             // Rather than search, we will simply attempt to build the URI using the real prepare method
             // so that any errors there are caught, and will return a valid response for The Lancet
@@ -126,16 +125,13 @@ public class MockOpenPolicyFinderService extends OpenPolicyFinderService {
                 content = getClass().getResourceAsStream("plos.json");
 
                 // Parse JSON input stream and return response for later evaluation
-                SHERPAPublisherResponse response =
-                    new OpenPolicyFinderPublisherResponse(content,
-                    OpenPolicyFinderPublisherResponse.ResponseFormat.JSON);
+                OpenPolicyFinderPublisherResponse response = new OpenPolicyFinderPublisherResponse(content,
+                                                                 OpenPolicyFinderPublisherResponse.ResponseFormat.JSON);
 
                 if (response != null) {
                     applyStartAndLimit(response.getPublishers(), start, limit);
                 }
-
                 return response;
-
             } catch (URISyntaxException e) {
                 // This object will be marked as having an error for later evaluation
                 return new OpenPolicyFinderPublisherResponse(e.getMessage());
@@ -153,15 +149,14 @@ public class MockOpenPolicyFinderService extends OpenPolicyFinderService {
 
     @Override
     public int performCountRequest(String type, String field, String predicate, String value) {
-        SHERPAResponse sherpaResponse = performRequest(type, field, predicate, value, 0, 0);
-        if (sherpaResponse != null && CollectionUtils.isNotEmpty(sherpaResponse.getJournals())) {
-            return sherpaResponse.getJournals().size();
+        OpenPolicyFinderResponse opfResponse = performRequest(type, field, predicate, value, 0, 0);
+        if (opfResponse != null && CollectionUtils.isNotEmpty(opfResponse.getJournals())) {
+            return opfResponse.getJournals().size();
         }
         return 0;
     }
 
     private <T> void applyStartAndLimit(List<T> list, int start, int limit) {
-
         if (CollectionUtils.isEmpty(list)) {
             return;
         }
@@ -176,7 +171,6 @@ public class MockOpenPolicyFinderService extends OpenPolicyFinderService {
 
         list.clear();
         list.addAll(subList);
-
     }
 
 }

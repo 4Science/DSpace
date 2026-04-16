@@ -47,9 +47,7 @@ public class OpenPolicyFinderServiceTest extends AbstractDSpaceTest {
             "org.dspace.app.openpolicyfinder.MockOpenPolicyFinderService",
             MockOpenPolicyFinderService.class);
 
-    public OpenPolicyFinderServiceTest() {
-
-    }
+    public OpenPolicyFinderServiceTest() {}
 
     @BeforeClass
     public static void setUpClass() {

@@ -15,6 +15,7 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.dspace.app.openpolicyfinder.OpenPolicyFinderService;
 import org.dspace.app.openpolicyfinder.v2.OpenPolicyFinderJournal;
@@ -36,9 +37,7 @@ import org.dspace.external.provider.AbstractExternalDataProvider;
  */
 public class OpenPolicyFinderJournalISSNDataProvider extends AbstractExternalDataProvider {
 
-    private static final Logger log =
-        org.apache.logging.log4j.LogManager.getLogger(
-            org.dspace.external.provider.impl.OpenPolicyFinderJournalISSNDataProvider.class);
+    private static final Logger log = LogManager.getLogger(OpenPolicyFinderJournalISSNDataProvider.class);
 
     // Source identifier (configured in spring configuration)
     private String sourceIdentifier;

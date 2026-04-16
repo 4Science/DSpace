@@ -27,10 +27,12 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.dspace.app.client.DSpaceHttpClientFactory;
-import org.dspace.app.sherpa.v2.SHERPAFormat;
+import org.dspace.app.openpolicyfinder.v2.OpenPolicyFinderFormat;
 import org.dspace.app.openpolicyfinder.v2.OpenPolicyFinderPublisherResponse;
 import org.dspace.app.openpolicyfinder.v2.OpenPolicyFinderResponse;
 import org.dspace.app.openpolicyfinder.v2.OpenPolicyFinderUtils;
+import org.dspace.external.provider.impl.OpenPolicyFinderJournalDataProvider;
+import org.dspace.external.provider.impl.OpenPolicyFinderPublisherDataProvider;
 import org.dspace.services.ConfigurationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
@@ -41,26 +43,21 @@ import org.springframework.cache.annotation.Cacheable;
  * Note, this service is ported from DSpace 6 for the ability to search policies by ISSN
  * There are also new DataProvider implementations provided for use as 'external sources'
  * of journal and publisher data
- * @see org.dspace.external.provider.impl.OpenPolicyFinderJournalDataProvider
- * @see org.dspace.external.provider.impl.OpenPolicyFinderPublisherDataProvider
+ * @see OpenPolicyFinderJournalDataProvider
+ * @see OpenPolicyFinderPublisherDataProvider
  * @author Kim Shepherd
  */
 public class OpenPolicyFinderService {
 
-    /**
-     * log4j category
-     */
-    private static final Logger log = LogManager.getLogger(SHERPAService.class);
-    @Autowired
-    ConfigurationService configurationService;
+    private static final Logger log = LogManager.getLogger(OpenPolicyFinderService.class);
+
+    public static final String OPEN_POLICY_FINDER_URL = "https://api.openpolicyfinder.jisc.ac.uk/retrieve";
+
     private int maxNumberOfTries;
     private long sleepBetweenTimeouts;
     private int timeout = 5000;
     private String endpoint = null;
     private String apiKey = null;
-
-    /** log4j category */
-    private static final Logger log = LogManager.getLogger(OpenPolicyFinderService.class);
 
     @Autowired
     ConfigurationService configurationService;
@@ -74,14 +71,15 @@ public class OpenPolicyFinderService {
         // Get endpoint and API key from configuration, with fallback to legacy property names
         String newUrl = configurationService.getProperty("openpolicyfinder.url");
         String legacyUrl = configurationService.getProperty("sherpa.romeo.url");
-                                                    if (newUrl != null) {
+        if (newUrl != null) {
             endpoint = newUrl;
         } else if (legacyUrl != null) {
             endpoint = legacyUrl;
-            log.warn("Configuration property 'sherpa.romeo.url' is deprecated. "
-                + "Please use 'openpolicyfinder.url' instead.");
+            log.warn("Configuration property 'sherpa.romeo.url' is deprecated. " +
+                     "If it points to v2.sherpa.ac.uk, that endpoint is being retired in April 2026." +
+                     "Please set 'openpolicyfinder.url =" + OPEN_POLICY_FINDER_URL);
         } else {
-            endpoint = "https://api.openpolicyfinder.jisc.ac.uk/retrieve";
+            endpoint = OPEN_POLICY_FINDER_URL;
         }
 
         String newApiKey = configurationService.getProperty("openpolicyfinder.apikey");
@@ -124,9 +122,8 @@ public class OpenPolicyFinderService {
      * @param limit     maximum search results to return
      * @return OpenPolicyFinderPublisherResponse object
      */
-    public OpenPolicyFinderPublisherResponse performPublisherRequest(
-            String type, String field, String predicate, String value,
-            int start, int limit) {
+    public OpenPolicyFinderPublisherResponse performPublisherRequest(String type, String field, String predicate,
+                                                                     String value, int start, int limit) {
         // API Key is *required* for API calls
         if (null == apiKey) {
             log.error("Open Policy Finder API Key missing: "
@@ -141,9 +138,8 @@ public class OpenPolicyFinderService {
         while (numberOfTries < maxNumberOfTries && opfResponse == null) {
             numberOfTries++;
 
-            log.debug(String.format(
-                "Trying to contact Open Policy Finder - attempt %d of %d; timeout is %d; "
-                    + "sleep between timeouts is %d",
+            log.debug(String.format("Trying to contact Open Policy Finder - attempt %d of %d; timeout is %d; "
+                                  + "sleep between timeouts is %d",
                 numberOfTries,
                 maxNumberOfTries,
                 timeout,
@@ -159,13 +155,11 @@ public class OpenPolicyFinderService {
                 try (CloseableHttpResponse response = client.execute(method)) {
                     int statusCode = response.getStatusLine().getStatusCode();
 
-                    log.debug(response.getStatusLine().getStatusCode() + ": "
-                                  + response.getStatusLine().getReasonPhrase());
+                    log.debug(statusCode + ": " + response.getStatusLine().getReasonPhrase());
 
                     if (statusCode != HttpStatus.SC_OK) {
-                        opfResponse = new OpenPolicyFinderPublisherResponse(
-                            "Open Policy Finder return not OK status: "
-                                                                         + statusCode);
+                        opfResponse = new OpenPolicyFinderPublisherResponse("Open Policy Finder return not OK status: "
+                                                                            + statusCode);
                         String errorBody = IOUtils.toString(response.getEntity().getContent(), StandardCharsets.UTF_8);
                         log.error("Error from Open Policy Finder HTTP request: " + errorBody);
                     }
@@ -216,8 +210,7 @@ public class OpenPolicyFinderService {
 
         if (opfResponse == null) {
             log.debug("Response is still null");
-            opfResponse = new OpenPolicyFinderPublisherResponse(
-                "Error processing the Open Policy Finder answer");
+            opfResponse = new OpenPolicyFinderPublisherResponse("Error processing the Open Policy Finder answer");
         }
 
         // Return the final response
@@ -274,9 +267,8 @@ public class OpenPolicyFinderService {
                                   + response.getStatusLine().getReasonPhrase());
 
                     if (statusCode != HttpStatus.SC_OK) {
-                        opfResponse = new OpenPolicyFinderResponse(
-                            "Open Policy Finder return not OK status: "
-                                                                + statusCode);
+                        opfResponse = new OpenPolicyFinderResponse("Open Policy Finder return not OK status: "
+                                                                   + statusCode);
                         String errorBody = IOUtils.toString(response.getEntity().getContent(), StandardCharsets.UTF_8);
                         log.error("Error from Open Policy Finder HTTP request: " + errorBody);
                     }
@@ -289,8 +281,7 @@ public class OpenPolicyFinderService {
                         InputStream content = null;
                         try {
                             content = responseBody.getContent();
-                            opfResponse = new OpenPolicyFinderResponse(
-                                    content, OpenPolicyFinderResponse.ResponseFormat.JSON);
+                            opfResponse = new OpenPolicyFinderResponse(content, OpenPolicyFinderFormat.JSON);
                         } catch (IOException e) {
                             log.error("Encountered exception while contacting Open Policy Finder: "
                                 + e.getMessage(), e);
@@ -325,8 +316,7 @@ public class OpenPolicyFinderService {
 
         if (opfResponse == null) {
             log.debug("Response is still null");
-            opfResponse = new OpenPolicyFinderResponse(
-                "Error processing the Open Policy Finder answer");
+            opfResponse = new OpenPolicyFinderResponse("Error processing the Open Policy Finder answer");
         }
 
         // Return the final response
@@ -334,7 +324,7 @@ public class OpenPolicyFinderService {
     }
 
     /**
-     * Perform an API request to the SHERPA v2 API to count the results related to the given parameters.
+     * Perform an API request to the Open Policy Finder API to count the results related to the given parameters.
      *
      * @param type      entity type eg "publication" or "publisher"
      * @param field     field eg "issn" or "title"
@@ -343,32 +333,31 @@ public class OpenPolicyFinderService {
      * @return the count
      */
     public int performCountRequest(String type, String field, String predicate, String value) {
-
         // API Key is *required* for v2 API calls
         if (null == apiKey) {
-            log.error("SHERPA ROMeO API Key missing: please register for an API key and set sherpa.romeo.apikey");
+            log.error("Open Policy Finder API Key missing: " +
+                      "please register for an API key and set openpolicyfinder.apikey");
             return 0;
         }
 
         HttpGet method = null;
-
         try (CloseableHttpClient client = DSpaceHttpClientFactory.getInstance().buildWithoutAutomaticRetries(5)) {
             Thread.sleep(sleepBetweenTimeouts);
 
-            method = constructHttpGet(type, field, predicate, value, SHERPAFormat.IDS, 0, 0);
+            method = constructHttpGet(type, field, predicate, value, OpenPolicyFinderFormat.IDS, 0, 0);
 
             HttpResponse response = client.execute(method);
             int statusCode = response.getStatusLine().getStatusCode();
 
             if (statusCode != HttpStatus.SC_OK) {
                 String errorBody = IOUtils.toString(response.getEntity().getContent(), StandardCharsets.UTF_8);
-                log.error("Error from SHERPA HTTP request: " + errorBody);
+                log.error("Error from OpenPolicyFinder HTTP request: " + errorBody);
                 return 0;
             }
 
             HttpEntity responseBody = response.getEntity();
             if (responseBody == null) {
-                log.debug("Empty SHERPA response body for query on " + value);
+                log.debug("Empty OpenPolicyFinder response body for query on " + value);
                 return 0;
             }
 
@@ -376,14 +365,13 @@ public class OpenPolicyFinderService {
             return (int) responseContent.lines().count();
 
         } catch (Exception ex) {
-            log.error("An error occurs counting the SHERPA entries", ex);
+            log.error("An error occurs counting the OpenPolicyFinder entries", ex);
             return 0;
         } finally {
             if (method != null) {
                 method.releaseConnection();
             }
         }
-
     }
 
     /**
@@ -415,7 +403,7 @@ public class OpenPolicyFinderService {
      */
     public HttpGet constructHttpGet(String type, String field, String predicate, String value, int start, int limit)
         throws URISyntaxException {
-        return constructHttpGet(type, field, predicate, value, SHERPAFormat.JSON, start, limit);
+        return constructHttpGet(type, field, predicate, value, OpenPolicyFinderFormat.JSON, start, limit);
     }
 
     /**
@@ -431,9 +419,8 @@ public class OpenPolicyFinderService {
      * @return HttpGet object to be executed by the client
      * @throws URISyntaxException
      */
-    public HttpGet constructHttpGet(String type, String field, String predicate, String value, SHERPAFormat format,
-                                    int start, int limit) throws URISyntaxException {
-
+    public HttpGet constructHttpGet(String type, String field, String predicate, String value,
+                                    OpenPolicyFinderFormat format,int start, int limit) throws URISyntaxException {
         // Sanitise query string (strip some characters) field, predicate and value
         if (null == type) {
             type = "publication";
@@ -467,13 +454,11 @@ public class OpenPolicyFinderService {
         }
 
         // Set connection parameters
-        int timeout = 5000;
         method.setConfig(RequestConfig.custom()
-                                      .setConnectionRequestTimeout(timeout)
-                                      .setConnectTimeout(timeout)
-                                      .setSocketTimeout(timeout)
+                                      .setConnectionRequestTimeout(this.timeout)
+                                      .setConnectTimeout(this.timeout)
+                                      .setSocketTimeout(this.timeout)
                                       .build());
-
         return method;
     }
 
@@ -502,7 +487,7 @@ public class OpenPolicyFinderService {
             log.warn("No ISSN supplied as query string for Open Policy Finder service search");
         }
         uriBuilder.addParameter("filter", "[[\"issn\",\"equals\",\"" + query + "\"]]");
-        uriBuilder.addParameter("format", SHERPAFormat.JSON.getValue());
+        uriBuilder.addParameter("format", OpenPolicyFinderFormat.JSON.getValue());
         log.debug("Would search Open Policy Finder endpoint with " + uriBuilder);
 
         // Return final built URI

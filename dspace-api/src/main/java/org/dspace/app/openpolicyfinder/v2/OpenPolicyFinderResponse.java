@@ -61,11 +61,6 @@ public class OpenPolicyFinderResponse implements Serializable {
     @JsonIgnore
     private Instant retrievalTime = Instant.now();
 
-    // Format enum - currently only JSON is supported
-    public enum ResponseFormat {
-        JSON, XML
-    };
-
     private static Logger log = LogManager.getLogger();
 
     /**
@@ -74,8 +69,8 @@ public class OpenPolicyFinderResponse implements Serializable {
      * @param format - requested format
      * @throws IOException
      */
-    public OpenPolicyFinderResponse(InputStream input, ResponseFormat format) throws IOException {
-        if (format == ResponseFormat.JSON) {
+    public OpenPolicyFinderResponse(InputStream input, OpenPolicyFinderFormat format) throws IOException {
+        if (format == OpenPolicyFinderFormat.JSON) {
             parseJSON(input);
         }
     }
@@ -86,7 +81,7 @@ public class OpenPolicyFinderResponse implements Serializable {
     public OpenPolicyFinderResponse() {}
 
     /**
-     * Parse the Open Policy Finder API JSON and construct Romeo policy data for display
+     * Parse the Open Policy Finder API JSON and construct publisher policy data for display
      * This method does not return a value, but rather populates the metadata and journals objects
      * with data parsed from the JSON.
      * @param jsonData - the JSON input stream from the API result response body
@@ -275,7 +270,7 @@ public class OpenPolicyFinderResponse implements Serializable {
                 journal.setTitles(titleList);
                 if (titleList.size() > 0) {
                     // Faking this a bit based on what I'd seen - not in the API v2 data
-                    journal.setRomeoPub(publisherName + ": "
+                    journal.setPublisherDisplay(publisherName + ": "
                         + titleList.get(0));
                     journal.setZetoPub(publisherName + ": "
                         + titleList.get(0));

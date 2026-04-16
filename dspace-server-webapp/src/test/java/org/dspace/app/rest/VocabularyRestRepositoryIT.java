@@ -88,12 +88,11 @@ public class VocabularyRestRepositoryIT extends AbstractControllerIntegrationTes
         mockOrcid.setupSingleSearch();
         mockOrcid.setupSearchWithResults();
 
-        configurationService.setProperty("plugin.named.org.dspace.content.authority.ChoiceAuthority",
-                                         new String[] {
-                                             "org.dspace.content.authority.SolrAuthority = SolrAuthorAuthority",
-                                             "org.dspace.content.authority.OpenPolicyFinderPublisherAuthority = SRPublisher",
-                                             "org.dspace.content.authority.OpenPolicyFinderJournalTitle = SRJournalTitle"
-                                         });
+        configurationService.setProperty("plugin.named.org.dspace.content.authority.ChoiceAuthority", new String[] {
+                                     "org.dspace.content.authority.SolrAuthority = SolrAuthorAuthority",
+                                     "org.dspace.content.authority.OpenPolicyFinderPublisherAuthority = SRPublisher",
+                                     "org.dspace.content.authority.OpenPolicyFinderJournalTitle = SRJournalTitle"
+                                     });
 
         configurationService.setProperty("solr.authority.server",
                                          "${solr.server}/authority");

@@ -5,22 +5,22 @@
  *
  * http://www.dspace.org/license/
  */
-package org.dspace.app.sherpa.v2;
+package org.dspace.app.openpolicyfinder.v2;
 
 /**
- * Enum that list the supported format by Sherpa API.
+ * Enum that list the supported format by Open Policy Finder API.
  *
  * @author Luca Giamminonni (luca.giamminonni at 4Science)
  *
  */
-public enum SHERPAFormat {
+public enum OpenPolicyFinderFormat {
 
     JSON("Json"),
     IDS("Ids");
 
     private final String value;
 
-    private SHERPAFormat(String value) {
+    private OpenPolicyFinderFormat(String value) {
         this.value = value;
     }
 

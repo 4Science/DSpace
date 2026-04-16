@@ -19,7 +19,7 @@
     
     1. AUTHORITY IMPORT FILLERS (AuthorityImportFillerHolder)
        - Define how to populate new entity items when they are created via authority import
-       - Support multiple data sources: Internal metadata, ORCID API, SHERPA/RoMEO API
+       - Support multiple data sources: Internal metadata, ORCID API, Open Policy Finder API
        - Map source metadata fields to target entity metadata fields
        
     2. ITEM REFERENCE RESOLVERS (ItemSearcherMapper)
@@ -251,11 +251,10 @@
 	   <constructor-arg name="authorityIdentifier" value="ORCID"/>
 	</bean>
 
-    <bean class="org.dspace.authority.filler.ExternalDataProviderImportFiller" id="sherpaImportFiller" >
-       <constructor-arg name="externalDataProvider" ref="org.dspace.external.provider.impl.SHERPAv2JournalISSNDataProvider"/>
+    <bean class="org.dspace.authority.filler.ExternalDataProviderImportFiller" id="opfImportFiller" >
+       <constructor-arg name="externalDataProvider" ref="org.dspace.external.provider.impl.OpenPolicyFinderJournalISSNDataProvider"/>
        <constructor-arg name="authorityIdentifier" value="ISSN"/>
     </bean>
-
 
     <bean class="org.dspace.authority.filler.ExternalDataProviderImportFiller" id="openaireProjectImportFiller" >
        <constructor-arg name="externalDataProvider" ref="openaireLiveImportDataProvider"/>
