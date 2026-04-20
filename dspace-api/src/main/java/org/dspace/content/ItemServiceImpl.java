@@ -2145,7 +2145,21 @@ prevent the generation of resource policy entry values with null dspace_object a
             }
         }
 
-        values = getFilteredMetadataValuesByLanguage(values, lang);
+        // Apply language-family filtering (same semantics as DSpaceObjectServiceImpl.getMetadata).
+        // null lang  → keep only values with null language
+        // Item.ANY   → keep all values (no filtering)
+        // else       → keep values where stored language exactly equals requested language
+        //              OR starts with lang+"_" or lang+"-" (e.g. "en" matches "en_US", "en-GB")
+        if (lang == null) {
+            values = values.stream()
+                           .filter(dcv -> dcv.getLanguage() == null)
+                           .collect(Collectors.toList());
+        } else if (!lang.equals(Item.ANY)) {
+            values = values.stream()
+                           .filter(dcv -> matchesLanguageFamily(lang, dcv.getLanguage()))
+                           .collect(Collectors.toList());
+        }
+        // lang == Item.ANY: keep all values unchanged
 
         // Create an array of matching values
         return values;

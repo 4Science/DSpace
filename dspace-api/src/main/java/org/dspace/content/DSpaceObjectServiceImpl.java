@@ -132,7 +132,21 @@ public abstract class DSpaceObjectServiceImpl<T extends DSpaceObject> implements
             }
         }
 
-        values = getFilteredMetadataValuesByLanguage(values, lang);
+        // Apply language-family filtering.
+        // null lang  → keep only values with null language
+        // Item.ANY   → keep all values (no filtering)
+        // else       → keep values where stored language exactly equals requested language
+        //              OR starts with lang+"_" or lang+"-" (e.g. "en" matches "en_US", "en-GB")
+        if (lang == null) {
+            values = values.stream()
+                           .filter(dcv -> dcv.getLanguage() == null)
+                           .collect(Collectors.toList());
+        } else if (!lang.equals(Item.ANY)) {
+            values = values.stream()
+                           .filter(dcv -> matchesLanguageFamily(lang, dcv.getLanguage()))
+                           .collect(Collectors.toList());
+        }
+        // lang == Item.ANY: keep all values unchanged
 
         // Sort the metadataValues if they have been modified,
         // is used to preserve the default order.
@@ -1065,13 +1079,17 @@ public abstract class DSpaceObjectServiceImpl<T extends DSpaceObject> implements
     }
 
     /**
-     * Returns all the metadata values filtered by the input language.
+     * Returns all the metadata values filtered by the input language using fuzzy locale-fallback logic.
      *
      * @param metadataValues list of metadata values.
      * @param language the language that must metadataValues filtered by.
      *
      * @return the metadata values
+     * @deprecated This method implements the old fuzzy fallback that corrupts exact-match semantics.
+     *             Use exact-match filtering inline in {@link #getMetadata} instead. This method is no
+     *             longer called from the core retrieval path and will be removed in a future release.
      */
+    @Deprecated
     protected List<MetadataValue> getFilteredMetadataValuesByLanguage(List<MetadataValue> metadataValues,
                                                                    String language) {
         List<MetadataValue> matchedValues = new ArrayList<>();
@@ -1160,6 +1178,39 @@ public abstract class DSpaceObjectServiceImpl<T extends DSpaceObject> implements
             }
         }
         return matchedValues;
+    }
+
+    /**
+     * Returns true if the stored language value matches the requested language or its sub-variants.
+     * For example, requesting {@code "en"} matches stored values {@code "en"}, {@code "en_US"},
+     * {@code "en_UK"}, and {@code "en-GB"}.
+     *
+     * <ul>
+     *   <li>{@code null} requestedLang only matches a {@code null} stored language.</li>
+     *   <li>{@link Item#ANY} requestedLang matches every stored value.</li>
+     *   <li>Otherwise, matches when stored language equals requestedLang (case-insensitive) or
+     *       starts with {@code requestedLang + "_"} or {@code requestedLang + "-"}.</li>
+     * </ul>
+     *
+     * @param requestedLang the language requested by the caller (may be {@code null} or {@link Item#ANY})
+     * @param storedLang    the language stored on the metadata value (may be {@code null})
+     * @return {@code true} if the stored language satisfies the request
+     */
+    private boolean matchesLanguageFamily(String requestedLang, String storedLang) {
+        if (requestedLang == null) {
+            return storedLang == null;
+        }
+        if (requestedLang.equals(Item.ANY)) {
+            return true;
+        }
+        if (storedLang == null) {
+            return false;
+        }
+        String req = requestedLang.toLowerCase();
+        String stored = storedLang.toLowerCase();
+        return stored.equals(req)
+            || stored.startsWith(req + "_")
+            || stored.startsWith(req + "-");
     }
 
 }

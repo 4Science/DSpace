@@ -9,10 +9,8 @@ package org.dspace.content.security;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -35,7 +33,6 @@ import org.dspace.content.security.service.MetadataSecurityService;
 import org.dspace.content.service.ItemService;
 import org.dspace.content.service.MetadataSecurityEvaluation;
 import org.dspace.core.Context;
-import org.dspace.core.I18nUtil;
 import org.dspace.core.exception.SQLRuntimeException;
 import org.dspace.eperson.EPerson;
 import org.dspace.layout.CrisLayoutBox;
@@ -107,24 +104,69 @@ public class MetadataSecurityServiceImpl implements MetadataSecurityService {
     @Override
     public List<MetadataValue> getPermissionAndLangFilteredMetadataFields(Context context, Item item,
                                                                               boolean preventBoxSecurityCheck) {
-        String language = context != null ? context.getCurrentLocale().getLanguage() : Item.ANY;
+        String requestLang = context != null ? context.getCurrentLocale().getLanguage() : null;
 
-        List<String> locales = new ArrayList<String>();
-        locales.addAll(Arrays.asList(configurationService.getArrayProperty("webui.supported.locales")));
+        // Retrieve all metadata values (including virtual metadata if enabled)
+        List<MetadataValue> allValues =
+            itemService.getMetadata(item, Item.ANY, Item.ANY, Item.ANY, Item.ANY, true);
 
-        if (locales.isEmpty()) {
-            locales.add(I18nUtil.getDefaultLocale().toString());
-        }
+        // Group by field key (schema.element.qualifier) to apply per-field fallback
+        Map<String, List<MetadataValue>> grouped = allValues.stream()
+            .collect(Collectors.groupingBy(mv -> mv.getMetadataField().toString()));
 
-        List<MetadataValue> values = new LinkedList<MetadataValue>();
-        for (MetadataValue mv : itemService.getMetadata(item, Item.ANY, Item.ANY, Item.ANY, Item.ANY, true)) {
-            if (language == Item.ANY ||
-                    StringUtils.equals(language, mv.getLanguage()) || !locales.contains(mv.getLanguage())) {
-                values.add(mv);
+        List<MetadataValue> langFiltered = new ArrayList<>();
+
+        for (Map.Entry<String, List<MetadataValue>> entry : grouped.entrySet()) {
+            List<MetadataValue> fieldValues = entry.getValue();
+
+            if (requestLang == null) {
+                // No locale known — include all values for this field
+                langFiltered.addAll(fieldValues);
+                continue;
+            }
+
+            // Apply language-family filter for this field group
+            List<MetadataValue> matched = fieldValues.stream()
+                .filter(mv -> isAlwaysVisible(mv.getLanguage())
+                    || matchesRequestLocale(mv.getLanguage(), requestLang))
+                .collect(Collectors.toList());
+
+            if (matched.isEmpty()) {
+                // Fallback: no values matched — include all values for this field
+                langFiltered.addAll(fieldValues);
+            } else {
+                langFiltered.addAll(matched);
             }
         }
 
-        return getPermissionFilteredMetadata(context, item, values, preventBoxSecurityCheck);
+        return getPermissionFilteredMetadata(context, item, langFiltered, preventBoxSecurityCheck);
+    }
+
+    /**
+     * Returns {@code true} for language values that are always visible regardless of request locale:
+     * {@code null}, blank/empty strings, and the {@code "*"} wildcard sentinel.
+     *
+     * @param lang the stored {@code text_lang} value of a metadata value, may be null
+     * @return {@code true} if the value should always be shown
+     */
+    private boolean isAlwaysVisible(String lang) {
+        return lang == null || lang.isBlank() || "*".equals(lang);
+    }
+
+    /**
+     * Returns {@code true} if the stored language tag starts with the requested language code
+     * (case-insensitive). This covers exact matches ({@code "en"}) and locale variants
+     * ({@code "en_US"}, {@code "en-GB"}, etc.).
+     *
+     * @param stored    the stored {@code text_lang} value, must not be null
+     * @param requested the language code from the current request locale (e.g. {@code "en"})
+     * @return {@code true} if {@code stored} starts with {@code requested} ignoring case
+     */
+    private boolean matchesRequestLocale(String stored, String requested) {
+        if (stored == null || requested == null) {
+            return false;
+        }
+        return stored.toLowerCase().startsWith(requested.toLowerCase());
     }
 
     @Override
