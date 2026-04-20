@@ -1196,7 +1196,7 @@ public abstract class DSpaceObjectServiceImpl<T extends DSpaceObject> implements
      * @param storedLang    the language stored on the metadata value (may be {@code null})
      * @return {@code true} if the stored language satisfies the request
      */
-    private boolean matchesLanguageFamily(String requestedLang, String storedLang) {
+    protected boolean matchesLanguageFamily(String requestedLang, String storedLang) {
         if (requestedLang == null) {
             return storedLang == null;
         }
