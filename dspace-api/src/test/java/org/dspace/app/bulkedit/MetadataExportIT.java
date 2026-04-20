@@ -280,6 +280,90 @@ public class MetadataExportIT
     }
 
     @Test
+    public void testExportAllLanguages_nullLangIncluded() throws Exception {
+        context.turnOffAuthorisationSystem();
+        Community community = CommunityBuilder.createCommunity(context)
+                .build();
+        Collection collection = CollectionBuilder.createCollection(context, community)
+                .build();
+        Item item = ItemBuilder.createItem(context, collection)
+                .withTitle("Title null lang")
+                .withTitleForLanguage("Title en", "en")
+                .withTitleForLanguage("Title de", "de")
+                .withTitleForLanguage("Title ja", "ja")
+                .build();
+        context.restoreAuthSystemState();
+        String fileLocation = configurationService.getProperty("dspace.dir")
+                + testProps.get("test.exportcsv").toString();
+
+        String[] args = new String[] {"metadata-export",
+            "-i", String.valueOf(item.getHandle()),
+            "-f", fileLocation};
+        TestDSpaceRunnableHandler testDSpaceRunnableHandler = new TestDSpaceRunnableHandler();
+
+        ScriptLauncher.handleScript(args, ScriptLauncher.getConfig(kernelImpl),
+                testDSpaceRunnableHandler, kernelImpl);
+        File file = new File(fileLocation);
+        String fileContent = IOUtils.toString(new FileInputStream(file), StandardCharsets.UTF_8);
+        assertTrue("CSV must contain null-lang title", fileContent.contains("Title null lang"));
+        assertTrue("CSV must contain en title", fileContent.contains("Title en"));
+        assertTrue("CSV must contain de title", fileContent.contains("Title de"));
+        assertTrue("CSV must contain ja title", fileContent.contains("Title ja"));
+    }
+
+    @Test
+    public void testExportAllLanguages_starLangIncluded() throws Exception {
+        context.turnOffAuthorisationSystem();
+        Community community = CommunityBuilder.createCommunity(context)
+                .build();
+        Collection collection = CollectionBuilder.createCollection(context, community)
+                .build();
+        Item item = ItemBuilder.createItem(context, collection)
+                .withTitleForLanguage("Title star lang", "*")
+                .build();
+        context.restoreAuthSystemState();
+        String fileLocation = configurationService.getProperty("dspace.dir")
+                + testProps.get("test.exportcsv").toString();
+
+        String[] args = new String[] {"metadata-export",
+            "-i", String.valueOf(item.getHandle()),
+            "-f", fileLocation};
+        TestDSpaceRunnableHandler testDSpaceRunnableHandler = new TestDSpaceRunnableHandler();
+
+        ScriptLauncher.handleScript(args, ScriptLauncher.getConfig(kernelImpl),
+                testDSpaceRunnableHandler, kernelImpl);
+        File file = new File(fileLocation);
+        String fileContent = IOUtils.toString(new FileInputStream(file), StandardCharsets.UTF_8);
+        assertTrue("CSV must contain star-lang title", fileContent.contains("Title star lang"));
+    }
+
+    @Test
+    public void testExportAllLanguages_blankLangIncluded() throws Exception {
+        context.turnOffAuthorisationSystem();
+        Community community = CommunityBuilder.createCommunity(context)
+                .build();
+        Collection collection = CollectionBuilder.createCollection(context, community)
+                .build();
+        Item item = ItemBuilder.createItem(context, collection)
+                .withTitleForLanguage("Title blank lang", "")
+                .build();
+        context.restoreAuthSystemState();
+        String fileLocation = configurationService.getProperty("dspace.dir")
+                + testProps.get("test.exportcsv").toString();
+
+        String[] args = new String[] {"metadata-export",
+            "-i", String.valueOf(item.getHandle()),
+            "-f", fileLocation};
+        TestDSpaceRunnableHandler testDSpaceRunnableHandler = new TestDSpaceRunnableHandler();
+
+        ScriptLauncher.handleScript(args, ScriptLauncher.getConfig(kernelImpl),
+                testDSpaceRunnableHandler, kernelImpl);
+        File file = new File(fileLocation);
+        String fileContent = IOUtils.toString(new FileInputStream(file), StandardCharsets.UTF_8);
+        assertTrue("CSV must contain blank-lang title", fileContent.contains("Title blank lang"));
+    }
+
+    @Test
     public void metadataExportToCsvTest_NonValidDSOType() throws Exception {
         String fileLocation = configurationService.getProperty("dspace.dir")
                               + testProps.get("test.exportcsv").toString();

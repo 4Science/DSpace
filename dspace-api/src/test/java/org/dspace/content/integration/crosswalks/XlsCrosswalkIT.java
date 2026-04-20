@@ -933,6 +933,85 @@ public class XlsCrosswalkIT extends AbstractIntegrationTestWithDatabase {
 
     }
 
+    @Test
+    public void testXlsExport_multilingualMetadata_allValuesExported() throws Exception {
+
+        context.turnOffAuthorisationSystem();
+
+        // Create a Person item with dc.title in 6 different language variants
+        Item item = createItem(context, collection)
+                .withEntityType("Person")
+                .withTitle("Title no lang")
+                .withTitleForLanguage("Title en", "en")
+                .withTitleForLanguage("Title en_US", "en_US")
+                .withTitleForLanguage("Title de", "de")
+                .withTitleForLanguage("Title star", "*")
+                .withTitleForLanguage("Title ja", "ja")
+                .withGivenName("Test")
+                .withFamilyName("Person")
+                .build();
+
+        context.restoreAuthSystemState();
+
+        xlsCrosswalk = (XlsCrosswalk) crosswalkMapper.getByType("person-xls");
+        assertThat(xlsCrosswalk, notNullValue());
+        xlsCrosswalk.setDCInputsReader(dcInputsReader);
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        xlsCrosswalk.disseminate(context, item, baos);
+
+        Workbook workbook = WorkbookFactory.create(new ByteArrayInputStream(baos.toByteArray()));
+        assertThat(workbook.getNumberOfSheets(), equalTo(1));
+
+        Sheet sheet = workbook.getSheetAt(0);
+        assertThat(sheet.getPhysicalNumberOfRows(), equalTo(2));
+
+        // The XLS crosswalk concatenates all language variants with || — all 6 values must appear
+        String preferredName = getRowValues(sheet.getRow(1)).get(0);
+        assertThat("XLS must contain null-lang title", preferredName.contains("Title no lang"), equalTo(true));
+        assertThat("XLS must contain en title", preferredName.contains("Title en"), equalTo(true));
+        assertThat("XLS must contain en_US title", preferredName.contains("Title en_US"), equalTo(true));
+        assertThat("XLS must contain de title", preferredName.contains("Title de"), equalTo(true));
+        assertThat("XLS must contain star-lang title", preferredName.contains("Title star"), equalTo(true));
+        assertThat("XLS must contain ja title", preferredName.contains("Title ja"), equalTo(true));
+    }
+
+    @Test
+    public void testXlsExport_noLanguageFiltering_exportPreservesAllLangs() throws Exception {
+
+        context.turnOffAuthorisationSystem();
+
+        // Restrict supported locales to "en" only — export must still include "fr" values
+        new DSpace().getConfigurationService().setProperty("webui.supported.locales", "en");
+
+        Item item = createItem(context, collection)
+                .withEntityType("Person")
+                .withTitleForLanguage("Title en", "en")
+                .withTitleForLanguage("Title fr", "fr")
+                .withGivenName("Test")
+                .withFamilyName("Lang")
+                .build();
+
+        context.restoreAuthSystemState();
+
+        xlsCrosswalk = (XlsCrosswalk) crosswalkMapper.getByType("person-xls");
+        assertThat(xlsCrosswalk, notNullValue());
+        xlsCrosswalk.setDCInputsReader(dcInputsReader);
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        xlsCrosswalk.disseminate(context, item, baos);
+
+        Workbook workbook = WorkbookFactory.create(new ByteArrayInputStream(baos.toByteArray()));
+        Sheet sheet = workbook.getSheetAt(0);
+        assertThat(sheet.getPhysicalNumberOfRows(), equalTo(2));
+
+        String preferredName = getRowValues(sheet.getRow(1)).get(0);
+        assertThat("XLS export must contain en title even with supported locale=en",
+                preferredName.contains("Title en"), equalTo(true));
+        assertThat("XLS export must contain fr title despite supported locale=en (no filtering on export)",
+                preferredName.contains("Title fr"), equalTo(true));
+    }
+
     private Item createFullPersonItem() {
         Item item = createItem(context, collection)
             .withTitle("John Smith")
