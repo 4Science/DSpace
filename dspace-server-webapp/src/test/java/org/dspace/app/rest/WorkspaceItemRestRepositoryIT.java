@@ -22,6 +22,7 @@ import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
@@ -71,16 +72,20 @@ import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicStatusLine;
 import org.dspace.app.ldn.NotifyServiceEntity;
+import org.dspace.app.rest.converter.ItemConverter;
 import org.dspace.app.rest.matcher.CollectionMatcher;
 import org.dspace.app.rest.matcher.ItemMatcher;
 import org.dspace.app.rest.matcher.MetadataMatcher;
 import org.dspace.app.rest.matcher.ResourcePolicyMatcher;
 import org.dspace.app.rest.matcher.WorkspaceItemMatcher;
+import org.dspace.app.rest.model.ItemRest;
 import org.dspace.app.rest.model.patch.AddOperation;
 import org.dspace.app.rest.model.patch.Operation;
 import org.dspace.app.rest.model.patch.RemoveOperation;
 import org.dspace.app.rest.model.patch.ReplaceOperation;
+import org.dspace.app.rest.projection.Projection;
 import org.dspace.app.rest.test.AbstractControllerIntegrationTest;
+import org.dspace.app.rest.utils.Utils;
 import org.dspace.authorize.ResourcePolicy;
 import org.dspace.authorize.service.AuthorizeService;
 import org.dspace.builder.BitstreamBuilder;
@@ -168,6 +173,11 @@ public class WorkspaceItemRestRepositoryIT extends AbstractControllerIntegration
     private OpenAireProjectImportMetadataSourceServiceImpl openAireService;
 
     private AccessConditionConfiguration accessConditionConfiguration;
+
+    @Autowired
+    private ItemConverter itemConverter;
+    @Autowired
+    private Utils utils;
 
     @Autowired
     private ObjectMapper mapper;
@@ -7335,6 +7345,12 @@ public class WorkspaceItemRestRepositoryIT extends AbstractControllerIntegration
             WorkspaceItem workspaceItem = workspaceItemService.find(context, idRef.get());
             assertThat(workspaceItem, notNullValue());
 
+            // Fetch item and force initialization while session is still active
+            Item item = workspaceItem.getItem();
+            item.getID(); // Force Hibernate to initialize the proxy
+            // Pre-compute URI while session is active
+            String itemUri = uri(item);
+
             // Before adding author metadata, author should NOT be able to modify
             Operation addOperation = new AddOperation("/sections/publication/dc.contributor.author",
                                                       List.of(Map.of("value", "Test Author")));
@@ -7382,6 +7398,21 @@ public class WorkspaceItemRestRepositoryIT extends AbstractControllerIntegration
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.sections.publication['dc.title'][0].value",
                                     is("Title by author")));
+
+            getClient(getAuthToken(author.getEmail(), password))
+                .perform(get("/api/discover/search/objects")
+                             .param("configuration", "otherWorkspace"))
+                .andExpect(status().isOk());
+
+
+            getClient(getAuthToken(author.getEmail(), password))
+                .perform(get("/api/authz/authorizations/search/object")
+                             .param("uri", itemUri)
+                             .param("feature", "canEditItem")
+                             .param("embed", "feature"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$._embedded").exists())
+                .andExpect(jsonPath("$.page.totalElements", greaterThanOrEqualTo(1)));
 
         } finally {
             WorkspaceItemBuilder.deleteWorkspaceItem(idRef.get());
@@ -7665,6 +7696,102 @@ public class WorkspaceItemRestRepositoryIT extends AbstractControllerIntegration
         } finally {
             if (idRef.get() != null) {
                 WorkspaceItemBuilder.deleteWorkspaceItem(idRef.get());
+            }
+        }
+    }
+
+    @Test
+    public void testCollectionAdminCanAccessAllWorkspaceItemsInSharedSubmissions() throws Exception {
+        // Verify that collection admins can see ALL workspace items (not just shared ones) in shared submissions view
+        // This is expected behavior - admins have broader permissions via authorizeActionBoolean with checkAdmin=true
+        context.turnOffAuthorisationSystem();
+
+        EPerson submitter1 = EPersonBuilder.createEPerson(context)
+                                           .withEmail("submitter1@test.com")
+                                           .withPassword(password)
+                                           .build();
+
+        EPerson submitter2 = EPersonBuilder.createEPerson(context)
+                                           .withEmail("submitter2@test.com")
+                                           .withPassword(password)
+                                           .build();
+
+        parentCommunity = CommunityBuilder.createCommunity(context)
+                                       .withName("Parent Community")
+                                       .build();
+
+        // Collection WITHOUT shared workspace - submitter1 is admin
+        Collection nonSharedCol = CollectionBuilder.createCollection(context, parentCommunity)
+                                       .withName("Non-Shared Collection")
+                                       .withEntityType("Publication")
+                                       .withSubmitterGroup(submitter1, submitter2)
+                                       .withAdminGroup(submitter1)
+                                       .build();
+
+        // Collection WITH shared workspace
+        Collection sharedCol = CollectionBuilder.createCollection(context, parentCommunity)
+                                       .withName("Shared Collection")
+                                       .withEntityType("Publication")
+                                       .withSubmitterGroup(submitter1, submitter2)
+                                       .withSharedWorkspace()
+                                       .build();
+
+        context.restoreAuthSystemState();
+
+        AtomicReference<Integer> idRefNonShared = new AtomicReference<>();
+        AtomicReference<Integer> idRefShared = new AtomicReference<>();
+        try {
+            // Submitter2 creates a workspace item in NON-SHARED collection
+            getClient(getAuthToken(submitter2.getEmail(), password))
+                .perform(post("/api/submission/workspaceitems")
+                             .param("owningCollection", nonSharedCol.getID().toString())
+                             .contentType(org.springframework.http.MediaType.APPLICATION_JSON))
+                .andExpect(status().isCreated())
+                .andDo(result -> idRefNonShared.set(
+                    read(result.getResponse().getContentAsString(), "$.id")));
+
+            // Submitter2 creates a workspace item in SHARED collection
+            getClient(getAuthToken(submitter2.getEmail(), password))
+                .perform(post("/api/submission/workspaceitems")
+                             .param("owningCollection", sharedCol.getID().toString())
+                             .contentType(org.springframework.http.MediaType.APPLICATION_JSON))
+                .andExpect(status().isCreated())
+                .andDo(result -> idRefShared.set(
+                    read(result.getResponse().getContentAsString(), "$.id")));
+
+            // Submitter1 (collection admin of non-shared collection) can see BOTH workspace items
+            // This is expected behavior - admins have broader permissions
+            getClient(getAuthToken(submitter1.getEmail(), password))
+                .perform(get("/api/submission/workspaceitems/" + idRefNonShared.get()))
+                .andExpect(status().isOk());
+
+            getClient(getAuthToken(submitter1.getEmail(), password))
+                .perform(get("/api/submission/workspaceitems/" + idRefShared.get()))
+                .andExpect(status().isOk());
+
+            // Collection Admin can also EDIT both workspace items (expected behavior)
+            Operation addOperation = new AddOperation("/sections/publication/dc.title",
+                                                  List.of(Map.of("value", "Modified by admin")));
+            String patchBody = getPatchContent(List.of(addOperation));
+
+            getClient(getAuthToken(submitter1.getEmail(), password))
+                .perform(patch("/api/submission/workspaceitems/" + idRefNonShared.get())
+                             .content(patchBody)
+                             .contentType(MediaType.APPLICATION_JSON_PATCH_JSON))
+                .andExpect(status().isOk());
+
+            getClient(getAuthToken(submitter1.getEmail(), password))
+                .perform(patch("/api/submission/workspaceitems/" + idRefShared.get())
+                             .content(patchBody)
+                             .contentType(MediaType.APPLICATION_JSON_PATCH_JSON))
+                .andExpect(status().isOk());
+
+        } finally {
+            if (idRefNonShared.get() != null) {
+                WorkspaceItemBuilder.deleteWorkspaceItem(idRefNonShared.get());
+            }
+            if (idRefShared.get() != null) {
+                WorkspaceItemBuilder.deleteWorkspaceItem(idRefShared.get());
             }
         }
     }
@@ -12449,6 +12576,11 @@ public class WorkspaceItemRestRepositoryIT extends AbstractControllerIntegration
         } finally {
             WorkspaceItemBuilder.deleteWorkspaceItem(idRef.get());
         }
+    }
+
+    private String uri(Item item) {
+        ItemRest itemRest = itemConverter.convert(item, Projection.DEFAULT);
+        return utils.linkToSingleResource(itemRest, "self").getHref();
     }
 
 }
