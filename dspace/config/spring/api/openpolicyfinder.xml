@@ -18,7 +18,7 @@
 				<bean class="org.dspace.app.openpolicyfinder.submit.MetadataValueISSNExtractor">
 					<property name="metadataList">
 						<list>
-							<value>creativeworkseries.issn</value>
+							<value>dc.relation.issn</value>
 						</list>
 					</property>
 				</bean>
