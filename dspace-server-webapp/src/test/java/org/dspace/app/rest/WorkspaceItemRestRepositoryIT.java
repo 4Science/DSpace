@@ -10594,7 +10594,7 @@ public class WorkspaceItemRestRepositoryIT extends AbstractControllerIntegration
     }
 
     @Test
-    public void sherpaPolicySectionCacheTest() throws Exception {
+    public void opfPolicySectionCacheTest() throws Exception {
         context.turnOffAuthorisationSystem();
 
         parentCommunity = CommunityBuilder.createCommunity(context)
@@ -10620,15 +10620,15 @@ public class WorkspaceItemRestRepositoryIT extends AbstractControllerIntegration
         getClient(token).perform(get("/api/submission/workspaceitems/" + witem.getID()))
                         .andExpect(status().isOk())
                         .andExpect(jsonPath("$", Matchers.allOf(
-                            hasJsonPath("$.sections.sherpaPolicies.sherpaResponse.error", is(false)))))
+                            hasJsonPath("$.sections.opfPolicies.opfResponse.error", is(false)))))
                         .andExpect(jsonPath("$", Matchers.allOf(
-                            hasJsonPath("$.sections.sherpaPolicies.sherpaResponse.journals[0].titles[0]",
+                            hasJsonPath("$.sections.opfPolicies.opfResponse.journals[0].titles[0]",
                                         is("Nature Synthesis")))))
                         .andExpect(jsonPath("$", Matchers.allOf(
-                            hasJsonPath("$.sections.sherpaPolicies.sherpaResponse.journals[0].issns[0]",
+                            hasJsonPath("$.sections.opfPolicies.opfResponse.journals[0].issns[0]",
                                         is("2731-0582")))))
                         .andDo(result -> retrievalTime.set(read(
-                            result.getResponse().getContentAsString(), "$.sections.sherpaPolicies.retrievalTime")));
+                            result.getResponse().getContentAsString(), "$.sections.opfPolicies.retrievalTime")));
 
         Instant date = Instant.parse(retrievalTime.get());
 
@@ -10636,15 +10636,15 @@ public class WorkspaceItemRestRepositoryIT extends AbstractControllerIntegration
         getClient(token).perform(get("/api/submission/workspaceitems/" + witem.getID()))
                         .andExpect(status().isOk())
                         .andExpect(jsonPath("$", Matchers.allOf(
-                            hasJsonPath("$.sections.sherpaPolicies.sherpaResponse.error", is(false)))))
+                            hasJsonPath("$.sections.opfPolicies.opfResponse.error", is(false)))))
                         .andExpect(jsonPath("$", Matchers.allOf(
-                            hasJsonPath("$.sections.sherpaPolicies.sherpaResponse.journals[0].titles[0]",
+                            hasJsonPath("$.sections.opfPolicies.opfResponse.journals[0].titles[0]",
                                         is("Nature Synthesis")))))
                         .andExpect(jsonPath("$", Matchers.allOf(
-                            hasJsonPath("$.sections.sherpaPolicies.sherpaResponse.journals[0].issns[0]",
+                            hasJsonPath("$.sections.opfPolicies.opfResponse.journals[0].issns[0]",
                                         is("2731-0582")))))
                         .andDo(result -> retrievalTime2.set(read(
-                            result.getResponse().getContentAsString(), "$.sections.sherpaPolicies.retrievalTime")));
+                            result.getResponse().getContentAsString(), "$.sections.opfPolicies.retrievalTime")));
 
         Instant date2 = Instant.parse(retrievalTime2.get());
 
@@ -10652,7 +10652,7 @@ public class WorkspaceItemRestRepositoryIT extends AbstractControllerIntegration
 
         // create a list of values to use in add operation
         List<Operation> operations = new ArrayList<>();
-        operations.add(new RemoveOperation("/sections/sherpaPolicies/retrievalTime"));
+        operations.add(new RemoveOperation("/sections/opfPolicies/retrievalTime"));
 
         // empty the cache and verify the retrivatTime
         String patchBody = getPatchContent(operations);
@@ -10661,15 +10661,15 @@ public class WorkspaceItemRestRepositoryIT extends AbstractControllerIntegration
                                      .contentType(MediaType.APPLICATION_JSON_PATCH_JSON))
                         .andExpect(status().isOk())
                         .andExpect(jsonPath("$", Matchers.allOf(
-                            hasJsonPath("$.sections.sherpaPolicies.sherpaResponse.error", is(false)))))
+                            hasJsonPath("$.sections.opfPolicies.opfResponse.error", is(false)))))
                         .andExpect(jsonPath("$", Matchers.allOf(
-                            hasJsonPath("$.sections.sherpaPolicies.sherpaResponse.journals[0].titles[0]",
+                            hasJsonPath("$.sections.opfPolicies.opfResponse.journals[0].titles[0]",
                                         is("Nature Synthesis")))))
                         .andExpect(jsonPath("$", Matchers.allOf(
-                            hasJsonPath("$.sections.sherpaPolicies.sherpaResponse.journals[0].issns[0]",
+                            hasJsonPath("$.sections.opfPolicies.opfResponse.journals[0].issns[0]",
                                         is("2731-0582")))))
                         .andDo(result -> retrievalTime.set(read(
-                            result.getResponse().getContentAsString(), "$.sections.sherpaPolicies.retrievalTime")));
+                            result.getResponse().getContentAsString(), "$.sections.opfPolicies.retrievalTime")));
 
         date = Instant.parse(retrievalTime.get());
 
@@ -10679,22 +10679,22 @@ public class WorkspaceItemRestRepositoryIT extends AbstractControllerIntegration
         getClient(token).perform(get("/api/submission/workspaceitems/" + witem.getID()))
                         .andExpect(status().isOk())
                         .andExpect(jsonPath("$", Matchers.allOf(
-                            hasJsonPath("$.sections.sherpaPolicies.sherpaResponse.error", is(false)))))
+                            hasJsonPath("$.sections.opfPolicies.opfResponse.error", is(false)))))
                         .andExpect(jsonPath("$", Matchers.allOf(
-                            hasJsonPath("$.sections.sherpaPolicies.sherpaResponse.journals[0].titles[0]",
+                            hasJsonPath("$.sections.opfPolicies.opfResponse.journals[0].titles[0]",
                                         is("Nature Synthesis")))))
                         .andExpect(jsonPath("$", Matchers.allOf(
-                            hasJsonPath("$.sections.sherpaPolicies.sherpaResponse.journals[0].issns[0]",
+                            hasJsonPath("$.sections.opfPolicies.opfResponse.journals[0].issns[0]",
                                         is("2731-0582")))))
                         .andDo(result -> retrievalTime2.set(read(
-                            result.getResponse().getContentAsString(), "$.sections.sherpaPolicies.retrievalTime")));
+                            result.getResponse().getContentAsString(), "$.sections.opfPolicies.retrievalTime")));
 
         date2 = Instant.parse(retrievalTime2.get());
         assertEquals(date, date2);
     }
 
     @Test
-    public void sherpaPolicySectionWithWrongIssnCacheTest() throws Exception {
+    public void opfPolicySectionWithWrongIssnCacheTest() throws Exception {
         context.turnOffAuthorisationSystem();
 
         parentCommunity = CommunityBuilder.createCommunity(context)
@@ -10720,13 +10720,13 @@ public class WorkspaceItemRestRepositoryIT extends AbstractControllerIntegration
         getClient(token).perform(get("/api/submission/workspaceitems/" + witem.getID()))
                         .andExpect(status().isOk())
                         .andExpect(jsonPath("$", Matchers.allOf(
-                            hasJsonPath("$.sections.sherpaPolicies.sherpaResponse.error", is(true)))))
+                            hasJsonPath("$.sections.opfPolicies.opfResponse.error", is(true)))))
                         .andExpect(jsonPath("$", Matchers.allOf(
-                            hasJsonPath("$.sections.sherpaPolicies.sherpaResponse.message", is("No results found")))))
+                            hasJsonPath("$.sections.opfPolicies.opfResponse.message", is("No results found")))))
                         .andExpect(jsonPath("$", Matchers.allOf(
-                            hasJsonPath("$.sections.sherpaPolicies.sherpaResponse.journals", nullValue()))))
+                            hasJsonPath("$.sections.opfPolicies.opfResponse.journals", nullValue()))))
                         .andDo(result -> retrievalTime.set(read(
-                            result.getResponse().getContentAsString(), "$.sections.sherpaPolicies.retrievalTime")));
+                            result.getResponse().getContentAsString(), "$.sections.opfPolicies.retrievalTime")));
 
         Instant date = Instant.parse(retrievalTime.get());
 
@@ -10734,13 +10734,13 @@ public class WorkspaceItemRestRepositoryIT extends AbstractControllerIntegration
         getClient(token).perform(get("/api/submission/workspaceitems/" + witem.getID()))
                         .andExpect(status().isOk())
                         .andExpect(jsonPath("$", Matchers.allOf(
-                            hasJsonPath("$.sections.sherpaPolicies.sherpaResponse.error", is(true)))))
+                            hasJsonPath("$.sections.opfPolicies.opfResponse.error", is(true)))))
                         .andExpect(jsonPath("$", Matchers.allOf(
-                            hasJsonPath("$.sections.sherpaPolicies.sherpaResponse.message", is("No results found")))))
+                            hasJsonPath("$.sections.opfPolicies.opfResponse.message", is("No results found")))))
                         .andExpect(jsonPath("$", Matchers.allOf(
-                            hasJsonPath("$.sections.sherpaPolicies.sherpaResponse.journals", nullValue()))))
+                            hasJsonPath("$.sections.opfPolicies.opfResponse.journals", nullValue()))))
                         .andDo(result -> retrievalTime2.set(read(
-                            result.getResponse().getContentAsString(), "$.sections.sherpaPolicies.retrievalTime")));
+                            result.getResponse().getContentAsString(), "$.sections.opfPolicies.retrievalTime")));
 
         Instant date2 = Instant.parse(retrievalTime2.get());
 
@@ -10748,7 +10748,7 @@ public class WorkspaceItemRestRepositoryIT extends AbstractControllerIntegration
 
         // create a list of values to use in add operation
         List<Operation> operations = new ArrayList<>();
-        operations.add(new RemoveOperation("/sections/sherpaPolicies/retrievalTime"));
+        operations.add(new RemoveOperation("/sections/opfPolicies/retrievalTime"));
 
         // empty the cache and verify the retrivatTime
         String patchBody = getPatchContent(operations);
@@ -10757,13 +10757,13 @@ public class WorkspaceItemRestRepositoryIT extends AbstractControllerIntegration
                                      .contentType(MediaType.APPLICATION_JSON_PATCH_JSON))
                         .andExpect(status().isOk())
                         .andExpect(jsonPath("$", Matchers.allOf(
-                            hasJsonPath("$.sections.sherpaPolicies.sherpaResponse.error", is(true)))))
+                            hasJsonPath("$.sections.opfPolicies.opfResponse.error", is(true)))))
                         .andExpect(jsonPath("$", Matchers.allOf(
-                            hasJsonPath("$.sections.sherpaPolicies.sherpaResponse.message", is("No results found")))))
+                            hasJsonPath("$.sections.opfPolicies.opfResponse.message", is("No results found")))))
                         .andExpect(jsonPath("$", Matchers.allOf(
-                            hasJsonPath("$.sections.sherpaPolicies.sherpaResponse.journals", nullValue()))))
+                            hasJsonPath("$.sections.opfPolicies.opfResponse.journals", nullValue()))))
                         .andDo(result -> retrievalTime.set(read(
-                            result.getResponse().getContentAsString(), "$.sections.sherpaPolicies.retrievalTime")));
+                            result.getResponse().getContentAsString(), "$.sections.opfPolicies.retrievalTime")));
 
         date = Instant.parse(retrievalTime.get());
 
@@ -10773,13 +10773,13 @@ public class WorkspaceItemRestRepositoryIT extends AbstractControllerIntegration
         getClient(token).perform(get("/api/submission/workspaceitems/" + witem.getID()))
                         .andExpect(status().isOk())
                         .andExpect(jsonPath("$", Matchers.allOf(
-                            hasJsonPath("$.sections.sherpaPolicies.sherpaResponse.error", is(true)))))
+                            hasJsonPath("$.sections.opfPolicies.opfResponse.error", is(true)))))
                         .andExpect(jsonPath("$", Matchers.allOf(
-                            hasJsonPath("$.sections.sherpaPolicies.sherpaResponse.message", is("No results found")))))
+                            hasJsonPath("$.sections.opfPolicies.opfResponse.message", is("No results found")))))
                         .andExpect(jsonPath("$", Matchers.allOf(
-                            hasJsonPath("$.sections.sherpaPolicies.sherpaResponse.journals", nullValue()))))
+                            hasJsonPath("$.sections.opfPolicies.opfResponse.journals", nullValue()))))
                         .andDo(result -> retrievalTime2.set(read(
-                            result.getResponse().getContentAsString(), "$.sections.sherpaPolicies.retrievalTime")));
+                            result.getResponse().getContentAsString(), "$.sections.opfPolicies.retrievalTime")));
 
         date2 = Instant.parse(retrievalTime2.get());
         assertEquals(date, date2);
