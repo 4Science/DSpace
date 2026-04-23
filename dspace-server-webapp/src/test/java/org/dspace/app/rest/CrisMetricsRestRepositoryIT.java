@@ -496,5 +496,4 @@ public class CrisMetricsRestRepositoryIT extends AbstractControllerIntegrationTe
         getClient(tokenAdmin).perform(delete("/api/core/items/" + itemA.getID())).andExpect(status().isNoContent());
         getClient(tokenAdmin).perform(get("/api/core/items/" + itemA.getID())).andExpect(status().isNotFound());
     }
-
 }
