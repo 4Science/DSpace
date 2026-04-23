@@ -110,6 +110,13 @@ public class UpdateScopusMetrics extends MetricsExternalServices {
                             .filter(BooleanUtils::isTrue)
                             .count();
                 apiCalls++;
+                itemList.stream().forEach(item -> {
+                    try {
+                        context.uncacheEntity(item);
+                    } catch (Exception e) {
+                        logAndCacheError("cannot remove the item from the context cache", e);
+                    }
+                });
                 context.commit();
             }
         } catch (SQLException e) {
@@ -222,7 +229,7 @@ public class UpdateScopusMetrics extends MetricsExternalServices {
             Double deltaPeriod1 = getDeltaPeriod(scopusMetric, metricLastWeek);
             Double deltaPeriod2 = getDeltaPeriod(scopusMetric, metricLastMonth);
 
-            createNewScopusMetrics(context,currentItem, scopusMetric, deltaPeriod1, deltaPeriod2);
+            createNewScopusMetrics(context, currentItem, scopusMetric, deltaPeriod1, deltaPeriod2);
         } catch (SQLException | AuthorizeException e) {
             logsCache.add(e.getMessage());
             log.error(e.getMessage(), e);

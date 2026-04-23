@@ -71,10 +71,6 @@ public class ZDBAuthorityIT extends AbstractControllerIntegrationTest {
 
     @Before
     public void setup() throws IOException {
-
-        this.configurationService.setProperty("cris.zdb.search.url", null);
-        this.configurationService.setProperty("cris.zdb.detail.url", null);
-
         zdbService = Mockito.mock(ZDBService.class);
 
         // Create factory with mocked service - generators will be loaded from ServiceManager
