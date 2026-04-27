@@ -122,9 +122,16 @@ public class CrisItemMetricsServiceImpl implements CrisItemMetricsService {
             }
         }
         if (StringUtils.startsWith(metricId, STORED_METRIC_ID_PREFIX)) {
-            CrisMetrics crisMetrics = crisMetricsService.find(context,
-                    Integer.parseInt(metricId.substring(STORED_METRIC_ID_PREFIX.length())));
-            if (checkPermissionsOfMetricsByBox(context, itemFromMetricId(context, metricId), crisMetrics)) {
+            CrisMetrics crisMetrics = null;
+            try {
+                crisMetrics = crisMetricsService.find(context,
+                        Integer.parseInt(metricId.substring(STORED_METRIC_ID_PREFIX.length())));
+            } catch (NumberFormatException e) {
+                log.warn("Invalid metric ID format: " + metricId);
+                return null;
+            }
+            if (crisMetrics != null &&
+                    checkPermissionsOfMetricsByBox(context, itemFromMetricId(context, metricId), crisMetrics)) {
                 return crisMetrics;
             }
             return null;
@@ -226,9 +233,15 @@ public class CrisItemMetricsServiceImpl implements CrisItemMetricsService {
             }
 
         } else {
-            CrisMetrics crisMetrics = crisMetricsService.find(context,
-                    Integer.parseInt(target.substring(STORED_METRIC_ID_PREFIX.length())));
-            return crisMetrics != null ? itemService.find(context, crisMetrics.getResource().getID()) : null;
+            CrisMetrics crisMetrics = null;
+            try {
+                crisMetrics = crisMetricsService.find(context,
+                        Integer.parseInt(target.substring(STORED_METRIC_ID_PREFIX.length())));
+            } catch (NumberFormatException e) {
+                log.warn("Invalid metric ID format: " + target);
+                return null;
+            }
+            return crisMetrics != null ? itemService.find(context, crisMetrics.getResource()) : null;
         }
     }
 }
