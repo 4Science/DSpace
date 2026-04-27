@@ -377,7 +377,7 @@
             </exclusions>
         </dependency>
         <!-- https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-cache
-             Caching dependencies for sherpa service. -->
+             Caching dependencies for Open Policy Finder service. -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-cache</artifactId>
@@ -933,7 +933,6 @@
             <version>1.19.0</version>
             <scope>test</scope>
         </dependency>
-
         <!-- Used for Solr core export/import -->
         <dependency>
             <groupId>com.opencsv</groupId>
