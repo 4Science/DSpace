@@ -141,7 +141,7 @@ public class UpdateCrisMetricsWithExternalSource extends
         Iterator<Item> itemsSortedByLastImport = findItemsSortedByLastImport(service);
 
         Iterator<Item> chainedIterator = chainedIterator(itemsWithoutLastImport, itemsSortedByLastImport);
-        return IteratorUtils.boundedIterator(chainedIterator, limit);
+        return IteratorUtils.boundedIterator(chainedIterator, service.getFetchSize() * limit);
 
     }
 
@@ -210,7 +210,7 @@ public class UpdateCrisMetricsWithExternalSource extends
             }
 
             metricsServices.setLastImportMetadataValue(context, item);
-
+            context.uncacheEntity(item);
             count++;
             if (count == 20) {
                 context.commit();

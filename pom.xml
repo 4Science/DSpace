@@ -4,7 +4,7 @@
     <groupId>org.dspace</groupId>
     <artifactId>dspace-parent</artifactId>
     <packaging>pom</packaging>
-    <version>cris-2025.02.00-SNAPSHOT</version>
+    <version>cris-2025.02.01-SNAPSHOT</version>
     <name>DSpace Parent Project</name>
     <description>
    	DSpace-CRIS is an open source extension of DSpace (http://www.dspace.org) providing out of box support for the CRIS / RIMS and moder Institution Repository use cases with advanced features and optimized configurations
@@ -18,7 +18,7 @@
 
     <properties>
         <!--=== GENERAL / DSPACE-API DEPENDENCIES ===-->
-        <java.version>17</java.version>
+        <java.version>21</java.version>
         <spring.version>6.2.14</spring.version>
         <spring-boot.version>3.5.8</spring-boot.version>
         <spring-security.version>6.5.7</spring-security.version> <!-- sync with version used by spring-boot-->
@@ -69,12 +69,13 @@
         <!-- JClouds is used by dspace-api -->
         <jclouds.version>2.7.0</jclouds.version>
 
-        <s3mock-testcontainers.version>4.10.0</s3mock-testcontainers.version>
+        <s3mock-testcontainers.version>4.11.0</s3mock-testcontainers.version>
+        <testcontainers.version>2.0.3</testcontainers.version>
         <software.amazon.awssdk.version>2.32.31</software.amazon.awssdk.version>
         <software.amazon.awssdk.crt.version>0.38.12</software.amazon.awssdk.crt.version>
 
         <!--=== ADDON DEPENDENCIES ===-->
-        <addons.version>[cris-2025.01.00-SNAPSHOT,cris-2025.01.00.9999-SNAPSHOT)</addons.version>
+        <addons.version>[cris-2025.02.01-SNAPSHOT,cris-2025.02.01.9999-SNAPSHOT)</addons.version>
         <addon-iiif.version>${addons.version}</addon-iiif.version>
         <addon-ocr.version>${addons.version}</addon-ocr.version>
         <addon-docviewer.version>${addons.version}</addon-docviewer.version>
@@ -1312,73 +1313,73 @@
             <dependency>
                 <groupId>org.dspace</groupId>
                 <artifactId>dspace-api</artifactId>
-                <version>cris-2025.02.00-SNAPSHOT</version>
+                <version>cris-2025.02.01-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>org.dspace</groupId>
                 <artifactId>dspace-api</artifactId>
                 <type>test-jar</type>
-                <version>cris-2025.02.00-SNAPSHOT</version>
+                <version>cris-2025.02.01-SNAPSHOT</version>
                 <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>org.dspace.modules</groupId>
                 <artifactId>additions</artifactId>
-                <version>cris-2025.02.00-SNAPSHOT</version>
+                <version>cris-2025.02.01-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>org.dspace.modules</groupId>
                 <artifactId>server</artifactId>
                 <classifier>classes</classifier>
-                <version>cris-2025.02.00-SNAPSHOT</version>
+                <version>cris-2025.02.01-SNAPSHOT</version>
             </dependency>
 
             <dependency>
                 <groupId>org.dspace</groupId>
                 <artifactId>dspace-sword</artifactId>
-                <version>cris-2025.02.00-SNAPSHOT</version>
+                <version>cris-2025.02.01-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>org.dspace</groupId>
                 <artifactId>dspace-swordv2</artifactId>
-                <version>cris-2025.02.00-SNAPSHOT</version>
+                <version>cris-2025.02.01-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>org.dspace</groupId>
                 <artifactId>dspace-oai</artifactId>
-                <version>cris-2025.02.00-SNAPSHOT</version>
+                <version>cris-2025.02.01-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>org.dspace</groupId>
                 <artifactId>dspace-services</artifactId>
-                <version>cris-2025.02.00-SNAPSHOT</version>
+                <version>cris-2025.02.01-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>org.dspace</groupId>
                 <artifactId>dspace-server-webapp</artifactId>
                 <type>test-jar</type>
-                <version>cris-2025.02.00-SNAPSHOT</version>
+                <version>cris-2025.02.01-SNAPSHOT</version>
                 <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>org.dspace</groupId>
                 <artifactId>dspace-rdf</artifactId>
-                <version>cris-2025.02.00-SNAPSHOT</version>
+                <version>cris-2025.02.01-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>org.dspace</groupId>
                 <artifactId>dspace-saml2</artifactId>
-                <version>cris-2025.02.00-SNAPSHOT</version>
+                <version>cris-2025.02.01-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>org.dspace</groupId>
                 <artifactId>dspace-iiif</artifactId>
-                <version>cris-2025.02.00-SNAPSHOT</version>
+                <version>cris-2025.02.01-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>org.dspace</groupId>
                 <artifactId>dspace-server-webapp</artifactId>
-                <version>cris-2025.02.00-SNAPSHOT</version>
+                <version>cris-2025.02.01-SNAPSHOT</version>
             </dependency>
             <!-- DSpace API Localization Packages -->
             <dependency>
@@ -1561,6 +1562,10 @@
                     <exclusion>
                         <groupId>org.mockito</groupId>
                         <artifactId>mockito-core</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.springframework</groupId>
+                        <artifactId>spring-jcl</artifactId>
                     </exclusion>
                 </exclusions>
             </dependency>
@@ -2088,10 +2093,11 @@
                 <version>4.13.2</version>
                 <scope>test</scope>
             </dependency>
+            <!-- Mockito 5.x is required for Java 21 compatibility (mockito-inline is now merged into mockito-core) -->
             <dependency>
                 <groupId>org.mockito</groupId>
-                <artifactId>mockito-inline</artifactId>
-                <version>3.12.4</version>
+                <artifactId>mockito-core</artifactId>
+                <version>5.21.0</version>
                 <scope>test</scope>
             </dependency>
             <!-- H2 is an in-memory database used for Unit/Integration tests -->
@@ -2220,6 +2226,15 @@
                 <groupId>net.minidev</groupId>
                 <artifactId>json-smart</artifactId>
                 <version>${json-smart.version}</version>
+            </dependency>
+            <!-- Override version of testcontainers that is used by s3mock-testcontainers dependency above.
+            TODO: This works around a bug with testcontainers 2.0.2. It may be possible to remove this testcontainers
+            dependency (and the exclusion above) after the next upgrade of s3mock-testcontainers. -->
+            <dependency>
+                <groupId>org.testcontainers</groupId>
+                <artifactId>testcontainers</artifactId>
+                <version>${testcontainers.version}</version>
+                <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>com.adobe.testing</groupId>
