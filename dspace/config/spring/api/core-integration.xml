@@ -17,11 +17,11 @@
               key-type="org.dspace.importer.external.metadatamapping.MetadataFieldConfig"
               value-type="org.dspace.importer.external.metadatamapping.contributor.MetadataContributor">
         <description>
-            Temporary CORE mapping. Defines which CORE field is mapped to which DSpace metadata field.
+            CORE mapping. Defines which CORE field is mapped to which metadata field.
         </description>
 
         <entry key-ref="core.title"     value-ref="coreTitleContrib"/>
-        <entry key-ref="core.author"   value-ref="coreAuthorContrib"/>
+        <entry key-ref="core.author"    value-ref="coreAuthorContrib"/>
         <entry key-ref="core.year"      value-ref="coreYearContrib"/>
         <entry key-ref="core.doi"       value-ref="coreDoiContrib"/>
         <entry key-ref="core.id"        value-ref="coreIdContrib"/>
@@ -117,11 +117,6 @@
 
     <bean id="core.url" class="org.dspace.importer.external.metadatamapping.MetadataFieldConfig">
         <constructor-arg value="dc.identifier.uri"/>
-    </bean>
-
-
-    <bean class="java.lang.Integer" id="coreMaxRetry">
-        <constructor-arg value="3"/>
     </bean>
 
 </beans>
