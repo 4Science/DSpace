@@ -754,7 +754,7 @@ public class CurationScriptIT extends AbstractControllerIntegrationTest {
         // field that should be ignored
         assertFalse(checkIfInfoTextLoggedByHandler(handler, "demo.dspace.org/home"));
         // redirect links in field that should not be ignored (https) => expect OK
-        assertTrue(checkIfInfoTextLoggedByHandler(handler, "https://demo7.dspace.org/handle/123456789/1 = 200 - OK"));
+        assertTrue(checkIfInfoTextLoggedByHandler(handler, "https://demo7.dspace.org/handle/123456789/1 = 202 - OK"));
         // regular link in field that should not be ignored (http) => expect OK
         assertTrue(checkIfInfoTextLoggedByHandler(handler, "https://google.com = 200 - OK"));
         // nonexistent link in field that should not be ignored => expect 404
