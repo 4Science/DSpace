@@ -1,0 +1,170 @@
+{
+  "totalHits": 2,
+  "limit": 10,
+  "offset": 0,
+  "results": [
+    {
+      "acceptedDate": "2020-04-27T00:00:00",
+      "arxivId": null,
+      "authors": [
+        {
+          "name": "Gaze, D.C."
+        },
+        {
+          "name": "Gaze, D.C."
+        }
+      ],
+      "citationCount": 0,
+      "contributors": [],
+      "outputs": [
+        "https://api.core.ac.uk/v3/outputs/305119246"
+      ],
+      "createdDate": "2020-04-29T08:48:51",
+      "dataProviders": [
+        {
+          "id": 138,
+          "name": "",
+          "url": "https://api.core.ac.uk/v3/data-providers/138",
+          "logo": "https://api.core.ac.uk/data-providers/138/logo"
+        }
+      ],
+      "depositedDate": "2020-04-16T00:00:00",
+      "abstract": "The novel coronavirus SARS-CoV-2 causes the disease COVID-19, a severe acute respiratory syndrome.",
+      "documentType": "research",
+      "doi": "10.1177/0004563220921888",
+      "downloadUrl": "https://core.ac.uk/download/305119246.pdf",
+      "fieldOfStudy": null,
+      "fullText": "Not available for public API users.",
+      "id": 8387107,
+      "identifiers": [
+        {
+          "identifier": "305119246",
+          "type": "CORE_ID"
+        },
+        {
+          "identifier": "10.1177/0004563220921888",
+          "type": "DOI"
+        },
+        {
+          "identifier": "oai:westminsterresearch.westminster.ac.uk:qz19x",
+          "type": "OAI_ID"
+        }
+      ],
+      "title": "Clinical utility of cardiac troponin measurement in COVID-19 infection",
+      "language": {
+        "code": "en",
+        "name": "English"
+      },
+      "magId": null,
+      "oaiIds": [
+        "oai:westminsterresearch.westminster.ac.uk:qz19x"
+      ],
+      "publishedDate": "2020-01-01T00:00:00",
+      "publisher": "'SAGE Publications'",
+      "pubmedId": null,
+      "references": [],
+      "sourceFulltextUrls": [
+        "https://westminsterresearch.westminster.ac.uk/download/ff4e63b36124f4a39226602d0c700e8012edde2678ea7929dea3820f28881f01/862859/0004563220921888.pdf"
+      ],
+      "updatedDate": "2022-04-06T06:15:57",
+      "yearPublished": 2020,
+      "journals": [],
+      "links": [
+        {
+          "type": "download",
+          "url": "https://core.ac.uk/download/305119246.pdf"
+        },
+        {
+          "type": "reader",
+          "url": "https://core.ac.uk/reader/305119246"
+        },
+        {
+          "type": "thumbnail_m",
+          "url": "https://core.ac.uk/image/305119246/large"
+        },
+        {
+          "type": "thumbnail_l",
+          "url": "https://core.ac.uk/image/305119246/large"
+        },
+        {
+          "type": "display",
+          "url": "https://core.ac.uk/works/8387107"
+        }
+      ]
+    },
+    {
+      "acceptedDate": "",
+      "arxivId": null,
+      "authors": [
+        {
+          "name": "David C Gaze"
+        }
+      ],
+      "citationCount": 0,
+      "contributors": [],
+      "outputs": [
+        "https://api.core.ac.uk/v3/outputs/1023200206"
+      ],
+      "createdDate": "2025-03-09T04:12:29",
+      "dataProviders": [
+        {
+          "id": 4786,
+          "name": "",
+          "url": "https://api.core.ac.uk/v3/data-providers/4786",
+          "logo": "https://api.core.ac.uk/data-providers/4786/logo"
+        }
+      ],
+      "depositedDate": "",
+      "abstract": " The novel coronavirus SARS-CoV-2 causes the disease COVID-19, a severe acute respiratory syndrome.",
+      "doi": "10.1177/0004563220921888",
+      "downloadUrl": "",
+      "fieldOfStudy": null,
+      "fullText": null,
+      "id": 246897624,
+      "identifiers": [
+        {
+          "identifier": "1023200206",
+          "type": "CORE_ID"
+        },
+        {
+          "identifier": "info:doi/10.1177%2f0004563220921888",
+          "type": "OAI_ID"
+        },
+        {
+          "identifier": "10.1177/0004563220921888",
+          "type": "DOI"
+        }
+      ],
+      "title": "Clinical utility of cardiac troponin measurement in COVID-19 infection",
+      "magId": null,
+      "oaiIds": [
+        "info:doi/10.1177%2f0004563220921888"
+      ],
+      "publishedDate": "2020-04-27T01:00:00",
+      "publisher": "SAGE Publications",
+      "pubmedId": null,
+      "references": [],
+      "sourceFulltextUrls": [
+        "http://dx.doi.org/10.1177/0004563220921888"
+      ],
+      "updatedDate": "2025-03-09T04:12:29",
+      "yearPublished": 2020,
+      "journals": [
+        {
+          "title": "Annals of Clinical Biochemistry International Journal of Laboratory Medicine",
+          "identifiers": [
+            "1758-1001",
+            "0004-5632"
+          ]
+        }
+      ],
+      "links": [
+        {
+          "type": "display",
+          "url": "https://core.ac.uk/works/246897624"
+        }
+      ]
+    }
+  ],
+  "searchId": "659bd85c17a7bc9907b5a7c27cc92270"
+}

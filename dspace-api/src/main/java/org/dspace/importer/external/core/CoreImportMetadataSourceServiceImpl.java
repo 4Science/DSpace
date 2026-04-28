@@ -20,7 +20,6 @@ import javax.el.MethodNotFoundException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -35,12 +34,16 @@ import org.dspace.importer.external.service.components.QuerySource;
 import org.dspace.services.ConfigurationService;
 import org.springframework.beans.factory.annotation.Autowired;
 
-
-public class CoreImportMetadataSourceServiceImpl
-        extends AbstractImportMetadataSourceService<String>
+/**
+ * Live import provider for the CORE aggregator (https://core.ac.uk).
+ * Uses CORE API v3 to search and retrieve scholarly works.
+ */
+public class CoreImportMetadataSourceServiceImpl extends AbstractImportMetadataSourceService<String>
         implements QuerySource {
 
     private static final Logger log = LogManager.getLogger(CoreImportMetadataSourceServiceImpl.class);
+
+    private static final ObjectMapper objectMapper = new ObjectMapper();
 
     @Autowired
     private LiveImportClient liveImportClient;
@@ -70,14 +73,12 @@ public class CoreImportMetadataSourceServiceImpl
 
     @Override
     public ImportRecord getRecord(String recordId) throws MetadataSourceException {
-        List<ImportRecord> records = retry(new GetByIdCallable(recordId));
-        return CollectionUtils.isEmpty(records) ? null : records.get(0);
+        return retry(new GetByIdCallable(recordId));
     }
 
     @Override
     public ImportRecord getRecord(Query query) throws MetadataSourceException {
-        List<ImportRecord> records = retry(new GetByIdCallable(query));
-        return CollectionUtils.isEmpty(records) ? null : records.get(0);
+        return retry(new GetByIdCallable(query));
     }
 
     @Override
@@ -100,11 +101,19 @@ public class CoreImportMetadataSourceServiceImpl
         throw new MethodNotFoundException("This method is not implemented for CORE");
     }
 
-    public String getID(String query) {
+    /**
+     * If the query is a DOI, converts it to CORE search format: doi:"10.1234/example".
+     * Returns empty string if not a DOI.
+     *
+     * @param query the search query
+     * @return DOI in CORE search format, or empty string
+     */
+    private String getID(String query) {
         if (StringUtils.isBlank(query)) {
             return StringUtils.EMPTY;
         }
         String q = query;
+        // Handle double URL-encoded slash: %252F -> /
         if (q.contains("%252F")) {
             q = q.replace("%252F", "/");
         }
@@ -115,7 +124,7 @@ public class CoreImportMetadataSourceServiceImpl
     }
 
     private int getTimeoutMs() {
-        return configurationService.getIntProperty("core.timeout", 180000);
+        return configurationService.getIntProperty("core.timeout", 30000);
     }
 
     private int getDefaultPageSize() {
@@ -124,14 +133,6 @@ public class CoreImportMetadataSourceServiceImpl
 
     private String getBaseUrl() {
         return configurationService.getProperty("core.api.url", "https://api.core.ac.uk/v3");
-    }
-
-    private String getWorksSearchPath() {
-        return configurationService.getProperty("core.api.search.works", "/search/works");
-    }
-
-    private String getWorksByIdPath() {
-        return configurationService.getProperty("core.api.works.byId", "/works");
     }
 
     private String getApiKey() {
@@ -161,24 +162,11 @@ public class CoreImportMetadataSourceServiceImpl
     }
 
     private String buildWorksSearchUrl() {
-        String baseUrl = getBaseUrl();
-        String searchPath = getWorksSearchPath();
-
-        String url = baseUrl.endsWith("/") ? baseUrl.substring(0, baseUrl.length() - 1) : baseUrl;
-        String path = searchPath.startsWith("/") ? searchPath : "/" + searchPath;
-        return url + path;
+        return getBaseUrl() + "/search/works";
     }
 
     private String buildWorkByIdUrl(String identifier) {
-        String baseUrl = getBaseUrl();
-        String worksByIdPath = getWorksByIdPath();
-
-        String url = baseUrl.endsWith("/") ? baseUrl.substring(0, baseUrl.length() - 1) : baseUrl;
-
-        String path = StringUtils.defaultIfBlank(worksByIdPath, "/works");
-        path = path.startsWith("/") ? path : "/" + path;
-
-        return url + path + "/" + encodePathSegment(identifier);
+        return getBaseUrl() + "/works/" + encodePathSegment(identifier);
     }
 
     private String encodePathSegment(String segment) {
@@ -206,7 +194,7 @@ public class CoreImportMetadataSourceServiceImpl
         }
 
         @Override
-        public List<ImportRecord> call() throws Exception {
+        public List<ImportRecord> call() {
             List<ImportRecord> records = new ArrayList<>();
 
             String raw = query.getParameterAsClass("query", String.class);
@@ -230,10 +218,9 @@ public class CoreImportMetadataSourceServiceImpl
             uriParameters.put("offset", Integer.toString(offset));
 
             String url = buildWorksSearchUrl();
-            String responseString = liveImportClient.executeHttpGetRequest(getTimeoutMs(), url,
-                    buildParams(uriParameters));
+            String response = liveImportClient.executeHttpGetRequest(getTimeoutMs(), url, buildParams(uriParameters));
 
-            JsonNode jsonNode = convertStringJsonToJsonNode(responseString);
+            JsonNode jsonNode = convertStringJsonToJsonNode(response);
             if (jsonNode == null) {
                 log.warn("CORE returned invalid JSON");
                 return records;
@@ -255,7 +242,7 @@ public class CoreImportMetadataSourceServiceImpl
         }
     }
 
-    private class GetByIdCallable implements Callable<List<ImportRecord>> {
+    private class GetByIdCallable implements Callable<ImportRecord> {
 
         private final Query query;
 
@@ -270,46 +257,31 @@ public class CoreImportMetadataSourceServiceImpl
         }
 
         @Override
-        public List<ImportRecord> call() throws Exception {
-            List<ImportRecord> results = new ArrayList<>();
+        public ImportRecord call() throws Exception {
 
             String id = query.getParameterAsClass("id", String.class);
             id = StringUtils.trimToNull(id);
             if (id == null) {
-                return results;
-            }
-
-            if (DoiCheck.isDoi(id)) {
-                Query q = new Query();
-                q.addParameter("query", id);
-                q.addParameter("start", 0);
-                q.addParameter("count", 10);
-                List<ImportRecord> records = new SearchByQueryCallable(q).call();
-                if (CollectionUtils.isNotEmpty(records)) {
-                    results.add(records.get(0));
-                }
-                return results;
+                return null;
             }
 
             String url = buildWorkByIdUrl(id);
 
-            String responseString;
+            String response;
             try {
-                responseString = liveImportClient.executeHttpGetRequest(getTimeoutMs(), url,
-                        buildParams(new HashMap<>()));
+                response = liveImportClient.executeHttpGetRequest(getTimeoutMs(), url, buildParams(new HashMap<>()));
             } catch (RuntimeException e) {
                 log.error("CORE getRecord failed for identifier={}", id, e);
                 throw new MetadataSourceException("CORE getRecord failed for identifier=" + id, e);
             }
 
-            JsonNode jsonNode = convertStringJsonToJsonNode(responseString);
+            JsonNode jsonNode = convertStringJsonToJsonNode(response);
             if (jsonNode == null || jsonNode.isMissingNode() || jsonNode.isNull()) {
                 log.warn("CORE /works/{id} returned invalid JSON for identifier={}", id);
-                return results;
+                return null;
             }
 
-            results.add(transformSourceRecords(jsonNode.toString()));
-            return results;
+            return transformSourceRecords(jsonNode.toString());
         }
     }
 
@@ -370,7 +342,7 @@ public class CoreImportMetadataSourceServiceImpl
 
     private JsonNode convertStringJsonToJsonNode(String json) {
         try {
-            return new ObjectMapper().readTree(json);
+            return objectMapper.readTree(json);
         } catch (JsonProcessingException e) {
             log.error("Unable to process json response.", e);
         }
