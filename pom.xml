@@ -2308,7 +2308,7 @@
         <connection>scm:git:git@github.com:4Science/DSpace.git</connection>
         <developerConnection>scm:git:git@github.com:4Science/DSpace.git</developerConnection>
         <url>https://github.com:4Science/DSpace</url>
-        <tag>dspace-cris-2024.02.02</tag>
+        <tag>dspace-cris-2024.02.04.01</tag>
     </scm>
 
 
