@@ -70,9 +70,10 @@ public class ExternalSourcesRestControllerIT extends AbstractControllerIntegrati
                        ExternalSourceMatcher.matchExternalSource("crossref", "crossref", false),
                        ExternalSourceMatcher.matchExternalSource("authorAuthority", "authorAuthority", false),
                        ExternalSourceMatcher.matchExternalSource("openAIREFunding", "openAIREFunding", false),
-                       ExternalSourceMatcher.matchExternalSource("openaireProject", "openaireProject", false)
+                       ExternalSourceMatcher.matchExternalSource("openaireProject", "openaireProject", false),
+                       ExternalSourceMatcher.matchExternalSource("core", "core", false)
                    )))
-                   .andExpect(jsonPath("$.page.totalElements", Matchers.is(16)));
+                   .andExpect(jsonPath("$.page.totalElements", Matchers.is(17)));
     }
 
     @Test
