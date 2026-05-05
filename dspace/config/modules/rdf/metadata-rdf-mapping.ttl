@@ -163,14 +163,14 @@
 
 :doi
   dm:metadataName "dc.identifier.uri" ;
-  dm:condition "^http://dx.doi.org/.+" ;
+  dm:condition "^https?://dx.doi.org/.+" ;
   dm:creates [
     dm:subject dm:DSpaceObjectIRI ;
     dm:predicate bibo:doi ;
     dm:object [
       a dm:LiteralGenerator ;
       dm:modifier [
-        dm:matcher "^http://dx.doi.org/(.*)$" ;
+        dm:matcher "^https?://dx.doi.org/(.*)$" ;
         dm:replacement "doi:$1";
       ];
       dm:pattern "$DSpaceValue";
@@ -180,14 +180,14 @@
 
 :handle
   dm:metadataName "dc.identifier.uri" ;
-  dm:condition "^http://hdl.handle.net/.*$" ;
+  dm:condition "^https?://hdl.handle.net/.*$" ;
   dm:creates [
     dm:subject dm:DSpaceObjectIRI ;
     dm:predicate bibo:handle ;
     dm:object [
       a dm:LiteralGenerator ;
       dm:modifier [
-        dm:matcher "^http://hdl.handle.net/(.*)$" ;
+        dm:matcher "^https?://hdl.handle.net/(.*)$" ;
         dm:replacement "hdl:$1";
       ];
     ];
@@ -196,14 +196,14 @@
 
 :localHandleURI
   dm:metadataName "dc.identifier.uri" ;
-  dm:condition "^http://localhost:8080/handle/" ;
+  dm:condition "^https?://localhost:8080/handle/.*" ;
   dm:creates [
     dm:subject dm:DSpaceObjectIRI ;
     dm:predicate bibo:handle ;
     dm:object [
       a dm:LiteralGenerator ;
       dm:modifier [
-        dm:matcher "^http://localhost:8080/handle/(.*)$" ;
+        dm:matcher "^https?://localhost:8080/handle/(.*)$" ;
         dm:replacement "hdl:$1";
       ];
       dm:pattern "$DSpaceValue";
@@ -249,7 +249,7 @@
 
 :uri
   dm:metadataName "dc.identifier.uri" ;
-  dm:condition "^(?!http://dx.doi.org/)(?!http://hdl.handle.net/)(?!http://localhost:8080/handle/)(?:http://|https?:)).*" ;
+  dm:condition "^(?!https?://dx.doi.org/)(?!https?://hdl.handle.net/)(?!https?://localhost:8080/handle/)https?://.*" ;
   dm:creates [
     dm:subject dm:DSpaceObjectIRI ;
     dm:predicate bibo:uri ;
