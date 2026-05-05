@@ -146,8 +146,9 @@ public class OpenPolicyFinderService {
                 sleepBetweenTimeouts));
 
             try (CloseableHttpClient client = DSpaceHttpClientFactory.getInstance().buildWithoutAutomaticRetries(5)) {
-                Thread.sleep(sleepBetweenTimeouts);
-
+                if (numberOfTries > 1) {
+                    Thread.sleep(sleepBetweenTimeouts);
+                }
                 // Construct a default HTTP method (first result)
                 method = constructHttpGet(type, field, predicate, value, start, limit);
 
@@ -162,6 +163,7 @@ public class OpenPolicyFinderService {
                                                                             + statusCode);
                         String errorBody = IOUtils.toString(response.getEntity().getContent(), StandardCharsets.UTF_8);
                         log.error("Error from Open Policy Finder HTTP request: " + errorBody);
+                        continue;
                     }
 
                     HttpEntity responseBody = response.getEntity();
@@ -254,7 +256,9 @@ public class OpenPolicyFinderService {
                 sleepBetweenTimeouts));
 
             try (CloseableHttpClient client = DSpaceHttpClientFactory.getInstance().buildWithoutAutomaticRetries(5)) {
-                Thread.sleep(sleepBetweenTimeouts);
+                if (numberOfTries > 1) {
+                    Thread.sleep(sleepBetweenTimeouts);
+                }
 
                 // Construct a default HTTP method (first result)
                 method = constructHttpGet(type, field, predicate, value, start, limit);
@@ -263,14 +267,15 @@ public class OpenPolicyFinderService {
                 try (CloseableHttpResponse response = client.execute(method)) {
                     int statusCode = response.getStatusLine().getStatusCode();
 
-                    log.debug(response.getStatusLine().getStatusCode() + ": "
-                                  + response.getStatusLine().getReasonPhrase());
+                    log.debug(statusCode
+                                  + ": " + response.getStatusLine().getReasonPhrase());
 
                     if (statusCode != HttpStatus.SC_OK) {
                         opfResponse = new OpenPolicyFinderResponse("Open Policy Finder return not OK status: "
                                                                    + statusCode);
                         String errorBody = IOUtils.toString(response.getEntity().getContent(), StandardCharsets.UTF_8);
                         log.error("Error from Open Policy Finder HTTP request: " + errorBody);
+                        continue;
                     }
 
                     HttpEntity responseBody = response.getEntity();
