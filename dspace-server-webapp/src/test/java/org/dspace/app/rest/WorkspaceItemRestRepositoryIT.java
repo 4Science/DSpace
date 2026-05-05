@@ -7306,11 +7306,6 @@ public class WorkspaceItemRestRepositoryIT extends AbstractControllerIntegration
                                         .withPassword(password)
                                         .build();
 
-        EPerson anotherEperson = EPersonBuilder.createEPerson(context)
-                                       .withEmail("anothereperson@test.com")
-                                       .withPassword(password)
-                                       .build();
-
         parentCommunity = CommunityBuilder.createCommunity(context)
                                           .withName("Parent Community")
                                           .build();
@@ -7385,7 +7380,9 @@ public class WorkspaceItemRestRepositoryIT extends AbstractControllerIntegration
                 .perform(patch("/api/submission/workspaceitems/" + workspaceItem.getID())
                              .content(addAuthorPatchBody)
                              .contentType(MediaType.APPLICATION_JSON_PATCH_JSON))
-                .andExpect(status().isOk());
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.sections.traditionalpageone['dc.contributor.author'][0].authority",
+                                    is(authorProfile.getID().toString())));
 
             // Author should now be able to access (Solr permissions are indexed based on metadata with authorities)
             getClient(getAuthToken(author.getEmail(), password))
@@ -7423,8 +7420,12 @@ public class WorkspaceItemRestRepositoryIT extends AbstractControllerIntegration
             getClient(submitterToken)
                 .perform(multipart("/api/submission/workspaceitems/" + workspaceItem.getID()).file(pdfFile))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.sections.upload.files[0].accessConditions", empty()));
+                .andExpect(jsonPath("$.sections.upload.files", hasSize(1)));
 
+            getClient(getAuthToken(author.getEmail(), password))
+                .perform(multipart("/api/submission/workspaceitems/" + workspaceItem.getID()).file(pdfFile))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.errors", hasSize(1)));
 
             getClient(getAuthToken(author.getEmail(), password))
                 .perform(get("/api/discover/search/objects")
