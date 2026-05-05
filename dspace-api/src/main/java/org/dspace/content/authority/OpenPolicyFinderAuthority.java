@@ -164,4 +164,9 @@ public class OpenPolicyFinderAuthority extends ItemAuthority {
         return configurationService.getBooleanProperty("cris." + this.authorityName + ".local-item-choices-enabled");
     }
 
+    @Override
+    protected String getSource() {
+        return configurationService.getProperty("cris.ItemAuthority." + this.authorityName + ".source", DEFAULT);
+    }
+
 }
