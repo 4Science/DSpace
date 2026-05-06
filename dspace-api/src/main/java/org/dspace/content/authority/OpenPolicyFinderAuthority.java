@@ -41,12 +41,6 @@ public class OpenPolicyFinderAuthority extends ItemAuthority {
     private static final String  PREDICATE_EQUALS = "equals";
     private static final String  PREDICATE_CONTAINS_WORD = "contains word";
 
-    /**
-     * the name assigned to the specific instance by the PluginService, @see
-     * {@link NameAwarePlugin}
-     **/
-    private String authorityName;
-
     private ConfigurationService configurationService = DSpaceServicesFactory.getInstance().getConfigurationService();
 
     private DSpace dspace = new DSpace();
@@ -162,11 +156,6 @@ public class OpenPolicyFinderAuthority extends ItemAuthority {
 
     private boolean isLocalItemChoicesEnabled() {
         return configurationService.getBooleanProperty("cris." + this.authorityName + ".local-item-choices-enabled");
-    }
-
-    @Override
-    protected String getSource() {
-        return configurationService.getProperty("cris.ItemAuthority." + this.authorityName + ".source", DEFAULT);
     }
 
 }
