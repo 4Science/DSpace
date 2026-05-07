@@ -12,7 +12,6 @@ import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
 import javax.sql.DataSource;
 
-import org.dspace.authorize.ResourcePolicy;
 import org.dspace.content.Bitstream;
 import org.dspace.content.Bundle;
 import org.dspace.content.Collection;
@@ -278,11 +277,6 @@ public class HibernateDBConnection implements DBConnection<Session> {
                     }
                 }
 
-                if (Hibernate.isInitialized(dso.getResourcePolicies())) {
-                    for (ResourcePolicy policy : Utils.emptyIfNull(dso.getResourcePolicies())) {
-                        uncacheEntity(policy);
-                    }
-                }
             }
 
             if (entity instanceof DOI) {

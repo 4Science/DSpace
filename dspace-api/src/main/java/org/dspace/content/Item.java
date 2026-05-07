@@ -71,7 +71,7 @@ public class Item extends DSpaceObject implements DSpaceObjectLegacySupport {
     @Column(name = "last_modified", columnDefinition = "timestamp with time zone")
     private Instant lastModified = Instant.now();
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST})
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "owning_collection")
     private Collection owningCollection;
 
