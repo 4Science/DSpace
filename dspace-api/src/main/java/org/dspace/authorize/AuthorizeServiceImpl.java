@@ -325,7 +325,10 @@ public class AuthorizeServiceImpl implements AuthorizeService {
 
             // check policies for date validity
             if (resourcePolicyService.isDateValid(rp)) {
-                if (rp.getEPerson() != null && rp.getEPerson().equals(userToCheck)) {
+                if (
+                    rp.getEPerson() != null && userToCheck != null &&
+                    rp.getEPerson().getID().equals(userToCheck.getID())
+                ) {
                     c.cacheAuthorizedAction(o, action, e, useInheritance, true, rp);
                     return true; // match
                 }
