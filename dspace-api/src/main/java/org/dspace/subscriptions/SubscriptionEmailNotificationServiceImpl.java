@@ -190,7 +190,8 @@ public class SubscriptionEmailNotificationServiceImpl implements SubscriptionEma
             // If there is no user (i.e., `current user = null`), it will send an email with no new items.
             context.setCurrentUser(ePerson);
             try {
-                crisMetricsList.addAll(crisMetricsService.findAllByDSO(context, dSpaceObject));
+                crisMetricsList
+                        .addAll(crisMetricsService.findLastMetricsByResourceId(context, dSpaceObject.getID(), -1, -1));
             } catch (Exception e) {
                 log.error(e.getMessage());
             }

@@ -6,18 +6,18 @@
  * http://www.dspace.org/license/
  */
 package org.dspace.app.metrics;
+
 import java.util.Date;
+import java.util.UUID;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
-import org.dspace.content.DSpaceObject;
+import org.dspace.core.Constants;
 import org.dspace.core.ReloadableEntity;
 import org.hibernate.Length;
 
@@ -44,9 +44,15 @@ public class CrisMetrics  implements ReloadableEntity<Integer> {
 
     private Date endDate;
 
-    @ManyToOne
-    @JoinColumn(name = "resource_id")
-    protected DSpaceObject resource;
+    /** 
+     * The type of DSpace resource this metric belongs to.
+     * @see Constants#COMMUNITY
+     * @see Constants#COLLECTION
+     * @see Constants#ITEM
+     * etc.
+     */
+    @Column(name = "resource_id")
+    protected UUID resource;
 
     private boolean last;
 
@@ -58,6 +64,10 @@ public class CrisMetrics  implements ReloadableEntity<Integer> {
     private Double deltaPeriod2;
 
     private Double rank;
+
+    /** @see Constants **/
+    @Column(name = "resource_type")
+    private int resourceType;
 
     public Integer getId() {
         return id;
@@ -115,12 +125,12 @@ public class CrisMetrics  implements ReloadableEntity<Integer> {
         this.acquisitionDate = acquisitionDate;
     }
 
-    public DSpaceObject getResource() {
+    public UUID getResource() {
         return resource;
     }
 
-    public void setResource(DSpaceObject dSpaceObject) {
-        this.resource = dSpaceObject;
+    public void setResource(UUID uuid) {
+        this.resource = uuid;
     }
 
     public String getRemark() {
@@ -158,6 +168,14 @@ public class CrisMetrics  implements ReloadableEntity<Integer> {
 
     public void setRank(Double rank) {
         this.rank = rank;
+    }
+
+    public int getResourceType() {
+        return resourceType;
+    }
+
+    public void setResourceType(int type) {
+        this.resourceType = type;
     }
 
 }

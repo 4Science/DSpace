@@ -16,6 +16,7 @@ import org.apache.solr.common.SolrInputDocument;
 import org.dspace.app.metrics.CrisMetrics;
 import org.dspace.app.metrics.service.CrisMetricsService;
 import org.dspace.content.Item;
+import org.dspace.content.service.ItemService;
 import org.dspace.core.Context;
 import org.dspace.discovery.indexobject.IndexableItem;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +31,9 @@ public class SolrServiceMetricsIndexPlugin implements SolrServiceIndexPlugin {
     @Autowired
     private CrisMetricsService crisMetricsService;
 
+    @Autowired
+    private ItemService itemService;
+
     @Override
     @SuppressWarnings("rawtypes")
     public void additionalIndex(Context context, IndexableObject idxObj, SolrInputDocument document) {
@@ -37,9 +41,12 @@ public class SolrServiceMetricsIndexPlugin implements SolrServiceIndexPlugin {
             Item item = ((IndexableItem) idxObj).getIndexedObject();
             if (Objects.nonNull(item)) {
                 try {
-                    List<CrisMetrics> metrics = crisMetricsService.findAllByDSO(context, item);
+                    List<CrisMetrics> metrics = crisMetricsService.findLastMetricsByResourceId(context, item.getID(),
+                            -1, -1);
                     for (CrisMetrics metric : metrics) {
-                        SearchUtils.addMetricFieldsInSolrDoc(metric, document);
+                        String lastImport = itemService.getMetadataFirstValue(item,
+                                "cris", "lastimport", metric.getMetricType(), Item.ANY);
+                        SearchUtils.addMetricFieldsInSolrDoc(metric, document, lastImport);
                     }
                 } catch (SQLException e) {
                     log.error(e.getMessage());

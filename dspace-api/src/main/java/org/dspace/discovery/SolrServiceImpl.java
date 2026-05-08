@@ -72,7 +72,6 @@ import org.dspace.core.Context;
 import org.dspace.core.Email;
 import org.dspace.core.I18nUtil;
 import org.dspace.core.LogHelper;
-import org.dspace.core.exception.SQLRuntimeException;
 import org.dspace.discovery.configuration.DiscoveryConfiguration;
 import org.dspace.discovery.configuration.DiscoveryConfigurationParameters;
 import org.dspace.discovery.configuration.DiscoveryMoreLikeThisConfiguration;
@@ -91,7 +90,6 @@ import org.dspace.eperson.factory.EPersonServiceFactory;
 import org.dspace.eperson.service.GroupService;
 import org.dspace.services.ConfigurationService;
 import org.dspace.services.factory.DSpaceServicesFactory;
-import org.dspace.util.UUIDUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -1731,17 +1729,38 @@ public class SolrServiceImpl implements SearchService, IndexingService {
     public void updateMetrics(Context context, CrisMetrics metric) {
         UpdateRequest req = new UpdateRequest();
         SolrClient solrClient = solrSearchCore.getSolr();
-        Optional<String> id = findUniqueId(context, metric);
+        Optional<String> id = findUniqueId(metric);
         if (id.isEmpty()) {
-            log.warn("Unable to define unique id for item {}", metric.getResource().getID());
             return;
         }
         try {
             SolrInputDocument solrInDoc = new SolrInputDocument();
             solrInDoc.addField(SearchUtils.RESOURCE_UNIQUE_ID, id.get());
-            solrInDoc.addField(SearchUtils.RESOURCE_TYPE_FIELD, itemType(context, metric.getResource()));
-            solrInDoc.addField(SearchUtils.RESOURCE_ID_FIELD, UUIDUtils.toString(metric.getResource().getID()));
-            req.add(SearchUtils.addMetricFieldsInSolrDoc(metric, solrInDoc));
+            req.add(SearchUtils.addMetricFieldsInSolrDoc(metric, solrInDoc, null));
+            solrClient.request(req);
+        } catch (SolrServerException | IOException e) {
+            log.error(e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public void updateLastPublicationImport(Context context, Item item, String serviceName, String lastImport) {
+        UpdateRequest req = new UpdateRequest();
+        SolrClient solrClient = solrSearchCore.getSolr();
+        Optional<String> id = findUniqueId(Constants.ITEM, item.getID());
+        if (id.isEmpty()) {
+            log.warn("Unable to define unique id for item {}", item.getID());
+            return;
+        }
+        try {
+            SolrInputDocument solrInDoc = new SolrInputDocument();
+            solrInDoc.addField(SearchUtils.RESOURCE_UNIQUE_ID, id.get());
+            Map<String, Object> lastFieldMap = Collections.singletonMap("set", lastImport);
+            String lastField = "cris.lastimport." + serviceName + "-publication";
+            String lastFieldDt = lastField + "_dt";
+            solrInDoc.addField(lastField, lastFieldMap);
+            solrInDoc.addField(lastFieldDt, lastFieldMap);
+            req.add(solrInDoc);
             solrClient.request(req);
             solrClient.commit();
         } catch (SolrServerException | IOException e) {
@@ -1786,33 +1805,17 @@ public class SolrServiceImpl implements SearchService, IndexingService {
         }
     }
 
-    private String itemType(Context context, DSpaceObject resource) {
-        return findIndexableObject(context, resource)
-            .map(indexableObject -> indexableObject.getType())
-            .orElseThrow(() -> new RuntimeException(
-                String.format("resource with id %s is of unsupported type: %s",
-                    resource.getID(), resource.getClass().getSimpleName())));
-    }
-
-    private Optional<String> findUniqueId(Context context, CrisMetrics metric) {
-        DSpaceObject resource = metric.getResource();
-        return findIndexableObject(context, resource)
-            .map(indexableObject -> indexableObject.getUniqueIndexID());
-    }
-
-    @SuppressWarnings("rawtypes")
-    private Optional<IndexableObject> findIndexableObject(Context context, DSpaceObject resource) {
-        String indexableType = Constants.typeText[resource.getType()];
-        return Optional.ofNullable(indexObjectFactoryFactory.getIndexFactoryByType(indexableType))
-            .flatMap(indexableFactory -> findIndexableObject(context, indexableFactory, resource.getID().toString()));
-    }
-
-    @SuppressWarnings({ "rawtypes", "unchecked" })
-    private Optional<IndexableObject> findIndexableObject(Context context, IndexFactory factory, String id) {
-        try {
-            return factory.findIndexableObject(context, id);
-        } catch (SQLException e) {
-            throw new SQLRuntimeException(e);
+    private Optional<String> findUniqueId(CrisMetrics metric) {
+        if (metric == null) {
+            return Optional.empty();
         }
+        return findUniqueId(metric.getResourceType(), metric.getResource());
     }
+
+    private Optional<String> findUniqueId(int resourceType, UUID resource) {
+        return Optional
+                .of(StringUtils.capitalize(Constants.typeText[resourceType].toLowerCase())
+                        + "-" + resource.toString());
+    }
+
 }

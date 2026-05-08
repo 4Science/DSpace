@@ -18,6 +18,7 @@ import org.dspace.app.rest.utils.ContextUtil;
 import org.dspace.authorize.service.AuthorizeService;
 import org.dspace.content.DSpaceObject;
 import org.dspace.content.Item;
+import org.dspace.content.factory.ContentServiceFactory;
 import org.dspace.content.service.ItemService;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
@@ -108,7 +109,8 @@ public class CrisMetricsRestPermissionEvaluatorPlugin extends RestObjectPermissi
             if (Objects.isNull(metric)) {
                 return null;
             }
-            DSpaceObject dSpaceObject = metric.getResource();
+            DSpaceObject dSpaceObject = ContentServiceFactory.getInstance()
+                    .getDSpaceObjectService(metric.getResourceType()).find(context, metric.getResource());
             if (dSpaceObject instanceof HibernateProxy) {
                 HibernateProxy hibernateProxy = (HibernateProxy) dSpaceObject;
                 LazyInitializer initializer = hibernateProxy.getHibernateLazyInitializer();

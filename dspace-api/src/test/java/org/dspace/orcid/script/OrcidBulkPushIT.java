@@ -530,7 +530,7 @@ public class OrcidBulkPushIT extends AbstractIntegrationTestWithDatabase {
     private Item createPublication(String title) {
         return ItemBuilder.createItem(context, publicationCollection)
             .withTitle(title)
-            .withType("Controlled Vocabulary for Resource Type Genres::dataset")
+            .withType("text::journal::data paper")
             .build();
     }
 
