@@ -8,7 +8,6 @@
 package org.dspace.content.authority;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
 
 import org.dspace.AbstractUnitTest;
 import org.dspace.services.ConfigurationService;
