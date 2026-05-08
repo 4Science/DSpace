@@ -37,8 +37,6 @@ public class RorOrgUnitAuthority extends ItemAuthority {
         DSpaceServicesFactory.getInstance().getConfigurationService();
     private final PluginService pluginService = CoreServiceFactory.getInstance().getPluginService();
 
-    private String authorityName;
-
     @Override
     public Choices getMatches(String text, int start, int limit, String locale) {
 
@@ -186,15 +184,5 @@ public class RorOrgUnitAuthority extends ItemAuthority {
         }
 
         return null;
-    }
-
-    @Override
-    public void setPluginInstanceName(String name) {
-        authorityName = name;
-    }
-
-    @Override
-    public String getPluginInstanceName() {
-        return authorityName;
     }
 }
