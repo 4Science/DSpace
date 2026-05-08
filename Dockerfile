@@ -4,11 +4,11 @@
 #
 # - note: default tag for branch: dspace/dspace: dspace/dspace:dspace-8_x
 
-# This Dockerfile uses JDK17 by default.
+# This Dockerfile uses JDK21 by default.
 # To build with other versions, use "--build-arg JDK_VERSION=[value]"
-ARG JDK_VERSION=17
+ARG JDK_VERSION=21
 # The Docker version tag to build from
-ARG DSPACE_VERSION=dspace-cris-2024_02_x
+ARG DSPACE_VERSION=dspace-cris-2025_02_x
 # The Docker registry to use for DSpace images. Defaults to "docker.io"
 # NOTE: non-DSpace images are hardcoded to use "docker.io" and are not impacted by this build argument
 ARG DOCKER_REGISTRY=docker.io
@@ -53,7 +53,7 @@ COPY --from=build --chown=dspace /install/server-boot/application/ /app/server-b
 COPY --chown=dspace dspace/config/ $DSPACE_INSTALL/config/
 COPY --chown=dspace dspace/bin/ $DSPACE_INSTALL/bin/
 RUN install -d -m 0755 -o dspace -g dspace $DSPACE_INSTALL/assetstore/ $DSPACE_INSTALL/upload/ \
-    $DSPACE_INSTALL/handle-server/ $DSPACE_INSTALL/log/ \
+    $DSPACE_INSTALL/handle-server/ $DSPACE_INSTALL/log/ $DSPACE_INSTALL/var/ \
     && ln -s /app/server-boot/BOOT-INF/lib $DSPACE_INSTALL/lib \
     && chown -h dspace:dspace $DSPACE_INSTALL/lib \
     && chmod +x $DSPACE_INSTALL/bin/*

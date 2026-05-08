@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:util="http://www.springframework.org/schema/util"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+           http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+           http://www.springframework.org/schema/context
+           http://www.springframework.org/schema/context/spring-context-2.5.xsd
+           http://www.springframework.org/schema/util
+           http://www.springframework.org/schema/util/spring-util.xsd"
+       default-autowire-candidates="*Service,*DAO,javax.sql.DataSource">
+
+    <context:annotation-config/>
+
+    <util:map id="coreMetadataFieldMap"
+              key-type="org.dspace.importer.external.metadatamapping.MetadataFieldConfig"
+              value-type="org.dspace.importer.external.metadatamapping.contributor.MetadataContributor">
+        <description>
+            CORE mapping. Defines which CORE field is mapped to which metadata field.
+        </description>
+
+        <entry key-ref="core.title"     value-ref="coreTitleContrib"/>
+        <entry key-ref="core.author"    value-ref="coreAuthorContrib"/>
+        <entry key-ref="core.year"      value-ref="coreYearContrib"/>
+        <entry key-ref="core.doi"       value-ref="coreDoiContrib"/>
+        <entry key-ref="core.id"        value-ref="coreIdContrib"/>
+        <entry key-ref="core.abstract"  value-ref="coreAbstractContrib"/>
+        <entry key-ref="core.publisher" value-ref="corePublisherContrib"/>
+        <entry key-ref="core.type"      value-ref="coreTypeContrib"/>
+        <entry key-ref="core.url"       value-ref="coreUrlContrib"/>
+    </util:map>
+
+    <bean id="coreIdContrib"
+          class="org.dspace.importer.external.metadatamapping.contributor.SimpleJsonPathMetadataContributor">
+        <property name="field" ref="core.id"/>
+        <property name="query" value="/id"/>
+    </bean>
+    <bean id="core.id" class="org.dspace.importer.external.metadatamapping.MetadataFieldConfig">
+        <constructor-arg value="dc.identifier.other"/>
+    </bean>
+
+    <bean id="coreDoiContrib"
+          class="org.dspace.importer.external.metadatamapping.contributor.SimpleJsonPathMetadataContributor">
+        <property name="field" ref="core.doi"/>
+        <property name="query" value="/doi"/>
+    </bean>
+    <bean id="core.doi" class="org.dspace.importer.external.metadatamapping.MetadataFieldConfig">
+        <constructor-arg value="dc.identifier.doi"/>
+    </bean>
+
+    <bean id="coreTitleContrib"
+          class="org.dspace.importer.external.metadatamapping.contributor.SimpleJsonPathMetadataContributor">
+        <property name="field" ref="core.title"/>
+        <property name="query" value="/title"/>
+    </bean>
+    <bean id="core.title" class="org.dspace.importer.external.metadatamapping.MetadataFieldConfig">
+        <constructor-arg value="dc.title"/>
+    </bean>
+
+    <bean id="coreAuthorContrib"
+          class="org.dspace.importer.external.metadatamapping.contributor.SimpleJsonPathMetadataContributor">
+        <property name="field" ref="core.author"/>
+        <property name="query" value="/"/>
+        <property name="metadataProcessor">
+            <bean class="org.dspace.importer.external.metadatamapping.contributor.ArrayElementAttributeProcessor">
+                <property name="pathToArray" value="/authors"/>
+                <property name="elementAttribute" value="/name"/>
+            </bean>
+        </property>
+    </bean>
+    <bean id="core.author" class="org.dspace.importer.external.metadatamapping.MetadataFieldConfig">
+        <constructor-arg value="dc.contributor.author"/>
+    </bean>
+
+    <bean id="coreYearContrib"
+          class="org.dspace.importer.external.metadatamapping.contributor.SimpleJsonPathMetadataContributor">
+        <property name="field" ref="core.year"/>
+        <property name="query" value="/yearPublished"/>
+    </bean>
+    <bean id="core.year" class="org.dspace.importer.external.metadatamapping.MetadataFieldConfig">
+        <constructor-arg value="dc.date.issued"/>
+    </bean>
+
+    <bean id="coreAbstractContrib"
+          class="org.dspace.importer.external.metadatamapping.contributor.SimpleJsonPathMetadataContributor">
+        <property name="field" ref="core.abstract"/>
+        <property name="query" value="/abstract"/>
+    </bean>
+    <bean id="core.abstract" class="org.dspace.importer.external.metadatamapping.MetadataFieldConfig">
+        <constructor-arg value="dc.description.abstract"/>
+    </bean>
+
+    <bean id="corePublisherContrib"
+          class="org.dspace.importer.external.metadatamapping.contributor.SimpleJsonPathMetadataContributor">
+        <property name="field" ref="core.publisher"/>
+        <property name="query" value="/publisher"/>
+    </bean>
+    <bean id="core.publisher" class="org.dspace.importer.external.metadatamapping.MetadataFieldConfig">
+        <constructor-arg value="dc.publisher"/>
+    </bean>
+
+    <bean id="coreTypeContrib"
+          class="org.dspace.importer.external.metadatamapping.contributor.SimpleJsonPathMetadataContributor">
+        <property name="field" ref="core.type"/>
+        <property name="query" value="/documentType"/>
+    </bean>
+    <bean id="core.type" class="org.dspace.importer.external.metadatamapping.MetadataFieldConfig">
+        <constructor-arg value="dc.type"/>
+    </bean>
+
+    <bean id="coreUrlContrib"
+          class="org.dspace.importer.external.metadatamapping.contributor.SimpleJsonPathMetadataContributor">
+        <property name="field" ref="core.url"/>
+        <property name="query" value="/downloadUrl"/>
+    </bean>
+
+    <bean id="core.url" class="org.dspace.importer.external.metadatamapping.MetadataFieldConfig">
+        <constructor-arg value="dc.identifier.uri"/>
+    </bean>
+
+</beans>
