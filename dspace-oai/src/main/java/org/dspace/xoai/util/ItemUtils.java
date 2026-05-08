@@ -418,6 +418,11 @@ public class ItemUtils {
         // read all metadata into Metadata Object
         metadata = new Metadata();
 
+        // add item id
+        Element idElement = ItemUtils.create("id");
+        idElement.getField().add(createValue("value", item.getID().toString()));
+        metadata.getElement().add(idElement);
+
         List<MetadataValue> vals = itemService.getMetadata(item, Item.ANY, Item.ANY, Item.ANY, Item.ANY);
         for (MetadataValue val : vals) {
             MetadataField field = val.getMetadataField();
