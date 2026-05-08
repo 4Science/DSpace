@@ -56,10 +56,12 @@ public class ItemAuthorityTest extends AbstractUnitTest {
     @Test
     public void testAuthorityNameIsProtected() {
         itemAuthority.setPluginInstanceName("testProtectedAccess");
-        assertEquals("Authority name should be accessible", "testProtectedAccess", itemAuthority.getPluginInstanceName());
+        assertEquals("Authority name should be accessible", "testProtectedAccess",
+                     itemAuthority.getPluginInstanceName());
         // Verify the field is protected by checking subclass access
         OpenPolicyFinderAuthority subAuthority = new OpenPolicyFinderAuthority();
         subAuthority.setPluginInstanceName("subAuthority");
-        assertEquals("Subclass should access protected authorityName", "subAuthority", subAuthority.getPluginInstanceName());
+        assertEquals("Subclass should access protected authorityName", "subAuthority",
+                     subAuthority.getPluginInstanceName());
     }
 }
