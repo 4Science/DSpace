@@ -23,6 +23,7 @@ import org.dspace.authorize.service.AuthorizeService;
 import org.dspace.authorize.service.ResourcePolicyService;
 import org.dspace.content.DSpaceObject;
 import org.dspace.content.factory.ContentServiceFactory;
+import org.dspace.content.service.DSpaceObjectService;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.eperson.EPerson;
@@ -160,9 +161,12 @@ public class ResourcePolicyServiceImpl implements ResourcePolicyService {
 
         context.turnOffAuthorisationSystem();
         if (resourcePolicy.getdSpaceObject() != null) {
+            DSpaceObjectService<DSpaceObject> dSpaceObjectService = contentServiceFactory
+                .getDSpaceObjectService(resourcePolicy.getdSpaceObject());
+            // get the right class for our dspaceobject not the DSpaceObject lazy proxy
+            DSpaceObject dso = dSpaceObjectService.find(context, resourcePolicy.getdSpaceObject().getID());
             //A policy for a DSpace Object has been modified, fire a modify event on the DSpace object
-            contentServiceFactory.getDSpaceObjectService(resourcePolicy.getdSpaceObject())
-                                 .updateLastModified(context, resourcePolicy.getdSpaceObject());
+            dSpaceObjectService.updateLastModified(context, dso);
         }
         context.restoreAuthSystemState();
     }
