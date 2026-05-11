@@ -85,6 +85,8 @@ public class ItemBuilder extends AbstractDSpaceObjectBuilder<Item> {
                                 "date", "issued", new DCDate(issueDate).toString());
     }
 
+
+
     public ItemBuilder withTitleForLanguage(final String title, final String language) {
         return addMetadataValue(item, MetadataSchemaEnum.DC.getName(), "title", null, language, title);
     }
@@ -228,6 +230,10 @@ public class ItemBuilder extends AbstractDSpaceObjectBuilder<Item> {
 
     public ItemBuilder withScopusIdentifier(String scopus) {
         return addMetadataValue(item, "dc", "identifier", "scopus", scopus);
+    }
+
+    public ItemBuilder withLegacyId(String legacyId) {
+        return addMetadataValue(item, "dspace", "legacyId", null, legacyId);
     }
 
     public ItemBuilder withIsniIdentifier(String isni) {
