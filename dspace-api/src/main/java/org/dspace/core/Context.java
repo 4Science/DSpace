@@ -22,6 +22,7 @@ import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
+import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.dspace.authorize.ResourcePolicy;
 import org.dspace.content.DSpaceObject;
@@ -54,7 +55,7 @@ import org.springframework.util.CollectionUtils;
  * The context object is also used as a cache for CM API objects.
  */
 public class Context implements AutoCloseable {
-    private static final Logger log = org.apache.logging.log4j.LogManager.getLogger(Context.class);
+    private static final Logger log = LogManager.getLogger(Context.class);
     protected static final AtomicBoolean databaseUpdated = new AtomicBoolean(false);
 
     /**

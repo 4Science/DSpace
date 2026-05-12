@@ -5,7 +5,6 @@
  *
  * http://www.dspace.org/license/
  */
-
 package org.dspace.app.util;
 
 import org.apache.commons.cli.CommandLine;
@@ -122,7 +121,7 @@ public class Configuration {
                         }
                     }
                 } else { // Not an array
-                    System.out.println(rawValue.toString());
+                    System.out.println(rawValue);
                 }
             } else {
                 // Print values with property substitutions
@@ -135,7 +134,7 @@ public class Configuration {
                 }
             }
         }
-
         return 0;
     }
+
 }

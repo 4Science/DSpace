@@ -168,7 +168,6 @@ public class AnonymizeStatistics {
         if (commandLine.hasOption(THREADS_OPTION)) {
             threads = parseInt(commandLine.getOptionValue(THREADS_OPTION));
         }
-
         return false;
     }
 

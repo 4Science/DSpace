@@ -1,0 +1,101 @@
+{
+  "acceptedDate": "2007-12-13T00:00:00",
+  "arxivId": "0704.0959",
+  "authors": [
+    {
+      "name": "Doi, Takumi"
+    }
+  ],
+  "citationCount": 0,
+  "contributors": [],
+  "outputs": [
+    "https://api.core.ac.uk/v3/outputs/489166511",
+    "https://api.core.ac.uk/v3/outputs/1934270"
+  ],
+  "createdDate": "2012-04-13T14:15:38",
+  "dataProviders": [
+    {
+      "id": 144,
+      "name": "",
+      "url": "https://api.core.ac.uk/v3/data-providers/144",
+      "logo": "https://api.core.ac.uk/data-providers/144/logo"
+    },
+    {
+      "id": 4786,
+      "name": "",
+      "url": "https://api.core.ac.uk/v3/data-providers/4786",
+      "logo": "https://api.core.ac.uk/data-providers/4786/logo"
+    }
+  ],
+  "depositedDate": "2007-01-01T00:00:00",
+  "abstract": "We review the current status of the theoretical pentaquark search from the direct QCD calculation.",
+  "documentType": "research",
+  "doi": "10.1143/ptps.168.45",
+  "downloadUrl": "http://arxiv.org/abs/0704.0959",
+  "fieldOfStudy": "physics",
+  "fullText": "Not available for public API users.",
+  "id": 542484,
+  "identifiers": [
+    {
+      "identifier": "oai:arxiv.org:0704.0959",
+      "type": "OAI_ID"
+    },
+    {
+      "identifier": "2051688763",
+      "type": "MAG_ID"
+    },
+    {
+      "identifier": "1934270",
+      "type": "CORE_ID"
+    },
+    {
+      "identifier": "489166511",
+      "type": "CORE_ID"
+    },
+    {
+      "identifier": "10.1143/ptps.168.45",
+      "type": "DOI"
+    },
+    {
+      "identifier": "0704.0959",
+      "type": "ARXIV_ID"
+    }
+  ],
+  "title": "Theoretical Status of Pentaquarks",
+  "language": {
+    "code": "en",
+    "name": "English"
+  },
+  "magId": "2051688763",
+  "oaiIds": [
+    "oai:arxiv.org:0704.0959"
+  ],
+  "publishedDate": "2007-01-01T00:00:00",
+  "publisher": "'Japan Society of Applied Physics'",
+  "pubmedId": null,
+  "references": [],
+  "sourceFulltextUrls": [
+    "http://arxiv.org/abs/0704.0959",
+    "http://arxiv.org/pdf/0704.0959"
+  ],
+  "updatedDate": "2021-12-27T17:42:07",
+  "yearPublished": 2007,
+  "journals": [
+    {
+      "title": null,
+      "identifiers": [
+        "0375-9687"
+      ]
+    }
+  ],
+  "links": [
+    {
+      "type": "download",
+      "url": "http://arxiv.org/abs/0704.0959"
+    },
+    {
+      "type": "display",
+      "url": "https://core.ac.uk/works/542484"
+    }
+  ]
+}

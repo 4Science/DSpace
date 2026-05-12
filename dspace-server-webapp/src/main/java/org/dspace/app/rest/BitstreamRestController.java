@@ -388,6 +388,14 @@ public class BitstreamRestController {
             return null;
         }
 
+        // Fire a download/view event for Solr statistics
+        eventService.fireEvent(
+            new UsageEvent(
+                UsageEvent.Action.VIEW,
+                request,
+                context,
+                bitstream));
+
         try {
             String presignedUrl = bitstreamStorageService.getPresignedUrl(context, bitstream);
             if (StringUtils.isBlank(presignedUrl)) {

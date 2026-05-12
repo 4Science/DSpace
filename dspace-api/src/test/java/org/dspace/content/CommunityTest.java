@@ -5,7 +5,6 @@
  *
  * http://www.dspace.org/license/
  */
-
 package org.dspace.content;
 
 import static org.hamcrest.CoreMatchers.equalTo;
@@ -33,6 +32,7 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.UUID;
 
+import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.authorize.factory.AuthorizeServiceFactory;
@@ -60,7 +60,7 @@ public class CommunityTest extends AbstractDSpaceObjectTest {
     /**
      * log4j category
      */
-    private static final Logger log = org.apache.logging.log4j.LogManager.getLogger(CommunityTest.class);
+    private static final Logger log = LogManager.getLogger(CommunityTest.class);
 
     /**
      * Community instance for the tests
@@ -97,7 +97,7 @@ public class CommunityTest extends AbstractDSpaceObjectTest {
             // This allows us to customize the bean's method return values in tests below
             Object unwrappedAuthorizeService = AopTestUtils.getUltimateTargetObject(authorizeService);
             authorizeServiceSpy = (AuthorizeService) mock(unwrappedAuthorizeService.getClass(),
-                withSettings().spiedInstance(unwrappedAuthorizeService).defaultAnswer(CALLS_REAL_METHODS));
+                             withSettings().spiedInstance(unwrappedAuthorizeService).defaultAnswer(CALLS_REAL_METHODS));
             // "Wire" our spy to be used by the current loaded object services
             // (To ensure both these services use the spy instead of the real service)
             ReflectionTestUtils.setField(communityService, "authorizeService", authorizeServiceSpy);

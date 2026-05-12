@@ -25,6 +25,7 @@
                 <entry key="dc.identifier.doi">
                     <list>
                         <ref bean="crossRefLiveImportDataProvider"/>
+                        <ref bean="coreLiveImportDataProvider"/>
                     </list>
                 </entry>
                 <entry key="dc.identifier.adsbibcode">

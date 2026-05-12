@@ -34,6 +34,7 @@ import java.util.List;
 import java.util.UUID;
 
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.authorize.ResourcePolicy;
@@ -55,7 +56,7 @@ public class BundleTest extends AbstractDSpaceObjectTest {
     /**
      * log4j category
      */
-    private static final Logger log = org.apache.logging.log4j.LogManager.getLogger(BundleTest.class);
+    private static final Logger log = LogManager.getLogger(BundleTest.class);
 
     /**
      * Bundle instance for the tests
@@ -98,7 +99,7 @@ public class BundleTest extends AbstractDSpaceObjectTest {
             // This allows us to customize the bean's method return values in tests below
             Object unwrappedAuthorizeService = AopTestUtils.getUltimateTargetObject(authorizeService);
             authorizeServiceSpy = (AuthorizeService) mock(unwrappedAuthorizeService.getClass(),
-                withSettings().spiedInstance(unwrappedAuthorizeService).defaultAnswer(CALLS_REAL_METHODS));
+                             withSettings().spiedInstance(unwrappedAuthorizeService).defaultAnswer(CALLS_REAL_METHODS));
             // "Wire" our spy to be used by the current loaded itemService, bundleService & bitstreamService
             // (To ensure it uses the spy instead of the real service)
             ReflectionTestUtils.setField(itemService, "authorizeService", authorizeServiceSpy);
@@ -120,21 +121,6 @@ public class BundleTest extends AbstractDSpaceObjectTest {
     @After
     @Override
     public void destroy() {
-//        try {
-//            context.turnOffAuthorisationSystem();
-//            b = bundleService.find(context, b.getID());
-//            if(b != null)
-//            {
-//                itemService.removeBundle(context, item, b);
-//            }
-//            collectionService.removeItem(context, collection, item);
-//            communityService.removeCollection(context, owningCommunity, collection);
-//            communityService.delete(context, owningCommunity);
-//            context.restoreAuthSystemState();
-//        } catch (SQLException | AuthorizeException | IOException ex) {
-//            log.error("SQL Error in destroy", ex);
-//            fail("SQL Error in destroy: " + ex.getMessage());
-//        }
         b = null;
         item = null;
         collection = null;

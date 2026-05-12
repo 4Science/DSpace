@@ -77,7 +77,6 @@ public class UtilsTest extends AbstractUnitTest {
 
         assertEquals("Test with parameter", "demo.dspace.org",
                      Utils.getHostName("https://demo.dspace.org/search?query=test"));
-
         // URL with space must be properly encoded - URI.create() is stricter than old URL()
         assertEquals("Test with parameter with encoded space", "demo.dspace.org",
                      Utils.getHostName("https://demo.dspace.org/search?query=test%20turbine"));

@@ -61,7 +61,6 @@ public class CanvasDimensionCLI {
      * @throws Exception if an error occurs during processing
      */
     public static void runCanvasDimensionCLI(String[] argv) throws Exception {
-
         Instant startTime = Instant.now();
 
         boolean iiifEnabled = configurationService.getBooleanProperty("iiif.enabled");
@@ -112,8 +111,7 @@ public class CanvasDimensionCLI {
                                   .build();
         options.addOption(skipOption);
 
-        CommandLine line = null;
-
+        CommandLine line;
         try {
             line = parser.parse(options, argv);
         } catch (MissingArgumentException e) {
@@ -177,7 +175,7 @@ public class CanvasDimensionCLI {
             canvasProcessor.setSkipList(Arrays.asList(skipIds));
         }
 
-        DSpaceObject dso = null;
+        DSpaceObject dso;
         if (identifier.indexOf('/') != -1) {
             dso = HandleServiceFactory.getInstance().getHandleService().resolveToObject(context, identifier);
         } else {

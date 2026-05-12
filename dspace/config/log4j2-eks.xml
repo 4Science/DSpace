@@ -19,6 +19,8 @@
                     properties="true"
             />-->
             <JsonTemplateLayout
+                maxStringLength="131072"
+                locationInfoEnabled="true"
                 eventTemplate='{
                     "timestamp": {
                       "$resolver": "timestamp",
@@ -28,29 +30,30 @@
                         "locale": "en_US"
                       }
                     },
-                    "correlationID": {
-                      "$resolver": "mdc",
-                      "key": "correlationID",
-                      "default": "unknown"
-                    },
-                    "requestID": {
-                      "$resolver": "mdc",
-                      "key": "requestID",
-                      "default": "unknown"
-                    },
-                    "level": { "$resolver": "level", "field": "name" },
-                    "logger": { "$resolver": "logger", "field": "name" },
-                    "loggerFqcn": { "$resolver": "logger", "field": "fqcn" },
-                    "thread": { "$resolver": "thread", "field": "name" },
-                    "threadId": { "$resolver": "thread", "field": "id" },
-                    "threadPriority": { "$resolver": "thread", "field": "priority" },
-                    "pid": { "$resolver": "pattern", "pattern": "%pid", "stackTraceEnabled": false },
-                    "host": { "$resolver": "pattern", "pattern": "${hostName}", "stackTraceEnabled": false },
-                    "marker": { "$resolver": "marker", "field": "name" },
-                    "endOfBatch": { "$resolver": "endOfBatch" },
+                    "status": { "$resolver": "level", "field": "name" },
+                    "logger.name": { "$resolver": "logger", "field": "name" },
                     "message": { "$resolver": "message", "stringified": true },
-                    "contextStack": { "$resolver": "ndc" },
-                    "exception": { "$resolver": "exception", "field": "stackTrace", "stackTrace": { "stringified": true } }
+                    "error.kind": { "$resolver": "exception", "field": "className" },
+                    "error.message": { "$resolver": "exception", "field": "message", "stringified": true },
+                    "error.stack": {
+                      "$resolver": "exception",
+                      "field": "stackTrace",
+                      "stackTrace": { "stringified": true }
+                    },
+                    "error_root.kind": { "$resolver": "exceptionRootCause", "field": "className" },
+                    "error_root.message": { "$resolver": "exceptionRootCause", "field": "message", "stringified": true },
+                    "error_root.stack": {
+                      "$resolver": "exceptionRootCause",
+                      "field": "stackTrace",
+                      "stackTrace": { "stringified": true }
+                    },
+                    "thread_name": { "$resolver": "thread", "field": "name" },
+                    "correlationID": { "$resolver": "mdc", "key": "correlationID" },
+                    "requestID": { "$resolver": "mdc", "key": "requestID" },
+                    "source": "java",
+                    "dd.trace_id": { "$resolver": "mdc", "key": "dd.trace_id" },
+                    "dd.span_id": { "$resolver": "mdc", "key": "dd.span_id" },
+                    "dd.service": { "$resolver": "mdc", "key": "dd.service" }
               }'
             />
         </Appender>

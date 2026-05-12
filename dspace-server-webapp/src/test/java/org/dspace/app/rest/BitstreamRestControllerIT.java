@@ -1821,6 +1821,33 @@ public class BitstreamRestControllerIT extends AbstractControllerIntegrationTest
     }
 
     @Test
+    public void testGetPresignedUrl_LogsStatisticsEvent() throws Exception {
+        // Grant READ access to eperson
+        context.turnOffAuthorisationSystem();
+        createResourcePolicy(context, eperson, null)
+            .withAction(READ)
+            .withDspaceObject(bitstream)
+            .build();
+        context.restoreAuthSystemState();
+
+        // Verify no stats records exist yet
+        checkNumberOfStatsRecords(bitstream, 0);
+
+        String authToken = getAuthToken(eperson.getEmail(), password);
+        getClient(authToken)
+            .perform(get("/api/core/bitstreams/" + bitstream.getID() + "/signedurl"));
+
+        // Verify that a statistics record was logged
+        checkNumberOfStatsRecords(bitstream, 1);
+
+        // Call again to verify it increments
+        getClient(authToken)
+            .perform(get("/api/core/bitstreams/" + bitstream.getID() + "/signedurl"));
+
+        checkNumberOfStatsRecords(bitstream, 2);
+    }
+
+    @Test
     public void testGetPresignedUrl_PresignedUrlNotAvailable() throws Exception {
         // Grant READ access to eperson
         context.turnOffAuthorisationSystem();

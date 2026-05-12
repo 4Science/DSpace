@@ -41,6 +41,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
 
+import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.authorize.ResourcePolicy;
@@ -71,7 +72,7 @@ public class ItemTest extends AbstractDSpaceObjectTest {
     /**
      * log4j category
      */
-    private static final Logger log = org.apache.logging.log4j.LogManager.getLogger(ItemTest.class);
+    private static final Logger log = LogManager.getLogger(ItemTest.class);
 
     /**
      * Item instance for the tests

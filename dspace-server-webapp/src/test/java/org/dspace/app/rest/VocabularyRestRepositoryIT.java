@@ -88,12 +88,11 @@ public class VocabularyRestRepositoryIT extends AbstractControllerIntegrationTes
         mockOrcid.setupSingleSearch();
         mockOrcid.setupSearchWithResults();
 
-        configurationService.setProperty("plugin.named.org.dspace.content.authority.ChoiceAuthority",
-                                         new String[] {
-                                             "org.dspace.content.authority.SolrAuthority = SolrAuthorAuthority",
-                                             "org.dspace.content.authority.SHERPARoMEOPublisher = SRPublisher",
-                                             "org.dspace.content.authority.SHERPARoMEOJournalTitle = SRJournalTitle"
-                                         });
+        configurationService.setProperty("plugin.named.org.dspace.content.authority.ChoiceAuthority", new String[] {
+                                     "org.dspace.content.authority.SolrAuthority = SolrAuthorAuthority",
+                                     "org.dspace.content.authority.OpenPolicyFinderPublisherAuthority = SRPublisher",
+                                     "org.dspace.content.authority.OpenPolicyFinderJournalTitle = SRJournalTitle"
+                                     });
 
         configurationService.setProperty("solr.authority.server",
                                          "${solr.server}/authority");
@@ -396,7 +395,7 @@ public class VocabularyRestRepositoryIT extends AbstractControllerIntegrationTes
     }
 
     @Test
-    public void sherpaJournalTest() throws Exception {
+    public void opfJournalTest() throws Exception {
         String token = getAuthToken(admin.getEmail(), password);
         getClient(token).perform(
                             get("/api/submission/vocabularies/SRJournalTitle/entries")
@@ -412,7 +411,7 @@ public class VocabularyRestRepositoryIT extends AbstractControllerIntegrationTes
     }
 
     @Test
-    public void sherpaPublisherTest() throws Exception {
+    public void opfPublisherTest() throws Exception {
         String token = getAuthToken(admin.getEmail(), password);
         getClient(token).perform(
                             get("/api/submission/vocabularies/SRPublisher/entries")

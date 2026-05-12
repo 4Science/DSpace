@@ -362,7 +362,7 @@ public class Packager {
                 }
             }
 
-            String choiceString = null;
+            String choiceString;
             if (myPackager.userInteractionEnabled) {
                 BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
                 System.out.println("\n\nWARNING -- You are running the packager in REPLACE mode.");
@@ -377,14 +377,11 @@ public class Packager {
                 //user interaction disabled -- default answer to 'yes', otherwise script won't continue
                 choiceString = "y";
             }
-
             if (choiceString.equalsIgnoreCase("y")) {
                 System.out.println("Beginning replacement process...");
-
                 try {
                     //replace the object from the source file
                     myPackager.replace(context, sip, pkgParams, sourceFile, objToReplace);
-
                     //commit all changes & exit successfully
                     context.complete();
                     return;
@@ -399,7 +396,6 @@ public class Packager {
                     throw new PackagerExitException(1);
                 }
             }
-
         } else if (myPackager.submit || pkgParams.restoreModeEnabled()) {
             //else if normal SUBMIT mode (or basic RESTORE mode -- which is a special type of submission)
             context.setMode(Context.Mode.BATCH_EDIT);
@@ -759,4 +755,5 @@ public class Packager {
             throw new PackageException(e);
         }
     }
+
 }

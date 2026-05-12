@@ -10,7 +10,7 @@
 # docker build --build-arg SOLR_VERSION=9.8 -f ./dspace/src/main/docker/dspace-solr/Dockerfile .
 # This will be published as 4science/dspace-cris-solr:$DSPACE_VERSION
 
-ARG SOLR_VERSION=9.8
+ARG SOLR_VERSION=9.10
 
 # NOTE: "solrconfigs" is a placeholder stage. It MUST be populated at runtime.
 # usage: docker build --build-context solrconfigs=[path-to-dspace/solr]

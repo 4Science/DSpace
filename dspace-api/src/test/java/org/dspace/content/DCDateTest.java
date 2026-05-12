@@ -159,7 +159,6 @@ public class DCDateTest {
         assertThat("testDCDateIntBits 22", dc.getHourUTC(), equalTo(2));
         assertThat("testDCDateIntBits 23", dc.getMinuteUTC(), equalTo(30));
         assertThat("testDCDateIntBits 24", dc.getSecondUTC(), equalTo(5));
-
     }
 
     /**
@@ -312,7 +311,6 @@ public class DCDateTest {
         assertThat("testDCDateString 12", dc.getSecondUTC(), equalTo(1));
     }
 
-
     /**
      * Test of toString method, of class DCDate.
      */
@@ -370,7 +368,6 @@ public class DCDateTest {
         assertThat("testToDate 4", dc.toDate(), equalTo(zdt));
     }
 
-
     /**
      * Test of displayDate method, of class DCDate.
      */
@@ -427,7 +424,6 @@ public class DCDateTest {
         assertEquals("testGetCurrent 0", DCDate.getCurrent().toDate().toLocalDate(), today);
     }
 
-
     /**
      * Test of getMonthName method, of class DCDate.
      */
@@ -441,7 +437,6 @@ public class DCDateTest {
                    equalTo("Unspecified"));
         assertThat("testGetMonthName 3", DCDate.getMonthName(14, Locale.of("en")),
                    equalTo("Unspecified"));
-
         assertThat("testGetMonthName 4", DCDate.getMonthName(1, Locale.of("en")),
                    equalTo("January"));
         assertThat("testGetMonthName 5", DCDate.getMonthName(2, Locale.of("en")),

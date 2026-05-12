@@ -456,4 +456,8 @@
 
    </dependencies>
 
+
+  <scm>
+    <tag>dspace-9.2</tag>
+  </scm>
 </project>

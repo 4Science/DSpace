@@ -37,7 +37,7 @@ public class ExternalSourcesByEntityTypesIT extends AbstractControllerIntegratio
     public void findExternalSourcesByEntityType() throws Exception {
         getClient()
                 .perform(get("/api/integration/externalsources/search/findByEntityType").param("entityType",
-                        "Publication").param("size", "11"))
+                        "Publication").param("size", "12"))
                             .andExpect(status().isOk())
                             .andExpect(jsonPath("$._embedded.externalsources", Matchers.containsInAnyOrder(
                                 ExternalSourceMatcher.matchExternalSource("mock", "mock", false),
@@ -46,6 +46,7 @@ public class ExternalSourcesByEntityTypesIT extends AbstractControllerIntegratio
                                 ExternalSourceMatcher.matchExternalSource("pubmed", "pubmed", false),
                                 ExternalSourceMatcher.matchExternalSource("scopus", "scopus", false),
                                 ExternalSourceMatcher.matchExternalSource("suggestion", "suggestion", false),
+                                ExternalSourceMatcher.matchExternalSource("core", "core", false),
                                 ExternalSourceMatcher.matchExternalSource("crossref", "crossref", false),
                                 ExternalSourceMatcher.matchExternalSource("orcidWorks", "orcidWorks", false),
                                 ExternalSourceMatcher
@@ -57,7 +58,7 @@ public class ExternalSourcesByEntityTypesIT extends AbstractControllerIntegratio
                                     .matchExternalSource(
                                         "openalexPublicationByAuthorId", "openalexPublicationByAuthorId", false)
                                 )))
-                            .andExpect(jsonPath("$.page.totalElements", Matchers.is(11)));
+                            .andExpect(jsonPath("$.page.totalElements", Matchers.is(12)));
         // mock and ORCID are configured without any entity type
         getClient()
                 .perform(get("/api/integration/externalsources/search/findByEntityType").param("entityType", "Funding"))
@@ -80,7 +81,7 @@ public class ExternalSourcesByEntityTypesIT extends AbstractControllerIntegratio
                                 ExternalSourceMatcher.matchExternalSource("mock3", "mock3", false),
                                 ExternalSourceMatcher.matchExternalSource("pubmed", "pubmed", false)
                             )))
-                            .andExpect(jsonPath("$.page.totalElements", Matchers.is(11)));
+                            .andExpect(jsonPath("$.page.totalElements", Matchers.is(12)));
     }
     @Test
     public void findAllByAuthorizedExternalSource() throws Exception {

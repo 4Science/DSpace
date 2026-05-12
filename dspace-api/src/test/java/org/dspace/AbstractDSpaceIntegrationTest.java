@@ -37,8 +37,7 @@ public class AbstractDSpaceIntegrationTest {
     /**
      * log4j category
      */
-    private static final Logger log = LogManager
-            .getLogger(AbstractDSpaceIntegrationTest.class);
+    private static final Logger log = LogManager.getLogger(AbstractDSpaceIntegrationTest.class);
 
     /**
      * Test properties. These configure our general test environment

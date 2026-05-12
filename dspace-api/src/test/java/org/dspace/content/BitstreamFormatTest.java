@@ -89,7 +89,7 @@ public class BitstreamFormatTest extends AbstractUnitTest {
             // This allows us to customize the bean's method return values in tests below
             Object unwrappedAuthorizeService = AopTestUtils.getUltimateTargetObject(authorizeService);
             authorizeServiceSpy = (AuthorizeService) mock(unwrappedAuthorizeService.getClass(),
-                withSettings().spiedInstance(unwrappedAuthorizeService).defaultAnswer(CALLS_REAL_METHODS));
+                    withSettings().spiedInstance(unwrappedAuthorizeService).defaultAnswer(CALLS_REAL_METHODS));
             // "Wire" our spy to be used by the current loaded bitstreamFormatService
             // (To ensure it uses the spy instead of the real service)
             ReflectionTestUtils.setField(bitstreamFormatService, "authorizeService", authorizeServiceSpy);

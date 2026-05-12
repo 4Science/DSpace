@@ -28,6 +28,7 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.UUID;
 
+import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.dspace.AbstractUnitTest;
 import org.dspace.authorize.AuthorizeException;
@@ -62,7 +63,7 @@ public class WorkspaceItemTest extends AbstractUnitTest {
     /**
      * log4j category
      */
-    private static final Logger log = org.apache.logging.log4j.LogManager.getLogger(WorkspaceItemTest.class);
+    private static final Logger log = LogManager.getLogger(WorkspaceItemTest.class);
 
     /**
      * WorkspaceItem instance for the tests
@@ -107,7 +108,7 @@ public class WorkspaceItemTest extends AbstractUnitTest {
             // This allows us to customize the bean's method return values in tests below
             Object unwrappedAuthorizeService = AopTestUtils.getUltimateTargetObject(authorizeService);
             authorizeServiceSpy = (AuthorizeService) mock(unwrappedAuthorizeService.getClass(),
-                withSettings().spiedInstance(unwrappedAuthorizeService).defaultAnswer(CALLS_REAL_METHODS));
+                             withSettings().spiedInstance(unwrappedAuthorizeService).defaultAnswer(CALLS_REAL_METHODS));
             // "Wire" our spy to be used by the current loaded object services
             // (To ensure these services use the spy instead of the real service)
             ReflectionTestUtils.setField(workspaceItemService, "authorizeService", authorizeServiceSpy);
