@@ -39,7 +39,6 @@ import org.dspace.content.authority.service.MetadataAuthorityService;
 import org.dspace.content.factory.ContentServiceFactory;
 import org.dspace.content.service.BitstreamService;
 import org.dspace.content.service.ItemService;
-import org.dspace.content.service.RelationshipService;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.core.Utils;
@@ -61,9 +60,6 @@ public class ItemUtils {
 
     private static final ItemService itemService
             = ContentServiceFactory.getInstance().getItemService();
-
-    private static final RelationshipService relationshipService
-            = ContentServiceFactory.getInstance().getRelationshipService();
 
     private static final BitstreamService bitstreamService
             = ContentServiceFactory.getInstance().getBitstreamService();
@@ -418,12 +414,9 @@ public class ItemUtils {
         // read all metadata into Metadata Object
         metadata = new Metadata();
 
-        // add item id
-        Element idElement = ItemUtils.create("id");
-        idElement.getField().add(createValue("value", item.getID().toString()));
-        metadata.getElement().add(idElement);
 
-        List<MetadataValue> vals = itemService.getMetadata(item, Item.ANY, Item.ANY, Item.ANY, Item.ANY);
+        List<MetadataValue> vals = UtilServiceFactory.getInstance().getMetadataSecurityService()
+                                                     .getPermissionFilteredMetadataValues(context, item);
         for (MetadataValue val : vals) {
             MetadataField field = val.getMetadataField();
             try {

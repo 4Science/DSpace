@@ -56,7 +56,6 @@ public class ItemEnhancerScriptIT extends AbstractIntegrationTestWithDatabase {
     private static ConfigurationService configService = DSpaceServicesFactory.getInstance().getConfigurationService();
 
     private static final EventService eventService = EventServiceFactory.getInstance().getEventService();
-    private static boolean isEnabled;
     private static String[] consumers;
     private ItemService itemService;
 
@@ -166,12 +165,12 @@ public class ItemEnhancerScriptIT extends AbstractIntegrationTestWithDatabase {
         secondPublication = reload(secondPublication);
         wsPublication = reload(wsPublication);
 
-        assertThat(getMetadataValues(firstPublication, "cris.virtual.department"), empty());
-        assertThat(getMetadataValues(firstPublication, "cris.virtualsource.department"), empty());
-        assertThat(getMetadataValues(secondPublication, "cris.virtual.department"), empty());
-        assertThat(getMetadataValues(secondPublication, "cris.virtualsource.department"), empty());
-        assertThat(getMetadataValues(wsPublication, "cris.virtual.department"), empty());
-        assertThat(getMetadataValues(wsPublication, "cris.virtualsource.department"), empty());
+        assertThat(getMetadataValues(firstPublication, "dspace.virtual.department"), empty());
+        assertThat(getMetadataValues(firstPublication, "dspace.virtualsource.department"), empty());
+        assertThat(getMetadataValues(secondPublication, "dspace.virtual.department"), empty());
+        assertThat(getMetadataValues(secondPublication, "dspace.virtualsource.department"), empty());
+        assertThat(getMetadataValues(wsPublication, "dspace.virtual.department"), empty());
+        assertThat(getMetadataValues(wsPublication, "dspace.virtualsource.department"), empty());
 
         TestDSpaceRunnableHandler runnableHandler = runScript(false);
 
@@ -183,37 +182,37 @@ public class ItemEnhancerScriptIT extends AbstractIntegrationTestWithDatabase {
         thirdPublication = reload(thirdPublication);
         wsPublication = reload(wsPublication);
 
-        assertThat(getMetadataValues(firstPublication, "cris.virtual.department"), hasSize(1));
-        assertThat(getMetadataValues(firstPublication, "cris.virtualsource.department"), hasSize(1));
-        assertThat(firstPublication.getMetadata(), hasItem(with("cris.virtual.department", "4Science")));
-        assertThat(firstPublication.getMetadata(), hasItem(with("cris.virtualsource.department", firstAuthorId)));
+        assertThat(getMetadataValues(firstPublication, "dspace.virtual.department"), hasSize(1));
+        assertThat(getMetadataValues(firstPublication, "dspace.virtualsource.department"), hasSize(1));
+        assertThat(firstPublication.getMetadata(), hasItem(with("dspace.virtual.department", "4Science")));
+        assertThat(firstPublication.getMetadata(), hasItem(with("dspace.virtualsource.department", firstAuthorId)));
 
-        assertThat(getMetadataValues(secondPublication, "cris.virtual.department"), hasSize(2));
-        assertThat(getMetadataValues(secondPublication, "cris.virtualsource.department"), hasSize(2));
-        assertThat(getMetadataValues(secondPublication, "cris.virtual.department"),
+        assertThat(getMetadataValues(secondPublication, "dspace.virtual.department"), hasSize(2));
+        assertThat(getMetadataValues(secondPublication, "dspace.virtualsource.department"), hasSize(2));
+        assertThat(getMetadataValues(secondPublication, "dspace.virtual.department"),
                 containsInAnyOrder(
-                    withNoPlace("cris.virtual.department", "4Science"),
-                    withNoPlace("cris.virtual.department", "Company")));
-        assertThat(getMetadataValues(secondPublication, "cris.virtualsource.department"),
+                    withNoPlace("dspace.virtual.department", "4Science"),
+                    withNoPlace("dspace.virtual.department", "Company")));
+        assertThat(getMetadataValues(secondPublication, "dspace.virtualsource.department"),
                 containsInAnyOrder(
-                    withNoPlace("cris.virtualsource.department", firstAuthorId),
-                    withNoPlace("cris.virtualsource.department", secondAuthorId)));
+                    withNoPlace("dspace.virtualsource.department", firstAuthorId),
+                    withNoPlace("dspace.virtualsource.department", secondAuthorId)));
 
-        assertThat(getMetadataValues(thirdPublication, "cris.virtual.department"), hasSize(3));
-        assertThat(getMetadataValues(thirdPublication, "cris.virtualsource.department"), hasSize(3));
-        assertThat(getMetadataValues(thirdPublication, "cris.virtual.department"),
+        assertThat(getMetadataValues(thirdPublication, "dspace.virtual.department"), hasSize(3));
+        assertThat(getMetadataValues(thirdPublication, "dspace.virtualsource.department"), hasSize(3));
+        assertThat(getMetadataValues(thirdPublication, "dspace.virtual.department"),
                 containsInAnyOrder(
-                    withNoPlace("cris.virtual.department", "4Science"),
-                    withNoPlace("cris.virtual.department", CrisConstants.PLACEHOLDER_PARENT_METADATA_VALUE),
-                    withNoPlace("cris.virtual.department", "Company")));
-        assertThat(getMetadataValues(thirdPublication, "cris.virtualsource.department"),
+                    withNoPlace("dspace.virtual.department", "4Science"),
+                    withNoPlace("dspace.virtual.department", CrisConstants.PLACEHOLDER_PARENT_METADATA_VALUE),
+                    withNoPlace("dspace.virtual.department", "Company")));
+        assertThat(getMetadataValues(thirdPublication, "dspace.virtualsource.department"),
                 containsInAnyOrder(
-                    withNoPlace("cris.virtualsource.department", randomUUID),
-                    withNoPlace("cris.virtualsource.department", firstAuthorId),
-                    withNoPlace("cris.virtualsource.department", secondAuthorId)));
+                    withNoPlace("dspace.virtualsource.department", randomUUID),
+                    withNoPlace("dspace.virtualsource.department", firstAuthorId),
+                    withNoPlace("dspace.virtualsource.department", secondAuthorId)));
 
-        assertThat(getMetadataValues(wsPublication, "cris.virtual.department"), empty());
-        assertThat(getMetadataValues(wsPublication, "cris.virtualsource.department"), empty());
+        assertThat(getMetadataValues(wsPublication, "dspace.virtual.department"), empty());
+        assertThat(getMetadataValues(wsPublication, "dspace.virtualsource.department"), empty());
 
     }
 
@@ -246,8 +245,8 @@ public class ItemEnhancerScriptIT extends AbstractIntegrationTestWithDatabase {
         context.commit();
         publication = reload(publication);
 
-        assertThat(getMetadataValues(publication, "cris.virtual.department"), empty());
-        assertThat(getMetadataValues(publication, "cris.virtualsource.department"), empty());
+        assertThat(getMetadataValues(publication, "dspace.virtual.department"), empty());
+        assertThat(getMetadataValues(publication, "dspace.virtualsource.department"), empty());
 
         TestDSpaceRunnableHandler runnableHandler = runScript(false);
 
@@ -256,16 +255,16 @@ public class ItemEnhancerScriptIT extends AbstractIntegrationTestWithDatabase {
 
         publication = reload(publication);
 
-        assertThat(getMetadataValues(publication, "cris.virtual.department"), hasSize(2));
-        assertThat(getMetadataValues(publication, "cris.virtualsource.department"), hasSize(2));
+        assertThat(getMetadataValues(publication, "dspace.virtual.department"), hasSize(2));
+        assertThat(getMetadataValues(publication, "dspace.virtualsource.department"), hasSize(2));
 
-        assertThat(getMetadataValues(publication, "cris.virtual.department"), containsInAnyOrder(
-                withNoPlace("cris.virtual.department", "4Science"),
-                withNoPlace("cris.virtual.department", "Company")));
+        assertThat(getMetadataValues(publication, "dspace.virtual.department"), containsInAnyOrder(
+                withNoPlace("dspace.virtual.department", "4Science"),
+                withNoPlace("dspace.virtual.department", "Company")));
 
-        assertThat(getMetadataValues(publication, "cris.virtualsource.department"), containsInAnyOrder(
-                withNoPlace("cris.virtualsource.department", firstAuthorId),
-                withNoPlace("cris.virtualsource.department", secondAuthorId)));
+        assertThat(getMetadataValues(publication, "dspace.virtualsource.department"), containsInAnyOrder(
+                withNoPlace("dspace.virtualsource.department", firstAuthorId),
+                withNoPlace("dspace.virtualsource.department", secondAuthorId)));
 
         context.turnOffAuthorisationSystem();
 
@@ -282,11 +281,11 @@ public class ItemEnhancerScriptIT extends AbstractIntegrationTestWithDatabase {
 
         publication = reload(publication);
 
-        assertThat(getMetadataValues(publication, "cris.virtual.department"), hasSize(1));
-        assertThat(getMetadataValues(publication, "cris.virtualsource.department"), hasSize(1));
+        assertThat(getMetadataValues(publication, "dspace.virtual.department"), hasSize(1));
+        assertThat(getMetadataValues(publication, "dspace.virtualsource.department"), hasSize(1));
 
-        assertThat(publication.getMetadata(), hasItem(with("cris.virtual.department", "4Science")));
-        assertThat(publication.getMetadata(), hasItem(with("cris.virtualsource.department", firstAuthorId)));
+        assertThat(publication.getMetadata(), hasItem(with("dspace.virtual.department", "4Science")));
+        assertThat(publication.getMetadata(), hasItem(with("dspace.virtualsource.department", firstAuthorId)));
 
     }
 
@@ -320,8 +319,8 @@ public class ItemEnhancerScriptIT extends AbstractIntegrationTestWithDatabase {
         context.commit();
         publication = reload(publication);
 
-        assertThat(getMetadataValues(publication, "cris.virtual.department"), empty());
-        assertThat(getMetadataValues(publication, "cris.virtualsource.department"), empty());
+        assertThat(getMetadataValues(publication, "dspace.virtual.department"), empty());
+        assertThat(getMetadataValues(publication, "dspace.virtualsource.department"), empty());
 
         TestDSpaceRunnableHandler runnableHandler = runScript(false);
 
@@ -330,17 +329,17 @@ public class ItemEnhancerScriptIT extends AbstractIntegrationTestWithDatabase {
 
         publication = reload(publication);
 
-        assertThat(getMetadataValues(publication, "cris.virtual.department"), hasSize(3));
-        assertThat(getMetadataValues(publication, "cris.virtualsource.department"), hasSize(3));
+        assertThat(getMetadataValues(publication, "dspace.virtual.department"), hasSize(3));
+        assertThat(getMetadataValues(publication, "dspace.virtualsource.department"), hasSize(3));
 
-        assertThat(getMetadataValues(publication, "cris.virtual.department"), containsInAnyOrder(
-                withNoPlace("cris.virtual.department", "4Science"),
-                withNoPlace("cris.virtual.department", "Another Company"),
-                withNoPlace("cris.virtual.department", "Company")));
-        assertThat(getMetadataValues(publication, "cris.virtualsource.department"), containsInAnyOrder(
-                withNoPlace("cris.virtualsource.department", editorId),
-                withNoPlace("cris.virtualsource.department", authorId),
-                withNoPlace("cris.virtualsource.department", authorId)));
+        assertThat(getMetadataValues(publication, "dspace.virtual.department"), containsInAnyOrder(
+                withNoPlace("dspace.virtual.department", "4Science"),
+                withNoPlace("dspace.virtual.department", "Another Company"),
+                withNoPlace("dspace.virtual.department", "Company")));
+        assertThat(getMetadataValues(publication, "dspace.virtualsource.department"), containsInAnyOrder(
+                withNoPlace("dspace.virtualsource.department", editorId),
+                withNoPlace("dspace.virtualsource.department", authorId),
+                withNoPlace("dspace.virtualsource.department", authorId)));
 
         context.turnOffAuthorisationSystem();
 
@@ -357,13 +356,13 @@ public class ItemEnhancerScriptIT extends AbstractIntegrationTestWithDatabase {
 
         publication = reload(publication);
 
-        assertThat(getMetadataValues(publication, "cris.virtual.department"), hasSize(1));
-        assertThat(getMetadataValues(publication, "cris.virtualsource.department"), hasSize(1));
+        assertThat(getMetadataValues(publication, "dspace.virtual.department"), hasSize(1));
+        assertThat(getMetadataValues(publication, "dspace.virtualsource.department"), hasSize(1));
 
-        assertThat(getMetadataValues(publication, "cris.virtual.department"), hasItem(
-                with("cris.virtual.department", "University")));
-        assertThat(getMetadataValues(publication, "cris.virtualsource.department"), hasItem(
-                with("cris.virtualsource.department", editorId)));
+        assertThat(getMetadataValues(publication, "dspace.virtual.department"), hasItem(
+                with("dspace.virtual.department", "University")));
+        assertThat(getMetadataValues(publication, "dspace.virtualsource.department"), hasItem(
+                with("dspace.virtualsource.department", editorId)));
     }
 
     @Test
@@ -407,8 +406,8 @@ public class ItemEnhancerScriptIT extends AbstractIntegrationTestWithDatabase {
         context.commit();
         publication = reload(publication);
 
-        assertThat(getMetadataValues(publication, "cris.virtual.department"), empty());
-        assertThat(getMetadataValues(publication, "cris.virtualsource.department"), empty());
+        assertThat(getMetadataValues(publication, "dspace.virtual.department"), empty());
+        assertThat(getMetadataValues(publication, "dspace.virtualsource.department"), empty());
 
         TestDSpaceRunnableHandler runnableHandler = runScript(false);
 
@@ -417,19 +416,19 @@ public class ItemEnhancerScriptIT extends AbstractIntegrationTestWithDatabase {
 
         publication = reload(publication);
 
-        assertThat(getMetadataValues(publication, "cris.virtual.department"), hasSize(4));
-        assertThat(getMetadataValues(publication, "cris.virtualsource.department"), hasSize(4));
+        assertThat(getMetadataValues(publication, "dspace.virtual.department"), hasSize(4));
+        assertThat(getMetadataValues(publication, "dspace.virtualsource.department"), hasSize(4));
 
-        assertThat(getMetadataValues(publication, "cris.virtual.department"), containsInAnyOrder(
-                withNoPlace("cris.virtual.department", PLACEHOLDER_PARENT_METADATA_VALUE),
-                withNoPlace("cris.virtual.department", "4Science"),
-                withNoPlace("cris.virtual.department", "Company"),
-                withNoPlace("cris.virtual.department", PLACEHOLDER_PARENT_METADATA_VALUE)));
-        assertThat(getMetadataValues(publication, "cris.virtualsource.department"), containsInAnyOrder(
-                withNoPlace("cris.virtualsource.department", firstAuthorId),
-                withNoPlace("cris.virtualsource.department", secondAuthorId),
-                withNoPlace("cris.virtualsource.department", thirdAuthorId),
-                withNoPlace("cris.virtualsource.department", fourthAuthorId)));
+        assertThat(getMetadataValues(publication, "dspace.virtual.department"), containsInAnyOrder(
+                withNoPlace("dspace.virtual.department", PLACEHOLDER_PARENT_METADATA_VALUE),
+                withNoPlace("dspace.virtual.department", "4Science"),
+                withNoPlace("dspace.virtual.department", "Company"),
+                withNoPlace("dspace.virtual.department", PLACEHOLDER_PARENT_METADATA_VALUE)));
+        assertThat(getMetadataValues(publication, "dspace.virtualsource.department"), containsInAnyOrder(
+                withNoPlace("dspace.virtualsource.department", firstAuthorId),
+                withNoPlace("dspace.virtualsource.department", secondAuthorId),
+                withNoPlace("dspace.virtualsource.department", thirdAuthorId),
+                withNoPlace("dspace.virtualsource.department", fourthAuthorId)));
     }
 
     @Test
@@ -454,8 +453,8 @@ public class ItemEnhancerScriptIT extends AbstractIntegrationTestWithDatabase {
         context.commit();
         publication = reload(publication);
 
-        assertThat(getMetadataValues(publication, "cris.virtual.department"), empty());
-        assertThat(getMetadataValues(publication, "cris.virtualsource.department"), empty());
+        assertThat(getMetadataValues(publication, "dspace.virtual.department"), empty());
+        assertThat(getMetadataValues(publication, "dspace.virtualsource.department"), empty());
 
         TestDSpaceRunnableHandler runnableHandler = runScript(false);
 
@@ -464,11 +463,11 @@ public class ItemEnhancerScriptIT extends AbstractIntegrationTestWithDatabase {
 
         publication = reload(publication);
 
-        assertThat(getMetadataValues(publication, "cris.virtual.department"), hasSize(1));
-        assertThat(getMetadataValues(publication, "cris.virtualsource.department"), hasSize(1));
+        assertThat(getMetadataValues(publication, "dspace.virtual.department"), hasSize(1));
+        assertThat(getMetadataValues(publication, "dspace.virtualsource.department"), hasSize(1));
 
-        assertThat(publication.getMetadata(), hasItem(with("cris.virtual.department", "4Science", 0)));
-        assertThat(publication.getMetadata(), hasItem(with("cris.virtualsource.department", secondAuthorId,0)));
+        assertThat(publication.getMetadata(), hasItem(with("dspace.virtual.department", "4Science", 0)));
+        assertThat(publication.getMetadata(), hasItem(with("dspace.virtualsource.department", secondAuthorId,0)));
 
     }
 
@@ -487,8 +486,8 @@ public class ItemEnhancerScriptIT extends AbstractIntegrationTestWithDatabase {
         context.commit();
         publication = reload(publication);
 
-        assertThat(getMetadataValues(publication, "cris.virtual.department"), empty());
-        assertThat(getMetadataValues(publication, "cris.virtualsource.department"), empty());
+        assertThat(getMetadataValues(publication, "dspace.virtual.department"), empty());
+        assertThat(getMetadataValues(publication, "dspace.virtualsource.department"), empty());
 
         TestDSpaceRunnableHandler runnableHandler = runScript(false);
 
@@ -497,8 +496,8 @@ public class ItemEnhancerScriptIT extends AbstractIntegrationTestWithDatabase {
 
         publication = reload(publication);
 
-        assertThat(getMetadataValues(publication, "cris.virtual.department"), empty());
-        assertThat(getMetadataValues(publication, "cris.virtualsource.department"), empty());
+        assertThat(getMetadataValues(publication, "dspace.virtual.department"), empty());
+        assertThat(getMetadataValues(publication, "dspace.virtualsource.department"), empty());
 
     }
 

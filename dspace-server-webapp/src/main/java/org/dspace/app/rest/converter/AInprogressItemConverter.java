@@ -74,11 +74,23 @@ public abstract class AInprogressItemConverter<T extends InProgressSubmission,
     @Autowired
     private ItemCorrectionService itemCorrectionService;
 
+    /**
+     * Default constructor for AInprogressItemConverter.
+     * Initializes the submission configuration service from the SubmissionServiceFactory.
+     *
+     * @throws SubmissionConfigReaderException if there is an error reading the submission configuration
+     */
     public AInprogressItemConverter() throws SubmissionConfigReaderException {
         submissionConfigService = SubmissionServiceFactory.getInstance().getSubmissionConfigService();
     }
 
-    @SuppressWarnings("unchecked")
+    /**
+     * Fills the REST representation object with data from the DSpace model object.
+     *
+     * @param obj        the DSpace API in-progress submission object to convert from
+     * @param witem      the DSpace REST in-progress submission representation to populate
+     * @param projection the projection object defining which fields to include in the representation
+     */
     protected void fillFromModel(T obj, R witem, Projection projection) {
         Collection collection = obj.getCollection();
         Item item = obj.getItem();
@@ -144,7 +156,7 @@ public abstract class AInprogressItemConverter<T extends InProgressSubmission,
 
     private boolean isCorrectionItem(Item item) {
         Request currentRequest = requestService.getCurrentRequest();
-        Context context = ContextUtil.obtainContext(currentRequest.getServletRequest());
+        Context context = ContextUtil.obtainContext(currentRequest.getHttpServletRequest());
         try {
             return itemCorrectionService.checkIfIsCorrectionItem(context, item);
         } catch (Exception ex) {
@@ -153,20 +165,37 @@ public abstract class AInprogressItemConverter<T extends InProgressSubmission,
         }
     }
 
+    /**
+     * Validates the in-progress submission and adds any validation errors to the REST representation.
+     *
+     * @param obj   the DSpace API in-progress submission object to validate
+     * @param witem the DSpace REST in-progress submission representation to add errors to
+     */
     @SuppressWarnings("unchecked")
     private void addValidationErrorsToItem(T obj, R witem) {
         Request currentRequest = requestService.getCurrentRequest();
-        Context context = ContextUtil.obtainContext(currentRequest.getServletRequest());
+        Context context = ContextUtil.obtainContext(currentRequest.getHttpServletRequest());
 
         validationService.validate(context, obj).stream()
-            .map(ErrorRest::fromValidationError)
-            .forEach(error -> addError(witem.getErrors(), error));
+                         .map(ErrorRest::fromValidationError)
+                         .forEach(error -> addError(witem.getErrors(), error));
     }
 
+    /**
+     * Stores the submission definition name in the current request attributes.
+     *
+     * @param name the name of the submission definition to store
+     */
     void storeSubmissionName(final String name) {
         requestService.getCurrentRequest().setAttribute("submission-name", name);
     }
 
+    /**
+     * Adds an error to the list of errors, merging errors with the same i18n message key.
+     *
+     * @param errors the list of existing errors to add to
+     * @param toAdd  the new error to add or merge with an existing error
+     */
     protected void addError(List<ErrorRest> errors, ErrorRest toAdd) {
 
         boolean found = false;

@@ -197,7 +197,7 @@ public class ImportBatchIT extends AbstractControllerIntegrationTest {
             Item item = wi.getItem();
 
             List<MetadataValue> metadata = item.getMetadata();
-            // one metadata is explicit the other is the cris.sourceid
+            // one metadata is explicit the other is the dspace.sourceid
             assertEquals("Only two metadata found", 2, metadata.size());
 
             String defLanguage = configurationService.getProperty("default.language");
@@ -357,7 +357,7 @@ public class ImportBatchIT extends AbstractControllerIntegrationTest {
                 } else if ("title".equals(m.getElement())) {
                     assertEquals("dc.title value is the right one", m.getValue(), "sample item");
                 } else if ("sourceId".equals(m.getElement())) {
-                    assertEquals("cris.sourceId value is the right one", m.getValue(), "TEST::1");
+                    assertEquals("dspace.sourceId value is the right one", m.getValue(), "TEST::1");
                 } else {
                     assertNull("Metadata is not valid.", m);
                 }
@@ -401,7 +401,7 @@ public class ImportBatchIT extends AbstractControllerIntegrationTest {
                 Item item = wi.getItem();
 
                 List<MetadataValue> metadata = item.getMetadata();
-                // one metadata is explicit the other is the cris.sourceid
+                // one metadata is explicit the other is the dspace.sourceid
                 assertEquals("Only two metadata found", 2, metadata.size());
 
                 String defLanguage = configurationService.getProperty("default.language");
@@ -451,7 +451,7 @@ public class ImportBatchIT extends AbstractControllerIntegrationTest {
             for (WorkspaceItem wi : wis) {
                 List<MetadataValue> metadata = wi.getItem().getMetadata();
 
-                // two metadata are explicit the other is the cris.sourceid
+                // two metadata are explicit the other is the dspace.sourceid
                 assertEquals("Only three metadata found", 3, metadata.size());
 
                 for (MetadataValue m : metadata) {
@@ -572,7 +572,7 @@ public class ImportBatchIT extends AbstractControllerIntegrationTest {
 
             // Create a new item
             argv = new String[] {"-E", admin.getEmail(), "-m", "dc.title", "-m", "dc.contributor.author", "-m",
-                "cris.sourceId", "-s"};
+                "dspace.sourceId", "-s"};
             ItemImportMainOA.main(argv);
 
             wis = workspaceItemService.findByEPerson(context, admin);

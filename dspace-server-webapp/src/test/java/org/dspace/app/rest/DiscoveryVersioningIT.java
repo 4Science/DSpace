@@ -120,7 +120,7 @@ public class DiscoveryVersioningIT extends AbstractControllerIntegrationTest {
             .withName("community")
             .build();
 
-        configurationService.setProperty("item.enable-virtual-metadata", true);
+        configurationService.setProperty("relationship.enable-virtual-metadata", true);
 
         context.restoreAuthSystemState();
     }

@@ -29,7 +29,7 @@ public class RedirectedUrlRemoveOperation extends RemovePatchOperation<CustomUrl
     @Override
     @SuppressWarnings("rawtypes")
     void remove(Context context, HttpServletRequest currentRequest, InProgressSubmission source, String path,
-        Object value) throws Exception {
+                Object value) throws Exception {
 
         Item item = source.getItem();
         int index = calculateRemoveIndex(path);

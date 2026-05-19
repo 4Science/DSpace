@@ -877,9 +877,9 @@ public class EditItemRestRepositoryIT extends AbstractControllerIntegrationTest 
                                 .withAuthor("Smith, Maria")
                                 .build();
 
-        itemService.addMetadata(context, itemA, "cris", "policy", "eperson", null, userA.getFullName(),
+        itemService.addMetadata(context, itemA, "dspace", "policy", "eperson", null, userA.getFullName(),
                                 userA.getID().toString(), 600);
-        itemService.addMetadata(context, itemA, "cris", "policy", "group", null, groupA.getName(),
+        itemService.addMetadata(context, itemA, "dspace", "policy", "group", null, groupA.getName(),
                                 groupA.getID().toString(), 600);
 
         EditItem editItem = new EditItem(context, itemA);
@@ -1093,9 +1093,9 @@ public class EditItemRestRepositoryIT extends AbstractControllerIntegrationTest 
                                 .withIssueDate("2015-06-25")
                                 .withAuthor("Mykhaylo, Boychuk").build();
 
-        itemService.addMetadata(context, itemA, "cris", "policy", "eperson", null, userA.getFullName(),
+        itemService.addMetadata(context, itemA, "dspace", "policy", "eperson", null, userA.getFullName(),
                                 userA.getID().toString(), 600);
-        itemService.addMetadata(context, itemA, "cris", "policy", "group", null, groupA.getName(),
+        itemService.addMetadata(context, itemA, "dspace", "policy", "group", null, groupA.getName(),
                                 groupA.getID().toString(), 600);
 
         EditItem editItem = new EditItem(context, itemA);
@@ -1158,9 +1158,9 @@ public class EditItemRestRepositoryIT extends AbstractControllerIntegrationTest 
                                 .withIssueDate("2015-06-25")
                                 .withAuthor("Mykhaylo, Boychuk").build();
 
-        itemService.addMetadata(context, itemA, "cris", "policy", "eperson", null, userA.getFullName(),
+        itemService.addMetadata(context, itemA, "dspace", "policy", "eperson", null, userA.getFullName(),
                                 userA.getID().toString(), 600);
-        itemService.addMetadata(context, itemA, "cris", "policy", "group", null, groupA.getName(),
+        itemService.addMetadata(context, itemA, "dspace", "policy", "group", null, groupA.getName(),
                                 groupA.getID().toString(), 600);
 
         EditItem editItem = new EditItem(context, itemA);
@@ -1330,7 +1330,7 @@ public class EditItemRestRepositoryIT extends AbstractControllerIntegrationTest 
     public void patchReplaceAllMetadataTest() throws Exception {
         context.turnOffAuthorisationSystem();
 
-        configurationService.setProperty("item.enable-virtual-metadata", false);
+        configurationService.setProperty("relationship.enable-virtual-metadata", false);
 
         parentCommunity = CommunityBuilder.createCommunity(context)
                                           .withName("Parent Community")

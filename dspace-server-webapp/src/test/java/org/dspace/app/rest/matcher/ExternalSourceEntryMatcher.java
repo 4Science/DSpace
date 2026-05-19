@@ -30,20 +30,17 @@ public class ExternalSourceEntryMatcher {
 
     /**
      * Check if the external source has a given metadata
-     * 
-     * @param metadata
-     *            the metadata name
-     * @param value
-     *            the metadata value
-     * @param place
-     *            the metadata place
+     *
+     * @param metadata the metadata name
+     * @param value    the metadata value
+     * @param place    the metadata place
      * @return
      */
     public static Matcher<? super Object> matchItemWithGivenMetadata(String metadata, String value,
-            String place) {
+                                                                     String place) {
         return allOf(
-                // Check metadata appear metadata section
-                hasJsonPath("$.metadata.['" + metadata + "'][" + place + "].value", is(value)));
+            // Check metadata appear metadata section
+            hasJsonPath("$.metadata.['" + metadata + "'][" + place + "].value", is(value)));
     }
 
     /**

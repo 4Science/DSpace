@@ -84,11 +84,11 @@ public class DescribeStep extends AbstractProcessingStep {
 
     private void readField(InProgressSubmission obj, SubmissionStepConfig config, DataDescribe data,
                            DCInputSet inputConfig) throws DCInputsReaderException {
-
-        String documentType = TypeBindUtils.getTypeBindValue(obj);
+        List<MetadataValue> documentTypes = TypeBindUtils.getTypeBindMetadataValues(obj);
 
         // Get list of all field names (including qualdrop names) allowed for this dc.type
-        List<String> allowedFieldNames = inputConfig.populateAllowedFieldNames(documentType);
+        List<String> allowedFieldNames =
+            inputConfig.populateAllowedFieldNames(documentTypes.stream().map(MetadataValue::getValue).toList());
 
         // Loop input rows and process submitted metadata
         for (DCInput[] row : inputConfig.getFields()) {

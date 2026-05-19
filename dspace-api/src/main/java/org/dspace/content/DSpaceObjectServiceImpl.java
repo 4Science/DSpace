@@ -23,8 +23,8 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.NotImplementedException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Strings;
 import org.apache.logging.log4j.Logger;
@@ -240,13 +240,13 @@ public abstract class DSpaceObjectServiceImpl<T extends DSpaceObject> implements
     @Override
     public List<MetadataValue> addMetadata(Context context, T dso, MetadataField metadataField, String lang,
                                            List<String> values, List<String> authorities, List<Integer> confidences)
-            throws SQLException {
+        throws SQLException {
 
         //Set place to list length of all metadatavalues for the given schema.element.qualifier combination.
         // Subtract one to adhere to the 0 as first element rule
         final Supplier<Integer> placeSupplier =  () ->
-                this.getMetadata(dso, metadataField.getMetadataSchema().getName(), metadataField.getElement(),
-                        metadataField.getQualifier(), Item.ANY).size() - 1;
+            this.getMetadata(dso, metadataField.getMetadataSchema().getName(), metadataField.getElement(),
+                metadataField.getQualifier(), Item.ANY).size() - 1;
 
         return addMetadata(context, dso, metadataField, lang, values, authorities, confidences, placeSupplier);
 
@@ -296,8 +296,7 @@ public abstract class DSpaceObjectServiceImpl<T extends DSpaceObject> implements
                     + authorities + "\"");
         }
 
-        boolean authorityRequired = metadataAuthorityService.isAuthorityRequired(metadataField, dso.getType(),
-                collection);
+        boolean authorityRequired = metadataAuthorityService.isAuthorityRequired(metadataField);
         // Throw an error if we are attempting to add empty values
         if (values == null || values.isEmpty()) {
             throw new IllegalArgumentException("Cannot add empty values to a new metadata field " +
@@ -394,7 +393,7 @@ public abstract class DSpaceObjectServiceImpl<T extends DSpaceObject> implements
     }
 
     private boolean isNotPlaceholderMetadataValue(String metadataValue) {
-        return !StringUtils.equals(metadataValue, PLACEHOLDER_PARENT_METADATA_VALUE);
+        return !Strings.CS.equals(metadataValue, PLACEHOLDER_PARENT_METADATA_VALUE);
     }
 
     @Override
@@ -848,7 +847,7 @@ public abstract class DSpaceObjectServiceImpl<T extends DSpaceObject> implements
                     Relationship relationship = relationshipService.find(context, Integer.parseInt(relationshipId));
 
                     if (relationship != null) {
-                        if (relationship.getLeftItem() == (Item) dso) {
+                        if (relationship.getLeftItem().equals(dso)) {
                             relationship.setLeftPlace(mvPlace);
                         } else {
                             relationship.setRightPlace(mvPlace);
@@ -924,11 +923,11 @@ public abstract class DSpaceObjectServiceImpl<T extends DSpaceObject> implements
             case "entity-type":
                 return new String[] { "dspace", "entity", "type" };
             case "submission-type":
-                return new String[] { MetadataSchemaEnum.CRIS.getName(), "submission", "definition" };
+                return new String[] { MetadataSchemaEnum.DSPACE.getName(), "submission", "definition" };
             case "workflow-name":
-                return new String[] { MetadataSchemaEnum.CRIS.getName(), "workflow", "name" };
+                return new String[] { MetadataSchemaEnum.DSPACE.getName(), "workflow", "name" };
             case "shared-workspace":
-                return new String[] { MetadataSchemaEnum.CRIS.getName(), "workspace", "shared" };
+                return new String[] { MetadataSchemaEnum.DSPACE.getName(), "workspace", "shared" };
             default:
                 return new String[] {null, null, null};
         }

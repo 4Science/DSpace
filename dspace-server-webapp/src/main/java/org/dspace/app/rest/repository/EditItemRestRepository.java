@@ -15,6 +15,7 @@ import java.util.UUID;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.ws.rs.NotFoundException;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.dspace.app.rest.Parameter;
@@ -38,11 +39,13 @@ import org.dspace.app.util.SubmissionConfigReaderException;
 import org.dspace.app.util.SubmissionStepConfig;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.authorize.service.AuthorizeService;
+import org.dspace.content.Bitstream;
 import org.dspace.content.Item;
 import org.dspace.content.edit.EditItem;
 import org.dspace.content.edit.EditItemMode;
 import org.dspace.content.edit.service.EditItemModeService;
 import org.dspace.content.edit.service.EditItemService;
+import org.dspace.content.service.BitstreamService;
 import org.dspace.content.service.ItemService;
 import org.dspace.core.Context;
 import org.dspace.eperson.EPerson;
@@ -89,21 +92,41 @@ public class EditItemRestRepository extends DSpaceRestRepository<EditItemRest, S
     ItemService itemService;
 
     @Autowired
+    BitstreamService bitstreamService;
+
+    @Autowired
     private ValidationService validationService;
 
     @Autowired
     private EditItemModeService editItemModeService;
 
+    /**
+     * Constructor for EditItemRestRepository.
+     * Initializes the submission configuration reader for processing edit item submissions.
+     *
+     * @throws SubmissionConfigReaderException if the submission configuration cannot be read
+     */
     public EditItemRestRepository() throws SubmissionConfigReaderException {
         submissionConfigReader = new SubmissionConfigReader();
     }
 
-    /* (non-Javadoc)
-     * @see org.dspace.app.rest.repository.DSpaceRestRepository#findOne(org.dspace.core.Context, java.io.Serializable)
+    /**
+     * Retrieves a single EditItem by its composite identifier.
+     * The identifier must be in the format "UUID:MODE", where UUID is the item identifier
+     * and MODE is the edit mode name. Security is checked internally in EditItemModeServiceImpl.hasAccess.
+     *
+     * @param context the DSpace context
+     * @param data the composite identifier in format "UUID:MODE" (e.g., "123e4567-e89b-12d3-a456-426614174000:FULL")
+     * @return the EditItemRest representation of the edit item, or null if not found
+     * @throws DSpaceBadRequestException if the data parameter is not in the expected format
+     * @throws ResourceNotFoundException if the item with the specified UUID does not exist or the mode configuration
+     *                                   is not found
+     * @throws AccessDeniedException if the current user does not have rights to edit in the specified mode
+     * @throws RuntimeException if a database error occurs
      */
     @Override
-    @PreAuthorize("permitAll()")
-    // Security is checked internaly in EditItemModeServiceImpl.hasAccess
+    @PreAuthorize("isAuthenticated()")
+    // Security is checked internally in EditItemModeServiceImpl.hasAccess
     public EditItemRest findOne(Context context, String data) {
         EditItem editItem = null;
         String uuid = null;
@@ -136,10 +159,16 @@ public class EditItemRestRepository extends DSpaceRestRepository<EditItemRest, S
         return converter.toRest(editItem, utils.obtainProjection());
     }
 
-    /* (non-Javadoc)
-     * @see org.dspace.app.rest.repository.DSpaceRestRepository#
-     * findAll(org.dspace.core.Context, org.springframework.data.domain.Pageable)
+    /**
+     * Retrieves all edit items in the system with pagination support.
+     * This method returns a paginated list of all edit items accessible in the repository.
+     *
+     * @param context the DSpace context
+     * @param pageable the pagination information including page size and offset
+     * @return a paginated list of EditItemRest objects
+     * @throws RuntimeException if a database error occurs while retrieving edit items
      */
+    @PreAuthorize("isAuthenticated()")
     @Override
     public Page<EditItemRest> findAll(Context context, Pageable pageable) {
         Iterator<EditItem> it = null;
@@ -158,14 +187,37 @@ public class EditItemRestRepository extends DSpaceRestRepository<EditItemRest, S
         return converter.toRestPage(items, pageable, total, utils.obtainProjection());
     }
 
-    /* (non-Javadoc)
-     * @see org.dspace.app.rest.repository.DSpaceRestRepository#getDomainClass()
+    /**
+     * Returns the domain class managed by this repository.
+     * This method is required by the DSpaceRestRepository interface to identify
+     * the REST resource type handled by this repository.
+     *
+     * @return the EditItemRest class object
      */
     @Override
     public Class<EditItemRest> getDomainClass() {
         return EditItemRest.class;
     }
 
+    /**
+     * Handles file upload for an edit item submission step.
+     * This method processes file uploads for items in edit mode by delegating to the appropriate
+     * uploadable submission step. The data parameter must be in the format "UUID:MODE".
+     * The method validates permissions, finds the appropriate uploadable step in the submission
+     * configuration, and processes the file upload.
+     *
+     * @param request the HTTP servlet request
+     * @param apiCategory the API category (not used in this implementation)
+     * @param model the model name (not used in this implementation)
+     * @param data the composite identifier in format "UUID:MODE"
+     * @param file the multipart file to upload
+     * @return the updated EditItemRest representation with any upload errors included
+     * @throws SQLException if a database error occurs
+     * @throws DSpaceBadRequestException if the data parameter is not in the expected format
+     * @throws ResourceNotFoundException if the item with the specified UUID does not exist
+     * @throws AccessDeniedException if the current user does not have rights to edit in the specified mode
+     * @throws MethodNotAllowedException if no uploadable step is defined for the given edit item mode
+     */
     @Override
     public EditItemRest upload(HttpServletRequest request, String apiCategory, String model, String data,
                                     MultipartFile file) throws SQLException {
@@ -207,6 +259,7 @@ public class EditItemRestRepository extends DSpaceRestRepository<EditItemRest, S
             submissionConfigReader.getSubmissionConfigByName(source.getMode().getSubmissionDefinition());
         context.turnOffAuthorisationSystem();
         boolean hasUploadableStep = false;
+        Bitstream newBitstream = null;
         for (int i = 0; i < submissionConfig.getNumberOfSteps(); i++) {
             SubmissionStepConfig stepConfig = submissionConfig.getStep(i);
 
@@ -223,9 +276,13 @@ public class EditItemRestRepository extends DSpaceRestRepository<EditItemRest, S
                 if (UploadableStep.class.isAssignableFrom(stepClass)) {
                     hasUploadableStep = true;
                     UploadableStep uploadableStep = (UploadableStep) stepInstance;
-                    ErrorRest err = uploadableStep.upload(context, submissionService, stepConfig, source, file);
-                    if (err != null) {
-                        errors.add(err);
+                    Pair<Bitstream, ErrorRest> pair = uploadableStep.upload(
+                        context, submissionService, stepConfig, source, file
+                    );
+                    if (pair.getRight() != null) {
+                        errors.add(pair.getRight());
+                    } else {
+                        newBitstream = pair.getLeft();
                     }
                 }
 
@@ -233,6 +290,20 @@ public class EditItemRestRepository extends DSpaceRestRepository<EditItemRest, S
                 log.error(e.getMessage(), e);
             }
 
+        }
+
+        // If replaceFile parameter (bitstream UUID) is provided and upload succeeded, replace the original bitstream.
+        String replaceFileUuid = request.getParameter("replaceFile");
+        if (replaceFileUuid != null && !replaceFileUuid.isBlank() && newBitstream != null && errors.isEmpty()) {
+            try {
+                Bitstream originalBitstream = bitstreamService.find(context, UUID.fromString(replaceFileUuid));
+                if (originalBitstream != null) {
+                    boolean replaceName = Boolean.parseBoolean(request.getParameter("replaceName"));
+                    bitstreamService.replace(context, originalBitstream, newBitstream, replaceName);
+                }
+            } catch (Exception e) {
+                log.error("Error replacing bitstream with UUID " + replaceFileUuid, e);
+            }
         }
 
         if (!hasUploadableStep) {
@@ -252,6 +323,27 @@ public class EditItemRestRepository extends DSpaceRestRepository<EditItemRest, S
         return eir;
     }
 
+    /**
+     * Applies a JSON Patch to an edit item.
+     * This method processes patch operations on edit item sections, validating that the number
+     * of validation errors does not increase after applying the patch. All operations must
+     * target paths starting with "/sections/". The method enforces validation by comparing
+     * error counts before and after the patch is applied.
+     *
+     * @param context the DSpace context
+     * @param request the HTTP servlet request
+     * @param apiCategory the API category (not used in this implementation)
+     * @param model the model name (not used in this implementation)
+     * @param data the composite identifier in format "UUID:MODE"
+     * @param patch the JSON Patch containing operations to apply
+     * @throws SQLException if a database error occurs
+     * @throws AuthorizeException if the user is not authorized to perform the operation
+     * @throws DSpaceBadRequestException if the data parameter is not in the expected format or patch path is invalid
+     * @throws ResourceNotFoundException if the item with the specified UUID does not exist
+     * @throws AccessDeniedException if the current user does not have rights to edit in the specified mode
+     * @throws UnprocessableEditException if applying the patch increases the number of validation errors
+     * @throws UnprocessableEntityException if the specified section does not exist in the submission configuration
+     */
     @Override
     public void patch(Context context, HttpServletRequest request, String apiCategory, String model, String data,
                       Patch patch) throws SQLException, AuthorizeException {
@@ -376,7 +468,7 @@ public class EditItemRestRepository extends DSpaceRestRepository<EditItemRest, S
         }
     }
 
-    @PreAuthorize("permitAll")
+    @PreAuthorize("isAuthenticated()")
     @SearchRestMethod(name = "findModesById")
     public Page<EditItemModeRest> findModesById(@Parameter(value = "uuid", required = true) UUID id,
                                                 Pageable pageable) {

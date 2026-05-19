@@ -20,6 +20,7 @@ import org.dspace.utils.DSpace;
 /**
  * Implementation of {@link Consumer} that resolve all the references to the
  * current item.
+ *
  * @author Luca Giamminonni (luca.giamminonni at 4science.it)
  *
  */
@@ -27,7 +28,7 @@ public class ItemReferenceResolverConsumer implements Consumer {
 
     private ItemReferenceResolverService itemReferenceResolverService;
 
-    private Set<Item> itemsAlreadyProcessed = new HashSet<Item>();
+    private final Set<Item> itemsAlreadyProcessed = new HashSet<Item>();
 
     @Override
     public void initialize() throws Exception {

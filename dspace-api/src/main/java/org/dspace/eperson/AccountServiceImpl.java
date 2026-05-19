@@ -21,14 +21,13 @@ import java.util.stream.Stream;
 
 import jakarta.mail.MessagingException;
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.dspace.authenticate.service.AuthenticationService;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.content.Item;
 import org.dspace.content.MetadataValue;
-import org.dspace.content.service.MetadataValueService;
 import org.dspace.core.Context;
 import org.dspace.core.Email;
 import org.dspace.core.I18nUtil;
@@ -82,43 +81,8 @@ public class AccountServiceImpl implements AccountService {
     @Autowired
     private AuthenticationService authenticationService;
 
-    @Autowired
-    private MetadataValueService metadataValueService;
-
     protected AccountServiceImpl() {
 
-    }
-
-    private static boolean canCreateUserFromExternalRegistrationToken(
-        Context context, RegistrationTypeEnum registrationTypeEnum
-    ) {
-        return context.getCurrentUser() != null && isExternalRegistrationToken(registrationTypeEnum);
-    }
-
-    private static boolean isExternalRegistrationToken(RegistrationTypeEnum registrationTypeEnum) {
-        return RegistrationTypeEnum.ORCID.equals(registrationTypeEnum);
-    }
-
-    private static boolean isValidationToken(RegistrationTypeEnum registrationTypeEnum) {
-        return RegistrationTypeEnum.VALIDATION_ORCID.equals(registrationTypeEnum);
-    }
-
-
-    /**
-     * This method returns a link that will point to the Angular UI that will be used by the user to complete the
-     * registration process.
-     *
-     * @param base    is the UI url of DSpace
-     * @param rd      is the RegistrationData related to the user
-     * @param subPath is the specific page that will be loaded on the FE
-     * @return String that represents that link
-     */
-    private static String getSpecialLink(String base, RegistrationData rd, String subPath) {
-        return base +
-            (base.endsWith("/") ? "" : "/") +
-            subPath +
-            "/" +
-            rd.getToken();
     }
 
     /**
@@ -133,9 +97,9 @@ public class AccountServiceImpl implements AccountService {
      *
      * @param context DSpace context
      * @param email   Email address to send the registration email to
-     * @throws java.sql.SQLException                   passed through.
-     * @throws java.io.IOException                     passed through.
-     * @throws jakarta.mail.MessagingException         passed through.
+     * @throws java.sql.SQLException passed through.
+     * @throws java.io.IOException passed through.
+     * @throws jakarta.mail.MessagingException passed through.
      * @throws org.dspace.authorize.AuthorizeException passed through.
      */
     @Override
@@ -162,11 +126,12 @@ public class AccountServiceImpl implements AccountService {
      *   <li>Authorization error (throws AuthorizeException).</li>
      * </ul>
      *
+     *
      * @param context DSpace context
      * @param email   Email address to send the forgot-password email to
-     * @throws java.sql.SQLException                   passed through.
-     * @throws java.io.IOException                     passed through.
-     * @throws jakarta.mail.MessagingException         passed through.
+     * @throws java.sql.SQLException passed through.
+     * @throws java.io.IOException passed through.
+     * @throws jakarta.mail.MessagingException passed through.
      * @throws org.dspace.authorize.AuthorizeException passed through.
      */
     @Override
@@ -179,7 +144,7 @@ public class AccountServiceImpl implements AccountService {
      * Checks if exists an account related to the token provided
      *
      * @param context DSpace context
-     * @param token   Account token
+     * @param token Account token
      * @return true if exists, false otherwise
      * @throws SQLException
      * @throws AuthorizeException
@@ -208,8 +173,8 @@ public class AccountServiceImpl implements AccountService {
      * @param context DSpace context
      * @param token   Account token
      * @return The EPerson corresponding to token, or null.
-     * @throws SQLException       If the token or eperson cannot be retrieved from the
-     *                            database.
+     * @throws SQLException If the token or eperson cannot be retrieved from the
+     *                      database.
      * @throws AuthorizeException passed through.
      */
     @Override
@@ -356,8 +321,9 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public boolean isTokenValidForCreation(RegistrationData registrationData) {
         return (
-            isExternalRegistrationToken(registrationData.getRegistrationType()) ||
-                isValidationToken(registrationData.getRegistrationType())) &&
+                isExternalRegistrationToken(registrationData.getRegistrationType()) ||
+                isValidationToken(registrationData.getRegistrationType())
+            ) &&
             StringUtils.isNotBlank(registrationData.getNetId());
     }
 
@@ -366,6 +332,33 @@ public class AccountServiceImpl implements AccountService {
             canCreateUserFromExternalRegistrationToken(context, registrationTypeEnum);
     }
 
+    private static boolean canCreateUserFromExternalRegistrationToken(
+        Context context, RegistrationTypeEnum registrationTypeEnum
+    ) {
+        return context.getCurrentUser() != null && isExternalRegistrationToken(registrationTypeEnum);
+    }
+
+    private static boolean isExternalRegistrationToken(RegistrationTypeEnum registrationTypeEnum) {
+        return RegistrationTypeEnum.ORCID.equals(registrationTypeEnum);
+    }
+
+    private static boolean isValidationToken(RegistrationTypeEnum registrationTypeEnum) {
+        return RegistrationTypeEnum.VALIDATION_ORCID.equals(registrationTypeEnum);
+    }
+
+
+    /**
+     * Updates Eperson using the provided {@link RegistrationData}.<br/>
+     * Tries to replace {@code metadata} already set inside the {@link EPerson} with the ones
+     * listed inside the {@code overrides} field by taking the value from the {@link RegistrationData}. <br/>
+     * Updates the empty values inside the {@link EPerson} by taking them directly from the {@link RegistrationData},
+     * according to the method {@link AccountServiceImpl#getUpdateActions(Context, EPerson, RegistrationData)}
+     *
+     * @param context The DSpace context
+     * @param eperson The EPerson that should be updated
+     * @param registrationData The RegistrationData related to that EPerson
+     * @param overrides List of metadata that will be overwritten inside the EPerson
+     */
     protected void updateValuesFromRegistration(
         Context context, EPerson eperson, RegistrationData registrationData, List<String> overrides
     ) {
@@ -392,8 +385,8 @@ public class AccountServiceImpl implements AccountService {
      *     <li>Copies any {@link RegistrationData#metadata} inside {@link EPerson#metadata} if isn't already set.</li>
      * </ul>
      *
-     * @param context          DSpace context
-     * @param eperson          EPerson that will be evaluated
+     * @param context DSpace context
+     * @param eperson EPerson that will be evaluated
      * @param registrationData RegistrationData used as a base to copy value from.
      * @return a stream of consumers to be evaluated on EPerson.
      */
@@ -436,15 +429,15 @@ public class AccountServiceImpl implements AccountService {
      * This method returns a Consumer that will override a given {@link MetadataValue} of the {@link EPerson} by taking
      * that directly from the {@link RegistrationData}.
      *
-     * @param field            The metadatafield
-     * @param registrationData The RegistrationData where the metadata wil be taken
+     * @param field             The metadatafield
+     * @param registrationData  The RegistrationData where the metadata wil be taken
      * @return a Consumer of the person that will replace that field
      */
     protected Consumer<EPerson> mergeField(String field, RegistrationData registrationData) {
         return person ->
             allowedMergeArguments.getOrDefault(
-                field,
-                mergeRegistrationMetadata(field)
+                    field,
+                    mergeRegistrationMetadata(field)
             ).accept(registrationData, person);
     }
 
@@ -605,12 +598,29 @@ public class AccountServiceImpl implements AccountService {
         }
     }
 
+    /**
+     * This method returns a link that will point to the Angular UI that will be used by the user to complete the
+     * registration process.
+     *
+     * @param base is the UI url of DSpace
+     * @param rd is the RegistrationData related to the user
+     * @param subPath is the specific page that will be loaded on the FE
+     * @return String that represents that link
+     */
+    private static String getSpecialLink(String base, RegistrationData rd, String subPath) {
+        return new StringBuffer(base)
+            .append(base.endsWith("/") ? "" : "/")
+            .append(subPath)
+            .append("/")
+            .append(rd.getToken())
+            .toString();
+    }
 
     /**
      * Fills out a given email template obtained starting from the {@link RegistrationTypeEnum}.
      *
      * @param context The DSpace Context
-     * @param rd      The RegistrationData that will be used as a registration.
+     * @param rd The RegistrationData that will be used as a registration.
      * @throws MessagingException
      * @throws IOException
      */
@@ -634,9 +644,9 @@ public class AccountServiceImpl implements AccountService {
     /**
      * This method fills out the given email with all the fields and sends out the email.
      *
-     * @param email         - The recipient
+     * @param email - The recipient
      * @param emailFilename The name of the email
-     * @param specialLink   - The link that will be set inside the email
+     * @param specialLink - The link that will be set inside the email
      * @throws IOException
      * @throws MessagingException
      */

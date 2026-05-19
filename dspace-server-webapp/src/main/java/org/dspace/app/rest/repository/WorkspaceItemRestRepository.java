@@ -18,6 +18,7 @@ import java.util.UUID;
 
 import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.logging.log4j.Logger;
 import org.dspace.app.rest.Parameter;
 import org.dspace.app.rest.SearchRestMethod;
@@ -25,7 +26,6 @@ import org.dspace.app.rest.authorization.AuthorizationFeature;
 import org.dspace.app.rest.authorization.AuthorizationFeatureService;
 import org.dspace.app.rest.authorization.AuthorizationRestUtil;
 import org.dspace.app.rest.authorization.impl.ItemCorrectionFeature;
-import org.dspace.app.rest.converter.WorkspaceItemConverter;
 import org.dspace.app.rest.exception.DSpaceBadRequestException;
 import org.dspace.app.rest.exception.ExtractMetadataStepException;
 import org.dspace.app.rest.exception.RESTAuthorizationException;
@@ -115,9 +115,6 @@ public class WorkspaceItemRestRepository extends DSpaceRestRepository<WorkspaceI
 
     @Autowired
     ItemCorrectionService itemCorrectionService;
-
-    @Autowired
-    WorkspaceItemConverter workspaceItemConverter;
 
     @Autowired
     SubmissionService submissionService;
@@ -245,7 +242,7 @@ public class WorkspaceItemRestRepository extends DSpaceRestRepository<WorkspaceI
     @PreAuthorize("hasPermission(#id, 'WORKSPACEITEM', 'WRITE')")
     @Override
     public WorkspaceItemRest upload(HttpServletRequest request, String apiCategory, String model, Integer id,
-                                    MultipartFile file) throws SQLException {
+                                    MultipartFile file) throws SQLException, AuthorizeException, IOException {
 
         Context context = obtainContext();
         WorkspaceItemRest wsi = findOne(context, id);
@@ -253,13 +250,15 @@ public class WorkspaceItemRestRepository extends DSpaceRestRepository<WorkspaceI
 
         List<ErrorRest> errors = submissionService.uploadFileToInprogressSubmission(context, request, wsi, source,
                 file);
+
+        // Commit & reload before converting to REST to ensure that Bitstream access conditions are taken into account
+        context.commit();
+        source = context.reloadEntity(source);
         wsi = converter.toRest(source, utils.obtainProjection());
 
         if (!errors.isEmpty()) {
             wsi.getErrors().addAll(errors);
         }
-
-        context.commit();
         return wsi;
     }
 
@@ -366,10 +365,11 @@ public class WorkspaceItemRestRepository extends DSpaceRestRepository<WorkspaceI
                                         if (UploadableStep.class.isAssignableFrom(stepClass)) {
                                             UploadableStep uploadableStep = (UploadableStep) stepInstance;
                                             for (MultipartFile uploadfile : uploadfiles) {
-                                                ErrorRest err = uploadableStep.upload(context, submissionService,
-                                                        stepConfig, wi, uploadfile);
-                                                if (err != null) {
-                                                    errors.add(err);
+                                                Pair<Bitstream, ErrorRest> bitstreamAndError =
+                                                    uploadableStep
+                                                        .upload(context, submissionService, stepConfig, wi, uploadfile);
+                                                if (bitstreamAndError.getRight() != null) {
+                                                    errors.add(bitstreamAndError.getRight());
                                                 }
                                             }
 

@@ -46,7 +46,7 @@ public class EntityTypeAuthorityFilterTest {
         // Test set up EntityTypeAuthorityFilter setting up no custom filter
         EntityTypeAuthorityFilter entityTypeAuthorityFilter = new EntityTypeAuthorityFilter(
             Arrays.asList("query 1", "query 2"));
-        entityTypeAuthorityFilter.setSupportedEntities(Arrays.asList());
+        entityTypeAuthorityFilter.setSupportedEntities(List.of());
 
         ItemAuthority authority = Mockito.mock(ItemAuthority.class);
 
@@ -75,7 +75,7 @@ public class EntityTypeAuthorityFilterTest {
 
         List<String> queries = entityTypeAuthorityFilter.getFilterQueries(authority);
 
-        assertThat(queries, is(Arrays.asList()));
+        assertThat(queries, is(List.of()));
     }
 
     @Test
@@ -95,6 +95,6 @@ public class EntityTypeAuthorityFilterTest {
 
         List<String> queries = entityTypeAuthorityFilter.getFilterQueries(authority);
 
-        assertThat(queries, is(Arrays.asList()));
+        assertThat(queries, is(List.of()));
     }
 }

@@ -45,7 +45,7 @@ public class SolrServiceMetricsIndexPlugin implements SolrServiceIndexPlugin {
                             -1, -1);
                     for (CrisMetrics metric : metrics) {
                         String lastImport = itemService.getMetadataFirstValue(item,
-                                "cris", "lastimport", metric.getMetricType(), Item.ANY);
+                                "dspace", "lastimport", metric.getMetricType(), Item.ANY);
                         SearchUtils.addMetricFieldsInSolrDoc(metric, document, lastImport);
                     }
                 } catch (SQLException e) {

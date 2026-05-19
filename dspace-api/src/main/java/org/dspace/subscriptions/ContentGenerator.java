@@ -8,13 +8,12 @@
 package org.dspace.subscriptions;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.apache.commons.lang.StringUtils.EMPTY;
+import static org.apache.commons.lang3.StringUtils.EMPTY;
 
 import java.io.ByteArrayOutputStream;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -87,7 +86,7 @@ public class ContentGenerator {
                 out.write((type + " \"" + item.getName() + "\" - " + item.getUrl() + "\n")
                               .getBytes(UTF_8));
 
-                for (Entry<String, String> entry : item.getItemUrlsByItemName().entrySet()) {
+                for (Map.Entry<String, String> entry : item.getItemUrlsByItemName().entrySet()) {
                     out.write("\n".getBytes(UTF_8));
                     out.write((entry.getKey() + " - " + entry.getValue()).getBytes(UTF_8));
                 }

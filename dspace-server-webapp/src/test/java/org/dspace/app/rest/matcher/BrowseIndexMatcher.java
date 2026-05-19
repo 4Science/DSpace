@@ -221,7 +221,7 @@ public class BrowseIndexMatcher {
 
     public static Matcher<? super Object> rodeptBrowseIndex(final String order) {
         return allOf(
-            hasJsonPath("$.metadata", contains("cris.virtual.department")),
+            hasJsonPath("$.metadata", contains("dspace.virtual.department")),
             hasJsonPath("$.order", equalToIgnoringCase(order)),
             hasJsonPath("$.sortOptions[*].name", containsInAnyOrder("title", "dateissued", "dateaccessioned")),
             hasJsonPath("$._links.self.href", is(REST_SERVER_URL + "discover/browses/rodept")),

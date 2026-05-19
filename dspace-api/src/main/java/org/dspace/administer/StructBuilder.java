@@ -8,7 +8,6 @@
 package org.dspace.administer;
 
 import static org.dspace.content.Item.ANY;
-import static org.dspace.content.MetadataSchemaEnum.CRIS;
 import static org.dspace.content.authority.Choices.CF_UNSET;
 import static org.dspace.content.service.DSpaceObjectService.MD_COPYRIGHT_TEXT;
 import static org.dspace.content.service.DSpaceObjectService.MD_INTRODUCTORY_TEXT;
@@ -477,19 +476,22 @@ public class StructBuilder {
         }
 
         String submissionDefinition = collectionService.getMetadataFirstValue(collection,
-            MetadataSchemaEnum.CRIS.getName(), "submission", "definition", Item.ANY);
+            MetadataSchemaEnum.DSPACE.getName(), "submission", "definition", Item.ANY);
         if (StringUtils.isNotBlank(submissionDefinition)) {
             element.addContent(new Element("submission-type").setText(submissionDefinition));
         }
 
-        String workflowName = collectionService.getMetadataFirstValue(collection, MetadataSchemaEnum.CRIS.getName(),
+        String workflowName = collectionService.getMetadataFirstValue(collection, MetadataSchemaEnum.DSPACE.getName(),
                 "workflow", "name", Item.ANY);
         if (StringUtils.isNotBlank(workflowName)) {
             element.addContent(new Element("workflow-name").setText(workflowName));
         }
 
-        String sharedWorkspace = collectionService.getMetadataFirstValue(collection, MetadataSchemaEnum.CRIS.getName(),
-            "workspace", "shared", Item.ANY);
+        String sharedWorkspace = collectionService.getMetadataFirstValue(collection,
+                                                                         MetadataSchemaEnum.DSPACE.getName(),
+                                                                         "workspace",
+                                                                         "shared",
+                                                                         Item.ANY);
         if (StringUtils.isNotBlank(sharedWorkspace)) {
             element.addContent(new Element("shared-workspace").setText(sharedWorkspace));
         }
@@ -955,18 +957,20 @@ public class StructBuilder {
             }
 
             String submissionDefinition = collectionService.getMetadataFirstValue(collection,
-                MetadataSchemaEnum.CRIS.getName(), "submission", "definition", Item.ANY);
+                MetadataSchemaEnum.DSPACE.getName(), "submission", "definition", Item.ANY);
             if (StringUtils.isNotBlank(submissionDefinition)) {
                 element.addContent(new Element("submission-type").setText(submissionDefinition));
             }
 
-            String workflowName = collectionService.getMetadataFirstValue(collection, MetadataSchemaEnum.CRIS.getName(),
+            String workflowName = collectionService
+                .getMetadataFirstValue(collection, MetadataSchemaEnum.DSPACE.getName(),
                     "workflow", "name", Item.ANY);
             if (StringUtils.isNotBlank(workflowName)) {
                 element.addContent(new Element("workflow-name").setText(workflowName));
             }
 
-            String sharedWorkspace = collectionService.getMetadataFirstValue(collection, CRIS.getName(),
+            String sharedWorkspace = collectionService
+                .getMetadataFirstValue(collection, MetadataSchemaEnum.DSPACE.getName(),
                 "workspace", "shared", Item.ANY);
             if (StringUtils.isNotBlank(sharedWorkspace)) {
                 element.addContent(new Element("shared-workspace").setText(sharedWorkspace));

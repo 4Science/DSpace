@@ -8,7 +8,7 @@
 
 package org.dspace.app.rest;
 
-import static org.apache.commons.lang.StringUtils.defaultIfBlank;
+import static org.apache.commons.lang3.StringUtils.defaultIfBlank;
 
 import java.io.IOException;
 import java.sql.SQLException;

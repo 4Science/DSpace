@@ -15,6 +15,9 @@ import static org.dspace.app.rest.matcher.MetadataMatcher.matchMetadataDoesNotEx
 import static org.dspace.app.rest.matcher.SupervisionOrderMatcher.matchSuperVisionOrder;
 import static org.dspace.authorize.ResourcePolicy.TYPE_CUSTOM;
 import static org.dspace.authorize.ResourcePolicy.TYPE_SUBMISSION;
+import static org.dspace.content.BitstreamLinkingServiceImpl.BITSTREAM;
+import static org.dspace.content.BitstreamLinkingServiceImpl.DSPACE;
+import static org.dspace.content.BitstreamLinkingServiceImpl.IS_REPLACED_BY;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.contains;
@@ -28,6 +31,7 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.springframework.data.rest.webmvc.RestMediaTypes.TEXT_URI_LIST_VALUE;
 import static org.springframework.http.MediaType.parseMediaType;
@@ -58,6 +62,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.jsonpath.matchers.JsonPathMatchers;
 import jakarta.ws.rs.core.MediaType;
+import org.apache.commons.codec.CharEncoding;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.StringEscapeUtils;
@@ -83,6 +88,7 @@ import org.dspace.app.rest.model.patch.ReplaceOperation;
 import org.dspace.app.rest.test.AbstractControllerIntegrationTest;
 import org.dspace.authorize.ResourcePolicy;
 import org.dspace.authorize.service.AuthorizeService;
+import org.dspace.authorize.service.ResourcePolicyService;
 import org.dspace.builder.BitstreamBuilder;
 import org.dspace.builder.CollectionBuilder;
 import org.dspace.builder.CommunityBuilder;
@@ -104,15 +110,22 @@ import org.dspace.content.Community;
 import org.dspace.content.EntityType;
 import org.dspace.content.Item;
 import org.dspace.content.MetadataFieldName;
+import org.dspace.content.MetadataValue;
 import org.dspace.content.Relationship;
 import org.dspace.content.RelationshipType;
 import org.dspace.content.WorkspaceItem;
 import org.dspace.content.authority.Choices;
+import org.dspace.content.authority.service.ChoiceAuthorityService;
+import org.dspace.content.authority.service.MetadataAuthorityService;
+import org.dspace.content.factory.ContentServiceFactory;
+import org.dspace.content.service.BitstreamService;
 import org.dspace.content.service.CollectionService;
 import org.dspace.content.service.EntityTypeService;
 import org.dspace.content.service.ItemService;
+import org.dspace.content.service.RelationshipService;
 import org.dspace.content.service.WorkspaceItemService;
 import org.dspace.core.Constants;
+import org.dspace.core.service.PluginService;
 import org.dspace.eperson.EPerson;
 import org.dspace.eperson.Group;
 import org.dspace.eperson.factory.EPersonServiceFactory;
@@ -163,6 +176,17 @@ public class WorkspaceItemRestRepositoryIT extends AbstractControllerIntegration
 
     @Autowired
     private AuthorizeService authorizeService;
+
+    @Autowired
+    private PluginService pluginService;
+    @Autowired
+    private ChoiceAuthorityService choiceAuthorityService;
+    @Autowired
+    private MetadataAuthorityService metadataAuthorityService;
+    @Autowired
+    private BitstreamService bitstreamService;
+    @Autowired
+    private ResourcePolicyService resourcePolicyService;
 
     @Autowired
     private OpenAireProjectImportMetadataSourceServiceImpl openAireService;
@@ -2466,9 +2490,9 @@ public class WorkspaceItemRestRepositoryIT extends AbstractControllerIntegration
         itemService.addMetadata(context, col1.getTemplateItem(), "dc", "title", null, null, "SimpleTitle");
         itemService.addMetadata(context, col1.getTemplateItem(), "dc", "date", "issued", null, "###DATE.yyyy-MM-dd###");
         itemService.addMetadata(context, col1.getTemplateItem(),
-                                "cris", "policy", "eperson", null, "###CURRENTUSER###");
+                                "dspace", "policy", "eperson", null, "###CURRENTUSER###");
         itemService.addMetadata(context, col1.getTemplateItem(),
-                                "cris", "policy", "group", null, "###GROUP.Tets-Group###");
+                                "dspace", "policy", "group", null, "###GROUP.Tets-Group###");
 
         String authToken = getAuthToken(user.getEmail(), password);
 
@@ -2484,13 +2508,13 @@ public class WorkspaceItemRestRepositoryIT extends AbstractControllerIntegration
                             .andExpect(status().isCreated())
                             .andExpect(jsonPath("$._embedded.item.metadata['dc.title'][0].value", is("SimpleTitle")))
                             .andExpect(jsonPath("$._embedded.item.metadata['dc.date.issued'][0].value", is(today)))
-                            .andExpect(jsonPath("$._embedded.item.metadata['cris.policy.eperson'][0].value",
+                            .andExpect(jsonPath("$._embedded.item.metadata['dspace.policy.eperson'][0].value",
                                                 is(user.getName())))
-                            .andExpect(jsonPath("$._embedded.item.metadata['cris.policy.eperson'][0].authority",
+                            .andExpect(jsonPath("$._embedded.item.metadata['dspace.policy.eperson'][0].authority",
                                                 is(user.getID().toString())))
-                            .andExpect(jsonPath("$._embedded.item.metadata['cris.policy.group'][0].value",
+                            .andExpect(jsonPath("$._embedded.item.metadata['dspace.policy.group'][0].value",
                                                 is(group.getName())))
-                            .andExpect(jsonPath("$._embedded.item.metadata['cris.policy.group'][0].authority",
+                            .andExpect(jsonPath("$._embedded.item.metadata['dspace.policy.group'][0].authority",
                                                 is(group.getID().toString())))
                             .andExpect(jsonPath("$._embedded.collection.id", is(col1.getID().toString())));
     }
@@ -12449,6 +12473,637 @@ public class WorkspaceItemRestRepositoryIT extends AbstractControllerIntegration
         } finally {
             WorkspaceItemBuilder.deleteWorkspaceItem(idRef.get());
         }
+    }
+
+
+
+    @Test
+    public void patchUpdateNestedMetadataTest() throws Exception {
+        context.turnOffAuthorisationSystem();
+
+        eperson = context.reloadEntity(eperson);
+
+        //** GIVEN **
+        parentCommunity = CommunityBuilder.createCommunity(context)
+                                          .withName("Parent Community")
+                                          .build();
+
+        Collection nestedMetadataCollection =
+            CollectionBuilder.createCollection(context, parentCommunity)
+                             .withName("Nested Metadata Test Collection")
+                             .withEntityType("Publication")
+                             .build();
+
+        String authToken = getAuthToken(eperson.getEmail(), password);
+        context.commit();
+
+        WorkspaceItem witem = WorkspaceItemBuilder.createWorkspaceItem(context, nestedMetadataCollection)
+                                                  .withTitle("Workspace Item 1")
+                                                  .build();
+
+        context.restoreAuthSystemState();
+
+        MockMultipartFile pdfFile = new MockMultipartFile("file",
+                                                          "/local/path/myfile.pdf",
+                                                          "application/pdf",
+                                                          InputStream.nullInputStream());
+
+        getClient(authToken).perform(multipart("/api/submission/workspaceitems/" + witem.getID())
+                                         .file(pdfFile))
+                            // create should return 200, 201 (created) is better for single resource
+                            .andExpect(status().isCreated());
+
+        // ** WHEN **
+        // Consolidate all operations into a single list for one PATCH call
+        List<Operation> patchOperations = new ArrayList<>();
+
+        // 1. Add Author
+        Map<String, String> authorValue = new HashMap<>();
+        authorValue.put("value", "Smith, John");
+        patchOperations.add(
+            new AddOperation("/sections/publication/dc.contributor.author", List.of(authorValue)));
+
+        // 2. Add Editor (required for validation)
+        Map<String, String> editorValue = new HashMap<>();
+        editorValue.put("value", "Doe, Jane");
+        patchOperations.add(
+            new AddOperation("/sections/publication/dc.contributor.editor", List.of(editorValue)));
+
+        // 3. Add Nested Affiliation (tests recursive resolution)
+        Map<String, String> affiliationValue = new HashMap<>();
+        affiliationValue.put("value", "University of Example");
+        patchOperations.add(new AddOperation("/sections/publication/oairecerif.author.affiliation",
+                                             List.of(affiliationValue)));
+
+        // 4. Add date (required for validation)
+        Map<String, String> dateValue = new HashMap<>();
+        dateValue.put("value", "2026");
+        patchOperations.add(
+            new AddOperation("/sections/publication/dc.date.issued", List.of(dateValue)));
+
+        // 5. Grant the license (required for validation)
+        patchOperations.add(new AddOperation("/sections/license/granted", true));
+
+        String patchBody = getPatchContent(patchOperations);
+
+        // Perform a single PATCH call
+        getClient(authToken).perform(patch("/api/submission/workspaceitems/" + witem.getID())
+                                         .content(patchBody)
+                                         .contentType(MediaType.APPLICATION_JSON_PATCH_JSON))
+                            .andExpect(status().isOk())
+                            .andExpect(jsonPath("$.errors").doesNotExist());
+
+        // ** THEN **
+        // Verify that all changes have been persisted correctly
+        getClient(authToken).perform(get("/api/submission/workspaceitems/" + witem.getID()))
+                            .andExpect(status().isOk())
+                            .andExpect(jsonPath("$.errors").doesNotExist())
+                            .andExpect(
+                                jsonPath("$.sections.publication['dc.contributor.author'][0].value").value(
+                                    "Smith, John"))
+                            .andExpect(
+                                jsonPath("$.sections.publication['dc.contributor.editor'][0].value").value(
+                                    "Doe, Jane"))
+                            .andExpect(jsonPath(
+                                "$.sections.publication['oairecerif.author.affiliation'][0].value").value(
+                                "University of Example"));
+    }
+
+    @Test
+    public void affterAddingAccessConditionBitstreamMustBeDownloadableTest() throws Exception {
+        context.turnOffAuthorisationSystem();
+
+        EPerson submitter = EPersonBuilder.createEPerson(context)
+                                          .withEmail("submitter@example.com")
+                                          .withPassword(password)
+                                          .build();
+
+        parentCommunity = CommunityBuilder.createCommunity(context)
+                                          .withName("Parent Community")
+                                          .build();
+
+        Collection collection1 = CollectionBuilder.createCollection(context, parentCommunity)
+                                                  .withName("Collection 1")
+                                                  .build();
+
+        Bitstream bitstream = null;
+        WorkspaceItem witem = null;
+
+        String bitstreamContent = "0123456789";
+
+        try (InputStream is = IOUtils.toInputStream(bitstreamContent, Charset.defaultCharset())) {
+
+            context.setCurrentUser(submitter);
+            witem = WorkspaceItemBuilder.createWorkspaceItem(context, collection1)
+                                        .withTitle("Test WorkspaceItem")
+                                        .withIssueDate("2019-10-01")
+                                        .build();
+
+            bitstream = BitstreamBuilder.createBitstream(context, witem.getItem(), is)
+                                        .withName("Test bitstream")
+                                        .withDescription("This is a bitstream to test range requests")
+                                        .withMimeType("text/plain")
+                                        .build();
+
+            context.restoreAuthSystemState();
+
+            String tokenEPerson = getAuthToken(eperson.getEmail(), password);
+            String tokenSubmitter = getAuthToken(submitter.getEmail(), password);
+
+            // submitter can download the bitstream
+            getClient(tokenSubmitter).perform(get("/api/core/bitstreams/" + bitstream.getID() + "/content"))
+                                     .andExpect(status().isOk())
+                                     .andExpect(header().string("Accept-Ranges", "bytes"))
+                                     .andExpect(header().string("ETag", "\"" + bitstream.getChecksum() + "\""))
+                                     .andExpect(content().contentType("text/plain;charset=UTF-8"))
+                                     .andExpect(content().bytes(bitstreamContent.getBytes()));
+
+            // others can't download the bitstream
+            getClient(tokenEPerson).perform(get("/api/core/bitstreams/" + bitstream.getID() + "/content"))
+                                   .andExpect(status().isForbidden());
+
+            // create a list of values to use in add operation
+            List<Operation> addAccessCondition = new ArrayList<>();
+            List<Map<String, String>> accessConditions = new ArrayList<Map<String,String>>();
+
+            Map<String, String> value = new HashMap<>();
+            value.put("name", "administrator");
+            accessConditions.add(value);
+
+            addAccessCondition.add(new AddOperation("/sections/upload/files/0/accessConditions", accessConditions));
+
+            String patchBody = getPatchContent(addAccessCondition);
+            getClient(tokenSubmitter).perform(patch("/api/submission/workspaceitems/" + witem.getID())
+                                     .content(patchBody)
+                                     .contentType(MediaType.APPLICATION_JSON_PATCH_JSON))
+                                     .andExpect(status().isOk())
+                         .andExpect(jsonPath("$.sections.upload.files[0].accessConditions[0].name",is("administrator")))
+                         .andExpect(jsonPath("$.sections.upload.files[0].accessConditions[0].startDate",nullValue()))
+                         .andExpect(jsonPath("$.sections.upload.files[0].accessConditions[0].endDate", nullValue()));
+
+            // verify that the patch changes have been persisted
+            getClient(tokenSubmitter).perform(get("/api/submission/workspaceitems/" + witem.getID()))
+                                     .andExpect(status().isOk())
+                         .andExpect(jsonPath("$.sections.upload.files[0].accessConditions[0].name",is("administrator")))
+                         .andExpect(jsonPath("$.sections.upload.files[0].accessConditions[0].startDate",nullValue()))
+                         .andExpect(jsonPath("$.sections.upload.files[0].accessConditions[0].endDate", nullValue()));
+
+            // submitter can download the bitstream jet
+            getClient(tokenSubmitter).perform(get("/api/core/bitstreams/" + bitstream.getID() + "/content"))
+                                     .andExpect(status().isOk())
+                                     .andExpect(header().string("Accept-Ranges", "bytes"))
+                                     .andExpect(header().string("ETag", "\"" + bitstream.getChecksum() + "\""))
+                                     .andExpect(content().contentType("text/plain;charset=UTF-8"))
+                                     .andExpect(content().bytes(bitstreamContent.getBytes()));
+
+            // others can't download the bitstream
+            getClient(tokenEPerson).perform(get("/api/core/bitstreams/" + bitstream.getID() + "/content"))
+                                   .andExpect(status().isForbidden());
+        }
+    }
+
+    @Test
+    public void enforceRequiredRelationTest() throws Exception {
+        context.turnOffAuthorisationSystem();
+
+        parentCommunity = CommunityBuilder.createCommunity(context)
+            .withName("Parent Community")
+            .build();
+
+        EntityType person = EntityTypeBuilder.createEntityTypeBuilder(context, "Person").build();
+
+
+        RelationshipTypeBuilder.createRelationshipTypeBuilder(context, publicationType, publicationType,
+            "isCorrectionOfItem", "isCorrectionOfItem", null, null, null, null).build();
+
+        RelationshipType isAuthorOfPublication = RelationshipTypeBuilder
+            .createRelationshipTypeBuilder(context, publicationType, person, "isAuthorOfPublication",
+                "isPublicationOfAuthor", 1, null, 0,
+                null).withCopyToLeft(false).withCopyToRight(true).build();
+
+        isAuthorOfPublication.setTilted(RelationshipType.Tilted.NONE);
+
+        Collection col1 = CollectionBuilder.createCollection(context, parentCommunity).withName("Collection 1")
+            .withEntityType("Person").build();
+        Collection col2 = CollectionBuilder.createCollection(context, parentCommunity, "123456789/enforced-relation")
+            .withName("Collection 2")
+            .withEntityType("Publication").build();
+
+        Item author = ItemBuilder.createItem(context, col1)
+            .withTitle("Author1")
+            .withIssueDate("2017-10-17")
+            .withAuthor("Smith, Donald")
+            .withPersonIdentifierLastName("Smith")
+            .withPersonIdentifierFirstName("Donald")
+            .build();
+
+        // two workspace items. Only one of them has the required relationship.
+        WorkspaceItem workspaceItem = WorkspaceItemBuilder.createWorkspaceItem(context, col2)
+            .build();
+        WorkspaceItem workspaceItem2 = WorkspaceItemBuilder.createWorkspaceItem(context, col2)
+            .build();
+
+        RelationshipService relationshipService = ContentServiceFactory.getInstance().getRelationshipService();
+
+        Relationship relationship1 = relationshipService.create(
+            context,
+            workspaceItem.getItem(),
+            author,
+            isAuthorOfPublication,
+            0, 0,
+            "isAuthorOfPublication",
+            "isPublicationOfAuthor"
+        );
+
+        context.restoreAuthSystemState();
+
+        String adminToken = getAuthToken(admin.getEmail(), password);
+        // try to deposit the items. One should fail
+        getClient(adminToken).perform(post("/api/workflow/workflowitems")
+                .content("/api/submission/workspaceitems/" + workspaceItem.getID())
+                .contentType(textUriContentType))
+            .andExpect(status().isCreated());
+        getClient(adminToken).perform(post("/api/workflow/workflowitems")
+                .content("/api/submission/workspaceitems/" + workspaceItem2.getID())
+                .contentType(textUriContentType))
+            .andExpect(status().isUnprocessableEntity());
+    }
+
+    @Test
+    public void enforceRequiredRelationTiltedRightTest() throws Exception {
+        context.turnOffAuthorisationSystem();
+
+        parentCommunity = CommunityBuilder.createCommunity(context)
+            .withName("Parent Community")
+            .build();
+
+        EntityType person = EntityTypeBuilder.createEntityTypeBuilder(context, "Person").build();
+
+
+        RelationshipTypeBuilder.createRelationshipTypeBuilder(context, publicationType, publicationType,
+            "isCorrectionOfItem", "isCorrectionOfItem", null, null, null, null).build();
+
+        RelationshipType isAuthorOfPublication = RelationshipTypeBuilder
+            .createRelationshipTypeBuilder(context, publicationType, person, "isAuthorOfPublication",
+                "isPublicationOfAuthor", 1, null, 0,
+                null).withCopyToLeft(false).withCopyToRight(true).build();
+
+        isAuthorOfPublication.setTilted(RelationshipType.Tilted.RIGHT);
+
+        Collection col1 = CollectionBuilder.createCollection(context, parentCommunity).withName("Collection 1")
+            .withEntityType("Person").build();
+        Collection col2 = CollectionBuilder.createCollection(context, parentCommunity, "123456789/enforced-relation")
+            .withName("Collection 2")
+            .withEntityType("Publication").build();
+
+        Item author = ItemBuilder.createItem(context, col1)
+            .withTitle("Author1")
+            .withIssueDate("2017-10-17")
+            .withAuthor("Smith, Donald")
+            .withPersonIdentifierLastName("Smith")
+            .withPersonIdentifierFirstName("Donald")
+            .build();
+
+        // two workspace items. Only one of them has the required relationship.
+        WorkspaceItem workspaceItem = WorkspaceItemBuilder.createWorkspaceItem(context, col2)
+            .withEntityType("Publication")
+            .build();
+        WorkspaceItem workspaceItem2 = WorkspaceItemBuilder.createWorkspaceItem(context, col2)
+            .withEntityType("Publication")
+            .build();
+
+        RelationshipService relationshipService = ContentServiceFactory.getInstance().getRelationshipService();
+
+        Relationship relationship1 = relationshipService.create(
+            context,
+            workspaceItem.getItem(),
+            author,
+            isAuthorOfPublication,
+            0, 0,
+            "isAuthorOfPublication",
+            "isPublicationOfAuthor"
+        );
+
+        context.restoreAuthSystemState();
+
+        String adminToken = getAuthToken(admin.getEmail(), password);
+        // try to deposit the items. One should fail
+        getClient(adminToken).perform(post("/api/workflow/workflowitems")
+                .content("/api/submission/workspaceitems/" + workspaceItem.getID())
+                .contentType(textUriContentType))
+            .andExpect(status().isCreated());
+        getClient(adminToken).perform(post("/api/workflow/workflowitems")
+                .content("/api/submission/workspaceitems/" + workspaceItem2.getID())
+                .contentType(textUriContentType))
+            .andExpect(status().isUnprocessableEntity());
+    }
+
+    @Test
+    public void enforceRequiredRelationTiltedLeftTest() throws Exception {
+        context.turnOffAuthorisationSystem();
+
+        parentCommunity = CommunityBuilder.createCommunity(context)
+            .withName("Parent Community")
+            .build();
+
+        EntityType person = EntityTypeBuilder.createEntityTypeBuilder(context, "Person").build();
+
+
+        RelationshipTypeBuilder.createRelationshipTypeBuilder(context, publicationType, publicationType,
+            "isCorrectionOfItem", "isCorrectionOfItem", null, null, null, null).build();
+
+        RelationshipType isAuthorOfPublication = RelationshipTypeBuilder
+            .createRelationshipTypeBuilder(context, publicationType, person, "isAuthorOfPublication",
+                "isPublicationOfAuthor", 1, null, 0,
+                null).withCopyToLeft(false).withCopyToRight(true).build();
+
+        isAuthorOfPublication.setTilted(RelationshipType.Tilted.LEFT);
+
+        Collection col1 = CollectionBuilder.createCollection(context, parentCommunity).withName("Collection 1")
+            .withEntityType("Person").build();
+        Collection col2 = CollectionBuilder.createCollection(context, parentCommunity, "123456789/enforced-relation")
+            .withName("Collection 2")
+            .withEntityType("Publication").build();
+
+        Item author = ItemBuilder.createItem(context, col1)
+            .withTitle("Author1")
+            .withIssueDate("2017-10-17")
+            .withAuthor("Smith, Donald")
+            .withPersonIdentifierLastName("Smith")
+            .withPersonIdentifierFirstName("Donald")
+            .build();
+
+        // two workspace items. Only one of them has the required relationship.
+        WorkspaceItem workspaceItem = WorkspaceItemBuilder.createWorkspaceItem(context, col2)
+            .withEntityType("Publication")
+            .build();
+        WorkspaceItem workspaceItem2 = WorkspaceItemBuilder.createWorkspaceItem(context, col2)
+            .withEntityType("Publication")
+            .build();
+
+        RelationshipService relationshipService = ContentServiceFactory.getInstance().getRelationshipService();
+
+        Relationship relationship1 = relationshipService.create(
+            context,
+            workspaceItem.getItem(),
+            author,
+            isAuthorOfPublication,
+            0, 0,
+            "isAuthorOfPublication",
+            "isPublicationOfAuthor"
+        );
+
+        context.restoreAuthSystemState();
+
+        String adminToken = getAuthToken(admin.getEmail(), password);
+        // try to deposit the items. One should fail
+        getClient(adminToken).perform(post("/api/workflow/workflowitems")
+                .content("/api/submission/workspaceitems/" + workspaceItem.getID())
+                .contentType(textUriContentType))
+            .andExpect(status().isCreated());
+        getClient(adminToken).perform(post("/api/workflow/workflowitems")
+                .content("/api/submission/workspaceitems/" + workspaceItem2.getID())
+                .contentType(textUriContentType))
+            .andExpect(status().isUnprocessableEntity());
+    }
+
+    @Test
+    public void uploadAndReplaceTest() throws Exception {
+        context.turnOffAuthorisationSystem();
+        configurationService.setProperty("replace-bitstream.enabled", true);
+
+        parentCommunity = CommunityBuilder.createCommunity(context)
+            .withName("Parent Community")
+            .build();
+        Collection collection = CollectionBuilder.createCollection(context, parentCommunity)
+            .withName("Test Collection")
+            .build();
+        WorkspaceItem workspaceItem = WorkspaceItemBuilder.createWorkspaceItem(context, collection)
+            .withTitle("Test WorkspaceItem")
+            .withIssueDate("2017-10-17")
+            .build();
+        // Create file that will be replaced
+        Bitstream originalBitstream;
+        try (InputStream is = IOUtils.toInputStream("Test", CharEncoding.UTF_8)) {
+            originalBitstream = BitstreamBuilder.createBitstream(context, workspaceItem.getItem(), is)
+                .withName("Bitstream.txt")
+                .withDescription("description")
+                .withMimeType("text/plain")
+                .build();
+        }
+        // Set access conditions on the old file; they should be copied to the new one
+        LocalDate startDate = LocalDate.now();
+        DateTimeFormatter dateFmt = DateTimeFormatter.ISO_LOCAL_DATE;
+        String startDateStr = dateFmt.format(LocalDate.now());
+
+        ResourcePolicyBuilder.createResourcePolicy(context, null, anonymousGroup)
+                             .withDspaceObject(originalBitstream)
+                             .withAction(Constants.READ)
+                             .withPolicyType(TYPE_CUSTOM)
+                             .withName("embargo")
+                             .withStartDate(startDate);
+        InputStream pdf = getClass().getResourceAsStream("simple-article.pdf");
+        final MockMultipartFile newFile =
+            new MockMultipartFile("file", "/local/path/simple-article.pdf", "application/pdf", pdf);
+
+        context.restoreAuthSystemState();
+
+        String token = getAuthToken(admin.getEmail(), password);
+
+
+        // Upload new file, to replace old one
+        getClient(token).perform(multipart("/api/submission/workspaceitems/" + workspaceItem.getID())
+                .file(newFile)
+                .param("replaceFile", originalBitstream.getID().toString())
+                .param("replaceName", "true"))
+            .andExpect(status().isCreated())
+            .andExpect(jsonPath("$.sections.upload.files[0].metadata['dc.title'][0].value",
+                is("simple-article.pdf")))
+            .andExpect(jsonPath("$.sections.upload.files[0].metadata['dspace.bitstream.isReplacementOf'][0].value",
+                    is(originalBitstream.getName())))
+            .andExpect(jsonPath("$.sections.upload.files[0].metadata['dspace.bitstream.isReplacementOf'][0].authority",
+                    is(originalBitstream.getID().toString())))
+            .andExpect(jsonPath("$.sections.upload.files[0].metadata['dc.source'][0].value",
+                is("/local/path/simple-article.pdf")))
+            .andExpect(jsonPath("$.sections.upload.files[0].accessConditions[0].name", is("embargo")))
+            .andExpect(jsonPath("$.sections.upload.files[0].accessConditions[0].startDate", is(startDateStr)))
+            .andExpect(jsonPath("$.sections.upload.files[0].accessConditions[0].endDate", nullValue()));
+        // Check new file metadata and access conditions
+        getClient(token).perform(get("/api/submission/workspaceitems/" + workspaceItem.getID()))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.sections.upload.files[0].metadata['dc.title'][0].value",
+                is("simple-article.pdf")))
+            .andExpect(jsonPath("$.sections.upload.files[0].metadata['dc.source'][0].value",
+                is("/local/path/simple-article.pdf")))
+            .andExpect(jsonPath("$.sections.upload.files[0].accessConditions[0].name", is("embargo")))
+            .andExpect(jsonPath("$.sections.upload.files[0].accessConditions[0].startDate", is(startDateStr)))
+            .andExpect(jsonPath("$.sections.upload.files[0].accessConditions[0].endDate", nullValue()));
+        originalBitstream = bitstreamService.find(context, originalBitstream.getID());
+        List<MetadataValue> originalMetadata = bitstreamService.getMetadata(originalBitstream, DSPACE,
+                BITSTREAM, IS_REPLACED_BY, null);
+        assertEquals(1, originalMetadata.size());
+        assertNotNull(bitstreamService.find(context, originalBitstream.getID()));
+        assertTrue(bitstreamService.find(context, originalBitstream.getID()).isDeleted());
+    }
+
+    @Test
+    public void uploadAndReplaceBadParamTest() throws Exception {
+        context.turnOffAuthorisationSystem();
+
+        parentCommunity = CommunityBuilder.createCommunity(context)
+            .withName("Parent Community")
+            .build();
+        Collection collection = CollectionBuilder.createCollection(context, parentCommunity)
+            .withName("Test Collection")
+            .build();
+        WorkspaceItem workspaceItem = WorkspaceItemBuilder.createWorkspaceItem(context, collection)
+            .withTitle("Test WorkspaceItem")
+            .withIssueDate("2017-10-17")
+            .build();
+        // Create file that will be replaced
+        Bitstream bitstream;
+        try (InputStream is = IOUtils.toInputStream("Test", CharEncoding.UTF_8)) {
+            bitstream = BitstreamBuilder.createBitstream(context, workspaceItem.getItem(), is)
+                .withName("Bitstream")
+                .withDescription("description")
+                .withMimeType("text/plain")
+                .build();
+        }
+        InputStream pdf = getClass().getResourceAsStream("simple-article.pdf");
+        final MockMultipartFile newFile =
+            new MockMultipartFile("file", "/local/path/simple-article.pdf", "application/pdf", pdf);
+
+        context.restoreAuthSystemState();
+
+        String token = getAuthToken(admin.getEmail(), password);
+        // Parameter cannot be empty
+        getClient(token).perform(multipart("/api/submission/workspaceitems/" + workspaceItem.getID())
+                .file(newFile)
+                .param("replaceFile", ""))
+            .andExpect(status().isBadRequest());
+        // String names are not supported
+        getClient(token).perform(multipart("/api/submission/workspaceitems/" + workspaceItem.getID())
+                .file(newFile)
+                .param("replaceFile", bitstream.getName()))
+            .andExpect(status().isBadRequest());
+        // Integer is not supported
+        getClient(token).perform(multipart("/api/submission/workspaceitems/" + workspaceItem.getID())
+                .file(newFile)
+                .param("replaceFile", "0"))
+            .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void uploadAndReplaceUnauthorizedTest() throws Exception {
+        context.turnOffAuthorisationSystem();
+
+        parentCommunity = CommunityBuilder.createCommunity(context)
+            .withName("Parent Community")
+            .build();
+        Collection collection = CollectionBuilder.createCollection(context, parentCommunity)
+            .withName("Test Collection")
+            .build();
+        WorkspaceItem workspaceItem = WorkspaceItemBuilder.createWorkspaceItem(context, collection)
+            .withTitle("Test WorkspaceItem")
+            .withIssueDate("2017-10-17")
+            .build();
+        // Create file that will be replaced
+        try (InputStream is = IOUtils.toInputStream("Test", CharEncoding.UTF_8)) {
+            BitstreamBuilder.createBitstream(context, workspaceItem.getItem(), is)
+                .withName("Bitstream")
+                .withDescription("description")
+                .withMimeType("text/plain")
+                .build();
+        }
+        InputStream pdf = getClass().getResourceAsStream("simple-article.pdf");
+        final MockMultipartFile newFile =
+            new MockMultipartFile("file", "/local/path/simple-article.pdf", "application/pdf", pdf);
+
+        context.restoreAuthSystemState();
+
+        int oldFileIndex = 0;
+        // Upload new file, to replace old one
+        getClient().perform(multipart("/api/submission/workspaceitems/" + workspaceItem.getID())
+                .file(newFile)
+                .param("replaceFile", Integer.toString(oldFileIndex)))
+            .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    public void uploadAndReplaceForbiddenTest() throws Exception {
+        context.turnOffAuthorisationSystem();
+
+        context.setCurrentUser(admin);
+        parentCommunity = CommunityBuilder.createCommunity(context)
+            .withName("Parent Community")
+            .build();
+        Collection collection = CollectionBuilder.createCollection(context, parentCommunity)
+            .withName("Test Collection")
+            .build();
+        WorkspaceItem workspaceItem = WorkspaceItemBuilder.createWorkspaceItem(context, collection)
+            .withTitle("Test WorkspaceItem")
+            .withIssueDate("2017-10-17")
+            .build();
+        // Create file that will be replaced
+        Bitstream originalFile;
+        try (InputStream is = IOUtils.toInputStream("Test", CharEncoding.UTF_8)) {
+            originalFile = BitstreamBuilder.createBitstream(context, workspaceItem.getItem(), is)
+                .withName("Bitstream")
+                .withDescription("description")
+                .withMimeType("text/plain")
+                .build();
+        }
+        InputStream pdf = getClass().getResourceAsStream("simple-article.pdf");
+        final MockMultipartFile newFile =
+            new MockMultipartFile("file", "/local/path/simple-article.pdf", "application/pdf", pdf);
+
+        context.restoreAuthSystemState();
+
+        String token = getAuthToken(eperson.getEmail(), password);
+        // Upload new file, to replace old one
+        getClient(token).perform(multipart("/api/submission/workspaceitems/" + workspaceItem.getID())
+                .file(newFile)
+                .param("replaceFile", originalFile.getID().toString()))
+            .andExpect(status().isForbidden());
+    }
+
+    @Test
+    public void uploadAndReplaceNoWriteRightsTest() throws Exception {
+        context.turnOffAuthorisationSystem();
+        configurationService.setProperty("replace-bitstream.enabled", true);
+
+        parentCommunity = CommunityBuilder.createCommunity(context)
+            .withName("Parent Community")
+            .build();
+        Collection collection = CollectionBuilder.createCollection(context, parentCommunity)
+            .withName("Test Collection")
+            .build();
+        WorkspaceItem workspaceItem = WorkspaceItemBuilder.createWorkspaceItem(context, collection)
+            .withTitle("Test WorkspaceItem")
+            .withIssueDate("2017-10-17")
+            .build();
+        // Create file that will be replaced
+        Bitstream originalFile;
+        try (InputStream is = IOUtils.toInputStream("Test", CharEncoding.UTF_8)) {
+            originalFile = BitstreamBuilder.createBitstream(context, workspaceItem.getItem(), is)
+                .withName("Bitstream")
+                .withDescription("description")
+                .withMimeType("text/plain")
+                .build();
+            resourcePolicyService.removeAllPolicies(context, originalFile);
+        }
+        InputStream pdf = getClass().getResourceAsStream("simple-article.pdf");
+        final MockMultipartFile newFile =
+            new MockMultipartFile("file", "/local/path/simple-article.pdf", "application/pdf", pdf);
+
+        context.restoreAuthSystemState();
+
+        String token = getAuthToken(eperson.getEmail(), password);
+        // Upload new file, to replace old one
+        getClient(token).perform(multipart("/api/submission/workspaceitems/" + workspaceItem.getID())
+                .file(newFile)
+                .param("replaceFile", originalFile.getID().toString()))
+            .andExpect(status().isForbidden());
     }
 
 }

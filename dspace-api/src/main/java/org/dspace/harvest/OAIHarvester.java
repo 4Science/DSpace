@@ -16,7 +16,7 @@ import static org.dspace.app.harvest.Harvest.LOG_DELIMITER;
 import static org.dspace.app.harvest.Harvest.LOG_PREFIX;
 import static org.dspace.authority.service.AuthorityValueService.SPLIT;
 import static org.dspace.content.Item.ANY;
-import static org.dspace.content.MetadataSchemaEnum.CRIS;
+import static org.dspace.content.MetadataSchemaEnum.DSPACE;
 import static org.dspace.harvest.HarvestedCollection.STATUS_BUSY;
 import static org.dspace.harvest.HarvestedCollection.STATUS_READY;
 import static org.dspace.harvest.HarvestedCollection.STATUS_RETRY;
@@ -65,6 +65,7 @@ import org.dspace.content.Collection;
 import org.dspace.content.Community;
 import org.dspace.content.DSpaceObject;
 import org.dspace.content.Item;
+import org.dspace.content.MetadataSchemaEnum;
 import org.dspace.content.MetadataValue;
 import org.dspace.content.WorkspaceItem;
 import org.dspace.content.crosswalk.CERIFIngestionCrosswalk;
@@ -599,10 +600,10 @@ public class OAIHarvester {
             metadataElementCrosswalk.ingest(context, item, metadataElements.get(0), false);
         }
 
-        if (CollectionUtils.isEmpty(itemService.getMetadata(item, CRIS.getName(), "sourceId", null, null))) {
+        if (CollectionUtils.isEmpty(itemService.getMetadata(item, DSPACE.getName(), "sourceId", null, null))) {
             Optional<String> crisSourceId = calculateCrisSourceId(record, repositoryId);
             if (crisSourceId.isPresent()) {
-                itemService.addMetadata(context, item, CRIS.getName(), "sourceId", null, null, crisSourceId.get());
+                itemService.addMetadata(context, item, DSPACE.getName(), "sourceId", null, null, crisSourceId.get());
             }
         }
 
@@ -880,8 +881,16 @@ public class OAIHarvester {
 
         String transformationDir = configurationService.getProperty("oai.harvester.tranformation-dir");
 
-        String preTrasform = collectionService.getMetadataFirstValue(coll, "cris", "harvesting", "preTransform", ANY);
-        String postTrasform = collectionService.getMetadataFirstValue(coll, "cris", "harvesting", "postTransform", ANY);
+        String preTrasform = collectionService.getMetadataFirstValue(coll,
+                                                                     MetadataSchemaEnum.DSPACE.getName(),
+                                                                     "harvesting",
+                                                                     "preTransform",
+                                                                     ANY);
+        String postTrasform = collectionService.getMetadataFirstValue(coll,
+                                                                      MetadataSchemaEnum.DSPACE.getName(),
+                                                                      "harvesting",
+                                                                      "postTransform",
+                                                                      ANY);
 
         crosswalk.setIdPrefix(repositoryId + SPLIT);
         if (StringUtils.isNotBlank(preTrasform)) {
@@ -1145,7 +1154,11 @@ public class OAIHarvester {
         String defaultEmail = configurationService.getProperty("alert.recipient");
         Collection collection = harvestRow.getCollection();
 
-        String email = collectionService.getMetadataFirstValue(collection, "cris", "harvesting", "email", ANY);
+        String email = collectionService.getMetadataFirstValue(collection,
+                                                               MetadataSchemaEnum.DSPACE.getName(),
+                                                               "harvesting",
+                                                               "email",
+                                                               ANY);
 
         if (StringUtils.isBlank(email)) {
             return defaultEmail;
@@ -1167,17 +1180,17 @@ public class OAIHarvester {
 
     private boolean isForceSynchronization(Collection collection, OAIHarvesterOptions options) {
         return getOptionOrMetadataValue(collection, options.isForceSynchronization(),
-                                        "cris.harvesting.forceSynchronization");
+                                        "dspace.harvesting.forceSynchronization");
     }
 
     private boolean isItemValidationEnabled(Collection collection, OAIHarvesterOptions options) {
         return getOptionOrMetadataValue(collection, options.isItemValidationEnabled(),
-                                        "cris.harvesting.itemValidationEnabled");
+                                        "dspace.harvesting.itemValidationEnabled");
     }
 
     private boolean isRecordValidationEnabled(Collection collection, OAIHarvesterOptions options) {
         return getOptionOrMetadataValue(collection, options.isRecordValidationEnabled(),
-                                        "cris.harvesting.recordValidationEnabled");
+                                        "dspace.harvesting.recordValidationEnabled");
     }
 
     private boolean getOptionOrMetadataValue(Collection collection, Boolean optionValue, String metadataField) {

@@ -95,7 +95,7 @@ public abstract class MetricsExternalServices {
     public void setLastImportMetadataValue(Context context, Item item) {
         try {
             item = context.reloadEntity(item);
-            String metadataField = "cris.lastimport." + getServiceName();
+            String metadataField = "dspace.lastimport." + getServiceName();
             String currentDate = DCDate.getCurrent().toString();
             itemService.setMetadataSingleValue(context, item, new MetadataFieldName(metadataField), null, currentDate);
             itemService.update(context, item, false);

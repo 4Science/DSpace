@@ -59,6 +59,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Predicate;
 
 import com.jayway.jsonpath.JsonPath;
+import org.dspace.app.customurl.consumer.CustomUrlConsumerConfig;
 import org.dspace.app.rest.model.patch.AddOperation;
 import org.dspace.app.rest.model.patch.Operation;
 import org.dspace.app.rest.model.patch.RemoveOperation;
@@ -92,6 +93,7 @@ import org.dspace.orcid.service.OrcidTokenService;
 import org.dspace.orcid.webhook.OrcidWebhookServiceImpl;
 import org.dspace.services.ConfigurationService;
 import org.dspace.util.UUIDUtils;
+import org.dspace.utils.DSpace;
 import org.junit.After;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -186,7 +188,7 @@ public class ResearcherProfileRestRepositoryIT extends AbstractControllerIntegra
 
         administrators = groupService.findByName(context, Group.ADMIN);
 
-        itemService.addMetadata(context, personCollection.getTemplateItem(), "cris", "policy",
+        itemService.addMetadata(context, personCollection.getTemplateItem(), "dspace", "policy",
                                 "group", null, administrators.getName());
 
         configurationService.setProperty("researcher-profile.collection.uuid", personCollection.getID().toString());
@@ -357,6 +359,13 @@ public class ResearcherProfileRestRepositoryIT extends AbstractControllerIntegra
      */
     @Test
     public void testCreateAndReturn() throws Exception {
+        CustomUrlConsumerConfig customUrlConsumerConfig = new DSpace()
+            .getSingletonService(CustomUrlConsumerConfig.class);
+
+        configurationService.setProperty("dspace.custom-url.consumer.supported-entities", "Person");
+        configurationService.setProperty("dspace.custom-url.consumer.entity-metadata-mapping.Person",
+                                         "person.familyName,person.givenName");
+        customUrlConsumerConfig.reload();
 
         String id = user.getID().toString();
         String name = user.getFullName();
@@ -381,7 +390,7 @@ public class ResearcherProfileRestRepositoryIT extends AbstractControllerIntegra
                             .andExpect(
                                 jsonPath("$.metadata", matchMetadata("dspace.object.owner", name, id, 0)))
                             .andExpect(
-                                jsonPath("$.metadata", matchMetadata("cris.policy.group", administrators.getName(),
+                                jsonPath("$.metadata", matchMetadata("dspace.policy.group", administrators.getName(),
                                                                      UUIDUtils.toString(administrators.getID()), 0)))
                             .andExpect(jsonPath("$.metadata", matchMetadata("person.givenName", user.getFirstName(),
                                 0)))
@@ -445,7 +454,7 @@ public class ResearcherProfileRestRepositoryIT extends AbstractControllerIntegra
                             .andExpect(
                                 jsonPath("$.metadata", matchMetadata("dspace.object.owner", name, id, 0)))
                             .andExpect(
-                                jsonPath("$.metadata", matchMetadata("cris.policy.group", administrators.getName(),
+                                jsonPath("$.metadata", matchMetadata("dspace.policy.group", administrators.getName(),
                                                                      UUIDUtils.toString(administrators.getID()), 0)))
                             .andExpect(jsonPath("$.metadata", matchMetadata("dspace.entity.type", "Person", 0)));
 

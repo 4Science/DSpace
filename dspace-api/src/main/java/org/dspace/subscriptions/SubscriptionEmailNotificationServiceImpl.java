@@ -41,12 +41,14 @@ import org.dspace.scripts.DSpaceRunnable;
 import org.dspace.scripts.handler.DSpaceRunnableHandler;
 import org.dspace.subscriptions.service.DSpaceObjectUpdates;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 /**
  * Implementation of {@link DSpaceRunnable} to find subscribed objects and send notification mails about them
  *
  * @author alba aliu
  */
+@Service
 public class SubscriptionEmailNotificationServiceImpl implements SubscriptionEmailNotificationService {
 
     private static final Logger log = LogManager.getLogger(SubscriptionEmailNotificationServiceImpl.class);
@@ -63,6 +65,7 @@ public class SubscriptionEmailNotificationServiceImpl implements SubscriptionEma
     @Autowired
     private CrisMetricsService crisMetricsService;
 
+    @SuppressWarnings("rawtypes")
     public SubscriptionEmailNotificationServiceImpl(Map<String, DSpaceObjectUpdates> contentUpdates,
                                                     ContentGenerator contentGenerator,
                                                     StatisticsGenerator statisticsGenerator,
@@ -73,6 +76,7 @@ public class SubscriptionEmailNotificationServiceImpl implements SubscriptionEma
         this.supportedSubscriptionTypes = supportedSubscriptionTypes;
     }
 
+    @SuppressWarnings({ "rawtypes", "unchecked" })
     public void perform(Context context, DSpaceRunnableHandler handler, String subscriptionType, String frequency) {
         // Verify if subscriptionType is "content" or "subscription"
         if (supportedSubscriptionTypes.get(0).equals(subscriptionType)) {
@@ -239,14 +243,14 @@ public class SubscriptionEmailNotificationServiceImpl implements SubscriptionEma
              String subscriptionType, String frequency) {
         try {
             return subscribeService.findAllSubscriptionsBySubscriptionTypeAndFrequency(context, subscriptionType,
-                                                                                       frequency)
+                                    frequency)
                                    .stream()
                                    .sorted(Comparator.comparing(s -> s.getEPerson().getID()))
                                    .collect(Collectors.toList());
         } catch (SQLException e) {
             log.error(e.getMessage(), e);
         }
-        return new ArrayList<>();
+        return List.of();
     }
 
     @Override

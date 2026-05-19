@@ -192,7 +192,7 @@ public class ItemMetadataImportFillerTest {
 
         Map<String, MappingDetails> mappingDetails = new HashMap<>();
         mappingDetails.put("oairecerif.author.affiliation",
-                       buildMappingDetails(true, "oairecerif.author.affiliation"));
+                           buildMappingDetails(true, "oairecerif.author.affiliation"));
 
         Map<String, MetadataConfiguration> configurations = new HashMap<>();
         configurations.put("dc.contributor.author", buildMetadataConfig(true, mappingDetails));
@@ -202,10 +202,10 @@ public class ItemMetadataImportFillerTest {
         MetadataValue secondMetadata = buildMetadataValue("oairecerif", "author", "affiliation", "Affiliation");
         List<MetadataValue> expectedMetadata = asList(firstMetadata, secondMetadata);
         when(itemService.getMetadataByMetadataString(sourceItem, "oairecerif.author.affiliation"))
-                .thenReturn(expectedMetadata);
+            .thenReturn(expectedMetadata);
 
         when(itemService.getMetadataByMetadataString(itemToFill, "oairecerif.author.affiliation"))
-                .thenReturn(emptyList());
+            .thenReturn(emptyList());
 
         cut.fillItem(context, metadataValue, itemToFill);
 
@@ -234,7 +234,7 @@ public class ItemMetadataImportFillerTest {
 
         Map<String, MappingDetails> mappingDetails = new HashMap<>();
         mappingDetails.put("oairecerif.author.affiliation",
-                       buildMappingDetails(false, "oairecerif.author.affiliation"));
+                           buildMappingDetails(false, "oairecerif.author.affiliation"));
 
         Map<String, MetadataConfiguration> configurations = new HashMap<>();
         configurations.put("dc.contributor.author", buildMetadataConfig(true, mappingDetails));
@@ -244,12 +244,12 @@ public class ItemMetadataImportFillerTest {
         MetadataValue secondMetadata = buildMetadataValue("oairecerif", "author", "affiliation", "Affiliation");
         List<MetadataValue> archivedItemAffiliationMetadata = asList(firstMetadata, secondMetadata);
         when(itemService.getMetadataByMetadataString(sourceItem, "oairecerif.author.affiliation"))
-                .thenReturn(archivedItemAffiliationMetadata);
+            .thenReturn(archivedItemAffiliationMetadata);
 
-        List<MetadataValue> itemToFillMetadata = asList(
-                                 buildMetadataValue("oairecerif", "author", "affiliation", "old"));
+        List<MetadataValue> itemToFillMetadata = List.of(
+            buildMetadataValue("oairecerif", "author", "affiliation", "old"));
         when(itemService.getMetadataByMetadataString(itemToFill, "oairecerif.author.affiliation"))
-                .thenReturn(itemToFillMetadata);
+            .thenReturn(itemToFillMetadata);
 
         cut.fillItem(context, metadataValue, itemToFill);
 
@@ -287,12 +287,12 @@ public class ItemMetadataImportFillerTest {
 
         MetadataValue firstMetdata =
             buildMetadataValue("crisfund", "funder", "description", CrisConstants.PLACEHOLDER_PARENT_METADATA_VALUE);
-        List<MetadataValue> archivedItemAffiliationMetadata = asList(firstMetdata);
+        List<MetadataValue> archivedItemAffiliationMetadata = List.of(firstMetdata);
         when(itemService.getMetadataByMetadataString(sourceItem, "crisfund.funder.description"))
             .thenReturn(archivedItemAffiliationMetadata);
 
         List<MetadataValue> itemToFillMetadata =
-            asList(
+            List.of(
                 buildMetadataValue("oairecerif", "funder", null, "old")
             );
         when(itemService.getMetadataByMetadataString(itemToFill, "oairecerif.funder"))
@@ -346,7 +346,7 @@ public class ItemMetadataImportFillerTest {
             .thenReturn(archivedItemAffiliationMetadata);
 
         List<MetadataValue> itemToFillMetadata =
-            asList(
+            List.of(
                 buildMetadataValue("oairecerif", "funder", null, "old")
             );
         when(itemService.getMetadataByMetadataString(itemToFill, "oairecerif.funder"))
@@ -405,7 +405,7 @@ public class ItemMetadataImportFillerTest {
             .thenReturn(archivedItemAffiliationMetadata);
 
         List<MetadataValue> itemToFillMetadata =
-            asList(
+            List.of(
                 buildMetadataValue("oairecerif", "funder", null, "old")
             );
         when(itemService.getMetadataByMetadataString(itemToFill, "oairecerif.funder"))
@@ -452,7 +452,7 @@ public class ItemMetadataImportFillerTest {
         MetadataValue secondMetadata = buildMetadataValue("oairecerif", "author", "affiliation", "Affiliation");
         List<MetadataValue> expectedMetadata = asList(firstMetadata, secondMetadata);
         when(itemService.getMetadataByMetadataString(sourceItem, "oairecerif.author.affiliation"))
-                .thenReturn(expectedMetadata);
+            .thenReturn(expectedMetadata);
 
         cut.fillItem(context, metadataValue, itemToFill);
 
@@ -469,7 +469,7 @@ public class ItemMetadataImportFillerTest {
     }
 
     private MetadataValue buildMetadataValue(UUID itemId, String schema, String element,
-            String qualifier, String value, int place) {
+                                             String qualifier, String value, int place) {
 
         MetadataSchema metadataSchema = buildMetadataSchema(schema);
         MetadataField field = buildMetadataField(metadataSchema, element, qualifier);

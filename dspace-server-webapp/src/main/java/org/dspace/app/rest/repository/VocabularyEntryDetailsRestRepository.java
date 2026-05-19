@@ -85,11 +85,13 @@ public class VocabularyEntryDetailsRestRepository extends DSpaceRestRepository<V
             fix = true;
         }
         VocabularyEntryDetailsRest entryDetails = authorityUtils.convertEntryDetails(fix, choice, vocabularyName,
-                source.isHierarchical(), source.storeAuthorityInMetadata(), utils.obtainProjection());
+                                                                                     source.isHierarchical(),
+                                                                                     source.storeAuthorityInMetadata(),
+                                                                                     utils.obtainProjection());
         //FIXME hack to deal with an improper use on the angular side of the node id (otherinformation.id) to
         // build a vocabulary entry details ID
         if (source instanceof DSpaceControlledVocabulary && !StringUtils.startsWith(vocabularyId, vocabularyName)
-                && entryDetails != null) {
+            && entryDetails != null) {
             entryDetails.setId(name);
         }
         return entryDetails;
@@ -114,7 +116,8 @@ public class VocabularyEntryDetailsRestRepository extends DSpaceRestRepository<V
             }
             for (Choice value : choices.values) {
                 results.add(authorityUtils.convertEntryDetails(fix, value, vocabularyId, source.isHierarchical(),
-                        source.storeAuthorityInMetadata(), utils.obtainProjection()));
+                                                               source.storeAuthorityInMetadata(),
+                                                               utils.obtainProjection()));
             }
             Page<VocabularyEntryDetailsRest> resources = new PageImpl<VocabularyEntryDetailsRest>(results, pageable,
                     choices.total);

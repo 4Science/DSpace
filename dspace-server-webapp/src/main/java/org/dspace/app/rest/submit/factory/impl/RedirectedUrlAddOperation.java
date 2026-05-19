@@ -28,7 +28,7 @@ public class RedirectedUrlAddOperation extends AddPatchOperation<CustomUrl> {
     @Override
     @SuppressWarnings("rawtypes")
     void add(Context context, HttpServletRequest currentRequest, InProgressSubmission source, String path,
-        Object value) throws Exception {
+             Object value) throws Exception {
         customUrlService.addOldCustomUrl(context, source.getItem(), (String) value);
     }
 

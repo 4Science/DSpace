@@ -10,7 +10,7 @@ package org.dspace.authority;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
-import static org.dspace.content.MetadataSchemaEnum.CRIS;
+import static org.dspace.content.MetadataSchemaEnum.DSPACE;
 
 import java.sql.SQLException;
 import java.util.HashSet;
@@ -18,7 +18,7 @@ import java.util.Set;
 import java.util.UUID;
 
 import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -54,11 +54,35 @@ import org.dspace.workflow.factory.WorkflowServiceFactory;
 import org.dspace.xmlworkflow.storedcomponents.XmlWorkflowItem;
 
 /**
- * Consumer to store item related entities when an item submission/modification
- * occurs.
+ * Consumer responsible for the automated creation and linking of entities
+ * during item submission or modification.
+ * * <p>
+ * When an Item (the "subject") is processed, this consumer scans its metadata
+ * fields. If a field is configured to have a "linked entity type" (e.g.,
+ * {@code dc.contributor.author} linked to the {@code Person} entity), the
+ * consumer performs the following:
+ * </p>
+ * * <ul>
+ * <li><b>Identification:</b> It generates a unique {@code dspace.sourceId} for
+ * the metadata value (usually an MD5 hash of the text or an ID from an
+ * external authority like ORCID).</li>
+ * <li><b>Lookup:</b> It searches for an existing Item that matches the
+ * {@code entityType} and {@code dspace.sourceId}.</li>
+ * <li><b>Creation:</b> If no match is found, it automatically creates a new
+ * Item of the required type in the appropriate Collection.</li>
+ * <li><b>Enrichment:</b> It populates the related item with data using
+ * {@link AuthorityImportFiller} (e.g., pulling affiliation or email).</li>
+ * <li><b>Linking:</b> It updates the original Item's metadata to include
+ * the UUID of the related entity as its authority value, setting the
+ * confidence to {@code CF_ACCEPTED}.</li>
+ * </ul>
+ * * <p>
+ * <b>Example:</b> Submitting an article with {@code dc.contributor.author = "Mario Rossi"}
+ * will trigger the creation of a new {@code Person} item for Mario Rossi if one
+ * does not exist, and link the article to that person via a CRIS authority key.
+ * </p>
  *
- * @author Luca Giamminonni (luca.giamminonni at 4science.it)
- *
+ * * @author Luca Giamminonni (luca.giamminonni at 4science.it)
  */
 public class CrisConsumer implements Consumer {
 
@@ -97,6 +121,18 @@ public class CrisConsumer implements Consumer {
 
     private ItemSearchService itemSearchService;
 
+    /**
+     * Initializes the CrisConsumer by retrieving service instances from their
+     * respective factories. This method sets up all dependencies required for
+     * processing events, including choice authority services, item services,
+     * and workflow services.
+     * <p>
+     * This method is called once when the consumer is first instantiated by
+     * the event dispatcher system.
+     * </p>
+     *
+     * @throws Exception if any service factory fails to provide a service instance
+     */
     @Override
     @SuppressWarnings("unchecked")
     public void initialize() throws Exception {
@@ -112,11 +148,43 @@ public class CrisConsumer implements Consumer {
         itemSearchService = new DSpace().getSingletonService(ItemSearchService.class);
     }
 
+    /**
+     * Called after the consumer has finished processing all events in the current
+     * batch. This method is invoked before the transaction is committed.
+     * <p>
+     * Currently, this implementation does not perform any cleanup operations.
+     * </p>
+     *
+     * @param context the DSpace context object
+     * @throws Exception if an error occurs during finalization
+     */
     @Override
     public void finish(Context context) throws Exception {
 
     }
 
+    /**
+     * Processes an event by examining the subject Item and creating or linking
+     * related entities based on metadata field configurations. This method is
+     * the main entry point for event processing.
+     * <p>
+     * The method validates that:
+     * </p>
+     * <ul>
+     * <li>The event subject is a non-null Item</li>
+     * <li>The item has not been processed already in this batch</li>
+     * <li>The item is archived (not in workflow or workspace)</li>
+     * </ul>
+     * <p>
+     * If all conditions are met, the method temporarily disables the authorization
+     * system to allow automated entity creation and linking, then delegates to
+     * {@code consumeItem} for the actual processing.
+     * </p>
+     *
+     * @param context the DSpace context object
+     * @param event the event to process, containing the Item as its subject
+     * @throws Exception if an error occurs during item processing
+     */
     @Override
     public void consume(Context context, Event event) throws Exception {
 
@@ -136,7 +204,7 @@ public class CrisConsumer implements Consumer {
 
     }
 
-    private void consumeItem(Context context, Item item) throws Exception {
+    private void consumeItem(Context context, final Item item) throws Exception {
 
         addEntityTypeIfNotExist(context, item);
 
@@ -185,7 +253,6 @@ public class CrisConsumer implements Consumer {
             fillRelatedItem(context, metadata, relatedItem, relatedItemAlreadyPresent);
 
             choiceAuthorityService.setReferenceWithAuthority(metadata, relatedItem);
-
         }
 
     }
@@ -247,6 +314,22 @@ public class CrisConsumer implements Consumer {
 
     }
 
+    /**
+     * Checks whether a specific metadata field is configured to reverse the
+     * skip-empty-authority behavior. When a field is in the configured list,
+     * it behaves opposite to the global {@code cris-consumer.skip-empty-authority}
+     * setting.
+     * <p>
+     * For example, if {@code cris-consumer.skip-empty-authority=true} globally,
+     * but a field is in the exception list, that field will NOT be skipped when
+     * its authority is empty.
+     * </p>
+     *
+     * @param metadata the metadata value to check
+     * @return {@code true} if the field is in the
+     *         {@code cris-consumer.skip-empty-authority.metadata} configuration;
+     *         {@code false} otherwise
+     */
     public boolean isMetadataFieldConfiguredToReverseSkipEmptyAuthorityCondition(MetadataValue metadata) {
         String metadataField = metadata.getMetadataField().toString('.');
         return ArrayUtils.contains(getSkipEmptyAuthorityMetadataFields(), metadataField);
@@ -261,6 +344,18 @@ public class CrisConsumer implements Consumer {
         return !metadataAuthorityService.isAuthorityAllowed(metadataFieldKey, Constants.ITEM, null);
     }
 
+    /**
+     * Called when the consumer is being shut down or when the event processing
+     * cycle has completed. This method clears the set of processed items to
+     * prevent memory leaks and ensure a clean state for the next processing cycle.
+     * <p>
+     * This method is invoked after {@code finish} and after the transaction has
+     * been committed or rolled back.
+     * </p>
+     *
+     * @param context the DSpace context object
+     * @throws Exception if an error occurs during cleanup
+     */
     @Override
     public void end(Context context) throws Exception {
         itemsAlreadyProcessed.clear();
@@ -275,7 +370,7 @@ public class CrisConsumer implements Consumer {
 
         WorkspaceItem workspaceItem = workspaceItemService.create(context, collection, useOfTemplate(metadata));
         Item relatedItem = workspaceItem.getItem();
-        itemService.addMetadata(context, relatedItem, CRIS.getName(), "sourceId", null, null, crisSourceId);
+        itemService.addMetadata(context, relatedItem, DSPACE.getName(), "sourceId", null, null, crisSourceId);
         if (!hasEntityType(relatedItem, entityType)) {
             log.error("Inconstent configuration the related item " + relatedItem.getID().toString() + ", created from "
                 + item.getID().toString() + " (" + metadata.getMetadataField().toString('.') + ")"

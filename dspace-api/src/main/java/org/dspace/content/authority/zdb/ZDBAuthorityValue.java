@@ -6,7 +6,7 @@
  * http://www.dspace.org/license/
  */
 package org.dspace.content.authority.zdb;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.dspace.authority.AuthorityValue;
 
 public class ZDBAuthorityValue extends AuthorityValue {

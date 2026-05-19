@@ -21,10 +21,10 @@ import jakarta.mail.MessagingException;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
-import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
+import org.apache.commons.cli.help.HelpFormatter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.dspace.content.DSpaceObject;
@@ -49,13 +49,31 @@ import org.dspace.services.factory.DSpaceServicesFactory;
 import org.dspace.utils.DSpace;
 
 /**
- *
  * @author Marsa Haoua
  * @author Pascal-Nicolas Becker
  */
 public class DOIOrganiser {
 
     private static final Logger LOG = LogManager.getLogger(DOIOrganiser.class);
+
+    /**
+     * Number of DOIs to fetch per batch during bulk operations.
+     */
+    private static final int BATCH_SIZE = 100;
+
+    /**
+     * Functional interface for a DOI processing operation.
+     */
+    @FunctionalInterface
+    private interface DOIOperation {
+        /**
+         * Process a single DOI.
+         *
+         * @param doi the DOI to process.
+         * @throws Exception if processing fails.
+         */
+        void process(DOI doi) throws Exception;
+    }
 
     private final DOIIdentifierProvider provider;
     private final Context context;
@@ -64,9 +82,6 @@ public class DOIOrganiser {
     protected ItemService itemService;
     protected DOIService doiService;
     protected ConfigurationService configurationService;
-
-    protected boolean skipFilter;
-
     // This filter will override the default provider filter / behaviour
     protected Filter filter;
 
@@ -103,7 +118,11 @@ public class DOIOrganiser {
         DOIOrganiser organiser = new DOIOrganiser(context,
             new DSpace().getSingletonService(DOIIdentifierProvider.class));
         // run command line interface
-        runCLI(context, organiser, args);
+        try {
+            runCLI(context, organiser, args);
+        } catch (IOException ioe) {
+            System.err.println("IO error: " + ioe.getMessage());
+        }
 
         try {
             context.complete();
@@ -114,7 +133,7 @@ public class DOIOrganiser {
 
     }
 
-    public static void runCLI(Context context, DOIOrganiser organiser, String[] args) {
+    public static void runCLI(Context context, DOIOrganiser organiser, String[] args) throws IOException {
         // initialize options
         Options options = new Options();
 
@@ -136,7 +155,7 @@ public class DOIOrganiser {
 
         Option filterDoi = Option.builder().optionalArg(true).longOpt("filter").hasArg().argName("filterName")
                 .desc("Use the specified filter name instead of the provider's filter. Defaults to a special " +
-                "'always true' filter to force operations").build();
+                "'always true' filter to force operations").get();
         options.addOption(filterDoi);
 
         Option registerDoi = Option.builder()
@@ -146,7 +165,7 @@ public class DOIOrganiser {
                 .desc("Register a specified identifier. "
                         + "You can specify the identifier by ItemID, Handle or"
                         + " DOI.")
-                .build();
+                .get();
 
         options.addOption(registerDoi);
 
@@ -157,7 +176,7 @@ public class DOIOrganiser {
                 .desc("Reserve a specified identifier online. "
                         + "You can specify the identifier by ItemID, Handle or "
                         + "DOI.")
-                .build();
+                .get();
 
         options.addOption(reserveDoi);
 
@@ -168,7 +187,7 @@ public class DOIOrganiser {
                 .desc("Update online an object for a given DOI identifier"
                         + " or ItemID or Handle. A DOI identifier or an ItemID or a"
                         + " Handle is needed.")
-                .build();
+                .get();
 
         options.addOption(update);
 
@@ -177,14 +196,14 @@ public class DOIOrganiser {
                 .longOpt("delete-doi")
                 .hasArg()
                 .desc("Delete a specified identifier.")
-                .build();
+                .get();
 
         options.addOption(delete);
 
         // initialize parser
         CommandLineParser parser = new DefaultParser();
         CommandLine line = null;
-        HelpFormatter helpformater = new HelpFormatter();
+        HelpFormatter helpFormatter = HelpFormatter.builder().get();
 
         try {
             line = parser.parse(options, args);
@@ -196,11 +215,22 @@ public class DOIOrganiser {
         // process options
         // user asks for help
         if (line.hasOption('h') || 0 == line.getOptions().length) {
-            helpformater.printHelp("\nDOI organiser\n", options);
+            helpFormatter.printHelp("dspace doi-organiser", null, options, null, true);
         }
 
         if (line.hasOption('q')) {
             organiser.setQuiet();
+        }
+
+        int limit = -1;
+        int offset = -1;
+
+        if (line.hasOption("li")) {
+            limit = Integer.parseInt(line.getOptionValue("li"));
+        }
+
+        if (line.hasOption("o")) {
+            offset = Integer.parseInt(line.getOptionValue("o"));
         }
 
         if (line.hasOption('l')) {
@@ -213,17 +243,6 @@ public class DOIOrganiser {
             organiser.list("deletion", null, null, DOIIdentifierProvider.TO_BE_DELETED);
         }
 
-        int limit = -1;
-        int offset = -1;
-
-        if (line.hasOption("li")) {
-            limit = Integer.valueOf(line.getOptionValue("li"));
-        }
-
-        if (line.hasOption("o")) {
-            offset = Integer.valueOf(line.getOptionValue("o"));
-        }
-
         DOIService doiService = IdentifierServiceFactory.getInstance().getDOIService();
         // Do we get a filter?
         if (line.hasOption("filter")) {
@@ -234,114 +253,42 @@ public class DOIOrganiser {
         }
 
         if (line.hasOption('s')) {
-            try {
-                List<DOI> dois = doiService
-                    .getDOIsByStatus(context, Arrays.asList(DOIIdentifierProvider.TO_BE_RESERVED), offset, limit);
-                if (dois.isEmpty()) {
-                    System.err.println("There are no objects in the database "
-                                           + "that could be reserved.");
-                }
-
-                for (DOI doi : dois) {
-                    doi = context.reloadEntity(doi);
-                    try {
-                        organiser.reserve(doi);
-                        context.commit();
-                    } catch (RuntimeException e) {
-                        System.err.format("DOI %s for object %s reservation failed, skipping:  %s%n",
-                                doi.getDSpaceObject().getID().toString(),
-                                doi.getDoi(), e.getMessage());
-                        context.rollback();
-                    }
-                }
-            } catch (SQLException ex) {
-                System.err.println("Error in database connection:" + ex.getMessage());
-                ex.printStackTrace(System.err);
-            }
+            List<Integer> statuses = Arrays.asList(DOIIdentifierProvider.TO_BE_RESERVED);
+            processDois(context, doiService, statuses, organiser::reserve,
+                        offset >= 0 ? offset : -1, limit >= 0 ? limit : -1,
+                        "reservation");
         }
 
         if (line.hasOption('r')) {
-            try {
-                List<DOI> dois = doiService
-                    .getDOIsByStatus(context, Arrays.asList(DOIIdentifierProvider.TO_BE_REGISTERED), offset, limit);
-                if (dois.isEmpty()) {
-                    System.err.println("There are no objects in the database "
-                                           + "that could be registered.");
-                }
-                for (DOI doi : dois) {
-                    doi = context.reloadEntity(doi);
-                    try {
-                        organiser.register(doi);
-                        context.commit();
-                    } catch (SQLException e) {
-                        System.err.format("DOI %s for object %s registration failed, skipping:  %s%n",
-                                doi.getDSpaceObject().getID().toString(),
-                                doi.getDoi(), e.getMessage());
-                        context.rollback();
-                    }
-                }
-            } catch (SQLException ex) {
-                System.err.format("Error in database connection:  %s%n", ex.getMessage());
-                ex.printStackTrace(System.err);
-            } catch (RuntimeException ex) {
-                System.err.format("Error registering DOI identifier:  %s%n", ex.getMessage());
-            }
+            List<Integer> statuses = Arrays.asList(DOIIdentifierProvider.TO_BE_REGISTERED);
+            processDois(context, doiService, statuses, organiser::register,
+                        offset >= 0 ? offset : -1, limit >= 0 ? limit : -1,
+                        "registration");
         }
 
         if (line.hasOption('u')) {
-            try {
-                List<DOI> dois = doiService.getDOIsByStatus(context, Arrays.asList(
-                    DOIIdentifierProvider.UPDATE_BEFORE_REGISTRATION,
-                    DOIIdentifierProvider.UPDATE_RESERVED,
-                    DOIIdentifierProvider.UPDATE_REGISTERED), offset, limit);
-                if (dois.isEmpty()) {
-                    System.err.println("There are no objects in the database "
-                                           + "whose metadata needs an update.");
-                }
-
-                for (DOI doi : dois) {
-                    doi = context.reloadEntity(doi);
-                    organiser.update(doi);
-                    context.commit();
-                }
-            } catch (SQLException ex) {
-                System.err.println("Error in database connection:" + ex.getMessage());
-                ex.printStackTrace(System.err);
-            }
+            List<Integer> statuses = Arrays.asList(
+                DOIIdentifierProvider.UPDATE_BEFORE_REGISTRATION,
+                DOIIdentifierProvider.UPDATE_RESERVED,
+                DOIIdentifierProvider.UPDATE_REGISTERED);
+            processDois(context, doiService, statuses, organiser::update,
+                        offset >= 0 ? offset : -1, limit >= 0 ? limit : -1,
+                        "update");
         }
 
         if (line.hasOption('d')) {
-            try {
-                List<DOI> dois = doiService
-                    .getDOIsByStatus(context, Arrays.asList(DOIIdentifierProvider.TO_BE_DELETED), offset, limit);
-                if (dois.isEmpty()) {
-                    System.err.println("There are no objects in the database "
-                                           + "that could be deleted.");
-                }
-
-                for (DOI doi : dois) {
-                    doi = context.reloadEntity(doi);
-                    try {
-                        organiser.delete(doi.getDoi());
-                        context.commit();
-                    } catch (SQLException e) {
-                        System.err.format("DOI %s for object %s deletion failed, skipping:  %s%n",
-                                doi.getDSpaceObject().getID().toString(),
-                                doi.getDoi(), e.getMessage());
-                        context.rollback();
-                    }
-                }
-            } catch (SQLException ex) {
-                System.err.println("Error in database connection:" + ex.getMessage());
-                ex.printStackTrace(System.err);
-            }
+            List<Integer> statuses = Arrays.asList(DOIIdentifierProvider.TO_BE_DELETED);
+            processDois(context, doiService, statuses,
+                        doi -> organiser.delete(doi.getDoi()),
+                        offset >= 0 ? offset : -1, limit >= 0 ? limit : -1,
+                        "deletion");
         }
 
         if (line.hasOption("reserve-doi")) {
             String identifier = line.getOptionValue("reserve-doi");
 
             if (null == identifier) {
-                helpformater.printHelp("\nDOI organiser\n", options);
+                helpFormatter.printHelp("dspace doi-organiser", null, options, null, true);
             } else {
                 try {
                     DOI doiRow = organiser.resolveToDOI(identifier);
@@ -356,7 +303,7 @@ public class DOIOrganiser {
             String identifier = line.getOptionValue("register-doi");
 
             if (null == identifier) {
-                helpformater.printHelp("\nDOI organiser\n", options);
+                helpFormatter.printHelp("dspace doi-organiser", null, options, null, true);
             } else {
                 try {
                     DOI doiRow = organiser.resolveToDOI(identifier);
@@ -371,7 +318,7 @@ public class DOIOrganiser {
             String identifier = line.getOptionValue("update-doi");
 
             if (null == identifier) {
-                helpformater.printHelp("\nDOI organiser\n", options);
+                helpFormatter.printHelp("dspace doi-organiser", null, options, null, true);
             } else {
                 try {
                     DOI doiRow = organiser.resolveToDOI(identifier);
@@ -386,7 +333,7 @@ public class DOIOrganiser {
             String identifier = line.getOptionValue("delete-doi");
 
             if (null == identifier) {
-                helpformater.printHelp("\nDOI organiser\n", options);
+                helpFormatter.printHelp("dspace doi-organiser", null, options, null, true);
             } else {
                 try {
                     organiser.delete(identifier);
@@ -396,6 +343,61 @@ public class DOIOrganiser {
             }
         }
 
+    }
+
+    /**
+     * Process all DOIs matching the given statuses in a single query.
+     *
+     * @param context     current DSpace session.
+     * @param doiService  the DOI service to query.
+     * @param statuses    the statuses to query for.
+     * @param operation   the operation to perform on each DOI.
+     * @param offset      the record offset (-1 for none).
+     * @param limit       the maximum number of records to fetch (-1 for unlimited).
+     * @param processName a human-readable name for the operation (for logging).
+     */
+    private static void processDois(Context context, DOIService doiService,
+                                    List<Integer> statuses, DOIOperation operation,
+                                    int offset, int limit, String processName) {
+        try {
+            List<DOI> dois = doiService.getDOIsByStatus(context, statuses, limit, offset);
+            if (dois.isEmpty()) {
+                System.err.println("There are no objects in the database "
+                                       + "that could be processed for " + processName + ".");
+            }
+
+            int consecutiveSilentFailures = 0;
+            for (DOI doi : dois) {
+                doi = context.reloadEntity(doi);
+                try {
+                    operation.process(doi);
+                    DOI processed = context.reloadEntity(doi);
+                    if (statuses.contains(processed.getStatus())) {
+                        consecutiveSilentFailures++;
+                        context.rollback();
+                        System.err.format("DOI %s %s silently failed (status unchanged),"
+                                              + " skipping: check remote connector.%n",
+                                          doi.getDoi(), processName);
+                    } else {
+                        context.commit();
+                        consecutiveSilentFailures = 0;
+                    }
+                } catch (Exception e) {
+                    System.err.format("DOI %s %s failed, skipping: %s%n",
+                                      doi.getDoi(), processName, e.getMessage());
+                    context.rollback();
+                    consecutiveSilentFailures++;
+                }
+                if (consecutiveSilentFailures >= BATCH_SIZE) {
+                    System.err.println("Too many consecutive failures for " + processName
+                                           + ", stopping.");
+                    break;
+                }
+            }
+        } catch (SQLException ex) {
+            System.err.println("Error in database connection: " + ex.getMessage());
+            ex.printStackTrace(System.err);
+        }
     }
 
     /**
@@ -442,7 +444,7 @@ public class DOIOrganiser {
      * @param doiRow        DOI to register
      * @param filter        logical item filter to override
      * @throws IllegalArgumentException
-     *                      if {@code doiRow} does not name an Item.
+     *                      if {@link doiRow} does not name an Item.
      * @throws IllegalStateException
      *                      on invalid DOI.
      * @throws RuntimeException
@@ -696,7 +698,7 @@ public class DOIOrganiser {
             LOG.error("It wasn't possible to detect this identifier:  "
                           + identifier
                           + " Exceptions code:  "
-                          + ex.codeToString(ex.getCode()), ex);
+                          + DOIIdentifierException.codeToString(ex.getCode()), ex);
 
             if (!quiet) {
                 System.err.println("It wasn't possible to detect this identifier: "
@@ -737,15 +739,22 @@ public class DOIOrganiser {
         DOI doiRow = null;
         String doi = null;
 
-        // detect if identifier is ItemID, handle or DOI.
+        // detect it identifier is ItemID, handle or DOI.
         // try to detect ItemID
         if (identifier
             .matches("[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[34][0-9a-fA-F]{3}-[89ab][0-9a-fA-F]{3}-[0-9a-fA-F]{12}")) {
             DSpaceObject dso = itemService.find(context, UUID.fromString(identifier));
 
             if (null != dso) {
-                doi = provider.mint(context, dso, this.filter);
-                doiRow = doiService.findByDoi(context, doi.substring(DOI.SCHEME.length()));
+                doiRow = doiService.findDOIByDSpaceObject(context, dso);
+
+                //Check if this Item has an Identifier, mint one if it doesn't
+                if (null == doiRow) {
+                    doi = provider.mint(context, dso, this.filter);
+                    doiRow = doiService.findByDoi(context,
+                                                  doi.substring(DOI.SCHEME.length()));
+                    return doiRow;
+                }
                 return doiRow;
             } else {
                 throw new IllegalStateException("You specified an ItemID, that is not stored in our database.");
@@ -762,8 +771,13 @@ public class DOIOrganiser {
                         + "Cannot process specified handle as it does not identify an Item.");
             }
 
-            doi = provider.mint(context, dso, this.filter);
-            doiRow = doiService.findByDoi(context, doi.substring(DOI.SCHEME.length()));
+            doiRow = doiService.findDOIByDSpaceObject(context, dso);
+
+            if (null == doiRow) {
+                doi = provider.mint(context, dso, this.filter);
+                doiRow = doiService.findByDoi(context,
+                                              doi.substring(DOI.SCHEME.length()));
+            }
             return doiRow;
         }
         // detect DOI
@@ -780,10 +794,11 @@ public class DOIOrganiser {
             LOG.error("It wasn't possible to detect this identifier:  "
                           + identifier
                           + " Exceptions code:  "
-                          + ex.codeToString(ex.getCode()), ex);
+                          + DOIIdentifierException.codeToString(ex.getCode()), ex);
 
             if (!quiet) {
-                System.err.println("It wasn't possible to detect this DOI identifier: " + identifier);
+                System.err.println("It wasn't possible to detect this DOI identifier: "
+                                       + identifier);
             }
         }
 

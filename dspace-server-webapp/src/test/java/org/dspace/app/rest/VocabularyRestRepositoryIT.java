@@ -234,6 +234,59 @@ public class VocabularyRestRepositoryIT extends AbstractControllerIntegrationTes
                         .andExpect(jsonPath("$.page.size", Matchers.is(2)));
     }
 
+    /**
+     * Verifies that anonymous users can browse entries from a
+     * {@link org.dspace.content.authority.DSpaceControlledVocabulary}-backed
+     * vocabulary (XML hierarchical taxonomy like SRSC).
+     * These vocabularies are public and must not require authentication.
+     */
+    @Test
+    public void correctSrscQueryAnonymousUserTest() throws Exception {
+        getClient().perform(
+                       get("/api/submission/vocabularies/srsc/entries")
+                           .param("filter", "Research")
+                           .param("size", "2"))
+                   .andExpect(status().isOk())
+                   .andExpect(jsonPath("$._embedded.entries", Matchers.containsInAnyOrder(
+                       VocabularyMatcher.matchVocabularyEntry(
+                           "Research Subject Categories", "", "vocabularyEntry"),
+                       VocabularyMatcher.matchVocabularyEntry(
+                           "Family research",
+                           "SOCIAL SCIENCES::Social sciences::Social work"
+                               + "::Family research",
+                           "vocabularyEntry"))))
+                   .andExpect(jsonPath("$.page.totalElements", Matchers.is(26)))
+                   .andExpect(jsonPath("$.page.totalPages", Matchers.is(13)))
+                   .andExpect(jsonPath("$.page.size", Matchers.is(2)));
+    }
+
+    /**
+     * Verifies that anonymous users can browse entries from a
+     * {@link DCInputAuthority}-backed vocabulary (value-pairs).
+     * These vocabularies are public and must not require authentication.
+     */
+    @Test
+    public void correctCommonTypesQueryAnonymousUserTest() throws Exception {
+        getClient().perform(
+                       get("/api/submission/vocabularies/common_types/entries")
+                           .param("filter", "Book")
+                           .param("size", "2"))
+                   .andExpect(status().isOk())
+                   .andExpect(jsonPath("$._embedded.entries",
+                                       Matchers.containsInAnyOrder(
+                                           VocabularyMatcher.matchVocabularyEntry(
+                                               "Book", "Book", "vocabularyEntry"),
+                                           VocabularyMatcher.matchVocabularyEntry(
+                                               "Book chapter", "Book chapter",
+                                               "vocabularyEntry"))))
+                   .andExpect(jsonPath("$.page.totalElements",
+                                       Matchers.is(2)))
+                   .andExpect(jsonPath("$.page.totalPages",
+                                       Matchers.is(1)))
+                   .andExpect(jsonPath("$.page.size",
+                                       Matchers.is(2)));
+    }
+
     @Test
     public void notScrollableVocabularyRequiredQueryTest() throws Exception {
         String token = getAuthToken(admin.getEmail(), password);
@@ -339,8 +392,8 @@ public class VocabularyRestRepositoryIT extends AbstractControllerIntegrationTes
                 VocabularyMatcher.matchVocabularyEntry("Американська (USA)", "en_US", "vocabularyEntry")
             )))
             .andExpect(jsonPath("$._embedded.entries[*].authority").doesNotExist())
-            .andExpect(jsonPath("$.page.totalElements", Matchers.is(12)))
-            .andExpect(jsonPath("$.page.totalPages", Matchers.is(6)))
+            .andExpect(jsonPath("$.page.totalElements", Matchers.is(13)))
+            .andExpect(jsonPath("$.page.totalPages", Matchers.is(7)))
             .andExpect(jsonPath("$.page.size", Matchers.is(2)));
 
         configurationService.setProperty("default.locale", "en");
@@ -740,4 +793,49 @@ public class VocabularyRestRepositoryIT extends AbstractControllerIntegrationTes
                              )));
     }
 
+    @Test
+    public void shouldReturnPrefixedAuthorityForHierarchicalSuggestions() throws Exception {
+
+        String vocabularyName = "srsc";
+
+        configurationService.setProperty("authority.controlled.dc.subject", true);
+
+        configurationService.setProperty("vocabulary.plugin.authority.store", true);
+        configurationService.setProperty("vocabulary.plugin." + vocabularyName + ".hierarchy.store", true);
+        configurationService.setProperty("vocabulary.plugin." + vocabularyName + ".hierarchy.suggest", true);
+        configurationService.setProperty("vocabulary.plugin." + vocabularyName + ".delimiter", "::");
+
+        pluginService.clearNamedPluginClasses();
+        cas.clearCache();
+        metadataAuthorityService.clearCache();
+        context.turnOffAuthorisationSystem();
+
+        parentCommunity = CommunityBuilder.createCommunity(context).build();
+        Collection col1 = CollectionBuilder.createCollection(context, parentCommunity)
+                                           .withName("Test collection")
+                                           .withEntityType("Publication")
+                                           .build();
+
+        ItemBuilder.createItem(context, col1)
+                   .withTitle("Publication title 2")
+                   .withSubject("committed relationships")
+                   .build();
+
+        context.restoreAuthSystemState();
+
+        String tokenAdmin = getAuthToken(admin.getEmail(), password);
+
+
+        getClient(tokenAdmin).perform(get("/api/submission/vocabularies/" + vocabularyName + "/entries")
+                                          .param("metadata", "dc.subject")
+                                          .param("collection", col1.getID().toString())
+                                          .param("filter", "human"))
+                             .andExpect(status().isOk())
+                             .andExpect(jsonPath("$._embedded.entries[2]", Matchers.allOf(
+                                 hasJsonPath("$.authority", is(vocabularyName + ":SCB119")),
+                                 // now the display value with suggestions
+                                 hasJsonPath("$.display", is("HUMANITIES and RELIGION::Other humanities and religion")),
+                                 hasJsonPath("$.value", is("HUMANITIES and RELIGION::Other humanities and religion"))
+                             )));
+    }
 }

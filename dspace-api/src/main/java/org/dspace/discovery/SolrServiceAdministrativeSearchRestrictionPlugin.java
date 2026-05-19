@@ -8,9 +8,7 @@
 package org.dspace.discovery;
 
 import java.sql.SQLException;
-import java.util.Objects;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.Logger;
@@ -18,6 +16,8 @@ import org.apache.solr.client.solrj.SolrQuery;
 import org.dspace.authorize.service.AuthorizeService;
 import org.dspace.core.Context;
 import org.dspace.core.LogHelper;
+import org.dspace.eperson.EPerson;
+import org.dspace.eperson.Group;
 import org.dspace.eperson.service.GroupService;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -32,10 +32,12 @@ public class SolrServiceAdministrativeSearchRestrictionPlugin implements SolrSer
         org.apache.logging.log4j.LogManager.getLogger(SolrServiceAdministrativeSearchRestrictionPlugin.class);
     public static final String SEARCH_CONFIGURATION_PREFIX = "administrative";
 
-    @Autowired
+    @Autowired(required = true)
     protected AuthorizeService authorizeService;
-    @Autowired
+    @Autowired(required = true)
     protected GroupService groupService;
+    @Autowired(required = true)
+    protected SearchService searchService;
 
     private static boolean isAdministrativeConfiguration(DiscoverQuery discoveryQuery) {
         return discoveryQuery != null &&
@@ -62,20 +64,32 @@ public class SolrServiceAdministrativeSearchRestrictionPlugin implements SolrSer
                 return;
             }
 
-            // Applies filter query to restrict search results to only those that are administrate by the current user
-            solrQuery.addFilterQuery(
-                Stream.concat(
-                          groupService.allMemberGroupsSet(context, context.getCurrentUser())
-                                      .stream()
-                                      .map(group -> "g" + group.getID()),
-                          Stream.of(context.getCurrentUser())
-                                .filter(Objects::nonNull)
-                                .map(eperson -> String.valueOf(eperson.getID()))
-                      )
-                      .collect(Collectors.joining(" OR ", "admin:(", ")"))
-            );
+            EPerson currentUser = context.getCurrentUser();
+            StringBuilder epersonAndGroupClause = new StringBuilder();
+            if (currentUser != null) {
+                epersonAndGroupClause.append("e").append(currentUser.getID());
+            }
+            Set<Group> groups = groupService.allMemberGroupsSet(context, currentUser);
+            for (Group group : groups) {
+                if (!epersonAndGroupClause.isEmpty()) {
+                    epersonAndGroupClause.append(" OR g").append(group.getID());
+                } else {
+                    epersonAndGroupClause.append("g").append(group.getID());
+                }
+            }
+
+            // Use location-based filtering to restrict results to only items within containers
+            // (communities/collections) where the user has administrative rights.
+            // This matches the pattern used in SolrServiceResourceRestrictionPlugin when
+            // inheritAuthorizations is enabled.
+            String locationQuery = searchService
+                .createLocationQueryForAdministrableDSOs(epersonAndGroupClause.toString());
+            if (StringUtils.isNotBlank(locationQuery)) {
+                solrQuery.addFilterQuery(locationQuery);
+            }
         } catch (SQLException e) {
-            log.error(LogHelper.getHeader(context, "Error while adding resource policy information to query", ""), e);
+            log.error(
+                LogHelper.getHeader(context, "Error while adding administrative location filter to query", ""), e);
         }
     }
 

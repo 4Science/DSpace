@@ -52,6 +52,7 @@ import org.dspace.content.service.RelationshipService;
 import org.dspace.content.service.WorkspaceItemService;
 import org.dspace.core.Context;
 import org.dspace.core.exception.SQLRuntimeException;
+import org.dspace.discovery.SearchServiceException;
 import org.dspace.util.UUIDUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -100,10 +101,10 @@ public class ItemRestRepository extends DSpaceObjectRestRepository<Item, ItemRes
     private UriListHandlerService uriListHandlerService;
 
     @Autowired
-    private ObjectMapper mapper;
+    private CustomUrlService customUrlService;
 
     @Autowired
-    private CustomUrlService customUrlService;
+    private ObjectMapper mapper;
 
     public ItemRestRepository(ItemService dsoService) {
         super(dsoService);
@@ -204,7 +205,7 @@ public class ItemRestRepository extends DSpaceObjectRestRepository<Item, ItemRes
             throw new UnprocessableEntityException("Error parsing request body", e1);
         }
 
-        if (itemRest.getInArchive() == false) {
+        if (!itemRest.getInArchive()) {
             throw new DSpaceBadRequestException("InArchive attribute should not be set to false for the create");
         }
         UUID owningCollectionUuid = UUIDUtils.fromString(owningCollectionUuidString);
@@ -290,6 +291,27 @@ public class ItemRestRepository extends DSpaceObjectRestRepository<Item, ItemRes
         context.commit();
 
         return bundle;
+    }
+
+    /**
+     * Method to find the items for which the current user has editing rights.
+     *
+     * @param query    Query string
+     * @param pageable Pagination information
+     * @return Page of Items (REST representation) for which the current user has editing rights
+     * @throws SearchServiceException
+     */
+    @PreAuthorize("hasAuthority('AUTHENTICATED')")
+    @SearchRestMethod(name = "findEditAuthorized")
+    public Page<ItemRest> findEditAuthorized(@Parameter(value = "query") String query,
+                                             Pageable pageable)
+        throws SearchServiceException {
+        Context context = obtainContext();
+        List<Item> items = itemService.findItemsWithEdit(context, query,
+            Math.toIntExact(pageable.getOffset()),
+            Math.toIntExact(pageable.getPageSize()));
+        int tot = itemService.countItemsWithEdit(context, query);
+        return converter.toRestPage(items, pageable, tot, utils.obtainProjection());
     }
 
     @Override

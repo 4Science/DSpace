@@ -76,11 +76,6 @@ public class DCInputAuthority extends SelfNamedPlugin implements ChoiceAuthority
     }
 
     @Override
-    public boolean isPublic() {
-        return true;
-    }
-
-    @Override
     public boolean storeAuthorityInMetadata() {
         // For backward compatibility value pairs don't store authority in
         // the metadatavalue
@@ -220,6 +215,19 @@ public class DCInputAuthority extends SelfNamedPlugin implements ChoiceAuthority
         } else {
             return UNKNOWN_KEY + key;
         }
+    }
+
+    /**
+     * Value-pairs from submission forms are always considered public.
+     * They contain static, non-sensitive dropdown options (e.g., document
+     * types, languages, OpenAIRE vocabularies) that must be browsable
+     * by anonymous users in submission vocabulary lookups.
+     *
+     * @return always {@code true}
+     */
+    @Override
+    public boolean isPublic() {
+        return true;
     }
 
     @Override

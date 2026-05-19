@@ -23,7 +23,7 @@
               "security": 0,
               "boxType": "METADATA",
               "metadataSecurityFields": [
-                "cris.policy.eperson"
+                "dspace.policy.eperson"
               ],
               "configuration": {
                 "type": "boxmetadataconfiguration",

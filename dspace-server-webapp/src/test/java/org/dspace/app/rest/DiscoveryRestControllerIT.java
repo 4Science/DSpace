@@ -156,6 +156,7 @@ public class DiscoveryRestControllerIT extends AbstractControllerIntegrationTest
     @Override
     public void setUp() throws Exception {
         super.setUp();
+        choiceAuthorityService.getChoiceAuthoritiesNames(); // initialize the ChoiceAuthorityService
         context.turnOffAuthorisationSystem();
         escapeHTML = configurationService.getBooleanProperty("discovery.highlights.escape-html");
         context.restoreAuthSystemState();
@@ -250,36 +251,32 @@ public class DiscoveryRestControllerIT extends AbstractControllerIntegrationTest
         getClient().perform(get("/api/discover/facets/author")
                                 .param("size", "2"))
 
-                   //** THEN **
-                   //The status has to be 200 OK
-                   .andExpect(status().isOk())
-                   //The type needs to be 'discover'
-                   .andExpect(jsonPath("$.type", is("discover")))
-                   //The name of the facet needs to be author, because that's what we called
-                   .andExpect(jsonPath("$.name", is("author")))
-                   //The facetType has to be 'text' because that's how the author facet is configured by default
-                   .andExpect(jsonPath("$.facetType", is("text")))
-                   //Because we've constructed such a structure so that we have more than 2 (size) authors, there
-                   // needs to be a next link
-                   .andExpect(jsonPath("$._links.next.href",
-                                       Matchers.allOf(
-                                           containsString("api/discover/facets/author"),
-                                           containsString("page=1"))))
-                   //There always needs to be a self link
-                   .andExpect(jsonPath("$._links.self.href", containsString("api/discover/facets/author")))
-                   //Because there are more authors than is represented (because of the size param), hasMore has to
-                   // be true
-                   //The page object needs to be present and just like specified in the matcher
-                   .andExpect(jsonPath("$.page",
-                                       is(PageMatcher.pageEntry(0, 2))))
-                   //These authors need to be in the response because it's sorted on how many times the author comes
-                   // up in different items
-                   //These authors are the most used ones. Only two show up because of the size.
-                   .andExpect(jsonPath("$._embedded.values", containsInAnyOrder(
-                       FacetValueMatcher.entryAuthor("Doe, Jane"),
-                       FacetValueMatcher.entryAuthor("Smith, Maria")
-                   )))
-        ;
+                //** THEN **
+                //The status has to be 200 OK
+                .andExpect(status().isOk())
+                //The type needs to be 'discover'
+                .andExpect(jsonPath("$.type", is("discover")))
+                //The name of the facet needs to be author, because that's what we called
+                .andExpect(jsonPath("$.name", is("author")))
+                //The facetType has to be 'text' because that's how the author facet is configured by default
+                .andExpect(jsonPath("$.facetType", is("text")))
+                //Because we've constructed such a structure so that we have more than 2 (size) authors, there
+                // needs to be a next link
+                .andExpect(jsonPath("$._links.next.href", containsString("api/discover/facets/author")))
+                //There always needs to be a self link
+                .andExpect(jsonPath("$._links.self.href", containsString("api/discover/facets/author")))
+                //Because there are more authors than is represented (because of the size param), hasMore has to
+                // be true
+                //The page object needs to be present and just like specified in the matcher
+                .andExpect(jsonPath("$.page",
+                        is(PageMatcher.pageEntry(0, 2))))
+                //These authors need to be in the response because it's sorted on how many times the author comes
+                // up in different items
+                //These authors are the most used ones. Only two show up because of the size.
+                .andExpect(jsonPath("$._embedded.values", containsInAnyOrder(
+                        FacetValueMatcher.entryAuthor("Doe, Jane"),
+                        FacetValueMatcher.entryAuthor("Smith, Maria")
+                )))        ;
     }
 
     @Test
@@ -503,6 +500,7 @@ public class DiscoveryRestControllerIT extends AbstractControllerIntegrationTest
         configurationService.setProperty("authority.controlled.dc.contributor.author", "true");
 
         metadataAuthorityService.clearCache();
+        choiceAuthorityService.clearCache();
 
         context.turnOffAuthorisationSystem();
 
@@ -662,31 +660,28 @@ public class DiscoveryRestControllerIT extends AbstractControllerIntegrationTest
                                 .param("size", "2")
                                 .param("page", "1"))
 
-                   //** THEN **
-                   //The status has to be 200 OK
-                   .andExpect(status().isOk())
-                   //The type has to be 'discover'
-                   .andExpect(jsonPath("$.type", is("discover")))
-                   //The name of the facet has to be author as that's the one we called
-                   .andExpect(jsonPath("$.name", is("author")))
-                   //The facetType has to be 'text' as this is the default configuration
-                   .andExpect(jsonPath("$.facetType", is("text")))
-                   //There needs to be a next link because there are more authors than the current size is allowed to
-                   // show. There are more pages after this one
-                   .andExpect(jsonPath("$._links.next.href", Matchers.allOf(
-                       containsString("api/discover/facets/author"),
-                       containsString("page=2"))))
-                   //There always needs to be a self link
-                   .andExpect(jsonPath("$._links.self.href", containsString("api/discover/facets/author")))
-                   //The page object has to be like this because that's what we've asked in the parameters
-                   .andExpect(jsonPath("$.page",
-                                       is(PageMatcher.pageEntry(1, 2))))
-                   //These authors have to be present because of the current configuration
-                   .andExpect(jsonPath("$._embedded.values", containsInAnyOrder(
-                       FacetValueMatcher.entryAuthor("Doe, John"),
-                       FacetValueMatcher.entryAuthor("Smith, Donald")
-                   )))
-        ;
+                //** THEN **
+                //The status has to be 200 OK
+                .andExpect(status().isOk())
+                //The type has to be 'discover'
+                .andExpect(jsonPath("$.type", is("discover")))
+                //The name of the facet has to be author as that's the one we called
+                .andExpect(jsonPath("$.name", is("author")))
+                //The facetType has to be 'text' as this is the default configuration
+                .andExpect(jsonPath("$.facetType", is("text")))
+                //There needs to be a next link because there are more authors than the current size is allowed to
+                // show. There are more pages after this one
+                .andExpect(jsonPath("$._links.next.href", containsString("api/discover/facets/author")))
+                //There always needs to be a self link
+                .andExpect(jsonPath("$._links.self.href", containsString("api/discover/facets/author")))
+                //The page object has to be like this because that's what we've asked in the parameters
+                .andExpect(jsonPath("$.page",
+                        is(PageMatcher.pageEntry(1, 2))))
+                //These authors have to be present because of the current configuration
+                .andExpect(jsonPath("$._embedded.values", containsInAnyOrder(
+                        FacetValueMatcher.entryAuthor("Doe, John"),
+                        FacetValueMatcher.entryAuthor("Smith, Donald")
+                )))        ;
     }
 
 
@@ -928,33 +923,31 @@ public class DiscoveryRestControllerIT extends AbstractControllerIntegrationTest
         //With a certain scope
         //And a size of 2
         getClient().perform(get("/api/discover/facets/author")
-                                .param("scope", "testScope")
-                                .param("size", "2"))
-                   //** THEN **
-                   //The status has to be 200 OK
-                   .andExpect(status().isOk())
-                   //The type has to be 'discover'
-                   .andExpect(jsonPath("$.type", is("discover")))
-                   //The name has to be 'author' as that's the facet that we called
-                   .andExpect(jsonPath("$.name", is("author")))
-                   //The facetType has to be 'text' as that's the default configuration for this facet
-                   .andExpect(jsonPath("$.facetType", is("text")))
-                   //The scope has to be same as the param that we've entered
-                   .andExpect(jsonPath("$.scope", is("testScope")))
-                   //There always needs to be a self link available
-                   .andExpect(
-                       jsonPath("$._links.self.href", containsString("api/discover/facets/author?scope=testScope")))
-                   .andExpect(jsonPath("$._links.next.href",
-                                       containsString(
-                                           "api/discover/facets/author?scope=testScope&configuration" +
-                                               "=defaultConfiguration&page=1&size=2")))
-                   //These are the values that need to be present as it's ordered by count and these authors are the
-                   // most common ones in the items that we've created
-                   .andExpect(jsonPath("$._embedded.values", containsInAnyOrder(
-                       FacetValueMatcher.entryAuthor("Doe, Jane"),
-                       FacetValueMatcher.entryAuthor("Smith, Maria")
-                   )))
-        ;
+                .param("scope", "testScope")
+                .param("size", "2"))
+                //** THEN **
+                //The status has to be 200 OK
+                .andExpect(status().isOk())
+                //The type has to be 'discover'
+                .andExpect(jsonPath("$.type", is("discover")))
+                //The name has to be 'author' as that's the facet that we called
+                .andExpect(jsonPath("$.name", is("author")))
+                //The facetType has to be 'text' as that's the default configuration for this facet
+                .andExpect(jsonPath("$.facetType", is("text")))
+                //The scope has to be same as the param that we've entered
+                .andExpect(jsonPath("$.scope", is("testScope")))
+                //There always needs to be a self link available
+                .andExpect(jsonPath("$._links.self.href", containsString("api/discover/facets/author?scope=testScope")))
+                .andExpect(jsonPath("$._links.next.href",
+                           containsString(
+                               "api/discover/facets/author?scope=testScope&configuration" +
+                                   "=defaultConfiguration&page=1&size=2")))
+                //These are the values that need to be present as it's ordered by count and these authors are the
+                // most common ones in the items that we've created
+                .andExpect(jsonPath("$._embedded.values", containsInAnyOrder(
+                        FacetValueMatcher.entryAuthor("Doe, Jane"),
+                        FacetValueMatcher.entryAuthor("Smith, Maria")
+                )))        ;
     }
 
     @Test
@@ -1041,34 +1034,31 @@ public class DiscoveryRestControllerIT extends AbstractControllerIntegrationTest
         getClient().perform(get("/api/discover/facets/dateIssued")
                                 .param("size", "2"))
 
-                   //** THEN **
-                   //The status has to be 200 OK
-                   .andExpect(status().isOk())
-                   //The type has to be 'discover'
-                   .andExpect(jsonPath("$.type", is("discover")))
-                   //The name needs to be dateIssued as that's the facet that we've called
-                   .andExpect(jsonPath("$.name", is("dateIssued")))
-                   //the facetType needs to be 'date' as that's the default facetType for this facet in the
-                   // configuration
-                   .andExpect(jsonPath("$.facetType", is("date")))
-                   //There always needs to be a self link available
-                   .andExpect(jsonPath("$._links.self.href", containsString("api/discover/facets/dateIssued")))
-                   //Seeing as we've entered a size of two and there are more dates than just two, we'll need a next
-                   // link to go to the next page to see the rest of the dates
-                   .andExpect(jsonPath("$._links.next.href", Matchers.allOf(
-                       containsString("api/discover/facets/dateIssued"),
-                       containsString("page=1"))))
-                   //The page object needs to look like this because we've entered a size of 2 and we didn't specify
-                   // a starting page so it defaults to 0
-                   .andExpect(jsonPath("$.page",
-                                       is(PageMatcher.pageEntry(0, 2))))
-                   //There needs to be two date results in the embedded values section because that's what we've
-                   // specified
-                   .andExpect(jsonPath("$._embedded.values", containsInAnyOrder(
-                       FacetValueMatcher.entryDateIssued(),
-                       FacetValueMatcher.entryDateIssued()
-                   )))
-        ;
+                //** THEN **
+                //The status has to be 200 OK
+                .andExpect(status().isOk())
+                //The type has to be 'discover'
+                .andExpect(jsonPath("$.type", is("discover")))
+                //The name needs to be dateIssued as that's the facet that we've called
+                .andExpect(jsonPath("$.name", is("dateIssued")))
+                //the facetType needs to be 'date' as that's the default facetType for this facet in the
+                // configuration
+                .andExpect(jsonPath("$.facetType", is("date")))
+                //There always needs to be a self link available
+                .andExpect(jsonPath("$._links.self.href", containsString("api/discover/facets/dateIssued")))
+                //Seeing as we've entered a size of two and there are more dates than just two, we'll need a next
+                // link to go to the next page to see the rest of the dates
+                .andExpect(jsonPath("$._links.next.href", containsString("api/discover/facets/dateIssued")))
+                //The page object needs to look like this because we've entered a size of 2 and we didn't specify
+                // a starting page so it defaults to 0
+                .andExpect(jsonPath("$.page",
+                        is(PageMatcher.pageEntry(0, 2))))
+                //There needs to be two date results in the embedded values section because that's what we've
+                // specified
+                .andExpect(jsonPath("$._embedded.values", containsInAnyOrder(
+                        FacetValueMatcher.entryDateIssued(),
+                        FacetValueMatcher.entryDateIssued()
+                )))        ;
     }
 
 
@@ -6409,8 +6399,8 @@ public class DiscoveryRestControllerIT extends AbstractControllerIntegrationTest
                    .andExpect(jsonPath("$._embedded.values[0]._links.search.href",
                                        containsString(
                                            "api/discover/search/objects?query=Donald&configuration" +
-                                               "=defaultConfiguration&f.author="
-                                               + urlPathSegmentEscaper().escape("Smith, Donald,equals")
+                                               "=defaultConfiguration&f.author=" +
+                                               urlPathSegmentEscaper().escape("Smith, Donald,equals")
                                        )))
                    .andExpect(jsonPath("$._embedded.values").value(Matchers.hasSize(1)));
 
@@ -6466,10 +6456,11 @@ public class DiscoveryRestControllerIT extends AbstractControllerIntegrationTest
                    .andExpect(jsonPath("$._embedded.values[0].label", is("2017 - 2020")))
                    .andExpect(jsonPath("$._embedded.values[0].count", is(3)))
                    .andExpect(jsonPath("$._embedded.values[0]._links.search.href",
-                                       containsString(
-                                           "api/discover/search/objects?dsoType=Item&configuration=defaultConfiguration"
-                                               + "&f.dateIssued=%5B2017%20TO%202020%5D,equals")))
-                   .andExpect(jsonPath("$._embedded.values").value(Matchers.hasSize(1)));
+                        containsString("api/discover/search/objects?dsoType=Item" +
+                                           "&configuration=defaultConfiguration" +
+                                           "&f.dateIssued=" +
+                                urlPathSegmentEscaper().escape("[2017 TO 2020],equals")
+                        )))                   .andExpect(jsonPath("$._embedded.values").value(Matchers.hasSize(1)));
 
     }
 
@@ -7086,7 +7077,6 @@ public class DiscoveryRestControllerIT extends AbstractControllerIntegrationTest
             .andExpect(jsonPath("$._links.self.href", containsString("/api/discover/search/objects")));
     }
 
-
     /**
      * This test verifies a known bug fund with the DSC-940,
      * the number of date facets returned by issuing a search with scope should be
@@ -7096,6 +7086,16 @@ public class DiscoveryRestControllerIT extends AbstractControllerIntegrationTest
      */
     @Test
     public void discoverFacetsTestSameResultWithOrWithoutScope() throws Exception {
+
+        // Configure choice plugins and authority control
+        configurationService.setProperty("choices.plugin.dc.contributor.author", "AuthorAuthority");
+        configurationService.setProperty("authority.controlled.dc.contributor.author", "true");
+
+        // Clear caches again after authority configuration
+        // pluginService.clearNamedPluginClasses();
+        choiceAuthorityService.clearCache();
+        metadataAuthorityService.clearCache();
+
         context.turnOffAuthorisationSystem();
 
         parentCommunity =
@@ -7182,17 +7182,16 @@ public class DiscoveryRestControllerIT extends AbstractControllerIntegrationTest
                                     "api/discover/search/objects?scope=" +
                                         author.getID().toString() +
                                         "&configuration=RELATION.Person.researchoutputs" +
-                                        "&f.dateIssued=%5B2017%20TO%202020%5D,equals"
-                                )
-            ))
-            .andExpect(jsonPath("$._embedded.values").value(Matchers.hasSize(1)));
+                                        "&f.dateIssued=" +
+                                    urlPathSegmentEscaper().escape("[2017 TO 2020],equals")
+                                )))            .andExpect(jsonPath("$._embedded.values").value(Matchers.hasSize(1)));
 
         // finds the facets using the default configuration and
         // a filter that is the same used for the previous scope
         getClient()
             .perform(
                 get("/api/discover/facets/dateIssued")
-                    .param("configuration", "defaultConfiguration")
+                    .param("configuration", "default")
                     .param("f.author", author.getID().toString() + ",authority")
             )
             .andExpect(status().isOk())
@@ -7203,7 +7202,7 @@ public class DiscoveryRestControllerIT extends AbstractControllerIntegrationTest
             .andExpect(jsonPath("$._links.self.href",
                                 containsString(
                                     "api/discover/facets/dateIssued?configuration=defaultConfiguration" +
-                                        "&f.author=" + author.getID().toString() + ",authority"
+                                    "&f.author=" + author.getID().toString() + ",authority"
                                 )
             ))
             .andExpect(jsonPath("$._embedded.values[0].label", is("2017 - 2020")))
@@ -7212,10 +7211,9 @@ public class DiscoveryRestControllerIT extends AbstractControllerIntegrationTest
                                 containsString(
                                     "api/discover/search/objects?configuration=defaultConfiguration" +
                                         "&f.author=" + author.getID().toString() + ",authority" +
-                                        "&f.dateIssued=%5B2017%20TO%202020%5D,equals"
-                                )
-            ))
-            .andExpect(jsonPath("$._embedded.values").value(Matchers.hasSize(1)));
+                                        "&f.dateIssued=" +
+                                        urlPathSegmentEscaper().escape("[2017 TO 2020],equals")
+                                )))            .andExpect(jsonPath("$._embedded.values").value(Matchers.hasSize(1)));
 
     }
 
@@ -7913,7 +7911,7 @@ public class DiscoveryRestControllerIT extends AbstractControllerIntegrationTest
         publicationItem = context.reloadEntity(publicationItem);
 
         List<MetadataValue> departments = itemService.getMetadataByMetadataString(
-            publicationItem, "cris.virtual.department");
+            publicationItem, "dspace.virtual.department");
         assertEquals(1, departments.size(), 0);
         MetadataValue department = departments.get(0);
         assertEquals(orgUnitItem.getName(), department.getValue());

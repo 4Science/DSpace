@@ -57,7 +57,6 @@ public class AuthorizeServicePermissionEvaluatorPlugin extends RestObjectPermiss
     @Autowired
     private BitstreamCrisSecurityService bitstreamCrisSecurityService;
 
-
     @Override
     public boolean hasDSpacePermission(Authentication authentication, Serializable targetId, String targetType,
                                        DSpaceRestPermission permission) {
@@ -92,6 +91,29 @@ public class AuthorizeServicePermissionEvaluatorPlugin extends RestObjectPermiss
                         return true;
                     }
 
+                    if (dSpaceObject instanceof Bitstream && ((Bitstream) dSpaceObject).isDeleted()) {
+                        return true; // Let downstream REST layer handle with 404
+                    }
+
+                    if (dSpaceObject instanceof Bitstream && Objects.isNull(ePerson)
+                            && authorizeService.authorizeActionBoolean(context, (Bitstream) dSpaceObject,
+                                    restPermission.getDspaceApiActionId())) {
+                        return true;
+                    }
+
+                    if (dSpaceObject instanceof Bitstream bit && !Objects.isNull(ePerson)) {
+                        try {
+                            if (bitstreamCrisSecurityService
+                                    .isBitstreamAccessAllowedByCrisSecurity(context, ePerson, bit)) {
+                                return true;
+                            }
+                        } catch (Exception e) {
+                            log.warn(
+                                    "We got an exception during the security evaluation, safe fallback " +
+                                    "ignoring extra grant.",
+                                    e);
+                        }
+                    }
 
                     if (dSpaceObject instanceof Item) {
                         Item item = (Item) dSpaceObject;

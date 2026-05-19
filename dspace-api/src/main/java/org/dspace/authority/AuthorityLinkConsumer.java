@@ -9,12 +9,16 @@
 package org.dspace.authority;
 
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.dspace.app.itemupdate.MetadataUtilities;
 import org.dspace.app.util.DCInput;
 import org.dspace.app.util.DCInputsReader;
@@ -30,20 +34,45 @@ import org.dspace.event.Consumer;
 import org.dspace.event.Event;
 
 /**
+ * Event consumer that synchronizes and validates metadata fields of type "link".
+ * <p>
+ * For metadata fields configured as {@code <input-type>link</input-type>} in the
+ * submission forms, this consumer ensures that both the 'value' (label) and
+ * 'authority' are populated:
+ * </p>
+ * <ul>
+ * <li>If the authority is present but the value is blank, the authority is copied to the value.</li>
+ * <li>If the value is present but the authority is blank, the value is copied to the authority.</li>
+ * <li>Sets the confidence level to {@link Choices#CF_ACCEPTED} for these synchronized values.</li>
+ * </ul>
+ * <p>
+ * </p>
  *
- * @author Stefano Maffei(stefano.maffei at 4science.com)
- *
+ * @author Stefano Maffei (stefano.maffei at 4science.com)
  */
 public class AuthorityLinkConsumer implements Consumer {
+
+    private static final Logger log = LogManager.getLogger(AuthorityLinkConsumer.class);
 
     public static final String CONSUMER_NAME = "authoritylink";
 
     private ItemService itemService;
 
+    private DCInputsReader inputsReader;
+
+    /**
+     * Set to track items that have been modified during this consumer's execution.
+     * These items will be updated in the end() method to ensure changes are persisted
+     * and properly indexed.
+     */
+    private Set<Item> modifiedItems;
+
     @Override
     @SuppressWarnings("unchecked")
     public void initialize() throws Exception {
         itemService = ContentServiceFactory.getInstance().getItemService();
+        modifiedItems = new HashSet<>();
+        inputsReader = new DCInputsReader();
     }
 
     @Override
@@ -68,6 +97,11 @@ public class AuthorityLinkConsumer implements Consumer {
 
     }
 
+    /**
+     * Processes the item by identifying all "link" type input fields defined in
+     * the collection's submission form. It then iterates through the item's
+     * metadata for those specific fields to perform value-authority synchronization.
+     */
     private void consumeItem(Context context, Item item) throws Exception {
         List<String> linkMetadata = getLinkMetadata(context, item);
         List<MetadataValue> metadataValues = linkMetadata.stream()
@@ -78,39 +112,53 @@ public class AuthorityLinkConsumer implements Consumer {
                     return itemService.getMetadata(item, splittedMetadata[0], splittedMetadata[1],
                         splittedMetadata.length > 2 ? splittedMetadata[2] : null, Item.ANY).stream();
                 } catch (Exception e) {
+                    log.warn("Failed to parse metadata field '{}' for item {}: {}",
+                            metadata, item.getID(), e.getMessage());
                     return Stream.of();
                 }
 
             })
             .filter(Objects::nonNull)
             .collect(Collectors.toList());
-        metadataValues
-            .stream()
-            .filter(metadataVal -> StringUtils.isBlank(metadataVal.getAuthority()))
-            .forEach(metadataVal -> {
+
+        boolean itemModified = false;
+
+        // Set authority to value if authority is blank
+        for (MetadataValue metadataVal : metadataValues) {
+            if (StringUtils.isBlank(metadataVal.getAuthority())) {
                 metadataVal.setAuthority(metadataVal.getValue());
                 metadataVal.setConfidence(Choices.CF_ACCEPTED);
-            });
-        metadataValues
-            .stream()
-            .filter(metadataVal -> StringUtils.isBlank(metadataVal.getValue()))
-            .forEach(metadataVal -> {
+                itemModified = true;
+            }
+        }
+
+        // Set value to authority if value is blank
+        for (MetadataValue metadataVal : metadataValues) {
+            if (StringUtils.isBlank(metadataVal.getValue())) {
                 metadataVal.setValue(metadataVal.getAuthority());
                 metadataVal.setConfidence(Choices.CF_ACCEPTED);
-            });
+                itemModified = true;
+            }
+        }
+
+        // Track this item if it was modified
+        if (itemModified) {
+            modifiedItems.add(item);
+        }
 
     }
 
     private List<String> getLinkMetadata(Context context, Item item) throws DCInputsReaderException {
         List<DCInput> inputs = getAllInputsByCollection(item.getOwningCollection());
         return inputs.stream()
-            .filter(input -> input.getInputType().equalsIgnoreCase("link"))
-            .map(DCInput::getFieldName)
-            .collect(Collectors.toList());
+                     .filter(input -> input != null && input.getInputType() != null)
+                     .filter(input -> "link".equalsIgnoreCase(input.getInputType()))
+                     .map(DCInput::getFieldName)
+                     .filter(Objects::nonNull)
+                     .collect(Collectors.toList());
     }
 
     private List<DCInput> getAllInputsByCollection(Collection collection) throws DCInputsReaderException {
-        DCInputsReader inputsReader = new DCInputsReader();
         return inputsReader.getInputsByCollection(collection).stream()
             .flatMap(dcInputSet -> Arrays.stream(dcInputSet.getFields()))
             .flatMap(dcInputs -> Arrays.stream(dcInputs))
@@ -119,6 +167,14 @@ public class AuthorityLinkConsumer implements Consumer {
 
     @Override
     public void end(Context context) throws Exception {
+        // Update all modified items to ensure changes are persisted and properly indexed
+        for (Item item : modifiedItems) {
+            itemService.update(context, item);
+            // Uncache the entity to prevent Hibernate memory exhaustion when processing large numbers of items
+            context.uncacheEntity(item);
+        }
+        // Clear the set for the next batch
+        modifiedItems.clear();
     }
 
 }

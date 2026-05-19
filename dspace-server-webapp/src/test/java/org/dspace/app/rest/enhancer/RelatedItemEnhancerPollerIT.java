@@ -34,10 +34,15 @@ import org.dspace.builder.ItemBuilder;
 import org.dspace.content.Collection;
 import org.dspace.content.Item;
 import org.dspace.content.MetadataValue;
+import org.dspace.content.authority.factory.ContentAuthorityServiceFactory;
+import org.dspace.content.authority.service.ChoiceAuthorityService;
+import org.dspace.content.authority.service.MetadataAuthorityService;
 import org.dspace.content.enhancer.service.ItemEnhancerService;
 import org.dspace.content.factory.ContentServiceFactory;
 import org.dspace.content.service.ItemService;
 import org.dspace.core.ReloadableEntity;
+import org.dspace.core.factory.CoreServiceFactory;
+import org.dspace.core.service.PluginService;
 import org.dspace.services.ConfigurationService;
 import org.dspace.utils.DSpace;
 import org.junit.Before;
@@ -53,10 +58,10 @@ public class RelatedItemEnhancerPollerIT extends AbstractIntegrationTestWithData
     private Collection collection;
 
     @Before
-    public void setup() throws InterruptedException {
+    public void setup() throws Exception {
         final DSpace dspace = new DSpace();
         ConfigurationService configurationService = dspace.getConfigurationService();
-        configurationService.setProperty("item.enable-virtual-metadata", false);
+        configurationService.setProperty("relationship.enable-virtual-metadata", false);
         itemService = ContentServiceFactory.getInstance().getItemService();
         itemEnhancerService = dspace.getSingletonService(ItemEnhancerService.class);
         spyItemEnhancerService = spy(itemEnhancerService);
@@ -64,6 +69,20 @@ public class RelatedItemEnhancerPollerIT extends AbstractIntegrationTestWithData
         poller.setItemService(itemService);
         // cleanup the queue from any items left behind by other tests
         poller.pollItemToUpdateAndProcess();
+        PluginService pluginService = CoreServiceFactory.getInstance().getPluginService();
+        ChoiceAuthorityService choiceAuthorityService = ContentAuthorityServiceFactory
+            .getInstance().getChoiceAuthorityService();
+        choiceAuthorityService.getChoiceAuthoritiesNames(); // initialize the ChoiceAuthorityService
+        MetadataAuthorityService metadataAuthorityService = ContentAuthorityServiceFactory
+            .getInstance().getMetadataAuthorityService();
+        configurationService.setProperty("choices.plugin.dc.contributor.author", "AuthorAuthority");
+        configurationService.setProperty("choices.presentation.dc.contributor.author", "suggest");
+        configurationService.setProperty("authority.controlled.dc.contributor.author", "true");
+        configurationService.setProperty("cris.ItemAuthority.AuthorAuthority.entityType", "Person");
+        pluginService.clearNamedPluginClasses();
+        choiceAuthorityService.clearCache();
+        metadataAuthorityService.clearCache();
+
         context.turnOffAuthorisationSystem();
         parentCommunity = CommunityBuilder.createCommunity(context)
             .withName("Parent Community")
@@ -77,6 +96,8 @@ public class RelatedItemEnhancerPollerIT extends AbstractIntegrationTestWithData
 
     @Test
     public void testUpdateRelatedItemAreProcessed() throws Exception {
+
+
 
         context.turnOffAuthorisationSystem();
 
@@ -130,48 +151,48 @@ public class RelatedItemEnhancerPollerIT extends AbstractIntegrationTestWithData
 
         List<MetadataValue> metadataValues = publication.getMetadata();
         assertThat(metadataValues, hasSize(11));
-        assertThat(metadataValues, hasItem(with("cris.virtual.department", "4Science")));
-        assertThat(metadataValues, hasItem(with("cris.virtualsource.department", personId)));
-        assertThat(metadataValues, hasItem(with("cris.virtual.orcid", PLACEHOLDER_PARENT_METADATA_VALUE)));
-        assertThat(metadataValues, hasItem(with("cris.virtualsource.orcid", personId)));
+        assertThat(metadataValues, hasItem(with("dspace.virtual.department", "4Science")));
+        assertThat(metadataValues, hasItem(with("dspace.virtualsource.department", personId)));
+        assertThat(metadataValues, hasItem(with("dspace.virtual.orcid", PLACEHOLDER_PARENT_METADATA_VALUE)));
+        assertThat(metadataValues, hasItem(with("dspace.virtualsource.orcid", personId)));
         List<MetadataValue> metadataValues2 = publication2.getMetadata();
         assertThat(metadataValues2, hasSize(17));
-        assertThat(itemService.getMetadataByMetadataString(publication2, "cris.virtual.department"),
+        assertThat(itemService.getMetadataByMetadataString(publication2, "dspace.virtual.department"),
                 containsInAnyOrder(
-                    withNoPlace("cris.virtual.department", "4Science"),
-                    withNoPlace("cris.virtual.department", PLACEHOLDER_PARENT_METADATA_VALUE)));
-        assertThat(itemService.getMetadataByMetadataString(publication2, "cris.virtualsource.department"),
+                    withNoPlace("dspace.virtual.department", "4Science"),
+                    withNoPlace("dspace.virtual.department", PLACEHOLDER_PARENT_METADATA_VALUE)));
+        assertThat(itemService.getMetadataByMetadataString(publication2, "dspace.virtualsource.department"),
                 containsInAnyOrder(
-                    withNoPlace("cris.virtualsource.department", personId),
-                    withNoPlace("cris.virtualsource.department", person2Id)));
-        assertThat(itemService.getMetadataByMetadataString(publication2, "cris.virtual.orcid"),
+                    withNoPlace("dspace.virtualsource.department", personId),
+                    withNoPlace("dspace.virtualsource.department", person2Id)));
+        assertThat(itemService.getMetadataByMetadataString(publication2, "dspace.virtual.orcid"),
                 containsInAnyOrder(
-                    withNoPlace("cris.virtual.orcid", PLACEHOLDER_PARENT_METADATA_VALUE),
-                    withNoPlace("cris.virtual.orcid", PLACEHOLDER_PARENT_METADATA_VALUE)));
-        assertThat(itemService.getMetadataByMetadataString(publication2, "cris.virtualsource.orcid"),
+                    withNoPlace("dspace.virtual.orcid", PLACEHOLDER_PARENT_METADATA_VALUE),
+                    withNoPlace("dspace.virtual.orcid", PLACEHOLDER_PARENT_METADATA_VALUE)));
+        assertThat(itemService.getMetadataByMetadataString(publication2, "dspace.virtualsource.orcid"),
                 containsInAnyOrder(
-                    withNoPlace("cris.virtualsource.orcid", personId),
-                    withNoPlace("cris.virtualsource.orcid", person2Id)));
+                    withNoPlace("dspace.virtualsource.orcid", personId),
+                    withNoPlace("dspace.virtualsource.orcid", person2Id)));
         List<MetadataValue> metadataValues3 = publication3.getMetadata();
         assertThat(metadataValues3, hasSize(18));
-        assertThat(itemService.getMetadataByMetadataString(publication3, "cris.virtual.department"),
+        assertThat(itemService.getMetadataByMetadataString(publication3, "dspace.virtual.department"),
                 containsInAnyOrder(
-                    withNoPlace("cris.virtual.department", PLACEHOLDER_PARENT_METADATA_VALUE),
-                    withNoPlace("cris.virtual.department", "Affiliation 1"),
-                    withNoPlace("cris.virtual.department", "Affiliation 2")));
-        assertThat(itemService.getMetadataByMetadataString(publication3, "cris.virtualsource.department"),
+                    withNoPlace("dspace.virtual.department", PLACEHOLDER_PARENT_METADATA_VALUE),
+                    withNoPlace("dspace.virtual.department", "Affiliation 1"),
+                    withNoPlace("dspace.virtual.department", "Affiliation 2")));
+        assertThat(itemService.getMetadataByMetadataString(publication3, "dspace.virtualsource.department"),
                 containsInAnyOrder(
-                    withNoPlace("cris.virtualsource.department", person2Id),
-                    withNoPlace("cris.virtualsource.department", person3Id),
-                    withNoPlace("cris.virtualsource.department", person3Id)));
-        assertThat(itemService.getMetadataByMetadataString(publication3, "cris.virtual.orcid"),
+                    withNoPlace("dspace.virtualsource.department", person2Id),
+                    withNoPlace("dspace.virtualsource.department", person3Id),
+                    withNoPlace("dspace.virtualsource.department", person3Id)));
+        assertThat(itemService.getMetadataByMetadataString(publication3, "dspace.virtual.orcid"),
                 containsInAnyOrder(
-                    withNoPlace("cris.virtual.orcid", PLACEHOLDER_PARENT_METADATA_VALUE),
-                    withNoPlace("cris.virtual.orcid", "orcid-person3")));
-        assertThat(itemService.getMetadataByMetadataString(publication3, "cris.virtualsource.orcid"),
+                    withNoPlace("dspace.virtual.orcid", PLACEHOLDER_PARENT_METADATA_VALUE),
+                    withNoPlace("dspace.virtual.orcid", "orcid-person3")));
+        assertThat(itemService.getMetadataByMetadataString(publication3, "dspace.virtualsource.orcid"),
                 containsInAnyOrder(
-                    withNoPlace("cris.virtualsource.orcid", person2Id),
-                    withNoPlace("cris.virtualsource.orcid", person3Id)));
+                    withNoPlace("dspace.virtualsource.orcid", person2Id),
+                    withNoPlace("dspace.virtualsource.orcid", person3Id)));
 
         context.turnOffAuthorisationSystem();
         itemService.addMetadata(context, person, "person", "identifier", "orcid", null, "1234-5678-9101");
@@ -197,56 +218,56 @@ public class RelatedItemEnhancerPollerIT extends AbstractIntegrationTestWithData
 
         metadataValues = publication.getMetadata();
         assertThat(metadataValues, hasSize(13));
-        assertThat(itemService.getMetadataByMetadataString(publication, "cris.virtual.department"),
+        assertThat(itemService.getMetadataByMetadataString(publication, "dspace.virtual.department"),
                 containsInAnyOrder(
-                    withNoPlace("cris.virtual.department", "4Science"),
-                    withNoPlace("cris.virtual.department", "Company")));
-        assertThat(itemService.getMetadataByMetadataString(publication, "cris.virtualsource.department"),
+                    withNoPlace("dspace.virtual.department", "4Science"),
+                    withNoPlace("dspace.virtual.department", "Company")));
+        assertThat(itemService.getMetadataByMetadataString(publication, "dspace.virtualsource.department"),
                 containsInAnyOrder(
-                    withNoPlace("cris.virtualsource.department", personId),
-                    withNoPlace("cris.virtualsource.department", personId)));
-        assertThat(metadataValues, hasItem(with("cris.virtual.orcid", "1234-5678-9101")));
-        assertThat(metadataValues, hasItem(with("cris.virtualsource.orcid", personId)));
+                    withNoPlace("dspace.virtualsource.department", personId),
+                    withNoPlace("dspace.virtualsource.department", personId)));
+        assertThat(metadataValues, hasItem(with("dspace.virtual.orcid", "1234-5678-9101")));
+        assertThat(metadataValues, hasItem(with("dspace.virtualsource.orcid", personId)));
         metadataValues2 = publication2.getMetadata();
         assertThat(metadataValues2, hasSize(19));
-        assertThat(itemService.getMetadataByMetadataString(publication2, "cris.virtual.department"),
+        assertThat(itemService.getMetadataByMetadataString(publication2, "dspace.virtual.department"),
                 containsInAnyOrder(
-                    withNoPlace("cris.virtual.department", "4Science"),
-                    withNoPlace("cris.virtual.department", "Company"),
-                    withNoPlace("cris.virtual.department", PLACEHOLDER_PARENT_METADATA_VALUE)));
-        assertThat(itemService.getMetadataByMetadataString(publication2, "cris.virtualsource.department"),
+                    withNoPlace("dspace.virtual.department", "4Science"),
+                    withNoPlace("dspace.virtual.department", "Company"),
+                    withNoPlace("dspace.virtual.department", PLACEHOLDER_PARENT_METADATA_VALUE)));
+        assertThat(itemService.getMetadataByMetadataString(publication2, "dspace.virtualsource.department"),
                 containsInAnyOrder(
-                    withNoPlace("cris.virtualsource.department", personId),
-                    withNoPlace("cris.virtualsource.department", personId),
-                    withNoPlace("cris.virtualsource.department", person2Id)));
-        assertThat(itemService.getMetadataByMetadataString(publication2, "cris.virtual.orcid"),
+                    withNoPlace("dspace.virtualsource.department", personId),
+                    withNoPlace("dspace.virtualsource.department", personId),
+                    withNoPlace("dspace.virtualsource.department", person2Id)));
+        assertThat(itemService.getMetadataByMetadataString(publication2, "dspace.virtual.orcid"),
                 containsInAnyOrder(
-                    withNoPlace("cris.virtual.orcid", "1234-5678-9101"),
-                    withNoPlace("cris.virtual.orcid", PLACEHOLDER_PARENT_METADATA_VALUE)));
-        assertThat(itemService.getMetadataByMetadataString(publication2, "cris.virtualsource.orcid"),
+                    withNoPlace("dspace.virtual.orcid", "1234-5678-9101"),
+                    withNoPlace("dspace.virtual.orcid", PLACEHOLDER_PARENT_METADATA_VALUE)));
+        assertThat(itemService.getMetadataByMetadataString(publication2, "dspace.virtualsource.orcid"),
                 containsInAnyOrder(
-                    withNoPlace("cris.virtualsource.orcid", personId),
-                    withNoPlace("cris.virtualsource.orcid", person2Id)));
+                    withNoPlace("dspace.virtualsource.orcid", personId),
+                    withNoPlace("dspace.virtualsource.orcid", person2Id)));
         metadataValues3 = publication3.getMetadata();
         assertThat(metadataValues3, hasSize(18));
-        assertThat(itemService.getMetadataByMetadataString(publication3, "cris.virtual.department"),
+        assertThat(itemService.getMetadataByMetadataString(publication3, "dspace.virtual.department"),
                 containsInAnyOrder(
-                    withNoPlace("cris.virtual.department", PLACEHOLDER_PARENT_METADATA_VALUE),
-                    withNoPlace("cris.virtual.department", "Affiliation 1"),
-                    withNoPlace("cris.virtual.department", "Affiliation 2")));
-        assertThat(itemService.getMetadataByMetadataString(publication3, "cris.virtualsource.department"),
+                    withNoPlace("dspace.virtual.department", PLACEHOLDER_PARENT_METADATA_VALUE),
+                    withNoPlace("dspace.virtual.department", "Affiliation 1"),
+                    withNoPlace("dspace.virtual.department", "Affiliation 2")));
+        assertThat(itemService.getMetadataByMetadataString(publication3, "dspace.virtualsource.department"),
                 containsInAnyOrder(
-                    withNoPlace("cris.virtualsource.department", person2Id),
-                    withNoPlace("cris.virtualsource.department", person3Id),
-                    withNoPlace("cris.virtualsource.department", person3Id)));
-        assertThat(itemService.getMetadataByMetadataString(publication3, "cris.virtual.orcid"),
+                    withNoPlace("dspace.virtualsource.department", person2Id),
+                    withNoPlace("dspace.virtualsource.department", person3Id),
+                    withNoPlace("dspace.virtualsource.department", person3Id)));
+        assertThat(itemService.getMetadataByMetadataString(publication3, "dspace.virtual.orcid"),
                 containsInAnyOrder(
-                    withNoPlace("cris.virtual.orcid", PLACEHOLDER_PARENT_METADATA_VALUE),
-                    withNoPlace("cris.virtual.orcid", "orcid-person3")));
-        assertThat(itemService.getMetadataByMetadataString(publication3, "cris.virtualsource.orcid"),
+                    withNoPlace("dspace.virtual.orcid", PLACEHOLDER_PARENT_METADATA_VALUE),
+                    withNoPlace("dspace.virtual.orcid", "orcid-person3")));
+        assertThat(itemService.getMetadataByMetadataString(publication3, "dspace.virtualsource.orcid"),
                 containsInAnyOrder(
-                    withNoPlace("cris.virtualsource.orcid", person2Id),
-                    withNoPlace("cris.virtualsource.orcid", person3Id)));
+                    withNoPlace("dspace.virtualsource.orcid", person2Id),
+                    withNoPlace("dspace.virtualsource.orcid", person3Id)));
         context.turnOffAuthorisationSystem();
         itemService.clearMetadata(context, person3, "person", "identifier", "orcid", Item.ANY);
         itemService.removeMetadataValues(context, person3,
@@ -270,54 +291,54 @@ public class RelatedItemEnhancerPollerIT extends AbstractIntegrationTestWithData
 
         metadataValues = publication.getMetadata();
         assertThat(metadataValues, hasSize(13));
-        assertThat(itemService.getMetadataByMetadataString(publication, "cris.virtual.department"),
+        assertThat(itemService.getMetadataByMetadataString(publication, "dspace.virtual.department"),
                 containsInAnyOrder(
-                    withNoPlace("cris.virtual.department", "4Science"),
-                    withNoPlace("cris.virtual.department", "Company")));
-        assertThat(itemService.getMetadataByMetadataString(publication, "cris.virtualsource.department"),
+                    withNoPlace("dspace.virtual.department", "4Science"),
+                    withNoPlace("dspace.virtual.department", "Company")));
+        assertThat(itemService.getMetadataByMetadataString(publication, "dspace.virtualsource.department"),
                 containsInAnyOrder(
-                    withNoPlace("cris.virtualsource.department", personId),
-                    withNoPlace("cris.virtualsource.department", personId)));
-        assertThat(metadataValues, hasItem(with("cris.virtual.orcid", "1234-5678-9101")));
-        assertThat(metadataValues, hasItem(with("cris.virtualsource.orcid", personId)));
+                    withNoPlace("dspace.virtualsource.department", personId),
+                    withNoPlace("dspace.virtualsource.department", personId)));
+        assertThat(metadataValues, hasItem(with("dspace.virtual.orcid", "1234-5678-9101")));
+        assertThat(metadataValues, hasItem(with("dspace.virtualsource.orcid", personId)));
         metadataValues2 = publication2.getMetadata();
         assertThat(metadataValues2, hasSize(19));
-        assertThat(itemService.getMetadataByMetadataString(publication2, "cris.virtual.department"),
+        assertThat(itemService.getMetadataByMetadataString(publication2, "dspace.virtual.department"),
                 containsInAnyOrder(
-                    withNoPlace("cris.virtual.department", "4Science"),
-                    withNoPlace("cris.virtual.department", "Company"),
-                    withNoPlace("cris.virtual.department", PLACEHOLDER_PARENT_METADATA_VALUE)));
-        assertThat(itemService.getMetadataByMetadataString(publication2, "cris.virtualsource.department"),
+                    withNoPlace("dspace.virtual.department", "4Science"),
+                    withNoPlace("dspace.virtual.department", "Company"),
+                    withNoPlace("dspace.virtual.department", PLACEHOLDER_PARENT_METADATA_VALUE)));
+        assertThat(itemService.getMetadataByMetadataString(publication2, "dspace.virtualsource.department"),
                 containsInAnyOrder(
-                    withNoPlace("cris.virtualsource.department", personId),
-                    withNoPlace("cris.virtualsource.department", personId),
-                    withNoPlace("cris.virtualsource.department", person2Id)));
-        assertThat(itemService.getMetadataByMetadataString(publication2, "cris.virtual.orcid"),
+                    withNoPlace("dspace.virtualsource.department", personId),
+                    withNoPlace("dspace.virtualsource.department", personId),
+                    withNoPlace("dspace.virtualsource.department", person2Id)));
+        assertThat(itemService.getMetadataByMetadataString(publication2, "dspace.virtual.orcid"),
                 containsInAnyOrder(
-                    withNoPlace("cris.virtual.orcid", "1234-5678-9101"),
-                    withNoPlace("cris.virtual.orcid", PLACEHOLDER_PARENT_METADATA_VALUE)));
-        assertThat(itemService.getMetadataByMetadataString(publication2, "cris.virtualsource.orcid"),
+                    withNoPlace("dspace.virtual.orcid", "1234-5678-9101"),
+                    withNoPlace("dspace.virtual.orcid", PLACEHOLDER_PARENT_METADATA_VALUE)));
+        assertThat(itemService.getMetadataByMetadataString(publication2, "dspace.virtualsource.orcid"),
                 containsInAnyOrder(
-                    withNoPlace("cris.virtualsource.orcid", personId),
-                    withNoPlace("cris.virtualsource.orcid", person2Id)));
+                    withNoPlace("dspace.virtualsource.orcid", personId),
+                    withNoPlace("dspace.virtualsource.orcid", person2Id)));
         metadataValues3 = publication3.getMetadata();
         assertThat(metadataValues3, hasSize(16));
-        assertThat(itemService.getMetadataByMetadataString(publication3, "cris.virtual.department"),
+        assertThat(itemService.getMetadataByMetadataString(publication3, "dspace.virtual.department"),
                 containsInAnyOrder(
-                    withNoPlace("cris.virtual.department", PLACEHOLDER_PARENT_METADATA_VALUE),
-                    withNoPlace("cris.virtual.department", "Affiliation 2")));
-        assertThat(itemService.getMetadataByMetadataString(publication3, "cris.virtualsource.department"),
+                    withNoPlace("dspace.virtual.department", PLACEHOLDER_PARENT_METADATA_VALUE),
+                    withNoPlace("dspace.virtual.department", "Affiliation 2")));
+        assertThat(itemService.getMetadataByMetadataString(publication3, "dspace.virtualsource.department"),
                 containsInAnyOrder(
-                    withNoPlace("cris.virtualsource.department", person2Id),
-                    withNoPlace("cris.virtualsource.department", person3Id)));
-        assertThat(itemService.getMetadataByMetadataString(publication3, "cris.virtual.orcid"),
+                    withNoPlace("dspace.virtualsource.department", person2Id),
+                    withNoPlace("dspace.virtualsource.department", person3Id)));
+        assertThat(itemService.getMetadataByMetadataString(publication3, "dspace.virtual.orcid"),
                 containsInAnyOrder(
-                    withNoPlace("cris.virtual.orcid", PLACEHOLDER_PARENT_METADATA_VALUE),
-                    withNoPlace("cris.virtual.orcid", PLACEHOLDER_PARENT_METADATA_VALUE)));
-        assertThat(itemService.getMetadataByMetadataString(publication3, "cris.virtualsource.orcid"),
+                    withNoPlace("dspace.virtual.orcid", PLACEHOLDER_PARENT_METADATA_VALUE),
+                    withNoPlace("dspace.virtual.orcid", PLACEHOLDER_PARENT_METADATA_VALUE)));
+        assertThat(itemService.getMetadataByMetadataString(publication3, "dspace.virtualsource.orcid"),
                 containsInAnyOrder(
-                    withNoPlace("cris.virtualsource.orcid", person2Id),
-                    withNoPlace("cris.virtualsource.orcid", person3Id)));
+                    withNoPlace("dspace.virtualsource.orcid", person2Id),
+                    withNoPlace("dspace.virtualsource.orcid", person3Id)));
 
     }
 

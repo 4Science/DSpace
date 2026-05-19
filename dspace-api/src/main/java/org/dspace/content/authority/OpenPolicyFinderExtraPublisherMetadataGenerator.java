@@ -11,7 +11,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.dspace.app.openpolicyfinder.v2.OpenPolicyFinderJournal;
 import org.dspace.app.openpolicyfinder.v2.OpenPolicyFinderPublisher;
 

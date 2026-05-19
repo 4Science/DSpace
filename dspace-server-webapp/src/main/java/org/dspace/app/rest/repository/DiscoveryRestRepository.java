@@ -99,11 +99,10 @@ public class DiscoveryRestRepository extends AbstractDSpaceRestRepository {
         DiscoveryConfiguration discoveryConfiguration = searchConfigurationService
             .getDiscoveryConfigurationByNameOrIndexableObject(context, configuration, scopeObject);
 
-        boolean isRelatedItem = discoveryConfiguration != null &&
-                discoveryConfiguration instanceof DiscoveryRelatedItemConfiguration;
+        boolean isRelatedItem = discoveryConfiguration instanceof DiscoveryRelatedItemConfiguration;
 
-        DiscoverResult searchResult = null;
-        DiscoverQuery discoverQuery = null;
+        DiscoverResult searchResult;
+        DiscoverQuery discoverQuery;
 
         try {
             discoverQuery = queryBuilder
@@ -148,11 +147,10 @@ public class DiscoveryRestRepository extends AbstractDSpaceRestRepository {
         DiscoveryConfiguration discoveryConfiguration = searchConfigurationService
             .getDiscoveryConfigurationByNameOrIndexableObject(context, configuration, scopeObject);
 
-        boolean isRelatedItem = discoveryConfiguration != null &&
-                discoveryConfiguration instanceof DiscoveryRelatedItemConfiguration;
+        boolean isRelatedItem = discoveryConfiguration instanceof DiscoveryRelatedItemConfiguration;
 
-        DiscoverResult searchResult = null;
-        DiscoverQuery discoverQuery = null;
+        DiscoverResult searchResult;
+        DiscoverQuery discoverQuery;
         try {
             discoverQuery = queryBuilder.buildFacetQuery(context, scopeObject, discoveryConfiguration, prefix, query,
                     searchFilters, dsoTypes, page, facetName);
@@ -181,11 +179,10 @@ public class DiscoveryRestRepository extends AbstractDSpaceRestRepository {
         DiscoveryConfiguration discoveryConfiguration = searchConfigurationService
             .getDiscoveryConfigurationByNameOrIndexableObject(context, configuration, scopeObject);
 
-        boolean isRelatedItem = discoveryConfiguration != null &&
-                discoveryConfiguration instanceof DiscoveryRelatedItemConfiguration;
+        boolean isRelatedItem = discoveryConfiguration instanceof DiscoveryRelatedItemConfiguration;
 
         DiscoverResult searchResult = null;
-        DiscoverQuery discoverQuery = null;
+        DiscoverQuery discoverQuery;
 
         try {
             discoverQuery = queryBuilder

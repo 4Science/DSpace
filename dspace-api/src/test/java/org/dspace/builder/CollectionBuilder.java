@@ -81,12 +81,12 @@ public class CollectionBuilder extends AbstractDSpaceObjectBuilder<Collection> {
 
     private CollectionBuilder create(final Community parent, final String handle) {
         try {
-            for (Collection collection : this.collectionService.findAll(context)) {
+            for (Collection collection : collectionService.findAll(context)) {
                 if (collection.getHandle().equalsIgnoreCase(handle)) {
                     this.collection = collection;
                 }
             }
-            this.collection = this.collectionService.create(context, parent, handle);
+            this.collection = collectionService.create(context, parent, handle);
         } catch (Exception e) {
             return handleException(e);
         }
@@ -115,39 +115,77 @@ public class CollectionBuilder extends AbstractDSpaceObjectBuilder<Collection> {
      * @return this.
      */
     public CollectionBuilder withNameForLanguage(final String name, final String language) {
-        return addMetadataValue(collection, MetadataSchemaEnum.DC.getName(), "title", null, language, name);
+        return addMetadataValue(collection,
+                                MetadataSchemaEnum.DC.getName(),
+                                "title",
+                                null,
+                                language,
+                                name);
     }
 
     public CollectionBuilder withSubmissionDefinition(final String name) {
-        return addMetadataValue(collection, "cris", "submission", "definition", null, name);
+        return addMetadataValue(collection,
+                                MetadataSchemaEnum.DSPACE.getName(),
+                                "submission",
+                                "definition",
+                                null,
+                                name);
     }
 
     public CollectionBuilder withCorrectionSubmissionDefinition(final String name) {
-        return addMetadataValue(collection, "cris", "submission", "definition-correction", null, name);
+        return addMetadataValue(collection, MetadataSchemaEnum.DSPACE.getName(),
+                                "submission",
+                                "definition-correction",
+                                null,
+                                name);
     }
 
     public CollectionBuilder withWorkflow(final String name) {
-        return addMetadataValue(collection, "cris", "workflow", "name", null, name);
+        return addMetadataValue(collection, MetadataSchemaEnum.DSPACE.getName(),
+                                "workflow",
+                                "name",
+                                null,
+                                name);
     }
 
     public CollectionBuilder withHarvestingPreTrasform(String preTransform) {
-        return addMetadataValue(collection, "cris", "harvesting", "preTransform", null, preTransform);
+        return addMetadataValue(collection, MetadataSchemaEnum.DSPACE.getName(),
+                                "harvesting",
+                                "preTransform",
+                                null,
+                                preTransform);
     }
 
     public CollectionBuilder withHarvestingPostTrasform(String postTransform) {
-        return addMetadataValue(collection, "cris", "harvesting", "postTransform", null, postTransform);
+        return addMetadataValue(collection, MetadataSchemaEnum.DSPACE.getName(),
+                                "harvesting",
+                                "postTransform",
+                                null,
+                                postTransform);
     }
 
     public CollectionBuilder withHarvestingEmail(String email) {
-        return addMetadataValue(collection, "cris", "harvesting", "email", null, email);
+        return addMetadataValue(collection, MetadataSchemaEnum.DSPACE.getName(),
+                                "harvesting",
+                                "email",
+                                null,
+                                email);
     }
 
     public CollectionBuilder withHarvestingItemValidationEnabled() {
-        return addMetadataValue(collection, "cris", "harvesting", "itemValidationEnabled", null, "true");
+        return addMetadataValue(collection, MetadataSchemaEnum.DSPACE.getName(),
+                                "harvesting",
+                                "itemValidationEnabled",
+                                null,
+                                "true");
     }
 
     public CollectionBuilder withHarvestingRecordValidationEnabled() {
-        return addMetadataValue(collection, "cris", "harvesting", "recordValidationEnabled", null, "true");
+        return addMetadataValue(collection, MetadataSchemaEnum.DSPACE.getName(),
+                                "harvesting",
+                                "recordValidationEnabled",
+                                null,
+                                "true");
     }
 
     /**
@@ -272,8 +310,14 @@ public class CollectionBuilder extends AbstractDSpaceObjectBuilder<Collection> {
         return this;
     }
 
+    /**
+     * Set the collection to use a shared workspace, allowing multiple users
+     * to collaborate on the same submission.
+     *
+     * @return this builder
+     */
     public CollectionBuilder withSharedWorkspace() {
-        return setMetadataSingleValue(collection, "cris", "workspace", "shared", "true");
+        return setMetadataSingleValue(collection, MetadataSchemaEnum.DSPACE.getName(), "workspace", "shared", "true");
     }
 
     /**

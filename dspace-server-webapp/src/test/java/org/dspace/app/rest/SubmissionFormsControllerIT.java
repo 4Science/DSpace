@@ -479,7 +479,7 @@ public class SubmissionFormsControllerIT extends AbstractControllerIntegrationTe
     @Test
     public void userChoiceAnotherLanguageTest() throws Exception {
         context.turnOffAuthorisationSystem();
-
+        cas.getChoiceAuthoritiesNames();
         String[] supportedLanguage = {"it","uk"};
         configurationService.setProperty("default.locale","it");
         configurationService.setProperty("webui.supported.locales",supportedLanguage);

@@ -10,7 +10,7 @@ import java.sql.SQLException;
 import java.util.Optional;
 import java.util.UUID;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.dspace.app.rest.authorization.AuthorizationFeature;
 import org.dspace.app.rest.authorization.AuthorizationFeatureDocumentation;
 import org.dspace.app.rest.model.BaseObjectRest;
@@ -68,8 +68,9 @@ public class CanManageMappingsFeature implements AuthorizationFeature {
                 return false;
             }
             try {
-                Optional<Collection> collections = collectionService.findCollectionsWithSubmit(StringUtils.EMPTY,
-                                                 context, null, null, 0, Integer.MAX_VALUE)
+                Optional<Collection> collections = collectionService.findCollectionsWithSubmit(context,
+                                                                                               StringUtils.EMPTY,
+                                                 null, null, 0, Integer.MAX_VALUE)
                                                 .stream()
                                                 .filter(c -> !c.getID().equals(item.getOwningCollection().getID()))
                                                 .filter(c -> {

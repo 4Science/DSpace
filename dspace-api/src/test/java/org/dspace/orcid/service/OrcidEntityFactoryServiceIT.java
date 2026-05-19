@@ -7,7 +7,6 @@
  */
 package org.dspace.orcid.service;
 
-import static org.apache.commons.lang.StringUtils.endsWith;
 import static org.dspace.app.matcher.LambdaMatcher.has;
 import static org.dspace.app.matcher.LambdaMatcher.matches;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -29,6 +28,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.function.Predicate;
 
+import org.apache.commons.lang3.Strings;
 import org.dspace.AbstractIntegrationTestWithDatabase;
 import org.dspace.builder.CollectionBuilder;
 import org.dspace.builder.CommunityBuilder;
@@ -1214,6 +1214,6 @@ public class OrcidEntityFactoryServiceIT extends AbstractIntegrationTestWithData
     }
 
     private Predicate<Url> urlEndsWith(String handle) {
-        return url -> url != null && url.getValue() != null && endsWith(url.getValue(), handle);
+        return url -> url != null && url.getValue() != null && Strings.CI.endsWith(url.getValue(), handle);
     }
 }

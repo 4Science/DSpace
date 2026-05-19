@@ -18,10 +18,10 @@ import org.dspace.validation.service.ValidationService;
  */
 public abstract class ValidationServiceFactory {
 
-    public abstract ValidationService getValidationService();
-
     public static ValidationServiceFactory getInstance() {
         return DSpaceServicesFactory.getInstance().getServiceManager()
-            .getServiceByName("validationServiceFactory", ValidationServiceFactory.class);
+                                    .getServiceByName("validationServiceFactory", ValidationServiceFactory.class);
     }
+
+    public abstract ValidationService getValidationService();
 }

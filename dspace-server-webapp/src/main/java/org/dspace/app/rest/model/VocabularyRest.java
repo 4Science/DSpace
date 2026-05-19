@@ -36,7 +36,7 @@ public class VocabularyRest extends BaseObjectRest<String> {
 
     private String entity;
 
-    private Map<String,String> externalSource;
+    private Map<String, String> externalSource;
 
     @Override
     public String getId() {

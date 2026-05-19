@@ -8,6 +8,7 @@
 package org.dspace.app.rest.converter;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.dspace.app.rest.model.VocabularyEntryDetailsRest;
 import org.dspace.app.rest.projection.Projection;
 import org.dspace.app.rest.utils.AuthorityUtils;
@@ -45,12 +46,11 @@ public class VocabularyEntryDetailsRestConverter implements DSpaceConverter<Choi
         //FIXME hack to deal with an improper use on the angular side of the node id (otherinformation.id) to
         // build a vocabulary entry details ID
         if (StringUtils.isNotEmpty(choice.authorityName)
-                && !StringUtils.startsWith(id, choice.authorityName
+                && !Strings.CS.startsWith(id, choice.authorityName
                         + VocabularyEntryDetailsRestConverter.ID_SPLITTER)) {
-            id = new StringBuilder(choice.authorityName)
-                    .append(VocabularyEntryDetailsRestConverter.ID_SPLITTER)
-                    .append(choice.authority)
-                    .toString();
+            id = choice.authorityName +
+                VocabularyEntryDetailsRestConverter.ID_SPLITTER +
+                choice.authority;
         }
         return id;
     }

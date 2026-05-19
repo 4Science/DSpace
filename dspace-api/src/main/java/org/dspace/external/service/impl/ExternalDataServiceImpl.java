@@ -136,12 +136,6 @@ public class ExternalDataServiceImpl implements ExternalDataService {
     }
 
     @Override
-    public List<ExternalDataProvider> getExternalDataProvidersForEntityType(String entityType) {
-        return externalDataProviders.stream().filter(edp -> edp.supportsEntityType(entityType))
-                .collect(Collectors.toList());
-    }
-
-    @Override
     public ExternalDataProvider getExternalDataProvider(String sourceIdentifier) {
         for (ExternalDataProvider externalDataProvider : externalDataProviders) {
             if (externalDataProvider.supports(sourceIdentifier)) {
@@ -175,13 +169,13 @@ public class ExternalDataServiceImpl implements ExternalDataService {
             }
             if (metadataValueDTO.getAuthority() == null) {
                 itemService.addMetadata(context, item, metadataValueDTO.getSchema(), metadataValueDTO.getElement(),
-                    metadataValueDTO.getQualifier(), metadataValueDTO.getLanguage(),
-                    metadataValueDTO.getValue());
+                                        metadataValueDTO.getQualifier(), metadataValueDTO.getLanguage(),
+                                        metadataValueDTO.getValue());
             } else {
                 itemService.addMetadata(context, item, metadataValueDTO.getSchema(), metadataValueDTO.getElement(),
-                    metadataValueDTO.getQualifier(), metadataValueDTO.getLanguage(),
-                    metadataValueDTO.getValue(), metadataValueDTO.getAuthority(),
-                    metadataValueDTO.getConfidence());
+                                        metadataValueDTO.getQualifier(), metadataValueDTO.getLanguage(),
+                                        metadataValueDTO.getValue(), metadataValueDTO.getAuthority(),
+                                        metadataValueDTO.getConfidence());
             }
         }
 
@@ -200,6 +194,13 @@ public class ExternalDataServiceImpl implements ExternalDataService {
             log.error("Got problems with the solr suggestion storage service: " + e.getMessage(), e);
         }
         return workspaceItem;
+    }
+
+    @Override
+    public List<ExternalDataProvider> getExternalDataProvidersForEntityType(String entityType) {
+        return externalDataProviders.stream()
+                                    .filter(edp -> edp.supportsEntityType(entityType))
+                                    .collect(Collectors.toList());
     }
 
 }

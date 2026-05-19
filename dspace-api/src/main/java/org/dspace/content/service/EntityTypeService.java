@@ -79,10 +79,10 @@ public interface EntityTypeService extends DSpaceCRUDService<EntityType> {
      * @throws SolrServerException If there is a problem in communicating with Solr
      * @throws IOException         If IO error
      */
-    public List<String> getSubmitAuthorizedTypes(Context context) throws SQLException, SolrServerException, IOException;
+    List<String> getSubmitAuthorizedTypes(Context context) throws SQLException, SolrServerException, IOException;
 
     /**
-     *
+     * 
      * @param context          DSpace context object
      * @param names            List of Entity type names that you want to retrieve
      * @param limit            paging limit
@@ -90,25 +90,25 @@ public interface EntityTypeService extends DSpaceCRUDService<EntityType> {
      * @return
      * @throws SQLException    if database error
      */
-    public List<EntityType> getEntityTypesByNames(Context context, List<String> names,Integer limit, Integer offset)
+    List<EntityType> getEntityTypesByNames(Context context, List<String> names,Integer limit, Integer offset)
            throws SQLException;
 
     /**
-     *
+     * 
      * @param context          DSpace context object
      * @param names            List of Entity type names that you want to retrieve
      * @return
      * @throws SQLException    if database error
      */
-    public int countEntityTypesByNames(Context context, List<String> names) throws SQLException;
+    int countEntityTypesByNames(Context context, List<String> names) throws SQLException;
 
     /**
      * Initializes the EntityType names, and marks them "permanent".
-     *
+     * 
      * @param context                 DSpace context object
      * @throws SQLException           Database exception
      * @throws AuthorizeException     Authorization error
      */
-    public void initDefaultEntityTypeNames(Context context) throws SQLException, AuthorizeException;
+    void initDefaultEntityTypeNames(Context context) throws SQLException, AuthorizeException;
 
 }

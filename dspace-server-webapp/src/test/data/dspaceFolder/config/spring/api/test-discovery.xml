@@ -4771,7 +4771,7 @@
     </bean>
 
     <bean id="searchFilterProjectInvestigator"
-        class="org.dspace.discovery.configuration.DiscoverySearchFilterFacet">
+          class="org.dspace.discovery.configuration.DiscoverySearchFilterFacet">
         <property name="indexFieldName" value="projectinvestigators" />
         <property name="metadataFields">
             <list>
@@ -4867,7 +4867,7 @@
         <property name="indexFieldName" value="legacy-id"/>
         <property name="metadataFields">
             <list>
-                <value>cris.legacyId</value>
+                <value>dspace.legacyId</value>
             </list>
         </property>
         <property name="isOpenByDefault" value="true"/>
@@ -5186,7 +5186,7 @@
         <property name="indexFieldName" value="department"/>
         <property name="metadataFields">
             <list>
-                <value>cris.virtual.department</value>
+                <value>dspace.virtual.department</value>
             </list>
         </property>
         <property name="facetLimit" value="5"/>

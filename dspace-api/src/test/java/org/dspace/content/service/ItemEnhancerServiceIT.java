@@ -72,8 +72,8 @@ public class ItemEnhancerServiceIT extends AbstractIntegrationTestWithDatabase {
                 .withTitle("Item to enhance")
                 .withAuthor(person.getName(), person.getID().toString())
                 .build();
-        assertMetadataValue(itemService.getMetadataByMetadataString(publication, "cris.virtual.department").get(0),
-                "cris", "virtual", "department", "Some department", null, 0);
+        assertMetadataValue(itemService.getMetadataByMetadataString(publication, "dspace.virtual.department").get(0),
+                "dspace", "virtual", "department", "Some department", null, 0);
         context.restoreAuthSystemState();
         itemEnhancerService.setItemService(spyItemService);
     }

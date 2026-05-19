@@ -16,9 +16,12 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.dspace.app.util.factory.UtilServiceFactory;
+import org.dspace.app.util.service.DSpaceObjectUtils;
 import org.dspace.content.Collection;
 import org.dspace.content.Community;
 import org.dspace.content.DSpaceObject;
@@ -80,8 +83,6 @@ public class Curator {
 
     private static final Logger log = LogManager.getLogger();
 
-    protected static final ThreadLocal<Context> curationCtx = new ThreadLocal<>();
-
     protected final Map<String, String> runParameters = new HashMap<>();
     protected Map<String, TaskRunner> trMap = new HashMap<>();
     protected List<String> perfList = new ArrayList<>();
@@ -89,8 +90,9 @@ public class Curator {
     protected Appendable reporter = null;
     protected Invoked iMode = null;
     protected TaskResolver resolver = new TaskResolver();
-    protected TxScope txScope = TxScope.OBJECT;
+    protected TxScope txScope = TxScope.OPEN;
     protected CommunityService communityService;
+    protected DSpaceObjectUtils dspaceObjectUtils;
     protected ItemService itemService;
     protected HandleService handleService;
     protected DSpaceRunnableHandler handler;
@@ -99,7 +101,7 @@ public class Curator {
 
     /**
      * constructor that uses an handler for logging
-     *
+     * 
      * @param handler {@code DSpaceRunnableHandler} used to logs infos
      */
     public Curator(DSpaceRunnableHandler handler) {
@@ -112,6 +114,7 @@ public class Curator {
      */
     public Curator() {
         communityService = ContentServiceFactory.getInstance().getCommunityService();
+        dspaceObjectUtils = UtilServiceFactory.getInstance().getDSpaceObjectUtils();
         itemService = ContentServiceFactory.getInstance().getItemService();
         handleService = HandleServiceFactory.getInstance().getHandleService();
         resolver = new TaskResolver();
@@ -163,14 +166,15 @@ public class Curator {
      * Add a task to the set to be performed. Caller should make no assumptions
      * on execution ordering.
      *
+     * @param ctx DSpace context object
      * @param taskName - logical name of task
      * @return this curator - to support concatenating invocation style
      */
-    public Curator addTask(String taskName) {
+    public Curator addTask(Context ctx, String taskName) {
         ResolvedTask task = resolver.resolveTask(taskName);
         if (task != null) {
             try {
-                task.init(this);
+                task.init(ctx, this);
                 trMap.put(taskName, new TaskRunner(task));
                 // performance order currently FIFO - to be revisited
                 perfList.add(taskName);
@@ -264,12 +268,9 @@ public class Curator {
             throw new IOException("Cannot perform curation task(s) on a null object identifier!");
         }
         try {
-            //Save the context on current execution thread
-            curationCtx.set(c);
-
-            DSpaceObject dso = handleService.resolveToObject(c, id);
+            DSpaceObject dso = dspaceObjectUtils.findDSpaceObject(c,id);
             if (dso != null) {
-                curate(dso);
+                curate(c, dso);
             } else {
                 for (String taskName : perfList) {
                     trMap.get(taskName).run(c, id);
@@ -277,15 +278,12 @@ public class Curator {
             }
             // if curation scoped, commit transaction
             if (txScope.equals(TxScope.CURATION)) {
-                Context ctx = curationContext();
-                if (ctx != null) {
-                    ctx.complete();
+                if (c != null) {
+                    c.complete();
                 }
             }
         } catch (SQLException sqlE) {
             throw new IOException(sqlE.getMessage(), sqlE);
-        } finally {
-            curationCtx.remove();
         }
     }
 
@@ -294,9 +292,8 @@ public class Curator {
      * (Community, Collection or Item).
      * @param dso the DSpace object
      * @throws IOException if IO error
-     * @throws SQLException
      */
-    public void curate(DSpaceObject dso) throws IOException, SQLException {
+    public void curate(Context c, DSpaceObject dso) throws IOException {
         if (dso == null) {
             throw new IOException("Cannot perform curation task(s) on a null DSpaceObject!");
         }
@@ -305,34 +302,15 @@ public class Curator {
             TaskRunner tr = trMap.get(taskName);
             // do we need to iterate over the object ?
             if (type == Constants.ITEM || tr.task.isDistributive()) {
-                tr.run(dso);
+                tr.run(c, dso);
             } else if (type == Constants.COLLECTION) {
-                doCollection(tr, (Collection) dso);
+                doCollection(c, tr, (Collection) dso);
             } else if (type == Constants.COMMUNITY) {
-                doCommunity(tr, (Community) dso);
+                doCommunity(c, tr, (Community) dso);
             } else if (type == Constants.SITE) {
-                doSite(tr, (Site) dso);
+                doSite(c, tr, (Site) dso);
             }
         }
-    }
-
-    /**
-     * Performs all configured tasks upon DSpace object
-     * (Community, Collection or Item).
-     *
-     * <p>
-     * Note:  this method has the side-effect of setting this instance's Context
-     * reference.  The setting is retained on return.
-     *
-     * @param c   session context in which curation takes place.
-     * @param dso the single object to be curated.
-     * @throws java.io.IOException passed through.
-     * @throws SQLException
-     */
-    public void curate(Context c, DSpaceObject dso)
-        throws IOException, SQLException {
-        curationCtx.set(c);
-        curate(dso);
     }
 
     /**
@@ -419,29 +397,6 @@ public class Curator {
     }
 
     /**
-     * Returns the context object used in the current curation thread.
-     * This is primarily a utility method to allow tasks access to the context when necessary.
-     * <p>
-     * If the context is null or not set, then this just returns
-     * a brand new Context object representing an Anonymous User.
-     *
-     * @return curation thread's Context object (or a new, anonymous Context if no curation Context exists)
-     * @throws SQLException An exception that provides information on a database access error or other errors.
-     */
-    public static Context curationContext() throws SQLException {
-        // Return curation context or new context if undefined/invalid
-        Context curCtx = curationCtx.get();
-
-        if (curCtx == null || !curCtx.isValid()) {
-            //Create a new context (represents an Anonymous User)
-            curCtx = new Context();
-            //Save it to current execution thread
-            curationCtx.set(curCtx);
-        }
-        return curCtx;
-    }
-
-    /**
      * Returns whether a given DSO is a 'container' - collection or community
      *
      * @param dso a DSpace object
@@ -460,15 +415,12 @@ public class Curator {
      * @return true if successful, false otherwise
      * @throws IOException if IO error
      */
-    protected boolean doSite(TaskRunner tr, Site site) throws IOException {
-        Context ctx = null;
+    protected boolean doSite(Context context, TaskRunner tr, Site site) throws IOException {
         try {
-            //get access to the curation thread's current context
-            ctx = curationContext();
 
             // Site-wide Tasks really should have an EPerson performer associated with them,
             // otherwise they are run as an "anonymous" user with limited access rights.
-            if (ctx.getCurrentUser() == null && !ctx.ignoreAuthorization()) {
+            if (context.getCurrentUser() == null && !context.ignoreAuthorization()) {
                 logWarning("You are running one or more Site-Wide curation tasks in ANONYMOUS USER mode," +
                              " as there is no EPerson 'performer' associated with this task. To associate an EPerson " +
                              "'performer' " +
@@ -476,18 +428,18 @@ public class Curator {
             }
 
             //Run task for the Site object itself
-            if (!tr.run(site)) {
+            if (!tr.run(context, site)) {
                 return false;
             }
 
             //Then, perform this task for all Top-Level Communities in the Site
             // (this will recursively perform task for all objects in DSpace)
-            for (Community subcomm : communityService.findAllTop(ctx)) {
-                // force a reload of the community in case a commit was performed
-                subcomm = ctx.reloadEntity(subcomm);
-                if (!doCommunity(tr, subcomm)) {
+            for (Community subcomm : communityService.findAllTop(context)) {
+                subcomm = context.reloadEntity(subcomm);
+                if (!doCommunity(context, tr, subcomm)) {
                     return false;
                 }
+                context.commit();
             }
         } catch (SQLException sqlE) {
             throw new IOException(sqlE);
@@ -503,29 +455,30 @@ public class Curator {
      * @param comm Community
      * @return true if successful, false otherwise
      * @throws IOException if IO error
-     * @throws SQLException
      */
-    protected boolean doCommunity(TaskRunner tr, Community comm) throws IOException, SQLException {
-        if (!tr.run(comm)) {
-            return false;
-        }
-        Context context = curationContext();
-        // force a reload in case we are committing after each object
-        comm = context.reloadEntity(comm);
-        for (Community subcomm : comm.getSubcommunities()) {
-            if (!doCommunity(tr, subcomm)) {
+    protected boolean doCommunity(Context context, TaskRunner tr, Community comm) throws IOException {
+        try {
+            if (!tr.run(context, comm)) {
                 return false;
             }
-        }
-        // force a reload in case we are committing after each object
-        comm = context.reloadEntity(comm);
-        for (Collection coll : comm.getCollections()) {
-            context.reloadEntity(coll);
-            if (!doCollection(tr, coll)) {
-                return false;
+            for (Community subcomm : comm.getSubcommunities()) {
+                subcomm = context.reloadEntity(subcomm);
+                if (!doCommunity(context, tr, subcomm)) {
+                    return false;
+                }
+                context.commit();
             }
+            comm = context.reloadEntity(comm);
+            for (Collection coll : comm.getCollections()) {
+                coll = context.reloadEntity(coll);
+                if (!doCollection(context, tr, coll)) {
+                    return false;
+                }
+                context.commit();
+            }
+        }  catch (SQLException sqlE) {
+            throw new IOException(sqlE.getMessage(), sqlE);
         }
-        context.uncacheEntity(comm);
         return true;
     }
 
@@ -537,22 +490,29 @@ public class Curator {
      * @return true if successful, false otherwise
      * @throws IOException if IO error
      */
-    protected boolean doCollection(TaskRunner tr, Collection coll) throws IOException {
+    protected boolean doCollection(Context context, TaskRunner tr, Collection coll) throws IOException {
         try {
-            if (!tr.run(coll)) {
+            if (!tr.run(context, coll)) {
                 return false;
             }
-            Context context = curationContext();
+
+            coll = context.reloadEntity(coll);
             Iterator<Item> iter = itemService.findByCollection(context, coll);
+            List<UUID> uuids = new ArrayList<>();
             while (iter.hasNext()) {
-                Item item = iter.next();
-                boolean shouldContinue = tr.run(item);
-                context.uncacheEntity(item);
+                Item next = iter.next();
+                uuids.add(next.getID());
+                context.uncacheEntity(next);
+            }
+            context.commit();
+            for (UUID uuid : uuids) {
+                Item item = itemService.find(context, uuid);
+                boolean shouldContinue = tr.run(context, item);
                 if (!shouldContinue) {
                     return false;
                 }
+                context.commit();
             }
-            context.uncacheEntity(coll);
         } catch (SQLException sqlE) {
             throw new IOException(sqlE.getMessage(), sqlE);
         }
@@ -563,14 +523,13 @@ public class Curator {
      * Record a 'visit' to a DSpace object and enforce any policies set
      * on this curator.
      *
-     * @param dso the DSpace object
      * @throws IOException A general class of exceptions produced by failed or interrupted I/O operations.
-     * @throws SQLException
      */
-    protected void visit(DSpaceObject dso) throws IOException, SQLException {
-        Context curCtx = curationContext();
-        if (curCtx != null && txScope.equals(TxScope.OBJECT)) {
-            curCtx.commit();
+    protected void visit(Context context) throws IOException {
+        if (context != null) {
+            if (txScope.equals(TxScope.OBJECT)) {
+                context.dispatchEvents();
+            }
         }
     }
 
@@ -583,31 +542,31 @@ public class Curator {
             this.task = task;
         }
 
-        public boolean run(DSpaceObject dso) throws IOException, SQLException {
+        public boolean run(Context context, DSpaceObject dso) throws IOException {
             try {
                 if (dso == null) {
                     throw new IOException("DSpaceObject is null");
                 }
                 String id = (dso.getHandle() != null) ? dso.getHandle() : "workflow item: " + dso.getID();
-                statusCode = task.perform(dso);
+                statusCode = task.perform(context, dso);
                 logInfo(logMessage(id));
-                visit(dso);
+                visit(context);
                 return !suspend(statusCode);
-            } catch (IOException | SQLException e) {
+            } catch (IOException ioe) {
                 //log error & pass exception upwards
-                System.out.println("Error executing curation task '" + task.getName() + "'; " + e);
-                throw e;
+                System.out.println("Error executing curation task '" + task.getName() + "'; " + ioe);
+                throw ioe;
             }
         }
 
-        public boolean run(Context c, String id) throws IOException, SQLException {
+        public boolean run(Context context, String id) throws IOException {
             try {
-                if (c == null || id == null) {
+                if (context == null || id == null) {
                     throw new IOException("Context or identifier is null");
                 }
-                statusCode = task.perform(c, id);
+                statusCode = task.perform(context, id);
                 logInfo(logMessage(id));
-                visit(null);
+                visit(context);
                 return !suspend(statusCode);
             } catch (IOException ioe) {
                 //log error & pass exception upwards
@@ -666,7 +625,7 @@ public class Curator {
 
     /**
      * Proxt method for logging with WARN level
-     *
+     * 
      * @param message
      */
     protected void logWarning(String message) {
@@ -676,7 +635,7 @@ public class Curator {
     /**
      * Proxy method for logging with WARN level and a {@code Messageformatter}
      * that generates the final log.
-     *
+     * 
      * @param message Target message to format or print
      * @param object  Object to use inside the message, or null
      */

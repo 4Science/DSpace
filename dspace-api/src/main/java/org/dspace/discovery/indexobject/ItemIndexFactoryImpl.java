@@ -73,6 +73,7 @@ import org.dspace.handle.service.HandleService;
 import org.dspace.services.factory.DSpaceServicesFactory;
 import org.dspace.util.MultiFormatDateParser;
 import org.dspace.util.SolrUtils;
+import org.dspace.versioning.service.VersionHistoryService;
 import org.dspace.xmlworkflow.storedcomponents.XmlWorkflowItem;
 import org.dspace.xmlworkflow.storedcomponents.service.XmlWorkflowItemService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -97,8 +98,6 @@ public class ItemIndexFactoryImpl extends DSpaceObjectIndexFactoryImpl<Indexable
     protected ItemService itemService;
     @Autowired(required = true)
     protected ChoiceAuthorityService choiceAuthorityService;
-    @Autowired(required = true)
-    protected AuthorityValueService authorityValueService;
     @Autowired
     protected MetadataAuthorityService metadataAuthorityService;
     @Autowired
@@ -109,6 +108,8 @@ public class ItemIndexFactoryImpl extends DSpaceObjectIndexFactoryImpl<Indexable
     protected WorkflowItemIndexFactory workflowItemIndexFactory;
     @Autowired
     protected WorkspaceItemIndexFactory workspaceItemIndexFactory;
+    @Autowired
+    protected VersionHistoryService versionHistoryService;
 
 
     @Override
@@ -341,7 +342,7 @@ public class ItemIndexFactoryImpl extends DSpaceObjectIndexFactoryImpl<Indexable
                     continue;
                 }
 
-                if (StringUtils.equals(value, CrisConstants.PLACEHOLDER_PARENT_METADATA_VALUE)) {
+                if (Strings.CS.equals(value, CrisConstants.PLACEHOLDER_PARENT_METADATA_VALUE)) {
                     if (toProjectionFields.contains(field) || toProjectionFields
                             .contains(unqualifiedField + "." + Item.ANY)) {
                         doc.addField(
@@ -386,12 +387,12 @@ public class ItemIndexFactoryImpl extends DSpaceObjectIndexFactoryImpl<Indexable
                                 DSpaceServicesFactory
                                         .getInstance()
                                         .getConfigurationService()
-                                        .getPropertyAsType("discovery.index.authority.ignore-preferred." + field,
+                                        .getPropertyAsType("discovery.index.authority.ignore-prefered." + field,
                                                 DSpaceServicesFactory
                                                         .getInstance()
                                                         .getConfigurationService()
                                                         .getPropertyAsType(
-                                                                "discovery.index.authority.ignore-preferred",
+                                                                "discovery.index.authority.ignore-prefered",
                                                                 Boolean.FALSE),
                                                 true);
 
@@ -402,7 +403,7 @@ public class ItemIndexFactoryImpl extends DSpaceObjectIndexFactoryImpl<Indexable
                         ) {
                             try {
                                 preferedLabel = choiceAuthorityService.getLabel(meta, Constants.ITEM, collection,
-                                        meta.getLanguage());
+                                                                                meta.getLanguage());
                             } catch (Exception e) {
                                 log.warn("Failed to get preferred label for " + field, e);
                             }
@@ -593,7 +594,7 @@ public class ItemIndexFactoryImpl extends DSpaceObjectIndexFactoryImpl<Indexable
                                         doc.addField(searchFilter.getIndexFieldName() + "_keyword", indexValue);
                                     }
                                 }
-                            } else if (StringUtils.startsWith(searchFilter.getType(),
+                            } else if (Strings.CS.startsWith(searchFilter.getType(),
                                                               GraphDiscoverSearchFilterFacet.TYPE_PREFIX)) {
                                 GraphDiscoverSearchFilterFacet graphFacet =
                                         (GraphDiscoverSearchFilterFacet) searchFilter;
@@ -716,6 +717,12 @@ public class ItemIndexFactoryImpl extends DSpaceObjectIndexFactoryImpl<Indexable
                     String langField = field + "." + meta.getLanguage();
                     doc.addField(langField, value);
                 }
+            }
+
+            String entityType = itemService.getMetadataFirstValue(item, "dspace", "entity", "type", Item.ANY);
+            if (StringUtils.isBlank(entityType)) {
+                entityType = Constants.ENTITY_TYPE_NONE;
+                doc.addField("dspace.entity.type", entityType);
             }
 
         } catch (Exception e) {

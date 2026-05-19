@@ -39,6 +39,7 @@ import org.dspace.content.Item;
 import org.dspace.content.factory.ContentServiceFactory;
 import org.dspace.content.service.ItemService;
 import org.dspace.content.service.SiteService;
+import org.dspace.core.Context;
 import org.dspace.core.factory.CoreServiceFactory;
 import org.dspace.discovery.IndexingService;
 import org.dspace.discovery.indexobject.IndexableItem;
@@ -113,8 +114,8 @@ public class AbstractCurationTaskIT extends AbstractIntegrationTestWithDatabase 
         assertThat(testDSpaceRunnableHandler.getInfoMessages(), hasSize(3));
 
         context.reloadEntity(item);
-        String processMeta = itemService.getMetadata(item, "cris.curation.process");
-        String historyMeta = itemService.getMetadata(item, "cris.curation.history");
+        String processMeta = itemService.getMetadata(item, "dspace.curation.process");
+        String historyMeta = itemService.getMetadata(item, "dspace.curation.history");
 
         assertEquals(MOCK_CURATION_TASK, processMeta);
         assertThat(historyMeta, containsString("Executed " + MOCK_CURATION_TASK + " on"));
@@ -160,11 +161,11 @@ public class AbstractCurationTaskIT extends AbstractIntegrationTestWithDatabase 
                            " with status: 0. Result: 'performedItemCount: 0'"))
         );
 
-        String processMetadata = itemService.getMetadata(item, "cris.curation.process");
-        assertEquals("cris.curation.process should be set to " + MOCK_CURATION_TASK, MOCK_CURATION_TASK,
+        String processMetadata = itemService.getMetadata(item, "dspace.curation.process");
+        assertEquals("dspace.curation.process should be set to " + MOCK_CURATION_TASK, MOCK_CURATION_TASK,
                      processMetadata);
 
-        String historyMetadata = itemService.getMetadata(item, "cris.curation.history");
+        String historyMetadata = itemService.getMetadata(item, "dspace.curation.history");
         assertNotNull(historyMetadata);
         String[] history = historyMetadata.split("\n");
         assertThat(history[0], containsString("Executed " + MOCK_CURATION_TASK + " on "));
@@ -213,7 +214,7 @@ public class AbstractCurationTaskIT extends AbstractIntegrationTestWithDatabase 
                            "\nperformedItemCount: 1'"))
         );
 
-        String[] historyMetadata = itemService.getMetadata(context.reloadEntity(item), "cris.curation.history").split(
+        String[] historyMetadata = itemService.getMetadata(context.reloadEntity(item), "dspace.curation.history").split(
             "\n");
 
         assertThat(historyMetadata[0], containsString("Executed " + MOCK_CURATION_TASK + " on"));
@@ -260,8 +261,8 @@ public class AbstractCurationTaskIT extends AbstractIntegrationTestWithDatabase 
             Item current = items.get(i);
             context.reloadEntity(current);
 
-            String processMeta = itemService.getMetadata(current, "cris.curation.process");
-            String historyMeta = itemService.getMetadata(current, "cris.curation.history");
+            String processMeta = itemService.getMetadata(current, "dspace.curation.process");
+            String historyMeta = itemService.getMetadata(current, "dspace.curation.history");
 
             if (i == 0) {
                 assertEquals(MOCK_CURATION_TASK, processMeta);
@@ -506,15 +507,15 @@ public class AbstractCurationTaskIT extends AbstractIntegrationTestWithDatabase 
             String.format("Processing item with handle=%s and uuid=%s", item2.getHandle(), item2.getID())));
 
         context.reloadEntity(item1);
-        String processMeta1 = itemService.getMetadata(item1, "cris.curation.process");
-        String historyMeta1 = itemService.getMetadata(item1, "cris.curation.history");
+        String processMeta1 = itemService.getMetadata(item1, "dspace.curation.process");
+        String historyMeta1 = itemService.getMetadata(item1, "dspace.curation.history");
 
         assertEquals(MOCK_CURATION_TASK, processMeta1);
         assertThat(historyMeta1, containsString("Executed " + MOCK_CURATION_TASK + " on"));
 
         context.reloadEntity(item2);
-        String processMeta2 = itemService.getMetadata(item2, "cris.curation.process");
-        String historyMeta2 = itemService.getMetadata(item2, "cris.curation.history");
+        String processMeta2 = itemService.getMetadata(item2, "dspace.curation.process");
+        String historyMeta2 = itemService.getMetadata(item2, "dspace.curation.history");
 
         assertEquals(MOCK_CURATION_TASK, processMeta2);
         assertThat(historyMeta2, containsString("Executed " + MOCK_CURATION_TASK + " on"));
@@ -583,29 +584,29 @@ public class AbstractCurationTaskIT extends AbstractIntegrationTestWithDatabase 
 
 
         context.reloadEntity(item1);
-        String processMeta1 = itemService.getMetadata(item1, "cris.curation.process");
-        String historyMeta1 = itemService.getMetadata(item1, "cris.curation.history");
+        String processMeta1 = itemService.getMetadata(item1, "dspace.curation.process");
+        String historyMeta1 = itemService.getMetadata(item1, "dspace.curation.history");
 
         assertEquals(MOCK_CURATION_TASK, processMeta1);
         assertThat(historyMeta1, containsString("Executed " + MOCK_CURATION_TASK + " on"));
 
         context.reloadEntity(item2);
-        String processMeta2 = itemService.getMetadata(item2, "cris.curation.process");
-        String historyMeta2 = itemService.getMetadata(item2, "cris.curation.history");
+        String processMeta2 = itemService.getMetadata(item2, "dspace.curation.process");
+        String historyMeta2 = itemService.getMetadata(item2, "dspace.curation.history");
 
         assertEquals(MOCK_CURATION_TASK, processMeta2);
         assertThat(historyMeta2, containsString("Executed " + MOCK_CURATION_TASK + " on"));
 
         context.reloadEntity(item3);
-        String processMeta3 = itemService.getMetadata(item3, "cris.curation.process");
-        String historyMeta3 = itemService.getMetadata(item3, "cris.curation.history");
+        String processMeta3 = itemService.getMetadata(item3, "dspace.curation.process");
+        String historyMeta3 = itemService.getMetadata(item3, "dspace.curation.history");
 
         assertEquals(MOCK_CURATION_TASK, processMeta3);
         assertThat(historyMeta3, containsString("Executed " + MOCK_CURATION_TASK + " on"));
 
         context.reloadEntity(item4);
-        String processMeta4 = itemService.getMetadata(item4, "cris.curation.process");
-        String historyMeta4 = itemService.getMetadata(item4, "cris.curation.history");
+        String processMeta4 = itemService.getMetadata(item4, "dspace.curation.process");
+        String historyMeta4 = itemService.getMetadata(item4, "dspace.curation.history");
 
         assertEquals(MOCK_CURATION_TASK, processMeta4);
         assertThat(historyMeta4, containsString("Executed " + MOCK_CURATION_TASK + " on"));
@@ -679,29 +680,29 @@ public class AbstractCurationTaskIT extends AbstractIntegrationTestWithDatabase 
 
 
         context.reloadEntity(item1);
-        String processMeta1 = itemService.getMetadata(item1, "cris.curation.process");
-        String historyMeta1 = itemService.getMetadata(item1, "cris.curation.history");
+        String processMeta1 = itemService.getMetadata(item1, "dspace.curation.process");
+        String historyMeta1 = itemService.getMetadata(item1, "dspace.curation.history");
 
         assertEquals(MOCK_CURATION_TASK, processMeta1);
         assertThat(historyMeta1, containsString("Executed " + MOCK_CURATION_TASK + " on"));
 
         context.reloadEntity(item2);
-        String processMeta2 = itemService.getMetadata(item2, "cris.curation.process");
-        String historyMeta2 = itemService.getMetadata(item2, "cris.curation.history");
+        String processMeta2 = itemService.getMetadata(item2, "dspace.curation.process");
+        String historyMeta2 = itemService.getMetadata(item2, "dspace.curation.history");
 
         assertEquals(MOCK_CURATION_TASK, processMeta2);
         assertThat(historyMeta2, containsString("Executed " + MOCK_CURATION_TASK + " on"));
 
         context.reloadEntity(item3);
-        String processMeta3 = itemService.getMetadata(item3, "cris.curation.process");
-        String historyMeta3 = itemService.getMetadata(item3, "cris.curation.history");
+        String processMeta3 = itemService.getMetadata(item3, "dspace.curation.process");
+        String historyMeta3 = itemService.getMetadata(item3, "dspace.curation.history");
 
         assertEquals(MOCK_CURATION_TASK, processMeta3);
         assertThat(historyMeta3, containsString("Executed " + MOCK_CURATION_TASK + " on"));
 
         context.reloadEntity(item4);
-        String processMeta4 = itemService.getMetadata(item4, "cris.curation.process");
-        String historyMeta4 = itemService.getMetadata(item4, "cris.curation.history");
+        String processMeta4 = itemService.getMetadata(item4, "dspace.curation.process");
+        String historyMeta4 = itemService.getMetadata(item4, "dspace.curation.history");
 
         assertEquals(MOCK_CURATION_TASK, processMeta4);
         assertThat(historyMeta4, containsString("Executed " + MOCK_CURATION_TASK + " on"));
@@ -771,29 +772,29 @@ public class AbstractCurationTaskIT extends AbstractIntegrationTestWithDatabase 
 
 
         context.reloadEntity(item1);
-        String processMeta1 = itemService.getMetadata(item1, "cris.curation.process");
-        String historyMeta1 = itemService.getMetadata(item1, "cris.curation.history");
+        String processMeta1 = itemService.getMetadata(item1, "dspace.curation.process");
+        String historyMeta1 = itemService.getMetadata(item1, "dspace.curation.history");
 
         assertEquals(MOCK_CURATION_TASK, processMeta1);
         assertThat(historyMeta1, containsString("Executed " + MOCK_CURATION_TASK + " on"));
 
         context.reloadEntity(item2);
-        String processMeta2 = itemService.getMetadata(item2, "cris.curation.process");
-        String historyMeta2 = itemService.getMetadata(item2, "cris.curation.history");
+        String processMeta2 = itemService.getMetadata(item2, "dspace.curation.process");
+        String historyMeta2 = itemService.getMetadata(item2, "dspace.curation.history");
 
         assertEquals(MOCK_CURATION_TASK, processMeta2);
         assertThat(historyMeta2, containsString("Executed " + MOCK_CURATION_TASK + " on"));
 
         context.reloadEntity(item3);
-        String processMeta3 = itemService.getMetadata(item3, "cris.curation.process");
-        String historyMeta3 = itemService.getMetadata(item3, "cris.curation.history");
+        String processMeta3 = itemService.getMetadata(item3, "dspace.curation.process");
+        String historyMeta3 = itemService.getMetadata(item3, "dspace.curation.history");
 
         assertEquals(MOCK_CURATION_TASK, processMeta3);
         assertThat(historyMeta3, containsString("Executed " + MOCK_CURATION_TASK + " on"));
 
         context.reloadEntity(item4);
-        String processMeta4 = itemService.getMetadata(item4, "cris.curation.process");
-        String historyMeta4 = itemService.getMetadata(item4, "cris.curation.history");
+        String processMeta4 = itemService.getMetadata(item4, "dspace.curation.process");
+        String historyMeta4 = itemService.getMetadata(item4, "dspace.curation.history");
 
         assertEquals(MOCK_CURATION_TASK, processMeta4);
         assertThat(historyMeta4, containsString("Executed " + MOCK_CURATION_TASK + " on"));
@@ -896,12 +897,12 @@ public class AbstractCurationTaskIT extends AbstractIntegrationTestWithDatabase 
         item1 = context.reloadEntity(item1);
         item2 = context.reloadEntity(item2);
 
-        String processMetadataItem1 = itemService.getMetadata(item1, "cris.curation.process");
-        assertEquals("cris.curation.process should be set to " + MOCK_CURATION_TASK, MOCK_CURATION_TASK,
+        String processMetadataItem1 = itemService.getMetadata(item1, "dspace.curation.process");
+        assertEquals("dspace.curation.process should be set to " + MOCK_CURATION_TASK, MOCK_CURATION_TASK,
                      processMetadataItem1);
 
-        String processMetadataItem2 = itemService.getMetadata(item2, "cris.curation.process");
-        assertNull("cris.curation.process should not be set", processMetadataItem2);
+        String processMetadataItem2 = itemService.getMetadata(item2, "dspace.curation.process");
+        assertNull("dspace.curation.process should not be set", processMetadataItem2);
 
         assertThat(testDSpaceRunnableHandler.getErrorMessages(), empty());
         assertThat(testDSpaceRunnableHandler.getWarningMessages(), empty());
@@ -919,13 +920,13 @@ public class AbstractCurationTaskIT extends AbstractIntegrationTestWithDatabase 
         assertThat(message, containsString(
             String.format("Unable to process item with handle=%s and uuid=%s", item2.getHandle(), item2.getID())));
 
-        String historyMetadataItem1 = itemService.getMetadata(item1, "cris.curation.history");
+        String historyMetadataItem1 = itemService.getMetadata(item1, "dspace.curation.history");
         assertNotNull(historyMetadataItem1);
         String[] historyItem1 = historyMetadataItem1.split("\n");
         assertThat(historyItem1.length, is(1));
         assertThat(historyItem1[0], containsString("Executed " + MOCK_CURATION_TASK + " on "));
 
-        String historyMetadataItem2 = itemService.getMetadata(item2, "cris.curation.history");
+        String historyMetadataItem2 = itemService.getMetadata(item2, "dspace.curation.history");
         assertNotNull(historyMetadataItem2);
         String[] historyItem2 = historyMetadataItem2.split("\n");
         assertThat(historyItem2.length, is(1));
@@ -980,16 +981,16 @@ public class AbstractCurationTaskIT extends AbstractIntegrationTestWithDatabase 
         assertThat(message, containsString(
             String.format("Unable to process item with handle=%s and uuid=%s", item2.getHandle(), item2.getID())));
 
-        String processMetadataItem1 = itemService.getMetadata(item1, "cris.curation.process");
-        assertEquals("cris.curation.process should be set to " + MOCK_CURATION_TASK, MOCK_CURATION_TASK,
+        String processMetadataItem1 = itemService.getMetadata(item1, "dspace.curation.process");
+        assertEquals("dspace.curation.process should be set to " + MOCK_CURATION_TASK, MOCK_CURATION_TASK,
                      processMetadataItem1);
 
-        String processMetadataItem2 = itemService.getMetadata(item2, "cris.curation.process");
-        assertNull("cris.curation.process should not be set in clean tasks", processMetadataItem2);
+        String processMetadataItem2 = itemService.getMetadata(item2, "dspace.curation.process");
+        assertNull("dspace.curation.process should not be set in clean tasks", processMetadataItem2);
 
         item2 = context.reloadEntity(item2);
 
-        String historyMetadata = itemService.getMetadata(item2, "cris.curation.history");
+        String historyMetadata = itemService.getMetadata(item2, "dspace.curation.history");
         assertNotNull(historyMetadata);
         String[] history = historyMetadata.split("\n");
         assertThat(history.length, is(2));
@@ -1005,14 +1006,14 @@ public class AbstractCurationTaskIT extends AbstractIntegrationTestWithDatabase 
         private boolean executed = false;
 
         @Override
-        public int perform(DSpaceObject dso) throws IOException {
-            distribute(dso);
+        public int perform(Context context, DSpaceObject dso) throws IOException {
+            distribute(context, dso);
             setResult("performedItemCount: " + performItemCount);
             return Curator.CURATE_SUCCESS;
         }
 
         @Override
-        protected void performItem(Item item) throws SQLException, IOException {
+        protected void performItem(Context context, Item item) throws SQLException, IOException {
             if (item.getHandle().equals("123456789/BrokenHandle")) {
                 executed = false;
                 throw new SQLException("BrokenHandle");

@@ -50,7 +50,8 @@ public class IIIFUtils {
 
     // The DSpace bundle for other content related to item.
     protected static final String OTHER_CONTENT_BUNDLE = "OtherContent";
-
+    // The canvas position will be appended to this string.
+    private static final String CANVAS_PATH_BASE = "/canvas/c";
     // metadata used to enable the iiif features on the item
     public static final String METADATA_IIIF_ENABLED = "dspace.iiif.enabled";
     // metadata used to enable the iiif search service on the item
@@ -137,9 +138,8 @@ public class IIIFUtils {
      * @return true if the bitstream can be used as IIIF resource
      */
     public boolean isIIIFBitstream(Context context, Bitstream b) {
-        return checkImageMimeType(getBitstreamMimeType(b, context)) && b.getMetadata().stream()
-                .filter(m -> m.getMetadataField().toString('.').contentEquals(METADATA_IIIF_ENABLED))
-                .noneMatch(m -> m.getValue().equalsIgnoreCase("false") || m.getValue().equalsIgnoreCase("no"));
+        return checkImageMimeType(getBitstreamMimeType(b, context)) &&
+                IIIFSharedUtils.isNotIIIFDisabled(b);
     }
 
     /**

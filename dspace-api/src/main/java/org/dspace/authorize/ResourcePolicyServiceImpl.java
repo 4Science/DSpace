@@ -214,7 +214,7 @@ public class ResourcePolicyServiceImpl implements ResourcePolicyService {
         return ed == null || !now.isAfter(ed);
 
         // if we made it this far, start < now < end
-// date must be okay
+        // date must be okay
     }
 
     @Override

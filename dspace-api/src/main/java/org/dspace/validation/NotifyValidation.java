@@ -97,6 +97,9 @@ public class NotifyValidation implements SubmissionStepValidator {
         return name;
     }
 
+    public void setName(String name) {
+        this.name = name;
+    }
 
     private List<NotifyServiceEntity> findByItemAndPattern(Context context, Item item, String pattern) {
         try {
@@ -126,9 +129,5 @@ public class NotifyValidation implements SubmissionStepValidator {
     public void setNotifyPatternToTriggerService(
         NotifyPatternToTriggerService notifyPatternToTriggerService) {
         this.notifyPatternToTriggerService = notifyPatternToTriggerService;
-    }
-
-    public void setName(String name) {
-        this.name = name;
     }
 }

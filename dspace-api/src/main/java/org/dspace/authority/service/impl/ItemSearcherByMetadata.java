@@ -46,8 +46,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 
 /**
- * Implementation of {@link ItemSearcher} and {@link ItemReferenceResolver} to
- * search the item by the configured metadata.
+ * Implementation of {@link ItemSearcher} and {@link ItemReferenceResolver}.
+ * <p>
+ * This class handles the lifecycle of references:
+ * 1. <b>Search:</b> Finds an item by an external identifier (e.g., finding a Person by ORCID).
+ * 2. <b>Resolution:</b> After an item is found or created, it scans the repository for
+ * any other items (like Publications) that were waiting for this item to exist
+ * (marked with the "will be referenced" prefix) and updates their authority keys
+ * to the permanent item UUID.
+ * </p>
  *
  * @author Luca Giamminonni (luca.giamminonni at 4science.it)
  *
@@ -63,16 +70,12 @@ public class ItemSearcherByMetadata implements ItemSearcher, ItemReferenceResolv
     @Autowired
     private ChoiceAuthorityService choiceAuthorityService;
 
-    private ThreadLocal<Map<String, UUID>> valuesToItemIds = ThreadLocal.withInitial(() -> new HashMap<>());
-
-    private ThreadLocal<MultiValuedMap<String, UUID>> referenceResolutionAttempts =
-        ThreadLocal.withInitial(() -> new ArrayListValuedHashMap<>());
-
+    private static final Logger log = LogManager.getLogger(ItemSearcherByMetadata.class);
     private final String metadata;
-
     private final String authorityPrefix;
-
-    private static Logger log = LogManager.getLogger(ItemSearcherByMetadata.class);
+    private final ThreadLocal<Map<String, UUID>> valuesToItemIds = ThreadLocal.withInitial(() -> new HashMap<>());
+    private final ThreadLocal<MultiValuedMap<String, UUID>> referenceResolutionAttempts =
+        ThreadLocal.withInitial(() -> new ArrayListValuedHashMap<>());
 
     public ItemSearcherByMetadata(String metadata, String authorityPrefix) {
         this.metadata = metadata;
@@ -93,10 +96,10 @@ public class ItemSearcherByMetadata implements ItemSearcher, ItemReferenceResolv
                     UUID removedUUID = valuesToItemIds.get().remove(searchParam);
                     log.info("No item with uuid: " + removedUUID + " was found");
                     log.info("Removing uuid: " + removedUUID + " from cache");
-                    return performSearchByMetadata(context, searchParam);
+                    return findFirstByMetadata(context, searchParam);
                 }
             } else {
-                return performSearchByMetadata(context, searchParam);
+                return findFirstByMetadata(context, searchParam);
             }
         } catch (SearchServiceException e) {
             throw new RuntimeException("An error occurs searching the item by metadata", e);
@@ -125,7 +128,7 @@ public class ItemSearcherByMetadata implements ItemSearcher, ItemReferenceResolv
     }
 
     @SuppressWarnings("rawtypes")
-    private Item performSearchByMetadata(Context context, String searchParam) throws SearchServiceException {
+    private Item findFirstByMetadata(Context context, String searchParam) throws SearchServiceException {
         String query = metadata + ":" +
             ClientUtils.escapeQueryChars(searchParam);
         DiscoverQuery discoverQuery = new DiscoverQuery();
@@ -157,12 +160,14 @@ public class ItemSearcherByMetadata implements ItemSearcher, ItemReferenceResolv
         });
 
         List<String> authorities = metadataValues.stream()
-            .map(MetadataValue::getValue)
-            .map(value -> AuthorityValueService.REFERENCE + authorityPrefix + "::" + value)
-            .collect(Collectors.toList());
+                                                 .map(MetadataValue::getValue)
+                                                 .map(
+                                                     value -> AuthorityValueService.REFERENCE + authorityPrefix + "::" +
+                                                         value)
+                                                 .collect(Collectors.toList());
 
         Iterator<Item> itemsIterator =
-                      itemService.findRelatedItemsByAuthorityControlledFields(context, item, authorities);
+            itemService.findRelatedItemsByAuthorityControlledFields(context, item, authorities);
 
         Iterator<Item> cachedItemsIterator = getItemsFromResolutionAttemptsCache(context, metadataValues);
 
@@ -177,17 +182,19 @@ public class ItemSearcherByMetadata implements ItemSearcher, ItemReferenceResolv
 
     private Iterator<Item> getItemsFromResolutionAttemptsCache(Context context, List<MetadataValue> metadataValues) {
         return metadataValues.stream()
-            .flatMap(metadataValue -> referenceResolutionAttempts.get().get(metadataValue.getValue()).stream())
-            .flatMap(itemId -> findItemById(context, itemId).stream())
-            .iterator();
+                             .flatMap(metadataValue -> referenceResolutionAttempts.get().get(metadataValue.getValue())
+                                                                                  .stream())
+                             .flatMap(itemId -> findItemById(context, itemId).stream())
+                             .iterator();
     }
 
     private void updateReferences(Context context, Item itemWithReference, Item item, List<String> authorities)
         throws SQLException, AuthorizeException {
 
         itemWithReference.getMetadata().stream()
-            .filter(metadataValue -> authorities.contains(metadataValue.getAuthority()))
-            .forEach(metadataValue -> choiceAuthorityService.setReferenceWithAuthority(metadataValue, item));
+                         .filter(metadataValue -> authorities.contains(metadataValue.getAuthority()))
+                         .forEach(
+                             metadataValue -> choiceAuthorityService.setReferenceWithAuthority(metadataValue, item));
 
         itemService.update(context, itemWithReference);
     }

@@ -22,7 +22,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.ws.rs.core.Response;
 import org.apache.catalina.connector.ClientAbortException;
-import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.Logger;
 import org.dspace.app.requestitem.RequestItem;
@@ -130,7 +129,7 @@ public class BitstreamRestController {
         Context context = ContextUtil.obtainContext(request);
         // Find bitstream
         Bitstream bit = bitstreamService.find(context, uuid);
-        if (bit == null) {
+        if (bit == null || bit.isDeleted()) {
             response.sendError(HttpServletResponse.SC_NOT_FOUND);
             return null;
         }
@@ -178,12 +177,30 @@ public class BitstreamRestController {
             // Check if a citation coverpage is valid for this download
             long filesize = bit.getSizeBytes();
             Boolean citationEnabledForBitstream = citationDocumentService.isCitationEnabledForBitstream(bit, context);
-            context.turnOffAuthorisationSystem();
 
-            var bitstreamResource =
-                    new org.dspace.app.rest.utils.BitstreamResource(name, uuid,
-                            currentUser != null ? currentUser.getID() : null,
-                            context.getSpecialGroupUuids(), citationEnabledForBitstream, true);
+
+
+            // Generate a special bitstream resource stream depending on whether we are accessing by token
+            // or eperson / group access
+            org.dspace.app.rest.utils.BitstreamResource bitstreamResource;
+            if (authorizedByAccessToken) {
+                // Get input stream using temporary privileged context
+                bitstreamResource = new org.dspace.app.rest.utils.BitstreamResourceAccessByToken(name, uuid,
+                                currentUser != null ? currentUser.getID() : null,
+                                context.getSpecialGroupUuids(), citationEnabledForBitstream, accessToken);
+            } else {
+                // Get input stream using default user/group authorization
+                // skipAuth=true because @PreAuthorize already performed authorization security checks (allowing
+                // submitters and authors/owners to access embargoed bitstreams).
+                bitstreamResource =
+                        new org.dspace.app.rest.utils.BitstreamResource(name, uuid,
+                                currentUser != null ? currentUser.getID() : null,
+                                context.getSpecialGroupUuids(), citationEnabledForBitstream, true);
+            }
+
+            // We have all the data we need, close the connection to the database so that it doesn't stay open during
+            // download/streaming
+            context.complete();
 
             // Set http headers
             HttpHeadersInitializer httpHeadersInitializer = new HttpHeadersInitializer()
@@ -200,22 +217,20 @@ public class BitstreamRestController {
                 httpHeadersInitializer.withLastModified(lastModified);
             }
 
-            // Determine if we need to send the file as a download or if the browser can open it inline
-            // The file will be downloaded if its size is larger than the configured threshold,
-            // or if its mimetype/extension appears in the "webui.content_disposition_format" config
-            long dispositionThreshold = configurationService.getLongProperty("webui.content_disposition_threshold");
-            if ((dispositionThreshold >= 0 && filesize > dispositionThreshold)
-                    || checkFormatForContentDisposition(format)) {
-                httpHeadersInitializer.withDisposition(HttpHeadersInitializer.CONTENT_DISPOSITION_ATTACHMENT);
-            } else {
+            // Determine if we need to send the file as a download or if the browser can open it inline.
+            // By default, all files will be downloaded as that is more secure. File formats will only be opened inline
+            // if they are listed in the "webui.content_disposition_inline" config and size is less than the
+            // configured "webui.content_disposition_threshold" (default = 8MB)
+            long dispositionThreshold = configurationService.getLongProperty("webui.content_disposition_threshold",
+                                                                             8388608);
+            if (checkFormatForContentDispositionInline(format) &&
+                filesize <= dispositionThreshold) {
                 httpHeadersInitializer.withDisposition(HttpHeadersInitializer.CONTENT_DISPOSITION_INLINE);
+            } else {
+                httpHeadersInitializer.withDisposition(HttpHeadersInitializer.CONTENT_DISPOSITION_ATTACHMENT);
             }
 
-            //We have all the data we need, close the connection to the database so that it doesn't stay open during
-            //download/streaming
-            context.complete();
-
-            //Send the data
+            // Send the data
             if (httpHeadersInitializer.isValid()) {
                 HttpHeaders httpHeaders = httpHeadersInitializer.initialiseHeaders();
 
@@ -232,8 +247,6 @@ public class BitstreamRestController {
                           "Client is probably switching to a Range request.", ex);
         } catch (Exception e) {
             throw e;
-        } finally {
-            context.restoreAuthSystemState();
         }
         return null;
     }
@@ -268,48 +281,48 @@ public class BitstreamRestController {
     }
 
     /**
-     * Check if a Bitstream of the specified format should always be downloaded (i.e. "content-disposition: attachment")
-     * or can be opened inline (i.e. "content-disposition: inline").
+     * Check if a Bitstream of the specified format should be opened inline (i.e. "content-disposition: inline")
+     * instead of the default behavior of always downloading (i.e. "content-disposition: attachment").
      * <P>
      * NOTE that downloading via "attachment" is more secure, as the user's browser will not attempt to process or
      * display the file. But, downloading via "inline" may be seen as more user-friendly for common formats.
      * @param format BitstreamFormat
-     * @return true if always download ("attachment"). false if can be opened inline ("inline")
+     * @return true if format is configured to be opened inline ("inline"). false if always download ("attachment")
      */
-    private boolean checkFormatForContentDisposition(BitstreamFormat format) {
+    private boolean checkFormatForContentDispositionInline(BitstreamFormat format) {
         // Undefined or Unknown formats should ALWAYS be downloaded for additional security.
-        if (format == null || format.getSupportLevel() == BitstreamFormat.UNKNOWN) {
-            return true;
+        if (format == null || format.getMIMEType() == null || format.getSupportLevel() == BitstreamFormat.UNKNOWN) {
+            return false;
         }
 
-        // Load additional formats configured to require download
-        List<String> configuredFormats = List.of(configurationService.
-                                                     getArrayProperty("webui.content_disposition_format"));
-
-        // If configuration includes "*", then all formats will always be downloaded.
-        if (configuredFormats.contains("*")) {
-            return true;
+        // Return false for BANNED inline formats. Some formats, especially XML / HTML / Javascript based formats,
+        // when loaded inline may be susceptible to XSS attacks. Therefore, we will refuse to allow those formats to be
+        // displayed inline for security purposes.
+        // NOTE: "+xml" in this list will match any MIME Type that ends in "+xml", as those are XML-based formats.
+        List<String> bannedInlineFormats = List.of("text/html", "text/javascript", "text/xml", "application/xml",
+                                             "+xml");
+        for (String bannedInlineFormat : bannedInlineFormats) {
+            // If our format MIME Type contains one of the banned inline formats, we refuse to display it inline
+            if (format.getMIMEType().contains(bannedInlineFormat)) {
+                return false;
+            }
         }
 
-        // Define a download list of formats which DSpace forces to ALWAYS be downloaded.
-        // These formats can embed JavaScript which may be run in the user's browser if the file is opened inline.
-        // Therefore, DSpace blocks opening these formats inline as it could be used for an XSS attack.
-        List<String> downloadOnlyFormats = List.of("text/html", "text/javascript", "text/xml", "rdf");
-
-        // Combine our two lists
-        List<String> formats = ListUtils.union(downloadOnlyFormats, configuredFormats);
+        // Load formats configured to allow inline display
+        List<String> formats = List.of(configurationService.
+                                                     getArrayProperty("webui.content_disposition_inline"));
 
         // See if the passed in format's MIME type or file extension is listed.
-        boolean download = formats.contains(format.getMIMEType());
-        if (!download) {
+        boolean inline = formats.contains(format.getMIMEType());
+        if (!inline) {
             for (String ext : format.getExtensions()) {
                 if (formats.contains(ext)) {
-                    download = true;
+                    inline = true;
                     break;
                 }
             }
         }
-        return download;
+        return inline;
     }
 
     /**

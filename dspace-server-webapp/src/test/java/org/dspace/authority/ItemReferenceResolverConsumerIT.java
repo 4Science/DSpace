@@ -39,6 +39,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 /**
  * Integration test to verify the references resolving of
  * {@link ItemReferenceResolverConsumer}.
+ *
  * @author Luca Giamminonni (luca.giamminonni at 4science.it)
  *
  */
@@ -57,19 +58,18 @@ public class ItemReferenceResolverConsumerIT extends AbstractControllerIntegrati
 
     @Before
     public void setup() throws Exception {
-
         installItemService = ContentServiceFactory.getInstance().getInstallItemService();
 
         context.turnOffAuthorisationSystem();
 
         submitter = EPersonBuilder.createEPerson(context)
-            .withEmail("submitter@example.com")
-            .withPassword(password)
-            .build();
+                                  .withEmail("submitter@example.com")
+                                  .withPassword(password)
+                                  .build();
 
         parentCommunity = CommunityBuilder.createCommunity(context)
-            .withName("Parent Community")
-            .build();
+                                          .withName("Parent Community")
+                                          .build();
 
         publicationCollection = createCollection("Collection of publications", "Publication");
         personCollection = createCollection("Collection of persons", "Person");
@@ -87,42 +87,41 @@ public class ItemReferenceResolverConsumerIT extends AbstractControllerIntegrati
         String orcidAuthority = formatWillBeReferencedAuthority("ORCID", "0000-0002-1825-0097");
 
         Item firstItem = ItemBuilder.createItem(context, publicationCollection)
-            .withTitle("First Item")
-            .withAuthor("Author", orcidAuthority)
-            .build();
+                                    .withTitle("First Item")
+                                    .withAuthor("Author", orcidAuthority)
+                                    .build();
 
         Item secondItem = ItemBuilder.createItem(context, publicationCollection)
-            .withTitle("Second Item")
-            .withAuthor("Author", orcidAuthority)
-            .build();
+                                     .withTitle("Second Item")
+                                     .withAuthor("Author", orcidAuthority)
+                                     .build();
 
         context.restoreAuthSystemState();
 
         firstItem = context.reloadEntity(firstItem);
         assertThat(firstItem.getMetadata(), hasItem(with("dc.contributor.author", "Author", null,
-            orcidAuthority, 0, -1)));
+                                                         orcidAuthority, 0, -1)));
 
         secondItem = context.reloadEntity(secondItem);
         assertThat(secondItem.getMetadata(), hasItem(with("dc.contributor.author", "Author", null,
-            orcidAuthority, 0, -1)));
+                                                          orcidAuthority, 0, -1)));
 
         context.turnOffAuthorisationSystem();
 
         Item itemWithOrcid = ItemBuilder.createItem(context, personCollection)
-            .withTitle("Author")
-            .withEntityType("Person")
-            .withOrcidIdentifier("0000-0002-1825-0097")
-            .build();
+                                        .withTitle("Author")
+                                        .withOrcidIdentifier("0000-0002-1825-0097")
+                                        .build();
 
         context.restoreAuthSystemState();
 
         firstItem = context.reloadEntity(firstItem);
         assertThat(firstItem.getMetadata(), hasItem(with("dc.contributor.author", "Author", null,
-            itemWithOrcid.getID().toString(), 0, 600)));
+                                                         itemWithOrcid.getID().toString(), 0, 600)));
 
         secondItem = context.reloadEntity(secondItem);
         assertThat(secondItem.getMetadata(), hasItem(with("dc.contributor.author", "Author", null,
-            itemWithOrcid.getID().toString(), 0, 600)));
+                                                          itemWithOrcid.getID().toString(), 0, 600)));
     }
 
     @Test
@@ -135,44 +134,43 @@ public class ItemReferenceResolverConsumerIT extends AbstractControllerIntegrati
         String orcidAuthority = formatWillBeReferencedAuthority("ORCID", "0000-0002-1825-0097");
 
         Item firstItem = ItemBuilder.createItem(context, publicationCollection)
-            .withTitle("First Item")
-            .withAuthor("Stephen K.", orcidAuthority)
-            .build();
+                                    .withTitle("First Item")
+                                    .withAuthor("Stephen K.", orcidAuthority)
+                                    .build();
 
         Item secondItem = ItemBuilder.createItem(context, publicationCollection)
-            .withTitle("Second Item")
-            .withAuthor("Stephen K.", orcidAuthority)
-            .build();
+                                     .withTitle("Second Item")
+                                     .withAuthor("Stephen K.", orcidAuthority)
+                                     .build();
 
         context.restoreAuthSystemState();
 
         firstItem = context.reloadEntity(firstItem);
         assertThat(firstItem.getMetadata(), hasItem(with("dc.contributor.author", "Stephen K.", null,
-            orcidAuthority, 0, -1)));
+                                                         orcidAuthority, 0, -1)));
 
         secondItem = context.reloadEntity(secondItem);
         assertThat(secondItem.getMetadata(), hasItem(with("dc.contributor.author", "Stephen K.", null,
-            orcidAuthority, 0, -1)));
+                                                          orcidAuthority, 0, -1)));
 
         context.turnOffAuthorisationSystem();
 
         Item itemWithOrcid = ItemBuilder.createItem(context, personCollection)
-            .withTitle("Stephen King")
-            .withEntityType("Person")
-            .withOrcidIdentifier("0000-0002-1825-0097")
-            .build();
+                                        .withTitle("Stephen King")
+                                        .withOrcidIdentifier("0000-0002-1825-0097")
+                                        .build();
 
         context.restoreAuthSystemState();
 
         //Check if item has dc.contributor.author updated with new name
         firstItem = context.reloadEntity(firstItem);
         assertThat(firstItem.getMetadata(), hasItem(with("dc.contributor.author", "Stephen King", null,
-            itemWithOrcid.getID().toString(), 0, 600)));
+                                                         itemWithOrcid.getID().toString(), 0, 600)));
 
         //Check if item has dc.contributor.author updated with new name
         secondItem = context.reloadEntity(secondItem);
         assertThat(secondItem.getMetadata(), hasItem(with("dc.contributor.author", "Stephen King", null,
-            itemWithOrcid.getID().toString(), 0, 600)));
+                                                          itemWithOrcid.getID().toString(), 0, 600)));
         configurationService.setProperty("previousOverrideMetadataValue", previousOverrideMetadataValue);
     }
 
@@ -186,44 +184,43 @@ public class ItemReferenceResolverConsumerIT extends AbstractControllerIntegrati
         String orcidAuthority = formatWillBeReferencedAuthority("ORCID", "0000-0002-1825-0097");
 
         Item firstItem = ItemBuilder.createItem(context, publicationCollection)
-            .withTitle("First Item")
-            .withAuthor("H. P. Lovecraft", orcidAuthority)
-            .build();
+                                    .withTitle("First Item")
+                                    .withAuthor("H. P. Lovecraft", orcidAuthority)
+                                    .build();
 
         Item secondItem = ItemBuilder.createItem(context, publicationCollection)
-            .withTitle("Second Item")
-            .withAuthor("H. P. Lovecraft", orcidAuthority)
-            .build();
+                                     .withTitle("Second Item")
+                                     .withAuthor("H. P. Lovecraft", orcidAuthority)
+                                     .build();
 
         context.restoreAuthSystemState();
 
         firstItem = context.reloadEntity(firstItem);
         assertThat(firstItem.getMetadata(), hasItem(with("dc.contributor.author", "H. P. Lovecraft", null,
-            orcidAuthority, 0, -1)));
+                                                         orcidAuthority, 0, -1)));
 
         secondItem = context.reloadEntity(secondItem);
         assertThat(secondItem.getMetadata(), hasItem(with("dc.contributor.author", "H. P. Lovecraft", null,
-            orcidAuthority, 0, -1)));
+                                                          orcidAuthority, 0, -1)));
 
         context.turnOffAuthorisationSystem();
 
         Item itemWithOrcid = ItemBuilder.createItem(context, personCollection)
-            .withTitle("Howard Phillips Lovecraft")
-            .withEntityType("Person")
-            .withOrcidIdentifier("0000-0002-1825-0097")
-            .build();
+                                        .withTitle("Howard Phillips Lovecraft")
+                                        .withOrcidIdentifier("0000-0002-1825-0097")
+                                        .build();
 
         context.restoreAuthSystemState();
 
         //Check item doesn't have dc.contributor.author updated with new name
         firstItem = context.reloadEntity(firstItem);
         assertThat(firstItem.getMetadata(), hasItem(with("dc.contributor.author", "H. P. Lovecraft", null,
-            itemWithOrcid.getID().toString(), 0, 600)));
+                                                         itemWithOrcid.getID().toString(), 0, 600)));
 
         //Check item doesn't have dc.contributor.author updated with new name
         secondItem = context.reloadEntity(secondItem);
         assertThat(secondItem.getMetadata(), hasItem(with("dc.contributor.author", "H. P. Lovecraft", null,
-            itemWithOrcid.getID().toString(), 0, 600)));
+                                                          itemWithOrcid.getID().toString(), 0, 600)));
         configurationService.setProperty("previousOverrideMetadataValue", previousOverrideMetadataValue);
     }
 
@@ -235,43 +232,42 @@ public class ItemReferenceResolverConsumerIT extends AbstractControllerIntegrati
         String ridAuthority = formatWillBeReferencedAuthority("RID", "0000-1111");
 
         Item firstItem = ItemBuilder.createItem(context, publicationCollection)
-            .withTitle("First Item")
-            .withAuthor("Author", ridAuthority)
-            .build();
+                                    .withTitle("First Item")
+                                    .withAuthor("Author", ridAuthority)
+                                    .build();
 
         Item secondItem = ItemBuilder.createItem(context, publicationCollection)
-            .withTitle("Second Item")
-            .withAuthor("Author", ridAuthority)
-            .build();
+                                     .withTitle("Second Item")
+                                     .withAuthor("Author", ridAuthority)
+                                     .build();
 
         context.commit();
         context.restoreAuthSystemState();
 
         firstItem = context.reloadEntity(firstItem);
         assertThat(firstItem.getMetadata(), hasItem(with("dc.contributor.author", "Author", null,
-            ridAuthority, 0, -1)));
+                                                         ridAuthority, 0, -1)));
 
         secondItem = context.reloadEntity(secondItem);
         assertThat(secondItem.getMetadata(), hasItem(with("dc.contributor.author", "Author", null,
-            ridAuthority, 0, -1)));
+                                                          ridAuthority, 0, -1)));
 
         context.turnOffAuthorisationSystem();
 
         Item itemWithRid = ItemBuilder.createItem(context, personCollection)
-            .withTitle("Author")
-            .withEntityType("Person")
-            .withResearcherIdentifier("0000-1111")
-            .build();
+                                      .withTitle("Author")
+                                      .withResearcherIdentifier("0000-1111")
+                                      .build();
 
         context.restoreAuthSystemState();
 
         firstItem = context.reloadEntity(firstItem);
         assertThat(firstItem.getMetadata(), hasItem(with("dc.contributor.author", "Author", null,
-            itemWithRid.getID().toString(), 0, 600)));
+                                                         itemWithRid.getID().toString(), 0, 600)));
 
         secondItem = context.reloadEntity(secondItem);
         assertThat(secondItem.getMetadata(), hasItem(with("dc.contributor.author", "Author", null,
-            itemWithRid.getID().toString(), 0, 600)));
+                                                          itemWithRid.getID().toString(), 0, 600)));
     }
 
     @Test
@@ -282,43 +278,42 @@ public class ItemReferenceResolverConsumerIT extends AbstractControllerIntegrati
         String ridAuthority = formatWillBeReferencedAuthority("ISNI", "AAA-BBB");
 
         Item firstItem = ItemBuilder.createItem(context, publicationCollection)
-            .withTitle("First Item")
-            .withAuthor("Author", ridAuthority)
-            .build();
+                                    .withTitle("First Item")
+                                    .withAuthor("Author", ridAuthority)
+                                    .build();
 
         Item secondItem = ItemBuilder.createItem(context, publicationCollection)
-            .withTitle("Second Item")
-            .withAuthor("Author", ridAuthority)
-            .build();
+                                     .withTitle("Second Item")
+                                     .withAuthor("Author", ridAuthority)
+                                     .build();
 
         context.commit();
         context.restoreAuthSystemState();
 
         firstItem = context.reloadEntity(firstItem);
         assertThat(firstItem.getMetadata(), hasItem(with("dc.contributor.author", "Author", null,
-            ridAuthority, 0, -1)));
+                                                         ridAuthority, 0, -1)));
 
         secondItem = context.reloadEntity(secondItem);
         assertThat(secondItem.getMetadata(), hasItem(with("dc.contributor.author", "Author", null,
-            ridAuthority, 0, -1)));
+                                                          ridAuthority, 0, -1)));
 
         context.turnOffAuthorisationSystem();
 
         Item itemWithIsni = ItemBuilder.createItem(context, personCollection)
-            .withTitle("Author")
-            .withEntityType("Person")
-            .withIsniIdentifier("AAA-BBB")
-            .build();
+                                       .withTitle("Author")
+                                       .withIsniIdentifier("AAA-BBB")
+                                       .build();
 
         context.restoreAuthSystemState();
 
         firstItem = context.reloadEntity(firstItem);
         assertThat(firstItem.getMetadata(), hasItem(with("dc.contributor.author", "Author", null,
-            itemWithIsni.getID().toString(), 0, 600)));
+                                                         itemWithIsni.getID().toString(), 0, 600)));
 
         secondItem = context.reloadEntity(secondItem);
         assertThat(secondItem.getMetadata(), hasItem(with("dc.contributor.author", "Author", null,
-            itemWithIsni.getID().toString(), 0, 600)));
+                                                          itemWithIsni.getID().toString(), 0, 600)));
     }
 
     @Test
@@ -330,44 +325,43 @@ public class ItemReferenceResolverConsumerIT extends AbstractControllerIntegrati
         String orcidAuthority = formatWillBeReferencedAuthority("ORCID", "0000-0002-1825-0097");
 
         Item firstItem = ItemBuilder.createItem(context, publicationCollection)
-            .withTitle("First Item")
-            .withAuthor("Author", ridAuthority)
-            .build();
+                                    .withTitle("First Item")
+                                    .withAuthor("Author", ridAuthority)
+                                    .build();
 
         Item secondItem = ItemBuilder.createItem(context, publicationCollection)
-            .withTitle("Second Item")
-            .withAuthor("Author", orcidAuthority)
-            .build();
+                                     .withTitle("Second Item")
+                                     .withAuthor("Author", orcidAuthority)
+                                     .build();
 
         context.commit();
         context.restoreAuthSystemState();
 
         firstItem = context.reloadEntity(firstItem);
         assertThat(firstItem.getMetadata(), hasItem(with("dc.contributor.author", "Author", null,
-            ridAuthority, 0, -1)));
+                                                         ridAuthority, 0, -1)));
 
         secondItem = context.reloadEntity(secondItem);
         assertThat(secondItem.getMetadata(), hasItem(with("dc.contributor.author", "Author", null,
-            orcidAuthority, 0, -1)));
+                                                          orcidAuthority, 0, -1)));
 
         context.turnOffAuthorisationSystem();
 
         Item itemWithRid = ItemBuilder.createItem(context, personCollection)
-            .withTitle("Author")
-            .withEntityType("Person")
-            .withOrcidIdentifier("0000-0002-1825-0097")
-            .withResearcherIdentifier("0000-1111")
-            .build();
+                                      .withTitle("Author")
+                                      .withOrcidIdentifier("0000-0002-1825-0097")
+                                      .withResearcherIdentifier("0000-1111")
+                                      .build();
 
         context.restoreAuthSystemState();
 
         firstItem = context.reloadEntity(firstItem);
         assertThat(firstItem.getMetadata(), hasItem(with("dc.contributor.author", "Author", null,
-            itemWithRid.getID().toString(), 0, 600)));
+                                                         itemWithRid.getID().toString(), 0, 600)));
 
         secondItem = context.reloadEntity(secondItem);
         assertThat(secondItem.getMetadata(), hasItem(with("dc.contributor.author", "Author", null,
-            itemWithRid.getID().toString(), 0, 600)));
+                                                          itemWithRid.getID().toString(), 0, 600)));
     }
 
     @Test
@@ -379,44 +373,43 @@ public class ItemReferenceResolverConsumerIT extends AbstractControllerIntegrati
         String secondRidAuthority = formatWillBeReferencedAuthority("RID", "2222-3333");
 
         Item firstItem = ItemBuilder.createItem(context, publicationCollection)
-            .withTitle("First Item")
-            .withAuthor("Author", firstRidAuthority)
-            .build();
+                                    .withTitle("First Item")
+                                    .withAuthor("Author", firstRidAuthority)
+                                    .build();
 
         Item secondItem = ItemBuilder.createItem(context, publicationCollection)
-            .withTitle("Second Item")
-            .withAuthor("Author", secondRidAuthority)
-            .build();
+                                     .withTitle("Second Item")
+                                     .withAuthor("Author", secondRidAuthority)
+                                     .build();
 
         context.commit();
         context.restoreAuthSystemState();
 
         firstItem = context.reloadEntity(firstItem);
         assertThat(firstItem.getMetadata(), hasItem(with("dc.contributor.author", "Author", null,
-            firstRidAuthority, 0, -1)));
+                                                         firstRidAuthority, 0, -1)));
 
         secondItem = context.reloadEntity(secondItem);
         assertThat(secondItem.getMetadata(), hasItem(with("dc.contributor.author", "Author", null,
-            secondRidAuthority, 0, -1)));
+                                                          secondRidAuthority, 0, -1)));
 
         context.turnOffAuthorisationSystem();
 
         Item itemWithRid = ItemBuilder.createItem(context, personCollection)
-            .withTitle("Author")
-            .withEntityType("Person")
-            .withResearcherIdentifier("0000-1111")
-            .withResearcherIdentifier("2222-3333")
-            .build();
+                                      .withTitle("Author")
+                                      .withResearcherIdentifier("0000-1111")
+                                      .withResearcherIdentifier("2222-3333")
+                                      .build();
 
         context.restoreAuthSystemState();
 
         firstItem = context.reloadEntity(firstItem);
         assertThat(firstItem.getMetadata(), hasItem(with("dc.contributor.author", "Author", null,
-            itemWithRid.getID().toString(), 0, 600)));
+                                                         itemWithRid.getID().toString(), 0, 600)));
 
         secondItem = context.reloadEntity(secondItem);
         assertThat(secondItem.getMetadata(), hasItem(with("dc.contributor.author", "Author", null,
-            itemWithRid.getID().toString(), 0, 600)));
+                                                          itemWithRid.getID().toString(), 0, 600)));
     }
 
     @Test
@@ -427,9 +420,9 @@ public class ItemReferenceResolverConsumerIT extends AbstractControllerIntegrati
         String orcidAuthority = formatWillBeReferencedAuthority("ORCID", "0000-0002-1825-0097");
 
         Item item = ItemBuilder.createItem(context, publicationCollection)
-            .withTitle("Publication")
-            .withAuthor("Author", orcidAuthority)
-            .build();
+                               .withTitle("Publication")
+                               .withAuthor("Author", orcidAuthority)
+                               .build();
 
         context.restoreAuthSystemState();
 
@@ -439,10 +432,9 @@ public class ItemReferenceResolverConsumerIT extends AbstractControllerIntegrati
         context.turnOffAuthorisationSystem();
 
         WorkspaceItem author = WorkspaceItemBuilder.createWorkspaceItem(context, personCollection)
-            .withTitle("Author")
-            .withEntityType("Person")
-            .withOrcidIdentifier("0000-0002-1825-0097")
-            .build();
+                                                   .withTitle("Author")
+                                                   .withOrcidIdentifier("0000-0002-1825-0097")
+                                                   .build();
 
         String authorId = author.getItem().getID().toString();
 
@@ -469,9 +461,9 @@ public class ItemReferenceResolverConsumerIT extends AbstractControllerIntegrati
         String orcidAuthority = formatWillBeReferencedAuthority("ORCID", "0000-0002-1825-0097");
 
         WorkspaceItem workspaceItem = WorkspaceItemBuilder.createWorkspaceItem(context, publicationCollection)
-            .withTitle("First Item")
-            .withAuthor("Author", orcidAuthority)
-            .build();
+                                                          .withTitle("First Item")
+                                                          .withAuthor("Author", orcidAuthority)
+                                                          .build();
 
         Item item = workspaceItem.getItem();
 
@@ -483,16 +475,15 @@ public class ItemReferenceResolverConsumerIT extends AbstractControllerIntegrati
         context.turnOffAuthorisationSystem();
 
         Item author = ItemBuilder.createItem(context, personCollection)
-            .withTitle("Author")
-            .withEntityType("Person")
-            .withOrcidIdentifier("0000-0002-1825-0097")
-            .build();
+                                 .withTitle("Author")
+                                 .withOrcidIdentifier("0000-0002-1825-0097")
+                                 .build();
 
         context.restoreAuthSystemState();
 
         item = context.reloadEntity(item);
         assertThat(item.getMetadata(),
-            hasItem(with("dc.contributor.author", "Author", null, author.getID().toString(), 0, 600)));
+                   hasItem(with("dc.contributor.author", "Author", null, author.getID().toString(), 0, 600)));
     }
 
     @Test
@@ -501,89 +492,108 @@ public class ItemReferenceResolverConsumerIT extends AbstractControllerIntegrati
         context.turnOffAuthorisationSystem();
 
         Item firstPublication = ItemBuilder.createItem(context, publicationCollection)
-            .withTitle("First publication")
-            .withAuthor("Author A", formatWillBeReferencedAuthority("ORCID", "0000-0000-0000-0001"))
-            .withAuthor("Author B", formatWillBeReferencedAuthority("ORCID", "0000-0000-0000-0002"))
-            .withAuthor("Author C", formatWillBeReferencedAuthority("ORCID", "0000-0000-0000-0003"))
-            .build();
+                                           .withTitle("First publication")
+                                           .withAuthor("Author A",
+                                                       formatWillBeReferencedAuthority("ORCID", "0000-0000-0000-0001"))
+                                           .withAuthor("Author B",
+                                                       formatWillBeReferencedAuthority("ORCID", "0000-0000-0000-0002"))
+                                           .withAuthor("Author C",
+                                                       formatWillBeReferencedAuthority("ORCID", "0000-0000-0000-0003"))
+                                           .build();
 
         Item secondPublication = ItemBuilder.createItem(context, publicationCollection)
-            .withTitle("Second Item")
-            .withAuthor("Author B", formatWillBeReferencedAuthority("ORCID", "0000-0000-0000-0002"))
-            .withAuthor("Author D", formatWillBeReferencedAuthority("RID", "RID-01"))
-            .build();
+                                            .withTitle("Second Item")
+                                            .withAuthor("Author B",
+                                                        formatWillBeReferencedAuthority("ORCID", "0000-0000-0000-0002"))
+                                            .withAuthor("Author D", formatWillBeReferencedAuthority("RID", "RID-01"))
+                                            .build();
 
         Item thirdPublication = ItemBuilder.createItem(context, publicationCollection)
-            .withTitle("Second Item")
-            .withAuthor("Author E", formatWillBeReferencedAuthority("RID", "RID-02"))
-            .withAuthor("Author F", formatWillBeReferencedAuthority("ORCID", "0000-0000-0000-0004"))
-            .build();
+                                           .withTitle("Second Item")
+                                           .withAuthor("Author E", formatWillBeReferencedAuthority("RID", "RID-02"))
+                                           .withAuthor("Author F",
+                                                       formatWillBeReferencedAuthority("ORCID", "0000-0000-0000-0004"))
+                                           .build();
 
         context.commit();
         context.restoreAuthSystemState();
 
         firstPublication = context.reloadEntity(firstPublication);
         assertThat(firstPublication.getMetadata(), hasItem(with("dc.contributor.author", "Author A", null,
-            formatWillBeReferencedAuthority("ORCID", "0000-0000-0000-0001"), 0, -1)));
+                                                                formatWillBeReferencedAuthority("ORCID",
+                                                                                                "0000-0000-0000-0001"),
+                                                                0, -1)));
         assertThat(firstPublication.getMetadata(), hasItem(with("dc.contributor.author", "Author B", null,
-            formatWillBeReferencedAuthority("ORCID", "0000-0000-0000-0002"), 1, -1)));
+                                                                formatWillBeReferencedAuthority("ORCID",
+                                                                                                "0000-0000-0000-0002"),
+                                                                1, -1)));
         assertThat(firstPublication.getMetadata(), hasItem(with("dc.contributor.author", "Author C", null,
-            formatWillBeReferencedAuthority("ORCID", "0000-0000-0000-0003"), 2, -1)));
+                                                                formatWillBeReferencedAuthority("ORCID",
+                                                                                                "0000-0000-0000-0003"),
+                                                                2, -1)));
 
         secondPublication = context.reloadEntity(secondPublication);
         assertThat(secondPublication.getMetadata(), hasItem(with("dc.contributor.author", "Author B", null,
-            formatWillBeReferencedAuthority("ORCID", "0000-0000-0000-0002"), 0, -1)));
+                                                                 formatWillBeReferencedAuthority("ORCID",
+                                                                                                 "0000-0000-0000-0002"),
+                                                                 0, -1)));
         assertThat(secondPublication.getMetadata(), hasItem(with("dc.contributor.author", "Author D", null,
-            formatWillBeReferencedAuthority("RID", "RID-01"), 1, -1)));
+                                                                 formatWillBeReferencedAuthority("RID", "RID-01"), 1,
+                                                                 -1)));
 
         thirdPublication = context.reloadEntity(thirdPublication);
         assertThat(thirdPublication.getMetadata(), hasItem(with("dc.contributor.author", "Author E", null,
-            formatWillBeReferencedAuthority("RID", "RID-02"), 0, -1)));
+                                                                formatWillBeReferencedAuthority("RID", "RID-02"), 0,
+                                                                -1)));
         assertThat(thirdPublication.getMetadata(), hasItem(with("dc.contributor.author", "Author F", null,
-            formatWillBeReferencedAuthority("ORCID", "0000-0000-0000-0004"), 1, -1)));
+                                                                formatWillBeReferencedAuthority("ORCID",
+                                                                                                "0000-0000-0000-0004"),
+                                                                1, -1)));
 
         context.turnOffAuthorisationSystem();
 
         Item authorA = ItemBuilder.createItem(context, personCollection)
-            .withTitle("Author A")
-            .withEntityType("Person")
-            .withOrcidIdentifier("0000-0000-0000-0001")
-            .build();
+                                  .withTitle("Author A")
+                                  .withOrcidIdentifier("0000-0000-0000-0001")
+                                  .build();
 
         Item authorB = ItemBuilder.createItem(context, personCollection)
-            .withTitle("Author B")
-            .withEntityType("Person")
-            .withOrcidIdentifier("0000-0000-0000-0002")
-            .build();
+                                  .withTitle("Author B")
+                                  .withOrcidIdentifier("0000-0000-0000-0002")
+                                  .build();
 
         Item authorD = ItemBuilder.createItem(context, personCollection)
-            .withTitle("Author D")
-            .withEntityType("Person")
-            .withResearcherIdentifier("RID-01")
-            .build();
+                                  .withTitle("Author D")
+                                  .withResearcherIdentifier("RID-01")
+                                  .build();
 
         context.commit();
         context.restoreAuthSystemState();
 
         firstPublication = context.reloadEntity(firstPublication);
         assertThat(firstPublication.getMetadata(), hasItem(with("dc.contributor.author", "Author A", null,
-            authorA.getID().toString(), 0, 600)));
+                                                                authorA.getID().toString(), 0, 600)));
         assertThat(firstPublication.getMetadata(), hasItem(with("dc.contributor.author", "Author B", null,
-            authorB.getID().toString(), 1, 600)));
+                                                                authorB.getID().toString(), 1, 600)));
         assertThat(firstPublication.getMetadata(), hasItem(with("dc.contributor.author", "Author C", null,
-            formatWillBeReferencedAuthority("ORCID", "0000-0000-0000-0003"), 2, -1)));
+                                                                formatWillBeReferencedAuthority("ORCID",
+                                                                                                "0000-0000-0000-0003"),
+                                                                2, -1)));
 
         secondPublication = context.reloadEntity(secondPublication);
         assertThat(secondPublication.getMetadata(), hasItem(with("dc.contributor.author", "Author B", null,
-            authorB.getID().toString(), 0, 600)));
+                                                                 authorB.getID().toString(), 0, 600)));
         assertThat(secondPublication.getMetadata(), hasItem(with("dc.contributor.author", "Author D", null,
-            authorD.getID().toString(), 1, 600)));
+                                                                 authorD.getID().toString(), 1, 600)));
 
         thirdPublication = context.reloadEntity(thirdPublication);
         assertThat(thirdPublication.getMetadata(), hasItem(with("dc.contributor.author", "Author E", null,
-            formatWillBeReferencedAuthority("RID", "RID-02"), 0, -1)));
+                                                                formatWillBeReferencedAuthority("RID", "RID-02"), 0,
+                                                                -1)));
         assertThat(thirdPublication.getMetadata(), hasItem(with("dc.contributor.author", "Author F", null,
-            formatWillBeReferencedAuthority("ORCID", "0000-0000-0000-0004"), 1, -1)));
+                                                                formatWillBeReferencedAuthority("ORCID",
+                                                                                                "0000-0000-0000-0004"),
+                                                                1, -1)));
 
     }
 
@@ -595,25 +605,25 @@ public class ItemReferenceResolverConsumerIT extends AbstractControllerIntegrati
         String orcidAuthority = "will be referenced::ORCID::0000-0002-1825-0097";
 
         WorkspaceItem firstWsItem = WorkspaceItemBuilder.createWorkspaceItem(context, publicationCollection)
-            .withTitle("Submission Item")
-            .withIssueDate("2017-10-17")
-            .withFulltext("article.pdf", null, "test".getBytes())
-            .withAuthor("Mario Rossi", orcidAuthority)
-            .withAuthorAffilitation("4Science")
-            .withType("Article")
-            .withSubmitter(submitter)
-            .grantLicense()
-            .build();
+                                                        .withTitle("Submission Item")
+                                                        .withIssueDate("2017-10-17")
+                                                        .withFulltext("article.pdf", null, "test".getBytes())
+                                                        .withAuthor("Mario Rossi", orcidAuthority)
+                                                        .withAuthorAffilitation("4Science")
+                                                        .withType("Article")
+                                                        .withSubmitter(submitter)
+                                                        .grantLicense()
+                                                        .build();
 
         WorkspaceItem secondWsItem = WorkspaceItemBuilder.createWorkspaceItem(context, publicationCollection)
-            .withTitle("Another submission Item")
-            .withIssueDate("2020-10-17")
-            .withFulltext("another-article.pdf", null, "test".getBytes())
-            .withAuthor("Mario Rossi", orcidAuthority)
-            .withType("Article")
-            .withSubmitter(submitter)
-            .grantLicense()
-            .build();
+                                                         .withTitle("Another submission Item")
+                                                         .withIssueDate("2020-10-17")
+                                                         .withFulltext("another-article.pdf", null, "test".getBytes())
+                                                         .withAuthor("Mario Rossi", orcidAuthority)
+                                                         .withType("Article")
+                                                         .withSubmitter(submitter)
+                                                         .grantLicense()
+                                                         .build();
 
         context.restoreAuthSystemState();
 
@@ -622,64 +632,64 @@ public class ItemReferenceResolverConsumerIT extends AbstractControllerIntegrati
         submitItemViaRest(authToken, firstWsItem.getID());
 
         getClient(authToken).perform(get(BASE_REST_SERVER_URL + "/api/core/items/{id}", firstWsItem.getItem().getID()))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$.metadata['dc.contributor.author'][0].authority", is(orcidAuthority)));
+                            .andExpect(status().isOk())
+                            .andExpect(
+                                jsonPath("$.metadata['dc.contributor.author'][0].authority", is(orcidAuthority)));
 
         getClient(authToken).perform(get(BASE_REST_SERVER_URL + "/api/core/items/{id}", secondWsItem.getItem().getID()))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$.metadata['dc.contributor.author'][0].authority", is(orcidAuthority)));
+                            .andExpect(status().isOk())
+                            .andExpect(
+                                jsonPath("$.metadata['dc.contributor.author'][0].authority", is(orcidAuthority)));
 
         context.turnOffAuthorisationSystem();
 
         WorkspaceItem authorItem = WorkspaceItemBuilder.createWorkspaceItem(context, personCollection)
-            .withTitle("Mario Rossi")
-            .withFulltext("cv.pdf", null, "test".getBytes())
-            .withOrcidIdentifier("0000-0002-1825-0097")
-            .withSubmitter(submitter)
-            .grantLicense()
-            .build();
+                                                       .withTitle("Mario Rossi")
+                                                       .withIssueDate("2026-01-01")
+                                                       .withFulltext("cv.pdf", null, "test".getBytes())
+                                                       .withOrcidIdentifier("0000-0002-1825-0097")
+                                                       .withSubmitter(submitter)
+                                                       .grantLicense()
+                                                       .build();
 
         context.restoreAuthSystemState();
 
         getClient(authToken).perform(get(BASE_REST_SERVER_URL + "/api/core/items/{id}", firstWsItem.getItem().getID()))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$.metadata['dc.contributor.author'][0].authority", is(orcidAuthority)));
+                            .andExpect(status().isOk())
+                            .andExpect(
+                                jsonPath("$.metadata['dc.contributor.author'][0].authority", is(orcidAuthority)));
 
         getClient(authToken).perform(get(BASE_REST_SERVER_URL + "/api/core/items/{id}", secondWsItem.getItem().getID()))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$.metadata['dc.contributor.author'][0].authority", is(orcidAuthority)));
+                            .andExpect(status().isOk())
+                            .andExpect(
+                                jsonPath("$.metadata['dc.contributor.author'][0].authority", is(orcidAuthority)));
 
         submitItemViaRest(authToken, authorItem.getID());
 
         String authorUUID = authorItem.getItem().getID().toString();
 
         getClient(authToken).perform(get(BASE_REST_SERVER_URL + "/api/core/items/{id}", firstWsItem.getItem().getID()))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$.metadata['dc.contributor.author'][0].authority", is(authorUUID)));
+                            .andExpect(status().isOk())
+                            .andExpect(jsonPath("$.metadata['dc.contributor.author'][0].authority", is(authorUUID)));
 
         getClient(authToken).perform(get(BASE_REST_SERVER_URL + "/api/core/items/{id}", secondWsItem.getItem().getID()))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$.metadata['dc.contributor.author'][0].authority", is(authorUUID)));
+                            .andExpect(status().isOk())
+                            .andExpect(jsonPath("$.metadata['dc.contributor.author'][0].authority", is(authorUUID)));
     }
 
     private Collection createCollection(String name, String entityType) throws Exception {
-        return createCollection(name, entityType, null);
-    }
-
-
-    private Collection createCollection(String name, String entityType, String submissionDefinition) throws Exception {
         return CollectionBuilder.createCollection(context, parentCommunity)
                                 .withName(name)
                                 .withEntityType(entityType)
                                 .withSubmitterGroup(submitter)
-                                .withSubmissionDefinition(submissionDefinition)
                                 .build();
     }
 
-    private void submitItemViaRest(String authToken, Integer wsId) throws Exception, SQLException {
+    private void submitItemViaRest(String authToken, Integer wsId) throws Exception {
         getClient(authToken).perform(post(BASE_REST_SERVER_URL + "/api/workflow/workflowitems")
-            .content("/api/submission/workspaceitems/" + wsId).contentType(textUriContentType))
-            .andExpect(status().isCreated());
+                                         .content("/api/submission/workspaceitems/" + wsId)
+                                         .contentType(textUriContentType))
+                            .andExpect(status().isCreated());
     }
 
     private String formatWillBeReferencedAuthority(String authorityPrefix, String value) {

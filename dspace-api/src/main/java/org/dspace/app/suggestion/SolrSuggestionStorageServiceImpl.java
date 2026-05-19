@@ -51,6 +51,7 @@ import org.dspace.services.factory.DSpaceServicesFactory;
 import org.dspace.util.UUIDUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
+
 /**
  * Service to deal with the local suggestion solr core used by the
  * SolrSuggestionProvider(s)
@@ -363,11 +364,11 @@ public class SolrSuggestionStorageServiceImpl implements SolrSuggestionStorageSe
         suggestion.setDisplay((String) solrDoc.getFieldValue(DISPLAY));
         if (StringUtils.isNotBlank((String) solrDoc.getFieldValue(TITLE))) {
             suggestion.getMetadata()
-                .add(new MetadataValueDTO("dc", "title", null, null, (String) solrDoc.getFieldValue(TITLE)));
+                      .add(new MetadataValueDTO("dc", "title", null, null, (String) solrDoc.getFieldValue(TITLE)));
         }
         if (StringUtils.isNotBlank((String) solrDoc.getFieldValue(DATE))) {
             suggestion.getMetadata()
-                .add(new MetadataValueDTO("dc", "date", "issued", null, (String) solrDoc.getFieldValue(DATE)));
+                      .add(new MetadataValueDTO("dc", "date", "issued", null, (String) solrDoc.getFieldValue(DATE)));
         }
         if (StringUtils.isNotBlank((String) solrDoc.getFieldValue(ABSTRACT))) {
             suggestion.getMetadata().add(

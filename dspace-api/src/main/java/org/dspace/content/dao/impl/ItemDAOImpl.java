@@ -508,7 +508,6 @@ public class ItemDAOImpl extends AbstractHibernateDSODAO<Item> implements ItemDA
         @SuppressWarnings("unchecked")
         List<UUID> uuids = query.getResultList();
         return new UUIDIterator<Item>(context, uuids, Item.class, this);
-
     }
 
     @Override
@@ -546,12 +545,12 @@ public class ItemDAOImpl extends AbstractHibernateDSODAO<Item> implements ItemDA
 
     @Override
     public Iterator<Item> findByLikeAuthorityValue(Context context,
-            String likeAuthority, Boolean inArchive) throws SQLException {
+                                                   String likeAuthority, Boolean inArchive) throws SQLException {
         String allItems = Objects.isNull(inArchive) ? "" : " item.inArchive=:in_archive AND ";
         Query query = createQuery(context,
-                "SELECT DISTINCT item.id FROM Item as item join item.metadata metadatavalue "
-                        + "WHERE" + allItems
-                        + " metadatavalue.authority like :authority ORDER BY item.id");
+                                  "SELECT DISTINCT item.id FROM Item as item join item.metadata metadatavalue "
+                                      + "WHERE" + allItems
+                                      + " metadatavalue.authority like :authority ORDER BY item.id");
         if (Objects.nonNull(inArchive)) {
             query.setParameter("in_archive", inArchive);
         }

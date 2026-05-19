@@ -14,8 +14,7 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.util.List;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.http.client.config.CookieSpecs;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -85,7 +84,6 @@ public class OpenUrlServiceImpl implements OpenUrlService {
     protected RequestConfig getHttpClientRequestConfig() {
         return RequestConfig.custom()
             .setConnectTimeout(10 * 1000)
-            .setCookieSpec(CookieSpecs.STANDARD)
             .build();
     }
 

@@ -2835,7 +2835,6 @@ public class ReferCrosswalkIT extends AbstractIntegrationTestWithDatabase {
     }
 
 
-
     @Test
     public void testPublicationVirtualFieldWithVocabularyValuePairList() throws Exception {
 
@@ -2888,22 +2887,22 @@ public class ReferCrosswalkIT extends AbstractIntegrationTestWithDatabase {
             referCrosswalk.disseminate(context, publicationItem, out);
 
             String[] resultLines = out.toString().split("\n");
-            assertThat(resultLines.length, is(7));
+            assertThat(resultLines.length, is(6));
             assertThat(resultLines[0].trim(), equalTo("<publication>"));
-            assertThat(resultLines[4].trim(), equalTo("<VocabularyType>articolo sul software</VocabularyType>"));
-            assertThat(resultLines[5].trim(), equalTo("<ValuePairLanguage>Inglese (USA)</ValuePairLanguage>"));
-            assertThat(resultLines[6].trim(), equalTo("</publication>"));
+            assertThat(resultLines[3].trim(), equalTo("<VocabularyType>articolo sul software</VocabularyType>"));
+            assertThat(resultLines[4].trim(), equalTo("<ValuePairLanguage>Inglese (USA)</ValuePairLanguage>"));
+            assertThat(resultLines[5].trim(), equalTo("</publication>"));
 
             context.setCurrentLocale(ukranian);
             out = new ByteArrayOutputStream();
             referCrosswalk.disseminate(context, publicationItem, out);
 
             resultLines = out.toString().split("\n");
-            assertThat(resultLines.length, is(7));
+            assertThat(resultLines.length, is(6));
             assertThat(resultLines[0].trim(), equalTo("<publication>"));
-            assertThat(resultLines[4].trim(), equalTo("<VocabularyType>програмна стаття</VocabularyType>"));
-            assertThat(resultLines[5].trim(), equalTo("<ValuePairLanguage>Американська (USA)</ValuePairLanguage>"));
-            assertThat(resultLines[6].trim(), equalTo("</publication>"));
+            assertThat(resultLines[3].trim(), equalTo("<VocabularyType>програмна стаття</VocabularyType>"));
+            assertThat(resultLines[4].trim(), equalTo("<ValuePairLanguage>Американська (USA)</ValuePairLanguage>"));
+            assertThat(resultLines[5].trim(), equalTo("</publication>"));
 
         } finally {
             context.setCurrentLocale(defaultLocale);

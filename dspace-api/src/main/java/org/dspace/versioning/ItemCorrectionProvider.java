@@ -237,11 +237,10 @@ public class ItemCorrectionProvider extends AbstractVersionProvider {
                 }
                 bitstreamService.update(c, nativeBitstream);
             } else {
-                // Add new bitstram to native bundle
                 // Metadata and additional information like internal identifier,
                 // file size, checksum, and checksum algorithm are set by the bitstreamStorageService.clone(...)
                 // and respectively bitstreamService.clone(...) method.
-                Bitstream bitstreamNew =  bitstreamStorageService.clone(c, bitstreamCorrected);
+                Bitstream bitstreamNew =  bitstreamService.clone(c, nativeBitstream);
 
                 bundleService.addBitstream(c, nativeBundle, bitstreamNew);
 

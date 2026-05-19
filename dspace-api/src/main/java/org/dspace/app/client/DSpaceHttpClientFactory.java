@@ -10,6 +10,7 @@ package org.dspace.app.client;
 import static org.apache.commons.collections4.ListUtils.emptyIfNull;
 
 import java.util.List;
+import java.util.function.Consumer;
 
 import org.apache.http.HttpRequestInterceptor;
 import org.apache.http.HttpResponseInterceptor;
@@ -59,6 +60,20 @@ public class DSpaceHttpClientFactory {
      */
     public CloseableHttpClient build() {
         return build(create(requestConfig), true);
+    }
+
+    /**
+     * Build an instance of {@link HttpClient} setting the proxy if
+     * configured, customized by a Consumer of an HttpClientBuilder.
+     *
+     * @param customize The Consumer which will be called to customize
+     *                  the client
+     * @return the client
+     */
+    public CloseableHttpClient build(Consumer<HttpClientBuilder> customize) {
+        var builder = HttpClientBuilder.create();
+        customize.accept(builder);
+        return build(builder, true);
     }
 
     /**

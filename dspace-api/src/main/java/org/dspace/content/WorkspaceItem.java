@@ -147,11 +147,7 @@ public class WorkspaceItem
             return false;
         }
         final WorkspaceItem that = (WorkspaceItem) o;
-        if (!this.getID().equals(that.getID())) {
-            return false;
-        }
-
-        return true;
+        return this.getID().equals(that.getID());
     }
 
     @Override

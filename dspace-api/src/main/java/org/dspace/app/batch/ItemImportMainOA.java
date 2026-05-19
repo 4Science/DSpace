@@ -62,7 +62,7 @@ public class ItemImportMainOA {
     /** Email buffer **/
     private static final String BATCH_USER = "batchjob@%";
 
-    private static final String CRIS_SOURCE_ID = "cris.sourceId";
+    private static final String CRIS_SOURCE_ID = "dspace.sourceId";
 
     private ConfigurationService configurationService = DSpaceServicesFactory.getInstance().getConfigurationService();
 

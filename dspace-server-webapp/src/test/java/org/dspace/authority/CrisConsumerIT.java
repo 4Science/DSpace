@@ -7,7 +7,6 @@
  */
 package org.dspace.authority;
 
-import static java.util.Arrays.asList;
 import static java.util.UUID.fromString;
 import static org.dspace.app.matcher.MetadataValueMatcher.with;
 import static org.dspace.content.authority.Choices.CF_ACCEPTED;
@@ -23,7 +22,6 @@ import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.ArgumentMatchers.matches;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
@@ -35,13 +33,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.sql.SQLException;
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.codec.digest.DigestUtils;
+import org.dspace.app.customurl.consumer.CustomUrlConsumerConfig;
 import org.dspace.app.rest.model.CollectionRest;
 import org.dspace.app.rest.model.ItemRest;
 import org.dspace.app.rest.model.MetadataValueRest;
@@ -63,12 +61,12 @@ import org.dspace.content.WorkspaceItem;
 import org.dspace.content.authority.ChoiceAuthorityServiceImpl;
 import org.dspace.content.authority.service.MetadataAuthorityService;
 import org.dspace.content.service.ItemService;
-import org.dspace.core.service.PluginService;
 import org.dspace.eperson.EPerson;
 import org.dspace.external.OrcidRestConnector;
 import org.dspace.external.provider.impl.OrcidV3AuthorDataProvider;
 import org.dspace.services.ConfigurationService;
 import org.dspace.util.UUIDUtils;
+import org.dspace.utils.DSpace;
 import org.dspace.xmlworkflow.storedcomponents.PoolTask;
 import org.dspace.xmlworkflow.storedcomponents.service.PoolTaskService;
 import org.junit.Test;
@@ -121,9 +119,6 @@ public class CrisConsumerIT extends AbstractControllerIntegrationTest {
     private OrcidV3AuthorDataProvider orcidV3AuthorDataProvider;
 
     @Autowired
-    private PluginService pluginService;
-
-    @Autowired
     private MetadataAuthorityService metadataAuthorityService;
 
     @Override
@@ -135,24 +130,25 @@ public class CrisConsumerIT extends AbstractControllerIntegrationTest {
         configurationSetUp();
 
         submitter = EPersonBuilder.createEPerson(context)
-                .withEmail("submitter@example.com")
-                .withPassword(password)
-                .build();
+                                  .withEmail("submitter@example.com")
+                                  .withPassword(password)
+                                  .build();
 
         parentCommunity = CommunityBuilder.createCommunity(context)
-                .withName("Parent Community")
-                .build();
+                                          .withName("Parent Community")
+                                          .build();
 
         subCommunity = CommunityBuilder.createCommunity(context)
-                .withName("Sub Community")
-                .addParentCommunity(context, parentCommunity)
-                .build();
+                                       .withName("Sub Community")
+                                       .addParentCommunity(context, parentCommunity)
+                                       .build();
 
         publicationCollection = createCollection("Collection of publications", "Publication", subCommunity);
 
         context.setCurrentUser(submitter);
 
         context.restoreAuthSystemState();
+
     }
 
     @Override
@@ -189,14 +185,15 @@ public class CrisConsumerIT extends AbstractControllerIntegrationTest {
         InputStream pdf = simpleArticle.getInputStream();
 
         WorkspaceItem wsitem = WorkspaceItemBuilder.createWorkspaceItem(context, publicationCollection)
-                .withTitle("Submission Item")
-                .withIssueDate("2017-10-17")
-                .withFulltext("simple-article.pdf", "/local/path/simple-article.pdf", pdf)
-                .withAuthor("Mario Rossi")
-                .withAuthorAffilitation("4Science")
-                .withEditor("Mario Rossi")
-                .grantLicense()
-                .build();
+                                                   .withTitle("Submission Item")
+                                                   .withIssueDate("2017-10-17")
+                                                   .withFulltext("simple-article.pdf", "/local/path/simple-article.pdf",
+                                                                 pdf)
+                                                   .withAuthor("Mario Rossi")
+                                                   .withAuthorAffilitation("4Science")
+                                                   .withEditor("Mario Rossi")
+                                                   .grantLicense()
+                                                   .build();
 
         context.turnOffAuthorisationSystem();
         Collection personCollection = createCollection("Collection of persons", "Person", subCommunity);
@@ -227,11 +224,11 @@ public class CrisConsumerIT extends AbstractControllerIntegrationTest {
 
         MetadataValueRest relatedItemtitle = findSingleMetadata(relatedItem, "dc.title");
         assertThat("dc.title value of the related item should be equals to the text value of the original metadata",
-                relatedItemtitle.getValue(), equalTo("Mario Rossi"));
+                   relatedItemtitle.getValue(), equalTo("Mario Rossi"));
 
-        MetadataValueRest crisSourceId = findSingleMetadata(relatedItem, "cris.sourceId");
-        assertThat("cris.sourceId value and author md5 hash should be equals", crisSourceId.getValue(),
-                equalTo(generateMd5Hash("Mario Rossi")));
+        MetadataValueRest crisSourceId = findSingleMetadata(relatedItem, "dspace.sourceId");
+        assertThat("dspace.sourceId value and author md5 hash should be equals", crisSourceId.getValue(),
+                   equalTo(generateMd5Hash("Mario Rossi")));
 
         MetadataValueRest entityType = findSingleMetadata(relatedItem, "dspace.entity.type");
         assertThat("The dspace.entity.type should be Person", entityType.getValue(), equalTo("Person"));
@@ -242,7 +239,7 @@ public class CrisConsumerIT extends AbstractControllerIntegrationTest {
         // verify that the authors collections is the Person collection
         CollectionRest collection = getOwnCollectionViaRestByItemId(authToken, UUID.fromString(relatedItem.getId()));
         assertThat("The collection should be the person collection",
-                collection.getId(), equalTo(personCollection.getID().toString()));
+                   collection.getId(), equalTo(personCollection.getID().toString()));
     }
 
     /**
@@ -262,12 +259,12 @@ public class CrisConsumerIT extends AbstractControllerIntegrationTest {
         String authToken = getAuthToken(admin.getEmail(), password);
 
         MetadataValueRest valueToAdd = new MetadataValueRest("The Journal");
-        List<Operation> operations = asList(new AddOperation("/metadata/dc.relation.journal", valueToAdd));
+        List<Operation> operations = List.of(new AddOperation("/metadata/dc.relation.journal", valueToAdd));
 
         getClient(authToken).perform(patch(BASE_REST_SERVER_URL + "/api/core/items/{id}", item.getID())
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(getPatchContent(operations)))
-                .andExpect(status().isOk());
+                                         .contentType(MediaType.APPLICATION_JSON)
+                                         .content(getPatchContent(operations)))
+                            .andExpect(status().isOk());
 
         // verify the dc.relation.journal authority value
         ItemRest updatedItem = getItemViaRestByID(authToken, item.getID());
@@ -280,9 +277,9 @@ public class CrisConsumerIT extends AbstractControllerIntegrationTest {
         // search the related journal item
         ItemRest relatedItem = getItemViaRestByID(authToken, UUID.fromString(journalAuthority));
 
-        MetadataValueRest crisSourceId = findSingleMetadata(relatedItem, "cris.sourceId");
-        assertThat("cris.sourceId and journal md5 hash should be equals",
-                crisSourceId.getValue(), equalTo(generateMd5Hash("The Journal")));
+        MetadataValueRest crisSourceId = findSingleMetadata(relatedItem, "dspace.sourceId");
+        assertThat("dspace.sourceId and journal md5 hash should be equals",
+                   crisSourceId.getValue(), equalTo(generateMd5Hash("The Journal")));
 
         MetadataValueRest entityType = findSingleMetadata(relatedItem, "dspace.entity.type");
         assertThat("The dspace.entity.type should be Journal", entityType.getValue(), equalTo("Journal"));
@@ -308,28 +305,29 @@ public class CrisConsumerIT extends AbstractControllerIntegrationTest {
         InputStream firstFullText = new ByteArrayInputStream("First submission".getBytes());
 
         WorkspaceItem firstWsitem = WorkspaceItemBuilder.createWorkspaceItem(context, publicationCollection)
-                .withTitle("Submission Item")
-                .withIssueDate("2017-10-17")
-                .withProject("My project")
-                .withAuthor("Mario Rossi")
-                .withAuthorAffilitation("4Science")
-                .withFulltext("text.txt", "/local/path/text.txt", firstFullText)
-                .grantLicense()
-                .build();
+                                                        .withTitle("Submission Item")
+                                                        .withIssueDate("2017-10-17")
+                                                        .withProject("My project")
+                                                        .withAuthor("Mario Rossi")
+                                                        .withAuthorAffilitation("4Science")
+                                                        .withFulltext("text.txt", "/local/path/text.txt", firstFullText)
+                                                        .grantLicense()
+                                                        .build();
 
         submitItemViaRest(authToken, firstWsitem.getID());
 
         InputStream secondFullText = new ByteArrayInputStream("Second submission".getBytes());
 
         WorkspaceItem secondWsitem = WorkspaceItemBuilder.createWorkspaceItem(context, publicationCollection)
-                .withTitle("Another Submission Item")
-                .withIssueDate("2017-10-18")
-                .withProject("My project")
-                .withAuthor("Mario Rossi")
-                .withAuthorAffilitation("My Org")
-                .withFulltext("text-2.txt", "/local/path/text-2.txt", secondFullText)
-                .grantLicense()
-                .build();
+                                                         .withTitle("Another Submission Item")
+                                                         .withIssueDate("2017-10-18")
+                                                         .withProject("My project")
+                                                         .withAuthor("Mario Rossi")
+                                                         .withAuthorAffilitation("My Org")
+                                                         .withFulltext("text-2.txt", "/local/path/text-2.txt",
+                                                                       secondFullText)
+                                                         .grantLicense()
+                                                         .build();
 
         submitItemViaRest(authToken, secondWsitem.getID());
 
@@ -346,7 +344,7 @@ public class CrisConsumerIT extends AbstractControllerIntegrationTest {
         assertThat("The project should have the authority set", secondProjectAuthority, notNullValue());
 
         assertThat("The project authority of the two items should be the same",
-                firstProjectAuthority, equalTo(secondProjectAuthority));
+                   firstProjectAuthority, equalTo(secondProjectAuthority));
 
         MetadataValueRest firstAuthor = findSingleMetadata(firstItem, "dc.contributor.author");
         String firstAuthorAuthority = firstAuthor.getAuthority();
@@ -357,7 +355,7 @@ public class CrisConsumerIT extends AbstractControllerIntegrationTest {
         assertThat("The author should have the authority set", secondAuthorAuthority, notNullValue());
 
         assertThat("The author authority of the two items should be the same",
-                firstAuthorAuthority, equalTo(secondAuthorAuthority));
+                   firstAuthorAuthority, equalTo(secondAuthorAuthority));
 
         // search the related author item
         ItemRest authorItem = getItemViaRestByID(authToken, UUID.fromString(firstAuthorAuthority));
@@ -368,11 +366,11 @@ public class CrisConsumerIT extends AbstractControllerIntegrationTest {
         // verify that the project collections is the Project collection
         CollectionRest firstCol = getOwnCollectionViaRestByItemId(authToken, fromString(firstProjectAuthority));
         assertThat("The collection should be the project collection",
-                firstCol.getId(), equalTo(projectCollection.getID().toString()));
+                   firstCol.getId(), equalTo(projectCollection.getID().toString()));
 
         CollectionRest secondCol = getOwnCollectionViaRestByItemId(authToken, fromString(secondProjectAuthority));
         assertThat("The collection should be the project collection",
-                secondCol.getId(), equalTo(projectCollection.getID().toString()));
+                   secondCol.getId(), equalTo(projectCollection.getID().toString()));
     }
 
     /**
@@ -392,27 +390,34 @@ public class CrisConsumerIT extends AbstractControllerIntegrationTest {
 
         String authToken = getAuthToken(submitter.getEmail(), password);
 
+        submitter = context.reloadEntity(submitter);
+        context.setCurrentUser(submitter);
+
         InputStream firstFullText = new ByteArrayInputStream("First submission".getBytes());
 
         WorkspaceItem firstWsitem = WorkspaceItemBuilder.createWorkspaceItem(context, publicationCollection)
-                .withTitle("Submission Item")
-                .withIssueDate("2017-10-17")
-                .withProject("Same Name")
-                .withFulltext("text.txt", "/local/path/text.txt", firstFullText)
-                .grantLicense()
-                .build();
+                                                        .withTitle("Submission Item")
+                                                        .withIssueDate("2017-10-17")
+                                                        .withProject("Same Name")
+                                                        .withFulltext("text.txt", "/local/path/text.txt", firstFullText)
+                                                        .grantLicense()
+                                                        .build();
 
         submitItemViaRest(authToken, firstWsitem.getID());
+
+        submitter = context.reloadEntity(submitter);
+        context.setCurrentUser(submitter);
 
         InputStream secondFullText = new ByteArrayInputStream("First submission".getBytes());
 
         WorkspaceItem secondWsitem = WorkspaceItemBuilder.createWorkspaceItem(context, publicationCollection)
-                .withTitle("Another Submission Item")
-                .withIssueDate("2017-10-18")
-                .withAuthor("Same Name")
-                .withFulltext("text-2.txt", "/local/path/text-2.txt", secondFullText)
-                .grantLicense()
-                .build();
+                                                         .withTitle("Another Submission Item")
+                                                         .withIssueDate("2017-10-18")
+                                                         .withAuthor("Same Name")
+                                                         .withFulltext("text-2.txt", "/local/path/text-2.txt",
+                                                                       secondFullText)
+                                                         .grantLicense()
+                                                         .build();
 
         submitItemViaRest(authToken, secondWsitem.getID());
 
@@ -429,23 +434,23 @@ public class CrisConsumerIT extends AbstractControllerIntegrationTest {
         assertThat("The author should have the authority set", authorAuthority, notNullValue());
 
         assertThat("The project and the author authority of the two items should be different",
-                projectAuthority, not(equalTo(authorAuthority)));
+                   projectAuthority, not(equalTo(authorAuthority)));
 
         // verify the two created items metadata values (one for the author and the other for the project)
         ItemRest authorItem = getItemViaRestByID(authToken, UUID.fromString(authorAuthority));
 
-        MetadataValueRest crisSourceId = findSingleMetadata(authorItem, "cris.sourceId");
-        assertThat("cris.sourceId value and author md5 hash should be equals",
-                crisSourceId.getValue(), equalTo(generateMd5Hash("Same Name")));
+        MetadataValueRest crisSourceId = findSingleMetadata(authorItem, "dspace.sourceId");
+        assertThat("dspace.sourceId value and author md5 hash should be equals",
+                   crisSourceId.getValue(), equalTo(generateMd5Hash("Same Name")));
 
         MetadataValueRest entityType = findSingleMetadata(authorItem, "dspace.entity.type");
         assertThat("The dspace.entity.type should be Person", entityType.getValue(), equalTo("Person"));
 
         ItemRest projectItem = getItemViaRestByID(authToken, UUID.fromString(projectAuthority));
 
-        crisSourceId = findSingleMetadata(projectItem, "cris.sourceId");
-        assertThat("cris.sourceId value and project md5 hash should be equals",
-                crisSourceId.getValue(), equalTo(generateMd5Hash("Same Name")));
+        crisSourceId = findSingleMetadata(projectItem, "dspace.sourceId");
+        assertThat("dspace.sourceId value and project md5 hash should be equals",
+                   crisSourceId.getValue(), equalTo(generateMd5Hash("Same Name")));
 
         entityType = findSingleMetadata(projectItem, "dspace.entity.type");
         assertThat("The dspace.entity.type should be Project", entityType.getValue(), equalTo("Project"));
@@ -464,12 +469,13 @@ public class CrisConsumerIT extends AbstractControllerIntegrationTest {
         InputStream pdf = simpleArticle.getInputStream();
 
         WorkspaceItem wsitem = WorkspaceItemBuilder.createWorkspaceItem(context, publicationCollection)
-                .withTitle("Submission Item")
-                .withIssueDate("2017-10-17")
-                .withFulltext("simple-article.pdf", "/local/path/simple-article.pdf", pdf)
-                .withAuthor("Mario Rossi")
-                .grantLicense()
-                .build();
+                                                   .withTitle("Submission Item")
+                                                   .withIssueDate("2017-10-17")
+                                                   .withFulltext("simple-article.pdf", "/local/path/simple-article.pdf",
+                                                                 pdf)
+                                                   .withAuthor("Mario Rossi")
+                                                   .grantLicense()
+                                                   .build();
 
         context.turnOffAuthorisationSystem();
         // no person collection is created so it will be not possible to create a related person item
@@ -507,28 +513,28 @@ public class CrisConsumerIT extends AbstractControllerIntegrationTest {
         context.restoreAuthSystemState();
 
         String authToken = getAuthToken(submitter.getEmail(), password);
-
         InputStream firstFullText = new ByteArrayInputStream("First submission".getBytes());
 
         WorkspaceItem firstWsitem = WorkspaceItemBuilder.createWorkspaceItem(context, publicationCollection)
-                .withTitle("Submission Item")
-                .withIssueDate("2017-10-17")
-                .withProject("My project")
-                .withFulltext("text.txt", "/local/path/text.txt", firstFullText)
-                .grantLicense()
-                .build();
+                                                        .withTitle("Submission Item")
+                                                        .withIssueDate("2017-10-17")
+                                                        .withProject("My project")
+                                                        .withFulltext("text.txt", "/local/path/text.txt", firstFullText)
+                                                        .grantLicense()
+                                                        .build();
 
         submitItemViaRest(authToken, firstWsitem.getID());
 
         InputStream secondFullText = new ByteArrayInputStream("Second submission".getBytes());
 
         WorkspaceItem secondWsitem = WorkspaceItemBuilder.createWorkspaceItem(context, publicationCollection)
-                .withTitle("Another Submission Item")
-                .withIssueDate("2017-10-18")
-                .withProject("My project")
-                .withFulltext("text-2.txt", "/local/path/text-2.txt", secondFullText)
-                .grantLicense()
-                .build();
+                                                         .withTitle("Another Submission Item")
+                                                         .withIssueDate("2017-10-18")
+                                                         .withProject("My project")
+                                                         .withFulltext("text-2.txt", "/local/path/text-2.txt",
+                                                                       secondFullText)
+                                                         .grantLicense()
+                                                         .build();
 
         submitItemViaRest(authToken, secondWsitem.getID());
 
@@ -545,7 +551,7 @@ public class CrisConsumerIT extends AbstractControllerIntegrationTest {
         assertThat("The project should have the authority set", secondProjectAuthority, notNullValue());
 
         assertThat("The project authority of the two items should be different uuids",
-                firstProjectAuthority, not(equalTo(secondProjectAuthority)));
+                   firstProjectAuthority, not(equalTo(secondProjectAuthority)));
     }
 
     /**
@@ -564,13 +570,14 @@ public class CrisConsumerIT extends AbstractControllerIntegrationTest {
         InputStream pdf = simpleArticle.getInputStream();
 
         WorkspaceItem wsitem = WorkspaceItemBuilder.createWorkspaceItem(context, publicationCollection)
-                .withTitle("Submission Item")
-                .withIssueDate("2017-10-17")
-                .withFulltext("simple-article.pdf", "/local/path/simple-article.pdf", pdf)
-                .withAuthor("Mario Rossi")
-                .withProject("Test project")
-                .grantLicense()
-                .build();
+                                                   .withTitle("Submission Item")
+                                                   .withIssueDate("2017-10-17")
+                                                   .withFulltext("simple-article.pdf", "/local/path/simple-article.pdf",
+                                                                 pdf)
+                                                   .withAuthor("Mario Rossi")
+                                                   .withProject("Test project")
+                                                   .grantLicense()
+                                                   .build();
 
         context.turnOffAuthorisationSystem();
         //create a person collection with workflow group to not archive the author item that will be created
@@ -599,9 +606,9 @@ public class CrisConsumerIT extends AbstractControllerIntegrationTest {
         ItemRest authorItem = getItemViaRestByID(authToken, UUID.fromString(authorAuthority));
         assertThat("The author related item should not be archived", authorItem.getInArchive(), is(false));
 
-        MetadataValueRest crisSourceId = findSingleMetadata(authorItem, "cris.sourceId");
-        assertThat("cris.sourceId value and author md5 hash should be equals", crisSourceId.getValue(),
-                equalTo(generateMd5Hash("Mario Rossi")));
+        MetadataValueRest crisSourceId = findSingleMetadata(authorItem, "dspace.sourceId");
+        assertThat("dspace.sourceId value and author md5 hash should be equals", crisSourceId.getValue(),
+                   equalTo(generateMd5Hash("Mario Rossi")));
 
         MetadataValueRest entityType = findSingleMetadata(authorItem, "dspace.entity.type");
         assertThat("The dspace.entity.type should be Person", entityType.getValue(), equalTo("Person"));
@@ -610,9 +617,9 @@ public class CrisConsumerIT extends AbstractControllerIntegrationTest {
         ItemRest projectItem = getItemViaRestByID(authToken, UUID.fromString(projectAuthority));
         assertThat("The project related item should be archived", projectItem.getInArchive(), is(true));
 
-        crisSourceId = findSingleMetadata(projectItem, "cris.sourceId");
-        assertThat("cris.sourceId value and author md5 hash should be equals", crisSourceId.getValue(),
-                equalTo(generateMd5Hash("Test project")));
+        crisSourceId = findSingleMetadata(projectItem, "dspace.sourceId");
+        assertThat("dspace.sourceId value and author md5 hash should be equals", crisSourceId.getValue(),
+                   equalTo(generateMd5Hash("Test project")));
 
         entityType = findSingleMetadata(projectItem, "dspace.entity.type");
         assertThat("The dspace.entity.type should be Person", entityType.getValue(), equalTo("Project"));
@@ -626,18 +633,21 @@ public class CrisConsumerIT extends AbstractControllerIntegrationTest {
      */
     @Test
     public void testItemWithManyAuthorsSubmission() throws Exception {
+        // Authority configuration (AuthorAuthority) provided by setUp() method
+
         InputStream pdf = simpleArticle.getInputStream();
 
         WorkspaceItem wsitem = WorkspaceItemBuilder.createWorkspaceItem(context, publicationCollection)
-                .withTitle("Submission Item")
-                .withIssueDate("2017-10-17")
-                .withFulltext("simple-article.pdf", "/local/path/simple-article.pdf", pdf)
-                .withAuthor("Mario Rossi")
-                .withAuthorAffilitation("4Science")
-                .withAuthor("Luigi Rossi")
-                .withAuthorAffilitation("My org")
-                .grantLicense()
-                .build();
+                                                   .withTitle("Submission Item")
+                                                   .withIssueDate("2017-10-17")
+                                                   .withFulltext("simple-article.pdf", "/local/path/simple-article.pdf",
+                                                                 pdf)
+                                                   .withAuthor("Mario Rossi")
+                                                   .withAuthorAffilitation("4Science")
+                                                   .withAuthor("Luigi Rossi")
+                                                   .withAuthorAffilitation("My org")
+                                                   .grantLicense()
+                                                   .build();
 
         context.turnOffAuthorisationSystem();
         createCollection("Collection of persons", "Person", subCommunity);
@@ -662,9 +672,9 @@ public class CrisConsumerIT extends AbstractControllerIntegrationTest {
             assertThat("The related item should be archived", relatedItem.getInArchive(), is(true));
 
             String expectedName = author.getPlace() == 0 ? "Mario Rossi" : "Luigi Rossi";
-            MetadataValueRest crisSourceId = findSingleMetadata(relatedItem, "cris.sourceId");
-            assertThat("cris.sourceId value and author md5 hash should be equals", crisSourceId.getValue(),
-                    equalTo(generateMd5Hash(expectedName)));
+            MetadataValueRest crisSourceId = findSingleMetadata(relatedItem, "dspace.sourceId");
+            assertThat("dspace.sourceId value and author md5 hash should be equals", crisSourceId.getValue(),
+                       equalTo(generateMd5Hash(expectedName)));
 
             MetadataValueRest entityType = findSingleMetadata(relatedItem, "dspace.entity.type");
             assertThat("The dspace.entity.type should be Person", entityType.getValue(), equalTo("Person"));
@@ -672,26 +682,28 @@ public class CrisConsumerIT extends AbstractControllerIntegrationTest {
             String expectedAffiliation = author.getPlace() == 0 ? "4Science" : "My org";
             MetadataValueRest affiliation = findSingleMetadata(relatedItem, "person.affiliation.name");
             assertThat("The person.affiliation.name should be " + expectedAffiliation, affiliation.getValue(),
-                    equalTo(expectedAffiliation));
+                       equalTo(expectedAffiliation));
 
         }
     }
 
     @Test
     public void testItemWithWillBeGeneratedAuthority() throws Exception {
+        // Authority configuration (AuthorAuthority) provided by setUp() method
 
         context.turnOffAuthorisationSystem();
 
         Collection personCollection = createCollection("Collection of persons", "Person", subCommunity);
 
         Item person = ItemBuilder.createItem(context, personCollection)
-            .withTitle("Walter White Original")
-            .withOrcidIdentifier("0000-0002-9079-593X")
-            .build();
+                                 .withTitle("Walter White Original")
+                                 .withOrcidIdentifier("0000-0002-9079-593X")
+                                 .build();
 
         Item publication = ItemBuilder.createItem(context, publicationCollection)
-            .withAuthor("Walter White", AuthorityValueService.GENERATE + "ORCID::0000-0002-9079-593X")
-            .build();
+                                      .withAuthor("Walter White",
+                                                  AuthorityValueService.GENERATE + "ORCID::0000-0002-9079-593X")
+                                      .build();
 
         context.restoreAuthSystemState();
         context.commit();
@@ -707,19 +719,21 @@ public class CrisConsumerIT extends AbstractControllerIntegrationTest {
         List<MetadataValue> metadata = itemService.getMetadataByMetadataString(person, "dc.title");
         assertThat("The person item still have a single dc.title", metadata.size(), equalTo(1));
         assertThat("The person item still have the original dc.title", metadata.get(0).getValue(),
-                equalTo("Walter White Original"));
+                   equalTo("Walter White Original"));
     }
 
     @Test
     public void testItemWithWillBeGeneratedAuthorityAndNoRelatedItemFound() throws Exception {
+        // Authority configuration (AuthorAuthority) provided by setUp() method
 
         context.turnOffAuthorisationSystem();
 
         createCollection("Collection of persons", "Person", subCommunity);
 
         Item publication = ItemBuilder.createItem(context, publicationCollection)
-            .withAuthor("Walter White", AuthorityValueService.GENERATE + "ORCID::0000-0002-9079-593X")
-            .build();
+                                      .withAuthor("Walter White",
+                                                  AuthorityValueService.GENERATE + "ORCID::0000-0002-9079-593X")
+                                      .build();
 
         context.restoreAuthSystemState();
         context.commit();
@@ -737,19 +751,21 @@ public class CrisConsumerIT extends AbstractControllerIntegrationTest {
 
     @Test
     public void testItemWithWillBeReferencedAuthority() throws Exception {
+        // Authority configuration (AuthorAuthority) provided by setUp() method
 
         context.turnOffAuthorisationSystem();
 
         Collection personCollection = createCollection("Collection of persons", "Person", subCommunity);
 
         Item person = ItemBuilder.createItem(context, personCollection)
-            .withTitle("Walter White Original")
-            .withOrcidIdentifier("0000-0002-9079-593X")
-            .build();
+                                 .withTitle("Walter White Original")
+                                 .withOrcidIdentifier("0000-0002-9079-593X")
+                                 .build();
 
         Item publication = ItemBuilder.createItem(context, publicationCollection)
-            .withAuthor("Walter White", AuthorityValueService.REFERENCE + "ORCID::0000-0002-9079-593X")
-            .build();
+                                      .withAuthor("Walter White",
+                                                  AuthorityValueService.REFERENCE + "ORCID::0000-0002-9079-593X")
+                                      .build();
 
         context.restoreAuthSystemState();
         context.commit();
@@ -767,19 +783,21 @@ public class CrisConsumerIT extends AbstractControllerIntegrationTest {
         List<MetadataValue> metadata = itemService.getMetadataByMetadataString(person, "dc.title");
         assertThat("The person item still have a single dc.title", metadata.size(), equalTo(1));
         assertThat("The person item still have the original dc.title", metadata.get(0).getValue(),
-                equalTo("Walter White Original"));
+                   equalTo("Walter White Original"));
     }
 
     @Test
     public void testItemWithWillBeReferencedAuthorityAndNoRelatedItemFound() throws Exception {
+        // Authority configuration (AuthorAuthority) provided by setUp() method
 
         context.turnOffAuthorisationSystem();
 
         createCollection("Collection of persons", "Person", subCommunity);
 
         Item publication = ItemBuilder.createItem(context, publicationCollection)
-            .withAuthor("Walter White", AuthorityValueService.REFERENCE + "ORCID::0000-0002-9079-593X")
-            .build();
+                                      .withAuthor("Walter White",
+                                                  AuthorityValueService.REFERENCE + "ORCID::0000-0002-9079-593X")
+                                      .build();
 
         context.restoreAuthSystemState();
         context.commit();
@@ -805,14 +823,15 @@ public class CrisConsumerIT extends AbstractControllerIntegrationTest {
         InputStream pdf = simpleArticle.getInputStream();
 
         WorkspaceItem wsitem = WorkspaceItemBuilder.createWorkspaceItem(context, publicationCollection)
-            .withTitle("Submission Item")
-            .withIssueDate("2017-10-17")
-            .withFulltext("simple-article.pdf", "/local/path/simple-article.pdf", pdf)
-            .withAuthor("Mario Rossi")
-            .withAuthorAffilitation("4Science")
-            .withEditor("Mario Rossi")
-            .grantLicense()
-            .build();
+                                                   .withTitle("Submission Item")
+                                                   .withIssueDate("2017-10-17")
+                                                   .withFulltext("simple-article.pdf", "/local/path/simple-article.pdf",
+                                                                 pdf)
+                                                   .withAuthor("Mario Rossi")
+                                                   .withAuthorAffilitation("4Science")
+                                                   .withEditor("Mario Rossi")
+                                                   .grantLicense()
+                                                   .build();
 
         context.turnOffAuthorisationSystem();
         createCollection("Collection of persons", "Person", subCommunity);
@@ -839,18 +858,20 @@ public class CrisConsumerIT extends AbstractControllerIntegrationTest {
 
     @Test
     public void testItemSubmissionWithSkipEmptyAuthorityMetadata() throws Exception {
+        // Authority configuration (AuthorAuthority) provided by setUp() method
 
         InputStream pdf = simpleArticle.getInputStream();
 
         WorkspaceItem wsitem = WorkspaceItemBuilder.createWorkspaceItem(context, publicationCollection)
-            .withTitle("Submission Item")
-            .withIssueDate("2017-10-17")
-            .withFulltext("simple-article.pdf", "/local/path/simple-article.pdf", pdf)
-            .withAuthor("Mario Rossi")
-            .withAuthorAffilitation("4Science")
-            .withEditor("Mario Rossi")
-            .grantLicense()
-            .build();
+                                                   .withTitle("Submission Item")
+                                                   .withIssueDate("2017-10-17")
+                                                   .withFulltext("simple-article.pdf", "/local/path/simple-article.pdf",
+                                                                 pdf)
+                                                   .withAuthor("Mario Rossi")
+                                                   .withAuthorAffilitation("4Science")
+                                                   .withEditor("Mario Rossi")
+                                                   .grantLicense()
+                                                   .build();
 
         context.turnOffAuthorisationSystem();
         createCollection("Collection of persons", "Person", subCommunity);
@@ -859,7 +880,7 @@ public class CrisConsumerIT extends AbstractControllerIntegrationTest {
         String authToken = getAuthToken(submitter.getEmail(), password);
 
         configurationService.setProperty("cris-consumer.skip-empty-authority.metadata",
-            new String[] { "dc.contributor.editor", "dc.relation.project" });
+                                         new String[] {"dc.contributor.editor", "dc.relation.project"});
         configurationService.setProperty("cris-consumer.skip-empty-authority", false);
 
         submitItemViaRest(authToken, wsitem.getID());
@@ -885,14 +906,15 @@ public class CrisConsumerIT extends AbstractControllerIntegrationTest {
         InputStream pdf = simpleArticle.getInputStream();
 
         WorkspaceItem wsitem = WorkspaceItemBuilder.createWorkspaceItem(context, publicationCollection)
-            .withTitle("Submission Item")
-            .withIssueDate("2017-10-17")
-            .withFulltext("simple-article.pdf", "/local/path/simple-article.pdf", pdf)
-            .withAuthor("Mario Rossi")
-            .withAuthorAffilitation("4Science")
-            .withEditor("Mario Rossi")
-            .grantLicense()
-            .build();
+                                                   .withTitle("Submission Item")
+                                                   .withIssueDate("2017-10-17")
+                                                   .withFulltext("simple-article.pdf", "/local/path/simple-article.pdf",
+                                                                 pdf)
+                                                   .withAuthor("Mario Rossi")
+                                                   .withAuthorAffilitation("4Science")
+                                                   .withEditor("Mario Rossi")
+                                                   .grantLicense()
+                                                   .build();
 
         context.turnOffAuthorisationSystem();
         createCollection("Collection of persons", "Person", subCommunity);
@@ -902,7 +924,7 @@ public class CrisConsumerIT extends AbstractControllerIntegrationTest {
         String authToken = getAuthToken(submitter.getEmail(), password);
 
         configurationService.setProperty("cris-consumer.skip-empty-authority.metadata",
-            new String[] { "dc.contributor.editor", "dc.relation.project" });
+                                         new String[] {"dc.contributor.editor", "dc.relation.project"});
         configurationService.setProperty("cris-consumer.skip-empty-authority", false);
 
         submitItemViaRest(authToken, wsitem.getID());
@@ -920,9 +942,9 @@ public class CrisConsumerIT extends AbstractControllerIntegrationTest {
         String affiliationMetadataAuthority = affiliationMetadata.getAuthority();
         assertThat("The affiliation should have the authority set", affiliationMetadataAuthority, notNullValue());
         assertThat("The affiliation should have an uuid authority set",
-                UUIDUtils.fromString(affiliationMetadataAuthority), notNullValue());
+                   UUIDUtils.fromString(affiliationMetadataAuthority), notNullValue());
         assertThat("The affiliation should have an ACCEPTED confidence",
-                affiliationMetadata.getConfidence(), notNullValue());
+                   affiliationMetadata.getConfidence(), notNullValue());
 
         MetadataValueRest editor = findSingleMetadata(item, "dc.contributor.editor");
         String editorAuthority = editor.getAuthority();
@@ -936,14 +958,15 @@ public class CrisConsumerIT extends AbstractControllerIntegrationTest {
         InputStream pdf = simpleArticle.getInputStream();
 
         WorkspaceItem wsitem = WorkspaceItemBuilder.createWorkspaceItem(context, publicationCollection)
-            .withTitle("Submission Item")
-            .withIssueDate("2017-10-17")
-            .withFulltext("simple-article.pdf", "/local/path/simple-article.pdf", pdf)
-            .withAuthor("Mario Rossi")
-            .withAuthorAffilitation("4Science")
-            .withEditor("Mario Rossi")
-            .grantLicense()
-            .build();
+                                                   .withTitle("Submission Item")
+                                                   .withIssueDate("2017-10-17")
+                                                   .withFulltext("simple-article.pdf", "/local/path/simple-article.pdf",
+                                                                 pdf)
+                                                   .withAuthor("Mario Rossi")
+                                                   .withAuthorAffilitation("4Science")
+                                                   .withEditor("Mario Rossi")
+                                                   .grantLicense()
+                                                   .build();
 
         context.turnOffAuthorisationSystem();
         createCollection("Collection of persons", "Person", subCommunity);
@@ -953,7 +976,7 @@ public class CrisConsumerIT extends AbstractControllerIntegrationTest {
         String authToken = getAuthToken(submitter.getEmail(), password);
 
         configurationService.setProperty("cris-consumer.skip-empty-authority.metadata",
-            new String[] { "dc.contributor.editor", "dc.relation.project" });
+                                         new String[] {"dc.contributor.editor", "dc.relation.project"});
         configurationService.setProperty("cris-consumer.skip-empty-authority", false);
 
         submitItemViaRest(authToken, wsitem.getID());
@@ -971,9 +994,9 @@ public class CrisConsumerIT extends AbstractControllerIntegrationTest {
         String affiliationMetadataAuthority = affiliationMetadata.getAuthority();
         assertThat("The affiliation should have the authority set", affiliationMetadataAuthority, notNullValue());
         assertThat("The affiliation should have an uuid authority set",
-                UUIDUtils.fromString(affiliationMetadataAuthority), notNullValue());
+                   UUIDUtils.fromString(affiliationMetadataAuthority), notNullValue());
         assertThat("The affiliation should have an ACCEPTED confidence",
-                affiliationMetadata.getConfidence(), notNullValue());
+                   affiliationMetadata.getConfidence(), notNullValue());
         // the file dspace-server-webapp/src/test/data/dspaceFolder/config/spring/api/cris-plugin.xml
         // contains the population of person.jobTitle using a constant value
         MetadataValueRest jobTitleMetadata = findSingleMetadata(person, "person.jobTitle");
@@ -992,14 +1015,15 @@ public class CrisConsumerIT extends AbstractControllerIntegrationTest {
         InputStream pdf = simpleArticle.getInputStream();
 
         WorkspaceItem wsitem = WorkspaceItemBuilder.createWorkspaceItem(context, publicationCollection)
-            .withTitle("Submission Item")
-            .withIssueDate("2017-10-17")
-            .withFulltext("simple-article.pdf", "/local/path/simple-article.pdf", pdf)
-            .withAuthor("Mario Rossi")
-            .withAuthorAffilitation("4Science")
-            .withEditor("Mario Rossi")
-            .grantLicense()
-            .build();
+                                                   .withTitle("Submission Item")
+                                                   .withIssueDate("2017-10-17")
+                                                   .withFulltext("simple-article.pdf", "/local/path/simple-article.pdf",
+                                                                 pdf)
+                                                   .withAuthor("Mario Rossi")
+                                                   .withAuthorAffilitation("4Science")
+                                                   .withEditor("Mario Rossi")
+                                                   .grantLicense()
+                                                   .build();
 
         context.turnOffAuthorisationSystem();
         createCollection("Collection of persons", "Person", subCommunity);
@@ -1008,7 +1032,7 @@ public class CrisConsumerIT extends AbstractControllerIntegrationTest {
         String authToken = getAuthToken(submitter.getEmail(), password);
 
         configurationService.setProperty("cris-consumer.skip-empty-authority.metadata",
-            new String[] { "dc.contributor.editor", "dc.relation.project" });
+                                         new String[] {"dc.contributor.editor", "dc.relation.project"});
         configurationService.setProperty("cris-consumer.skip-empty-authority", true);
         submitItemViaRest(authToken, wsitem.getID());
 
@@ -1028,6 +1052,7 @@ public class CrisConsumerIT extends AbstractControllerIntegrationTest {
 
     @Test
     public void testItemWithWillBeReferencedAuthorityAndValueOverwriting() throws Exception {
+        // Authority configuration (AuthorAuthority) provided by setUp() method
 
         context.turnOffAuthorisationSystem();
 
@@ -1036,13 +1061,14 @@ public class CrisConsumerIT extends AbstractControllerIntegrationTest {
         Collection personCollection = createCollection("Collection of persons", "Person", subCommunity);
 
         Item person = ItemBuilder.createItem(context, personCollection)
-            .withTitle("Walter White Original")
-            .withOrcidIdentifier("0000-0002-9079-593X")
-            .build();
+                                 .withTitle("Walter White Original")
+                                 .withOrcidIdentifier("0000-0002-9079-593X")
+                                 .build();
 
         Item publication = ItemBuilder.createItem(context, publicationCollection)
-            .withAuthor("Walter White", AuthorityValueService.REFERENCE + "ORCID::0000-0002-9079-593X")
-            .build();
+                                      .withAuthor("Walter White",
+                                                  AuthorityValueService.REFERENCE + "ORCID::0000-0002-9079-593X")
+                                      .build();
 
         context.restoreAuthSystemState();
         context.commit();
@@ -1060,6 +1086,7 @@ public class CrisConsumerIT extends AbstractControllerIntegrationTest {
 
     @Test
     public void testOrcidImportFiller() throws Exception {
+        // Authority configuration (AuthorAuthority) provided by setUp() method
 
         OrcidRestConnector mockOrcidConnector = Mockito.mock(OrcidRestConnector.class);
         OrcidRestConnector orcidConnector = orcidV3AuthorDataProvider.getOrcidRestConnector();
@@ -1067,8 +1094,7 @@ public class CrisConsumerIT extends AbstractControllerIntegrationTest {
         orcidV3AuthorDataProvider.setOrcidRestConnector(mockOrcidConnector);
 
         String orcid = "0000-0002-9029-1854";
-
-        when(mockOrcidConnector.get(matches("^\\d{4}-\\d{4}-\\d{4}-\\d{4}/person$"), any()))
+        when(mockOrcidConnector.get(eq(orcid), any()))
             .thenAnswer(i -> orcidPersonRecord.getInputStream());
 
         try {
@@ -1078,15 +1104,15 @@ public class CrisConsumerIT extends AbstractControllerIntegrationTest {
             Collection persons = createCollection("Collection of persons", "Person", subCommunity);
 
             Item publication = ItemBuilder.createItem(context, publicationCollection)
-                .withTitle("Test Publication")
-                .withAuthor("Bollini, Andrea", "will be generated::ORCID::" + orcid)
-                .build();
+                                          .withTitle("Test Publication")
+                                          .withAuthor("Bollini, Andrea", "will be generated::ORCID::" + orcid)
+                                          .build();
 
             context.commit();
 
             context.restoreAuthSystemState();
 
-            verify(mockOrcidConnector).get(eq(orcid + "/person"), any());
+            verify(mockOrcidConnector).get(eq(orcid), any());
             verifyNoMoreInteractions(mockOrcidConnector);
 
             String authToken = getAuthToken(submitter.getEmail(), password);
@@ -1100,21 +1126,30 @@ public class CrisConsumerIT extends AbstractControllerIntegrationTest {
             Item author = itemService.find(context, authorId);
             assertThat(author, notNullValue());
             assertThat(author.getOwningCollection(), is(persons));
+
+            // Verify metadata fields populated from ORCID import
             assertThat(author.getMetadata(), hasItems(
                 with("dc.title", "Bollini, Andrea"),
                 with("person.familyName", "Bollini"),
                 with("person.givenName", "Andrea"),
+                with("person.email", "andrea.bollini@4science.it"),
                 with("person.identifier.orcid", orcid),
-                with("cris.sourceId", "ORCID::" + orcid)));
+                with("person.affiliation.name", "4Science"),
+                with("dspace.sourceId", "ORCID::" + orcid)));
+
+            // Verify researcher URLs were imported from ORCID
+            List<MetadataValue> researcherUrls = itemService.getMetadataByMetadataString(author,
+                "oairecerif.identifier.url");
+            assertThat("Should have 4 researcher URLs from ORCID", researcherUrls, hasSize(4));
 
             context.turnOffAuthorisationSystem();
 
             publicationCollection = context.reloadEntity(publicationCollection);
 
             Item anotherPublication = ItemBuilder.createItem(context, publicationCollection)
-                .withTitle("Test Publication 2")
-                .withAuthor("Bollini, Andrea", "will be generated::ORCID::" + orcid)
-                .build();
+                                                 .withTitle("Test Publication 2")
+                                                 .withAuthor("Bollini, Andrea", "will be generated::ORCID::" + orcid)
+                                                 .build();
 
             context.commit();
 
@@ -1137,9 +1172,6 @@ public class CrisConsumerIT extends AbstractControllerIntegrationTest {
     public void testOpfImportFiller() throws Exception {
 
         try {
-            // AuthorAuthority configuration provided by setUp() method
-            // Add JournalAuthority with special Open Policy Finder configurations
-            addJournalAuthorityWithOpfConfig();
 
             String issn = "2731-0582";
 
@@ -1148,9 +1180,9 @@ public class CrisConsumerIT extends AbstractControllerIntegrationTest {
             Collection journals = createCollection("Collection of journals", "Journal", subCommunity);
 
             Item publication = ItemBuilder.createItem(context, publicationCollection)
-                .withTitle("Test Publication")
-                .withRelationJournal("Nature Synthesis", "will be generated::ISSN::" + issn)
-                .build();
+                                          .withTitle("Test Publication")
+                                          .withRelationJournal("Nature Synthesis", "will be generated::ISSN::" + issn)
+                                          .build();
 
             context.commit();
 
@@ -1170,16 +1202,17 @@ public class CrisConsumerIT extends AbstractControllerIntegrationTest {
             assertThat(journal.getMetadata(), hasItems(
                 with("dc.title", "Nature Synthesis"),
                 with("dc.identifier.issn", issn),
-                with("cris.sourceId", "ISSN::" + issn)));
+                with("dspace.sourceId", "ISSN::" + issn)));
 
             context.turnOffAuthorisationSystem();
 
             publicationCollection = context.reloadEntity(publicationCollection);
 
             Item anotherPublication = ItemBuilder.createItem(context, publicationCollection)
-                .withTitle("Test Publication 2")
-                .withRelationJournal("Nature Synthesis", "will be generated::ISSN::" + issn)
-                .build();
+                                                 .withTitle("Test Publication 2")
+                                                 .withRelationJournal("Nature Synthesis",
+                                                                      "will be generated::ISSN::" + issn)
+                                                 .build();
 
             context.commit();
 
@@ -1207,11 +1240,12 @@ public class CrisConsumerIT extends AbstractControllerIntegrationTest {
         InputStream pdf = simpleArticle.getInputStream();
 
         WorkspaceItem wsitem = WorkspaceItemBuilder.createWorkspaceItem(context, publicationCollection)
-                .withTitle("Submission Item")
-                .withIssueDate("2017-10-17")
-                .withFulltext("simple-article.pdf", "/local/path/simple-article.pdf", pdf)
-                .grantLicense()
-                .build();
+                                                   .withTitle("Submission Item")
+                                                   .withIssueDate("2017-10-17")
+                                                   .withFulltext("simple-article.pdf", "/local/path/simple-article.pdf",
+                                                                 pdf)
+                                                   .grantLicense()
+                                                   .build();
 
         // clear the entity type metadata
         itemService.clearMetadata(context, wsitem.getItem(), "dspace", "entity", "type", null);
@@ -1224,13 +1258,53 @@ public class CrisConsumerIT extends AbstractControllerIntegrationTest {
         assertThat(itemService.getEntityType(context.reloadEntity(wsitem.getItem())), is("Publication"));
     }
 
+
+    @Test
+    public void testPublicationSubmissionWithCustomUrl() throws Exception {
+
+        context.turnOffAuthorisationSystem();
+
+        // Create a publication collection
+        Collection publications = CollectionBuilder.createCollection(context, parentCommunity)
+                                                   .withName("Publications Collection")
+                                                   .withEntityType("Publication")
+                                                   .build();
+
+        WorkspaceItem wsitem = WorkspaceItemBuilder.createWorkspaceItem(context, publications)
+                                                   .withTitle("Submission Item")
+                                                   .withIssueDate("2017-10-17")
+                                                   .withFulltext("simple-article.pdf", "/local/path/simple-article.pdf",
+                                                                 InputStream.nullInputStream())
+                                                   .withAuthor("Mario Rossi")
+                                                   .withAuthorAffilitation("4Science")
+                                                   .withEditor("Mario Rossi")
+                                                   .grantLicense()
+                                                   .build();
+
+        new DSpace().getSingletonService(CustomUrlConsumerConfig.class).reload();
+
+        context.restoreAuthSystemState();
+
+        // Configure Publication entity type to use dc.title
+        configurationService.setProperty("dspace.custom-url.consumer.supported-entities", "Publication");
+        configurationService.setProperty("dspace.custom-url.consumer.entity-metadata-mapping.Publication", "dc.title");
+
+
+        String authToken = getAuthToken(submitter.getEmail(), password);
+
+        getClient(authToken).perform(post(BASE_REST_SERVER_URL + "/api/workflow/workflowitems")
+                                         .content("/api/submission/workspaceitems/" + wsitem.getID())
+                                         .contentType(textUriContentType))
+                            .andExpect(status().isCreated());
+    }
+
     @Test
     public void testAuthorityOnMultipleEntityTypesShouldResolveReference() throws Exception {
         context.turnOffAuthorisationSystem();
 
         // set configurations
         configurationService.addPropertyValue("plugin.named.org.dspace.content.authority.ChoiceAuthority",
-            "org.dspace.content.authority.ItemAuthority = PersonOrgUnitAuthority");
+                                              "org.dspace.content.authority.ItemAuthority = PersonOrgUnitAuthority");
         configurationService.addPropertyValue("cris.ItemAuthority.PersonOrgUnitAuthority.entityType", "Person");
         configurationService.addPropertyValue("cris.ItemAuthority.PersonOrgUnitAuthority.entityType", "OrgUnit");
         configurationService.setProperty("cris.ItemAuthority.PersonOrgUnitAuthority.primaryEntityType", "Person");
@@ -1249,7 +1323,7 @@ public class CrisConsumerIT extends AbstractControllerIntegrationTest {
             .withTitle("Test Item")
             .withLegacyId("CNCE013761")
             .withAuthor("Scognamiglio, Francesco Pio",
-                "will be referenced::LEGACY-ID::538cd81a-5c00-4c15-8f4e-b7ffbed225e3", 600)
+                        "will be referenced::LEGACY-ID::538cd81a-5c00-4c15-8f4e-b7ffbed225e3", 600)
             .inArchive().build();
 
         context.commit();
@@ -1257,12 +1331,12 @@ public class CrisConsumerIT extends AbstractControllerIntegrationTest {
 
         List<MetadataValue> metadata = testItem.getMetadata();
         assertThat(metadata, hasItems(with("dc.contributor.author",
-            "Scognamiglio, Francesco Pio", item.getID().toString(),
-            0, 600)));
+                                           "Scognamiglio, Francesco Pio", item.getID().toString(),
+                                           0, 600)));
 
         // revert changes on configurations
         configurationService.addPropertyValue("plugin.named.org.dspace.content.authority.ChoiceAuthority",
-            "org.dspace.content.authority.ItemAuthority = PersonAuthority");
+                                              "org.dspace.content.authority.ItemAuthority = PersonAuthority");
         configurationService.setProperty("cris.ItemAuthority.PersonOrgUnitAuthority.entityType", null);
         configurationService.setProperty("cris.ItemAuthority.PersonOrgUnitAuthority.primaryEntityType", null);
         configurationService.setProperty("choices.plugin.dc.contributor.author", "PersonAuthority");
@@ -1276,7 +1350,7 @@ public class CrisConsumerIT extends AbstractControllerIntegrationTest {
 
         // set configurations
         configurationService.addPropertyValue("plugin.named.org.dspace.content.authority.ChoiceAuthority",
-            "org.dspace.content.authority.ItemAuthority = PersonOrgUnitAuthority");
+                                              "org.dspace.content.authority.ItemAuthority = PersonOrgUnitAuthority");
         configurationService.addPropertyValue("cris.ItemAuthority.PersonOrgUnitAuthority.entityType", "Person");
         configurationService.addPropertyValue("cris.ItemAuthority.PersonOrgUnitAuthority.entityType", "OrgUnit");
         configurationService.setProperty("cris.ItemAuthority.PersonOrgUnitAuthority.primaryEntityType", "Person");
@@ -1302,11 +1376,11 @@ public class CrisConsumerIT extends AbstractControllerIntegrationTest {
 
         List<MetadataValue> metadata = testItem.getMetadata();
         assertThat(metadata, hasItems(with("dc.contributor.author",
-            "Scognamiglio, Francesco Pio", person.getID().toString(), 0, 600)));
+                                           "Scognamiglio, Francesco Pio", person.getID().toString(), 0, 600)));
 
         // revert changes on configurations
         configurationService.addPropertyValue("plugin.named.org.dspace.content.authority.ChoiceAuthority",
-            "org.dspace.content.authority.ItemAuthority = PersonAuthority");
+                                              "org.dspace.content.authority.ItemAuthority = PersonAuthority");
         configurationService.setProperty("cris.ItemAuthority.PersonOrgUnitAuthority.entityType", null);
         configurationService.setProperty("cris.ItemAuthority.PersonOrgUnitAuthority.primaryEntityType", null);
         configurationService.setProperty("choices.plugin.dc.contributor.author", "PersonAuthority");
@@ -1320,7 +1394,7 @@ public class CrisConsumerIT extends AbstractControllerIntegrationTest {
 
         // set configurations
         configurationService.addPropertyValue("plugin.named.org.dspace.content.authority.ChoiceAuthority",
-            "org.dspace.content.authority.ItemAuthority = PersonOrgUnitAuthority");
+                                              "org.dspace.content.authority.ItemAuthority = PersonOrgUnitAuthority");
         configurationService.addPropertyValue("cris.ItemAuthority.PersonOrgUnitAuthority.entityType", "Person");
         configurationService.addPropertyValue("cris.ItemAuthority.PersonOrgUnitAuthority.entityType", "OrgUnit");
         // remove property to simulate no primary entity type
@@ -1352,7 +1426,7 @@ public class CrisConsumerIT extends AbstractControllerIntegrationTest {
 
         // revert changes on configurations
         configurationService.addPropertyValue("plugin.named.org.dspace.content.authority.ChoiceAuthority",
-            "org.dspace.content.authority.ItemAuthority = PersonAuthority");
+                                              "org.dspace.content.authority.ItemAuthority = PersonAuthority");
         configurationService.setProperty("cris.ItemAuthority.PersonOrgUnitAuthority.entityType", null);
         configurationService.setProperty("cris.ItemAuthority.PersonOrgUnitAuthority.primaryEntityType", null);
         configurationService.setProperty("choices.plugin.dc.contributor.author", "PersonAuthority");
@@ -1384,29 +1458,30 @@ public class CrisConsumerIT extends AbstractControllerIntegrationTest {
 
         List<MetadataValue> metadata = testItem.getMetadata();
         assertThat(metadata, hasItems(with("dc.contributor.author",
-            "Scognamiglio, Francesco Pio", person.getID().toString(), 0, 600)));
+                                           "Scognamiglio, Francesco Pio", person.getID().toString(), 0, 600)));
     }
 
     private ItemRest getItemViaRestByID(String authToken, UUID id) throws Exception {
         MvcResult result = getClient(authToken)
-                .perform(get(BASE_REST_SERVER_URL + "/api/core/items/{id}", id))
-                .andExpect(status().isOk())
-                .andReturn();
+            .perform(get(BASE_REST_SERVER_URL + "/api/core/items/{id}", id))
+            .andExpect(status().isOk())
+            .andReturn();
         return readResponse(result, ItemRest.class);
     }
 
     private CollectionRest getOwnCollectionViaRestByItemId(String authToken, UUID itemId) throws Exception {
         MvcResult result = getClient(authToken)
-                .perform(get(BASE_REST_SERVER_URL + "/api/core/items/{id}/owningCollection", itemId))
-                .andExpect(status().isOk())
-                .andReturn();
+            .perform(get(BASE_REST_SERVER_URL + "/api/core/items/{id}/owningCollection", itemId))
+            .andExpect(status().isOk())
+            .andReturn();
         return readResponse(result, CollectionRest.class);
     }
 
-    private void submitItemViaRest(String authToken, Integer wsId) throws Exception, SQLException {
+    private void submitItemViaRest(String authToken, Integer wsId) throws Exception {
         getClient(authToken).perform(post(BASE_REST_SERVER_URL + "/api/workflow/workflowitems")
-                .content("/api/submission/workspaceitems/" + wsId).contentType(textUriContentType))
-                .andExpect(status().isCreated());
+                                         .content("/api/submission/workspaceitems/" + wsId)
+                                         .contentType(textUriContentType))
+                            .andExpect(status().isCreated());
     }
 
     private MetadataValueRest findSingleMetadata(ItemRest item, String metadataField) {
@@ -1422,181 +1497,24 @@ public class CrisConsumerIT extends AbstractControllerIntegrationTest {
 
     private Collection createCollection(String name, String entityType, Community community) throws Exception {
         return CollectionBuilder.createCollection(context, community)
-                .withName(name)
-                .withEntityType(entityType)
-                .withSubmissionDefinition("traditional")
-                .withSubmitterGroup(submitter)
-                .build();
+                                .withName(name)
+                                .withEntityType(entityType)
+                                .withSubmissionDefinition("traditional")
+                                .withSubmitterGroup(submitter)
+                                .build();
     }
 
     private Collection createCollectionWithWorkflowGroup(String name, String entityType, Community community)
-            throws Exception {
+        throws Exception {
         return CollectionBuilder.createCollection(context, community)
-                .withName(name)
-                .withEntityType(entityType)
-                .withSubmitterGroup(submitter)
-                .withWorkflowGroup(1, submitter)
-                .build();
+                                .withName(name)
+                                .withEntityType(entityType)
+                                .withSubmitterGroup(submitter)
+                                .withWorkflowGroup(1, submitter)
+                                .build();
     }
 
     private String generateMd5Hash(String value) {
         return DigestUtils.md5Hex(value.toUpperCase());
-    }
-
-    // ============================================================================
-    // Authority Configuration Helper Methods
-    // ============================================================================
-
-    /**
-     * Clears all authority-related caches to ensure configuration changes take effect.
-     * CRITICAL: This must be called after any authority configuration changes.
-     */
-    private void clearAllAuthorityCaches() throws Exception {
-        try {
-            pluginService.clearNamedPluginClasses();  // Can throw SubmissionConfigReaderException
-            choiceAuthorityService.clearCache();
-            metadataAuthorityService.clearCache();  // Critical for authority config reload
-        } catch (Exception e) {
-            throw new Exception("Failed to clear authority caches: " + e.getMessage(), e);
-        }
-    }
-
-    /**
-     * Sets up base authority configuration with AuthorAuthority for dc.contributor.author.
-     * This is the most common authority configuration used by majority of tests.
-     */
-    private void setupBaseAuthorityConfiguration() throws Exception {
-        configurationService.setProperty(
-            "plugin.named.org.dspace.content.authority.ChoiceAuthority",
-            new String[] { "org.dspace.content.authority.ItemAuthority = AuthorAuthority" }
-        );
-        configurationService.setProperty("choices.plugin.dc.contributor.author", "AuthorAuthority");
-        configurationService.setProperty("choices.presentation.dc.contributor.author", "suggest");
-        configurationService.setProperty("authority.controlled.dc.contributor.author", "true");
-        configurationService.setProperty("cris.ItemAuthority.AuthorAuthority.entityType", "Person");
-
-        clearAllAuthorityCaches();
-    }
-
-    /**
-     * Adds EditorAuthority configuration for dc.contributor.editor metadata.
-     * Preserves existing plugin configurations.
-     */
-    private void addEditorAuthority() throws Exception {
-        // Get existing plugin configuration and add EditorAuthority
-        String[] existingPlugins = configurationService
-            .getArrayProperty("plugin.named.org.dspace.content.authority.ChoiceAuthority");
-        String[] newPlugins = Arrays.copyOf(existingPlugins, existingPlugins.length + 1);
-        newPlugins[newPlugins.length - 1] = "org.dspace.content.authority.OrcidAuthority = EditorAuthority";
-
-        configurationService.setProperty("plugin.named.org.dspace.content.authority.ChoiceAuthority", newPlugins);
-        configurationService.setProperty("choices.plugin.dc.contributor.editor", "EditorAuthority");
-        configurationService.setProperty("choices.presentation.dc.contributor.editor", "suggest");
-        configurationService.setProperty("authority.controlled.dc.contributor.editor", "true");
-
-        clearAllAuthorityCaches();
-    }
-
-    /**
-     * Adds ProjectAuthority configuration for dc.relation.project metadata.
-     * Preserves existing plugin configurations.
-     */
-    private void addProjectAuthority() throws Exception {
-        String[] existingPlugins = configurationService
-            .getArrayProperty("plugin.named.org.dspace.content.authority.ChoiceAuthority");
-        String[] newPlugins = Arrays.copyOf(existingPlugins, existingPlugins.length + 1);
-        newPlugins[newPlugins.length - 1] = "org.dspace.content.authority.ItemAuthority = ProjectAuthority";
-
-        configurationService.setProperty("plugin.named.org.dspace.content.authority.ChoiceAuthority", newPlugins);
-        configurationService.setProperty("choices.plugin.dc.relation.project", "ProjectAuthority");
-        configurationService.setProperty("choices.presentation.dc.relation.project", "suggest");
-        configurationService.setProperty("authority.controlled.dc.relation.project", "true");
-        configurationService.setProperty("cris.ItemAuthority.ProjectAuthority.entityType", "Project");
-
-        clearAllAuthorityCaches();
-    }
-
-    /**
-     * Adds JournalAuthority configuration for dc.relation.journal metadata.
-     * Preserves existing plugin configurations.
-     */
-    private void addJournalAuthority() throws Exception {
-        String[] existingPlugins = configurationService
-            .getArrayProperty("plugin.named.org.dspace.content.authority.ChoiceAuthority");
-        String[] newPlugins = Arrays.copyOf(existingPlugins, existingPlugins.length + 1);
-        newPlugins[newPlugins.length - 1] = "org.dspace.content.authority.ItemAuthority = JournalAuthority";
-
-        configurationService.setProperty("plugin.named.org.dspace.content.authority.ChoiceAuthority", newPlugins);
-        configurationService.setProperty("choices.plugin.dc.relation.journal", "JournalAuthority");
-        configurationService.setProperty("choices.presentation.dc.relation.journal", "suggest");
-        configurationService.setProperty("authority.controlled.dc.relation.journal", "true");
-        configurationService.setProperty("cris.ItemAuthority.JournalAuthority.entityType", "Journal");
-
-        clearAllAuthorityCaches();
-    }
-
-    /**
-     * Adds OrgUnitAuthority configuration for person.affiliation.name metadata.
-     * Preserves existing plugin configurations.
-     */
-    private void addOrgUnitAuthority() throws Exception {
-        String[] existingPlugins = configurationService
-            .getArrayProperty("plugin.named.org.dspace.content.authority.ChoiceAuthority");
-        String[] newPlugins = Arrays.copyOf(existingPlugins, existingPlugins.length + 1);
-        newPlugins[newPlugins.length - 1] = "org.dspace.content.authority.ItemAuthority = OrgUnitAuthority";
-
-        configurationService.setProperty("plugin.named.org.dspace.content.authority.ChoiceAuthority", newPlugins);
-        configurationService.setProperty("choices.plugin.person.affiliation.name", "OrgUnitAuthority");
-        configurationService.setProperty("choices.presentation.person.affiliation.name", "suggest");
-        configurationService.setProperty("authority.controlled.person.affiliation.name", "true");
-        configurationService.setProperty("cris.ItemAuthority.OrgUnitAuthority.entityType", "OrgUnit");
-
-        clearAllAuthorityCaches();
-    }
-
-    /**
-     * Special configuration for Open Policy Finder journal import tests.
-     * Adds JournalAuthority with additional Open Policy Finder-specific configurations.
-     */
-    private void addJournalAuthorityWithOpfConfig() throws Exception {
-        addJournalAuthority();
-
-        // Additional Open Policy Finder-specific configurations
-        configurationService.setProperty("choices.closed.dc.relation.journal", "true");
-        configurationService.setProperty("cris.ItemAuthority.JournalAuthority.relationshipType", "Journal");
-
-        clearAllAuthorityCaches();
-    }
-
-    /**
-     * Replaces AuthorAuthority with ProjectAuthority only (for tests that don't need AuthorAuthority).
-     */
-    private void setupProjectAuthorityOnly() throws Exception {
-        configurationService.setProperty(
-            "plugin.named.org.dspace.content.authority.ChoiceAuthority",
-            new String[] { "org.dspace.content.authority.ItemAuthority = ProjectAuthority" }
-        );
-        configurationService.setProperty("choices.plugin.dc.relation.project", "ProjectAuthority");
-        configurationService.setProperty("choices.presentation.dc.relation.project", "suggest");
-        configurationService.setProperty("authority.controlled.dc.relation.project", "true");
-        configurationService.setProperty("cris.ItemAuthority.ProjectAuthority.entityType", "Project");
-
-        clearAllAuthorityCaches();
-    }
-
-    /**
-     * Replaces AuthorAuthority with JournalAuthority only (for tests that don't need AuthorAuthority).
-     */
-    private void setupJournalAuthorityOnly() throws Exception {
-        configurationService.setProperty(
-            "plugin.named.org.dspace.content.authority.ChoiceAuthority",
-            new String[] { "org.dspace.content.authority.ItemAuthority = JournalAuthority" }
-        );
-        configurationService.setProperty("choices.plugin.dc.relation.journal", "JournalAuthority");
-        configurationService.setProperty("choices.presentation.dc.relation.journal", "suggest");
-        configurationService.setProperty("authority.controlled.dc.relation.journal", "true");
-        configurationService.setProperty("cris.ItemAuthority.JournalAuthority.entityType", "Journal");
-
-        clearAllAuthorityCaches();
     }
 }

@@ -25,10 +25,10 @@ public interface GlobalSubmissionValidator {
     /**
      * Validate the given object based on the given submission configuration.
      *
-     * @param  context          the DSpace Context
-     * @param  obj              the object to validate
-     * @param  submissionConfig the submission configuration
-     * @return                  the validation errors, if any
+     * @param context          the DSpace Context
+     * @param obj              the object to validate
+     * @param submissionConfig the submission configuration
+     * @return the validation errors, if any
      */
     List<ValidationError> validate(Context context, InProgressSubmission<?> obj, SubmissionConfig submissionConfig);
 }

@@ -28,7 +28,7 @@ import org.dspace.core.Context;
 import org.dspace.utils.DSpace;
 
 /**
- * Implementation of {@link DataProcessingStep} that expose and allow patching
+ * Implementation of {@link org.dspace.app.rest.submit.DataProcessingStep} that expose and allow patching
  * the custom defined url.
  *
  * @author Luca Giamminonni (luca.giamminonni at 4science.it)
@@ -37,12 +37,12 @@ import org.dspace.utils.DSpace;
 @SuppressWarnings("rawtypes")
 public class CustomUrlStep extends AbstractProcessingStep {
 
-    private CustomUrlService customUrlService = new DSpace().getSingletonService(CustomUrlService.class);
+    private final CustomUrlService customUrlService = new DSpace().getSingletonService(CustomUrlService.class);
 
     @Override
     @SuppressWarnings("unchecked")
     public CustomUrl getData(SubmissionService submissionService, InProgressSubmission obj,
-        SubmissionStepConfig config) throws Exception {
+                             SubmissionStepConfig config) throws Exception {
 
         Item item = obj.getItem();
 
@@ -55,7 +55,7 @@ public class CustomUrlStep extends AbstractProcessingStep {
 
     @Override
     public void doPatchProcessing(Context context, HttpServletRequest currentRequest, InProgressSubmission source,
-        Operation op, SubmissionStepConfig stepConf) throws Exception {
+                                  Operation op, SubmissionStepConfig stepConf) throws Exception {
 
         String path = op.getPath();
         String stepId = stepConf.getId();
@@ -95,7 +95,6 @@ public class CustomUrlStep extends AbstractProcessingStep {
     private boolean isRemoveOperation(Operation operation) {
         return OPERATION_REMOVE.equalsIgnoreCase(operation.getOp());
     }
-
 
 
 }

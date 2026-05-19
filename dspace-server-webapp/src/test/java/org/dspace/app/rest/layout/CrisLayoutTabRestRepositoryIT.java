@@ -1977,13 +1977,13 @@ public class CrisLayoutTabRestRepositoryIT extends AbstractControllerIntegration
                                .build();
 
         itemService.addMetadata(context, item, "dc", "description", "abstract", null, "A secured abstract");
-        itemService.addMetadata(context, item, "cris", "policy", "eperson", null, userA.getFullName(),
+        itemService.addMetadata(context, item, "dspace", "policy", "eperson", null, userA.getFullName(),
                                 userA.getID().toString(), 600);
-        itemService.addMetadata(context, item, "cris", "policy", "group", null, groupA.getName(),
+        itemService.addMetadata(context, item, "dspace", "policy", "group", null, groupA.getName(),
                                 groupA.getID().toString(), 600);
 
-        MetadataField policyEperson = mfss.findByElement(context, "cris", "policy", "eperson");
-        MetadataField policyGroup = mfss.findByElement(context, "cris", "policy", "group");
+        MetadataField policyEperson = mfss.findByElement(context, "dspace", "policy", "eperson");
+        MetadataField policyGroup = mfss.findByElement(context, "dspace", "policy", "group");
 
         MetadataField abs = mfss.findByElement(context, "dc", "description", "abstract");
         MetadataField title = mfss.findByElement(context, "dc", "title", null);

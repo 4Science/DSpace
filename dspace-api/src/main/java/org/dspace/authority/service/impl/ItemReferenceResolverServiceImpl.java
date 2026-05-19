@@ -23,13 +23,11 @@ import org.springframework.beans.factory.annotation.Autowired;
  * @author Luca Giamminonni (luca.giamminonni at 4science.it)
  *
  */
-public class ItemReferenceResolverServiceImpl implements ItemReferenceResolverService {
-
-    public final List<ItemReferenceResolver> resolvers;
+public record ItemReferenceResolverServiceImpl(List<ItemReferenceResolver> resolvers)
+    implements ItemReferenceResolverService {
 
     @Autowired
-    public ItemReferenceResolverServiceImpl(List<ItemReferenceResolver> resolvers) {
-        this.resolvers = resolvers;
+    public ItemReferenceResolverServiceImpl {
     }
 
     @Override

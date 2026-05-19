@@ -196,18 +196,18 @@ public class OAIHarvesterIT extends AbstractIntegrationTestWithDatabase {
         Item item = findItemByOaiID("oai:test-harvest:Publications/c3ae30ae-ddc4-4c25-b0b8-c87a3f850bca", collection);
         assertThat(item.isArchived(), equalTo(true));
         assertThat(getFirstMetadataValue(item, "dc.title"), equalTo("The International Journal of Digital Curation"));
-        assertThat(getFirstMetadataValue(item, "cris.sourceId"),
+        assertThat(getFirstMetadataValue(item, "dspace.sourceId"),
                    equalTo("test-harvest::c3ae30ae-ddc4-4c25-b0b8-c87a3f850bca"));
 
         item = findItemByOaiID("oai:test-harvest:Publications/123456789/6", collection);
         assertThat(item.isArchived(), equalTo(true));
         assertThat(getFirstMetadataValue(item, "dc.title"), equalTo("Metadata and Semantics Research"));
-        assertThat(getFirstMetadataValue(item, "cris.sourceId"), equalTo("test-harvest::123456789/6"));
+        assertThat(getFirstMetadataValue(item, "dspace.sourceId"), equalTo("test-harvest::123456789/6"));
 
         item = findItemByOaiID("oai:test-harvest:Publications/123456789/7", collection);
         assertThat(item.isArchived(), equalTo(true));
         assertThat(getFirstMetadataValue(item, "dc.title"), equalTo("TEST"));
-        assertThat(getFirstMetadataValue(item, "cris.sourceId"), equalTo("test-harvest::123456789/7"));
+        assertThat(getFirstMetadataValue(item, "dspace.sourceId"), equalTo("test-harvest::123456789/7"));
 
     }
 
@@ -246,12 +246,12 @@ public class OAIHarvesterIT extends AbstractIntegrationTestWithDatabase {
 
         Item item = findItemByOaiID("oai:test-harvest:Publications/c3ae30ae-ddc4-4c25-b0b8-c87a3f850bca", collection);
         assertThat(getFirstMetadataValue(item, "dc.title"), equalTo("The International Journal of Digital Curation"));
-        assertThat(getFirstMetadataValue(item, "cris.sourceId"),
+        assertThat(getFirstMetadataValue(item, "dspace.sourceId"),
                    equalTo("test-harvest::c3ae30ae-ddc4-4c25-b0b8-c87a3f850bca"));
 
         item = findItemByOaiID("oai:test-harvest:Publications/123456789/7", collection);
         assertThat(getFirstMetadataValue(item, "dc.title"), equalTo("TEST"));
-        assertThat(getFirstMetadataValue(item, "cris.sourceId"), equalTo("test-harvest::123456789/7"));
+        assertThat(getFirstMetadataValue(item, "dspace.sourceId"), equalTo("test-harvest::123456789/7"));
 
         assertThat(
             harvestedItemService.findByOAIId(context, "oai:test-harvest:Publications/123456789/6",
@@ -296,15 +296,15 @@ public class OAIHarvesterIT extends AbstractIntegrationTestWithDatabase {
 
         Item item = findItemByOaiID("oai:test-harvest:Publications/1", collection);
         assertThat(getFirstMetadataValue(item, "dc.title"), equalTo("First Publication"));
-        assertThat(getFirstMetadataValue(item, "cris.sourceId"), equalTo("test-harvest::1"));
+        assertThat(getFirstMetadataValue(item, "dspace.sourceId"), equalTo("test-harvest::1"));
 
         item = findItemByOaiID("oai:test-harvest:Publications/2", collection);
         assertThat(getFirstMetadataValue(item, "dc.title"), equalTo("Second Publication"));
-        assertThat(getFirstMetadataValue(item, "cris.sourceId"), equalTo("test-harvest::2"));
+        assertThat(getFirstMetadataValue(item, "dspace.sourceId"), equalTo("test-harvest::2"));
 
         item = findItemByOaiID("oai:test-harvest:Publications/3", collection);
         assertThat(getFirstMetadataValue(item, "dc.title"), equalTo("Test Publication"));
-        assertThat(getFirstMetadataValue(item, "cris.sourceId"), equalTo("test-harvest::3"));
+        assertThat(getFirstMetadataValue(item, "dspace.sourceId"), equalTo("test-harvest::3"));
     }
 
     @Test
@@ -462,7 +462,7 @@ public class OAIHarvesterIT extends AbstractIntegrationTestWithDatabase {
         assertThat(values, hasItems(with("dc.contributor.author", "Manghi, Paolo", null,
                                          "will be generated::test-harvest::123", 0, 500)));
         assertThat(values, hasItems(with("oairecerif.author.affiliation", PLACEHOLDER_PARENT_METADATA_VALUE)));
-        assertThat(values, hasItems(with("cris.sourceId", "test-harvest::3")));
+        assertThat(values, hasItems(with("dspace.sourceId", "test-harvest::3")));
         assertThat(values, hasItems(with("dspace.entity.type", "Publication")));
     }
 
@@ -648,7 +648,7 @@ public class OAIHarvesterIT extends AbstractIntegrationTestWithDatabase {
         assertThat(values, hasItems(with("dc.contributor.author", "Manghi, Paolo", null,
                                          "will be generated::test-harvest::123", 0, 500)));
         assertThat(values, hasItems(with("oairecerif.author.affiliation", PLACEHOLDER_PARENT_METADATA_VALUE)));
-        assertThat(values, hasItems(with("cris.sourceId", "test-harvest::3")));
+        assertThat(values, hasItems(with("dspace.sourceId", "test-harvest::3")));
         assertThat(values, hasItems(with("dspace.entity.type", "Publication")));
     }
 
@@ -693,7 +693,7 @@ public class OAIHarvesterIT extends AbstractIntegrationTestWithDatabase {
         assertThat(values, hasItems(with("dc.contributor.author", "Manghi, Paolo", null,
                                          "will be generated::test-harvest::123", 0, 500)));
         assertThat(values, hasItems(with("oairecerif.author.affiliation", PLACEHOLDER_PARENT_METADATA_VALUE)));
-        assertThat(values, hasItems(with("cris.sourceId", "test-harvest::3")));
+        assertThat(values, hasItems(with("dspace.sourceId", "test-harvest::3")));
         assertThat(values, hasItems(with("dspace.entity.type", "Publication")));
 
         harvestRow = harvestedCollectionService.find(context, collection);
@@ -724,7 +724,7 @@ public class OAIHarvesterIT extends AbstractIntegrationTestWithDatabase {
         assertThat(values, hasItems(with("dc.contributor.author", "Manghi, Paolo", null,
                                          "will be generated::test-harvest::123", 0, 500)));
         assertThat(values, hasItems(with("oairecerif.author.affiliation", PLACEHOLDER_PARENT_METADATA_VALUE)));
-        assertThat(values, hasItems(with("cris.sourceId", "test-harvest::3")));
+        assertThat(values, hasItems(with("dspace.sourceId", "test-harvest::3")));
         assertThat(values, hasItems(with("dspace.entity.type", "Publication")));
     }
 
@@ -787,9 +787,9 @@ public class OAIHarvesterIT extends AbstractIntegrationTestWithDatabase {
             assertThat(values, hasItems(with("oaire.citation.endPage", "180")));
             assertThat(values, hasItems(with("dc.identifier.doi", "10.1007/978-3-642-35233-1_18")));
             assertThat(values, hasItems(with("oairecerif.author.affiliation", PLACEHOLDER_PARENT_METADATA_VALUE)));
-            assertThat(values, hasItems(with("cris.virtual.department", PLACEHOLDER_PARENT_METADATA_VALUE)));
-            assertThat(values, hasItems(with("cris.virtual.orcid", PLACEHOLDER_PARENT_METADATA_VALUE)));
-            assertThat(values, hasItems(with("cris.sourceId", "test-harvest::3")));
+            assertThat(values, hasItems(with("dspace.virtual.department", PLACEHOLDER_PARENT_METADATA_VALUE)));
+            assertThat(values, hasItems(with("dspace.virtual.orcid", PLACEHOLDER_PARENT_METADATA_VALUE)));
+            assertThat(values, hasItems(with("dspace.sourceId", "test-harvest::3")));
             assertThat(values, hasItems(with("dspace.entity.type", "Publication")));
 
             MetadataValue author = itemService.getMetadata(publication, "dc", "contributor", "author", Item.ANY).get(0);
@@ -803,7 +803,7 @@ public class OAIHarvesterIT extends AbstractIntegrationTestWithDatabase {
             values = authorPerson.getMetadata();
             assertThat(values, hasSize(8));
             assertThat(values, hasItems(with("dc.title", "Manghi, Paolo")));
-            assertThat(values, hasItems(with("cris.sourceId", "test-harvest::123")));
+            assertThat(values, hasItems(with("dspace.sourceId", "test-harvest::123")));
             assertThat(values, hasItems(with("dspace.entity.type", "Person")));
 
             // import the author person
@@ -815,7 +815,7 @@ public class OAIHarvesterIT extends AbstractIntegrationTestWithDatabase {
             values = updatedAuthor.getMetadata();
             assertThat(values, hasSize(11));
             assertThat(values, hasItems(with("dc.title", "Manghi, Paolo")));
-            assertThat(values, hasItems(with("cris.sourceId", "test-harvest::123")));
+            assertThat(values, hasItems(with("dspace.sourceId", "test-harvest::123")));
             assertThat(values, hasItems(with("dspace.entity.type", "Person")));
             assertThat(values, hasItems(with("oairecerif.person.gender", "M")));
             assertThat(values, hasItems(with("person.identifier.orcid", "0000-0002-9079-5932")));
@@ -873,7 +873,7 @@ public class OAIHarvesterIT extends AbstractIntegrationTestWithDatabase {
             List<MetadataValue> values = person.getMetadata();
             assertThat(values, hasSize(12));
             assertThat(values, hasItems(with("dc.title", "Manghi, Paolo")));
-            assertThat(values, hasItems(with("cris.sourceId", "test-harvest::123")));
+            assertThat(values, hasItems(with("dspace.sourceId", "test-harvest::123")));
             assertThat(values, hasItems(with("dspace.entity.type", "Person")));
             assertThat(values, hasItems(with("oairecerif.person.gender", "M")));
             assertThat(values, hasItems(with("person.identifier.orcid", "0000-0002-9079-5932")));
@@ -895,12 +895,12 @@ public class OAIHarvesterIT extends AbstractIntegrationTestWithDatabase {
             assertThat(values, hasItems(with("oaire.citation.endPage", "180")));
             assertThat(values, hasItems(with("dc.identifier.doi", "10.1007/978-3-642-35233-1_18")));
             assertThat(values, hasItems(with("oairecerif.author.affiliation", PLACEHOLDER_PARENT_METADATA_VALUE)));
-            assertThat(values, hasItems(with("cris.sourceId", "test-harvest::3")));
+            assertThat(values, hasItems(with("dspace.sourceId", "test-harvest::3")));
             assertThat(values, hasItems(with("dspace.entity.type", "Publication")));
-            assertThat(values, hasItems(with("cris.virtual.department", PLACEHOLDER_PARENT_METADATA_VALUE)));
-            assertThat(values, hasItems(with("cris.virtualsource.department", UUIDUtils.toString(person.getID()))));
-            assertThat(values, hasItems(with("cris.virtual.orcid", "0000-0002-9079-5932")));
-            assertThat(values, hasItems(with("cris.virtualsource.orcid",
+            assertThat(values, hasItems(with("dspace.virtual.department", PLACEHOLDER_PARENT_METADATA_VALUE)));
+            assertThat(values, hasItems(with("dspace.virtualsource.department", UUIDUtils.toString(person.getID()))));
+            assertThat(values, hasItems(with("dspace.virtual.orcid", "0000-0002-9079-5932")));
+            assertThat(values, hasItems(with("dspace.virtualsource.orcid",
                                              UUIDUtils.toString(person.getID()))));
 
             MetadataValue author = itemService.getMetadata(publication, "dc", "contributor", "author", Item.ANY).get(0);
@@ -946,7 +946,7 @@ public class OAIHarvesterIT extends AbstractIntegrationTestWithDatabase {
         assertThat(values, hasSize(11));
         assertThat(values, hasItems(with("dc.title", "Microflown Scan&Paint")));
         assertThat(values, hasItems(with("oairecerif.internalid", "test-id")));
-        assertThat(values, hasItems(with("cris.sourceId", "test-harvest::f3e39333-5c82-40c2-aa3d-103def9abd97")));
+        assertThat(values, hasItems(with("dspace.sourceId", "test-harvest::f3e39333-5c82-40c2-aa3d-103def9abd97")));
 
     }
 
@@ -984,7 +984,7 @@ public class OAIHarvesterIT extends AbstractIntegrationTestWithDatabase {
         List<MetadataValue> values = item.getMetadata();
         assertThat(values, hasSize(10));
         assertThat(values, hasItems(with("dc.title", "MICROFLOWN SCAN&PAINT")));
-        assertThat(values, hasItems(with("cris.sourceId", "test-harvest::f3e39333-5c82-40c2-aa3d-103def9abd97")));
+        assertThat(values, hasItems(with("dspace.sourceId", "test-harvest::f3e39333-5c82-40c2-aa3d-103def9abd97")));
 
     }
 
@@ -1024,7 +1024,7 @@ public class OAIHarvesterIT extends AbstractIntegrationTestWithDatabase {
         assertThat(values, hasSize(11));
         assertThat(values, hasItems(with("dc.title", "MICROFLOWN SCAN&PAINT")));
         assertThat(values, hasItems(with("oairecerif.internalid", "TEST-ID")));
-        assertThat(values, hasItems(with("cris.sourceId", "test-harvest::f3e39333-5c82-40c2-aa3d-103def9abd97")));
+        assertThat(values, hasItems(with("dspace.sourceId", "test-harvest::f3e39333-5c82-40c2-aa3d-103def9abd97")));
 
     }
 
@@ -1131,7 +1131,7 @@ public class OAIHarvesterIT extends AbstractIntegrationTestWithDatabase {
         assertThat(item.getOwningCollection(), equalTo(collection));
         assertThat(harvestedItemService.find(context, item), notNullValue());
         assertThat(getFirstMetadataValue(item, "dc.title"), equalTo("Test Publication"));
-        assertThat(getFirstMetadataValue(item, "cris.sourceId"), equalTo("test-harvest::3"));
+        assertThat(getFirstMetadataValue(item, "dspace.sourceId"), equalTo("test-harvest::3"));
     }
 
     @Test
@@ -1168,17 +1168,17 @@ public class OAIHarvesterIT extends AbstractIntegrationTestWithDatabase {
         Item item = findItemByOaiID("oai:test-harvest:Publications/123456789/1001", collection);
         assertThat(item.isArchived(), equalTo(true));
         assertThat(getFirstMetadataValue(item, "dc.title"), equalTo("The International Journal of Digital Curation"));
-        assertThat(getFirstMetadataValue(item, "cris.sourceId"), equalTo("test-harvest::123456789/1001"));
+        assertThat(getFirstMetadataValue(item, "dspace.sourceId"), equalTo("test-harvest::123456789/1001"));
 
         item = findItemByOaiID("oai:test-harvest:Publications/123456789/1002", collection);
         assertThat(item.isArchived(), equalTo(true));
         assertThat(getFirstMetadataValue(item, "dc.title"), equalTo("Metadata and Semantics Research"));
-        assertThat(getFirstMetadataValue(item, "cris.sourceId"), equalTo("test-harvest::123456789/1002"));
+        assertThat(getFirstMetadataValue(item, "dspace.sourceId"), equalTo("test-harvest::123456789/1002"));
 
         item = findItemByOaiID("oai:test-harvest:Publications/123456789/1003", collection);
         assertThat(item.isArchived(), equalTo(true));
         assertThat(getFirstMetadataValue(item, "dc.title"), equalTo("TEST"));
-        assertThat(getFirstMetadataValue(item, "cris.sourceId"), equalTo("test-harvest::123456789/1003"));
+        assertThat(getFirstMetadataValue(item, "dspace.sourceId"), equalTo("test-harvest::123456789/1003"));
 
     }
 

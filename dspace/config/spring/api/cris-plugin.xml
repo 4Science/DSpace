@@ -123,24 +123,45 @@
 
 -->
 <beans xmlns="http://www.springframework.org/schema/beans"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xmlns:util="http://www.springframework.org/schema/util"
-	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
+	   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	   xmlns:util="http://www.springframework.org/schema/util"
+	   xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
 
-	<util:constant id="CrisConsumer-SOURCE_INTERNAL" static-field="org.dspace.authority.filler.AuthorityImportFillerService.SOURCE_INTERNAL" />
+	<!-- ================================================================================ -->
+	<!-- AUTHORITY IMPORT FILLER CONFIGURATION                                           -->
+	<!-- Defines how to populate new entity items when created via authority import      -->
+	<!-- ================================================================================ -->
 
+	<!-- Constant identifying internal metadata as the data source for authority import -->
+	<util:constant id="CrisConsumer-SOURCE_INTERNAL"
+				   static-field="org.dspace.authority.filler.AuthorityImportFillerService.SOURCE_INTERNAL"/>
+
+	<!-- Core implementation of the authority import filler service -->
 	<bean class="org.dspace.authority.filler.AuthorityImportFillerServiceImpl"/>
 
-	<bean id="org.dspace.authority.filler.AuthorityImportFillerHolder" class="org.dspace.authority.filler.AuthorityImportFillerHolder">
+	<!-- Registry of authority import fillers mapped by data source identifier.
+	     When CrisConsumer processes an authority value, it extracts the source identifier
+	     (e.g., "ORCID", "ISSN", or SOURCE_INTERNAL) and looks up the appropriate filler
+	     to fetch data and populate the new entity item. -->
+	<bean id="org.dspace.authority.filler.AuthorityImportFillerHolder"
+		  class="org.dspace.authority.filler.AuthorityImportFillerHolder">
 		<property name="fillers">
 			<map>
+				<!-- INTERNAL: Uses metadata from the parent item to populate the new entity.
+				     Example: When adding dc.contributor.author with oairecerif.author.affiliation,
+				     creates Person entity and populates person.affiliation.name from parent item. -->
 				<entry key-ref="CrisConsumer-SOURCE_INTERNAL">
-					<bean class="org.dspace.authority.filler.ItemMetadataImportFiller" parent="fullItemMetadataConfiguration" />
+					<bean class="org.dspace.authority.filler.ItemMetadataImportFiller"
+						  parent="fullItemMetadataConfiguration"/>
 				</entry>
-                <entry key="ORCID" value-ref="orcidImportFiller" />
-                <entry key="ISSN" value-ref="opfImportFiller" />
                 <entry key="OPENAIRE-PROJECT-ID" value-ref="openaireProjectImportFiller" />
                 <entry key="ROR-ID" value-ref="rorOrgUnitImportFiller" />
+				<!-- ORCID: Fetches Person data from ORCID API using ORCID identifier.
+				     Example: Creates Person with data from https://orcid.org/0000-0001-2345-6789 -->
+				<entry key="ORCID" value-ref="orcidImportFiller"/>
+				<!-- ISSN: Fetches Journal data from SHERPA/RoMEO API using ISSN identifier.
+				     Example: Creates Journal with OA policy data for ISSN 0028-0836 -->
+				<entry key="ISSN" value-ref="opfImportFiller"/>
 			</map>
 		</property>
 	</bean>
@@ -169,29 +190,39 @@
 		<property name="itemService" ref="org.dspace.content.ItemServiceImpl"/>
 		<property name="configurations">
 			<map>
+				<!-- Mapping for dc.contributor.author (creates Person entities) -->
 				<entry key="dc.contributor.author">
 					<bean class="org.dspace.authority.filler.MetadataConfiguration">
-						<property name="updateEnabled" value="false" />
+						<!-- updateEnabled=false: Only populate entity at creation, don't update on parent changes -->
+						<property name="updateEnabled" value="false"/>
 						<property name="mapping">
 							<map>
+								<!-- Map author affiliation from parent item to Person entity -->
 								<entry key="oairecerif.author.affiliation">
 									<bean class="org.dspace.authority.filler.MetadataConfiguration.MappingDetails">
-										<property name="visibility" value="1" />
 										<property name="targetMetadata" value="person.affiliation.name" />
+									</bean>
+								</entry>
+								<!-- Set constant job title on all Person entities created via author import -->
+								<entry key="constant.person.jobTitle">
+									<bean class="org.dspace.authority.filler.MetadataConfiguration.MappingDetails">
+										<property name="targetMetadata" value="person.jobTitle"/>
+										<property name="constantValue" value="Worker"/>
 									</bean>
 								</entry>
 							</map>
 						</property>
 					</bean>
 				</entry>
+				<!-- Mapping for dc.contributor.editor (creates Person entities) -->
 				<entry key="dc.contributor.editor">
 					<bean class="org.dspace.authority.filler.MetadataConfiguration">
-						<property name="updateEnabled" value="false" />
+						<property name="updateEnabled" value="false"/>
 						<property name="mapping">
 							<map>
+								<!-- Map editor affiliation from parent item to Person entity -->
 								<entry key="oairecerif.editor.affiliation">
 									<bean class="org.dspace.authority.filler.MetadataConfiguration.MappingDetails">
-										<property name="visibility" value="1" />
 										<property name="targetMetadata" value="person.affiliation.name" />
 									</bean>
 								</entry>
@@ -199,42 +230,47 @@
 						</property>
 					</bean>
 				</entry>
+				<!-- Mapping for dc.relation.ispartof (creates Journal entities) -->
 				<entry key="dc.relation.ispartof">
 					<bean class="org.dspace.authority.filler.MetadataConfiguration">
-						<property name="updateEnabled" value="false" />
+						<property name="updateEnabled" value="false"/>
 						<property name="mapping">
 							<map>
+								<!-- Map ISSN from parent item to Journal entity.
+								     No targetMetadata specified: uses same field name (dc.relation.issn) -->
 								<entry key="dc.relation.issn">
 									<bean class="org.dspace.authority.filler.MetadataConfiguration.MappingDetails">
-										<property name="visibility" value="1" />
 									</bean>
 								</entry>
 							</map>
 						</property>
 					</bean>
 				</entry>
+				<!-- Mapping for dc.relation (creates Project entities) -->
 				<entry key="dc.relation">
 					<bean class="org.dspace.authority.filler.MetadataConfiguration">
-						<property name="updateEnabled" value="false" />
+						<property name="updateEnabled" value="false"/>
 						<property name="mapping">
 							<map>
+								<!-- Map award number from parent item to Project entity.
+								     No targetMetadata specified: uses same field name (oaire.awardNumber) -->
 								<entry key="oaire.awardNumber">
 									<bean class="org.dspace.authority.filler.MetadataConfiguration.MappingDetails">
-										<property name="visibility" value="1" />
 									</bean>
 								</entry>
 							</map>
 						</property>
 					</bean>
 				</entry>
+				<!-- Mapping for dc.relation.funding (creates Funding/Project entities) -->
 				<entry key="dc.relation.funding">
 					<bean class="org.dspace.authority.filler.MetadataConfiguration">
-						<property name="updateEnabled" value="false" />
+						<property name="updateEnabled" value="false"/>
 						<property name="mapping">
 							<map>
+								<!-- Map grant number from parent item to funding identifier in Project entity -->
 								<entry key="dc.relation.grantno">
 									<bean class="org.dspace.authority.filler.MetadataConfiguration.MappingDetails">
-										<property name="visibility" value="1" />
 										<property name="targetMetadata" value="oairecerif.funding.identifier" />
 									</bean>
 								</entry>
@@ -246,11 +282,26 @@
 		</property>
 	</bean>
 
-	<bean class="org.dspace.authority.filler.ExternalDataProviderImportFiller" id="orcidImportFiller" >
-	   <constructor-arg name="externalDataProvider" ref="org.dspace.external.provider.impl.OrcidV3AuthorDataProvider"/>
-	   <constructor-arg name="authorityIdentifier" value="ORCID"/>
+	<!-- ORCID import filler: Fetches Person entity data from ORCID API.
+	     Uses OrcidV3AuthorDataProvider to retrieve:
+	     - Personal information (name, email, biography)
+	     - Employment history (affiliations)
+	     - Education history
+	     - External identifiers (Scopus, ResearcherID, etc.)
+	     - Other metadata stored in AuthorityValue.otherMetadata
+	     Authority format: "will be referenced::ORCID::0000-0001-2345-6789" -->
+	<bean class="org.dspace.authority.filler.ExternalDataProviderImportFiller" id="orcidImportFiller">
+		<constructor-arg name="externalDataProvider" ref="org.dspace.external.provider.impl.OrcidV3AuthorDataProvider"/>
+		<constructor-arg name="authorityIdentifier" value="ORCID"/>
 	</bean>
 
+	<!-- SHERPA/RoMEO import filler: Fetches Journal entity data from SHERPA API.
+	     Uses OpenPolicyFinderJournalISSNDataProvider to retrieve:
+	     - Journal title and publisher
+	     - Open access policies (preprint, postprint, publisher version)
+	     - Embargo periods and licensing terms
+	     - Publication fees and other OA information
+	     Authority format: "will be referenced::ISSN::1234-5678" -->
     <bean class="org.dspace.authority.filler.ExternalDataProviderImportFiller" id="opfImportFiller" >
        <constructor-arg name="externalDataProvider" ref="org.dspace.external.provider.impl.OpenPolicyFinderJournalISSNDataProvider"/>
        <constructor-arg name="authorityIdentifier" value="ISSN"/>
@@ -266,80 +317,124 @@
        <constructor-arg name="authorityIdentifier" value="ROR-ID"/>
     </bean>
 
-	<bean class="org.dspace.authority.service.ItemSearcherMapper" name="org.dspace.authority.service.ItemSearcherMapper">
+	<!-- ================================================================================ -->
+	<!-- ITEM REFERENCE RESOLVER CONFIGURATION                                           -->
+	<!-- Defines how to search for existing entity items by various identifier types     -->
+	<!-- ================================================================================ -->
+
+	<!-- Mapper that routes item searches to appropriate searcher based on identifier type.
+	     When processing authority values like "will be referenced::ORCID::0000-0001-2345-6789",
+	     extracts the identifier type (ORCID) and uses the corresponding searcher to find
+	     existing entities before creating new ones.
+
+	     Constructor arguments:
+	     - index 0: Map of identifier type → ItemSearcher implementation
+	     - index 1: Default searcher for unrecognized identifier types (searches by UUID) -->
+	<bean class="org.dspace.authority.service.ItemSearcherMapper"
+		  name="org.dspace.authority.service.ItemSearcherMapper">
 		<constructor-arg index="0">
 			<map>
+				<!-- UUID: Direct lookup by item UUID (fastest, no metadata search needed) -->
 				<entry key="UUID">
 					<bean class="org.dspace.authority.service.impl.ItemSearcherById"></bean>
 				</entry>
+				<!-- ORCID: Search Person entities by person.identifier.orcid metadata field -->
 				<entry key="ORCID" value-ref="itemSearcherByORCID"/>
+				<!-- RID: Search Person entities by ResearcherID (person.identifier.rid) -->
 				<entry key="RID" value-ref="itemSearcherByRID"/>
+				<!-- ISNI: Search Person entities by ISNI identifier (person.identifier.isni) -->
 				<entry key="ISNI" value-ref="itemSearcherByISNI"/>
+				<!-- DOI: Search Publication entities by DOI (dc.identifier.doi) -->
 				<entry key="DOI" value-ref="itemSearcherByDOI"/>
+				<!-- URL: Search entities by URL identifier (oairecerif.identifier.url) -->
 				<entry key="URL" value-ref="itemSearcherByURL"/>
-                <entry key="ISSN" value-ref="itemSearcherByISSN"/>
-                <entry key="OPENAIRE-PROJECT-ID" value-ref="itemSearcherByOpenaireProjectId"/>
+				<!-- ISSN: Search Journal entities by ISSN (dc.identifier.issn) -->
+				<entry key="ISSN" value-ref="itemSearcherByISSN"/>
+				<!-- OPENAIRE-PROJECT-ID: Search Project entities by OpenAIRE project ID -->
+				<entry key="OPENAIRE-PROJECT-ID" value-ref="itemSearcherByOpenaireProjectId"/>
+				<!-- LEGACY-ID: Search entities by legacy system identifier (for migrations) -->
 				<entry key="LEGACY-ID" value-ref="itemSearcherByLegacyId"/>
+				<!-- SCOPUS-AUTHOR-ID: Search Person entities by Scopus Author ID -->
 				<entry key="SCOPUS-AUTHOR-ID" value-ref="itemSearcherByScopusAuthorId"/>
+				<!-- SCOPUS-ROR-ID: Search Person entities by Ror ID -->
 				<entry key="ROR-ID" value-ref="itemSearcherByRorId"></entry>
 			</map>
 		</constructor-arg>
 		<constructor-arg index="1">
+			<!-- Default searcher: Falls back to UUID-based lookup for unknown identifier types -->
 			<bean class="org.dspace.authority.service.impl.ItemSearcherById"></bean>
 		</constructor-arg>
 	</bean>
 
+	<!-- Individual item searcher beans.
+	     Each searches for items by a specific metadata field value.
+	     Constructor arguments:
+	     - First arg: Metadata field to search (e.g., person.identifier.orcid)
+	     - Second arg: Identifier type label (must match ItemSearcherMapper key) -->
+
+	<!-- Search Person entities by ORCID identifier (0000-0001-2345-6789 format) -->
 	<bean class="org.dspace.authority.service.impl.ItemSearcherByMetadata" name="itemSearcherByORCID">
 		<constructor-arg value="person.identifier.orcid"></constructor-arg>
 		<constructor-arg value="ORCID"></constructor-arg>
 	</bean>
 
+	<!-- Search Person entities by ResearcherID -->
 	<bean class="org.dspace.authority.service.impl.ItemSearcherByMetadata" name="itemSearcherByRID">
 		<constructor-arg value="person.identifier.rid"></constructor-arg>
 		<constructor-arg value="RID"></constructor-arg>
 	</bean>
 
+	<!-- Search Publication entities by DOI identifier -->
 	<bean class="org.dspace.authority.service.impl.ItemSearcherByMetadata" name="itemSearcherByDOI">
 		<constructor-arg value="dc.identifier.doi"></constructor-arg>
 		<constructor-arg value="DOI"></constructor-arg>
 	</bean>
 
+	<!-- Search entities by URL identifier -->
 	<bean class="org.dspace.authority.service.impl.ItemSearcherByMetadata" name="itemSearcherByURL">
 		<constructor-arg value="oairecerif.identifier.url"></constructor-arg>
 		<constructor-arg value="URL"></constructor-arg>
 	</bean>
 
+	<!-- Search Person entities by ISNI identifier -->
 	<bean class="org.dspace.authority.service.impl.ItemSearcherByMetadata" name="itemSearcherByISNI">
 		<constructor-arg value="person.identifier.isni"></constructor-arg>
 		<constructor-arg value="ISNI"></constructor-arg>
 	</bean>
 
-    <bean class="org.dspace.authority.service.impl.ItemSearcherByMetadata" name="itemSearcherByISSN">
-        <constructor-arg value="dc.identifier.issn"></constructor-arg>
-        <constructor-arg value="ISSN"></constructor-arg>
-    </bean>
+	<!-- Search Journal entities by ISSN identifier -->
+	<bean class="org.dspace.authority.service.impl.ItemSearcherByMetadata" name="itemSearcherByISSN">
+		<constructor-arg value="dc.identifier.issn"></constructor-arg>
+		<constructor-arg value="ISSN"></constructor-arg>
+	</bean>
 
-    <bean class="org.dspace.authority.service.impl.ItemSearcherByMetadata" name="itemSearcherByOpenaireProjectId">
-        <constructor-arg value="oairecerif.funding.identifier"></constructor-arg>
-        <constructor-arg value="OPENAIRE-PROJECT-ID"></constructor-arg>
-    </bean>
+	<!-- Search Project entities by OpenAIRE project identifier -->
+	<bean class="org.dspace.authority.service.impl.ItemSearcherByMetadata" name="itemSearcherByOpenaireProjectId">
+		<constructor-arg value="oairecerif.funding.identifier"></constructor-arg>
+		<constructor-arg value="OPENAIRE-PROJECT-ID"></constructor-arg>
+	</bean>
 
+	<!-- Search entities by legacy identifier -->
 	<bean class="org.dspace.authority.service.impl.ItemSearcherByMetadata" name="itemSearcherByLegacyId">
-		<constructor-arg value="cris.legacyId"></constructor-arg>
+		<constructor-arg value="dspace.legacyId"></constructor-arg>
 		<constructor-arg value="LEGACY-ID"></constructor-arg>
 	</bean>
 
+	<!-- Search Person entities by Scopus Author ID -->
 	<bean class="org.dspace.authority.service.impl.ItemSearcherByMetadata" name="itemSearcherByScopusAuthorId">
-        <constructor-arg value="person.identifier.scopus-author-id"></constructor-arg>
-        <constructor-arg value="SCOPUS-AUTHOR-ID"></constructor-arg>
-    </bean>
+		<constructor-arg value="person.identifier.scopus-author-id"></constructor-arg>
+		<constructor-arg value="SCOPUS-AUTHOR-ID"></constructor-arg>
+	</bean>
 
     <bean class="org.dspace.authority.service.impl.ItemSearcherByMetadata" name="itemSearcherByRorId">
         <constructor-arg value="organization.identifier.ror"></constructor-arg>
         <constructor-arg value="ROR-ID"></constructor-arg>
     </bean>
 
-	<bean class="org.dspace.authority.service.impl.ItemSearchServiceImpl" name="org.dspace.authority.service.ItemSearchService"/>
-	<bean class="org.dspace.authority.service.impl.ItemReferenceResolverServiceImpl" name="org.dspace.authority.service.ItemReferenceResolverService"/>
+	<!-- Core service implementations for item search and reference resolution -->
+	<bean class="org.dspace.authority.service.impl.ItemSearchServiceImpl"
+		  name="org.dspace.authority.service.ItemSearchService"/>
+	<bean class="org.dspace.authority.service.impl.ItemReferenceResolverServiceImpl"
+		  name="org.dspace.authority.service.ItemReferenceResolverService"/>
 
 </beans>

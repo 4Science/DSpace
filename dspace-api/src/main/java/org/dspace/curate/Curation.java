@@ -108,7 +108,7 @@ public class Curation extends DSpaceRunnable<CurationScriptConfiguration> {
             if (verbose) {
                 handler.logInfo("Adding task: " + this.task);
             }
-            curator.addTask(this.task);
+            curator.addTask(context, this.task);
             if (verbose && !curator.hasTask(this.task)) {
                 handler.logInfo("Task: " + this.task + " not resolved");
             }
@@ -121,7 +121,7 @@ public class Curation extends DSpaceRunnable<CurationScriptConfiguration> {
                     if (verbose) {
                         super.handler.logInfo("Adding task: " + taskName);
                     }
-                    curator.addTask(taskName);
+                    curator.addTask(context, taskName);
                 }
             } finally {
                 if (reader != null) {
@@ -161,7 +161,7 @@ public class Curation extends DSpaceRunnable<CurationScriptConfiguration> {
             }
             curator.clear();
             for (String taskName : entry.getTaskNames()) {
-                curator.addTask(taskName);
+                curator.addTask(context, taskName);
             }
             curator.curate(context, entry.getObjectId());
         }

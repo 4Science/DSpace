@@ -7,6 +7,8 @@
  */
 package org.dspace.xmlworkflow;
 
+import static org.dspace.content.MetadataSchemaEnum.DSPACE;
+
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -70,7 +72,11 @@ public class XmlWorkflowFactoryImpl implements XmlWorkflowFactory {
     @Override
     public Workflow getWorkflow(Collection collection) throws WorkflowConfigurationException {
         // Attempt to retrieve our workflow object
-        String workflowName = collectionService.getMetadataFirstValue(collection, "cris", "workflow", "name", Item.ANY);
+        String workflowName = collectionService.getMetadataFirstValue(collection,
+                                                                      DSPACE.getName(),
+                                                                      "workflow",
+                                                                      "name",
+                                                                      Item.ANY);
         if (workflowByThisNameExists(workflowName)) {
             return getWorkflowByName(workflowName);
         }
@@ -143,7 +149,11 @@ public class XmlWorkflowFactoryImpl implements XmlWorkflowFactory {
             HashSet<Collection> collections) {
         try {
             for (Collection col : collectionService.findAll(context)) {
-                String wfwName = collectionService.getMetadataFirstValue(col, "cris", "workflow", "name", Item.ANY);
+                String wfwName = collectionService.getMetadataFirstValue(col,
+                                                                         DSPACE.getName(),
+                                                                         "workflow",
+                                                                         "name",
+                                                                         Item.ANY);
                 if (StringUtils.isNotBlank(wfwName)) {
                     if (wfwName.equals(workflowName)) {
                         collections.add(col);
@@ -161,7 +171,11 @@ public class XmlWorkflowFactoryImpl implements XmlWorkflowFactory {
         List<Collection> nonMappedCollections = new ArrayList<>();
         try {
             for (Collection collection : this.collectionService.findAll(context)) {
-                String wfwName = collectionService.getMetadataFirstValue(collection, "cris", "workflow", "name", null);
+                String wfwName = collectionService.getMetadataFirstValue(collection,
+                                                                         DSPACE.getName(),
+                                                                         "workflow",
+                                                                         "name",
+                                                                         null);
                 if (Objects.isNull(this.workflowMapping.get(collection.getHandle())) && StringUtils.isBlank(wfwName)) {
                     nonMappedCollections.add(collection);
                 }

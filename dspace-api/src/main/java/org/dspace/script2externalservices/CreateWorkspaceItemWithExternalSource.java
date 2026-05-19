@@ -34,6 +34,7 @@ import org.dspace.content.DCDate;
 import org.dspace.content.Item;
 import org.dspace.content.ItemServiceImpl;
 import org.dspace.content.MetadataFieldName;
+import org.dspace.content.MetadataSchemaEnum;
 import org.dspace.content.MetadataValue;
 import org.dspace.content.WorkspaceItem;
 import org.dspace.content.dto.MetadataValueDTO;
@@ -421,7 +422,7 @@ public class CreateWorkspaceItemWithExternalSource extends DSpaceRunnable<
     }
 
     private String getLastImportMetadataField() {
-        return "cris.lastimport." + service + "-publication_dt";
+        return "dspace.lastimport." + service + "-publication_dt";
     }
 
     private void setFilterQueries(DiscoverQuery discoverQuery) {
@@ -453,8 +454,8 @@ public class CreateWorkspaceItemWithExternalSource extends DSpaceRunnable<
     private List<MetadataValueDTO> metadataList(Item item, String identifier) {
         return itemService.getMetadata(item, "person", "identifier", identifier, Item.ANY)
             .stream().sorted(Comparator.comparingInt(MetadataValue::getPlace))
-            .map(md -> new MetadataValueDTO("cris", "author", identifier, null,
-                md.getValue()))
+            .map(md -> new MetadataValueDTO(MetadataSchemaEnum.DSPACE.getName(), "author", identifier, null,
+                                            md.getValue()))
             .collect(Collectors.toList());
     }
 
@@ -469,7 +470,7 @@ public class CreateWorkspaceItemWithExternalSource extends DSpaceRunnable<
     private void setLastImportMetadataValue(Item item) {
         try {
             item = context.reloadEntity(item);
-            String metadataField = "cris.lastimport." + service + "-publication";
+            String metadataField = "dspace.lastimport." + service + "-publication";
             String currentDate = DCDate.getCurrent().toString();
             itemService.setMetadataSingleValue(context, item, new MetadataFieldName(metadataField), null, currentDate);
             itemService.update(context, item, false);

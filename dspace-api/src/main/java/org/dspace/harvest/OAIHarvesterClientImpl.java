@@ -12,7 +12,7 @@ import static org.dspace.util.ExceptionMessageUtils.getRootMessage;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.dspace.harvest.model.OAIHarvesterResponseDTO;
 import org.dspace.harvest.service.OAIHarvesterClient;
 import org.dspace.util.ThrowingSupplier;

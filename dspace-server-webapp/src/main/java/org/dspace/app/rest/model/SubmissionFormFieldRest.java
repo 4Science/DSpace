@@ -34,12 +34,17 @@ public class SubmissionFormFieldRest {
     private SubmissionFormInputTypeRest input;
 
     /**
+     * The main scope of the field
+     */
+    private ScopeEnum scope;
+
+    /**
      * The visibility restriction for the field
      */
     private SubmissionVisibilityRest visibility;
 
     @JsonInclude(Include.NON_NULL)
-    @JsonIgnoreProperties( { "name", "type", "id" })
+    @JsonIgnoreProperties({"name", "type", "id"})
     @JsonUnwrapped
     /**
      * The list of rows for "group"/"inline-group" field
@@ -96,7 +101,7 @@ public class SubmissionFormFieldRest {
 
     /**
      * Getter for {@link #selectableMetadata}
-     * 
+     *
      * @return {@link #selectableMetadata}
      */
     public List<SelectableMetadata> getSelectableMetadata() {
@@ -105,7 +110,7 @@ public class SubmissionFormFieldRest {
 
     /**
      * Setter for {@link #selectableMetadata}
-     * 
+     *
      */
     public void setSelectableMetadata(List<SelectableMetadata> selectableMetadata) {
         this.selectableMetadata = selectableMetadata;
@@ -113,7 +118,7 @@ public class SubmissionFormFieldRest {
 
     /**
      * Getter for {@link #label}
-     * 
+     *
      * @return {@link #label}
      */
     public String getLabel() {
@@ -122,7 +127,7 @@ public class SubmissionFormFieldRest {
 
     /**
      * Setter for {@link #label}
-     * 
+     *
      */
     public void setLabel(String label) {
         this.label = label;
@@ -130,7 +135,7 @@ public class SubmissionFormFieldRest {
 
     /**
      * Getter for {@link #mandatory}
-     * 
+     *
      * @return {@link #mandatory}
      */
     public boolean isMandatory() {
@@ -139,7 +144,7 @@ public class SubmissionFormFieldRest {
 
     /**
      * Setter for {@link #mandatory}
-     * 
+     *
      */
     public void setMandatory(boolean mandatory) {
         this.mandatory = mandatory;
@@ -147,7 +152,7 @@ public class SubmissionFormFieldRest {
 
     /**
      * Getter for {@link #repeatable}
-     * 
+     *
      * @return {@link #repeatable}
      */
     public boolean isRepeatable() {
@@ -156,7 +161,7 @@ public class SubmissionFormFieldRest {
 
     /**
      * Setter for {@link #repeatable}
-     * 
+     *
      */
     public void setRepeatable(boolean repeatable) {
         this.repeatable = repeatable;
@@ -164,7 +169,7 @@ public class SubmissionFormFieldRest {
 
     /**
      * Getter for {@link #mandatoryMessage}
-     * 
+     *
      * @return {@link #mandatoryMessage}
      */
     public String getMandatoryMessage() {
@@ -173,7 +178,7 @@ public class SubmissionFormFieldRest {
 
     /**
      * Setter for {@link #mandatoryMessage}
-     * 
+     *
      */
     public void setMandatoryMessage(String mandatoryMessage) {
         this.mandatoryMessage = mandatoryMessage;
@@ -181,7 +186,7 @@ public class SubmissionFormFieldRest {
 
     /**
      * Getter for {@link #hints}
-     * 
+     *
      * @return {@link #hints}
      */
     public String getHints() {
@@ -190,7 +195,7 @@ public class SubmissionFormFieldRest {
 
     /**
      * Setter for {@link #hints}
-     * 
+     *
      */
     public void setHints(String hints) {
         this.hints = hints;
@@ -198,7 +203,7 @@ public class SubmissionFormFieldRest {
 
     /**
      * Getter for {@link #style}
-     * 
+     *
      * @return {@link #style}
      */
     public String getStyle() {
@@ -207,7 +212,7 @@ public class SubmissionFormFieldRest {
 
     /**
      * Setter for {@link #style}
-     * 
+     *
      */
     public void setStyle(String style) {
         this.style = style;
@@ -215,7 +220,7 @@ public class SubmissionFormFieldRest {
 
     /**
      * Getter for {@link #languageCodes}
-     * 
+     *
      * @return {@link #languageCodes}
      */
     public List<LanguageFormField> getLanguageCodes() {
@@ -227,7 +232,7 @@ public class SubmissionFormFieldRest {
 
     /**
      * Setter for {@link #languageCodes}
-     * 
+     *
      */
     public void setLanguageCodes(List<LanguageFormField> languageCodes) {
         this.languageCodes = languageCodes;
@@ -235,7 +240,7 @@ public class SubmissionFormFieldRest {
 
     /**
      * Getter for {@link #input}
-     * 
+     *
      * @return {@link #input}
      */
     public SubmissionFormInputTypeRest getInput() {
@@ -244,10 +249,27 @@ public class SubmissionFormFieldRest {
 
     /**
      * Setter for {@link #input}
-     * 
+     *
      */
     public void setInput(SubmissionFormInputTypeRest input) {
         this.input = input;
+    }
+
+    /**
+     * Getter for {@link #scope}
+     *
+     * @return {@link #selectableMetadata}
+     */
+    public ScopeEnum getScope() {
+        return scope;
+    }
+
+    /**
+     * Setter for {@link #scope}
+     *
+     */
+    public void setScope(ScopeEnum scope) {
+        this.scope = scope;
     }
 
     public SubmissionVisibilityRest getVisibility() {

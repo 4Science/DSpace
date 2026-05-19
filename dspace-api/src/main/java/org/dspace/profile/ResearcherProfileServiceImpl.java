@@ -27,7 +27,7 @@ import java.util.UUID;
 
 import jakarta.annotation.PostConstruct;
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.dspace.app.exception.ResourceAlreadyExistsException;
@@ -198,6 +198,17 @@ public class ResearcherProfileServiceImpl implements ResearcherProfileService {
 
         Item item = findItemByURI(context, uri)
             .orElseThrow(() -> new IllegalArgumentException("No item found by URI " + uri));
+
+        return claim(context, ePerson, item);
+    }
+
+    @Override
+    public ResearcherProfile claim(Context context, EPerson ePerson, Item item)
+        throws SQLException, AuthorizeException {
+
+        if (item == null) {
+            throw new IllegalArgumentException("The provided item is null");
+        }
 
         if (!item.isArchived() || item.isWithdrawn()) {
             throw new IllegalArgumentException(

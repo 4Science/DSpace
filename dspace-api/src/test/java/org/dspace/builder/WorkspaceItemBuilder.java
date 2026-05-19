@@ -171,11 +171,11 @@ public class WorkspaceItemBuilder extends AbstractBuilder<WorkspaceItem, Workspa
     }
 
     protected WorkspaceItemBuilder addMetadataValue(String schema, String element, String qualifier, String language,
-        String value, String authority, int confidence) {
+                                                    String value, String authority, int confidence) {
 
         try {
             itemService.addMetadata(context, workspaceItem.getItem(), schema, element, qualifier, language,
-                value, authority, confidence);
+                                    value, authority, confidence);
         } catch (Exception e) {
             return handleException(e);
         }
@@ -218,7 +218,7 @@ public class WorkspaceItemBuilder extends AbstractBuilder<WorkspaceItem, Workspa
 
     public WorkspaceItemBuilder withAuthor(String authorName, String authority) {
         return addMetadataValue(MetadataSchemaEnum.DC.getName(), "contributor", "author", null, authorName, authority,
-            600);
+                                600);
     }
 
     public WorkspaceItemBuilder withAuthorAffilitation(final String affilation) {
@@ -231,7 +231,7 @@ public class WorkspaceItemBuilder extends AbstractBuilder<WorkspaceItem, Workspa
 
     public WorkspaceItemBuilder withEditor(String editorName, String authority) {
         return addMetadataValue(MetadataSchemaEnum.DC.getName(), "contributor", "editor", null, editorName, authority,
-            600);
+                                600);
     }
 
     public WorkspaceItemBuilder withProject(final String projectName) {
@@ -251,15 +251,15 @@ public class WorkspaceItemBuilder extends AbstractBuilder<WorkspaceItem, Workspa
     }
 
     public WorkspaceItemBuilder withEntityType(final String entityType) {
-        return addMetadataValue("dspace", "entity", "type", entityType);
+        return addMetadataValue(MetadataSchemaEnum.DSPACE.getName(), "entity", "type", entityType);
     }
 
     public WorkspaceItemBuilder withCrisSourceId(String sourceId) {
-        return addMetadataValue("cris", "sourceId", null, sourceId);
+        return addMetadataValue(MetadataSchemaEnum.DSPACE.getName(), "sourceId", null, sourceId);
     }
 
     public WorkspaceItemBuilder withDoiIdentifier(String doi) {
-        return addMetadataValue("dc", "identifier", "doi", doi);
+        return addMetadataValue(MetadataSchemaEnum.DC.getName(), "identifier", "doi", doi);
     }
 
     public WorkspaceItemBuilder withIsniIdentifier(String isni) {
@@ -267,7 +267,7 @@ public class WorkspaceItemBuilder extends AbstractBuilder<WorkspaceItem, Workspa
     }
 
     public WorkspaceItemBuilder withScopusIdentifier(String scopus) {
-        return addMetadataValue("dc", "identifier", "scopus", scopus);
+        return addMetadataValue(MetadataSchemaEnum.DC.getName(), "identifier", "scopus", scopus);
     }
 
     public WorkspaceItemBuilder withOrcidIdentifier(String orcid) {
@@ -275,11 +275,11 @@ public class WorkspaceItemBuilder extends AbstractBuilder<WorkspaceItem, Workspa
     }
 
     public WorkspaceItemBuilder withPatentNo(String patentNo) {
-        return addMetadataValue("dc", "identifier", "patentno", patentNo);
+        return addMetadataValue(MetadataSchemaEnum.DC.getName(), "identifier", "patentno", patentNo);
     }
 
     public WorkspaceItemBuilder withCustomUrl(String url) {
-        return setMetadataSingleValue("dspace", "customurl", null, url);
+        return setMetadataSingleValue(MetadataSchemaEnum.DSPACE.getName(), "customurl", null, url);
     }
 
     public WorkspaceItemBuilder withCustomIdentifierUrl(String url, String authority) {
@@ -287,7 +287,7 @@ public class WorkspaceItemBuilder extends AbstractBuilder<WorkspaceItem, Workspa
     }
 
     public WorkspaceItemBuilder withOldCustomUrl(String url) {
-        return addMetadataValue("dspace", "customurl", "old", url);
+        return addMetadataValue(MetadataSchemaEnum.DSPACE.getName(), "customurl", "old", url);
 
     }
     public WorkspaceItemBuilder withAbstract(final String subject) {

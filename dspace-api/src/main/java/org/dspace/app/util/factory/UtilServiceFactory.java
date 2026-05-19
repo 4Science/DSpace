@@ -11,6 +11,7 @@ import org.dspace.app.util.service.DSpaceObjectUtils;
 import org.dspace.app.util.service.MetadataExposureService;
 import org.dspace.app.util.service.OpenSearchService;
 import org.dspace.app.util.service.WebAppService;
+import org.dspace.content.security.service.MetadataSecurityService;
 import org.dspace.services.factory.DSpaceServicesFactory;
 
 /**
@@ -27,6 +28,8 @@ public abstract class UtilServiceFactory {
     public abstract MetadataExposureService getMetadataExposureService();
 
     public abstract DSpaceObjectUtils getDSpaceObjectUtils();
+
+    public abstract MetadataSecurityService getMetadataSecurityService();
 
     public static UtilServiceFactory getInstance() {
         return DSpaceServicesFactory.getInstance().getServiceManager()

@@ -630,7 +630,7 @@ public class CreateWorkspaceItemFromExternalServiceIT extends AbstractController
 
     private String getLastImport(Item item) throws SQLException {
         item = context.reloadEntity(item);
-        return itemService.getMetadataFirstValue(item, "cris", "lastimport", "scopus-publication", Item.ANY);
+        return itemService.getMetadataFirstValue(item, "dspace", "lastimport", "scopus-publication", Item.ANY);
     }
 
     private void deleteWorkspaceItem(WorkspaceItem workspaceItem) {

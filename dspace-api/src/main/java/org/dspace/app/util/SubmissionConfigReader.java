@@ -27,6 +27,7 @@ import org.dspace.content.Community;
 import org.dspace.content.DSpaceObject;
 import org.dspace.content.InProgressSubmission;
 import org.dspace.content.Item;
+import org.dspace.content.MetadataSchemaEnum;
 import org.dspace.content.edit.EditItem;
 import org.dspace.content.factory.ContentServiceFactory;
 import org.dspace.content.service.CollectionService;
@@ -272,7 +273,7 @@ public class SubmissionConfigReader {
 
         String submitName =
             collService.getMetadataFirstValue(
-                collection, "cris", "submission", "definition-correction", Item.ANY
+                collection, MetadataSchemaEnum.DSPACE.getName(), "submission", "definition-correction", Item.ANY
             );
 
         if (submitName != null) {
@@ -298,7 +299,11 @@ public class SubmissionConfigReader {
 
         CollectionService collService = ContentServiceFactory.getInstance().getCollectionService();
 
-        String submitName = collService.getMetadataFirstValue(collection, "cris", "submission", "definition", null);
+        String submitName = collService.getMetadataFirstValue(collection,
+                                                              MetadataSchemaEnum.DSPACE.getName(),
+                                                              "submission",
+                                                              "definition",
+                                                              null);
         if (submitName != null) {
             try {
                 SubmissionConfig subConfig = getSubmissionConfigByName(submitName);
@@ -307,7 +312,7 @@ public class SubmissionConfigReader {
                 }
             } catch (IllegalStateException e) {
                 log.error("The collection " + collection.getID().toString()
-                              + " has an invalid cris.submission.definition value " + submitName, e);
+                              + " has an invalid dspace.submission.definition value " + submitName, e);
             }
         }
 
@@ -382,7 +387,11 @@ public class SubmissionConfigReader {
      */
     private String getEntityTypeSubmission(Collection collection, CollectionService collService) {
         String submitName = null;
-        String entityType = collService.getMetadataFirstValue(collection, "dspace", "entity", "type", Item.ANY);
+        String entityType = collService.getMetadataFirstValue(collection,
+                                                              MetadataSchemaEnum.DSPACE.getName(),
+                                                              "entity",
+                                                              "type",
+                                                              Item.ANY);
         if (entityType != null) {
             // collection-entity-type configuration (DSpace configuration)
             submitName = Optional.ofNullable(entityTypeToSubmissionConfig.get(entityType))

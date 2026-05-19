@@ -12,7 +12,7 @@
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:schemaLocation="http://www.springframework.org/schema/beans
            http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
-           
+
     <bean name="org.dspace.validation.service.impl.ValidationServiceImpl" class="org.dspace.validation.service.impl.ValidationServiceImpl" />
     <bean name="validationServiceFactory" class="org.dspace.validation.service.factory.impl.ValidationServiceFactoryImpl" />
 
@@ -46,11 +46,18 @@
     <bean name="detectPotentialDuplicateValidator" class="org.dspace.validation.DetectPotentialDuplicateValidator">
         <property name="name" value="detect-duplicate"/>
     </bean>
+
+    <bean name="COARNotifyValidation" class="org.dspace.validation.NotifyValidation" scope="prototype">
+        <property name="name" value="coarnotify"/>
+        <property name="coarNotifyConfigurationService" ref="org.dspace.coarnotify.NotifyConfigurationService"/>
+        <property name="notifyPatternToTriggerService"
+                  ref="org.dspace.app.ldn.service.impl.NotifyPatternToTriggerImpl"/>
+    </bean>
     
     <bean name="customUrlValidation" class="org.dspace.validation.CustomUrlValidator">
         <property name="name" value="custom-url"/>
     </bean>
-    
+
     <bean name="fundingHasAtLeastOneInvestigatorOrOneLeadOrganization" class="org.dspace.validation.LogicalStatementValidator">
         <property name="errorKey" value="error.validation.fundingInvestigatorOrLeadOrganizationRequired"/>
         <property name="metadataFields">
@@ -63,5 +70,5 @@
         </property>
         <property name="filter" ref="funding-has-at-least-one-investigator-or-one-lead-organization_filter"/>
     </bean>
-    
+
 </beans>

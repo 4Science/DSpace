@@ -63,6 +63,18 @@ public interface ChoiceAuthorityService {
      * @param schema    schema of metadata field
      * @param element   element of metadata field
      * @param qualifier qualifier of metadata field
+     * @return the name of the choice authority associated with the specified
+     * metadata. Throw IllegalArgumentException if the supplied metadata
+     * is not associated with an authority choice
+     * @deprecated Use {@link #getChoiceAuthorityName(String, String, String, int, Collection)} instead
+     */
+    @Deprecated
+    public String getChoiceAuthorityName(String schema, String element, String qualifier, Collection collection);
+
+    /**
+     * @param schema    schema of metadata field
+     * @param element   element of metadata field
+     * @param qualifier qualifier of metadata field
      * @param formName  the form name to retrieve the specific authority
      * @return the name of the choice authority associated with the specified
      * metadata. Throw IllegalArgumentException if the supplied metadata
@@ -85,6 +97,56 @@ public interface ChoiceAuthorityService {
      */
     public Choices getBestMatch(String fieldKey, String query, int dsoType, Collection collection,
                                 String locale);
+
+    /**
+     * Wrapper that calls getBestMatch method of the plugin corresponding to
+     * the metadata field defined by single field key.
+     *
+     * @param fieldKey   single string identifying metadata field
+     * @param query      user's value to match
+     * @param collection database ID of Collection for context (owner of Item)
+     * @param locale     explicit localization key if available, or null
+     * @return a Choices object (never null) with 1 or 0 values.
+     * @deprecated Use {@link #getBestMatch(String, String, int, Collection, String)} instead
+     */
+    @Deprecated
+    public Choices getBestMatch(String fieldKey, String query, Collection collection, String locale);
+
+    /**
+     * Wrapper calls getMatches method of the plugin corresponding to
+     * the metadata field defined by schema,element,qualifier.
+     *
+     * @param schema     schema of metadata field
+     * @param element    element of metadata field
+     * @param qualifier  qualifier of metadata field
+     * @param query      user's value to match
+     * @param collection database ID of Collection for context (owner of Item)
+     * @param start      choice at which to start, 0 is first.
+     * @param limit      maximum number of choices to return, 0 for no limit.
+     * @param locale     explicit localization key if available, or null
+     * @return a Choices object (never null).
+     * @deprecated This method is deprecated, use getMatches methods with dsoType parameter instead
+     */
+    @Deprecated
+    public Choices getMatches(String schema, String element, String qualifier,
+                              String query, Collection collection, int start, int limit, String locale);
+
+    /**
+     * Wrapper calls getMatches method of the plugin corresponding to
+     * the metadata field defined by single field key.
+     *
+     * @param fieldKey   single string identifying metadata field
+     * @param query      user's value to match
+     * @param collection database ID of Collection for context (owner of Item)
+     * @param start      choice at which to start, 0 is first.
+     * @param limit      maximum number of choices to return, 0 for no limit.
+     * @param locale     explicit localization key if available, or null
+     * @return a Choices object (never null).
+     * @deprecated This method is deprecated, use getMatches methods with dsoType parameter instead
+     */
+    @Deprecated
+    public Choices getMatches(String fieldKey, String query, Collection collection,
+                              int start, int limit, String locale);
 
     /**
      * Wrapper that calls getChoicesByParent method of the plugin.
@@ -111,6 +173,19 @@ public interface ChoiceAuthorityService {
      * @return label
      */
     public String getLabel(MetadataValue metadataValue, int dsoType, Collection collection, String locale);
+
+    /**
+     * Wrapper that calls getLabel method of the plugin corresponding to
+     * the metadata field defined by schema,element,qualifier.
+     *
+     * @param metadataValue metadata value
+     * @param collection Collection owner of Item
+     * @param locale        explicit localization key if available
+     * @return label
+     * @deprecated Use {@link #getLabel(MetadataValue, int, Collection, String)} instead
+     */
+    @Deprecated
+    public String getLabel(MetadataValue metadataValue, Collection collection, String locale);
 
     /**
      * Wrapper that calls getLabel method of the plugin corresponding to
@@ -188,9 +263,10 @@ public interface ChoiceAuthorityService {
     public void clearCache() throws SubmissionConfigReaderException;
 
     /**
-     * Get the entity type starting from the metadata field.
-     *
-     * @return       the entity type as a String
+     * Retrieves the entity type for a metadata field if its ChoiceAuthority
+     * supports entity linking.
+     * @param fieldKey The metadata field (e.g., "dc_contributor_author").
+     * @return The entity type (e.g., "Person"), or null if not linkable.
      */
     String[] getLinkedEntityTypes(String fieldKey);
 
@@ -244,11 +320,10 @@ public interface ChoiceAuthorityService {
     public ChoiceAuthority getAuthorityByFieldKeyCollection(String fieldKey, int dsoType, Collection collection);
 
     /**
-     * Set the reference between the given metadata value and the item using the
-     * authority.
-     *
-     * @param metadataValue the metadata value to update
-     * @param item          the item to be linked to the metadata value
+     * Links metadata to an Item by setting the authority key to the Item's UUID
+     * and the confidence to CF_ACCEPTED.
+     * @param metadataValue The metadata to link.
+     * @param item The target authority Item.
      */
     void setReferenceWithAuthority(MetadataValue metadataValue, Item item);
 

@@ -24,7 +24,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.dspace.content.factory.ContentServiceFactory;
 import org.dspace.content.service.BitstreamFormatService;
 import org.dspace.core.Context;
@@ -165,7 +165,7 @@ public class BitstreamFormat implements Serializable, ReloadableEntity<Integer> 
      * @return the MIME type
      */
     public String getMIMEType() {
-        return StringUtils.equalsIgnoreCase("null", mimetype) ? null : mimetype;
+        return Strings.CI.equals("null", mimetype) ? null : mimetype;
     }
 
     /**

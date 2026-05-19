@@ -42,11 +42,32 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
- * Implementation of {@link SolrServiceIndexPlugin} to add indexes for value
- * pairs.
+ * Implementation of {@link SolrServiceIndexPlugin} that indexes controlled vocabulary
+ * (value pairs) metadata fields into Solr for faceted search support.
+ *
+ * <p>This plugin processes metadata fields that have a Choice Authority configured (e.g.,
+ * controlled vocabularies, authority-controlled fields) and adds multiple Solr fields
+ * to enable flexible searching and filtering:
+ * <ul>
+ *   <li>{@code <language>_<field>_keyword} - The value with authority suffix for keyword search</li>
+ *   <li>{@code <language>_<field>_acid} - Lowercase value with separator for acid search</li>
+ *   <li>{@code <language>_<field>_filter} - Lowercase value for filter queries</li>
+ *   <li>{@code <language>_<field>_facet} - Value with separator for faceting</li>
+ *   <li>{@code <language>_<field>_ac} - Autocomplete field</li>
+ *   <li>{@code <language>_<field>_authority} - Authority key when present</li>
+ * </ul>
+ *
+ * <p>The plugin supports multilingual indexing by iterating through all configured locales
+ * and creating language-specific field variants. It handles both {@link DSpaceControlledVocabulary}
+ * and {@link DCInputAuthority} authority implementations.
+ *
+ * <p>Configuration: The separator character used in field values can be customized via
+ * the {@code discovery.solr.facets.split.char} configuration property (defaults to
+ * {@link SearchUtils#FILTER_SEPARATOR}).
  *
  * @author Luca Giamminonni (luca.giamminonni at 4science.it)
- *
+ * @see SolrServiceIndexPlugin
+ * @see DiscoverySearchFilter
  */
 public class SolrServiceValuePairsIndexPlugin implements SolrServiceIndexPlugin {
 
@@ -61,6 +82,18 @@ public class SolrServiceValuePairsIndexPlugin implements SolrServiceIndexPlugin 
     @Autowired
     private ConfigurationService configurationService;
 
+    /**
+     * {@inheritDoc}
+     *
+     * <p>Indexes all controlled vocabulary metadata fields for the given item.
+     * Only processes items that have a parent Collection with configured Choice Authorities.
+     * For each metadata field with choices configured, adds language-specific Solr fields
+     * for faceted search support.
+     *
+     * @param context the DSpace context
+     * @param object the indexable object (must be an {@link IndexableItem})
+     * @param document the Solr document to add fields to
+     */
     @Override
     @SuppressWarnings("rawtypes")
     public void additionalIndex(Context context, IndexableObject object, SolrInputDocument document) {
@@ -82,10 +115,19 @@ public class SolrServiceValuePairsIndexPlugin implements SolrServiceIndexPlugin 
             }
 
         } catch (Exception ex) {
-            LOGGER.error("An error occurs indexing value pairs for item " + item.getID(), ex);
+            LOGGER.error("An error occurs indexing value pairs for item {}", item.getID(), ex);
         }
     }
 
+    /**
+     * Adds discovery field values for a specific metadata value in a given language.
+     *
+     * @param collection the parent collection used to resolve the choice authority
+     * @param item the item being indexed
+     * @param metadataValue the metadata value to process
+     * @param language the language code for the indexed fields
+     * @param document the Solr document to add fields to
+     */
     private void additionalIndex(Collection collection, Item item, MetadataValue metadataValue, String language,
             SolrInputDocument document) {
         String metadataField = metadataValue.getMetadataField().toString('.');
@@ -99,6 +141,18 @@ public class SolrServiceValuePairsIndexPlugin implements SolrServiceIndexPlugin 
         }
     }
 
+    /**
+     * Resolves the display label for a metadata value based on its authority.
+     *
+     * <p>For controlled vocabularies, returns the authority label if available,
+     * otherwise falls back to the raw metadata value. For DCInputAuthority fields,
+     * always attempts to resolve the label from the authority.
+     *
+     * @param collection the parent collection used to resolve the choice authority
+     * @param metadataValue the metadata value to resolve
+     * @param language the language for label resolution
+     * @return the display label, or null if no suitable label can be found
+     */
     private String getMetadataValue(Collection collection, MetadataValue metadataValue, String language) {
         String fieldKey = metadataValue.getMetadataField().toString();
         ChoiceAuthority choiceAuthority = cas.getAuthorityByFieldKeyCollection(fieldKey, Constants.ITEM, collection);
@@ -120,6 +174,25 @@ public class SolrServiceValuePairsIndexPlugin implements SolrServiceIndexPlugin 
         return null;
     }
 
+    /**
+     * Adds multiple Solr fields for a discovery search filter value.
+     *
+     * <p>Creates the following fields (with language prefix):
+     * <ul>
+     *   <li>{@code _keyword} - Value with optional authority suffix for keyword search</li>
+     *   <li>{@code _acid} - Lowercase value with separator for acid search</li>
+     *   <li>{@code _filter} - Lowercase value for filter queries</li>
+     *   <li>{@code _facet} - Value with separator for faceting (uses {@link SolrServiceImpl#SOLR_FIELD_SUFFIX_FACET_PREFIXES})</li>
+     *   <li>{@code _ac} - Lowercase value with separator for autocomplete</li>
+     *   <li>{@code _authority} - The authority key if present and existing authority field exists</li>
+     * </ul>
+     *
+     * @param language the language code to prefix field names with
+     * @param document the Solr document to add fields to
+     * @param value the display value to index
+     * @param authority the authority key (may be null or blank)
+     * @param searchFilter the discovery search filter configuration
+     */
     private void addDiscoveryFieldFields(String language, SolrInputDocument document, String value, String authority,
         DiscoverySearchFilter searchFilter) {
         String separator = configurationService.getProperty("discovery.solr.facets.split.char", FILTER_SEPARATOR);
@@ -136,11 +209,19 @@ public class SolrServiceValuePairsIndexPlugin implements SolrServiceIndexPlugin 
         document.addField(fieldNameWithLanguage + "_filter", filterField);
         document.addField(fieldNameWithLanguage + SOLR_FIELD_SUFFIX_FACET_PREFIXES, prefixField);
         document.addField(fieldNameWithLanguage + "_ac", valueLowerCase + separator + value);
-        if (document.containsKey(searchFilter.getIndexFieldName() + "_authority")) {
+        if (StringUtils.isNotBlank(authority)) {
             document.addField(fieldNameWithLanguage + "_authority", authority);
         }
     }
 
+    /**
+     * Appends the authority separator and authority key to a field value if the authority
+     * is not blank.
+     *
+     * @param fieldValue the base field value
+     * @param authority the authority key (may be null or blank)
+     * @return the field value with authority appended if present, otherwise just the field value
+     */
     private String appendAuthorityIfNotBlank(String fieldValue, String authority) {
         return isNotBlank(authority) ? fieldValue + AUTHORITY_SEPARATOR + authority : fieldValue;
     }
@@ -149,7 +230,11 @@ public class SolrServiceValuePairsIndexPlugin implements SolrServiceIndexPlugin 
      * Returns all the search fields configured for the given metadataField. Filters
      * returned are not filtered by instance type equal to
      * {@link MultiLanguageDiscoverSearchFilterFacet} to allow for language-based
-     * searches
+     * searches.
+     *
+     * @param item the item being indexed (used to resolve discovery configuration)
+     * @param metadataField the metadata field key to search for (e.g., "dc.subject")
+     * @return list of discovery search filters that include this metadata field
      */
     private List<DiscoverySearchFilter> findSearchFiltersByMetadataField(Item item, String metadataField) {
         return getAllDiscoveryConfiguration(item).stream()
@@ -159,6 +244,13 @@ public class SolrServiceValuePairsIndexPlugin implements SolrServiceIndexPlugin 
             .collect(Collectors.toList());
     }
 
+    /**
+     * Retrieves all discovery configurations associated with an item.
+     *
+     * @param item the item to get configurations for
+     * @return list of discovery configurations for the item's collections
+     * @throws SQLRuntimeException if a database error occurs
+     */
     private List<DiscoveryConfiguration> getAllDiscoveryConfiguration(Item item) {
         try {
             return SearchUtils.getAllDiscoveryConfigurations(ContextUtil.obtainCurrentRequestContext(), item);
@@ -167,6 +259,12 @@ public class SolrServiceValuePairsIndexPlugin implements SolrServiceIndexPlugin 
         }
     }
 
+    /**
+     * Checks whether the given indexable object is not an indexable item.
+     *
+     * @param object the indexable object to check
+     * @return true if the object is not an IndexableItem instance
+     */
     @SuppressWarnings("rawtypes")
     private boolean isNotIndexableItem(IndexableObject object) {
         return !(object instanceof IndexableItem);

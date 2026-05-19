@@ -12,6 +12,7 @@ import java.sql.SQLException;
 /**
  * An runtime exception that provides information on a database access error or
  * other errors.
+ *
  * @author Luca Giamminonni (luca.giamminonni at 4science.it)
  *
  */

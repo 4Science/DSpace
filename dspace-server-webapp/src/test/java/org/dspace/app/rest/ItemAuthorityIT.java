@@ -31,6 +31,7 @@ import org.dspace.content.Collection;
 import org.dspace.content.Item;
 import org.dspace.content.authority.ItemAuthority;
 import org.dspace.content.authority.service.ChoiceAuthorityService;
+import org.dspace.content.authority.service.MetadataAuthorityService;
 import org.dspace.core.service.PluginService;
 import org.dspace.eperson.EPerson;
 import org.dspace.eperson.Group;
@@ -62,12 +63,16 @@ public class ItemAuthorityIT extends AbstractControllerIntegrationTest {
     private ChoiceAuthorityService choiceAuthorityService;
 
     @Autowired
+    private MetadataAuthorityService metadataAuthorityService;
+
+    @Autowired
     private OrcidClient orcidClient;
 
     private OrcidClient orcidClientMock = mock(OrcidClient.class);
 
     @Before
     public void setup() {
+        choiceAuthorityService.getChoiceAuthoritiesNames(); // initialize the ChoiceAuthorityService
         ((OrcidServiceFactoryImpl) OrcidServiceFactory.getInstance()).setOrcidClient(orcidClientMock);
         when(orcidClientMock.expandedSearch(any(), anyInt(), anyInt())).thenReturn(new ExpandedSearch());
     }
@@ -80,6 +85,26 @@ public class ItemAuthorityIT extends AbstractControllerIntegrationTest {
     @Test
     public void singleItemAuthorityTest() throws Exception {
         context.turnOffAuthorisationSystem();
+
+        configurationService.setProperty("plugin.named.org.dspace.content.authority.ChoiceAuthority",
+                                         new String[] {
+                                             "org.dspace.content.authority.ItemAuthority = OrgUnitAuthority",
+                                             "org.dspace.content.authority.ItemAuthority = AuthorAuthority"
+                                         });
+        configurationService.setProperty("cris.ItemAuthority.OrgUnitAuthority.entityType", "OrgUnit");
+        configurationService.setProperty("cris.ItemAuthority.AuthorAuthority.entityType", "Person");
+        configurationService.setProperty("choices.plugin.dc.contributor.author", "AuthorAuthority");
+        configurationService.setProperty("choices.presentation.dc.contributor.author", "suggest");
+        configurationService.setProperty("authority.controlled.dc.contributor.author", "true");
+        configurationService.setProperty("choices.plugin.person.affiliation.name", "OrgUnitAuthority");
+        configurationService.setProperty("choices.presentation.person.affiliation.name", "suggest");
+        configurationService.setProperty("authority.controlled.person.affiliation.name", "true");
+        configurationService.setProperty("choices.plugin.oairecerif.person.affiliation", "OrgUnitAuthority");
+        configurationService.setProperty("choices.presentation.oairecerif.person.affiliation", "suggest");
+        configurationService.setProperty("authority.controlled.oairecerif.person.affiliation", "true");
+        pluginService.clearNamedPluginClasses();
+        choiceAuthorityService.clearCache();
+        metadataAuthorityService.clearCache();
 
         parentCommunity = CommunityBuilder.createCommunity(context).build();
         Collection col1 = CollectionBuilder.createCollection(context, parentCommunity)
@@ -150,6 +175,23 @@ public class ItemAuthorityIT extends AbstractControllerIntegrationTest {
     @Test
     public void alternativeNamesAuthorityTest() throws Exception {
         context.turnOffAuthorisationSystem();
+
+        configurationService.setProperty("plugin.named.org.dspace.content.authority.ChoiceAuthority",
+                                         new String[] {
+                                             "org.dspace.content.authority.ItemAuthority = OrgUnitAuthority",
+                                             "org.dspace.content.authority.ItemAuthority = AuthorAuthority"
+                                         });
+        configurationService.setProperty("cris.ItemAuthority.OrgUnitAuthority.entityType", "OrgUnit");
+        configurationService.setProperty("cris.ItemAuthority.AuthorAuthority.entityType", "Person");
+        configurationService.setProperty("choices.plugin.dc.contributor.author", "AuthorAuthority");
+        configurationService.setProperty("choices.presentation.dc.contributor.author", "suggest");
+        configurationService.setProperty("authority.controlled.dc.contributor.author", "true");
+        configurationService.setProperty("choices.plugin.oairecerif.person.affiliation", "OrgUnitAuthority");
+        configurationService.setProperty("choices.presentation.oairecerif.person.affiliation", "suggest");
+        configurationService.setProperty("authority.controlled.oairecerif.person.affiliation", "true");
+        pluginService.clearNamedPluginClasses();
+        choiceAuthorityService.clearCache();
+        metadataAuthorityService.clearCache();
 
         parentCommunity = CommunityBuilder.createCommunity(context).build();
         Collection col1 = CollectionBuilder.createCollection(context, parentCommunity)
@@ -230,10 +272,13 @@ public class ItemAuthorityIT extends AbstractControllerIntegrationTest {
        configurationService.setProperty("choices.presentation.person.affiliation.name", "authorLookup");
        configurationService.setProperty("authority.controlled.person.affiliation.name", "true");
 
-       // These clears have to happen so that the config is actually reloaded in those classes. This is needed for
-       // the properties that we're altering above and this is only used within the tests
-       pluginService.clearNamedPluginClasses();
-       choiceAuthorityService.clearCache();
+       configurationService.setProperty("choices.plugin.oairecerif.person.affiliation", "OrgUnitAuthority");
+       configurationService.setProperty("choices.presentation.oairecerif.person.affiliation", "suggest");
+       configurationService.setProperty("authority.controlled.oairecerif.person.affiliation", "true");
+
+        pluginService.clearNamedPluginClasses();
+        choiceAuthorityService.clearCache();
+        metadataAuthorityService.clearCache();
 
        parentCommunity = CommunityBuilder.createCommunity(context).build();
        Collection col1 = CollectionBuilder.createCollection(context, parentCommunity).build();
@@ -301,6 +346,15 @@ public class ItemAuthorityIT extends AbstractControllerIntegrationTest {
     @Test
     public void singleItemAuthorityWithoutOrgUnitTest() throws Exception {
        context.turnOffAuthorisationSystem();
+
+       configurationService.setProperty("plugin.named.org.dspace.content.authority.ChoiceAuthority",
+                                     new String[] { "org.dspace.content.authority.OrcidAuthority = AuthorAuthority" });
+       configurationService.setProperty("choices.plugin.dc.contributor.author", "AuthorAuthority");
+       configurationService.setProperty("choices.presentation.dc.contributor.author", "suggest");
+       configurationService.setProperty("authority.controlled.dc.contributor.author", "true");
+       configurationService.setProperty("cris.ItemAuthority.AuthorAuthority.entityType", "Person");
+       pluginService.clearNamedPluginClasses();
+       choiceAuthorityService.clearCache();
 
        parentCommunity = CommunityBuilder.createCommunity(context).build();
        Collection col1 = CollectionBuilder.createCollection(context, parentCommunity)
@@ -426,8 +480,27 @@ public class ItemAuthorityIT extends AbstractControllerIntegrationTest {
     }
 
     @Test
+    public void ePersonAuthorityPublicAccessTest() throws Exception {
+        configurationService.setProperty("authority.EPersonAuthority.public", true);
+        configurationService.setProperty("plugin.named.org.dspace.content.authority.ChoiceAuthority",
+            new String[] {"org.dspace.content.authority.EPersonAuthority = EPersonAuthority"});
+        pluginService.clearNamedPluginClasses();
+        choiceAuthorityService.clearCache();
+
+        // Test that EPersonAuthority is accessible to anonymous users
+        // as per https://github.com/DSpace/DSpace/pull/8600 requirement
+        getClient().perform(get("/api/submission/vocabularies/EPersonAuthority/entries")
+                   .param("filter", "text"))
+                   .andExpect(status().isOk());
+    }
+
+    @Test
     public void groupAuthorityTest() throws Exception {
-       context.turnOffAuthorisationSystem();
+        configurationService.setProperty("plugin.named.org.dspace.content.authority.ChoiceAuthority",
+            new String[] { "org.dspace.content.authority.GroupAuthority = GroupAuthority" });
+        pluginService.clearNamedPluginClasses();
+        choiceAuthorityService.clearCache();
+        context.turnOffAuthorisationSystem();
 
        Group simpleGroup = GroupBuilder.createGroup(context)
                                  .withName("Simple Group")
@@ -462,6 +535,14 @@ public class ItemAuthorityIT extends AbstractControllerIntegrationTest {
     public void groupAuthorityEmptyQueryTest() throws Exception {
        context.turnOffAuthorisationSystem();
 
+        // Register GroupAuthority for this test in a test-local, isolated way.
+        configurationService.setProperty("plugin.named.org.dspace.content.authority.ChoiceAuthority",
+                                         new String[] {
+                                             "org.dspace.content.authority.GroupAuthority = GroupAuthority"
+                                         });
+        pluginService.clearNamedPluginClasses();
+        choiceAuthorityService.clearCache();
+
        GroupBuilder.createGroup(context)
            .withName("Simple Group")
            .build();
@@ -480,7 +561,12 @@ public class ItemAuthorityIT extends AbstractControllerIntegrationTest {
 
     @Test
     public void groupAuthorityUnauthorizedTest() throws Exception {
-
+       configurationService.setProperty("plugin.named.org.dspace.content.authority.ChoiceAuthority",
+                                         new String[] {
+                                             "org.dspace.content.authority.GroupAuthority = GroupAuthority"
+                                         });
+       pluginService.clearNamedPluginClasses();
+       choiceAuthorityService.clearCache();
        getClient().perform(get("/api/submission/vocabularies/GroupAuthority/entries")
                   .param("filter", "wrong text"))
                   .andExpect(status().isUnauthorized());
@@ -492,8 +578,13 @@ public class ItemAuthorityIT extends AbstractControllerIntegrationTest {
                 Map.of("dc.contributor.author", "authorAuthority"));
        context.turnOffAuthorisationSystem();
 
-       configurationService.setProperty("choises.externalsource.dc.contributor.author", "authorAuthority");
-
+        // Register AuthorAuthority so it's available for REST and vocabularies
+        configurationService.setProperty("plugin.named.org.dspace.content.authority.ChoiceAuthority",
+                                            new String[] {
+                                             "org.dspace.content.authority.ItemAuthority = AuthorAuthority"
+                                            });
+       configurationService.setProperty("choices.externalsource.dc.contributor.author", "authorAuthority");
+        configurationService.setProperty("cris.ItemAuthority.AuthorAuthority.entityType", "Person");
        // These clears have to happen so that the config is actually reloaded in those classes. This is needed for
        // the properties that we're altering above and this is only used within the tests
        pluginService.clearNamedPluginClasses();
@@ -513,12 +604,21 @@ public class ItemAuthorityIT extends AbstractControllerIntegrationTest {
         Map<String, String> exptectedMap = new HashMap<String, String>();
        context.turnOffAuthorisationSystem();
 
-       configurationService.setProperty("choises.externalsource.dc.contributor.author", "fakeAuthorAuthority");
+        configurationService.setProperty(
+            "plugin.named.org.dspace.content.authority.ChoiceAuthority",
+            new String[] { "org.dspace.content.authority.ItemAuthority = AuthorAuthority" }
+        );
+        configurationService.setProperty("choices.plugin.dc.contributor.author", "AuthorAuthority");
+        configurationService.setProperty("authority.controlled.dc.contributor.author", "true");
+        configurationService.setProperty("cris.ItemAuthority.AuthorAuthority.entityType", "Person");
+        configurationService.setProperty("choices.externalsource.dc.contributor.author", "fakeAuthorAuthority");
 
-       // These clears have to happen so that the config is actually reloaded in those classes. This is needed for
-       // the properties that we're altering above and this is only used within the tests
-       pluginService.clearNamedPluginClasses();
-       choiceAuthorityService.clearCache();
+        // These clears have to happen so that the config is actually reloaded in those classes. This is needed for
+        // the properties that we're altering above and this is only used within the tests
+        pluginService.clearNamedPluginClasses();
+        choiceAuthorityService.clearCache();
+        metadataAuthorityService.clearCache();
+
 
        context.restoreAuthSystemState();
 
@@ -1049,6 +1149,56 @@ public class ItemAuthorityIT extends AbstractControllerIntegrationTest {
                                         "Author 1", "Author 1", "vocabularyEntry"),
                                 ItemAuthorityMatcher.matchItemAuthorityProperties(person2.getID().toString(),
                                         "Author 2", "Author 2", "vocabularyEntry"))));
+    }
+
+    @Test
+    public void entityTypeNoneAuthorityFilters() throws Exception {
+        context.turnOffAuthorisationSystem();
+
+        // 1. Configuration: Set up an ItemAuthority with entityType set to "none"
+        configurationService.setProperty("plugin.named.org.dspace.content.authority.ChoiceAuthority",
+                                         new String[] { "org.dspace.content.authority.ItemAuthority = NoneAuthority" });
+
+        configurationService.setProperty("choices.presentation.dc.contributor.author", "suggest");
+        configurationService.setProperty("authority.controlled.dc.contributor.author", "true");
+
+        // This triggers the filter bypass in ItemIndexFactoryImpl due to the "none" value
+        configurationService.setProperty("cris.ItemAuthority.NoneAuthority.entityType", "none");
+
+        // Clear caches to apply new configurations
+        pluginService.clearNamedPluginClasses();
+        choiceAuthorityService.clearCache();
+
+        parentCommunity = CommunityBuilder.createCommunity(context).build();
+        Collection col1 = CollectionBuilder.createCollection(context, parentCommunity).build();
+
+        // 2. Data creation: create items with different entity types
+        Item person = ItemBuilder.createItem(context, col1)
+                                 .withTitle("Test Person")
+                                 .withEntityType("Person").build();
+
+        Item orgUnit = ItemBuilder.createItem(context, col1)
+                                  .withTitle("Test OrgUnit")
+                                  .withEntityType("OrgUnit").build();
+
+        Item genericItem = ItemBuilder.createItem(context, col1)
+                                      .withTitle("Test Generic")
+                                      .build(); // Item without an explicit EntityType
+
+        context.restoreAuthSystemState();
+
+        // 3. Execution: Search for "Test"
+        String token = getAuthToken(eperson.getEmail(), password);
+        getClient(token)
+            .perform(get("/api/submission/vocabularies/NoneAuthority/entries").param("filter", "Test"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.page.totalElements", Matchers.is(1)))
+            .andExpect(jsonPath("$._embedded.entries", Matchers.contains(
+                ItemAuthorityMatcher.matchItemAuthorityProperties(
+                    genericItem.getID().toString(), "Test Generic", "Test Generic", "vocabularyEntry")
+            )))
+            .andExpect(jsonPath("$._embedded.entries[?(@.display == 'Test Person')]").isEmpty())
+            .andExpect(jsonPath("$._embedded.entries[?(@.display == 'Test OrgUnit')]").isEmpty());
     }
 
     @Override

@@ -219,8 +219,8 @@ public class BulkImportWorkbookBuilderIT extends AbstractIntegrationTestWithData
             with("dc.subject", "DSpace", 2),
             with("dc.contributor.author", "White, Walter", authorId, 600),
             with("oairecerif.author.affiliation", PLACEHOLDER_PARENT_METADATA_VALUE),
-            with("cris.virtual.department", PLACEHOLDER_PARENT_METADATA_VALUE),
-            with("cris.virtual.orcid", PLACEHOLDER_PARENT_METADATA_VALUE)));
+            with("dspace.virtual.department", PLACEHOLDER_PARENT_METADATA_VALUE),
+            with("dspace.virtual.orcid", PLACEHOLDER_PARENT_METADATA_VALUE)));
 
         assertThat(getItemBitstreamsByBundle(firstItem, "ORIGINAL"), contains(
             bitstreamWith("Bitstream 1", "First bitstream content"),
@@ -239,10 +239,10 @@ public class BulkImportWorkbookBuilderIT extends AbstractIntegrationTestWithData
             with("dc.contributor.author", "Test User", testUser.getID().toString(), 1, 600),
             with("oairecerif.author.affiliation", PLACEHOLDER_PARENT_METADATA_VALUE),
             with("oairecerif.author.affiliation", "Company", 1),
-            with("cris.virtual.department", PLACEHOLDER_PARENT_METADATA_VALUE),
-            with("cris.virtual.department", PLACEHOLDER_PARENT_METADATA_VALUE),
-            with("cris.virtual.orcid", PLACEHOLDER_PARENT_METADATA_VALUE),
-            with("cris.virtual.orcid", PLACEHOLDER_PARENT_METADATA_VALUE)
+            with("dspace.virtual.department", PLACEHOLDER_PARENT_METADATA_VALUE),
+            with("dspace.virtual.department", PLACEHOLDER_PARENT_METADATA_VALUE),
+            with("dspace.virtual.orcid", PLACEHOLDER_PARENT_METADATA_VALUE),
+            with("dspace.virtual.orcid", PLACEHOLDER_PARENT_METADATA_VALUE)
         ));
 
         assertThat(getItemBitstreamsByBundle(secondItem, "ORIGINAL"), contains(

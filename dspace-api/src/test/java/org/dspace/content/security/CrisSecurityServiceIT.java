@@ -218,8 +218,8 @@ public class CrisSecurityServiceIT extends AbstractIntegrationTestWithDatabase {
         context.restoreAuthSystemState();
 
         AccessItemMode accessMode = buildAccessItemMode(CrisSecurity.CUSTOM);
-        when(accessMode.getUserMetadataFields()).thenReturn(List.of("cris.policy.eperson"));
-        when(accessMode.getGroupMetadataFields()).thenReturn(List.of("cris.policy.group"));
+        when(accessMode.getUserMetadataFields()).thenReturn(List.of("dspace.policy.eperson"));
+        when(accessMode.getGroupMetadataFields()).thenReturn(List.of("dspace.policy.group"));
         when(accessMode.getItemMetadataFields()).thenReturn(List.of("dc.contributor.author"));
 
         assertThat(crisSecurityService.hasAccess(context, item, eperson, accessMode), is(false));

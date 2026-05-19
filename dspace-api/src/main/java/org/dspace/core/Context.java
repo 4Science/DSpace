@@ -22,7 +22,6 @@ import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
-import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.dspace.authorize.ResourcePolicy;
 import org.dspace.content.DSpaceObject;
@@ -55,7 +54,7 @@ import org.springframework.util.CollectionUtils;
  * The context object is also used as a cache for CM API objects.
  */
 public class Context implements AutoCloseable {
-    private static final Logger log = LogManager.getLogger(Context.class);
+    private static final Logger log = org.apache.logging.log4j.LogManager.getLogger(Context.class);
     protected static final AtomicBoolean databaseUpdated = new AtomicBoolean(false);
 
     /**
@@ -478,7 +477,29 @@ public class Context implements AutoCloseable {
         }
     }
 
+    /**
+     * Clears the Hibernate session persistence context, causing all managed entities
+     * to become detached, then reloads context-bound entities.
+     *
+     * <p><strong>Key differences from other Context methods:</strong></p>
+     * <ul>
+     *   <li><strong>vs. rollback():</strong> Preserves the transaction; only clears the session cache</li>
+     *   <li><strong>vs. close()/abort():</strong> Keeps the Context and connection open; only clears entities</li>
+     * </ul>
+     *
+     * <p>Useful for memory management during batch processing while maintaining transactional integrity.</p>
+     *
+     * @throws SQLRuntimeException if reloading context-bound entities fails
+     * @see org.hibernate.Session#clear()
+     * @see #uncacheEntities()
+     */
     public void clear() {
+        // If Context is no longer open/valid, just note that it has already been closed
+        if (!isValid()) {
+            log.info("clear() was called on a closed Context object. No cache to clear.");
+            return;
+        }
+
         try {
             ((Session) dbConnection.getSession()).clear();
             reloadContextBoundEntities();
@@ -967,7 +988,7 @@ public class Context implements AutoCloseable {
 
     /**
      * Force this session to flush.
-     * 
+     *
      * @throws SQLException passed through.
      */
     public void flush() throws SQLException {

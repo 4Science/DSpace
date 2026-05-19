@@ -19,6 +19,10 @@
     </bean>
     -->
 
+    <!--
+        <context:component-scan base-package="org.dspace.identifier.doi.crossref" />
+    -->
+
     <!-- If you enabled versioning, you should use one of the versioned
          handle identifier provider instead of the default one.
          The VersionedHandleIdentifierProvider creates a new versioned
@@ -53,13 +57,12 @@
     -->
     <!--
     <bean id="org.dspace.identifier.DOIIdentifierProvider"
-          class="org.dspace.identifier.DOIIdentifierProvider"
-          scope="singleton">
+        class="org.dspace.identifier.DOIIdentifierProvider"
+        scope="singleton">
         <property name="configurationService"
-                  ref="org.dspace.services.ConfigurationService"/>
+            ref="org.dspace.services.ConfigurationService" />
         <property name="DOIConnector"
-                  ref="org.dspace.identifier.doi.DOIConnector"/>
-        <property name="filter" ref="doi-filter" />
+            ref="org.dspace.identifier.doi.DOIConnector" />
     </bean>
     -->
     <!--

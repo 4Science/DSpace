@@ -9,14 +9,12 @@ package org.dspace.app.util;
 
 import java.util.List;
 
-import org.apache.commons.lang3.StringUtils;
 import org.dspace.content.InProgressSubmission;
 import org.dspace.content.MetadataValue;
 import org.dspace.content.authority.factory.ContentAuthorityServiceFactory;
 import org.dspace.content.authority.service.MetadataAuthorityService;
 import org.dspace.content.factory.ContentServiceFactory;
 import org.dspace.content.service.ItemService;
-import org.dspace.core.Constants;
 import org.dspace.services.ConfigurationService;
 import org.dspace.services.factory.DSpaceServicesFactory;
 
@@ -29,16 +27,18 @@ import org.dspace.services.factory.DSpaceServicesFactory;
 public class TypeBindUtils {
 
     private static final ConfigurationService configurationService = DSpaceServicesFactory
-            .getInstance().getConfigurationService();
+        .getInstance().getConfigurationService();
     private static final ItemService itemService = ContentServiceFactory
-            .getInstance().getItemService();
+        .getInstance().getItemService();
     private static final MetadataAuthorityService metadataAuthorityService = ContentAuthorityServiceFactory
-            .getInstance().getMetadataAuthorityService();
+        .getInstance().getMetadataAuthorityService();
 
-    private TypeBindUtils() {}
+    private TypeBindUtils() {
+    }
 
     /**
      * This method gets the field used for type-bind.
+     *
      * @return the field used for type-bind.
      */
     public static String getTypeBindField() {
@@ -46,28 +46,13 @@ public class TypeBindUtils {
     }
 
     /**
-     * This method gets the value of the type-bind field from the current item.
-     * @return the value of the type-bind field from the current item.
+     * Gets all metadata values of the type-bind field from the current item in the submission.
+     *
+     * @param obj the in-progress submission
+     * @return the list of MetadataValue objects of the type-bind field
      */
-    public static String getTypeBindValue(InProgressSubmission<?> obj) {
-        List<MetadataValue> documentType = itemService.getMetadataByMetadataString(
-                obj.getItem(), getTypeBindField());
-
-        // check empty type-bind field
-        if (documentType == null || documentType.isEmpty()
-                || StringUtils.isBlank(documentType.get(0).getValue())) {
-            return null;
-        }
-
-        MetadataValue typeBindValue = documentType.get(0);
-
-        boolean isAuthorityAllowed = metadataAuthorityService.isAuthorityAllowed(
-                getTypeBindField().replace(".","_"), Constants.ITEM, obj.getCollection());
-        if (isAuthorityAllowed && typeBindValue.getAuthority() != null) {
-            return typeBindValue.getAuthority();
-        }
-
-        return typeBindValue.getValue();
+    public static List<MetadataValue> getTypeBindMetadataValues(InProgressSubmission<?> obj) {
+        return itemService.getMetadataByMetadataString(obj.getItem(), getTypeBindField());
     }
 
 }

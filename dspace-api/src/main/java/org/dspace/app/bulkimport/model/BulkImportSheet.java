@@ -8,6 +8,7 @@
 package org.dspace.app.bulkimport.model;
 
 import static org.apache.commons.lang3.StringUtils.isEmpty;
+import static org.apache.commons.lang3.StringUtils.length;
 import static org.dspace.util.WorkbookUtils.createCell;
 
 import java.util.ArrayList;
@@ -15,7 +16,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -113,7 +113,7 @@ public final class BulkImportSheet {
     }
 
     private String getValueLimitedByLength(String value) {
-        return StringUtils.length(value) > 32726 ? value.substring(0, 32725) + "…" : value;
+        return length(value) > 32726 ? value.substring(0, 32725) + "…" : value;
     }
 
 }

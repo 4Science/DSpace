@@ -14,7 +14,6 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Strings;
 import org.dspace.app.openpolicyfinder.OpenPolicyFinderService;
 import org.dspace.app.openpolicyfinder.v2.OpenPolicyFinderJournal;

@@ -8,7 +8,7 @@
 package org.dspace.authority.service.impl;
 
 import static org.dspace.content.Item.ANY;
-import static org.dspace.content.MetadataSchemaEnum.CRIS;
+import static org.dspace.content.MetadataSchemaEnum.DSPACE;
 
 import java.sql.SQLException;
 import java.util.Iterator;
@@ -94,15 +94,15 @@ public class ItemSearchServiceImpl implements ItemSearchService {
         }
         Item item = itemService.find(context, uuid);
         return Optional.ofNullable(item)
-            .filter(i -> hasEntityTypeEqualsTo(i, entityType));
+                       .filter(i -> hasEntityTypeEqualsTo(i, entityType));
     }
 
     private Optional<Item> findByCrisSourceIdAndEntityType(Context context, String crisSourceId,
-        String entityType) {
+                                                           String entityType) {
         Iterator<Item> items = findByCrisSourceId(context, crisSourceId);
         return StreamSupport.stream(Spliterators.spliteratorUnknownSize(items, Spliterator.ORDERED), false)
-            .filter(item -> hasEntityTypeEqualsTo(item, entityType))
-            .findFirst();
+                            .filter(item -> hasEntityTypeEqualsTo(item, entityType))
+                            .findFirst();
     }
 
     private Optional<Item> findByItemSearcher(Context context, String searchParam, String entityType, Item source) {
@@ -111,12 +111,12 @@ public class ItemSearchServiceImpl implements ItemSearchService {
             return Optional.empty();
         }
         return Optional.ofNullable(mapper.search(context, searchParamSections[0], searchParamSections[1], source))
-            .filter(item -> hasEntityTypeEqualsTo(item, entityType));
+                       .filter(item -> hasEntityTypeEqualsTo(item, entityType));
     }
 
     private Iterator<Item> findByCrisSourceId(Context context, String crisSourceId) {
         try {
-            return itemService.findUnfilteredByMetadataField(context, CRIS.getName(), "sourceId", null, crisSourceId);
+            return itemService.findUnfilteredByMetadataField(context, DSPACE.getName(), "sourceId", null, crisSourceId);
         } catch (SQLException | AuthorizeException e) {
             throw new RuntimeException("An error occurs searching items by crisSourceId " + crisSourceId, e);
         }

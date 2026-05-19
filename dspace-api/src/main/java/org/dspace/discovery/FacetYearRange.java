@@ -108,7 +108,7 @@ public class FacetYearRange {
         boolean isRelatedEntity =
             StringUtils.isNotBlank(parentQuery.getDiscoveryConfigurationName()) &&
             parentQuery.getDiscoveryConfigurationName().toUpperCase().startsWith("RELATION");
-        DiscoverResult lastYearResult = null;
+        DiscoverResult lastYearResult;
         if (isRelatedEntity) {
             lastYearResult = searchService.search(context, yearRangeQuery);
         } else {
@@ -124,7 +124,7 @@ public class FacetYearRange {
         }
         //Now get the first year
         yearRangeQuery.setSortField(dateFacet + "_sort", DiscoverQuery.SORT_ORDER.desc);
-        DiscoverResult firstYearResult = null;
+        DiscoverResult firstYearResult;
         if (isRelatedEntity) {
             firstYearResult = searchService.search(context, yearRangeQuery);
         } else {
@@ -157,7 +157,7 @@ public class FacetYearRange {
 
         if (result % multiple != 0) {
 
-            int division = result / multiple + 1;
+            int division = (result / multiple) + 1;
 
             result = division * multiple;
 

@@ -8,6 +8,7 @@
 package org.dspace.content.authority;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -285,13 +286,26 @@ public class MetadataAuthorityServiceImpl implements MetadataAuthorityService {
     }
 
     @Override
-    public boolean isAuthorityRequired(MetadataField metadataField, int dsoType, Collection collection) {
+    public boolean isAuthorityControlled(String fieldKey) {
         init();
-        return isAuthorityRequired(makeFieldKey(metadataField), dsoType, collection);
+        return controlled.containsKey(fieldKey) && controlled.get(fieldKey);
     }
 
     @Override
-    public boolean isAuthorityRequired(String fieldKey, int dsoType, Collection collection) {
+    @Deprecated
+    public boolean isAuthorityControlled(MetadataField metadataField) {
+        init();
+        return isAuthorityControlled(makeFieldKey(metadataField));
+    }
+
+    @Override
+    public boolean isAuthorityRequired(MetadataField metadataField) {
+        init();
+        return isAuthorityRequired(makeFieldKey(metadataField));
+    }
+
+    @Override
+    public boolean isAuthorityRequired(String fieldKey) {
         init();
         Boolean result = isAuthorityRequired.get(fieldKey);
         return (result != null) && result;
@@ -325,6 +339,17 @@ public class MetadataAuthorityServiceImpl implements MetadataAuthorityService {
         init();
         Integer result = minConfidence.get(makeFieldKey(metadataField));
         return result == null ? defaultMinConfidence : result;
+    }
+
+    @Override
+    @Deprecated
+    public List<String> getAuthorityMetadata() {
+        init();
+        List<String> copy = new ArrayList<>();
+        for (String s : controlled.keySet()) {
+            copy.add(s.replaceAll("_", "."));
+        }
+        return copy;
     }
 
     @Override

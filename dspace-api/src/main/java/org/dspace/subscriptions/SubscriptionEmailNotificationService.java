@@ -30,7 +30,7 @@ public interface SubscriptionEmailNotificationService {
     public void perform(Context context, DSpaceRunnableHandler handler, String subscriptionType, String frequency);
 
     /**
-     *  returns a set of supported SubscriptionTypes
+     * returns a set of supported SubscriptionTypes
      */
     public List<String> getSupportedSubscriptionTypes();
 

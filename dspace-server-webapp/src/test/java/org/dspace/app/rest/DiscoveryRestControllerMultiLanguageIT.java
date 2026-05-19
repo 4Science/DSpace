@@ -33,6 +33,7 @@ import org.dspace.services.ConfigurationService;
 import org.dspace.services.factory.DSpaceServicesFactory;
 import org.hamcrest.Matchers;
 import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -62,6 +63,11 @@ public class DiscoveryRestControllerMultiLanguageIT extends AbstractControllerIn
         // the DCInputAuthority has an internal cache of the DCInputReader
         DCInputAuthority.reset();
         DCInputAuthority.getPluginNames();
+    }
+
+    @Before
+    public void before() {
+        choiceAuthorityService.getChoiceAuthoritiesNames(); // initialize the ChoiceAuthorityService
     }
 
     @Test
@@ -102,6 +108,7 @@ public class DiscoveryRestControllerMultiLanguageIT extends AbstractControllerIn
         context.restoreAuthSystemState();
 
         getClient().perform(get("/api/discover/search/objects")
+            .param("scope", col1.getID().toString())
             .param("sort", "dc.date.accessioned, ASC")
             .param("query", "language:(uk)"))
             .andExpect(status().isOk())
@@ -114,6 +121,7 @@ public class DiscoveryRestControllerMultiLanguageIT extends AbstractControllerIn
                 SearchResultMatcher.match("core", "item", "items"))));
 
         getClient().perform(get("/api/discover/search/objects")
+            .param("scope", col1.getID().toString())
             .param("sort", "dc.date.accessioned, ASC")
             .param("query", "language_keyword:\"it\""))
             .andExpect(status().isOk())
@@ -126,6 +134,7 @@ public class DiscoveryRestControllerMultiLanguageIT extends AbstractControllerIn
                 SearchResultMatcher.match("core", "item", "items"))));
 
         getClient().perform(get("/api/discover/search/objects")
+            .param("scope", col1.getID().toString())
             .param("sort", "dc.date.accessioned, ASC")
             .param("query", "Italiano"))
             .andExpect(status().isOk())
@@ -138,6 +147,7 @@ public class DiscoveryRestControllerMultiLanguageIT extends AbstractControllerIn
                 SearchResultMatcher.match("core", "item", "items"))));
 
         getClient().perform(get("/api/discover/search/objects")
+            .param("scope", col1.getID().toString())
             .param("sort", "dc.date.accessioned, ASC")
             .param("query", "Український"))
             .andExpect(status().isOk())
@@ -150,6 +160,7 @@ public class DiscoveryRestControllerMultiLanguageIT extends AbstractControllerIn
                 SearchResultMatcher.match("core", "item", "items"))));
 
         getClient().perform(get("/api/discover/search/objects")
+            .param("scope", col1.getID().toString())
             .param("sort", "dc.date.accessioned, ASC")
             .param("f.language", "Italiano,equals")
             .header("Accept-Language", Locale.ITALIAN.getLanguage()))
@@ -204,6 +215,7 @@ public class DiscoveryRestControllerMultiLanguageIT extends AbstractControllerIn
         context.restoreAuthSystemState();
 
         getClient().perform(get("/api/discover/facets/language")
+            .param("scope", col1.getID().toString())
             .header("Accept-Language", "uk"))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.type", is("discover")))
@@ -215,6 +227,7 @@ public class DiscoveryRestControllerMultiLanguageIT extends AbstractControllerIn
                 FacetValueMatcher.entryLanguage("Український"))));
 
         getClient().perform(get("/api/discover/facets/language")
+            .param("scope", col1.getID().toString())
             .header("Accept-Language", Locale.ITALIAN.getLanguage()))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.type", is("discover")))
@@ -267,6 +280,7 @@ public class DiscoveryRestControllerMultiLanguageIT extends AbstractControllerIn
 
         getClient().perform(get("/api/discover/facets/language")
             .header("Accept-Language", Locale.ITALIAN.getLanguage())
+            .param("scope", col1.getID().toString())
             .param("prefix", "ucra"))
             .andExpect(jsonPath("$.type", is("discover")))
             .andExpect(jsonPath("$.name", is("language")))
@@ -309,6 +323,7 @@ public class DiscoveryRestControllerMultiLanguageIT extends AbstractControllerIn
             context.restoreAuthSystemState();
 
             getClient().perform(get("/api/discover/facets/types")
+                       .param("scope", col1.getID().toString())
                        .header("Accept-Language", Locale.ITALIAN.getLanguage())
                        .param("configuration", "multilanguage-types")
                        .param("prefix", "matem"))
@@ -317,6 +332,7 @@ public class DiscoveryRestControllerMultiLanguageIT extends AbstractControllerIn
                        .andExpect(jsonPath("$._links.self.href", containsString("api/discover/facets/types")));
 
             getClient().perform(get("/api/discover/facets/types")
+                       .param("scope", col1.getID().toString())
                        .header("Accept-Language", "uk")
                        .param("configuration", "multilanguage-types")
                        .param("prefix", "мат"))
@@ -362,6 +378,7 @@ public class DiscoveryRestControllerMultiLanguageIT extends AbstractControllerIn
 
             getClient().perform(get("/api/discover/facets/types")
                 .header("Accept-Language", Locale.ITALIAN.getLanguage())
+                .param("scope", col1.getID().toString())
                 .param("configuration", "multilanguage-types")
                 .param("prefix", "research"))
                 .andExpect(jsonPath("$.type", is("discover")))
@@ -370,6 +387,7 @@ public class DiscoveryRestControllerMultiLanguageIT extends AbstractControllerIn
 
             getClient().perform(get("/api/discover/facets/types")
                 .header("Accept-Language", "uk")
+                .param("scope", col1.getID().toString())
                 .param("configuration", "multilanguage-types")
                 .param("prefix", "research"))
                 .andExpect(jsonPath("$.type", is("discover")))
@@ -412,6 +430,7 @@ public class DiscoveryRestControllerMultiLanguageIT extends AbstractControllerIn
             context.restoreAuthSystemState();
 
             getClient().perform(get("/api/discover/facets/types")
+                .param("scope", col1.getID().toString())
                 .header("Accept-Language", Locale.ITALIAN.getLanguage())
                 .param("configuration", "multilanguage-types")
                 .param("prefix", "research"))
@@ -420,6 +439,7 @@ public class DiscoveryRestControllerMultiLanguageIT extends AbstractControllerIn
                 .andExpect(jsonPath("$._links.self.href", containsString("api/discover/facets/types")));
 
             getClient().perform(get("/api/discover/facets/types")
+                .param("scope", col1.getID().toString())
                 .header("Accept-Language", "uk")
                 .param("configuration", "multilanguage-types")
                 .param("prefix", "research"))
@@ -463,6 +483,7 @@ public class DiscoveryRestControllerMultiLanguageIT extends AbstractControllerIn
             context.restoreAuthSystemState();
 
             getClient().perform(get("/api/discover/facets/types")
+                .param("scope", col1.getID().toString())
                 .header("Accept-Language", Locale.ITALIAN.getLanguage())
                 .param("configuration", "multilanguage-types")
                 .param("prefix", "research"))
@@ -471,6 +492,7 @@ public class DiscoveryRestControllerMultiLanguageIT extends AbstractControllerIn
                 .andExpect(jsonPath("$._links.self.href", containsString("api/discover/facets/types")));
 
             getClient().perform(get("/api/discover/facets/types")
+                .param("scope", col1.getID().toString())
                 .header("Accept-Language", "uk")
                 .param("configuration", "multilanguage-types")
                 .param("prefix", "research"))
@@ -516,6 +538,7 @@ public class DiscoveryRestControllerMultiLanguageIT extends AbstractControllerIn
 
             getClient().perform(get("/api/discover/facets/types")
                 .header("Accept-Language", Locale.ITALIAN.getLanguage())
+                .param("scope", col1.getID().toString())
                 .param("configuration", "multilanguage-types")
                 .param("prefix", "research"))
                 .andExpect(jsonPath("$.type", is("discover")))
@@ -524,6 +547,7 @@ public class DiscoveryRestControllerMultiLanguageIT extends AbstractControllerIn
 
             getClient().perform(get("/api/discover/facets/types")
                 .header("Accept-Language", "uk")
+                .param("scope", col1.getID().toString())
                 .param("configuration", "multilanguage-types")
                 .param("prefix", "research"))
                 .andExpect(jsonPath("$.type", is("discover")))

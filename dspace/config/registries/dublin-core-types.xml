@@ -783,7 +783,7 @@
 	<schema>dc</schema>
     <element>identifier</element>
     <qualifier>patentnumber</qualifier>
-    <scope_note></scope_note>
+    <scope_note>The Patent Number Identifier</scope_note>
   </dc-type>
 
   <dc-type>

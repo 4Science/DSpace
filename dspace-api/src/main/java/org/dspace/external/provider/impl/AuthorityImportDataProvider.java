@@ -37,10 +37,11 @@ import org.dspace.util.UUIDUtils;
  */
 public class AuthorityImportDataProvider extends AbstractExternalDataProvider {
 
-    private AuthorityImportFillerService authorityImportFillerService = AuthorityServiceFactory.getInstance()
-            .getAuthorityImportFillerService();
+    private final AuthorityImportFillerService authorityImportFillerService = AuthorityServiceFactory
+        .getInstance()
+        .getAuthorityImportFillerService();
 
-    private ItemService itemService = ContentServiceFactory.getInstance().getItemService();
+    private final ItemService itemService = ContentServiceFactory.getInstance().getItemService();
 
     /**
      * An unique human readable identifier for this provider
@@ -58,7 +59,8 @@ public class AuthorityImportDataProvider extends AbstractExternalDataProvider {
 
     /**
      * This method set the SourceIdentifier for the ExternalDataProvider
-     * @param sourceIdentifier   The UNIQUE sourceIdentifier to be set on any LiveImport data provider
+     *
+     * @param sourceIdentifier The UNIQUE sourceIdentifier to be set on any LiveImport data provider
      */
     public void setSourceIdentifier(String sourceIdentifier) {
         this.sourceIdentifier = sourceIdentifier;
@@ -146,7 +148,7 @@ public class AuthorityImportDataProvider extends AbstractExternalDataProvider {
         String title = null;
         for (MetadataValueDTO metadataValueDTO : metadataDTOList) {
             if (metadataValueDTO.getSchema().equals("dc") && metadataValueDTO.getElement().equals("title") &&
-                    metadataValueDTO.getQualifier() == null) {
+                metadataValueDTO.getQualifier() == null) {
                 title = metadataValueDTO.getValue();
             }
             if (StringUtils.isNotBlank(metadataValueDTO.getValue())

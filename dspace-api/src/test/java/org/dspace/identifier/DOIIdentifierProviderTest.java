@@ -128,7 +128,10 @@ public class DOIIdentifierProviderTest
 
             connector = mock(DOIConnector.class);
 
-            provider = new DOIIdentifierProvider();
+            provider = DSpaceServicesFactory.getInstance()
+                .getServiceManager()
+                .getServicesByType(DOIIdentifierProvider.class)
+                .get(0);
             provider.doiService = doiService;
             provider.contentServiceFactory = ContentServiceFactory.getInstance();
             provider.itemService = itemService;
@@ -189,9 +192,9 @@ public class DOIIdentifierProviderTest
         provider.delete(context, item);
 
         List<MetadataValue> metadata = itemService.getMetadata(item,
-                                                               provider.MD_SCHEMA,
-                                                               provider.DOI_ELEMENT,
-                                                               provider.DOI_QUALIFIER,
+                                                               provider.doiMetadataFieldName.schema,
+                                                               provider.doiMetadataFieldName.element,
+                                                               provider.doiMetadataFieldName.qualifier,
                                                                null);
         List<String> remainder = new ArrayList<>();
 
@@ -202,14 +205,15 @@ public class DOIIdentifierProviderTest
         }
 
         itemService.clearMetadata(context, item,
-                                  provider.MD_SCHEMA,
-                                  provider.DOI_ELEMENT,
-                                  provider.DOI_QUALIFIER,
+                                  provider.doiMetadataFieldName.schema,
+                                  provider.doiMetadataFieldName.element,
+                                  provider.doiMetadataFieldName.qualifier,
                                   null);
         if (!remainder.isEmpty()) {
-            itemService.addMetadata(context, item, provider.MD_SCHEMA,
-                                    provider.DOI_ELEMENT,
-                                    provider.DOI_QUALIFIER,
+            itemService.addMetadata(context, item,
+                                    provider.doiMetadataFieldName.schema,
+                                    provider.doiMetadataFieldName.element,
+                                    provider.doiMetadataFieldName.qualifier,
                                     null,
                                     remainder);
         }
@@ -254,9 +258,10 @@ public class DOIIdentifierProviderTest
         doiService.update(context, doiRow);
 
         if (metadata) {
-            itemService.addMetadata(context, item, provider.MD_SCHEMA,
-                                    provider.DOI_ELEMENT,
-                                    provider.DOI_QUALIFIER,
+            itemService.addMetadata(context, item,
+                                    provider.doiMetadataFieldName.schema,
+                                    provider.doiMetadataFieldName.element,
+                                    provider.doiMetadataFieldName.qualifier,
                                     null,
                                     doiService.DOIToExternalForm(doi));
             itemService.update(context, item);
@@ -315,9 +320,10 @@ public class DOIIdentifierProviderTest
         provider.saveDOIToObject(context, item, doi);
         context.restoreAuthSystemState();
 
-        List<MetadataValue> metadata = itemService.getMetadata(item, provider.MD_SCHEMA,
-                                                               provider.DOI_ELEMENT,
-                                                               provider.DOI_QUALIFIER,
+        List<MetadataValue> metadata = itemService.getMetadata(item,
+                                                               provider.doiMetadataFieldName.schema,
+                                                               provider.doiMetadataFieldName.element,
+                                                               provider.doiMetadataFieldName.qualifier,
                                                                null);
         boolean result = false;
         for (MetadataValue id : metadata) {
@@ -335,9 +341,10 @@ public class DOIIdentifierProviderTest
             + Long.toHexString(Instant.now().toEpochMilli());
 
         context.turnOffAuthorisationSystem();
-        itemService.addMetadata(context, item, provider.MD_SCHEMA,
-                                provider.DOI_ELEMENT,
-                                provider.DOI_QUALIFIER,
+        itemService.addMetadata(context, item,
+                                provider.doiMetadataFieldName.schema,
+                                provider.doiMetadataFieldName.element,
+                                provider.doiMetadataFieldName.qualifier,
                                 null,
                                 doiService.DOIToExternalForm(doi));
         itemService.update(context, item);
@@ -368,9 +375,10 @@ public class DOIIdentifierProviderTest
             Long.toHexString(new Date().getTime());
 
         context.turnOffAuthorisationSystem();
-        itemService.addMetadata(context, item, provider.MD_SCHEMA,
-                                provider.DOI_ELEMENT,
-                                provider.DOI_QUALIFIER,
+        itemService.addMetadata(context, item,
+                                provider.doiMetadataFieldName.schema,
+                                provider.doiMetadataFieldName.element,
+                                provider.doiMetadataFieldName.qualifier,
                                 null,
                                 doiService.DOIToExternalForm(doi));
         itemService.update(context, item);
@@ -409,9 +417,10 @@ public class DOIIdentifierProviderTest
 
         context.turnOffAuthorisationSystem();
 
-        itemService.addMetadata(context, item, provider.MD_SCHEMA,
-                                provider.DOI_ELEMENT,
-                                provider.DOI_QUALIFIER,
+        itemService.addMetadata(context, item,
+                                provider.doiMetadataFieldName.schema,
+                                provider.doiMetadataFieldName.element,
+                                provider.doiMetadataFieldName.qualifier,
                                 null,
                                 doiService.DOIToExternalForm(doi));
         itemService.update(context, item);
@@ -451,9 +460,10 @@ public class DOIIdentifierProviderTest
 
         context.turnOffAuthorisationSystem();
 
-        itemService.addMetadata(context, item, provider.MD_SCHEMA,
-                                provider.DOI_ELEMENT,
-                                provider.DOI_QUALIFIER,
+        itemService.addMetadata(context, item,
+                                provider.doiMetadataFieldName.schema,
+                                provider.doiMetadataFieldName.element,
+                                provider.doiMetadataFieldName.qualifier,
                                 null,
                                 doiService.DOIToExternalForm(doi));
         itemService.update(context, item);
@@ -490,9 +500,10 @@ public class DOIIdentifierProviderTest
 
         context.turnOffAuthorisationSystem();
 
-        itemService.addMetadata(context, item, provider.MD_SCHEMA,
-                                provider.DOI_ELEMENT,
-                                provider.DOI_QUALIFIER,
+        itemService.addMetadata(context, item,
+                                provider.doiMetadataFieldName.schema,
+                                provider.doiMetadataFieldName.element,
+                                provider.doiMetadataFieldName.qualifier,
                                 null,
                                 doiService.DOIToExternalForm(doi));
         itemService.update(context, item);
@@ -513,9 +524,10 @@ public class DOIIdentifierProviderTest
             + Long.toHexString(Instant.now().toEpochMilli());
 
         context.turnOffAuthorisationSystem();
-        itemService.addMetadata(context, item, provider.MD_SCHEMA,
-                                provider.DOI_ELEMENT,
-                                provider.DOI_QUALIFIER,
+        itemService.addMetadata(context, item,
+                                provider.doiMetadataFieldName.schema,
+                                provider.doiMetadataFieldName.element,
+                                provider.doiMetadataFieldName.qualifier,
                                 null,
                                 doiService.DOIToExternalForm(doi));
         itemService.update(context, item);
@@ -523,9 +535,10 @@ public class DOIIdentifierProviderTest
         provider.removeDOIFromObject(context, item, doi);
         context.restoreAuthSystemState();
 
-        List<MetadataValue> metadata = itemService.getMetadata(item, provider.MD_SCHEMA,
-                                                               provider.DOI_ELEMENT,
-                                                               provider.DOI_QUALIFIER,
+        List<MetadataValue> metadata = itemService.getMetadata(item,
+                                                               provider.doiMetadataFieldName.schema,
+                                                               provider.doiMetadataFieldName.element,
+                                                               provider.doiMetadataFieldName.qualifier,
                                                                null);
         boolean foundDOI = false;
         for (MetadataValue id : metadata) {
@@ -601,9 +614,10 @@ public class DOIIdentifierProviderTest
         context.restoreAuthSystemState();
 
         // assure that the right one was removed
-        List<MetadataValue> metadata = itemService.getMetadata(item, provider.MD_SCHEMA,
-                                                               provider.DOI_ELEMENT,
-                                                               provider.DOI_QUALIFIER,
+        List<MetadataValue> metadata = itemService.getMetadata(item,
+                                                               provider.doiMetadataFieldName.schema,
+                                                               provider.doiMetadataFieldName.element,
+                                                               provider.doiMetadataFieldName.qualifier,
                                                                null);
         boolean foundDOI1 = false;
         boolean foundDOI2 = false;
@@ -625,9 +639,10 @@ public class DOIIdentifierProviderTest
         context.restoreAuthSystemState();
 
         // check it
-        metadata = itemService.getMetadata(item, provider.MD_SCHEMA,
-                                           provider.DOI_ELEMENT,
-                                           provider.DOI_QUALIFIER,
+        metadata = itemService.getMetadata(item,
+                                           provider.doiMetadataFieldName.schema,
+                                           provider.doiMetadataFieldName.element,
+                                           provider.doiMetadataFieldName.qualifier,
                                            null);
         foundDOI1 = false;
         foundDOI2 = false;
@@ -818,9 +833,10 @@ public class DOIIdentifierProviderTest
         context.restoreAuthSystemState();
 
         // assure that the right one was removed
-        List<MetadataValue> metadata = itemService.getMetadata(item, provider.MD_SCHEMA,
-                                                               provider.DOI_ELEMENT,
-                                                               provider.DOI_QUALIFIER,
+        List<MetadataValue> metadata = itemService.getMetadata(item,
+                                                               provider.doiMetadataFieldName.schema,
+                                                               provider.doiMetadataFieldName.element,
+                                                               provider.doiMetadataFieldName.qualifier,
                                                                null);
         boolean foundDOI1 = false;
         boolean foundDOI2 = false;
@@ -858,9 +874,10 @@ public class DOIIdentifierProviderTest
         context.restoreAuthSystemState();
 
         // assure that the right one was removed
-        List<MetadataValue> metadata = itemService.getMetadata(item, provider.MD_SCHEMA,
-                                                               provider.DOI_ELEMENT,
-                                                               provider.DOI_QUALIFIER,
+        List<MetadataValue> metadata = itemService.getMetadata(item,
+                                                               provider.doiMetadataFieldName.schema,
+                                                               provider.doiMetadataFieldName.element,
+                                                               provider.doiMetadataFieldName.qualifier,
                                                                null);
         boolean foundDOI1 = false;
         boolean foundDOI2 = false;

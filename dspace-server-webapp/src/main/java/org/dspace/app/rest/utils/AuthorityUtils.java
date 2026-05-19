@@ -49,7 +49,7 @@ public class AuthorityUtils {
     private ConverterService converter;
 
     /**
-     * 
+     *
      * @param schema
      * @param element
      * @param qualifier

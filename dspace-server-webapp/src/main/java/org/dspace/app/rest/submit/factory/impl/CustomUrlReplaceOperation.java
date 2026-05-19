@@ -33,7 +33,7 @@ public class CustomUrlReplaceOperation extends ReplacePatchOperation<CustomUrl> 
     @Override
     @SuppressWarnings("rawtypes")
     void replace(Context context, HttpServletRequest currentRequest, InProgressSubmission source, String path,
-        Object value) throws Exception {
+                 Object value) throws Exception {
 
         Item item = source.getItem();
 

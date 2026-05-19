@@ -11,7 +11,7 @@ package org.dspace.authenticate;
 import static java.lang.String.format;
 import static java.lang.String.join;
 import static java.net.URLEncoder.encode;
-import static org.apache.commons.lang.BooleanUtils.toBoolean;
+import static org.apache.commons.lang3.BooleanUtils.toBoolean;
 import static org.apache.commons.lang3.StringUtils.isAnyBlank;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 

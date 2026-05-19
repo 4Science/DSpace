@@ -34,15 +34,15 @@ import org.springframework.beans.factory.annotation.Autowired;
  */
 public class ValidationServiceImpl implements ValidationService {
 
-    private List<SubmissionStepValidator> stepValidators;
+    private final List<SubmissionStepValidator> stepValidators;
 
-    private List<GlobalSubmissionValidator> globalValidators;
+    private final List<GlobalSubmissionValidator> globalValidators;
 
     private SubmissionConfigReader submissionConfigReader;
 
     @Autowired
     public ValidationServiceImpl(List<SubmissionStepValidator> stepValidators,
-        List<GlobalSubmissionValidator> globalValidators) {
+                                 List<GlobalSubmissionValidator> globalValidators) {
         this.stepValidators = stepValidators;
         this.globalValidators = globalValidators;
     }
@@ -68,20 +68,20 @@ public class ValidationServiceImpl implements ValidationService {
     }
 
     private List<ValidationError> notHiddenStepsValidations(Context context, InProgressSubmission<?> obj,
-        SubmissionConfig submissionConfig) {
+                                                            SubmissionConfig submissionConfig) {
 
-        List<ValidationError> errors = new ArrayList<ValidationError>();
+        List<ValidationError> errors = new ArrayList<>();
 
         for (SubmissionStepConfig stepConfig : submissionConfig) {
 
-            if (isStepHiddenOrReadOnly(stepConfig, obj)) {
+            if (isStepHidden(stepConfig, obj)) {
                 continue;
             }
 
             stepValidators.stream()
-                .filter(validation -> validation.getName().equals(stepConfig.getType()))
-                .flatMap(validation -> validation.validate(context, obj, stepConfig).stream())
-                .forEach(errors::add);
+                          .filter(validation -> validation.getName().equals(stepConfig.getType()))
+                          .flatMap(validation -> validation.validate(context, obj, stepConfig).stream())
+                          .forEach(errors::add);
 
         }
 
@@ -90,16 +90,16 @@ public class ValidationServiceImpl implements ValidationService {
     }
 
     private List<ValidationError> globalValidations(Context context, InProgressSubmission<?> obj,
-        SubmissionConfig submissionConfig) {
+                                                    SubmissionConfig submissionConfig) {
 
         return globalValidators.stream()
-            .flatMap(validator -> validator.validate(context, obj, submissionConfig).stream())
-            .collect(Collectors.toList());
+                               .flatMap(validator -> validator.validate(context, obj, submissionConfig).stream())
+                               .collect(Collectors.toList());
 
     }
 
-    private boolean isStepHiddenOrReadOnly(SubmissionStepConfig stepConfig, InProgressSubmission<?> obj) {
-        return stepConfig.isHiddenForInProgressSubmission(obj) || stepConfig.isReadOnlyForInProgressSubmission(obj);
+    private boolean isStepHidden(SubmissionStepConfig stepConfig, InProgressSubmission<?> obj) {
+        return stepConfig.isHiddenForInProgressSubmission(obj);
     }
 
 

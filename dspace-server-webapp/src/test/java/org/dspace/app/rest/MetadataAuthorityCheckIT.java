@@ -102,6 +102,7 @@ public class MetadataAuthorityCheckIT extends AbstractControllerIntegrationTest 
 
     @Test
     public void addRequiredAuthorityControlledMetadataWithoutAuthorities() throws Exception {
+        configurationService.setProperty("authority.controlled.dc.contributor.author", "true");
         metadataAuthorityService.clearCache();
         try {
             configurationService.setProperty("authority.required.dc.contributor.author", true);

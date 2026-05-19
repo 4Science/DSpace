@@ -950,9 +950,9 @@ public class PatchMetadataIT extends AbstractEntityIntegrationTest {
     @Test
     public void replaceMultipleTraditionalPageOnePlainTextAuthorTest() throws Exception {
         final boolean virtualMetadataEnabled =
-            configurationService.getBooleanProperty("item.enable-virtual-metadata", false);
+            configurationService.getBooleanProperty("relationship.enable-virtual-metadata", false);
 
-        configurationService.setProperty("item.enable-virtual-metadata", false);
+        configurationService.setProperty("relationship.enable-virtual-metadata", false);
         try {
             initPlainTextPublicationWorkspace();
 
@@ -978,7 +978,7 @@ public class PatchMetadataIT extends AbstractEntityIntegrationTest {
         } catch (Exception e) {
             throw e;
         } finally {
-            configurationService.setProperty("item.enable-virtual-metadata", virtualMetadataEnabled);
+            configurationService.setProperty("relationship.enable-virtual-metadata", virtualMetadataEnabled);
         }
     }
 

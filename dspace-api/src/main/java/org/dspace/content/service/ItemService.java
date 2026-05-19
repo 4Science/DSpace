@@ -21,7 +21,6 @@ import org.dspace.content.Bitstream;
 import org.dspace.content.Bundle;
 import org.dspace.content.Collection;
 import org.dspace.content.Community;
-import org.dspace.content.DSpaceObject;
 import org.dspace.content.EntityType;
 import org.dspace.content.Item;
 import org.dspace.content.MetadataValue;
@@ -93,7 +92,7 @@ public interface ItemService
      * @param item    item to populate with template item specified metadata
      * @throws SQLException       if database error
      */
-    public void populateWithTemplateItemMetadata (Context context, Collection collection, boolean template, Item item)
+    void populateWithTemplateItemMetadata(Context context, Collection collection, boolean template, Item item)
         throws SQLException;
 
     /**
@@ -743,9 +742,29 @@ public interface ItemService
     Iterator<Item> findArchivedByMetadataField(Context context, String metadataField, String value)
             throws SQLException, AuthorizeException;
 
-    Iterator<Item> findUnfilteredByMetadataField(
-        Context context, String schema, String element, String qualifier, String value
-    ) throws SQLException, AuthorizeException;
+    /**
+     * Find items based on a specific metadata field and value, bypassing standard
+     * status filters. If the value is <code>Item.ANY</code>, it returns all items
+     * containing at least one value for the specified field.
+     * <p>
+     * This method validates the existence of the schema and field before querying
+     * the DAO. It does not filter by archive status, meaning results may include
+     * workspace, workflow, or withdrawn items depending on the DAO implementation.
+     * </p>
+     *
+     * @param context   DSpace context object
+     * @param schema    metadata schema name (e.g., "dc")
+     * @param element   metadata element name (e.g., "identifier")
+     * @param qualifier metadata qualifier name (e.g., "uri"), or null
+     * @param value     the value to search for, or <code>Item.ANY</code> to match any value
+     * @return an iterator over the matching items
+     * @throws SQLException             if a database error occurs
+     * @throws AuthorizeException       if the user lacks sufficient privileges
+     * @throws IllegalArgumentException if the schema or metadata field does not exist
+     */
+    Iterator<Item> findUnfilteredByMetadataField(Context context,
+                                                 String schema, String element, String qualifier, String value)
+        throws SQLException, AuthorizeException;
 
     /**
      * Returns an iterator of in archive items possessing the passed metadata field, or only
@@ -779,9 +798,9 @@ public interface ItemService
      * @throws AuthorizeException if authorization error
      * @throws IOException        if IO error
      */
-    Iterator<Item> findByMetadataField(
-        Context context, String schema, String element, String qualifier, String value
-    ) throws SQLException, AuthorizeException, IOException;
+    Iterator<Item> findByMetadataField(Context context,
+                                              String schema, String element, String qualifier, String value)
+        throws SQLException, AuthorizeException, IOException;
 
     /**
      * Returns a list of items that match the given predicates, within the
@@ -937,23 +956,23 @@ public interface ItemService
     /**
       * finds all items for which the current user has editing rights
       * @param context DSpace context object
+      * @param q search query
       * @param offset page offset
       * @param limit  page size limit
       * @return list of items for which the current user has editing rights
-      * @throws SQLException
       * @throws SearchServiceException
       */
-    List<Item> findItemsWithEdit(Context context, int offset, int limit)
-        throws SQLException, SearchServiceException;
+    List<Item> findItemsWithEdit(Context context, String q, int offset, int limit)
+        throws SearchServiceException;
 
     /**
     * counts all items for which the current user has editing rights
     * @param context DSpace context object
+    * @param q search query
     * @return list of items for which the current user has editing rights
-    * @throws SQLException
     * @throws SearchServiceException
     */
-    int countItemsWithEdit(Context context) throws SQLException, SearchServiceException;
+    int countItemsWithEdit(Context context, String q) throws SearchServiceException;
 
     /**
      * Check if the supplied item is an inprogress submission
@@ -1022,7 +1041,7 @@ public interface ItemService
      * @param  item    the item
      * @return         the entity type as string, if any
      */
-    public String getEntityType(Item item);
+    String getEntityType(Item item);
 
     /**
      * Set the entity type of the given item with the provided value.
@@ -1030,7 +1049,7 @@ public interface ItemService
      * @param item       the item to update
      * @param entityType the entity type to set
      */
-    public void setEntityType(Context context, Item item, String entityType);
+    void setEntityType(Context context, Item item, String entityType);
 
     /**
      * Find all the items in the archive or not with a given authority key value in LIKE format.
@@ -1043,8 +1062,8 @@ public interface ItemService
      * @return
      * @throws SQLException   if database error
      */
-    public Iterator<Item> findByLikeAuthorityValue(Context context, String likeAuthority,
-            Boolean inArchive) throws SQLException;
+    Iterator<Item> findByLikeAuthorityValue(Context context, String likeAuthority,
+                                            Boolean inArchive) throws SQLException;
 
     /**
      * Find all the items matching the given list of ids.
@@ -1073,24 +1092,8 @@ public interface ItemService
      */
     EntityType getEntityType(Context context, Item item) throws SQLException;
 
-    /**
-     * Add the default policies, which have not been already added to the given
-     * DSpace object
-     *
-     * @param  context                   The relevant DSpace Context.
-     * @param  dso                       The DSpace Object to add policies to
-     * @param  defaultCollectionPolicies list of policies
-     * @throws SQLException              An exception that provides information on a
-     *                                   database access error or other errors.
-     * @throws AuthorizeException        Exception indicating the current user of
-     *                                   the context does not have permission to
-     *                                   perform a particular action.
-     */
-    void addDefaultPoliciesNotInPlace(Context context, DSpaceObject dso, List<ResourcePolicy> defaultCollectionPolicies)
-        throws SQLException, AuthorizeException;
-
-    public Iterator<Item> findRelatedItemsByAuthorityControlledFields(Context context,
-                                                                      Item item, List<String> authorities);
+    Iterator<Item> findRelatedItemsByAuthorityControlledFields(Context context,
+                                                               Item item, List<String> authorities);
 
     /**
      * Adds a resource policy to the specified item for the given action and EPerson.
@@ -1114,5 +1117,5 @@ public interface ItemService
      * @param  item    the item that should be checked.
      * @return         true if the item is the latest version, false otherwise.
      */
-    public boolean isLatestVersion(Context context, Item item) throws SQLException;
+    boolean isLatestVersion(Context context, Item item) throws SQLException;
 }

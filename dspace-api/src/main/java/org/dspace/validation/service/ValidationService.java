@@ -26,9 +26,9 @@ public interface ValidationService {
     /**
      * Validate the given {@link InProgressSubmission} instance.
      *
-     * @param  context the DSpace context
-     * @param  obj     the {@link InProgressSubmission} instance to validate
-     * @return         the validation errors, if any
+     * @param context the DSpace context
+     * @param obj     the {@link InProgressSubmission} instance to validate
+     * @return the validation errors, if any
      */
     List<ValidationError> validate(Context context, InProgressSubmission<?> obj);
 }

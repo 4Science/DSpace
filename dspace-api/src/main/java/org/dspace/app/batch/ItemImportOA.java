@@ -7,7 +7,7 @@
  */
 package org.dspace.app.batch;
 
-import static org.dspace.content.MetadataSchemaEnum.CRIS;
+import static org.dspace.content.MetadataSchemaEnum.DSPACE;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
@@ -644,7 +644,7 @@ public class ItemImportOA {
 
     private void addCrisSourceId(Context c, Item item, ImpRecord impRecord) throws SQLException {
         String sourceId = impRecord.getImpSourceref() + AuthorityValueService.SPLIT + impRecord.getImpRecordId();
-        itemService.addMetadata(c, item, CRIS.getName(), "sourceId", null, null, sourceId);
+        itemService.addMetadata(c, item, DSPACE.getName(), "sourceId", null, null, sourceId);
     }
 
     /**

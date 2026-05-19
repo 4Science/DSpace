@@ -23,6 +23,8 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.response.QueryResponse;
@@ -379,23 +381,9 @@ public class MediaFilterServiceImpl implements MediaFilterService, InitializingB
         String newName = formatFilter.getFilteredName(source.getName());
 
         // check if destination bitstream exists
-        Bundle existingBundle = null;
-        List<Bitstream> existingBitstreams = new ArrayList<>();
-        List<Bundle> bundles = itemService.getBundles(item, formatFilter.getBundleName());
-
-        if (!bundles.isEmpty()) {
-            // only finds the last matching bundle and all matching bitstreams in the proper bundle(s)
-            for (Bundle bundle : bundles) {
-                List<Bitstream> bitstreams = bundle.getBitstreams();
-
-                for (Bitstream bitstream : bitstreams) {
-                    if (bitstream.getName().trim().equals(newName.trim())) {
-                        existingBundle = bundle;
-                        existingBitstreams.add(bitstream);
-                    }
-                }
-            }
-        }
+        Pair<List<Bitstream>, Bundle> bitstreamsAndBundle = getBitstreamsDerivedFromFilter(item, source, formatFilter);
+        List<Bitstream> existingBitstreams = bitstreamsAndBundle.getLeft();
+        Bundle existingBundle = bitstreamsAndBundle.getRight();
 
         // if exists and overwrite = false, exit
         if (!overWrite && (!existingBitstreams.isEmpty())) {
@@ -430,6 +418,7 @@ public class MediaFilterServiceImpl implements MediaFilterService, InitializingB
                 return false;
             }
 
+            List<Bundle> bundles = itemService.getBundles(item, formatFilter.getBundleName());
             Bundle targetBundle; // bundle we're modifying
             if (bundles.isEmpty()) {
                 // create new bundle if needed
@@ -477,22 +466,65 @@ public class MediaFilterServiceImpl implements MediaFilterService, InitializingB
     }
 
     @Override
-    public void updatePoliciesOfDerivativeBitstreams(Context context, Item item, Bitstream source) {
-        if (this.policyUpdaters == null || this.policyUpdaters.isEmpty()) {
-            logInfo("No policy updater configured!");
-        }
-        this.policyUpdaters.forEach(updater -> {
-            try {
-                updater.updatePolicies(context, item, source);
-            } catch (Exception e) {
-                logError(
-                    "Failed to update policies with " + updater.getClass().getSimpleName() +
-                    " for bitstream " + source.getID() + " - " + source.getName() +
-                    " related to item " + item.getID(),
-                    e
-                );
+    public Pair<List<Bitstream>, Bundle> getBitstreamsDerivedFromFilter(Item item, Bitstream sourceBitstream,
+                                                                        FormatFilter formatFilter) throws Exception {
+        Bundle lastBundle = null;
+        String filteredName = formatFilter.getFilteredName(sourceBitstream.getName());
+        List<Bitstream> derivedBitstreams = new ArrayList<>();
+        List<Bundle> bundleList = itemService.getBundles(item, formatFilter.getBundleName());
+        if (!bundleList.isEmpty()) {
+            // only finds the last matching bundle and all matching bitstreams in the proper bundle(s)
+            for (Bundle bundle : bundleList) {
+                List<Bitstream> bitstreamList = bundle.getBitstreams();
+                for (Bitstream bitstream : bitstreamList) {
+                    if (bitstream.getName().trim().equals(filteredName.trim())) {
+                        lastBundle = bundle;
+                        derivedBitstreams.add(bitstream);
+                    }
+                }
             }
-        });
+        }
+        return Pair.of(derivedBitstreams, lastBundle);
+    }
+
+    @Override
+    public void updatePoliciesOfDerivativeBitstreams(Context context, Item item, Bitstream source)
+        throws SQLException, AuthorizeException {
+
+        List<FormatFilter> filters = getFilterClasses();
+
+        if (filters == null || filters.isEmpty()) {
+            return;
+        }
+
+        for (FormatFilter formatFilter : filters) {
+            for (Bitstream bitstream : findDerivativeBitstreams(item, source, formatFilter)) {
+                updatePoliciesOfDerivativeBitstream(context, bitstream, formatFilter, source);
+            }
+        }
+    }
+
+    /**
+     * find derivative bitstreams related to source bitstream
+     *
+     * @param item item containing bitstreams
+     * @param source source bitstream
+     * @param formatFilter formatFilter
+     * @return list of derivative bitstreams from source bitstream
+     * @throws SQLException If something goes wrong in the database
+     */
+    private List<Bitstream> findDerivativeBitstreams(Item item, Bitstream source, FormatFilter formatFilter)
+        throws SQLException {
+
+        String bitstreamName = formatFilter.getFilteredName(source.getName());
+        List<Bundle> bundles = itemService.getBundles(item, formatFilter.getBundleName());
+
+        return bundles.stream()
+                      .flatMap(bundle ->
+                          bundle.getBitstreams().stream())
+                      .filter(bitstream ->
+                          Strings.CS.equals(bitstream.getName().trim(), bitstreamName.trim()))
+                      .collect(Collectors.toList());
     }
 
     /**

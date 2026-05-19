@@ -21,6 +21,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Strings;
 import org.apache.logging.log4j.Logger;
@@ -188,9 +189,41 @@ public final class ChoiceAuthorityServiceImpl implements ChoiceAuthorityService 
     }
 
     @Override
+    @Deprecated
+    public Choices getBestMatch(String fieldKey, String query, Collection collection, String locale) {
+        return getBestMatch(fieldKey, query, Constants.ITEM, collection, locale);
+    }
+
+    @Override
+    @Deprecated
+    public Choices getMatches(String schema, String element, String qualifier,
+                              String query, Collection collection, int start, int limit, String locale) {
+        return getMatches(makeFieldKey(schema, element, qualifier), query, collection, start, limit, locale);
+    }
+
+    @Override
+    @Deprecated
+    public Choices getMatches(String fieldKey, String query, Collection collection,
+                              int start, int limit, String locale) {
+        ChoiceAuthority ma = getAuthorityByFieldKeyCollection(fieldKey, Constants.ITEM, collection);
+        if (ma == null) {
+            throw new IllegalArgumentException(
+                "No choices plugin was configured for  field \"" + fieldKey
+                    + "\", collection=" + collection.getID().toString() + ".");
+        }
+        return ma.getMatches(query, start, limit, locale);
+    }
+
+    @Override
     public String getLabel(MetadataValue metadataValue, int dsoType, Collection collection, String locale) {
         return getLabel(metadataValue.getMetadataField().toString(), dsoType, collection, metadataValue.getAuthority(),
                 locale);
+    }
+
+    @Override
+    @Deprecated
+    public String getLabel(MetadataValue metadataValue, Collection collection, String locale) {
+        return getLabel(metadataValue, Constants.ITEM, collection, locale);
     }
 
     @Override
@@ -272,6 +305,12 @@ public final class ChoiceAuthorityServiceImpl implements ChoiceAuthorityService 
             }
         }
         return null;
+    }
+
+    @Override
+    @Deprecated
+    public String getChoiceAuthorityName(String schema, String element, String qualifier, Collection collection) {
+        return getChoiceAuthorityName(schema, element, qualifier, Constants.ITEM, collection);
     }
 
     @Override
@@ -400,7 +439,7 @@ public final class ChoiceAuthorityServiceImpl implements ChoiceAuthorityService 
                     // or an xml vocabulary
                     String authorityName = null;
                     if (StringUtils.isNotBlank(dcinput.getPairsType())
-                                    && !Strings.CS.equals(dcinput.getInputType(), "qualdrop_value")) {
+                            && !Strings.CS.equals(dcinput.getInputType(), "qualdrop_value")) {
                         authorityName = dcinput.getPairsType();
                     } else if (StringUtils.isNotBlank(dcinput.getVocabulary())) {
                         authorityName = dcinput.getVocabulary();
@@ -459,7 +498,7 @@ public final class ChoiceAuthorityServiceImpl implements ChoiceAuthorityService 
     /**
      * Add the authority plugin to the cache map keeping track of which authority is
      * used by a specific form/field
-     * 
+     *
      * @param dsoType        the DSpace Object Type
      * @param submissionName the submission definition name
      * @param fieldKey       the field key that require the authority
@@ -707,6 +746,13 @@ public final class ChoiceAuthorityServiceImpl implements ChoiceAuthorityService 
         return StringUtils.countMatches(field, "_") == 3;
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * If enabled, this also overwrites the metadata text value with the Item's
+     * 'dc.title' to ensure label consistency.
+     *
+     */
     @Override
     public void setReferenceWithAuthority(MetadataValue metadataValue, Item item) {
 
@@ -740,6 +786,15 @@ public final class ChoiceAuthorityServiceImpl implements ChoiceAuthorityService 
             init();
             ChoiceAuthority source = this.getChoiceAuthorityByAuthorityName(nameVocab);
             if (source != null && source instanceof DSpaceControlledVocabulary) {
+
+                // First, check if this vocabulary index is disabled
+                String[] vocabulariesDisabled = configurationService
+                    .getArrayProperty("webui.browse.vocabularies.disabled");
+                if (vocabulariesDisabled != null && ArrayUtils.contains(vocabulariesDisabled, nameVocab)) {
+                    // Discard this vocabulary browse index
+                    return null;
+                }
+
                 Set<String> metadataFields = new HashSet<>();
                 Map<String, List<String>> formsToFields = this.authoritiesFormDefinitions.get(nameVocab);
                 // Vocabulary is not associated with any form definition, meaning it won't be a browse index
@@ -773,6 +828,12 @@ public final class ChoiceAuthorityServiceImpl implements ChoiceAuthorityService 
                         break;
                     }
                 }
+
+                // If there is no matching facet, return null to ignore this vocabulary index
+                if (matchingFacet == null) {
+                    return null;
+                }
+
                 DSpaceControlledVocabularyIndex vocabularyIndex =
                         new DSpaceControlledVocabularyIndex((DSpaceControlledVocabulary) source, metadataFields,
                                 matchingFacet);

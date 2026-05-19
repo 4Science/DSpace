@@ -7,6 +7,8 @@
  */
 package org.dspace.harvest;
 
+import static org.dspace.content.MetadataSchemaEnum.DSPACE;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Date;
@@ -126,7 +128,7 @@ public class OAIHarvesterEmailSenderImpl implements OAIHarvesterEmailSender {
     }
 
     private List<String> getCcAddress(Collection collection) {
-        return collectionService.getMetadata(collection, "cris", "harvesting", "ccAddress", Item.ANY).stream()
+        return collectionService.getMetadata(collection, DSPACE.getName(), "harvesting", "ccAddress", Item.ANY).stream()
             .map(MetadataValue::getValue)
             .collect(Collectors.toList());
     }

@@ -8,6 +8,7 @@
 package org.dspace.discovery;
 
 import static org.dspace.content.Item.ANY;
+import static org.dspace.content.MetadataSchemaEnum.DSPACE;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -24,7 +25,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * Implementation of {@link SolrServiceIndexPlugin} to index the
- * cris.lastimport.{provider} metadata fields for sorting.
+ * dspace.lastimport.{provider} metadata fields for sorting.
  *
  * @author Luca Giamminonni (luca.giamminonni at 4science.it)
  *
@@ -56,7 +57,9 @@ public class SolrServiceLastImportIndexPlugin implements SolrServiceIndexPlugin 
 
     private List<MetadataFieldName> getLastImportMetadataFields(Context context) {
         try {
-            return metadataFieldService.findMetadataFieldNamesBySchemaAndElement(context, "cris", "lastimport");
+            return metadataFieldService.findMetadataFieldNamesBySchemaAndElement(context,
+                                                                                 DSPACE.getName(),
+                                                                                 "lastimport");
         } catch (SQLException e) {
             throw new SQLRuntimeException(e);
         }

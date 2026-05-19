@@ -9,6 +9,7 @@ package org.dspace.content.security.service;
 
 import java.util.List;
 
+import org.dspace.content.DSpaceObject;
 import org.dspace.content.Item;
 import org.dspace.content.MetadataField;
 import org.dspace.content.MetadataValue;
@@ -22,68 +23,55 @@ import org.dspace.core.Context;
  */
 public interface MetadataSecurityService {
 
+
     /**
-     * Returns all the metadata values of the given item filtered by permission
+     * Return all the metadata values of the given item filtered by permission evaluations.
+     *
+     * @param context   DSpace Context
+     * @param dso       the dso
+     * @param schema    the metadata schema
+     * @param element   the metadata element
+     * @param qualifier the metadata qualifier, or null for unqualified metadata
+     * @param language  the metadata language, or null for any language
+     * @return the metadata values filtered by permissions
+     */
+    <T extends DSpaceObject> List<MetadataValue> getPermissionFilteredMetadataValues(Context context, T dso,
+                                                                                     String schema,
+                                                            String element, String qualifier, String language);
+
+    /**
+     * Returns all the metadata values of the given dso filtered by permission
      * evaluations.
      *
      * @param  context the DSpace Context
-     * @param  item    the item
+     * @param  dso     the dso
      * @return         the metadata values
      */
-    List<MetadataValue> getPermissionFilteredMetadataValues(Context context, Item item);
+    <T extends DSpaceObject> List<MetadataValue> getPermissionFilteredMetadataValues(Context context, T dso);
+
+    <T extends DSpaceObject> List<MetadataValue> getPermissionFilteredMetadataValues(Context context, T dso,
+                                                                                     boolean preventBoxSecurityCheck);
+
+    <T extends DSpaceObject> List<MetadataValue> getPermissionFilteredMetadataValues(Context context,
+                                                                                     T dso,
+                                                                                     String metadataField);
 
     /**
-     * Returns all the metadata values of the given item related to the given
-     * metadataField filtered by permission evaluations.
+     * Returns all the metadata values of the given dso filtered by permission
+     * evaluations and language preferences.
      *
-     * @param  context       the DSpace Context
-     * @param  item          the item
-     * @param  metadataField the metadata field
-     * @return               the metadata values
-     */
-    List<MetadataValue> getPermissionFilteredMetadataValues(Context context, Item item, String metadataField);
-
-    /**
-     * Returns all the metadata values of the given item filtered by permission
-     * evaluations. If the provided preventBoxSecurityCheck parameter is true then
-     * the security checks using boxes are not performed,
-     *
-     * @param  context                 the DSpace Context
-     * @param  item                    the item
-     * @param  preventBoxSecurityCheck true if the box security check must be
-     *                                 skipped, false otherwise
-     * @return                         the metadata values
-     */
-    List<MetadataValue> getPermissionFilteredMetadataValues(Context context, Item item,
-        boolean preventBoxSecurityCheck);
-
-    /**
-     * Returns all the metadata values of the given item filtered by permission
-     * evaluations. If the provided preventBoxSecurityCheck parameter is true then
-     * the security checks using boxes are not performed,
-     * and filtered also by the current locale language of the given context.
+     * <p>This method applies the same security filtering as {@link #getPermissionFilteredMetadataValues}
+     * but additionally filters metadata by the current locale language from the context.
+     * Only metadata values matching the current user's language preference are included
+     * in the result.</p>
      *
      * @param  context                 the DSpace Context
-     * @param  item                    the item
-     * @param  preventBoxSecurityCheck true if the box security check must be
-     *                                 skipped, false otherwise
-     * @return                         the metadata values
+     * @param  dso                     the dso
+     * @return                         the metadata values filtered by both permissions and language
      */
-    List<MetadataValue> getPermissionAndLangFilteredMetadataFields(Context context, Item item,
-                                                            boolean preventBoxSecurityCheck);
-
-    /**
-     * Returns all the metadata values of the given item related to the given
-     * metadataField filtered by permission evaluations.
-     *
-     * @param  context                 the DSpace Context
-     * @param  item                    the item
-     * @param  metadataField           the metadata field
-     * @param  preventBoxSecurityCheck true if the box security check must be
-     *                                 skipped, false otherwise
-     * @return                         the metadata values
-     */
-    List<MetadataValue> getPermissionFilteredMetadataValues(Context context, Item item, String metadataField,
+    <T extends DSpaceObject> List<MetadataValue> getPermissionAndLangFilteredMetadataFields(
+        Context context,
+        T dso,
         boolean preventBoxSecurityCheck);
 
     /**

@@ -16,7 +16,7 @@ import java.util.Map;
 import java.util.Objects;
 
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.dspace.importer.external.metadatamapping.MetadataFieldConfig;
 import org.dspace.importer.external.metadatamapping.MetadataFieldMapping;
 import org.dspace.importer.external.metadatamapping.MetadatumDTO;
@@ -40,8 +40,7 @@ public class AuthorMetadataContributor extends SimpleXpathMetadatumContributor {
     private MetadataFieldConfig authname;
     private MetadataFieldConfig affiliation;
 
-    private Map<String, String> affId2affName = new HashMap<String, String>();
-    private MetadataFieldMapping<Element, MetadataContributor<Element>> metadataFieldMapping;
+    private Map<String, String> affId2affName = new HashMap<>();
     private SimpleXpathMetadatumContributor creatorMetadataContributor;
 
 
@@ -110,8 +109,12 @@ public class AuthorMetadataContributor extends SimpleXpathMetadatumContributor {
         Element orcid = element.getChild("orcid", NAMESPACE);
         Element afid = element.getChild("afid", NAMESPACE);
 
-        addMetadatum(metadatums, getMetadata(getElementValue(surname) + ", " +
-            getElementValue(givenName), this.authname));
+        if (authname != null) {
+            addMetadatum(metadatums, getMetadata(getElementValue(authname), this.authname));
+        } else {
+            addMetadatum(metadatums, getMetadata(getElementValue(surname) + ", " +
+                    getElementValue(givenName), this.authname));
+        }
         if (this.scopusId != null) {
             addMetadatum(metadatums, getMetadata(getElementValue(scopusId), this.scopusId));
         }

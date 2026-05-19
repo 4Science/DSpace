@@ -343,7 +343,7 @@ public class CrisLayoutToolScriptIT extends AbstractIntegrationTestWithDatabase 
         CrisLayoutTab secondPersonTab = personTabs.get(1);
         assertThatTabHas(secondPersonTab, "publications", "Person", "Publications", 2, 1, false, 2, OWNER_ONLY);
         assertThat(secondPersonTab.getMetadataSecurityFields(),
-            contains(matches(metadataField -> metadataField.toString('.').equals("cris.policy.eperson"))));
+            contains(matches(metadataField -> metadataField.toString('.').equals("dspace.policy.eperson"))));
 
         CrisLayoutRow secondPersonTabFirstRow = secondPersonTab.getRows().get(0);
         assertThat(secondPersonTabFirstRow.getStyle(), nullValue());
@@ -414,8 +414,8 @@ public class CrisLayoutToolScriptIT extends AbstractIntegrationTestWithDatabase 
         assertThatBoxHas(publicationMetricsBox, "metrics", "METRICS", "Publication", "Metrics", 0, 2, 2, false,
             true, true, null, LayoutSecurity.CUSTOM_DATA);
         assertThat(publicationMetricsBox.getMetadataSecurityFields(), contains(
-            matches(metadataField -> metadataField.toString('.').equals("cris.policy.group")),
-            matches(metadataField -> metadataField.toString('.').equals("cris.policy.eperson"))));
+            matches(metadataField -> metadataField.toString('.').equals("dspace.policy.group")),
+            matches(metadataField -> metadataField.toString('.').equals("dspace.policy.eperson"))));
         assertThat(publicationMetricsBox.getMetric2box(),containsInAnyOrder(
             matches(metric -> metric.getType().equals("scopusCitation")),
             matches(metric -> metric.getType().equals("wosCitation"))));

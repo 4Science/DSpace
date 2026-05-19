@@ -173,7 +173,7 @@ public class ItemsUpdates implements DSpaceObjectUpdates {
         if (Objects.nonNull(searchSortConfiguration.getSortFields()) &&
                 !searchSortConfiguration.getSortFields().isEmpty()) {
             DiscoverySortFieldConfiguration defaultSort = searchSortConfiguration.getSortFields().get(0);
-            if (org.apache.commons.lang.StringUtils.isBlank(defaultSort.getMetadataField())) {
+            if (org.apache.commons.lang3.StringUtils.isBlank(defaultSort.getMetadataField())) {
                 return sortBy;
             }
             sortBy = defaultSort.getMetadataField();

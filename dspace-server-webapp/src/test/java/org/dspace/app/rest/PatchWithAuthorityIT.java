@@ -45,23 +45,23 @@ public class PatchWithAuthorityIT extends AbstractControllerIntegrationTest {
     private WorkspaceItem workspaceItem;
 
     private final ConfigurationService configurationService = DSpaceServicesFactory
-            .getInstance().getConfigurationService();
+        .getInstance().getConfigurationService();
 
     private final MetadataAuthorityService metadataAuthorityService = ContentAuthorityServiceFactory
-            .getInstance().getMetadataAuthorityService();
+        .getInstance().getMetadataAuthorityService();
 
     @Override
     public void setUp() throws Exception {
         super.setUp();
         context.turnOffAuthorisationSystem();
         Community parentCommunity = CommunityBuilder.createCommunity(context)
-            .withName("parent community")
-            .build();
+                                                    .withName("parent community")
+                                                    .build();
 
         Collection collection = CollectionBuilder.createCollection(context, parentCommunity)
-            .withName("collection")
-            .withEntityType("Publication")
-            .build();
+                                                 .withName("collection")
+                                                 .withEntityType("Publication")
+                                                 .build();
 
         workspaceItem = WorkspaceItemBuilder.createWorkspaceItem(context, collection).build();
 

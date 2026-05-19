@@ -268,8 +268,8 @@ public class SearchUtils {
         String typeDeltaPeriod1 = "metric.deltaPeriod1." + metric.getMetricType();
         String typeDeltaPeriod2 = "metric.deltaPeriod2." + metric.getMetricType();
         String typeRank = "metric.rank." + metric.getMetricType();
-        String lastField = "cris.lastimport." + metric.getMetricType();
-        String lastFieldDt = "cris.lastimport." + metric.getMetricType() + "_dt";
+        String lastField = "dspace.lastimport." + metric.getMetricType();
+        String lastFieldDt = "dspace.lastimport." + metric.getMetricType() + "_dt";
         Map<String, Object> metricCountMap = Collections.singletonMap("set", metric.getMetricCount());
         Map<String, Object> acquisitionDateMap = Collections.singletonMap("set", metric.getAcquisitionDate());
         Map<String, Object> idMap = Collections.singletonMap("set", metric.getId());

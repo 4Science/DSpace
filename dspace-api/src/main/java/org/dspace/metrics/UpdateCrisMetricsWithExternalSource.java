@@ -179,7 +179,7 @@ public class UpdateCrisMetricsWithExternalSource extends
     }
 
     private String getLastImportMetadataField(MetricsExternalServices service) {
-        return "cris.lastimport." + service.getServiceName() + "_dt";
+        return "dspace.lastimport." + service.getServiceName() + "_dt";
     }
 
     private void performUpdateWithMultiFetch(MetricsExternalServices metricsServices, Iterator<Item> itemIterator) {

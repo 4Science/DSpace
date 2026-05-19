@@ -26,7 +26,7 @@ public class CrossRefImportMetadataIT extends AbstractControllerIntegrationTest 
          getClient().perform(get("/api/integration/externalsources/crossref/entries")
                     .param("query", "10.1111/jfbc.13557"))
                     .andExpect(status().isOk())
-                    .andExpect(jsonPath("$._embedded.externalSourceEntries[0].id", is("10.1111/jfbc.13557")))
+                    .andExpect(jsonPath("$._embedded.externalSourceEntries[0].id", is("https://doi.org/10.1111/jfbc.13557")))
                     .andExpect(jsonPath("$._embedded.externalSourceEntries[0].display",
                                      is("Food‐derived antioxidants and COVID‐19")))
                     .andExpect(jsonPath("$.page.totalElements", is(1)));

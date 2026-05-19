@@ -13,7 +13,7 @@ import java.util.Optional;
 
 import org.apache.commons.collections4.IteratorUtils;
 import org.apache.commons.collections4.ListUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.dspace.content.Item;
 import org.dspace.content.integration.crosswalks.csl.CSLGeneratorFactory;
 import org.dspace.content.integration.crosswalks.csl.CSLResult;
