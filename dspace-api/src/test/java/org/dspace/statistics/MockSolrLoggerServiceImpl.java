@@ -43,6 +43,8 @@ public class MockSolrLoggerServiceImpl
 
     private MockSolrServer mockSolrServer;
 
+    protected DatabaseReader locationService;
+
     public MockSolrLoggerServiceImpl() {
     }
 
@@ -58,6 +60,11 @@ public class MockSolrLoggerServiceImpl
         Mockito.lenient().when(reader.city(any(InetAddress.class))).thenReturn(mockCityResponse());
         // Save this mock DatabaseReader to be used by SolrLoggerService
         locationService = reader;
+    }
+
+    @Override
+    protected DatabaseReader getDatabaseReader() {
+        return locationService;
     }
 
     /**
