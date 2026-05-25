@@ -10,6 +10,7 @@ package org.dspace.app.rest.health;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.anEmptyMap;
 import static org.hamcrest.Matchers.is;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 
 import java.util.Map;
@@ -55,7 +56,7 @@ public class GeoIpHealthIndicatorTest {
 
     @Test
     public void testWithGeoIpWrongConfiguration() {
-        when(geoIpService.getDatabaseReader()).thenThrow(new IllegalStateException("Missing db file"));
+        doThrow(new IllegalStateException("Missing db file")).when(geoIpService).checkDatabase();
 
         Health health = geoIpHealthIndicator.health();
 
@@ -65,7 +66,7 @@ public class GeoIpHealthIndicatorTest {
 
     @Test
     public void testWithUnexpectedError() {
-        when(geoIpService.getDatabaseReader()).thenThrow(new RuntimeException("Generic error"));
+        doThrow(new RuntimeException("Generic error")).when(geoIpService).checkDatabase();
 
         Health health = geoIpHealthIndicator.health();
 

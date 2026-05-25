@@ -7,13 +7,10 @@
  */
 package org.dspace.app.rest.login.impl;
 
-import java.sql.SQLException;
-import java.util.UUID;
-
 import jakarta.servlet.http.HttpServletRequest;
 import org.dspace.app.rest.login.PostLoggedInAction;
 import org.dspace.core.Context;
-import org.dspace.eperson.factory.EPersonServiceFactory;
+import org.dspace.eperson.EPerson;
 import org.dspace.services.EventService;
 import org.dspace.usage.UsageEvent;
 import org.slf4j.Logger;
@@ -39,20 +36,9 @@ public class LoginEventFireAction implements PostLoggedInAction {
     public void loggedIn(Context context) {
 
         HttpServletRequest request = getCurrentRequest();
-
-        UUID epersonId = null;
-        try (Context ctx = new Context(Context.Mode.READ_ONLY)) {
-            epersonId = context.getCurrentUser().getID();
-            ctx.setCurrentUser(
-                EPersonServiceFactory.getInstance().getEPersonService().find(ctx, epersonId));
-
-            eventService.fireEvent(new UsageEvent(UsageEvent.Action.LOGIN, request, ctx, ctx.getCurrentUser()));
-
-            ctx.abort();
-        } catch (SQLException e) {
-            log.error("Error firing login event for user: {}", epersonId, e);
-        }
-
+        EPerson
+            currentUser = context.getCurrentUser();
+        eventService.fireEvent(new UsageEvent(UsageEvent.Action.LOGIN, request, context, currentUser));
     }
 
     private HttpServletRequest getCurrentRequest() {
