@@ -10,12 +10,11 @@ package org.dspace.app.rest.health;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.anEmptyMap;
 import static org.hamcrest.Matchers.is;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.when;
 
 import java.util.Map;
 
-import com.maxmind.geoip2.DatabaseReader;
 import org.dspace.app.rest.configuration.ActuatorConfiguration;
 import org.dspace.statistics.GeoIpService;
 import org.junit.Test;
@@ -41,12 +40,9 @@ public class GeoIpHealthIndicatorTest {
     @InjectMocks
     private GeoIpHealthIndicator geoIpHealthIndicator;
 
-    @Mock
-    private DatabaseReader databaseReader;
-
     @Test
     public void testWithGeoIpConfiguredCorrectly() {
-        when(geoIpService.getDatabaseReader()).thenReturn(databaseReader);
+        doNothing().when(geoIpService).checkDatabase();
 
         Health health = geoIpHealthIndicator.health();
 
