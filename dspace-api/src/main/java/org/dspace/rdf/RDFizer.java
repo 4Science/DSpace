@@ -347,8 +347,8 @@ public class RDFizer {
             if (log.isDebugEnabled()) {
                 log.debug("Skipping processing of " + contentServiceFactory.getDSpaceObjectService(dso)
                     .getTypeText(dso) + " " + dso.getID() + " (handle " + dso.getHandle() + "), already processed.");
-                return;
             }
+            return;
         }
         markProcessed(dso);
         // this is useful to debug depth first search, but it is really noisy.
