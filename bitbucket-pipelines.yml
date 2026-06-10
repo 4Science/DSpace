@@ -128,6 +128,7 @@ definitions:
           - ./*.dumpstream
 
     - step: &build-and-push
+        oidc: true
         runs-on:
           - self.hosted
           - linux.arm64
@@ -145,13 +146,14 @@ definitions:
           - docker build -f Dockerfile.build -t dspace-cris:${BRANCH_NAME}-${HASH_COMMIT} -t dspace-cris:${BRANCH_NAME}-latest .
           - pipe: atlassian/aws-ecr-push-image:2.5.0
             variables:
-              AWS_ACCESS_KEY_ID: $AWS_ACCESS_KEY_ID
-              AWS_SECRET_ACCESS_KEY: $AWS_SECRET_ACCESS_KEY
+              # DEV-2276: OIDC web-identity auth instead of static workspace keys
+              AWS_OIDC_ROLE_ARN: $AWS_OIDC_ROLE_ARN
               AWS_DEFAULT_REGION: $AWS_REGION
               IMAGE_NAME: dspace-cris
               TAGS: "${BRANCH_NAME}-${HASH_COMMIT} ${BRANCH_NAME}-latest"
 
     - step: &build-and-push-solr8
+        oidc: true
         runs-on:
           - self.hosted
           - linux.arm64
@@ -167,13 +169,14 @@ definitions:
           - docker build -f ./dspace/src/main/docker/dspace-solr/Dockerfile -t solr8:${BRANCH_NAME}-${HASH_COMMIT} -t solr8:${BRANCH_NAME}-latest .
           - pipe: atlassian/aws-ecr-push-image:2.5.0
             variables:
-              AWS_ACCESS_KEY_ID: $AWS_ACCESS_KEY_ID
-              AWS_SECRET_ACCESS_KEY: $AWS_SECRET_ACCESS_KEY
+              # DEV-2276: OIDC web-identity auth instead of static workspace keys
+              AWS_OIDC_ROLE_ARN: $AWS_OIDC_ROLE_ARN
               AWS_DEFAULT_REGION: $AWS_REGION
               IMAGE_NAME: solr8
               TAGS: "${BRANCH_NAME}-${HASH_COMMIT} ${BRANCH_NAME}-latest"
 
     - step: &build-and-push-solr9
+        oidc: true
         runs-on:
           - self.hosted
           - linux.arm64
@@ -189,8 +192,8 @@ definitions:
           - docker build -f ./dspace/src/main/docker/dspace-solr/Dockerfile9 -t solr9:${BRANCH_NAME}-${HASH_COMMIT} -t solr9:${BRANCH_NAME}-latest .
           - pipe: atlassian/aws-ecr-push-image:2.5.0
             variables:
-              AWS_ACCESS_KEY_ID: $AWS_ACCESS_KEY_ID
-              AWS_SECRET_ACCESS_KEY: $AWS_SECRET_ACCESS_KEY
+              # DEV-2276: OIDC web-identity auth instead of static workspace keys
+              AWS_OIDC_ROLE_ARN: $AWS_OIDC_ROLE_ARN
               AWS_DEFAULT_REGION: $AWS_REGION
               IMAGE_NAME: solr9
               TAGS: "${BRANCH_NAME}-${HASH_COMMIT} ${BRANCH_NAME}-latest"
