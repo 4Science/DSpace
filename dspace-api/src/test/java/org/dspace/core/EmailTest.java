@@ -217,6 +217,30 @@ public class EmailTest extends AbstractDSpaceTest {
     }
 
     /**
+     * Verifies that the batch_import_error template sets the X-SES-TENANT header when
+     * aws.ses.tenant is configured. This test loads the actual template file from disk.
+     */
+    @Test
+    public void testBatchImportErrorTemplateNoSesTenantHeader() throws MessagingException, IOException {
+        config.setProperty("mail.server.disabled", "true");
+        config.setProperty("mail.message.headers", "X-SES-TENANT,subject");
+        config.setProperty("aws.ses.tenant", null);
+
+        String templatePath = I18nUtil.getEmailFilename(Locale.getDefault(), "batch_import_error");
+        Email email = Email.getEmail(templatePath);
+        email.addRecipient("test@example.com");
+        email.addArgument("Import failed: reason");
+        email.addArgument("http://example.com/feedback");
+        email.build();
+
+        String[] header = email.message.getHeader("X-SES-TENANT");
+        assertThat("Header shouldn't be present", header, nullValue());
+        String messageBody = email.message.getContent().toString();
+        assertThat("Header should be null or empty", messageBody, containsString("Import failed: reason"));
+        assertThat("Header should be null or empty", messageBody, containsString("http://example.com/feedback"));
+    }
+
+    /**
      * Verifies that the batch_import_error template does NOT set X-SES-TENANT when
      * aws.ses.tenant is not configured.
      */
