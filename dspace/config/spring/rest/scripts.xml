@@ -129,4 +129,11 @@
         <property name="dspaceRunnableClass" value="org.dspace.app.mediafilter.MediaFilterScript"/>
     </bean>
 
+    <bean id="solr-core-management"
+          class="org.dspace.app.solr.SolrCoreExportImportScriptConfiguration" primary="true">
+        <property name="description"
+            value="Export and import complete SOLR cores with UUID range partitioning and cursorMark pagination"/>
+        <property name="dspaceRunnableClass" value="org.dspace.app.solr.SolrCoreExportImport"/>
+    </bean>
+
 </beans>
