@@ -11,6 +11,7 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.math.BigInteger;
 import java.net.URI;
 import java.net.URLEncoder;
@@ -368,7 +369,7 @@ public class SolrCoreExportImport extends DSpaceRunnable<SolrCoreExportImportScr
                 .GET()
                 .build();
 
-        HttpResponse<String> statsRsp = httpClient.send(statsReq, HttpResponse.BodyHandlers.ofInputStream());
+        HttpResponse<String> statsRsp = httpClient.send(statsReq, HttpResponse.BodyHandlers.ofString());
         if (statsRsp.statusCode() != 200) {
             throw new RuntimeException("Stats query failed with status: " + statsRsp.statusCode());
         }
@@ -938,7 +939,7 @@ public class SolrCoreExportImport extends DSpaceRunnable<SolrCoreExportImportScr
                 .GET()
                 .build();
 
-        HttpResponse<String> rsp = httpClient.send(req, HttpResponse.BodyHandlers.ofInputStream());
+        HttpResponse<String> rsp = httpClient.send(req, HttpResponse.BodyHandlers.ofString());
         if (rsp.statusCode() != 200) {
             log.warn("Could not retrieve uniqueKey from {}. Defaulting to 'id'.", baseUrl);
             cachedUniqueKeyField = "id";
@@ -1425,7 +1426,7 @@ public class SolrCoreExportImport extends DSpaceRunnable<SolrCoreExportImportScr
                 .build();
 
         HttpResponse<InputStream> response = httpClient.send(request,
-                HttpResponse.BodyHandlers.ofInputStream());
+                                                             HttpResponse.BodyHandlers.ofInputStream());
 
         if (response.statusCode() != 200) {
             throw new RuntimeException("SOLR import failed for chunk " + batchNumber
@@ -1522,5 +1523,76 @@ public class SolrCoreExportImport extends DSpaceRunnable<SolrCoreExportImportScr
         public String toString() {
             return start + " to " + end;
         }
+    }
+
+    // ── CSV serialization ──────────────────────────────────────────────
+
+    /**
+     * Legacy: serializes a pre-built Solr JSON docs array to CSV.
+     * Used by unit tests. Runtime export uses {@link #streamJsonToCsv}
+     * to avoid loading full batches into heap memory.
+     */
+    private void writeDocsToCsv(JsonNode docs, Path filePath,
+            boolean appendMode, List<String> fieldNames) throws IOException {
+        StandardOpenOption[] openOptions = appendMode
+                ? new StandardOpenOption[] {
+                    StandardOpenOption.APPEND, StandardOpenOption.CREATE }
+                : new StandardOpenOption[] {
+                    StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING };
+        try (BufferedWriter writer = Files.newBufferedWriter(filePath,
+                StandardCharsets.UTF_8, openOptions)) {
+            if (!appendMode && !fieldNames.isEmpty()) {
+                writer.write(buildCsvRow(fieldNames));
+                writer.newLine();
+            }
+            for (JsonNode doc : docs) {
+                List<String> values = new ArrayList<>(fieldNames.size());
+                for (String field : fieldNames) {
+                    JsonNode val = doc.get(field);
+                    if (val == null || val.isNull()) {
+                        values.add("");
+                    } else if (val.isArray()) {
+                        List<String> parts = new ArrayList<>();
+                        for (JsonNode item : val) {
+                            parts.add(item.asText(""));
+                        }
+                        values.add(escapeCsvValue(String.join(",", parts)));
+                    } else {
+                        values.add(escapeCsvValue(val.asText("")));
+                    }
+                }
+                writer.write(buildCsvRow(values));
+                writer.newLine();
+            }
+        }
+    }
+
+    /**
+     * Joins a list of values into a single CSV row (comma-separated).
+     *
+     * @param values the cell values (already escaped)
+     * @return the CSV row string without trailing newline
+     */
+    private static String buildCsvRow(List<String> values) {
+        return String.join(",", values);
+    }
+
+    /**
+     * Escapes a single CSV cell value per RFC 4180.
+     * Values containing commas, double-quotes, or newlines are wrapped in double quotes.
+     * Internal double-quotes are doubled.
+     *
+     * @param value the raw cell value; may be {@code null}
+     * @return the escaped value safe for embedding in a CSV row
+     */
+    private static String escapeCsvValue(String value) {
+        if (value == null) {
+            return "";
+        }
+        if (value.contains(",") || value.contains("\"")
+                || value.contains("\n") || value.contains("\r")) {
+            return "\"" + value.replace("\"", "\"\"") + "\"";
+        }
+        return value;
     }
 }
