@@ -34,6 +34,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.cli.ParseException;
@@ -366,7 +368,7 @@ public class SolrCoreExportImport extends DSpaceRunnable<SolrCoreExportImportScr
                 .GET()
                 .build();
 
-        HttpResponse<String> statsRsp = httpClient.send(statsReq, HttpResponse.BodyHandlers.ofString());
+        HttpResponse<String> statsRsp = httpClient.send(statsReq, HttpResponse.BodyHandlers.ofInputStream());
         if (statsRsp.statusCode() != 200) {
             throw new RuntimeException("Stats query failed with status: " + statsRsp.statusCode());
         }
@@ -459,8 +461,8 @@ public class SolrCoreExportImport extends DSpaceRunnable<SolrCoreExportImportScr
                     .GET()
                     .build();
 
-            HttpResponse<String> response = httpClient.send(request,
-                    HttpResponse.BodyHandlers.ofString());
+            HttpResponse<InputStream> response = httpClient.send(request,
+                    HttpResponse.BodyHandlers.ofInputStream());
 
             if (response.statusCode() != 200) {
                 throw new RuntimeException(
@@ -468,19 +470,18 @@ public class SolrCoreExportImport extends DSpaceRunnable<SolrCoreExportImportScr
                         + " with status: " + response.statusCode());
             }
 
-            JsonNode json = jsonMapper.readTree(response.body());
-            JsonNode docs = json.path("response").path("docs");
-            String nextCursorMark = json.path("nextCursorMark").asText("");
+            StreamResult sr = streamJsonToCsv(response.body(), outFile,
+                    !firstBatch, fieldNames);
+            String nextCursorMark = sr.nextCursorMark;
 
-            if (docs.isArray() && docs.size() > 0) {
-                writeDocsToCsv(docs, outFile, !firstBatch, fieldNames);
-                totalDocs += docs.size();
+            if (sr.rowCount > 0) {
+                totalDocs += sr.rowCount;
                 firstBatch = false;
             }
 
             if (cursorMark.equals(nextCursorMark)
                     || StringUtils.isBlank(nextCursorMark)
-                    || docs.size() == 0) {
+                    || sr.rowCount == 0) {
                 break;
             }
             cursorMark = nextCursorMark;
@@ -526,28 +527,27 @@ public class SolrCoreExportImport extends DSpaceRunnable<SolrCoreExportImportScr
                     .GET()
                     .build();
 
-            HttpResponse<String> response = httpClient.send(request,
-                    HttpResponse.BodyHandlers.ofString());
+            HttpResponse<InputStream> response = httpClient.send(request,
+                    HttpResponse.BodyHandlers.ofInputStream());
 
             if (response.statusCode() != 200) {
                 throw new RuntimeException(
                         "Solr query failed with status: " + response.statusCode());
             }
 
-            JsonNode json = jsonMapper.readTree(response.body());
-            JsonNode docs = json.path("response").path("docs");
-            String nextCursorMark = json.path("nextCursorMark").asText("");
+            StreamResult sr = streamJsonToCsv(response.body(), outFile,
+                    !firstBatch, fieldNames);
+            String nextCursorMark = sr.nextCursorMark;
 
-            if (docs.isArray() && docs.size() > 0) {
-                writeDocsToCsv(docs, outFile, !firstBatch, fieldNames);
-                totalDocs += docs.size();
+            if (sr.rowCount > 0) {
+                totalDocs += sr.rowCount;
                 firstBatch = false;
                 batchNum++;
             }
 
             if (cursorMark.equals(nextCursorMark)
                     || StringUtils.isBlank(nextCursorMark)
-                    || docs.size() == 0) {
+                    || sr.rowCount == 0) {
                 break;
             }
             cursorMark = nextCursorMark;
@@ -660,27 +660,26 @@ public class SolrCoreExportImport extends DSpaceRunnable<SolrCoreExportImportScr
                     .GET()
                     .build();
 
-            HttpResponse<String> response = httpClient.send(request,
-                    HttpResponse.BodyHandlers.ofString());
+            HttpResponse<InputStream> response = httpClient.send(request,
+                    HttpResponse.BodyHandlers.ofInputStream());
 
             if (response.statusCode() != 200) {
                 throw new RuntimeException("Solr query failed for date range " + rangeIndex
                         + " with status: " + response.statusCode());
             }
 
-            JsonNode json = jsonMapper.readTree(response.body());
-            JsonNode docs = json.path("response").path("docs");
-            String nextCursorMark = json.path("nextCursorMark").asText("");
+            StreamResult sr = streamJsonToCsv(response.body(), outFile,
+                    !firstBatch, fieldNames);
+            String nextCursorMark = sr.nextCursorMark;
 
-            if (docs.isArray() && docs.size() > 0) {
-                writeDocsToCsv(docs, outFile, !firstBatch, fieldNames);
-                totalDocs += docs.size();
+            if (sr.rowCount > 0) {
+                totalDocs += sr.rowCount;
                 firstBatch = false;
             }
 
             if (cursorMark.equals(nextCursorMark)
                     || StringUtils.isBlank(nextCursorMark)
-                    || docs.size() == 0) {
+                    || sr.rowCount == 0) {
                 break;
             }
             cursorMark = nextCursorMark;
@@ -781,93 +780,115 @@ public class SolrCoreExportImport extends DSpaceRunnable<SolrCoreExportImportScr
         return new UUID(msb, lsb);
     }
 
-    // ── CSV serialization ──────────────────────────────────────────────────
+    /**
+     * Result holder for {@link #streamJsonToCsv(InputStream, Path, boolean, List)}.
+     */
+    private static class StreamResult {
+        final String nextCursorMark;
+        final int rowCount;
+
+        StreamResult(String nextCursorMark, int rowCount) {
+            this.nextCursorMark = nextCursorMark;
+            this.rowCount = rowCount;
+        }
+    }
 
     /**
-     * Serializes a Solr JSON {@code docs} array to CSV and writes it to the given file.
+     * Streams a Solr JSON response directly to a CSV file without ever
+     * materialising the full response body or JSON tree in memory.
      *
-     * <p>On the first batch ({@code appendMode=false}) the file is created fresh and a
-     * header row is written. On subsequent batches ({@code appendMode=true}) data rows
-     * are appended without repeating the header.
+     * <p>Uses Jackson {@link JsonParser} to walk the JSON token-by-token:
+     * <ol>
+     *   <li>Reads {@code nextCursorMark} from the root object.</li>
+     *   <li>Navigates to {@code response.docs} array.</li>
+     *   <li>For each document object, writes a CSV row using the ordered
+     *       {@code fieldNames} list.  Multi-valued fields are joined with
+     *       {@code ,} and RFC 4180 escaped.</li>
+     * </ol>
      *
-     * <p>Multi-valued fields are joined with {@code ,}. Values that contain commas,
-     * double-quotes, or newlines are double-quoted and internal double-quotes are escaped
-     * as {@code ""} per RFC 4180.
+     * <p>Peak heap usage is bounded by the largest single document, not the
+     * batch size — typically a few KB instead of 50-100 MB.
      *
-     * @param docs       the {@code response.docs} JSON array node from Solr
-     * @param filePath   target file path
-     * @param appendMode {@code true} to append (skip header); {@code false} to create/overwrite
-     * @param fieldNames ordered list of field names for header and row extraction
-     * @throws IOException on I/O failure
+     * @param in           the HTTP response body input stream (not closed)
+     * @param outFile      target CSV file
+     * @param appendMode   {@code true} to skip header, {@code false} to write header
+     * @param fieldNames   ordered list of Solr field names
+     * @return a {@link StreamResult} with the next cursor mark and row count
+     * @throws IOException on I/O or parse failure
      */
-    private void writeDocsToCsv(JsonNode docs, Path filePath,
+        private StreamResult streamJsonToCsv(InputStream in, Path outFile,
             boolean appendMode, List<String> fieldNames) throws IOException {
-        StandardOpenOption[] openOptions = appendMode
-                ? new StandardOpenOption[] {
-                    StandardOpenOption.APPEND, StandardOpenOption.CREATE }
-                : new StandardOpenOption[] {
-                    StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING };
+        JsonParser parser = jsonMapper.getFactory().createParser(in);
+        String nextCursorMark = "";
+        int rowCount = 0;
 
-        try (BufferedWriter writer = Files.newBufferedWriter(filePath,
+        StandardOpenOption[] openOptions = appendMode
+                ? new StandardOpenOption[] { StandardOpenOption.APPEND, StandardOpenOption.CREATE }
+                : new StandardOpenOption[] { StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING };
+
+        try (BufferedWriter writer = Files.newBufferedWriter(outFile,
                 StandardCharsets.UTF_8, openOptions)) {
+
             if (!appendMode && !fieldNames.isEmpty()) {
-                // Write header row
                 writer.write(buildCsvRow(fieldNames));
                 writer.newLine();
             }
 
-            for (JsonNode doc : docs) {
-                List<String> values = new ArrayList<>(fieldNames.size());
-                for (String field : fieldNames) {
-                    JsonNode val = doc.get(field);
-                    if (val == null || val.isNull()) {
-                        values.add("");
-                    } else if (val.isArray()) {
-                        // Multi-valued: join items with comma, then quote the whole cell
-                        List<String> parts = new ArrayList<>();
-                        for (JsonNode item : val) {
-                            parts.add(item.asText(""));
+            JsonToken token;
+            while ((token = parser.nextToken()) != null) {
+                if (token == JsonToken.FIELD_NAME) {
+                    String fn = parser.currentName();
+
+                    if ("nextCursorMark".equals(fn) && nextCursorMark.isEmpty()) {
+                        parser.nextToken();
+                        nextCursorMark = parser.getValueAsString("");
+                    }
+
+                    if ("docs".equals(fn)) {
+                        parser.nextToken(); // START_ARRAY
+                        if (parser.currentToken() != JsonToken.START_ARRAY) continue;
+
+                        while (parser.nextToken() == JsonToken.START_OBJECT) {
+                            String[] row = new String[fieldNames.size()];
+                            Arrays.fill(row, "");
+
+                            while (parser.nextToken() != JsonToken.END_OBJECT) {
+                                if (parser.currentToken() != JsonToken.FIELD_NAME) continue;
+                                String df = parser.currentName();
+                                int idx = fieldNames.indexOf(df);
+                                parser.nextToken();
+                                if (idx < 0) { parser.skipChildren(); continue; }
+
+                                JsonToken vt = parser.currentToken();
+                                if (vt == JsonToken.VALUE_NULL) {
+                                    row[idx] = "";
+                                } else if (vt == JsonToken.START_ARRAY) {
+                                    StringBuilder sb = new StringBuilder();
+                                    boolean first = true;
+                                    while (parser.nextToken() != JsonToken.END_ARRAY) {
+                                        if (!first) sb.append(',');
+                                        sb.append(parser.getValueAsString(""));
+                                        first = false;
+                                    }
+                                    row[idx] = escapeCsvValue(sb.toString());
+                                } else {
+                                    row[idx] = escapeCsvValue(parser.getValueAsString(""));
+                                }
+                            }
+
+                            writer.write(buildCsvRow(Arrays.asList(row)));
+                            writer.newLine();
+                            rowCount++;
                         }
-                        values.add(escapeCsvValue(String.join(",", parts)));
-                    } else {
-                        values.add(escapeCsvValue(val.asText("")));
                     }
                 }
-                writer.write(buildCsvRow(values));
-                writer.newLine();
             }
+        } finally {
+            parser.close();
         }
-    }
 
-    /**
-     * Joins a list of values into a single CSV row (comma-separated).
-     *
-     * @param values the cell values (already escaped)
-     * @return the CSV row string without trailing newline
-     */
-    private static String buildCsvRow(List<String> values) {
-        return String.join(",", values);
+        return new StreamResult(nextCursorMark, rowCount);
     }
-
-    /**
-     * Escapes a single CSV cell value per RFC 4180.
-     * Values containing commas, double-quotes, or newlines are wrapped in double quotes.
-     * Internal double-quotes are doubled.
-     *
-     * @param value the raw cell value; may be {@code null}
-     * @return the escaped value safe for embedding in a CSV row
-     */
-    private static String escapeCsvValue(String value) {
-        if (value == null) {
-            return "";
-        }
-        if (value.contains(",") || value.contains("\"")
-                || value.contains("\n") || value.contains("\r")) {
-            return "\"" + value.replace("\"", "\"\"") + "\"";
-        }
-        return value;
-    }
-
     // ── URL builder helper ─────────────────────────────────────────────────
 
     /**
@@ -917,7 +938,7 @@ public class SolrCoreExportImport extends DSpaceRunnable<SolrCoreExportImportScr
                 .GET()
                 .build();
 
-        HttpResponse<String> rsp = httpClient.send(req, HttpResponse.BodyHandlers.ofString());
+        HttpResponse<String> rsp = httpClient.send(req, HttpResponse.BodyHandlers.ofInputStream());
         if (rsp.statusCode() != 200) {
             log.warn("Could not retrieve uniqueKey from {}. Defaulting to 'id'.", baseUrl);
             cachedUniqueKeyField = "id";
@@ -956,8 +977,8 @@ public class SolrCoreExportImport extends DSpaceRunnable<SolrCoreExportImportScr
                     .GET()
                     .build();
 
-            HttpResponse<String> response = httpClient.send(request,
-                    HttpResponse.BodyHandlers.ofString());
+            HttpResponse<InputStream> response = httpClient.send(request,
+                    HttpResponse.BodyHandlers.ofInputStream());
 
             if (response.statusCode() != 200) {
                 log.warn("Could not retrieve schema fields from {}, using fallback", baseUrl);
@@ -1000,7 +1021,7 @@ public class SolrCoreExportImport extends DSpaceRunnable<SolrCoreExportImportScr
                 .GET()
                 .build();
 
-        HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+        HttpResponse<InputStream> response = httpClient.send(request, HttpResponse.BodyHandlers.ofInputStream());
         if (response.statusCode() != 200) {
             throw new RuntimeException("Could not retrieve sample document from SOLR core");
         }
@@ -1059,8 +1080,8 @@ public class SolrCoreExportImport extends DSpaceRunnable<SolrCoreExportImportScr
                     .GET()
                     .build();
 
-            HttpResponse<String> response = httpClient.send(request,
-                    HttpResponse.BodyHandlers.ofString());
+            HttpResponse<InputStream> response = httpClient.send(request,
+                    HttpResponse.BodyHandlers.ofInputStream());
 
             if (response.statusCode() != 200) {
                 throw new RuntimeException("Stats query failed with status: "
@@ -1112,7 +1133,7 @@ public class SolrCoreExportImport extends DSpaceRunnable<SolrCoreExportImportScr
                 }
                 ranges.add(new DateRange(
                         cur.atStartOfDay() + ":00.000Z",
-                        next.atTime(23, 59, 59, 999_000_000).toString() + "Z"));
+                        next.atTime(23, 59, 59, 999_999_999) + "Z"));
                 cur = next.plusDays(1);
             }
         } catch (Exception e) {
@@ -1230,8 +1251,8 @@ public class SolrCoreExportImport extends DSpaceRunnable<SolrCoreExportImportScr
                     .POST(HttpRequest.BodyPublishers.ofFile(file.toPath()))
                     .build();
 
-            HttpResponse<String> response = httpClient.send(request,
-                    HttpResponse.BodyHandlers.ofString());
+            HttpResponse<InputStream> response = httpClient.send(request,
+                    HttpResponse.BodyHandlers.ofInputStream());
 
             if (response.statusCode() != 200) {
                 throw new RuntimeException("SOLR import failed for file " + file.getName()
@@ -1264,8 +1285,8 @@ public class SolrCoreExportImport extends DSpaceRunnable<SolrCoreExportImportScr
                 .POST(HttpRequest.BodyPublishers.ofString("{}"))
                 .build();
 
-        HttpResponse<String> response = httpClient.send(request,
-                HttpResponse.BodyHandlers.ofString());
+        HttpResponse<InputStream> response = httpClient.send(request,
+                HttpResponse.BodyHandlers.ofInputStream());
         if (response.statusCode() != 200) {
             throw new RuntimeException("SOLR commit failed with status: " + response.statusCode());
         }
@@ -1403,8 +1424,8 @@ public class SolrCoreExportImport extends DSpaceRunnable<SolrCoreExportImportScr
                 .POST(HttpRequest.BodyPublishers.ofFile(tempFile))
                 .build();
 
-        HttpResponse<String> response = httpClient.send(request,
-                HttpResponse.BodyHandlers.ofString());
+        HttpResponse<InputStream> response = httpClient.send(request,
+                HttpResponse.BodyHandlers.ofInputStream());
 
         if (response.statusCode() != 200) {
             throw new RuntimeException("SOLR import failed for chunk " + batchNumber
