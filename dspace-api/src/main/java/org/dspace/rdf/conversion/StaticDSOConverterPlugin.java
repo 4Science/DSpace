@@ -8,13 +8,18 @@
 
 package org.dspace.rdf.conversion;
 
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
-import org.apache.jena.util.FileManager;
 import org.apache.jena.util.FileUtils;
 import org.apache.logging.log4j.Logger;
 import org.dspace.content.DSpaceObject;
@@ -85,7 +90,11 @@ public class StaticDSOConverterPlugin
         InputStream is = null;
         Model staticDataModel = null;
         try {
-            is = FileManager.get().open(path);
+            try {
+                is = interpolateFile(path);
+            } catch (IOException e) {
+                throw new RuntimeException("Error during processing of the configuration file " + path, e);
+            }
             if (is == null) {
                 log.warn("StaticDSOConverterPlugin cannot find file '" + path
                              + "', ignoring...");
@@ -108,6 +117,28 @@ public class StaticDSOConverterPlugin
             return null;
         }
         return staticDataModel;
+    }
+
+    /**
+     * Process the rdf configuration file to interpolate variable using the DSpace ConfigurationService
+     *
+     * @param filePath      full path to the rdf configuration file to process
+     * @return InputStream  representing the output obtained from the processed file
+     * @throws IOException
+     */
+    public InputStream interpolateFile(String filePath) throws IOException {
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        try (BufferedReader br = new BufferedReader(
+                new InputStreamReader(new FileInputStream(filePath), StandardCharsets.UTF_8))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                String transformed = (String) configurationService.getConfiguration().getInterpolator()
+                        .interpolate(line);
+                out.write(transformed.getBytes(StandardCharsets.UTF_8));
+                out.write(System.lineSeparator().getBytes(StandardCharsets.UTF_8));
+            }
+        }
+        return new ByteArrayInputStream(out.toByteArray());
     }
 
     @Override

@@ -5,6 +5,7 @@
 ## {2}  handle
 ##
 #set($subject = "${config.get('dspace.name')}: Submission Approved and Archived")
+#if($global.put('X-SES-TENANT', $config.get('aws.ses.tenant')))#end
 
 You submitted: ${params[0]}
 
