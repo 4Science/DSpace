@@ -31,7 +31,7 @@ public class GeoIpHealthIndicator extends AbstractHealthIndicator {
     protected void doHealthCheck(Builder builder) throws Exception {
 
         try {
-            geoIpService.getDatabaseReader();
+            geoIpService.checkDatabase();
             builder.up();
         } catch (IllegalStateException ex) {
             builder.status(UP_WITH_ISSUES_STATUS).withDetail("reason", ex.getMessage());

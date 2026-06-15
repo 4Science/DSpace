@@ -9,6 +9,7 @@ package org.dspace.app.rest.security;
 
 import static org.dspace.app.rest.security.WebSecurityConfiguration.ADMIN_GRANT;
 import static org.dspace.app.rest.security.WebSecurityConfiguration.AUTHENTICATED_GRANT;
+import static org.dspace.app.rest.utils.ContextUtil.DSPACE_CONTEXT;
 
 import java.sql.SQLException;
 import java.util.Collections;
@@ -22,7 +23,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.dspace.app.rest.login.PostLoggedInAction;
-import org.dspace.app.rest.utils.ContextUtil;
 import org.dspace.authenticate.AuthenticationMethod;
 import org.dspace.authenticate.service.AuthenticationService;
 import org.dspace.authorize.service.AuthorizeService;
@@ -30,8 +30,10 @@ import org.dspace.core.Context;
 import org.dspace.core.LogHelper;
 import org.dspace.eperson.EPerson;
 import org.dspace.services.RequestService;
+import org.dspace.web.ContextUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -76,7 +78,7 @@ public class EPersonRestAuthenticationProvider implements AuthenticationProvider
 
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
-        Context context = ContextUtil.obtainContext(request);
+        Context context = (Context) request.getAttribute(DSPACE_CONTEXT);
         // If a user already exists in the context, then no authentication is necessary. User is already logged in
         if (context != null && context.getCurrentUser() != null) {
             // Simply refresh/reload the auth token. If token has expired, the token will change.
@@ -85,7 +87,7 @@ public class EPersonRestAuthenticationProvider implements AuthenticationProvider
         } else {
             // Otherwise, this is a new login & we need to attempt authentication
             log.debug("Request to authenticate new login");
-            return authenticateNewLogin(context, authentication);
+            return authenticateNewLogin(authentication);
         }
     }
 
@@ -108,43 +110,64 @@ public class EPersonRestAuthenticationProvider implements AuthenticationProvider
      * GrantedAuthority objects.  If login fails, a BadCredentialsException is thrown. If no valid login found implicit
      * or explicit, then null is returned.
      *
-     * @param context The current DSpace context
      * @param authentication Authentication class to attempt authentication.
      * @return new Authentication class containing logged-in user information or null
      */
-    private Authentication authenticateNewLogin(Context context, Authentication authentication) {
+    private Authentication authenticateNewLogin(Authentication authentication) {
         Authentication output = null;
 
         if (authentication != null) {
-            String name = authentication.getName();
-            String password = Objects.toString(authentication.getCredentials(), null);
+            Context context = null;
+            try {
+                // init a new fresh context here!
+                context = ContextUtil.obtainContext(request);
 
-            int implicitStatus = authenticationService.authenticateImplicit(context, null, null, null, request);
-
-            if (implicitStatus == AuthenticationMethod.SUCCESS) {
-                log.info(LogHelper.getHeader(context, "login", "type=implicit"));
-                output = createAuthentication(context);
-            } else {
-                int authenticateResult = authenticationService.authenticate(context, name, password, null, request);
-                if (AuthenticationMethod.SUCCESS == authenticateResult) {
-
-                    log.info(LogHelper.getHeader(context, "login", "type=explicit"));
-
-                    output = createAuthentication(context);
-
-                    for (PostLoggedInAction action : postLoggedInActions) {
-                        try {
-                            action.loggedIn(context);
-                        } catch (Exception ex) {
-                            log.error("An error occurs performing post logged in action", ex);
-                        }
-                    }
-
-                } else {
-                    log.info(LogHelper.getHeader(context, "failed_login",
-                                                 "email={}, result={}"), name, authenticateResult);
-                    throw new BadCredentialsException("Login failed");
+                if (context == null) {
+                    throw new AuthenticationServiceException("Unable to obtain DSpace context for authentication");
                 }
+
+                String name = authentication.getName();
+                String password = Objects.toString(authentication.getCredentials(), null);
+
+                int implicitStatus = authenticationService.authenticateImplicit(context, null, null, null, request);
+
+                if (implicitStatus == AuthenticationMethod.SUCCESS) {
+                    log.info(LogHelper.getHeader(context, "login", "type=implicit"));
+                    output = createAuthentication(context);
+                } else {
+                    int authenticateResult = authenticationService.authenticate(context, name, password, null, request);
+                    if (AuthenticationMethod.SUCCESS == authenticateResult) {
+
+                        log.info(LogHelper.getHeader(context, "login", "type=explicit"));
+
+                        output = createAuthentication(context);
+
+                        for (PostLoggedInAction action : postLoggedInActions) {
+                            try {
+                                action.loggedIn(context);
+                            } catch (RuntimeException ex) {
+                                log.error(
+                                    "An error occurs performing post logged in action: {} ",
+                                    action.getClass(),
+                                    ex
+                                );
+                                throw ex;
+                            }
+                        }
+
+                    } else {
+                        log.info(LogHelper.getHeader(context, "failed_login",
+                                                     "email={}, result={}"), name, authenticateResult);
+                        throw new BadCredentialsException("Login failed");
+                    }
+                }
+            } catch (Throwable e) {
+                if (context != null) {
+                    context.abort();
+                }
+                // If an exception is thrown during authentication, we need to make sure to abort the context.
+                log.error("Error during authentication", e);
+                throw e;
             }
         }
 
