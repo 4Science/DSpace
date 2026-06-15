@@ -31,6 +31,8 @@
 
     <types>
 
+        <fieldType name="long" class="solr.LongPointField"/>
+
         <fieldType name="string" class="solr.StrField" sortMissingLast="true" omitNorms="true"/>
 
         <fieldType name="text_general" class="solr.TextField" positionIncrementGap="100" multiValued="true">
@@ -75,6 +77,7 @@
 
 
     <fields>
+        <field name="_version_" type="long" indexed="true" stored="true" docValues="true" multiValued="false"/>
         <field name="id" type="string" multiValued="false" indexed="true" stored="true" required="true"/>
         <field name="ocr_text" type="text_ocr" multiValued="false" indexed="true" stored="true" />
         <field name="manifest_url" type="text_general" multiValued="false" indexed="true" stored="true" required="true"/>

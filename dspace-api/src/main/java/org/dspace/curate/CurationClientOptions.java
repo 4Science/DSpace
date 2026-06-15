@@ -26,8 +26,6 @@ public enum CurationClientOptions {
     QUEUE,
     HELP;
 
-    private static List<String> taskOptions;
-
     /**
      * This method resolves the CommandLine parameters to figure out which action the curation script should perform
      *
@@ -48,7 +46,8 @@ public enum CurationClientOptions {
     /**
      * This method will create all the possible Options for the {@link Curation} script.
      * This will be used by {@link CurationScriptConfiguration}
-     * @return  The options for the {@link Curation} script
+     *
+     * @return The options for the {@link Curation} script
      */
     protected static Options constructOptions() {
         Options options = new Options();
@@ -56,34 +55,40 @@ public enum CurationClientOptions {
         options.addOption("t", "task", true, "curation task name; options: " + getTaskOptions());
         options.addOption("T", "taskfile", true, "file containing curation task names");
         options.addOption("i", "id", true,
-            "Id (handle) of object to perform task on, or 'all' to perform on whole repository");
+                          "Id (handle) of object to perform task on, or 'all' to perform on whole repository");
         options.addOption("p", "parameter", true, "a task parameter 'NAME=VALUE'");
         options.addOption("q", "queue", true, "name of task queue to process");
         options.addOption("r", "reporter", true,
-            "relative or absolute path to the desired report file. Use '-' to report to console. If absent, no " +
-            "reporting");
+                          "relative or absolute path to the desired report file. Use '-' to report to console. If " +
+                              "absent, no " +
+                              "reporting");
         options.addOption("s", "scope", true,
-            "transaction scope to impose: use 'object', 'curation', or 'open'. If absent, 'open' applies");
+                          "transaction scope to impose: use 'object', 'curation', or 'open'. If absent, 'open' " +
+                              "applies");
+        options.addOption("l", "last", true,
+                          "ONLY process bitstreams belonging to items modified since the number of days specified"
+                              + " (as integer number i.e. 1, 2, 3, etc). NOTE: used only in distributive curation " +
+                              "tasks");
         options.addOption("v", "verbose", false, "report activity to stdout");
+        options.addOption("f", "force", false, "force curation process even if it is already processed");
         options.addOption("h", "help", false, "help");
 
         return options;
     }
 
     /**
-     * Creates list of the taskOptions' keys from the configs of plugin.named.org.dspace.curate.CurationTask
+     * Creates and returns the list of task option keys defined in the
+     * {@code plugin.named.org.dspace.curate.CurationTask} configuration property.
      *
-     * @return List of the taskOptions' keys from the configs of plugin.named.org.dspace.curate.CurationTask
+     * @return List of task option keys
      */
     public static List<String> getTaskOptions() {
-        if (taskOptions == null) {
-            ConfigurationService configurationService = DSpaceServicesFactory.getInstance().getConfigurationService();
-            String[] taskConfigs = configurationService.getArrayProperty("plugin.named.org.dspace.curate.CurationTask");
-            taskOptions = new ArrayList<>();
-            for (String taskConfig : taskConfigs) {
-                taskOptions.add(StringUtils.substringAfterLast(taskConfig, "=").trim());
-            }
+        ConfigurationService configurationService = DSpaceServicesFactory.getInstance().getConfigurationService();
+        String[] taskConfigs = configurationService.getArrayProperty("plugin.named.org.dspace.curate.CurationTask");
+        List<String> options = new ArrayList<>();
+        for (String taskConfig : taskConfigs) {
+            options.add(StringUtils.substringAfterLast(taskConfig, "=").trim());
         }
-        return taskOptions;
+        return options;
     }
 }

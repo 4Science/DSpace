@@ -1207,6 +1207,7 @@
                 <ref bean="searchFilterIssued" />
                 <ref bean="searchFilterSubmitter" />
                 <ref bean="searchFilterSupervision" />
+                <ref bean="searchFilterEntityType" />
             </list>
         </property>
         <!--The search filters which can be used on the discovery search page -->
@@ -1217,6 +1218,7 @@
                 <ref bean="searchFilterIssued" />
                 <ref bean="searchFilterSubmitter" />
                 <ref bean="searchFilterSupervision" />
+                <ref bean="searchFilterEntityType" />
             </list>
         </property>
         <!--The sort filters for the discovery search-->

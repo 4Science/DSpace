@@ -193,6 +193,13 @@
 
     <dc-type>
         <schema>cris</schema>
+        <element>cms</element>
+        <qualifier>privacy-policy</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>cris</schema>
         <element>customurl</element>
         <scope_note></scope_note>
     </dc-type>
@@ -299,6 +306,20 @@
         <schema>cris</schema>
         <element>virtualsource</element>
         <qualifier>journalance</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>cris</schema>
+        <element>curation</element>
+        <qualifier>process</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>cris</schema>
+        <element>curation</element>
+        <qualifier>history</qualifier>
         <scope_note></scope_note>
     </dc-type>
 

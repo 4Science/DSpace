@@ -10,6 +10,7 @@ package org.dspace.content.authority;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -57,7 +58,7 @@ public class ItemAuthority implements ChoiceAuthority, LinkableEntityAuthority {
     final static String CHOICES_EXTERNALSOURCE_PREFIX = "choises.externalsource.";
 
     /** the name assigned to the specific instance by the PluginService, @see {@link NameAwarePlugin} **/
-    private String authorityName;
+    protected String authorityName;
 
     protected DSpace dspace = new DSpace();
 
@@ -77,7 +78,7 @@ public class ItemAuthority implements ChoiceAuthority, LinkableEntityAuthority {
     private ExternalDataService externalDataService = ExternalServiceFactory.getInstance().getExternalDataService();
 
     // map of field key to presentation type
-    protected Map<String, String> externalSource = new HashMap<String, String>();
+    protected Map<String, String> externalSource = new HashMap<>();
 
     public static final String DEFAULT = "local";
 
@@ -116,7 +117,7 @@ public class ItemAuthority implements ChoiceAuthority, LinkableEntityAuthority {
             return new Choices(Choices.CF_UNSET);
         }
 
-        String entityType = getLinkedEntityType();
+        String[] entityTypes = getLinkedEntityTypes();
         ItemAuthorityService itemAuthorityService = itemAuthorityServiceFactory.getInstance(authorityName);
 
         String query = "";
@@ -135,8 +136,11 @@ public class ItemAuthority implements ChoiceAuthority, LinkableEntityAuthority {
         solrQuery.addFilterQuery("withdrawn:false");
         solrQuery.addFilterQuery("NOT(discoverable:false)");
 
-        if (StringUtils.isNotBlank(entityType)) {
-            solrQuery.addFilterQuery("dspace.entity.type:" + entityType);
+        if (entityTypes != null && entityTypes.length > 0) {
+            String filter = Arrays.stream(entityTypes)
+                .map(entityType -> "dspace.entity.type:" + entityType)
+                .collect(Collectors.joining(" OR "));
+            solrQuery.addFilterQuery(filter);
         }
 
         customAuthorityFilters.stream()
@@ -213,8 +217,25 @@ public class ItemAuthority implements ChoiceAuthority, LinkableEntityAuthority {
     }
 
     @Override
-    public String getLinkedEntityType() {
-        return configurationService.getProperty("cris.ItemAuthority." + authorityName + ".entityType");
+    public String[] getLinkedEntityTypes() {
+        return configurationService.getArrayProperty("cris.ItemAuthority." + authorityName + ".entityType");
+    }
+
+    @Override
+    public String getPrimaryLinkedEntityType() {
+        String entityType = configurationService.getProperty(
+            "cris.ItemAuthority." + authorityName + ".primaryEntityType");
+        if (StringUtils.isNotBlank(entityType)) {
+            return entityType;
+        }
+
+        // fallback strategy
+        String[] entityTypes = getLinkedEntityTypes();
+        if (entityTypes != null && entityTypes.length == 1) {
+            return entityTypes[0];
+        }
+
+        return null;
     }
 
     public void setPluginInstanceName(String name) {
@@ -253,7 +274,6 @@ public class ItemAuthority implements ChoiceAuthority, LinkableEntityAuthority {
                 } else {
                     log.warn("Skipping invalid external source authority configuration property: " + sourceIdentifier +
                             " does not exist");
-                    continue;
                 }
             }
         }
@@ -267,7 +287,7 @@ public class ItemAuthority implements ChoiceAuthority, LinkableEntityAuthority {
         SolrClient solr = searchService.getSolrSearchCore().getSolr();
         if (Objects.isNull(solr)) {
             log.error("unable to find solr instance");
-            return new HashMap<String, String>();
+            return new HashMap<>();
         }
 
 
@@ -284,7 +304,7 @@ public class ItemAuthority implements ChoiceAuthority, LinkableEntityAuthority {
             List<Choice> choiceList = getChoiceListFromQueryResults(queryResponse.getResults(), key, false);
             if (choiceList.isEmpty()) {
                 log.warn("No documents found for key=" + key);
-                return new HashMap<String, String>();
+                return new HashMap<>();
             }
 
             return choiceList.iterator().next().extras;
@@ -293,7 +313,7 @@ public class ItemAuthority implements ChoiceAuthority, LinkableEntityAuthority {
             log.error(e.getMessage(), e);
         }
 
-        return new HashMap<String, String>();
+        return new HashMap<>();
     }
 
     protected int calculateConfidence(Choice[] choices) {

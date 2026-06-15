@@ -9,6 +9,7 @@
 ## See org.dspace.core.Email for information on the format of this file.
 ##
 #set($subject = "${config.get('dspace.name')}: Harvesting Error")
+#if($global.put('X-SES-TENANT', $config.get('aws.ses.tenant')))#end
 Collection ${params[0]} failed on harvest:
 
 Date:       	${params[1]}

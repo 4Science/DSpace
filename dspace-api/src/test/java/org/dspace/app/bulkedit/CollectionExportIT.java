@@ -57,10 +57,11 @@ public class CollectionExportIT extends AbstractIntegrationTestWithDatabase {
     @Test
     public void testWithUnknownCollection() throws InstantiationException, IllegalAccessException {
 
-        String[] args = new String[] { "collection-export", "-c", "75900f30-8f92-465f-9353-e72280ec8a30" };
+        String[] args = new String[] { "collection-export", "-c", "75900f30-8f92-465f-9353-e72280ec8a30",
+            "-e", eperson.getEmail() };
         TestDSpaceRunnableHandler handler = new TestDSpaceRunnableHandler();
 
-        handleScript(args, ScriptLauncher.getConfig(kernelImpl), handler, kernelImpl, eperson);
+        handleScript(args, ScriptLauncher.getConfig(kernelImpl), handler, kernelImpl, null);
         assertThat("Expected no infos", handler.getInfoMessages(), emptyCollectionOf(String.class));
         assertThat("Expected no warnings", handler.getWarningMessages(), emptyCollectionOf(String.class));
 
@@ -92,10 +93,11 @@ public class CollectionExportIT extends AbstractIntegrationTestWithDatabase {
         context.commit();
         context.restoreAuthSystemState();
 
-        String[] args = new String[] { "collection-export", "-c", collection.getID().toString() };
+        String[] args = new String[] { "collection-export", "-c", collection.getID().toString(),
+            "-e", eperson.getEmail()};
         TestDSpaceRunnableHandler handler = new TestDSpaceRunnableHandler();
 
-        handleScript(args, ScriptLauncher.getConfig(kernelImpl), handler, kernelImpl, eperson);
+        handleScript(args, ScriptLauncher.getConfig(kernelImpl), handler, kernelImpl, null);
         assertThat("Expected no errors", handler.getErrorMessages(), emptyCollectionOf(String.class));
         assertThat("Expected no warnings", handler.getWarningMessages(), emptyCollectionOf(String.class));
 

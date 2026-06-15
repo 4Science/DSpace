@@ -79,7 +79,7 @@
  </types>
 
  <fields>
- 	<field name="_version_" type="long" indexed="true" stored="true" multiValued="false"/>
+    <field name="_version_" type="long" indexed="true" stored="true" docValues="true" multiValued="false"/>
     <field name="type" type="integer" indexed="true" stored="true" required="false" />
     <field name="id" type="string" indexed="true" stored="true" required="false" />
     <field name="ip" type="string" indexed="true" stored="true" required="false" docValues="true"/>

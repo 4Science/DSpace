@@ -9,6 +9,7 @@
 ## See org.dspace.core.Email for information on the format of this file.
 ##
 #set($subject = "${config.get('dspace.name')}: Request for Open Access")
+#if($global.put('X-SES-TENANT', $config.get('aws.ses.tenant')))#end
 
 ${params[3]}, with address ${params[4]},
 requested the following document/file to be in Open Access:

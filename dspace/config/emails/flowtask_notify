@@ -8,6 +8,7 @@
 ## {5}  Workflow action taken
 ##
 #set($subject = "${config.get('dspace.name')}: Curation Task Report")
+#if($global.put('X-SES-TENANT', $config.get('aws.ses.tenant')))#end
 
 Title:         ${params[0]}
 Collection:    ${params[1]}

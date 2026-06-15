@@ -59,7 +59,7 @@ public class CollectionExport extends DSpaceRunnable<CollectionExportScriptConfi
     public void internalRun() throws Exception {
 
         context = new Context(Context.Mode.READ_ONLY);
-        assignCurrentUserInContext();
+        assignCurrentUserInContext(context);
         assignSpecialGroupsInContext();
 
         handleAuthorizationSystem(context);
@@ -105,7 +105,7 @@ public class CollectionExport extends DSpaceRunnable<CollectionExportScriptConfi
     }
 
 
-    private void assignCurrentUserInContext() throws SQLException {
+    protected void assignCurrentUserInContext(Context context) throws SQLException, ParseException {
         UUID uuid = getEpersonIdentifier();
         if (uuid != null) {
             EPerson ePerson = EPersonServiceFactory.getInstance().getEPersonService().find(context, uuid);

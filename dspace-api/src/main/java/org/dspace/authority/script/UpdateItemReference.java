@@ -9,6 +9,7 @@ package org.dspace.authority.script;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 import java.sql.SQLException;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -102,7 +103,7 @@ public class UpdateItemReference
             }
 
             String fieldKey = getFieldKey(metadata);
-            String entityType = choiceAuthorityService.getLinkedEntityType(fieldKey);
+            String[] entityTypes = choiceAuthorityService.getLinkedEntityTypes(fieldKey);
 
             String [] providerAndId = getProviderAndId(authority);
 
@@ -119,12 +120,13 @@ public class UpdateItemReference
 
             String searchedItemEntityType = itemService.getEntityType(searchedItem);
 
-            if (StringUtils.equals(entityType, searchedItemEntityType)) {
+            if (Arrays.stream(entityTypes).anyMatch(
+                    entityType -> StringUtils.equals(entityType, searchedItemEntityType))) {
                 choiceAuthorityService.setReferenceWithAuthority(metadata, searchedItem);
                 referencesResolved.add(getReferenceResolvedMessage(item, providerAndId, searchedItem));
             } else {
                 referencesNotResolved.add(getReferenceNotResolvedForDifferentEntityTypeMessage(item, authority,
-                    fieldKey, entityType, searchedItem, searchedItemEntityType));
+                    fieldKey, entityTypes, searchedItem, searchedItemEntityType));
             }
 
             context.uncacheEntity(searchedItem);
@@ -151,11 +153,11 @@ public class UpdateItemReference
     }
 
     private String getReferenceNotResolvedForDifferentEntityTypeMessage(Item item, String authority, String fieldKey,
-        String entityType, Item searchedItem, String searchedItemEntityType) {
+        String[] entityTypes, Item searchedItem, String searchedItemEntityType) {
         return "The item with uuid: " + item.getID() + " and reference value: "
             + authority + " on metadata " + fieldKey
-            + " was not resolved, because the linked EntityType and EntityType of referenced item("
-            + searchedItem.getID() + ") are different (" + entityType + ", "
+            + " was not resolved, because the linked EntityType and EntityType of referenced item ("
+            + searchedItem.getID() + ") are different (" + StringUtils.join(entityTypes, ',') + ", "
             + searchedItemEntityType + ")";
     }
 

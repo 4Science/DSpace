@@ -9,19 +9,27 @@ package org.dspace.curate;
 
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.Iterator;
 import java.util.List;
+import java.util.UUID;
 
 import org.apache.commons.lang3.StringUtils;
-import org.dspace.content.Collection;
-import org.dspace.content.Community;
+import org.dspace.authorize.AuthorizeException;
+import org.dspace.content.DCDate;
 import org.dspace.content.DSpaceObject;
 import org.dspace.content.Item;
+import org.dspace.content.MetadataValue;
 import org.dspace.content.factory.ContentServiceFactory;
 import org.dspace.content.service.CommunityService;
 import org.dspace.content.service.ItemService;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
+import org.dspace.discovery.DiscoverQuery;
+import org.dspace.discovery.DiscoverResult;
+import org.dspace.discovery.IndexableObject;
+import org.dspace.discovery.SearchService;
+import org.dspace.discovery.SearchServiceException;
+import org.dspace.discovery.SearchUtils;
+import org.dspace.discovery.indexobject.IndexableItem;
 import org.dspace.handle.factory.HandleServiceFactory;
 import org.dspace.handle.service.HandleService;
 import org.dspace.services.ConfigurationService;
@@ -42,6 +50,64 @@ public abstract class AbstractCurationTask implements CurationTask {
     protected ItemService itemService;
     protected HandleService handleService;
     protected ConfigurationService configurationService;
+    protected SearchService searchService;
+    protected int batchSize;
+
+    private void addOrUpdateProcessMetadata(Context context, Item item) throws SQLException {
+        List<MetadataValue> existingProcesses = itemService.getMetadata(item, "cris", "curation", "process", Item.ANY);
+
+        // Check if processName already exists
+        boolean alreadyExists = existingProcesses.stream()
+                                                 .anyMatch(md -> md.getValue().equalsIgnoreCase(taskId));
+
+        if (!alreadyExists) {
+            itemService.addMetadata(context, item, "cris", "curation", "process", null, taskId);
+        }
+    }
+
+    private void appendHistoryMetadata(Context context, Item item) throws SQLException {
+
+        String now = DCDate.getCurrent().toString();
+
+        String newEntry = "Executed " + taskId + " on " + now;
+
+        List<MetadataValue> existing = itemService.getMetadata(item, "cris", "curation", "history", Item.ANY);
+
+        String combinedValue;
+        if (existing.isEmpty()) {
+            combinedValue = newEntry;
+        } else {
+            // Assume only one value exists and we want to append to it
+            String currentValue = existing.get(0).getValue();
+            combinedValue = currentValue + "\n" + newEntry;
+        }
+
+        // Remove old metadata
+        itemService.clearMetadata(context, item, "cris", "curation", "history", Item.ANY);
+
+        // Add the new combined value
+        itemService.addMetadata(context, item, "cris", "curation", "history", null, combinedValue);
+    }
+
+    protected boolean isSuccessfullyExecuted(Item dso) {
+        return true;
+    }
+
+    private void setExecutionMetadata(Item item) throws SQLException, AuthorizeException {
+
+        Context context = Curator.curationContext();
+
+        // 1. Add or update cris.curation.process metadata (repetitive)
+        if (isSuccessfullyExecuted(item)) {
+            addOrUpdateProcessMetadata(context, item);
+        }
+
+        // 2. Append to cris.curation.history metadata
+        appendHistoryMetadata(context, item);
+
+        // Commit changes
+        itemService.update(context, item);
+    }
 
     @Override
     public void init(Curator curator, String taskId) throws IOException {
@@ -51,6 +117,8 @@ public abstract class AbstractCurationTask implements CurationTask {
         itemService = ContentServiceFactory.getInstance().getItemService();
         handleService = HandleServiceFactory.getInstance().getHandleService();
         configurationService = DSpaceServicesFactory.getInstance().getConfigurationService();
+        searchService = SearchUtils.getSearchService();
+        batchSize = configurationService.getIntProperty("curation.task.batchsize", 100);
     }
 
     @Override
@@ -75,36 +143,122 @@ public abstract class AbstractCurationTask implements CurationTask {
      */
     protected void distribute(DSpaceObject dso) throws IOException {
         try {
-            //perform task on this current object
-            performObject(dso);
-
-            //next, we'll try to distribute to all child objects, based on container type
+            Context ctx = Curator.curationContext();
             int type = dso.getType();
-            if (Constants.COLLECTION == type) {
-                Iterator<Item> iter = itemService.findByCollection(Curator.curationContext(), (Collection) dso);
-                while (iter.hasNext()) {
-                    Item item = iter.next();
-                    performObject(item);
-                    Curator.curationContext().uncacheEntity(item);
+            curator.logInfo(String.format("Curation task %s using batch size of %d", this.taskId, batchSize));
+
+            UUID lastProcessedId = null;
+            List<IndexableObject> indexables = findItems(ctx, dso, type, lastProcessedId);
+
+            if (indexables.isEmpty()) {
+                StringBuilder sb = new StringBuilder(
+                    String.format("Curation task %s didn't found any item to process!", this.taskId)
+                );
+                if (!curator.isForce()) {
+                    sb.append(
+                        String.format(
+                            "Try to re-run the %s task with --force option",
+                            this.taskId)
+                    );
                 }
-            } else if (Constants.COMMUNITY == type) {
-                Community comm = (Community) dso;
-                for (Community subcomm : comm.getSubcommunities()) {
-                    distribute(subcomm);
-                }
-                for (Collection coll : comm.getCollections()) {
-                    distribute(coll);
-                }
-            } else if (Constants.SITE == type) {
-                List<Community> topComm = communityService.findAllTop(Curator.curationContext());
-                for (Community comm : topComm) {
-                    distribute(comm);
-                }
+                curator.logInfo(sb.toString());
+                return;
             }
-        } catch (SQLException sqlE) {
-            throw new IOException(sqlE.getMessage(), sqlE);
+
+            while (!indexables.isEmpty()) {
+
+                curator.logInfo(
+                    String.format(
+                        "Curation task %s found %d processable items",
+                        this.taskId,
+                        indexables.size()
+                    )
+                );
+
+                for (IndexableObject idxObj : indexables) {
+                    if (idxObj instanceof IndexableItem) {
+                        Item item = ((IndexableItem) idxObj).getIndexedObject();
+                        if (item != null) {
+                            try {
+                                performObject(item);
+                            } catch (Exception e) {
+                                String msg = "Unable to process item with handle=" + item.getHandle()
+                                    + " and uuid=" + item.getID();
+                                setResult(msg);
+                                curator.logError(msg, e);
+                            }
+                            try {
+                                setExecutionMetadata(item);
+                            } catch (Exception e) {
+                                String msg = "Unable to set metadata for item with handle=" + item.getHandle()
+                                    + " and uuid=" + item.getID();
+                                setResult(msg);
+                                curator.logError(msg, e);
+                            }
+                            lastProcessedId = item.getID();
+                        }
+                    }
+                }
+
+                // commit batched changes
+                ctx.commit();
+
+                // fetch items!
+                indexables = findItems(ctx, dso, type, lastProcessedId);
+            }
+        } catch (SQLException | SearchServiceException e) {
+            throw new IOException("Error distributing task [" + taskId + "] for object " + dso.getHandle(), e);
         }
     }
+
+    private List<IndexableObject> findItems(
+        Context ctx, DSpaceObject dso, int type, UUID lastProcessedId
+    ) throws SearchServiceException {
+        DiscoverQuery query = new DiscoverQuery();
+        query.setMaxResults(batchSize);
+        query.setSortField("search.resourceid", DiscoverQuery.SORT_ORDER.asc);
+
+        // Only query for items
+        query.addFilterQueries("search.resourcetype:Item");
+
+        // Add location filter based on object type
+        switch (type) {
+            case Constants.ITEM:
+                query.addFilterQueries("search.resourceid:" + dso.getID());
+                break;
+            case Constants.COLLECTION:
+                query.addFilterQueries("location.coll:" + dso.getID());
+                query.addFilterQueries("-withdrawn:true AND -discoverable:false");
+                break;
+            case Constants.COMMUNITY:
+                query.addFilterQueries("location.comm:" + dso.getID());
+                query.addFilterQueries("-withdrawn:true AND -discoverable:false");
+                break;
+            case Constants.SITE:
+                // No additional filter needed: all items
+                break;
+            default:
+                break;
+        }
+
+        if (curator.getModifiedSinceDays() > 0) {
+            query.addFilterQueries("lastModified_dt:[NOW-" + curator.getModifiedSinceDays() + "DAYS/DAY TO *]");
+        }
+
+        if (!curator.isForce()) {
+            // Exclude items already processed by this curation task
+            query.addFilterQueries("-cris.curation.process:" + taskId);
+        }
+
+        if (lastProcessedId != null) {
+            // Simulate cursor by skipping all IDs <= lastProcessedId
+            query.addFilterQueries("search.resourceid:{" + lastProcessedId + " TO *]");
+        }
+
+        DiscoverResult result = searchService.search(ctx, query);
+        return result.getIndexableObjects();
+    }
+
 
     /**
      * Performs task upon a single DSpaceObject. Used in conjunction with the
@@ -127,7 +281,8 @@ public abstract class AbstractCurationTask implements CurationTask {
         // By default this method only performs tasks on Items
         // (You should override this method if you want to perform task on all objects)
         if (dso.getType() == Constants.ITEM) {
-            performItem((Item) dso);
+            Item item = (Item) dso;
+            performItem(item);
         }
 
         //no-op for all other types of DSpace Objects
@@ -189,8 +344,14 @@ public abstract class AbstractCurationTask implements CurationTask {
      * @param result the result string
      */
     protected void setResult(String result) {
-        curator.setResult(taskId, result);
+        String current = curator.getResult(taskId);
+        if (StringUtils.isNotBlank(current)) {
+            curator.setResult(taskId, current + System.lineSeparator() + result);
+        } else {
+            curator.setResult(taskId, result);
+        }
     }
+
 
     /**
      * Returns task configuration property value for passed name, else
@@ -290,7 +451,7 @@ public abstract class AbstractCurationTask implements CurationTask {
     protected String[] taskArrayProperty(String name) {
         String parameter = curator.getRunParameter(name);
         if (null != parameter) {
-            return new String[] { parameter };
+            return new String[] {parameter};
         } else if (StringUtils.isNotBlank(taskId)) {
             return configurationService.getArrayProperty(taskId + "." + name);
         } else {

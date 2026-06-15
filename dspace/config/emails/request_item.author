@@ -12,6 +12,7 @@
 ##             9 configuration property "dspace.name"
 ##             10 configuration property "mail.helpdesk"
 #set($subject = "${config.get('dspace.name')}: Request copy of document")
+#if($global.put('X-SES-TENANT', $config.get('aws.ses.tenant')))#end
 
 Dear ${params[7]},
 

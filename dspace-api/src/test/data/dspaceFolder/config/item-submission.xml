@@ -222,10 +222,10 @@
             <type>submission-form</type>
         </step-definition>
 
-        <step-definition id="sherpaPolicies" mandatory="true">
-            <heading>submit.progressbar.sherpapolicy</heading>
-            <processing-class>org.dspace.app.rest.submit.step.SherpaPolicyStep</processing-class>
-            <type>sherpaPolicy</type>
+        <step-definition id="opfPolicies" mandatory="true">
+            <heading>submit.progressbar.opfpolicy</heading>
+            <processing-class>org.dspace.app.rest.submit.step.OpenPolicyFinderPolicyStep</processing-class>
+            <type>opfPolicy</type>
         </step-definition>
 
         <step-definition id="titleAndIssuedDate" mandatory="true">
@@ -306,6 +306,16 @@
             <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
             <type>submission-form</type>
         </step-definition>
+        <step-definition id="event" mandatory="true">
+            <heading>submit.progressbar.describe.event</heading>
+            <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
+            <type>submission-form</type>
+        </step-definition>
+        <step-definition id="product" mandatory="true">
+            <heading>submit.progressbar.describe.product</heading>
+            <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
+            <type>submission-form</type>
+        </step-definition>
 
         <!-- Detect duplicates step -->
         <step-definition id="duplicates">
@@ -366,7 +376,7 @@
             <step id="detect-duplicate"/>
             <!-- <step id="extractionstep"/> -->
             <step id="defaultAC"/>
-            <step id="sherpaPolicies"/>
+            <step id="opfPolicies"/>
 
             <!--Step will be to Sign off on the License -->
             <step id="license"/>
@@ -548,6 +558,15 @@
             <step id="traditionalpageone" />
             <step id="upload-no-required-metadata" />
             <step id="license" />
+        </submission-process>
+
+        <submission-process name="event">
+            <step id="collection" />
+            <step id="event" />
+        </submission-process>
+        <submission-process name="product">
+            <step id="collection" />
+            <step id="product" />
         </submission-process>
     </submission-definitions>
 

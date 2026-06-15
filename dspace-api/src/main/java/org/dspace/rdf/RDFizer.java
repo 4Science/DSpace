@@ -344,10 +344,10 @@ public class RDFizer {
         }
 
         if (isProcessed(dso)) {
-            log.debug(
-                "Skipping processing of " + contentServiceFactory.getDSpaceObjectService(dso).getTypeText(dso) + " "
-                    + dso.getID() + " (handle " + dso.getHandle()
-                    + "), already processed.");
+            if (log.isDebugEnabled()) {
+                log.debug("Skipping processing of " + contentServiceFactory.getDSpaceObjectService(dso)
+                    .getTypeText(dso) + " " + dso.getID() + " (handle " + dso.getHandle() + "), already processed.");
+            }
             return;
         }
         markProcessed(dso);
@@ -420,6 +420,7 @@ public class RDFizer {
             while (items.hasNext()) {
                 Item item = items.next();
                 this.dspaceDFS(item, callback, check, false);
+                context.uncacheEntity(item);
             }
         }
 
@@ -460,6 +461,9 @@ public class RDFizer {
 
     protected void markProcessed(DSpaceObject dso) {
         this.processed.add(dso.getID());
+        if (this.verbose) {
+            System.out.println("processed #" + processed.size());
+        }
     }
 
     protected void report(String message) {
@@ -526,11 +530,10 @@ public class RDFizer {
             System.exit(1);
         }
 
-        if (line.hasOption("convert-all")
-            && (line.hasOption("delete") || line.hasOption("delete-all"))) {
+        if (line.hasOption("convert-all") && (line.hasOption("delete"))) {
             usage(options);
             System.err.println("\n\nYou cannot use the option --convert-all "
-                                   + "together with --delete or --delete-all.");
+                                   + "together with --delete.");
             System.exit(1);
         }
         if (line.hasOption("identifiers")
@@ -598,7 +601,9 @@ public class RDFizer {
 
         if (line.hasOption("delete-all")) {
             this.deleteAll();
-            System.exit(0);
+            if (!line.hasOption("convert-all")) {
+                System.exit(0);
+            }
         }
 
         if (line.hasOption("identifiers")) {

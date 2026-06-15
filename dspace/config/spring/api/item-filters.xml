@@ -97,7 +97,7 @@
         <property name="parameters">
             <map>
                 <entry key="field" value="dc.identifier.uri" />
-                <entry key="pattern" value="10.12345/" />
+                <entry key="pattern" value="${identifier.doi.prefix:10\.12345}\/" />
             </map>
         </property>
     </bean>

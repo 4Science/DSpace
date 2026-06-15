@@ -1,0 +1,11 @@
+.git/
+.idea/
+.settings/
+*.dockerignore
+**/*.bat
+**/.gitattributes
+Dockerfile*
+docker-compose.yml
+dspace/**/docker/
+dspace/**/docker-compose/
+dspace/config/local.cfg

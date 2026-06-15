@@ -112,7 +112,7 @@ public class RegistryLoader {
                     }
                     // Call MetadataImporter, as it handles Metadata schema updates
                     MetadataImporter.loadRegistry(filename, true);
-                } else if (line.hasOption("all")) {
+                } else if (line.hasOption("a")) {
                     loadAllBitstreamFormats(context);
                     loadAllRegistry();
                 } else {
@@ -150,7 +150,7 @@ public class RegistryLoader {
 
         options.addOption("b", "bitstream", true, "load bitstream format registry from specified file");
         options.addOption("m", "metadata", true, "load metadata registry from specified file");
-        options.addOption("a", "all", true, "load all registries related to metadata and bitsreams");
+        options.addOption("a", "all", false, "load all registries related to metadata and bitsreams");
         options.addOption("h", "help", false, "print this help message");
 
         return options;

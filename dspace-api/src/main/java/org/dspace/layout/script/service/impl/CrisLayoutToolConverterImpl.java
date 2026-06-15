@@ -20,7 +20,10 @@ import static org.dspace.util.WorkbookUtils.createCell;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -69,15 +72,6 @@ public class CrisLayoutToolConverterImpl implements CrisLayoutToolConverter {
         }
     }
 
-    private void buildTab(Workbook workbook, List<CrisLayoutTab> tabs) {
-        Sheet sheet = workbook.getSheet(TAB_SHEET);
-        tabs.forEach(tab -> {
-            buildTabRow(sheet, tab);
-            buildTab2box(workbook, tab);
-            buildTabPolicy(workbook, tab);
-        });
-    }
-
     private void buildTabRow(Sheet sheet, CrisLayoutTab tab) {
         Row row = sheet.createRow(sheet.getLastRowNum() + 1);
         createCell(row, 0, tab.getEntity().getLabel());
@@ -88,18 +82,61 @@ public class CrisLayoutToolConverterImpl implements CrisLayoutToolConverter {
         createCell(row, 5, toSecurity(tab.getSecurity()));
     }
 
-    private void buildTab2box(Workbook workbook, CrisLayoutTab tab) {
+    private void buildTab(Workbook workbook, List<CrisLayoutTab> tabs) {
+        Sheet sheet = workbook.getSheet(TAB_SHEET);
+        Map<String, CrisLayoutBox> allUniqueBoxes = new HashMap<>();
+
+        tabs.forEach(tab -> {
+            buildTabRow(sheet, tab);
+
+            // Collect boxes from each tab
+            Map<String, CrisLayoutBox> tabBoxes = buildTab2boxRows(workbook, tab);
+            allUniqueBoxes.putAll(tabBoxes);
+
+            buildTabPolicy(workbook, tab);
+        });
+
+        // Process all unique boxes once
+        buildAllBoxes(workbook, allUniqueBoxes);
+    }
+
+    // Builds tab2box rows and returns collected boxes
+    private Map<String, CrisLayoutBox> buildTab2boxRows(Workbook workbook, CrisLayoutTab tab) {
         Sheet sheet = workbook.getSheet(TAB2BOX_SHEET);
-        for (int i = 0 ; i < tab.getRows().size() ; i++) {
-            // position column into database starts from 0, so will increase 1
+        Map<String, CrisLayoutBox> tabUniqueBoxes = new HashMap<>();
+
+        for (int i = 0; i < tab.getRows().size(); i++) {
             int rowIndex = i + 1;
             tab.getRows().get(i).getCells()
-                .forEach(cell -> {
-                    buildTab2boxRow(sheet, rowIndex, cell);
-                    buildBox(sheet.getWorkbook(), cell.getBoxes());
-                    buildBoxPolicy(sheet.getWorkbook(), cell.getBoxes());
-                });
+                   .forEach(cell -> {
+                       buildTab2boxRow(sheet, rowIndex, cell);
+
+                       cell.getBoxes().forEach(box -> {
+                           String boxKey = createBoxKey(box);
+                           tabUniqueBoxes.computeIfAbsent(boxKey, k -> box);
+                       });
+                   });
         }
+
+        return tabUniqueBoxes;
+    }
+
+    private void buildAllBoxes(Workbook workbook, Map<String, CrisLayoutBox> allUniqueBoxes) {
+        if (!allUniqueBoxes.isEmpty()) {
+            List<CrisLayoutBox> uniqueBoxesList = new ArrayList<>(allUniqueBoxes.values());
+            buildBox(workbook, uniqueBoxesList);
+            buildBoxPolicy(workbook, uniqueBoxesList);
+        }
+    }
+
+
+    /**
+     * Create a unique string key for a CrisLayoutBox
+     */
+    private String createBoxKey(CrisLayoutBox box) {
+        String entityLabel = box.getCell().getRow().getTab().getEntity().getLabel();
+        String shortname = box.getShortname();
+        return entityLabel + ":" + shortname;
     }
 
     private void buildTab2boxRow(Sheet sheet, int cellIndex, CrisLayoutCell cell) {

@@ -230,6 +230,11 @@
         <processing-class>org.dspace.app.rest.submit.step.NotifyStep</processing-class>
         <type>coarnotify</type>
     </step-definition>
+    <step-definition id="opfPolicies" mandatory="false">
+      <heading>submit.progressbar.opfPolicies</heading>
+      <processing-class>org.dspace.app.rest.submit.step.OpenPolicyFinderPolicyStep</processing-class>
+      <type>opfPolicy</type>
+    </step-definition>
   </step-definitions>
   <submission-definitions>
     <submission-process name="product">
@@ -297,6 +302,7 @@
       <!-- <step id="coarnotify"/> -->
       <step id="correction" />
       <step id="detect-duplicate" />
+      <step id="opfPolicies" />
       <step id="upload" />
       <step id="license" />
     </submission-process>

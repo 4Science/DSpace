@@ -14,6 +14,7 @@ import java.io.InputStream;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
+import org.apache.pdfbox.Loader;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.common.PDRectangle;
@@ -85,23 +86,20 @@ public abstract class ImageMagickThumbnailFilter extends MediaFilter {
 
     public File inputStreamToTempFile(InputStream source, String prefix, String suffix) throws IOException {
         File f = File.createTempFile(prefix, suffix);
-        f.deleteOnExit();
-        FileOutputStream fos = new FileOutputStream(f);
-
-        byte[] buffer = new byte[1024];
-        int len = source.read(buffer);
-        while (len != -1) {
-            fos.write(buffer, 0, len);
-            len = source.read(buffer);
+        try (FileOutputStream fos = new FileOutputStream(f)) {
+            byte[] buffer = new byte[8192];
+            int len = source.read(buffer);
+            while (len != -1) {
+                fos.write(buffer, 0, len);
+                len = source.read(buffer);
+            }
         }
-        fos.close();
         return f;
     }
 
     public File getThumbnailFile(File f, boolean verbose)
         throws IOException, InterruptedException, IM4JavaException {
         File f2 = new File(f.getParentFile(), f.getName() + ".jpg");
-        f2.deleteOnExit();
         ConvertCmd cmd = new ConvertCmd();
         IMOperation op = new IMOperation();
         op.autoOrient();
@@ -123,11 +121,7 @@ public abstract class ImageMagickThumbnailFilter extends MediaFilter {
      */
     public File getImageFile(File f, boolean verbose)
         throws IOException, InterruptedException, IM4JavaException {
-        // Writing an intermediate file to disk is inefficient, but since we're
-        // doing it anyway, we should use a lossless format. IM's internal MIFF
-        // is lossless like PNG and TIFF, but much faster.
         File f2 = new File(f.getParentFile(), f.getName() + ".miff");
-        f2.deleteOnExit();
         ConvertCmd cmd = new ConvertCmd();
         IMOperation op = new IMOperation();
 
@@ -153,10 +147,16 @@ public abstract class ImageMagickThumbnailFilter extends MediaFilter {
         // the CropBox is missing or empty because pdfbox will set it to the
         // same size as the MediaBox if it doesn't exist. Also note that we
         // only need to check the first page, since that's what we use for
-        // generating the thumbnail (PDDocument uses a zero-based index).
-        PDPage pdfPage = PDDocument.load(f).getPage(0);
-        PDRectangle pdfPageMediaBox = pdfPage.getMediaBox();
-        PDRectangle pdfPageCropBox = pdfPage.getCropBox();
+        // generating the thumbnail (PDPage uses a zero-based index).
+        PDRectangle pdfPageMediaBox;
+        PDRectangle pdfPageCropBox;
+        try (
+            PDDocument pdfDoc = Loader.loadPDF(f)
+        ) {
+            PDPage pdfPage = pdfDoc.getPage(0);
+            pdfPageMediaBox = pdfPage.getMediaBox();
+            pdfPageCropBox = pdfPage.getCropBox();
+        }
 
         // This option must come *before* we open the input file.
         if (pdfPageCropBox != pdfPageMediaBox) {

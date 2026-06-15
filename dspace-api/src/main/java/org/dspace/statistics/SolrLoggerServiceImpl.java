@@ -47,6 +47,7 @@ import com.maxmind.geoip2.exception.GeoIp2Exception;
 import com.maxmind.geoip2.model.CityResponse;
 import com.opencsv.CSVReader;
 import com.opencsv.CSVWriter;
+import jakarta.inject.Named;
 import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.ArrayUtils;
@@ -101,6 +102,7 @@ import org.dspace.core.Context;
 import org.dspace.discovery.DiscoverResult.FacetPivotResult;
 import org.dspace.eperson.EPerson;
 import org.dspace.service.ClientInfoService;
+import org.dspace.service.impl.HttpConnectionPoolService;
 import org.dspace.services.ConfigurationService;
 import org.dspace.statistics.service.SolrLoggerService;
 import org.dspace.statistics.util.LocationUtils;
@@ -128,8 +130,6 @@ public class SolrLoggerServiceImpl implements SolrLoggerService, InitializingBea
 
     public static final String DATE_FORMAT_DCDATE = "yyyy-MM-dd'T'HH:mm:ss'Z'";
 
-    protected DatabaseReader locationService;
-
     protected boolean useProxies;
 
     private static final List<String> statisticYearCores = new ArrayList<>();
@@ -152,6 +152,8 @@ public class SolrLoggerServiceImpl implements SolrLoggerService, InitializingBea
     protected GeoIpService geoIpService;
     @Autowired
     private AuthorizeService authorizeService;
+    @Autowired @Named("solrHttpConnectionPoolService")
+    protected HttpConnectionPoolService httpConnectionPoolService;
 
     protected SolrClient solr;
 
@@ -199,14 +201,6 @@ public class SolrLoggerServiceImpl implements SolrLoggerService, InitializingBea
 
         // Read in the file so we don't have to do it all the time
         //spiderIps = SpiderDetector.getSpiderIpAddresses();
-
-        DatabaseReader service = null;
-        try {
-            service = geoIpService.getDatabaseReader();
-        } catch (IllegalStateException ex) {
-            log.error(ex);
-        }
-        locationService = service;
     }
 
     @Override
@@ -325,11 +319,15 @@ public class SolrLoggerServiceImpl implements SolrLoggerService, InitializingBea
     @Override
     public void postLogin(DSpaceObject dspaceObject, HttpServletRequest request, EPerson currentUser) {
 
-        if (solr == null || locationService == null) {
+        if (solr == null) {
             return;
         }
 
-        try {
+        try (DatabaseReader locationService = getDatabaseReader()) {
+
+            if (locationService == null) {
+                return;
+            }
 
             SolrInputDocument document = getCommonSolrDoc(dspaceObject, request, currentUser, null, new Date());
 
@@ -432,27 +430,32 @@ public class SolrLoggerServiceImpl implements SolrLoggerService, InitializingBea
             doc1.addField("isBot", isSpiderBot);
             // Save the location information if valid, save the event without
             // location information if not valid
-            if (locationService != null && ipAddress != null) {
-                try {
-                    CityResponse location = locationService.city(ipAddress);
-                    String countryCode = location.getCountry().getIsoCode();
-                    double latitude = location.getLocation().getLatitude();
-                    double longitude = location.getLocation().getLongitude();
-                    if (!(
+            if (ipAddress != null) {
+
+                try (DatabaseReader locationService = getDatabaseReader()) {
+
+                    if (locationService != null) {
+
+                        CityResponse location = locationService.city(ipAddress);
+                        String countryCode = location.getCountry().getIsoCode();
+                        double latitude = location.getLocation().getLatitude();
+                        double longitude = location.getLocation().getLongitude();
+                        if (!(
                             "--".equals(countryCode)
-                            && latitude == -180
-                            && longitude == -180)
-                    ) {
-                        try {
-                            doc1.addField("continent", LocationUtils
-                                .getContinentCode(countryCode));
-                        } catch (Exception e) {
-                            log.warn("Failed to load country/continent table: {}", countryCode);
+                                && latitude == -180
+                                && longitude == -180)
+                        ) {
+                            try {
+                                doc1.addField("continent", LocationUtils
+                                    .getContinentCode(countryCode));
+                            } catch (Exception e) {
+                                log.warn("Failed to load country/continent table: {}", countryCode);
+                            }
+                            doc1.addField("countryCode", countryCode);
+                            doc1.addField("city", location.getCity().getName());
+                            doc1.addField("latitude", latitude);
+                            doc1.addField("longitude", longitude);
                         }
-                        doc1.addField("countryCode", countryCode);
-                        doc1.addField("city", location.getCity().getName());
-                        doc1.addField("latitude", latitude);
-                        doc1.addField("longitude", longitude);
                     }
                 } catch (IOException e) {
                     log.warn("GeoIP lookup failed.", e);
@@ -524,34 +527,34 @@ public class SolrLoggerServiceImpl implements SolrLoggerService, InitializingBea
         doc1.addField("isBot", isSpiderBot);
         // Save the location information if valid, save the event without
         // location information if not valid
-        if (locationService != null) {
-            try {
+        try (DatabaseReader locationService = getDatabaseReader()) {
+            if (locationService != null) {
                 CityResponse location = locationService.city(ipAddress);
                 String countryCode = location.getCountry().getIsoCode();
                 double latitude = location.getLocation().getLatitude();
                 double longitude = location.getLocation().getLongitude();
                 if (!(
-                        "--".equals(countryCode)
-                                && latitude == -180
-                                && longitude == -180)
+                    "--".equals(countryCode)
+                        && latitude == -180
+                        && longitude == -180)
                 ) {
                     try {
                         doc1.addField("continent", LocationUtils
-                                .getContinentCode(countryCode));
+                            .getContinentCode(countryCode));
                     } catch (Exception e) {
                         System.out
-                                .println("COUNTRY ERROR: " + countryCode);
+                            .println("COUNTRY ERROR: " + countryCode);
                     }
                     doc1.addField("countryCode", countryCode);
                     doc1.addField("city", location.getCity().getName());
                     doc1.addField("latitude", latitude);
                     doc1.addField("longitude", longitude);
                 }
-            } catch (IOException e) {
-                log.warn("GeoIP lookup failed.", e);
-            } catch (GeoIp2Exception e) {
-                log.info("Unable to get location of request: {}", e.getMessage());
             }
+        } catch (IOException e) {
+            log.warn("GeoIP lookup failed.", e);
+        } catch (GeoIp2Exception e) {
+            log.info("Unable to get location of request: {}", e.getMessage());
         }
 
         if (dspaceObject != null) {
@@ -568,6 +571,9 @@ public class SolrLoggerServiceImpl implements SolrLoggerService, InitializingBea
         return doc1;
     }
 
+    protected DatabaseReader getDatabaseReader() {
+        return geoIpService.getDatabaseReader();
+    }
 
     @Override
     public void postSearch(DSpaceObject resultObject, HttpServletRequest request, EPerson currentUser,
@@ -1399,7 +1405,10 @@ public class SolrLoggerServiceImpl implements SolrLoggerService, InitializingBea
         //DS-3458: Test to see if a solr core already exists.  If it exists,
         // return a connection to that core.  Otherwise create a new core and
         // return a connection to it.
-        HttpSolrClient returnServer = new HttpSolrClient.Builder(baseSolrUrl + coreName).build();
+        HttpSolrClient returnServer =
+            new HttpSolrClient.Builder(baseSolrUrl + coreName)
+                .withHttpClient(httpConnectionPoolService.getClient())
+                .build();
         try {
             SolrPingResponse ping = returnServer.ping();
             log.debug("Ping of Solr Core {} returned with Status {}",
@@ -1419,7 +1428,10 @@ public class SolrLoggerServiceImpl implements SolrLoggerService, InitializingBea
         create.setConfigSet(configSetName);
         create.setInstanceDir(coreName);
 
-        HttpSolrClient solrServer = new HttpSolrClient.Builder(baseSolrUrl).build();
+        HttpSolrClient solrServer =
+            new HttpSolrClient.Builder(baseSolrUrl)
+                .withHttpClient(httpConnectionPoolService.getClient())
+                .build();
         create.process(solrServer);
         log.info("Created core with name: {} from configset {}", coreName, configSetName);
         return returnServer;
@@ -1707,7 +1719,8 @@ public class SolrLoggerServiceImpl implements SolrLoggerService, InitializingBea
         //Base url should like : http://localhost:{port.number}/solr
         String baseSolrUrl = ((HttpSolrClient) solr).getBaseURL().replace(statisticsCoreBase, "");
 
-        try (HttpSolrClient enumClient = new HttpSolrClient.Builder(baseSolrUrl).build();) {
+        try (HttpSolrClient enumClient = new HttpSolrClient.Builder(baseSolrUrl).withHttpClient(
+            httpConnectionPoolService.getClient()).build()) {
             //Attempt to retrieve all the statistic year cores
             CoreAdminRequest coresRequest = new CoreAdminRequest();
             coresRequest.setAction(CoreAdminAction.STATUS);
@@ -1731,9 +1744,9 @@ public class SolrLoggerServiceImpl implements SolrLoggerService, InitializingBea
                     .add(baseSolrUrl.replace("http://", "").replace("https://", "") + statCoreName);
             }
             var baseCore = ((HttpSolrClient) solr)
-                    .getBaseURL()
-                    .replace("http://", "")
-                    .replace("https://", "");
+                .getBaseURL()
+                .replace("http://", "")
+                .replace("https://", "");
             if (!statisticYearCores.contains(baseCore)) {
                 //Also add the core containing the current year, if it hasn't been added already
                 statisticYearCores.add(baseCore);

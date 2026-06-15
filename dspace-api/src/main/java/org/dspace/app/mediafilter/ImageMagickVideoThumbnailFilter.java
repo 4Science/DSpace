@@ -59,7 +59,6 @@ public class ImageMagickVideoThumbnailFilter extends ImageMagickThumbnailFilter 
     public File getThumbnailFile(File f, boolean verbose)
         throws IOException, InterruptedException, IM4JavaException {
         File f2 = new File(f.getParentFile(), f.getName() + ".jpg");
-        f2.deleteOnExit();
         ConvertCmd cmd = new ConvertCmd();
         IMOperation op = new IMOperation();
         op.autoOrient();
