@@ -817,18 +817,20 @@ public class SolrCoreExportImport extends DSpaceRunnable<SolrCoreExportImportScr
      * @return a {@link StreamResult} with the next cursor mark and row count
      * @throws IOException on I/O or parse failure
      */
-        private StreamResult streamJsonToCsv(InputStream in, Path outFile,
-            boolean appendMode, List<String> fieldNames) throws IOException {
+    private StreamResult streamJsonToCsv(
+        InputStream in, Path outFile,
+        boolean appendMode, List<String> fieldNames
+    ) throws IOException {
         JsonParser parser = jsonMapper.getFactory().createParser(in);
         String nextCursorMark = "";
         int rowCount = 0;
 
         StandardOpenOption[] openOptions = appendMode
-                ? new StandardOpenOption[] { StandardOpenOption.APPEND, StandardOpenOption.CREATE }
-                : new StandardOpenOption[] { StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING };
+            ? new StandardOpenOption[] {StandardOpenOption.APPEND, StandardOpenOption.CREATE}
+            : new StandardOpenOption[] {StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING};
 
         try (BufferedWriter writer = Files.newBufferedWriter(outFile,
-                StandardCharsets.UTF_8, openOptions)) {
+                                                             StandardCharsets.UTF_8, openOptions)) {
 
             if (!appendMode && !fieldNames.isEmpty()) {
                 writer.write(buildCsvRow(fieldNames));
@@ -847,18 +849,25 @@ public class SolrCoreExportImport extends DSpaceRunnable<SolrCoreExportImportScr
 
                     if ("docs".equals(fn)) {
                         parser.nextToken(); // START_ARRAY
-                        if (parser.currentToken() != JsonToken.START_ARRAY) continue;
+                        if (parser.currentToken() != JsonToken.START_ARRAY) {
+                            continue;
+                        }
 
                         while (parser.nextToken() == JsonToken.START_OBJECT) {
                             String[] row = new String[fieldNames.size()];
                             Arrays.fill(row, "");
 
                             while (parser.nextToken() != JsonToken.END_OBJECT) {
-                                if (parser.currentToken() != JsonToken.FIELD_NAME) continue;
+                                if (parser.currentToken() != JsonToken.FIELD_NAME) {
+                                    continue;
+                                }
                                 String df = parser.currentName();
                                 int idx = fieldNames.indexOf(df);
                                 parser.nextToken();
-                                if (idx < 0) { parser.skipChildren(); continue; }
+                                if (idx < 0) {
+                                    parser.skipChildren();
+                                    continue;
+                                }
 
                                 JsonToken vt = parser.currentToken();
                                 if (vt == JsonToken.VALUE_NULL) {
@@ -867,7 +876,9 @@ public class SolrCoreExportImport extends DSpaceRunnable<SolrCoreExportImportScr
                                     StringBuilder sb = new StringBuilder();
                                     boolean first = true;
                                     while (parser.nextToken() != JsonToken.END_ARRAY) {
-                                        if (!first) sb.append(',');
+                                        if (!first) {
+                                            sb.append(',');
+                                        }
                                         sb.append(parser.getValueAsString(""));
                                         first = false;
                                     }
