@@ -44,8 +44,9 @@ public class CreateWorkspaceItemWithExternalSourceScriptConfiguration<T extends 
 
             options.addOption("e", "eperson", true, "email of the eperson performing the import");
 
-            options.addOption("l", "limit", true, "the max number of search to be performed. If no limit is provided, "
-                + "the default one will be used");
+            options.addOption("l", "limit", true,
+                              "the max number of request to the external service (search/count )to be performed."
+                                  + " If no limit is provided, the default one will be used");
             options.getOption("l").setType(Integer.class);
             options.getOption("l").setRequired(false);
 

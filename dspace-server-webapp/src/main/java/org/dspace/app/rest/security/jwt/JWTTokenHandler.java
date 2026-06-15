@@ -390,7 +390,7 @@ public abstract class JWTTokenHandler {
 
         return builder
             .expirationTime(java.util.Date.from(
-                Instant.ofEpochMilli(Instant.now().toEpochMilli() + getExpirationPeriod())))
+                Instant.ofEpochMilli(Instant.now().toEpochMilli() + expirationPeriod)))
             .build();
     }
 

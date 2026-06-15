@@ -21,6 +21,7 @@ import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdfconnection.RDFConnection;
 import org.apache.jena.rdfconnection.RDFConnectionRemote;
 import org.apache.jena.sparql.exec.http.QueryExecutionHTTP;
+import org.apache.jena.web.JenaHttpNotFoundException;
 import org.apache.logging.log4j.Logger;
 import org.dspace.rdf.RDFUtil;
 import org.dspace.services.ConfigurationService;
@@ -44,8 +45,13 @@ public class RDFStorageImpl
 
     @Override
     public Model load(String uri) {
-        RDFConnection connection = this.getConnection();
-        return connection.fetch(uri);
+        try {
+            RDFConnection connection = this.getConnection();
+            return connection.fetch(uri);
+        } catch (JenaHttpNotFoundException nf) {
+            log.debug("Model not found for the uri " + uri, nf);
+            return null;
+        }
     }
 
     protected RDFConnection getConnection() {

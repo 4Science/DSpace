@@ -36,7 +36,6 @@ import org.dspace.content.service.CollectionService;
 import org.dspace.content.service.CommunityService;
 import org.dspace.content.service.InstallItemService;
 import org.dspace.content.service.ItemService;
-import org.dspace.content.service.WorkspaceItemService;
 import org.dspace.services.ConfigurationService;
 import org.dspace.services.factory.DSpaceServicesFactory;
 import org.jdom2.Element;
@@ -54,10 +53,9 @@ public class PackagerIT extends AbstractIntegrationTestWithDatabase {
     private ItemService itemService = ContentServiceFactory.getInstance().getItemService();
     private CollectionService collectionService = ContentServiceFactory.getInstance().getCollectionService();
     private CommunityService communityService = ContentServiceFactory.getInstance().getCommunityService();
-    private WorkspaceItemService workspaceItemService = ContentServiceFactory.getInstance().getWorkspaceItemService();
-    protected static final InstallItemService installItemService = ContentServiceFactory.getInstance()
-            .getInstallItemService();
-    protected ConfigurationService configService = DSpaceServicesFactory.getInstance().getConfigurationService();
+    private InstallItemService installItemService = ContentServiceFactory.getInstance().getInstallItemService();
+    private ConfigurationService configService = DSpaceServicesFactory.getInstance().getConfigurationService();
+
     protected Community child1;
     protected Collection col1;
     protected Item article;
@@ -189,7 +187,6 @@ public class PackagerIT extends AbstractIntegrationTestWithDatabase {
         return idStr;
     }
 
-
     private void performExportScript(String handle, File outputFile) throws Exception {
         runDSpaceScript("packager", "-d", "-e", "admin@email.com", "-i", handle, "-t",
                 "AIP", outputFile.getPath());
@@ -204,4 +201,5 @@ public class PackagerIT extends AbstractIntegrationTestWithDatabase {
         runDSpaceScript("packager", "-r", "-f", "-u", "-e", "admin@email.com", "-t",
                 "AIP", outputFile.getPath());
     }
+
 }
