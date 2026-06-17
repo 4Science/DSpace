@@ -49,7 +49,7 @@ public class CrisLayoutTabDAOImpl extends AbstractHibernateDAO<CrisLayoutTab> im
 
         TypedQuery<CrisLayoutTab> typedQuery = getHibernateSession(context).createQuery(query);
         EntityGraph<?> graph = getHibernateSession(context).createEntityGraph(ROWS_AND_CONTENT_GRAPH);
-        typedQuery.setHint("javax.persistence.loadgraph", graph);
+        typedQuery.setHint("jakarta.persistence.loadgraph", graph);
 
         return singleResult(typedQuery);
     }
@@ -109,7 +109,7 @@ public class CrisLayoutTabDAOImpl extends AbstractHibernateDAO<CrisLayoutTab> im
         }
 
         EntityGraph<?> graph = getHibernateSession(context).createEntityGraph(ROWS_AND_CONTENT_GRAPH);
-        typedQuery.setHint("javax.persistence.loadgraph", graph);
+        typedQuery.setHint("jakarta.persistence.loadgraph", graph);
 
         return typedQuery.getResultList();
     }
