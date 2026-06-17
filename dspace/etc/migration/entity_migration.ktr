@@ -793,16 +793,6 @@
       <enabled>Y</enabled>
     </hop>
     <hop>
-      <from>Select values 4</from>
-      <to>Join rows 5</to>
-      <enabled>Y</enabled>
-    </hop>
-    <hop>
-      <from>Join rows 4</from>
-      <to>Select values 4</to>
-      <enabled>Y</enabled>
-    </hop>
-    <hop>
       <from>Select values</from>
       <to>Join rows 5</to>
       <enabled>Y</enabled>
@@ -815,11 +805,6 @@
     <hop>
       <from>Select values 5</from>
       <to>Join rows 6</to>
-      <enabled>Y</enabled>
-    </hop>
-    <hop>
-      <from>Join rows 6</from>
-      <to>Select values 7</to>
       <enabled>Y</enabled>
     </hop>
     <hop>
@@ -1055,6 +1040,21 @@
     <hop>
       <from>is file</from>
       <to>is eperson</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Join rows 4</from>
+      <to>Join rows 5</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Join rows 6</from>
+      <to>Add constants 2</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Add constants 2</from>
+      <to>Select values 7</to>
       <enabled>Y</enabled>
     </hop>
   </order>
@@ -1302,6 +1302,57 @@
     </GUI>
   </step>
   <step>
+    <name>Add constants 2</name>
+    <type>Constant</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <fields>
+      <field>
+        <name>nested_object_id</name>
+        <type>Integer</type>
+        <format/>
+        <currency/>
+        <decimal/>
+        <group/>
+        <nullif/>
+        <length>-1</length>
+        <precision>-1</precision>
+        <set_empty_string>N</set_empty_string>
+      </field>
+      <field>
+        <name>positiondef</name>
+        <type>Integer</type>
+        <format/>
+        <currency/>
+        <decimal/>
+        <group/>
+        <nullif/>
+        <length>-1</length>
+        <precision>-1</precision>
+        <set_empty_string>N</set_empty_string>
+      </field>
+    </fields>
+    <attributes/>
+    <cluster_schema/>
+    <remotesteps>
+      <input>
+      </input>
+      <output>
+      </output>
+    </remotesteps>
+    <GUI>
+      <xloc>480</xloc>
+      <yloc>688</yloc>
+      <draw>Y</draw>
+    </GUI>
+  </step>
+  <step>
     <name>Add imp_bitstream_id</name>
     <type>Sequence</type>
     <description/>
@@ -1543,6 +1594,33 @@
     <GUI>
       <xloc>1248</xloc>
       <yloc>1504</yloc>
+      <draw>Y</draw>
+    </GUI>
+  </step>
+  <step>
+    <name>Append eperson metadata</name>
+    <type>Append</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <head_name>Append legacy ids</head_name>
+    <tail_name>select metadata attributes 2 2</tail_name>
+    <attributes/>
+    <cluster_schema/>
+    <remotesteps>
+      <input>
+      </input>
+      <output>
+      </output>
+    </remotesteps>
+    <GUI>
+      <xloc>1120</xloc>
+      <yloc>1536</yloc>
       <draw>Y</draw>
     </GUI>
   </step>
@@ -2162,6 +2240,44 @@ WHERE rpage.crisid = ? AND ep.eperson_id = rpage.epersonid;</sql>
     <GUI>
       <xloc>1248</xloc>
       <yloc>848</yloc>
+      <draw>Y</draw>
+    </GUI>
+  </step>
+  <step>
+    <name>Get eperson 2</name>
+    <type>DBJoin</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <connection>dspace</connection>
+    <rowlimit>1</rowlimit>
+    <sql>SELECT ep.uuid as metadata_authority, ep.email as metadata_value
+FROM eperson ep
+WHERE ep.eperson_id = ?</sql>
+    <outer_join>N</outer_join>
+    <replace_vars>Y</replace_vars>
+    <parameter>
+      <field>
+        <name>custompointer</name>
+        <type>Integer</type>
+      </field>
+    </parameter>
+    <attributes/>
+    <cluster_schema/>
+    <remotesteps>
+      <input>
+      </input>
+      <output>
+      </output>
+    </remotesteps>
+    <GUI>
+      <xloc>912</xloc>
+      <yloc>1792</yloc>
       <draw>Y</draw>
     </GUI>
   </step>
@@ -3012,40 +3128,6 @@ WHERE property_def.id = properties.typo_id
     </GUI>
   </step>
   <step>
-    <name>Select values 4</name>
-    <type>SelectValues</type>
-    <description/>
-    <distribute>Y</distribute>
-    <custom_distribution/>
-    <copies>1</copies>
-    <partitioning>
-      <method>none</method>
-      <schema_name/>
-    </partitioning>
-    <fields>
-      <select_unspecified>N</select_unspecified>
-      <remove>
-        <name>nested_object_id</name>
-      </remove>
-      <remove>
-        <name>positiondef</name>
-      </remove>
-    </fields>
-    <attributes/>
-    <cluster_schema/>
-    <remotesteps>
-      <input>
-      </input>
-      <output>
-      </output>
-    </remotesteps>
-    <GUI>
-      <xloc>352</xloc>
-      <yloc>880</yloc>
-      <draw>Y</draw>
-    </GUI>
-  </step>
-  <step>
     <name>Select values 5</name>
     <type>SelectValues</type>
     <description/>
@@ -3287,6 +3369,12 @@ WHERE property_def.id = properties.typo_id
       <field>
         <name>value</name>
       </field>
+      <field>
+        <name>nested_object_id</name>
+      </field>
+      <field>
+        <name>positiondef</name>
+      </field>
       <select_unspecified>Y</select_unspecified>
     </fields>
     <attributes/>
@@ -3414,6 +3502,12 @@ WHERE property_def.id = properties.typo_id
       <field>
         <name>value</name>
       </field>
+      <field>
+        <name>nested_object_id</name>
+      </field>
+      <field>
+        <name>positiondef</name>
+      </field>
       <select_unspecified>Y</select_unspecified>
     </fields>
     <attributes/>
@@ -3525,6 +3619,22 @@ WHERE property_def.id = properties.typo_id
       </field>
       <field>
         <name>qualifier</name>
+        <ascending>Y</ascending>
+        <case_sensitive>N</case_sensitive>
+        <collator_enabled>N</collator_enabled>
+        <collator_strength>0</collator_strength>
+        <presorted>N</presorted>
+      </field>
+      <field>
+        <name>nested_object_id</name>
+        <ascending>Y</ascending>
+        <case_sensitive>N</case_sensitive>
+        <collator_enabled>N</collator_enabled>
+        <collator_strength>0</collator_strength>
+        <presorted>N</presorted>
+      </field>
+      <field>
+        <name>positiondef</name>
         <ascending>Y</ascending>
         <case_sensitive>N</case_sensitive>
         <collator_enabled>N</collator_enabled>
@@ -5876,6 +5986,53 @@ ORDER BY parent_id ASC;
     </GUI>
   </step>
   <step>
+    <name>eperson values not null</name>
+    <type>FilterRows</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <send_true_to>select metadata attributes 2 2</send_true_to>
+    <send_false_to/>
+    <compare>
+      <condition>
+        <negated>N</negated>
+        <conditions>
+          <condition>
+            <negated>N</negated>
+            <leftvalue>metadata_value</leftvalue>
+            <function>IS NOT NULL</function>
+            <rightvalue/>
+          </condition>
+          <condition>
+            <negated>N</negated>
+            <operator>AND</operator>
+            <leftvalue>metadata_authority</leftvalue>
+            <function>IS NOT NULL</function>
+            <rightvalue/>
+          </condition>
+        </conditions>
+      </condition>
+    </compare>
+    <attributes/>
+    <cluster_schema/>
+    <remotesteps>
+      <input>
+      </input>
+      <output>
+      </output>
+    </remotesteps>
+    <GUI>
+      <xloc>1120</xloc>
+      <yloc>1776</yloc>
+      <draw>Y</draw>
+    </GUI>
+  </step>
+  <step>
     <name>filter by entity type</name>
     <type>FilterRows</type>
     <description/>
@@ -6553,6 +6710,50 @@ ORDER BY parent_id ASC;
     <GUI>
       <xloc>432</xloc>
       <yloc>1552</yloc>
+      <draw>Y</draw>
+    </GUI>
+  </step>
+  <step>
+    <name>is eperson</name>
+    <type>FilterRows</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <send_true_to>Get eperson 2</send_true_to>
+    <send_false_to/>
+    <compare>
+      <condition>
+        <negated>N</negated>
+        <leftvalue>dtype</leftvalue>
+        <function>=</function>
+        <rightvalue/>
+        <value>
+          <name>constant</name>
+          <type>String</type>
+          <text>eperson</text>
+          <length>-1</length>
+          <precision>-1</precision>
+          <isnull>N</isnull>
+          <mask/>
+        </value>
+      </condition>
+    </compare>
+    <attributes/>
+    <cluster_schema/>
+    <remotesteps>
+      <input>
+      </input>
+      <output>
+      </output>
+    </remotesteps>
+    <GUI>
+      <xloc>160</xloc>
+      <yloc>1792</yloc>
       <draw>Y</draw>
     </GUI>
   </step>
@@ -7512,6 +7713,64 @@ ORDER BY parent_id ASC;
     </GUI>
   </step>
   <step>
+    <name>select metadata attributes 2 2</name>
+    <type>SelectValues</type>
+    <description/>
+    <distribute>N</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <fields>
+      <field>
+        <name>schema</name>
+      </field>
+      <field>
+        <name>element</name>
+      </field>
+      <field>
+        <name>qualifier</name>
+      </field>
+      <field>
+        <name>imp_record_id</name>
+      </field>
+      <field>
+        <name>metadata_value</name>
+      </field>
+      <field>
+        <name>metadata_order</name>
+      </field>
+      <field>
+        <name>crisid</name>
+      </field>
+      <field>
+        <name>metadata_authority</name>
+      </field>
+      <field>
+        <name>metadata_visibility</name>
+      </field>
+      <field>
+        <name>language</name>
+      </field>
+      <select_unspecified>N</select_unspecified>
+    </fields>
+    <attributes/>
+    <cluster_schema/>
+    <remotesteps>
+      <input>
+      </input>
+      <output>
+      </output>
+    </remotesteps>
+    <GUI>
+      <xloc>1120</xloc>
+      <yloc>1648</yloc>
+      <draw>Y</draw>
+    </GUI>
+  </step>
+  <step>
     <name>select metadata attributes 3</name>
     <type>SelectValues</type>
     <description/>
@@ -7812,434 +8071,6 @@ ORDER BY parent_id ASC;
     <GUI>
       <xloc>976</xloc>
       <yloc>1840</yloc>
-      <draw>Y</draw>
-    </GUI>
-  </step>
-    <step>
-    <name>Get eperson 2</name>
-    <type>DBJoin</type>
-    <description/>
-    <distribute>Y</distribute>
-    <custom_distribution/>
-    <copies>1</copies>
-    <partitioning>
-      <method>none</method>
-      <schema_name/>
-    </partitioning>
-    <connection>dspace</connection>
-    <rowlimit>1</rowlimit>
-    <sql>SELECT ep.uuid as metadata_authority, ep.email as metadata_value
-FROM eperson ep
-WHERE ep.eperson_id = ?</sql>
-    <outer_join>N</outer_join>
-    <replace_vars>Y</replace_vars>
-    <parameter>
-      <field>
-        <name>custompointer</name>
-        <type>Integer</type>
-      </field>
-    </parameter>
-    <attributes/>
-    <cluster_schema/>
-    <remotesteps>
-      <input>
-      </input>
-      <output>
-      </output>
-    </remotesteps>
-    <GUI>
-      <xloc>912</xloc>
-      <yloc>1792</yloc>
-      <draw>Y</draw>
-    </GUI>
-  </step>
-  <step>
-    <name>eperson values not null</name>
-    <type>FilterRows</type>
-    <description/>
-    <distribute>Y</distribute>
-    <custom_distribution/>
-    <copies>1</copies>
-    <partitioning>
-      <method>none</method>
-      <schema_name/>
-    </partitioning>
-    <send_true_to>select metadata attributes 2 2</send_true_to>
-    <send_false_to/>
-    <compare>
-      <condition>
-        <negated>N</negated>
-        <conditions>
-          <condition>
-            <negated>N</negated>
-            <leftvalue>metadata_value</leftvalue>
-            <function>IS NOT NULL</function>
-            <rightvalue/>
-          </condition>
-          <condition>
-            <negated>N</negated>
-            <operator>AND</operator>
-            <leftvalue>metadata_authority</leftvalue>
-            <function>IS NOT NULL</function>
-            <rightvalue/>
-          </condition>
-        </conditions>
-      </condition>
-    </compare>
-    <attributes/>
-    <cluster_schema/>
-    <remotesteps>
-      <input>
-      </input>
-      <output>
-      </output>
-    </remotesteps>
-    <GUI>
-      <xloc>1120</xloc>
-      <yloc>1776</yloc>
-      <draw>Y</draw>
-    </GUI>
-  </step>
-  <step>
-    <name>is eperson</name>
-    <type>FilterRows</type>
-    <description/>
-    <distribute>Y</distribute>
-    <custom_distribution/>
-    <copies>1</copies>
-    <partitioning>
-      <method>none</method>
-      <schema_name/>
-    </partitioning>
-    <send_true_to>Get eperson 2</send_true_to>
-    <send_false_to/>
-    <compare>
-      <condition>
-        <negated>N</negated>
-        <leftvalue>dtype</leftvalue>
-        <function>=</function>
-        <rightvalue/>
-        <value>
-          <name>constant</name>
-          <type>String</type>
-          <text>eperson</text>
-          <length>-1</length>
-          <precision>-1</precision>
-          <isnull>N</isnull>
-          <mask/>
-        </value>
-      </condition>
-    </compare>
-    <attributes/>
-    <cluster_schema/>
-    <remotesteps>
-      <input>
-      </input>
-      <output>
-      </output>
-    </remotesteps>
-    <GUI>
-      <xloc>160</xloc>
-      <yloc>1792</yloc>
-      <draw>Y</draw>
-    </GUI>
-  </step>
-  <step>
-    <name>select metadata attributes 2 2</name>
-    <type>SelectValues</type>
-    <description/>
-    <distribute>N</distribute>
-    <custom_distribution/>
-    <copies>1</copies>
-    <partitioning>
-      <method>none</method>
-      <schema_name/>
-    </partitioning>
-    <fields>
-      <field>
-        <name>schema</name>
-      </field>
-      <field>
-        <name>element</name>
-      </field>
-      <field>
-        <name>qualifier</name>
-      </field>
-      <field>
-        <name>imp_record_id</name>
-      </field>
-      <field>
-        <name>metadata_value</name>
-      </field>
-      <field>
-        <name>metadata_order</name>
-      </field>
-      <field>
-        <name>crisid</name>
-      </field>
-      <field>
-        <name>metadata_authority</name>
-      </field>
-      <field>
-        <name>metadata_visibility</name>
-      </field>
-      <field>
-        <name>language</name>
-      </field>
-      <select_unspecified>N</select_unspecified>
-    </fields>
-    <attributes/>
-    <cluster_schema/>
-    <remotesteps>
-      <input>
-      </input>
-      <output>
-      </output>
-    </remotesteps>
-    <GUI>
-      <xloc>1120</xloc>
-      <yloc>1648</yloc>
-      <draw>Y</draw>
-    </GUI>
-  </step>
-  <step>
-    <name>Append eperson metadata</name>
-    <type>Append</type>
-    <description/>
-    <distribute>Y</distribute>
-    <custom_distribution/>
-    <copies>1</copies>
-    <partitioning>
-      <method>none</method>
-      <schema_name/>
-    </partitioning>
-    <head_name>Append legacy ids</head_name>
-    <tail_name>select metadata attributes 2 2</tail_name>
-    <attributes/>
-    <cluster_schema/>
-    <remotesteps>
-      <input>
-      </input>
-      <output>
-      </output>
-    </remotesteps>
-    <GUI>
-      <xloc>1120</xloc>
-      <yloc>1536</yloc>
-      <draw>Y</draw>
-    </GUI>
-  </step>
-  <step>
-    <name>Get eperson 2</name>
-    <type>DBJoin</type>
-    <description/>
-    <distribute>Y</distribute>
-    <custom_distribution/>
-    <copies>1</copies>
-    <partitioning>
-      <method>none</method>
-      <schema_name/>
-    </partitioning>
-    <connection>dspace</connection>
-    <rowlimit>1</rowlimit>
-    <sql>SELECT ep.uuid as metadata_authority, ep.email as metadata_value
-FROM eperson ep
-WHERE ep.eperson_id = ?</sql>
-    <outer_join>N</outer_join>
-    <replace_vars>Y</replace_vars>
-    <parameter>
-      <field>
-        <name>custompointer</name>
-        <type>Integer</type>
-      </field>
-    </parameter>
-    <attributes/>
-    <cluster_schema/>
-    <remotesteps>
-      <input>
-      </input>
-      <output>
-      </output>
-    </remotesteps>
-    <GUI>
-      <xloc>912</xloc>
-      <yloc>1792</yloc>
-      <draw>Y</draw>
-    </GUI>
-  </step>
-  <step>
-    <name>eperson values not null</name>
-    <type>FilterRows</type>
-    <description/>
-    <distribute>Y</distribute>
-    <custom_distribution/>
-    <copies>1</copies>
-    <partitioning>
-      <method>none</method>
-      <schema_name/>
-    </partitioning>
-    <send_true_to>select metadata attributes 2 2</send_true_to>
-    <send_false_to/>
-    <compare>
-      <condition>
-        <negated>N</negated>
-        <conditions>
-          <condition>
-            <negated>N</negated>
-            <leftvalue>metadata_value</leftvalue>
-            <function>IS NOT NULL</function>
-            <rightvalue/>
-          </condition>
-          <condition>
-            <negated>N</negated>
-            <operator>AND</operator>
-            <leftvalue>metadata_authority</leftvalue>
-            <function>IS NOT NULL</function>
-            <rightvalue/>
-          </condition>
-        </conditions>
-      </condition>
-    </compare>
-    <attributes/>
-    <cluster_schema/>
-    <remotesteps>
-      <input>
-      </input>
-      <output>
-      </output>
-    </remotesteps>
-    <GUI>
-      <xloc>1120</xloc>
-      <yloc>1776</yloc>
-      <draw>Y</draw>
-    </GUI>
-  </step>
-  <step>
-    <name>is eperson</name>
-    <type>FilterRows</type>
-    <description/>
-    <distribute>Y</distribute>
-    <custom_distribution/>
-    <copies>1</copies>
-    <partitioning>
-      <method>none</method>
-      <schema_name/>
-    </partitioning>
-    <send_true_to>Get eperson 2</send_true_to>
-    <send_false_to/>
-    <compare>
-      <condition>
-        <negated>N</negated>
-        <leftvalue>dtype</leftvalue>
-        <function>=</function>
-        <rightvalue/>
-        <value>
-          <name>constant</name>
-          <type>String</type>
-          <text>eperson</text>
-          <length>-1</length>
-          <precision>-1</precision>
-          <isnull>N</isnull>
-          <mask/>
-        </value>
-      </condition>
-    </compare>
-    <attributes/>
-    <cluster_schema/>
-    <remotesteps>
-      <input>
-      </input>
-      <output>
-      </output>
-    </remotesteps>
-    <GUI>
-      <xloc>160</xloc>
-      <yloc>1792</yloc>
-      <draw>Y</draw>
-    </GUI>
-  </step>
-  <step>
-    <name>select metadata attributes 2 2</name>
-    <type>SelectValues</type>
-    <description/>
-    <distribute>N</distribute>
-    <custom_distribution/>
-    <copies>1</copies>
-    <partitioning>
-      <method>none</method>
-      <schema_name/>
-    </partitioning>
-    <fields>
-      <field>
-        <name>schema</name>
-      </field>
-      <field>
-        <name>element</name>
-      </field>
-      <field>
-        <name>qualifier</name>
-      </field>
-      <field>
-        <name>imp_record_id</name>
-      </field>
-      <field>
-        <name>metadata_value</name>
-      </field>
-      <field>
-        <name>metadata_order</name>
-      </field>
-      <field>
-        <name>crisid</name>
-      </field>
-      <field>
-        <name>metadata_authority</name>
-      </field>
-      <field>
-        <name>metadata_visibility</name>
-      </field>
-      <field>
-        <name>language</name>
-      </field>
-      <select_unspecified>N</select_unspecified>
-    </fields>
-    <attributes/>
-    <cluster_schema/>
-    <remotesteps>
-      <input>
-      </input>
-      <output>
-      </output>
-    </remotesteps>
-    <GUI>
-      <xloc>1120</xloc>
-      <yloc>1648</yloc>
-      <draw>Y</draw>
-    </GUI>
-  </step>
-  <step>
-    <name>Append eperson metadata</name>
-    <type>Append</type>
-    <description/>
-    <distribute>Y</distribute>
-    <custom_distribution/>
-    <copies>1</copies>
-    <partitioning>
-      <method>none</method>
-      <schema_name/>
-    </partitioning>
-    <head_name>Append legacy ids</head_name>
-    <tail_name>select metadata attributes 2 2</tail_name>
-    <attributes/>
-    <cluster_schema/>
-    <remotesteps>
-      <input>
-      </input>
-      <output>
-      </output>
-    </remotesteps>
-    <GUI>
-      <xloc>1120</xloc>
-      <yloc>1536</yloc>
       <draw>Y</draw>
     </GUI>
   </step>
