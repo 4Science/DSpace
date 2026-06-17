@@ -7,11 +7,14 @@
  */
 package org.dspace.app.audit;
 
+import java.io.IOException;
 import java.sql.SQLException;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
+import org.apache.solr.client.solrj.SolrClient;
+import org.apache.solr.client.solrj.SolrServerException;
 import org.dspace.core.Context;
 import org.dspace.event.Event;
 
@@ -117,4 +120,11 @@ public interface AuditService {
      * @return the number of events matching the criteria
      */
     long countEvents(Context context, UUID objectUuid, Date from, Date to);
+
+    /**
+     * Get the solr client (used outside of the service for Actuator health checks
+     *
+     * @return audit solr client
+     */
+    SolrClient getSolr() throws SolrServerException, IOException;
 }

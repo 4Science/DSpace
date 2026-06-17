@@ -31,6 +31,7 @@ import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrQuery.ORDER;
 import org.apache.solr.client.solrj.SolrQuery.SortClause;
 import org.apache.solr.client.solrj.SolrServerException;
+import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrInputDocument;
@@ -100,7 +101,8 @@ public class AuditSolrServiceImpl implements AuditService {
 
     protected SolrClient solr = null;
 
-    protected SolrClient getSolr() throws MalformedURLException, SolrServerException, IOException {
+    @Override
+    public SolrClient getSolr() throws SolrServerException, IOException {
         if (solr == null) {
             String solrService = configurationService.getProperty("audit.solr.server");
             log.debug("Solr audit URL: " + solrService);
