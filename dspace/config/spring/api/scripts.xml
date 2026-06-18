@@ -186,13 +186,6 @@
     <bean id="communityDeletionStrategy" class="org.dspace.deletion.process.strategies.CommunityDeletionStrategy" />
     <bean id="collectionDeletionStrategy" class="org.dspace.deletion.process.strategies.CollectionDeletionStrategy" />
 
-    <bean id="solr-core-management"
-          class="org.dspace.app.solr.SolrCoreExportImportCliScriptConfiguration" primary="true">
-        <property name="description"
-            value="Export and import complete SOLR cores with UUID range partitioning and cursorMark pagination"/>
-        <property name="dspaceRunnableClass" value="org.dspace.app.solr.SolrCoreExportImportCli"/>
-    </bean>
-
     <bean id="solr-core-management" class="org.dspace.app.solr.SolrCoreExportImportCliScriptConfiguration" primary="true">
         <property name="description" value="Export and import complete SOLR cores with multithreading support"/>
         <property name="dspaceRunnableClass" value="org.dspace.app.solr.SolrCoreExportImportCli"/>
