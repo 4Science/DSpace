@@ -5,6 +5,7 @@ definitions:
     gradle-java21: ~/.gradle/caches
     gradlewrapper-java21: ~/.gradle/wrapper
     maven-java21: ~/.m2/repository
+    docker: /var/lib/docker
   mvnVars:
     &setEnv export MAVEN_ARGS="-Dorg.slf4j.simpleLogger.showDateTime=true -Dorg.slf4j.simpleLogger.dateTimeFormat=HH:mm:ss,SSS"
   steps:
@@ -70,6 +71,7 @@ definitions:
           - docker
         caches:
           - gradle-java21
+          - docker
           - gradlewrapper-java21
           - maven-java21
         script:
@@ -93,6 +95,7 @@ definitions:
           - docker
         caches:
           - gradle-java21
+          - docker
           - gradlewrapper-java21
           - maven-java21
         script:
@@ -137,6 +140,8 @@ definitions:
         image: atlassian/default-image:4  # Default Bitbucket image with Docker support
         services:
           - docker
+        caches:
+          - docker
         script:
           - apt-get update && apt-get install -y python3-pip
           - pip3 install awscli
@@ -161,6 +166,8 @@ definitions:
         image: atlassian/default-image:4  # Default Bitbucket image with Docker support
         services:
           - docker
+        caches:
+          - docker
         script:
           - export HASH_COMMIT=${BITBUCKET_COMMIT:0:8}
           - export BRANCH_NAME=$(echo "$BITBUCKET_BRANCH" | tr '[:upper:]' '[:lower:]' | sed 's|/|--|g')
@@ -182,6 +189,8 @@ definitions:
         size: 1x
         image: atlassian/default-image:4  # Default Bitbucket image with Docker support
         services:
+          - docker
+        caches:
           - docker
         script:
           - export HASH_COMMIT=${BITBUCKET_COMMIT:0:8}
