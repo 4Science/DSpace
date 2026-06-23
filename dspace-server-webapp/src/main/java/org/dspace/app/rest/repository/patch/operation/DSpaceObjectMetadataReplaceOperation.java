@@ -11,8 +11,8 @@ import java.sql.SQLException;
 import java.util.List;
 
 import org.apache.logging.log4j.Logger;
-import org.dspace.app.rest.converter.ItemConverter;
 import org.dspace.app.audit.MetadataEvent;
+import org.dspace.app.rest.converter.ItemConverter;
 import org.dspace.app.rest.exception.DSpaceBadRequestException;
 import org.dspace.app.rest.exception.UnprocessableEntityException;
 import org.dspace.app.rest.model.MetadataValueRest;
