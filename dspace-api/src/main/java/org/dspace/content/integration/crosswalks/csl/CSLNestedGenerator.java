@@ -12,6 +12,10 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 
 import de.undercouch.citeproc.CSL;
 import de.undercouch.citeproc.output.Bibliography;
@@ -43,7 +47,38 @@ public class CSLNestedGenerator implements CSLGenerator {
             return null;
         }
         Bibliography bibliography = citeproc.makeBibliography();
-        return CSLResult.fromBibliography(format, bibliography, itemDataProvider.getIds());
+
+        String[] entries = bibliography.getEntries() != null ? bibliography.getEntries() : new String[0];
+        String[] entryIds = bibliography.getEntryIds();
+        Collection<String> allIds = itemDataProvider.getIds();
+
+        if (entryIds != null && entryIds.length == entries.length) {
+            if (entries.length != allIds.size()) {
+                Set<String> citedIds = new HashSet<>(Arrays.asList(entryIds));
+                Set<String> uncited = new HashSet<>(allIds);
+                uncited.removeAll(citedIds);
+                LOGGER.warn("{} item(s) registered but not cited by style '{}': {}",
+                    uncited.size(), style, uncited);
+            }
+            return new CSLResult(format, entryIds, entries);
+        }
+
+        if (entries.length != allIds.size()) {
+            Set<String> citedIds = entryIds != null ? new HashSet<>(Arrays.asList(entryIds)) : new HashSet<>();
+            Set<String> uncited = new HashSet<>(allIds);
+            uncited.removeAll(citedIds);
+            LOGGER.warn("{} item(s) registered but not cited by style '{}': {}",
+                uncited.size(), style, uncited);
+            String[] padded = new String[allIds.size()];
+            int copyLen = Math.min(entries.length, padded.length);
+            System.arraycopy(entries, 0, padded, 0, copyLen);
+            if (copyLen < padded.length) {
+                Arrays.fill(padded, copyLen, padded.length, "");
+            }
+            entries = padded;
+        }
+
+        return new CSLResult(format, allIds.toArray(new String[0]), entries);
     }
 
     private CSL createCitationProcessor(DSpaceListItemDataProvider itemDataProvider, String style, String format) {
