@@ -31,8 +31,6 @@ public interface DOIDAO extends GenericDAO<DOI> {
     public List<DOI> findSimilarNotInState(Context context, String doi, List<Integer> statuses, boolean dsoNotNull)
         throws SQLException;
 
-    public List<DOI> findByStatus(Context context, List<Integer> statuses, int offset, int limit) throws SQLException;
-
     /**
      * Find all DOIs with any of the given statuses, with pagination support.
      *

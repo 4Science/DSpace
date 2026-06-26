@@ -429,7 +429,7 @@ public interface CollectionService
      *                    that support the provided entityType
      */
     public Collection retrieveCollectionWithSubmitByCommunityAndEntityType(Context context, Community community,
-        String entityType);
+        String entityType) throws SQLException;
 
     /**
      * Retrieve the close collection to the item for which the current user has

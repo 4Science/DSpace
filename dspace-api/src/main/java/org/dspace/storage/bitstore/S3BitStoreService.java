@@ -710,7 +710,6 @@ public class S3BitStoreService extends BaseBitStoreService {
     public void setInitialReadBufferSizeInBytes(Long initialReadBufferSizeInBytes) {
         this.initialReadBufferSizeInBytes = initialReadBufferSizeInBytes;
     }
-    }
 
     /**
      * Contains a command-line testing tool. Expects arguments:

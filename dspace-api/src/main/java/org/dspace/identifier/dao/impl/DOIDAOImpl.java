@@ -69,7 +69,6 @@ public class DOIDAOImpl extends AbstractHibernateDAO<DOI> implements DOIDAO {
         return singleResult(context, criteriaQuery);
     }
 
-    @Override
     public List<DOI> findByStatus(Context context, List<Integer> statuses) throws SQLException {
         return findByStatus(context, statuses, -1, -1);
     }

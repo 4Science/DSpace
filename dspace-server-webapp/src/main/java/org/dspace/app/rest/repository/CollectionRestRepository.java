@@ -188,10 +188,10 @@ public class CollectionRestRepository extends DSpaceObjectRestRepository<Collect
                     CommunityRest.CATEGORY + "." + CommunityRest.NAME + " with id: " + communityUuid
                         + " not found");
             }
-            List<Collection> collections = cs.findCollectionsWithSubmit(q, context, com, null,
+            List<Collection> collections = cs.findCollectionsWithSubmit(context, q, com, null,
                                               Math.toIntExact(pageable.getOffset()),
                                               Math.toIntExact(pageable.getPageSize()));
-            int tot = cs.countCollectionsWithSubmit(context, q, com);
+            int tot = cs.countCollectionsWithSubmit(context, q, com, null);
             return converter.toRestPage(collections, pageable, tot , utils.obtainProjection());
         } catch (SQLException | SearchServiceException e) {
             throw new RuntimeException(e.getMessage(), e);
@@ -203,10 +203,10 @@ public class CollectionRestRepository extends DSpaceObjectRestRepository<Collect
                                                 Pageable pageable) throws SearchServiceException {
         try {
             Context context = obtainContext();
-            List<Collection> collections = cs.findCollectionsWithSubmit(q, context, null, null,
+            List<Collection> collections = cs.findCollectionsWithSubmit(context, q, null, null,
                                               Math.toIntExact(pageable.getOffset()),
                                               Math.toIntExact(pageable.getPageSize()));
-            int tot = cs.countCollectionsWithSubmit(context, q, null);
+            int tot = cs.countCollectionsWithSubmit(context, q, null, null);
             return converter.toRestPage(collections, pageable, tot, utils.obtainProjection());
         } catch (SQLException e) {
             throw new RuntimeException(e.getMessage(), e);
