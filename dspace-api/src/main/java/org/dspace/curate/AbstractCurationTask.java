@@ -13,7 +13,13 @@ import java.util.List;
 import java.util.UUID;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.dspace.app.util.factory.UtilServiceFactory;
+import org.dspace.app.util.service.DSpaceObjectUtils;
 import org.dspace.authorize.AuthorizeException;
+import org.dspace.content.Collection;
+import org.dspace.content.Community;
 import org.dspace.content.DCDate;
 import org.dspace.content.DSpaceObject;
 import org.dspace.content.Item;
@@ -52,6 +58,8 @@ public abstract class AbstractCurationTask implements CurationTask {
     protected ConfigurationService configurationService;
     protected SearchService searchService;
     protected int batchSize;
+    protected DSpaceObjectUtils dspaceObjectUtils;
+    private static final Logger log = LogManager.getLogger();
 
     private void addOrUpdateProcessMetadata(Context context, Item item) throws SQLException {
         List<MetadataValue> existingProcesses = itemService.getMetadata(item, "cris", "curation", "process", Item.ANY);
@@ -119,6 +127,7 @@ public abstract class AbstractCurationTask implements CurationTask {
         configurationService = DSpaceServicesFactory.getInstance().getConfigurationService();
         searchService = SearchUtils.getSearchService();
         batchSize = configurationService.getIntProperty("curation.task.batchsize", 100);
+        dspaceObjectUtils = UtilServiceFactory.getInstance().getDSpaceObjectUtils();
     }
 
     @Override
@@ -308,25 +317,13 @@ public abstract class AbstractCurationTask implements CurationTask {
 
     @Override
     public int perform(Context ctx, String id) throws IOException {
-        DSpaceObject dso = dereference(ctx, id);
-        return (dso != null) ? perform(dso) : Curator.CURATE_FAIL;
-    }
-
-    /**
-     * Returns a DSpaceObject for passed identifier, if it exists
-     *
-     * @param ctx DSpace context
-     * @param id  canonical id of object
-     * @return dso
-     * DSpace object, or null if no object with id exists
-     * @throws IOException if IO error
-     */
-    protected DSpaceObject dereference(Context ctx, String id) throws IOException {
+        DSpaceObject dso = null;
         try {
-            return handleService.resolveToObject(ctx, id);
+            dso = dspaceObjectUtils.findDSpaceObject(ctx, id);
         } catch (SQLException sqlE) {
             throw new IOException(sqlE.getMessage(), sqlE);
         }
+        return (dso != null) ? perform(dso) : Curator.CURATE_FAIL;
     }
 
     /**

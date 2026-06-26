@@ -11,11 +11,15 @@ import static org.dspace.app.ldn.action.LDNActionStatus.ABORT;
 import static org.dspace.app.ldn.action.LDNActionStatus.CONTINUE;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Path;
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -44,6 +48,7 @@ import org.dspace.builder.WorkspaceItemBuilder;
 import org.dspace.content.Collection;
 import org.dspace.content.Item;
 import org.dspace.content.WorkspaceItem;
+import org.dspace.core.LDN;
 import org.dspace.eperson.EPerson;
 import org.dspace.event.factory.EventServiceFactory;
 import org.dspace.services.ConfigurationService;
@@ -285,6 +290,32 @@ public class SendLDNMessageActionIT extends AbstractIntegrationTestWithDatabase 
         assertEquals(sendLDNMessageAction.execute(context, notification, item), ABORT);
         mockedClient.close();
         response.close();
+    }
+
+    @Test
+    public void testLDNLegalPath() throws Exception {
+        try {
+            // Path traversal will be calculated properly
+            // but this still ends up at a legal base
+            LDN message = LDN.getLDNMessage("../../config/ldn/request-review");
+            assertNotNull(message);
+        } catch (IOException e) {
+            fail("IOException should NOT have been thrown for legal template path: " + e.getMessage());
+        }
+    }
+
+    @Test
+    public void testLDNIllegalPath() throws Exception {
+        try {
+            String badAbsolutePath = Path.of(configurationService.getProperty("dspace.dir"))
+                .resolve("config/dspace.cfg")
+                .toAbsolutePath()
+                .toString();
+            LDN.getLDNMessage(badAbsolutePath);
+            fail("IOException should have been thrown for illegal template path");
+        } catch (IOException e) {
+            assertTrue(e.getMessage().contains("Illegal file path attempted for I/O (ldn):"));
+        }
     }
 
     @Override

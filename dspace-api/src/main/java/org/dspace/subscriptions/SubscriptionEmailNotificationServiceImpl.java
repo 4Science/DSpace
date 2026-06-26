@@ -41,12 +41,14 @@ import org.dspace.scripts.DSpaceRunnable;
 import org.dspace.scripts.handler.DSpaceRunnableHandler;
 import org.dspace.subscriptions.service.DSpaceObjectUpdates;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 /**
  * Implementation of {@link DSpaceRunnable} to find subscribed objects and send notification mails about them
  *
  * @author alba aliu
  */
+@Service
 public class SubscriptionEmailNotificationServiceImpl implements SubscriptionEmailNotificationService {
 
     private static final Logger log = LogManager.getLogger(SubscriptionEmailNotificationServiceImpl.class);
@@ -74,103 +76,67 @@ public class SubscriptionEmailNotificationServiceImpl implements SubscriptionEma
     }
 
     public void perform(Context context, DSpaceRunnableHandler handler, String subscriptionType, String frequency) {
-        // Verify if subscriptionType is "content" or "subscription"
-        if (supportedSubscriptionTypes.get(0).equals(subscriptionType)) {
-            performForContent(context, handler, subscriptionType, frequency);
-        } else if (supportedSubscriptionTypes.get(1).equals(subscriptionType)) {
-            performForStatistics(context, subscriptionType, frequency);
-        } else {
-            throw new IllegalArgumentException(
-                "Currently this SubscriptionType:" + subscriptionType + " is not supported!");
-        }
-    }
-
-    @SuppressWarnings({ "rawtypes" })
-    private void performForContent(Context context, DSpaceRunnableHandler handler,
-                                   String subscriptionType, String frequency) {
+        Map<DSpaceObject, List<IndexableObject>> communityItemsMap = new HashMap<>();
+        Map<DSpaceObject, List<IndexableObject>> collectionsItemsMap = new HashMap<>();
         EPerson currentEperson = context.getCurrentUser();
         try {
             List<Subscription> subscriptions =
-                findAllSubscriptionsBySubscriptionTypeAndFrequency(context, subscriptionType, frequency);
-            List<SubscriptionItem> communityItems = new ArrayList<>();
-            List<SubscriptionItem> collectionsItems = new ArrayList<>();
-            Map<String, List<SubscriptionItem>> entityItemsByEntityType = new HashMap<>();
-            int iterator = 0;
+                               findAllSubscriptionsBySubscriptionTypeAndFrequency(context, subscriptionType, frequency);
+            if (subscriptionType2generators.containsKey(subscriptionType)) {
+                int iterator = 0;
+                for (Subscription subscription : subscriptions) {
+                    DSpaceObject dSpaceObject = subscription.getDSpaceObject();
+                    EPerson ePerson = subscription.getEPerson();
+                    context.setCurrentUser(ePerson);
+                    if (!authorizeService.authorizeActionBoolean(context, ePerson, dSpaceObject, READ, true)) {
+                        iterator++;
+                        continue;
+                    }
 
-            for (Subscription subscription : subscriptions) {
-                DSpaceObject dSpaceObject = subscription.getDSpaceObject();
-                EPerson ePerson = subscription.getEPerson();
-                // Set the current user to the subscribed eperson because the Solr query checks
-                // the permissions of the current user in the ANONYMOUS group.
-                // If there is no user (i.e., `current user = null`), it will send an email with no new items.
-                context.setCurrentUser(ePerson);
-                if (!authorizeService.authorizeActionBoolean(context, ePerson, dSpaceObject, READ, true)) {
-                    iterator++;
-                    continue;
-                }
-
-                switch (dSpaceObject.getType()) {
-                    case COMMUNITY:
-                        List<IndexableObject> indexableCommunityItems = getItems(
-                            context, ePerson,
-                            contentUpdates.get(Community.class.getSimpleName().toLowerCase())
-                                          .findUpdates(context, dSpaceObject, frequency)
-                        );
-                        communityItems.add(fromItem(dSpaceObject, indexableCommunityItems));
-                        break;
-                    case COLLECTION:
-                        List<IndexableObject> indexableCollectionItems = getItems(
-                            context, ePerson,
-                            contentUpdates.get(Collection.class.getSimpleName().toLowerCase())
-                                          .findUpdates(context, dSpaceObject, frequency)
-                        );
-                        collectionsItems.add(fromItem(dSpaceObject, indexableCollectionItems));
-                        break;
-                    case ITEM:
-                        List<IndexableObject> indexableEntityItems = getItems(
-                            context, ePerson, contentUpdates.get(Item.class.getSimpleName().toLowerCase())
-                                                            .findUpdates(context, dSpaceObject, frequency)
-                        );
-                        String dspaceType = ContentServiceFactory
-                            .getInstance().getDSpaceObjectService(dSpaceObject)
-                            .getMetadataFirstValue(dSpaceObject, "dspace", "entity", "type", ANY);
-
-                        entityItemsByEntityType.computeIfAbsent(dspaceType, k -> new ArrayList<>())
-                                               .add(fromItem(dSpaceObject, indexableEntityItems));
-                        break;
-                    default:
+                    if (dSpaceObject.getType() == COMMUNITY) {
+                        List<IndexableObject> indexableCommunityItems = contentUpdates
+                                .get(Community.class.getSimpleName().toLowerCase())
+                                .findUpdates(context, dSpaceObject, frequency);
+                        List<IndexableObject> filteredItems = getItems(context, ePerson, indexableCommunityItems);
+                        if (!filteredItems.isEmpty()) {
+                            communityItemsMap.put(dSpaceObject, filteredItems);
+                        }
+                    } else if (dSpaceObject.getType() == COLLECTION) {
+                        List<IndexableObject> indexableCollectionItems = contentUpdates
+                                .get(Collection.class.getSimpleName().toLowerCase())
+                                .findUpdates(context, dSpaceObject, frequency);
+                        List<IndexableObject> filteredItems = getItems(context, ePerson, indexableCollectionItems);
+                        if (!filteredItems.isEmpty()) {
+                            collectionsItemsMap.put(dSpaceObject, filteredItems);
+                        }
+                    } else {
                         log.warn("found an invalid DSpace Object type ({}) among subscriptions to send",
                                  dSpaceObject.getType());
                         continue;
-                }
-
-                if (iterator < subscriptions.size() - 1) {
-                    // as the subscriptions are ordered by eperson id, so we send them by ePerson
-                    if (ePerson.equals(subscriptions.get(iterator + 1).getEPerson())) {
-                        iterator++;
-                        continue;
-                    } else {
-                        contentGenerator.notifyForSubscriptions(
-                            ePerson, communityItems, collectionsItems, entityItemsByEntityType
-                        );
-                        communityItems.clear();
-                        collectionsItems.clear();
-                        entityItemsByEntityType.clear();
                     }
-                } else {
-                    //in the end of the iteration
-                    contentGenerator.notifyForSubscriptions(
-                        ePerson, communityItems, collectionsItems, entityItemsByEntityType
-                    );
+
+                    if (iterator < subscriptions.size() - 1) {
+                        if (ePerson.equals(subscriptions.get(iterator + 1).getEPerson())) {
+                            iterator++;
+                            continue;
+                        } else {
+                            subscriptionType2generators.get(subscriptionType)
+                                .notifyForSubscriptions(context, ePerson, communityItemsMap, collectionsItemsMap);
+                            communityItemsMap.clear();
+                            collectionsItemsMap.clear();
+                        }
+                    } else {
+                        subscriptionType2generators.get(subscriptionType)
+                            .notifyForSubscriptions(context, ePerson, communityItemsMap, collectionsItemsMap);
+                    }
+                    iterator++;
                 }
-                iterator++;
             }
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             handler.handleException(e);
             context.abort();
         } finally {
-            // Reset the current user because it was changed to subscriber eperson
             context.setCurrentUser(currentEperson);
         }
     }

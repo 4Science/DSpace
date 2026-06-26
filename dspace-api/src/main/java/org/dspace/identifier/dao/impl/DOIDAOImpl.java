@@ -70,7 +70,13 @@ public class DOIDAOImpl extends AbstractHibernateDAO<DOI> implements DOIDAO {
     }
 
     @Override
-    public List<DOI> findByStatus(Context context, List<Integer> statuses, int offset, int limit) throws SQLException {
+    public List<DOI> findByStatus(Context context, List<Integer> statuses) throws SQLException {
+        return findByStatus(context, statuses, -1, -1);
+    }
+
+    @Override
+    public List<DOI> findByStatus(Context context, List<Integer> statuses, int limit, int offset)
+        throws SQLException {
         CriteriaBuilder criteriaBuilder = getCriteriaBuilder(context);
         CriteriaQuery criteriaQuery = getCriteriaQuery(criteriaBuilder, DOI.class);
         Root<DOI> doiRoot = criteriaQuery.from(DOI.class);
@@ -80,6 +86,7 @@ public class DOIDAOImpl extends AbstractHibernateDAO<DOI> implements DOIDAO {
             orPredicates.add(criteriaBuilder.equal(doiRoot.get(DOI_.status), status));
         }
         criteriaQuery.where(criteriaBuilder.or(orPredicates.toArray(new Predicate[] {})));
+        criteriaQuery.orderBy(criteriaBuilder.asc(doiRoot.get(DOI_.id)));
         return list(context, criteriaQuery, false, DOI.class, limit, offset);
     }
 
