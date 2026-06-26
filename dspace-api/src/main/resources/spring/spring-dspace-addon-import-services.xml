@@ -339,13 +339,29 @@
           class="org.dspace.importer.external.openaire.metadatamapping.OpenAIREProjectFieldMapping">
     </bean>
 
-    <bean id="grobidImportMetadataSourceService" class="org.dspace.submit.extraction.GrobidImportMetadataSourceServiceImpl">
+    <bean class='org.dspace.service.impl.HttpConnectionPoolService'
+          id='grobidHttpConnectionPoolService'
+          scope='singleton'
+          autowire-candidate='true'>
+        <constructor-arg name='configPrefix' value='grobid'/>
+    </bean>
+
+    <bean id="grobidImportMetadataSourceService" class="org.dspace.submit.extraction.grobid.GrobidImportMetadataSourceServiceImpl">
+        <property name="grobidClient">
+            <bean class="org.dspace.submit.extraction.grobid.client.GrobidClientImpl">
+                <constructor-arg name="baseUrl" value="${grobid.service.url}" />
+            </bean>
+        </property>
         <property name="supportedExtensions">
             <list>
                 <value>pdf</value>
             </list>
         </property>
-        <property name="metadataFieldMap" ref="grobidMetadataFieldMap"></property>
+        <property name="metadataFieldMapping">
+            <bean class="org.dspace.importer.external.tei.TEIFieldMapping">
+                <property name="metadataFieldMap" ref="grobidMetadataFieldMap"/>
+            </bean>
+        </property>
     </bean>
 
 </beans>
