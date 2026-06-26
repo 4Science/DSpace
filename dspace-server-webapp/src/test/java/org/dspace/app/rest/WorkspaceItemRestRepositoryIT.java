@@ -7381,7 +7381,7 @@ public class WorkspaceItemRestRepositoryIT extends AbstractControllerIntegration
                              .content(addAuthorPatchBody)
                              .contentType(MediaType.APPLICATION_JSON_PATCH_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.sections.traditionalpageone['dc.contributor.author'][0].authority",
+                .andExpect(jsonPath("$.sections.publication['dc.contributor.author'][0].authority",
                                     is(authorProfile.getID().toString())));
 
             // Author should now be able to access (Solr permissions are indexed based on metadata with authorities)
@@ -12637,12 +12637,14 @@ public class WorkspaceItemRestRepositoryIT extends AbstractControllerIntegration
                                           .withName("Parent Community")
                                           .build();
 
-        Collection pubCollection = CollectionBuilder.createCollection(context, parentCommunity)
-                                                    .withName("Publication Collection")
-                                                    .withEntityType("Publication")
-                                                    .withSubmitterGroup(submitter1, submitter2)
-                                                    .withSharedWorkspace()
-                                                    .build();
+        // Used 123456789/curation-test-1 just to avoid correction step
+        Collection pubCollection = CollectionBuilder
+            .createCollection(context, parentCommunity, "123456789/curation-test-1")
+            .withName("Publication Collection")
+            .withEntityType("Publication")
+            .withSubmitterGroup(submitter1, submitter2)
+            .withSharedWorkspace()
+            .build();
 
         context.restoreAuthSystemState();
 
@@ -12759,12 +12761,14 @@ public class WorkspaceItemRestRepositoryIT extends AbstractControllerIntegration
                                                        .build();
 
         // Publication collection with BOTH submitter AND authorSubmitter in submitter group
-        Collection pubCollection = CollectionBuilder.createCollection(context, parentCommunity)
-                                                    .withName("Publication Collection")
-                                                    .withEntityType("Publication")
-                                                    .withSubmitterGroup(submitter, authorSubmitter)
-                                                    .withSharedWorkspace()
-                                                    .build();
+        // Used 123456789/curation-test-1 just to avoid correction step
+        Collection pubCollection = CollectionBuilder
+            .createCollection(context, parentCommunity, "123456789/curation-test-1")
+            .withName("Publication Collection")
+            .withEntityType("Publication")
+            .withSubmitterGroup(submitter, authorSubmitter)
+            .withSharedWorkspace()
+            .build();
 
         // Create a researcher profile (Person entity) owned by authorSubmitter
         Item authorProfile = ItemBuilder.createItem(context, personCollection)
@@ -13015,12 +13019,14 @@ public class WorkspaceItemRestRepositoryIT extends AbstractControllerIntegration
                                           .withName("Parent Community")
                                           .build();
 
-        Collection pubCollection = CollectionBuilder.createCollection(context, parentCommunity)
-                                                    .withName("Publication Collection")
-                                                    .withEntityType("Publication")
-                                                    .withSubmitterGroup(submitter)
-                                                    .withSharedWorkspace()
-                                                    .build();
+        // Used 123456789/curation-test-1 just to avoid correction step
+        Collection pubCollection = CollectionBuilder
+            .createCollection(context, parentCommunity, "123456789/curation-test-1")
+            .withName("Publication Collection")
+            .withEntityType("Publication")
+            .withSubmitterGroup(submitter)
+            .withSharedWorkspace()
+            .build();
 
         context.restoreAuthSystemState();
 
