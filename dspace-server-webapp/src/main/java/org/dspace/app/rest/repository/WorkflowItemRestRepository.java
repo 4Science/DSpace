@@ -169,7 +169,7 @@ public class WorkflowItemRestRepository extends DSpaceRestRepository<WorkflowIte
             throw new UnprocessableEntityException("The given URI list could not be properly parsed to one result");
         }
         try {
-            source = submissionService.createWorkflowItem(context, stringList.getFirst());
+            source = submissionService.createWorkflowItem(context, stringList.get(0));
         } catch (AuthorizeException e) {
             throw new RESTAuthorizationException(e);
         } catch (WorkflowException e) {

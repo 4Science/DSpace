@@ -84,6 +84,6 @@ public class WorkflowSecurityUtils {
         if (uriList == null || uriList.isEmpty()) {
             return null;
         }
-        return parseIdFromUri(uriList.getFirst());
+        return parseIdFromUri(uriList.get(0));
     }
 }
