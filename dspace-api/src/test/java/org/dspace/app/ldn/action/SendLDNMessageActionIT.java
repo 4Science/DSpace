@@ -307,7 +307,8 @@ public class SendLDNMessageActionIT extends AbstractIntegrationTestWithDatabase 
     @Test
     public void testLDNIllegalPath() throws Exception {
         try {
-            String badAbsolutePath = Path.of(configurationService.getProperty("dspace.dir"))
+            String badAbsolutePath = Path.of(
+                DSpaceServicesFactory.getInstance().getConfigurationService().getProperty("dspace.dir"))
                 .resolve("config/dspace.cfg")
                 .toAbsolutePath()
                 .toString();
