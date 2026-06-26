@@ -46,8 +46,8 @@ import org.dspace.services.email.EmailServiceImpl;
 import org.dspace.services.factory.DSpaceServicesFactory;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Ignore;
+import org.junit.Rule;
 import org.junit.Test;
 
 /**
