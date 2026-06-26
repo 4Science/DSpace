@@ -110,7 +110,8 @@ public final class Utils {
     // Allowed configuration properties to pass to Velocity templates (Email, LDN)
     private static final String[] DEFAULT_ALLOWED_TEMPLATE_CONFIGS = {
         "dspace.name", "dspace.shortname", "dspace.ui.url",
-        "mail.helpdesk", "mail.message.helpdesk.telephone", "mail.admin", "mail.admin.name"};
+        "mail.helpdesk", "mail.message.helpdesk.telephone", "mail.admin", "mail.admin.name",
+        "aws.ses.tenant"};
 
     /**
      * Private constructor
