@@ -47,11 +47,23 @@ import org.dspace.services.factory.DSpaceServicesFactory;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
+import org.junit.Ignore;
 import org.junit.Test;
 
 /**
  * Integration tests for {@link SubscriptionEmailNotificationService}.
+ *
+ * <p>TEST DISABLED: DSC-2859 — This test class was introduced by upstream
+ * DSpace 9.3 (commit e8c3da77fa2) as part of the subscription email
+ * refactoring. The CRIS branch intentionally preserved its own subscription
+ * implementation (ContentGenerator, StatisticsGenerator,
+ * SubscriptionEmailNotificationServiceImpl with performForContent() /
+ * performForStatistics() dispatch) instead of adopting the upstream
+ * SubscriptionGenerator&lt;IndexableObject&gt; interface pattern with
+ * subscriptionType2generators map-based dispatch. This test validates
+ * upstream behavior that does not exist in CRIS.
  */
+@Ignore("DSC-2859: Tests upstream subscription refactoring intentionally not adopted in CRIS")
 public class SubscriptionEmailNotificationServiceIT extends AbstractIntegrationTestWithDatabase {
 
     SubscriptionEmailNotificationService subscriptionEmailNotificationService =
