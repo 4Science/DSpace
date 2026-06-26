@@ -16,7 +16,6 @@ import org.dspace.AbstractUnitTest;
 import org.dspace.services.ConfigurationService;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 
 /**

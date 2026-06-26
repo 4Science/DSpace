@@ -454,9 +454,6 @@ public interface CollectionService
      *       https://github.com/DSpace/DSpace/issues/2853 is resolved."
      *
      * @param context          DSpace Context
-     * @param q                limit the returned collection to those with metadata values matching the query terms.
-     *                         The terms are used to make also a prefix query on SOLR so it can be used to implement
-     *                         an autosuggest feature over the collection name
      * @param community        parent community
      * @return                 total collections found
      * @throws SQLException              if something goes wrong

@@ -8,7 +8,6 @@
 package org.dspace.content;
 
 import jakarta.annotation.Nullable;
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
