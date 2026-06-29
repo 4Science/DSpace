@@ -313,6 +313,10 @@ definitions:
           - step: *integration-tests-slow
           - step: *integration-tests-dspace-api
 
+    - parallel: &parallel-build-and-push
+          - step: *build-and-push
+          - step: *build-and-push-solr9
+
     - step: &merge-prod-into-test
         name: Merge prod into test
         image: atlassian/default-image:4
@@ -341,25 +345,23 @@ pipelines:
       - step: *check-branch-name-allowed
       - step: *install
       - parallel: *parallel-test-steps
-      - step: *build-and-push
+      - parallel: *parallel-build-and-push
       - step: *deploy-on-dev
       - step: *deploy-on-staging
     'prod/**':
       - step: *check-branch-name-allowed
       - step: *install
       - parallel: *parallel-test-steps
-      - step: *build-and-push
+      - parallel: *parallel-build-and-push
       - step: *deploy-on-dev
       - step: *deploy-on-staging
-      - step: *build-and-push-solr9
       - step: *merge-prod-into-test
     'test/**':
       - step: *check-branch-name-allowed
       - step: *install
       - parallel: *parallel-test-steps
-      - step: *build-and-push
+      - parallel: *parallel-build-and-push
       - step: *deploy-on-test
-      - step: *build-and-push-solr9
 
   pull-requests:
     '**':
@@ -382,22 +384,22 @@ pipelines:
       - step: *unit-test-code-checks
     deploy-on-dev:
       - step: *install
-      - step: *build-and-push
+      - parallel: *parallel-build-and-push
       - step: *deploy-on-dev
     deploy-on-staging:
       - step: *check-branch-name-allowed
       - step: *install
-      - step: *build-and-push
+      - parallel: *parallel-build-and-push
       - step: *deploy-on-staging
     deploy-on-test:
       - step: *check-branch-name-allowed
       - step: *install
-      - step: *build-and-push
+      - parallel: *parallel-build-and-push
       - step: *deploy-on-test
-    e2e-test:
+    build-images:
+      - step: *check-branch-name-allowed
       - step: *install
-      - step: *build-and-push
-      - step: *build-and-push-solr9
+      - parallel: *parallel-build-and-push
     turn-on-dev:
       - step: *turn-on-dev
     turn-on-staging:
