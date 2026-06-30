@@ -13,8 +13,10 @@ import java.io.PrintStream;
 import java.sql.SQLException;
 import java.time.Instant;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 import java.util.UUID;
 
 import jakarta.mail.MessagingException;
@@ -254,12 +256,14 @@ public class DOIOrganiser {
 
         if (line.hasOption('s')) {
             List<Integer> statuses = Arrays.asList(DOIIdentifierProvider.TO_BE_RESERVED);
-            processBatched(context, doiService, statuses, organiser::reserve, "reservation");
+            processBatched(context, doiService, statuses, organiser::reserve, "reservation",
+                           limit, offset, organiser.quiet);
         }
 
         if (line.hasOption('r')) {
             List<Integer> statuses = Arrays.asList(DOIIdentifierProvider.TO_BE_REGISTERED);
-            processBatched(context, doiService, statuses, organiser::register, "registration");
+            processBatched(context, doiService, statuses, organiser::register, "registration",
+                           limit, offset, organiser.quiet);
         }
 
         if (line.hasOption('u')) {
@@ -267,13 +271,15 @@ public class DOIOrganiser {
                 DOIIdentifierProvider.UPDATE_BEFORE_REGISTRATION,
                 DOIIdentifierProvider.UPDATE_RESERVED,
                 DOIIdentifierProvider.UPDATE_REGISTERED);
-            processBatched(context, doiService, statuses, organiser::update, "update");
+            processBatched(context, doiService, statuses, organiser::update, "update",
+                           limit, offset, organiser.quiet);
         }
 
         if (line.hasOption('d')) {
             List<Integer> statuses = Arrays.asList(DOIIdentifierProvider.TO_BE_DELETED);
             processBatched(context, doiService, statuses,
-                           doi -> organiser.delete(doi.getDoi()), "deletion");
+                           doi -> organiser.delete(doi.getDoi()), "deletion",
+                           limit, offset, organiser.quiet);
         }
 
         if (line.hasOption("reserve-doi")) {
@@ -340,23 +346,39 @@ public class DOIOrganiser {
     /**
      * Process all DOIs matching the given statuses in batches.
      * Each batch queries from offset 0 because successfully processed DOIs change status and
-     * drop out of subsequent queries. Stops when a batch is empty or an entire batch fails
-     * (to prevent infinite loops).
+     * drop out of subsequent queries. Stops when a batch is empty, a totalLimit has been reached,
+     * or an entire batch fails without any progress (to prevent infinite loops).
      *
-     * @param context     current DSpace session.
-     * @param doiService  the DOI service to query.
-     * @param statuses    the statuses to query for.
-     * @param operation   the operation to perform on each DOI.
-     * @param processName a human-readable name for the operation (for logging).
+     * @param context      current DSpace session.
+     * @param doiService   the DOI service to query.
+     * @param statuses     the statuses to query for.
+     * @param operation    the operation to perform on each DOI.
+     * @param processName  a human-readable name for the operation (for logging).
+     * @param totalLimit   maximum number of DOIs to process (-1 for unlimited).
+     * @param offset       number of DOIs to skip from the start (-1 for none).
+     * @param quiet        whether to suppress non-essential console output.
      */
     private static void processBatched(Context context, DOIService doiService,
                                        List<Integer> statuses, DOIOperation operation,
-                                       String processName) {
+                                       String processName, int totalLimit, int offset,
+                                       boolean quiet) {
         try {
-            List<DOI> batch;
+            int batchSize = totalLimit > 0 ? Math.min(totalLimit, BATCH_SIZE) : BATCH_SIZE;
+            // Offset is applied by skipping the first N DOIs. The first batch uses offset;
+            // subsequent batches use 0 because processed DOIs drop out due to status change.
+            int queryOffset = Math.max(offset, 0);
+            int processed = 0;
+            // Track DOI IDs that have been processed but whose status did not change.
+            // This prevents infinite loops when an operation catches exceptions internally
+            // (e.g. IdentifierException from the DOI provider) and returns normally without
+            // altering the DOI status.
+            Set<Integer> skippedIds = new HashSet<>();
             boolean firstBatch = true;
+            List<DOI> batch;
             do {
-                batch = doiService.getDOIsByStatus(context, statuses, BATCH_SIZE, 0);
+                batch = doiService.getDOIsByStatus(context, statuses, batchSize, queryOffset);
+                // After the first batch, always query from offset 0
+                queryOffset = 0;
                 if (firstBatch && batch.isEmpty()) {
                     System.err.println("There are no objects in the database "
                                            + "that could be processed for " + processName + ".");
@@ -364,11 +386,39 @@ public class DOIOrganiser {
                 firstBatch = false;
 
                 int succeeded = 0;
+                int batchSkipped = 0;
                 for (DOI doi : batch) {
+                    if (totalLimit > 0 && processed >= totalLimit) {
+                        break;
+                    }
+                    if (skippedIds.contains(doi.getID())) {
+                        continue;
+                    }
                     doi = context.reloadEntity(doi);
+                    // Snapshot the current status before processing
+                    int oldStatus = doi.getStatus();
                     try {
                         operation.process(doi);
                         context.commit();
+                        // Reload to get the post-operation status
+                        doi = context.reloadEntity(doi);
+                        if (doi.getStatus() == oldStatus) {
+                            // Operation completed without exception but the DOI status did not change.
+                            // This means the operation caught an error internally (e.g., the DOI
+                            // provider threw IdentifierException) and returned normally. Track the
+                            // DOI so we skip it in subsequent batches.
+                            skippedIds.add(doi.getID());
+                            batchSkipped++;
+                            if (!quiet) {
+                                System.err.format(
+                                    "DOI %s %s did not change status, skipping.%n",
+                                    doi.getDoi(), processName);
+                            }
+                            // Ensure no stale transaction state remains
+                            context.rollback();
+                            continue;
+                        }
+                        processed++;
                         succeeded++;
                     } catch (Exception e) {
                         System.err.format("DOI %s %s failed, skipping: %s%n",
@@ -376,8 +426,18 @@ public class DOIOrganiser {
                         context.rollback();
                     }
                 }
-                // If no DOI in this batch succeeded, stop to prevent an infinite loop.
-                if (!batch.isEmpty() && succeeded == 0) {
+                // If we hit the total limit, stop.
+                if (totalLimit > 0 && processed >= totalLimit) {
+                    if (!quiet && batchSkipped > 0) {
+                        System.err.format(
+                            "Reached processing limit of %d for %s.%n",
+                            totalLimit, processName);
+                    }
+                    break;
+                }
+                // If no DOI in this batch succeeded and none were skipped, stop to prevent
+                // an infinite loop.
+                if (!batch.isEmpty() && succeeded == 0 && batchSkipped == 0) {
                     System.err.println("Entire batch failed for " + processName
                                            + ", stopping to prevent infinite loop.");
                     break;
