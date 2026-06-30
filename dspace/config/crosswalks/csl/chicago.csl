@@ -45,6 +45,7 @@
       <term name="editortranslator" form="verb-short">ed. and trans.</term>
       <term name="editortranslator" form="verb">Edited and translated by</term>
       <term name="translator" form="short">trans.</term>
+      <term name="no date" form="short">n.d.</term>
     </terms>
   </locale>
   <macro name="editor-translator">
@@ -864,7 +865,7 @@
       </else-if>
       <else-if variable="accessed URL" match="all"/>
       <else>
-        <text term="no date" form="short"/>
+        <text value="n.d."/>
       </else>
     </choose>
   </macro>
@@ -1416,7 +1417,7 @@
       <key macro="contributors-sort"/>
       <key variable="title"/>
       <key variable="genre"/>
-      <key variable="issued"/>
+      <key macro="issued"/>
     </sort>
     <layout suffix=".">
       <choose>
@@ -1462,10 +1463,7 @@
           </group>
         </if>
         <else>
-          <group delimiter=": ">
-            <text variable="note" font-weight="bold"/>
-            <text macro="issued"/>
-          </group>
+          <text value="n.d."/>
         </else>
       </choose>
     </layout>
