@@ -8,26 +8,17 @@
 package org.dspace.discovery;
 
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-import java.util.UUID;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.Logger;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.common.SolrInputDocument;
 import org.dspace.authorize.ResourcePolicy;
-import org.dspace.authorize.ResourcePolicyOwnerVO;
 import org.dspace.authorize.service.AuthorizeService;
 import org.dspace.authorize.service.ResourcePolicyService;
-import org.dspace.content.Collection;
-import org.dspace.content.Community;
 import org.dspace.content.DSpaceObject;
-import org.dspace.content.Item;
-import org.dspace.content.factory.ContentServiceFactory;
-import org.dspace.content.service.CollectionService;
-import org.dspace.content.service.CommunityService;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.core.LogHelper;
@@ -56,10 +47,6 @@ public class SolrServiceResourceRestrictionPlugin implements SolrServiceIndexPlu
 
     @Autowired(required = true)
     protected AuthorizeService authorizeService;
-    @Autowired(required = true)
-    protected CommunityService communityService;
-    @Autowired(required = true)
-    protected CollectionService collectionService;
     @Autowired(required = true)
     protected GroupService groupService;
     @Autowired(required = true)
@@ -100,26 +87,7 @@ public class SolrServiceResourceRestrictionPlugin implements SolrServiceIndexPlu
                     }
                 }
 
-                // also index ADMIN policies as ADMIN permissions provides READ access
-                // going up through the hierarchy for communities, collections and items
-                List<UUID> dsoIds = new ArrayList<>();
-                DSpaceObject parentDso = dso;
-                while (parentDso != null) {
-                    if (parentDso instanceof Community || parentDso instanceof Collection
-                        || parentDso instanceof Item) {
-                        dsoIds.add(parentDso.getID());
-                    }
-                    parentDso = ContentServiceFactory.getInstance().getDSpaceObjectService(parentDso)
-                        .getParentObject(context, parentDso);
-                }
 
-                if (!dsoIds.isEmpty()) {
-                    List<ResourcePolicyOwnerVO> policiesAdmin = authorizeService
-                        .getValidPolicyOwnersActionFilter(context, dsoIds, Constants.ADMIN);
-                    for (ResourcePolicyOwnerVO resourcePolicy : policiesAdmin) {
-                        addReadField(document, resourcePolicy, true);
-                    }
-                }
             } catch (SQLException e) {
                 log.error(LogHelper.getHeader(context, "Error while indexing resource policies",
                     "DSpace object: (id " + dso.getID() + " type " + dso.getType() + ")"));
@@ -222,22 +190,6 @@ public class SolrServiceResourceRestrictionPlugin implements SolrServiceIndexPlu
         return null;
     }
 
-    private void addReadField(SolrInputDocument document, ResourcePolicyOwnerVO resourcePolicy, boolean addAdminField) {
-
-        String fieldValue;
-        if (resourcePolicy.getGroupId() != null) {
-            // We have a group add it to the value
-            fieldValue = "g" + resourcePolicy.getGroupId();
-        } else {
-            // We have an eperson add it to the value
-            fieldValue = "e" + resourcePolicy.getEPersonId();
-        }
-
-        document.addField("read", fieldValue);
-        if (addAdminField) {
-            document.addField("admin", fieldValue);
-        }
-    }
 
     /**
      * Get the action name used for solr indexing for the given action id

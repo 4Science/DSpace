@@ -36,6 +36,8 @@ import org.dspace.content.DSpaceObject;
 import org.dspace.content.service.BitstreamService;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
+import org.dspace.discovery.IndexingService;
+import org.dspace.discovery.indexobject.factory.IndexObjectFactoryFactory;
 import org.dspace.eperson.EPerson;
 import org.dspace.eperson.Group;
 import org.dspace.eperson.service.EPersonService;
@@ -89,6 +91,9 @@ public class ResourcePolicyRestRepository extends DSpaceRestRepository<ResourceP
 
     @Autowired
     BitstreamService bitstreamService;
+
+    @Autowired
+    IndexingService indexingService;
 
     @Override
     @PreAuthorize("hasPermission(#id, 'resourcepolicy', 'READ')")
@@ -324,7 +329,17 @@ public class ResourcePolicyRestRepository extends DSpaceRestRepository<ResourceP
                 throw new ResourceNotFoundException(
                     ResourcePolicyRest.CATEGORY + "." + ResourcePolicyRest.NAME + " with id: " + id + " not found");
             }
+            DSpaceObject dso = resourcePolicy.getdSpaceObject();
             resourcePolicyService.delete(context, resourcePolicy);
+
+            // Reindex the DSpaceObject to update Solr permissions after policy deletion
+            if (dso != null) {
+                IndexObjectFactoryFactory indexObjectFactory = IndexObjectFactoryFactory.getInstance();
+                List<IndexableObject> indexableObjects = indexObjectFactory.getIndexableObjects(context, dso);
+                if (!indexableObjects.isEmpty()) {
+                    indexingService.indexContent(context, indexableObjects.get(0));
+                }
+            }
 
             if (bitstreamService.isOriginalBitstream(resourcePolicy.getdSpaceObject())) {
                 bitstreamService.updateThumbnailResourcePolicies(context, (Bitstream) resourcePolicy.getdSpaceObject());

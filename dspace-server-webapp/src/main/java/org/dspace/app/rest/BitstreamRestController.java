@@ -139,7 +139,7 @@ public class BitstreamRestController {
         // Get bitstream metadata
         Long lastModified = bitstreamService.getLastModified(bit);
         BitstreamFormat format = bit.getFormat(context);
-        String mimetype = format.getMIMEType();
+        String mimetype = (format != null && format.getMIMEType() != null) ? format.getMIMEType() : "application/octet-stream";
         String name = getBitstreamName(bit, format);
 
         // If an access token is found, immediately authenticate it if request a copy is enabled
@@ -289,9 +289,13 @@ public class BitstreamRestController {
         // NOTE: "+xml" in this list will match any MIME Type that ends in "+xml", as those are XML-based formats.
         List<String> bannedInlineFormats = List.of("text/html", "text/javascript", "text/xml", "application/xml",
                                              "+xml");
+        String mimeType = format.getMIMEType();
+        if (mimeType == null) {
+            return false;
+        }
         for (String bannedInlineFormat : bannedInlineFormats) {
             // If our format MIME Type contains one of the banned inline formats, we refuse to display it inline
-            if (format.getMIMEType().contains(bannedInlineFormat)) {
+            if (mimeType.contains(bannedInlineFormat)) {
                 return false;
             }
         }
@@ -301,7 +305,7 @@ public class BitstreamRestController {
                                                      getArrayProperty("webui.content_disposition_inline"));
 
         // See if the passed in format's MIME type or file extension is listed.
-        boolean inline = formats.contains(format.getMIMEType());
+        boolean inline = formats.contains(mimeType);
         if (!inline) {
             for (String ext : format.getExtensions()) {
                 if (formats.contains(ext)) {

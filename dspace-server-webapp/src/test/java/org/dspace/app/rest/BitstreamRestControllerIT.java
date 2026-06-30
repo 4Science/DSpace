@@ -342,6 +342,7 @@ public class BitstreamRestControllerIT extends AbstractControllerIntegrationTest
             bf = bitstreamFormatService.create(context);
             bf.setMIMEType("null");
             bf.setShortDescription(context, "null");
+            bf.setInternal(false);
 
             bitstream = BitstreamBuilder
                 .createBitstream(context, item, is)
