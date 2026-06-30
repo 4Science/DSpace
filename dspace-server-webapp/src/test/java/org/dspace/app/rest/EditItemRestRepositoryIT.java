@@ -49,13 +49,10 @@ import org.dspace.builder.ItemBuilder;
 import org.dspace.content.Bitstream;
 import org.dspace.content.Collection;
 import org.dspace.content.Item;
-import org.dspace.content.authority.service.ChoiceAuthorityService;
-import org.dspace.content.authority.service.MetadataAuthorityService;
 import org.dspace.content.edit.EditItem;
 import org.dspace.content.service.BitstreamService;
 import org.dspace.content.service.ItemService;
 import org.dspace.core.Constants;
-import org.dspace.core.service.PluginService;
 import org.dspace.eperson.EPerson;
 import org.dspace.eperson.Group;
 import org.dspace.eperson.service.GroupService;
@@ -87,15 +84,6 @@ public class EditItemRestRepositoryIT extends AbstractControllerIntegrationTest 
 
     @Autowired
     private ConfigurationService configurationService;
-
-    @Autowired
-    private PluginService pluginService;
-
-    @Autowired
-    private ChoiceAuthorityService choiceAuthorityService;
-
-    @Autowired
-    private MetadataAuthorityService metadataAuthorityService;
 
     @Test
     public void findOneTest() throws Exception {
@@ -759,18 +747,6 @@ public class EditItemRestRepositoryIT extends AbstractControllerIntegrationTest 
 
     @Test
     public void testFindOneWithModeWithManySecurities() throws Exception {
-        configurationService.setProperty("plugin.named.org.dspace.content.authority.ChoiceAuthority",
-                                         new String[] {
-                                             "org.dspace.content.authority.OrcidAuthority = AuthorAuthority"
-                                         });
-        configurationService.setProperty("choices.plugin.dc.contributor.author", "AuthorAuthority");
-        configurationService.setProperty("choices.presentation.dc.contributor.author", "suggest");
-        configurationService.setProperty("authority.controlled.dc.contributor.author", "true");
-        configurationService.setProperty("cris.ItemAuthority.AuthorAuthority.entityType", "Person");
-
-        pluginService.clearNamedPluginClasses();
-        choiceAuthorityService.clearCache();
-        metadataAuthorityService.clearCache();
 
         context.turnOffAuthorisationSystem();
 
@@ -933,26 +909,6 @@ public class EditItemRestRepositoryIT extends AbstractControllerIntegrationTest 
     @Test
     public void findOneAuthorCustomSecurityModeTest() throws Exception {
 
-        configurationService.setProperty("plugin.named.org.dspace.content.authority.ChoiceAuthority",
-                                         new String[] {
-                                             "org.dspace.content.authority.OrcidAuthority = AuthorAuthority",
-                                             "org.dspace.content.authority.OrcidAuthority = EditorAuthority"
-                                         });
-        configurationService.setProperty("choices.plugin.dc.contributor.author", "AuthorAuthority");
-        configurationService.setProperty("choices.presentation.dc.contributor.author", "suggest");
-        configurationService.setProperty("authority.controlled.dc.contributor.author", "true");
-        configurationService.setProperty("cris.ItemAuthority.AuthorAuthority.entityType", "Person");
-
-        configurationService.setProperty("choices.plugin.dc.contributor.editor", "EditorAuthority");
-        configurationService.setProperty("choices.presentation.dc.contributor.editor", "suggest");
-        configurationService.setProperty("authority.controlled.dc.contributor.editor", "true");
-        configurationService.setProperty("cris.ItemAuthority.EditorAuthority.entityType", "Person");
-
-
-        pluginService.clearNamedPluginClasses();
-        choiceAuthorityService.clearCache();
-        metadataAuthorityService.clearCache();
-
         context.turnOffAuthorisationSystem();
 
         EPerson firstUser = EPersonBuilder.createEPerson(context)
@@ -1109,24 +1065,6 @@ public class EditItemRestRepositoryIT extends AbstractControllerIntegrationTest 
 
     @Test
     public void patchAddMetadataUsingSecurityConfigurationCustomTest() throws Exception {
-        configurationService.setProperty("plugin.named.org.dspace.content.authority.ChoiceAuthority",
-                                         new String[] {
-                                             "org.dspace.content.authority.EPersonAuthority = EPersonAuthority",
-                                             "org.dspace.content.authority.GroupAuthority = GroupAuthority"
-                                         });
-
-        configurationService.setProperty("choices.plugin.dspace.policy.eperson", "EPersonAuthority");
-        configurationService.setProperty("cchoices.presentation.dspace.policy.eperson", "suggest");
-        configurationService.setProperty("authority.controlled.dspace.policy.eperson", "true");
-
-        configurationService.setProperty("choices.plugin.dspace.policy.group", "GroupAuthority");
-        configurationService.setProperty("cchoices.presentation.dspace.policy.group", "suggest");
-        configurationService.setProperty("authority.controlled.dspace.policy.group", "true");
-
-        pluginService.clearNamedPluginClasses();
-        choiceAuthorityService.clearCache();
-        metadataAuthorityService.clearCache();
-
         context.turnOffAuthorisationSystem();
 
         EPerson userA = EPersonBuilder.createEPerson(context)
@@ -1193,24 +1131,6 @@ public class EditItemRestRepositoryIT extends AbstractControllerIntegrationTest 
 
     @Test
     public void patchAddMetadataUsingSecurityConfigurationCustomForbiddenTest() throws Exception {
-        configurationService.setProperty("plugin.named.org.dspace.content.authority.ChoiceAuthority",
-                                         new String[] {
-                                             "org.dspace.content.authority.EPersonAuthority = EPersonAuthority",
-                                             "org.dspace.content.authority.GroupAuthority = GroupAuthority"
-                                         });
-
-        configurationService.setProperty("choices.plugin.dspace.policy.eperson", "EPersonAuthority");
-        configurationService.setProperty("cchoices.presentation.dspace.policy.eperson", "suggest");
-        configurationService.setProperty("authority.controlled.dspace.policy.eperson", "true");
-
-        configurationService.setProperty("choices.plugin.dspace.policy.group", "GroupAuthority");
-        configurationService.setProperty("cchoices.presentation.dspace.policy.group", "suggest");
-        configurationService.setProperty("authority.controlled.dspace.policy.group", "true");
-
-        pluginService.clearNamedPluginClasses();
-        choiceAuthorityService.clearCache();
-        metadataAuthorityService.clearCache();
-
         context.turnOffAuthorisationSystem();
 
         EPerson userA = EPersonBuilder.createEPerson(context)
@@ -1410,7 +1330,7 @@ public class EditItemRestRepositoryIT extends AbstractControllerIntegrationTest 
     public void patchReplaceAllMetadataTest() throws Exception {
         context.turnOffAuthorisationSystem();
 
-        configurationService.setProperty("item.enable-virtual-metadata", false);
+        configurationService.setProperty("relationship.enable-virtual-metadata", false);
 
         parentCommunity = CommunityBuilder.createCommunity(context)
                                           .withName("Parent Community")
@@ -1547,7 +1467,7 @@ public class EditItemRestRepositoryIT extends AbstractControllerIntegrationTest 
 
         Collection collection = CollectionBuilder.createCollection(context, parentCommunity)
                 .withEntityType("Publication")
-                .withSubmissionDefinition("traditional")
+                .withSubmissionDefinition("traditional-cris")
                 .withName("Collection 1")
                 .build();
 
@@ -1579,31 +1499,31 @@ public class EditItemRestRepositoryIT extends AbstractControllerIntegrationTest 
         publisherMap.put("value", "A publisher");
         publisherValues.add(publisherMap);
         List<Operation> listOpA = new ArrayList<>();
-        listOpA.add(new AddOperation("/sections/traditionalpageone/dc.title", titleValues));
-        listOpA.add(new AddOperation("/sections/traditionalpageone/dc.publisher", publisherValues));
+        listOpA.add(new AddOperation("/sections/traditionalpageone-cris/dc.title", titleValues));
+        listOpA.add(new AddOperation("/sections/traditionalpageone-cris/dc.publisher", publisherValues));
 
         List<Operation> listOpB = new ArrayList<>();
-        listOpB.add(new RemoveOperation("/sections/traditionalpageone/dc.title"));
-        listOpB.add(new AddOperation("/sections/traditionalpageone/dc.publisher", publisherValues));
+        listOpB.add(new RemoveOperation("/sections/traditionalpageone-cris/dc.title"));
+        listOpB.add(new AddOperation("/sections/traditionalpageone-cris/dc.publisher", publisherValues));
 
         String patchBodyA = getPatchContent(listOpA);
         getClient(tokenAdmin).perform(patch("/api/core/edititems/" + editItemA.getID() + ":MODE1")
                         .content(patchBodyA)
                         .contentType(MediaType.APPLICATION_JSON_PATCH_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.sections.traditionalpageone['dc.title'][0].value",
+                .andExpect(jsonPath("$.sections.traditionalpageone-cris['dc.title'][0].value",
                         is("A title")))
-                .andExpect(jsonPath("$.sections.traditionalpageone['dc.publisher'][0].value",
+                .andExpect(jsonPath("$.sections.traditionalpageone-cris['dc.publisher'][0].value",
                         is("A publisher")))
                 .andExpect(jsonPath("$.errors[0].message", is("error.validation.required")))
-                .andExpect(jsonPath("$.errors[0].paths[0]", is("/sections/traditionalpageone/dc.date.issued")));
+                .andExpect(jsonPath("$.errors[0].paths[0]", is("/sections/traditionalpageone-cris/dc.date.issued")));
 
         getClient(tokenAdmin).perform(get("/api/core/edititems/" + editItemA.getID() + ":MODE1"))
             .andExpect(status().isOk())
-            .andExpect(jsonPath("$.sections.traditionalpageone['dc.title'][0].value", is("A title")))
-            .andExpect(jsonPath("$.sections.traditionalpageone['dc.publisher'][0].value", is("A publisher")))
+            .andExpect(jsonPath("$.sections.traditionalpageone-cris['dc.title'][0].value", is("A title")))
+            .andExpect(jsonPath("$.sections.traditionalpageone-cris['dc.publisher'][0].value", is("A publisher")))
             .andExpect(jsonPath("$.errors[0].message", is("error.validation.required")))
-            .andExpect(jsonPath("$.errors[0].paths[0]", is("/sections/traditionalpageone/dc.date.issued")));
+            .andExpect(jsonPath("$.errors[0].paths[0]", is("/sections/traditionalpageone-cris/dc.date.issued")));
 
         // the list of operation B makes the item worst, so we expect a 422 response and the json should
         // describe the errors according to the new state of the item attempted to be generated by the requested
@@ -1613,16 +1533,16 @@ public class EditItemRestRepositoryIT extends AbstractControllerIntegrationTest 
                         .contentType(MediaType.APPLICATION_JSON_PATCH_JSON))
                 .andExpect(status().isUnprocessableEntity())
                 .andExpect(jsonPath("$.[0].message", is("error.validation.required")))
-                .andExpect(jsonPath("$.[0].paths[0]", is("/sections/traditionalpageone/dc.title")))
-                .andExpect(jsonPath("$.[0].paths[1]", is("/sections/traditionalpageone/dc.date.issued")));
+                .andExpect(jsonPath("$.[0].paths[0]", is("/sections/traditionalpageone-cris/dc.title")))
+                .andExpect(jsonPath("$.[0].paths[1]", is("/sections/traditionalpageone-cris/dc.date.issued")));
         // as the request has been rejected, the state should not be persisted
         getClient(tokenAdmin).perform(get("/api/core/edititems/" + editItemB.getID() + ":MODE1"))
             .andExpect(status().isOk())
-            .andExpect(jsonPath("$.sections.traditionalpageone['dc.title'][0].value",
+            .andExpect(jsonPath("$.sections.traditionalpageone-cris['dc.title'][0].value",
                     is("At least the title...")))
-            .andExpect(jsonPath("$.sections.traditionalpageone['dc.publisher']").doesNotExist())
+            .andExpect(jsonPath("$.sections.traditionalpageone-cris['dc.publisher']").doesNotExist())
             .andExpect(jsonPath("$.errors[0].message", is("error.validation.required")))
-            .andExpect(jsonPath("$.errors[0].paths[0]", is("/sections/traditionalpageone/dc.date.issued")));
+            .andExpect(jsonPath("$.errors[0].paths[0]", is("/sections/traditionalpageone-cris/dc.date.issued")));
 
     }
 
@@ -2127,20 +2047,6 @@ public class EditItemRestRepositoryIT extends AbstractControllerIntegrationTest 
 
     @Test
     public void testPatchWithValidationErrors3213() throws Exception {
-
-        configurationService.setProperty("plugin.named.org.dspace.content.authority.ChoiceAuthority",
-                                         new String[] {
-                                             "org.dspace.content.authority.ItemAuthority = OrgUnitAuthority"
-                                         });
-        configurationService.setProperty("choices.plugin.oairecerif.funder", "OrgUnitAuthority");
-        configurationService.setProperty("choices.presentation.oairecerif.funder", "suggest");
-        configurationService.setProperty("authority.controlled.oairecerif.funder", "true");
-
-        pluginService.clearNamedPluginClasses();
-        choiceAuthorityService.clearCache();
-        metadataAuthorityService.clearCache();
-
-
         context.turnOffAuthorisationSystem();
 
         parentCommunity = CommunityBuilder.createCommunity(context)
