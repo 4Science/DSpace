@@ -104,7 +104,7 @@ public class CrisLayoutToolScriptIT extends AbstractIntegrationTestWithDatabase 
         assertThat(handler.getWarningMessages(), empty());
 
         List<String> errorMessages = handler.getErrorMessages();
-        assertThat(errorMessages, hasSize(8));
+        assertThat(errorMessages, hasSize(7));
         assertThat(errorMessages, containsInAnyOrder(
             "The tab sheet is missing",
             "The box sheet is missing",
@@ -112,8 +112,7 @@ public class CrisLayoutToolScriptIT extends AbstractIntegrationTestWithDatabase 
             "The box2metadata sheet is missing",
             "The metadatagroups sheet is missing",
             "The boxpolicy sheet is missing",
-            "The tabpolicy sheet is missing",
-            "IllegalArgumentException: The given workbook is not valid. Import canceled"));
+            "The tabpolicy sheet is missing"));
     }
 
     @Test
@@ -128,7 +127,7 @@ public class CrisLayoutToolScriptIT extends AbstractIntegrationTestWithDatabase 
         assertThat(handler.getWarningMessages(), empty());
 
         List<String> errorMessages = handler.getErrorMessages();
-        assertThat(errorMessages, hasSize(42));
+        assertThat(errorMessages, hasSize(41));
         assertThat(errorMessages, containsInAnyOrder(
             "The sheet tab has no ENTITY column",
             "The sheet tab has no LEADING column",
@@ -170,8 +169,7 @@ public class CrisLayoutToolScriptIT extends AbstractIntegrationTestWithDatabase 
             "The sheet tabpolicy has no GROUP column",
             "The sheet boxpolicy has no GROUP column",
             "The sheet box2metadata has no RENDERING column",
-            "The sheet metadatagroups has no RENDERING column",
-            "IllegalArgumentException: The given workbook is not valid. Import canceled"));
+            "The sheet metadatagroups has no RENDERING column"));
     }
 
     @Test
@@ -231,7 +229,6 @@ public class CrisLayoutToolScriptIT extends AbstractIntegrationTestWithDatabase 
             "The box2metadata contains an unknown metadata field invalid.metadata.field at row 7",
             "The box with name unknown and entity type Publication in the row 10 of sheet box2metadata"
                 + " is not present in the box sheet",
-            "IllegalArgumentException: The given workbook is not valid. Import canceled",
             "The sheet boxpolicy has no GROUP column",
             "The sheet tabpolicy has no GROUP column",
             "The sheet box2metadata contains an invalid RENDERING type at row 3: "
@@ -424,14 +421,13 @@ public class CrisLayoutToolScriptIT extends AbstractIntegrationTestWithDatabase 
         assertThat(handler.getWarningMessages(), empty());
 
         List<String> errorMessages = handler.getErrorMessages();
-        // assertThat(errorMessages, hasSize(6));
+        assertThat(errorMessages, hasSize(5));
         assertThat(errorMessages, containsInAnyOrder(
             "The box2metadata contains an empty metadata field at row 3",
             "The box2metadata contains an empty metadata field at row 6",
             "The metadatagroups contains an empty metadata field at row 2",
             "The boxpolicy at row 1 contains invalid values for METADATA/GROUP column.",
-            "The tabpolicy at row 0 contains invalid values for METADATA/GROUP column.",
-            "IllegalArgumentException: The given workbook is not valid. Import canceled"));
+            "The tabpolicy at row 0 contains invalid values for METADATA/GROUP column."));
     }
 
     @Test
@@ -468,8 +464,7 @@ public class CrisLayoutToolScriptIT extends AbstractIntegrationTestWithDatabase 
         List<String> errorMessages = handler.getErrorMessages();
         assertThat(errorMessages, containsInAnyOrder(
             "The boxpolicy at row 2 contains invalid values for METADATA/GROUP column.",
-            "The tabpolicy at row 0 contains invalid values for METADATA/GROUP column.",
-            "IllegalArgumentException: The given workbook is not valid. Import canceled"));
+            "The tabpolicy at row 0 contains invalid values for METADATA/GROUP column."));
     }
 
     /*
@@ -492,8 +487,7 @@ public class CrisLayoutToolScriptIT extends AbstractIntegrationTestWithDatabase 
         List<String> errorMessages = handler.getErrorMessages();
         assertThat(errorMessages, containsInAnyOrder(
             "The boxpolicy contains an unknown group field: 'Researchers' at row 2",
-            "The tabpolicy contains an unknown group field: 'Researchers' at row 0",
-            "IllegalArgumentException: The given workbook is not valid. Import canceled"));
+            "The tabpolicy contains an unknown group field: 'Researchers' at row 0"));
     }
 
     private void assertThatBitstreamFieldHas(CrisLayoutField field, String label, String rowStyle, String cellStyle,
@@ -626,8 +620,7 @@ public class CrisLayoutToolScriptIT extends AbstractIntegrationTestWithDatabase 
             "The sheet metadatagroups contains an invalid RENDERING type at row 5: "
                 + "Rendering named identifier requires a sub type",
             "The sheet metadatagroups contains an invalid RENDERING type at row 6: "
-                + "Rendering named identifier don't supports the configured sub type",
-            "IllegalArgumentException: The given workbook is not valid. Import canceled"));
+                + "Rendering named identifier don't supports the configured sub type"));
 
     }
 
