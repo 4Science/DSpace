@@ -36,6 +36,7 @@ import org.dspace.content.DSpaceObject;
 import org.dspace.content.service.BitstreamService;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
+import org.dspace.discovery.IndexableObject;
 import org.dspace.discovery.IndexingService;
 import org.dspace.discovery.indexobject.factory.IndexObjectFactoryFactory;
 import org.dspace.eperson.EPerson;
