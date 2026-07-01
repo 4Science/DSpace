@@ -31,8 +31,6 @@ public interface CrisLayoutToolValidator {
 
     String METADATAGROUPS_SHEET = "metadatagroups";
 
-    String BOX2METRICS_SHEET = "box2metrics";
-
     String TAB_POLICY_SHEET = "tabpolicy";
 
     String BOX_POLICY_SHEET = "boxpolicy";
@@ -101,8 +99,6 @@ public interface CrisLayoutToolValidator {
     String VALUE_COLUMN = "VALUE";
 
     String BUNDLE_COLUMN = "BUNDLE";
-
-    String METRIC_TYPE_COLUMN = "METRIC_TYPE";
 
     String PARENT_COLUMN = "PARENT";
 

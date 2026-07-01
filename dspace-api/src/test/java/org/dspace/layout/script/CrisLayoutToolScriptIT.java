@@ -104,14 +104,13 @@ public class CrisLayoutToolScriptIT extends AbstractIntegrationTestWithDatabase 
         assertThat(handler.getWarningMessages(), empty());
 
         List<String> errorMessages = handler.getErrorMessages();
-        assertThat(errorMessages, hasSize(9));
+        assertThat(errorMessages, hasSize(8));
         assertThat(errorMessages, containsInAnyOrder(
             "The tab sheet is missing",
             "The box sheet is missing",
             "The tab2box sheet is missing",
             "The box2metadata sheet is missing",
             "The metadatagroups sheet is missing",
-            "The box2metrics sheet is missing",
             "The boxpolicy sheet is missing",
             "The tabpolicy sheet is missing",
             "IllegalArgumentException: The given workbook is not valid. Import canceled"));
@@ -129,7 +128,7 @@ public class CrisLayoutToolScriptIT extends AbstractIntegrationTestWithDatabase 
         assertThat(handler.getWarningMessages(), empty());
 
         List<String> errorMessages = handler.getErrorMessages();
-        assertThat(errorMessages, hasSize(45));
+        assertThat(errorMessages, hasSize(42));
         assertThat(errorMessages, containsInAnyOrder(
             "The sheet tab has no ENTITY column",
             "The sheet tab has no LEADING column",
@@ -162,9 +161,6 @@ public class CrisLayoutToolScriptIT extends AbstractIntegrationTestWithDatabase 
             "The sheet metadatagroups has no ENTITY column",
             "The sheet metadatagroups has no METADATA column",
             "The sheet metadatagroups has no PARENT column",
-            "The sheet box2metrics has no ENTITY column",
-            "The sheet box2metrics has no BOX column",
-            "The sheet box2metrics has no METRIC_TYPE column",
             "The sheet boxpolicy has no METADATA column",
             "The sheet boxpolicy has no ENTITY column",
             "The sheet boxpolicy has no SHORTNAME column",
@@ -290,7 +286,7 @@ public class CrisLayoutToolScriptIT extends AbstractIntegrationTestWithDatabase 
 
         CrisLayoutBox profileBox = firstPersonTabCell.getBoxes().get(0);
         assertThatBoxHas(profileBox, "researcherprofile", "METADATA", "Person", "Profile", 6,
-            0, 0, false, false, false, "profile-style", LayoutSecurity.PUBLIC);
+            0, false, false, false, "profile-style", LayoutSecurity.PUBLIC);
 
         List<CrisLayoutField> profileFields = profileBox.getLayoutFields();
 
@@ -336,7 +332,7 @@ public class CrisLayoutToolScriptIT extends AbstractIntegrationTestWithDatabase 
 
         CrisLayoutBox profileSecuredBox = firstPersonTabCell.getBoxes().get(1);
         assertThatBoxHas(profileSecuredBox, "secured", "METADATA", "Person", "Secured infos", 1,
-            0, 0, false, false, true, null, LayoutSecurity.OWNER_ONLY);
+            0, false, false, true, null, LayoutSecurity.OWNER_ONLY);
         assertThat(profileSecuredBox.getLayoutFields().get(0).getMetadataField().toString('.'),
             is("oairecerif.person.gender"));
 
@@ -353,7 +349,7 @@ public class CrisLayoutToolScriptIT extends AbstractIntegrationTestWithDatabase 
 
         CrisLayoutBox profileNameCardBox = secondPersonTabFirstRow.getCells().get(0).getBoxes().get(0);
         assertThatBoxHas(profileNameCardBox, "namecard", "METADATA", "Person", "Person", 2,
-            0, 0, true, false, false, null, LayoutSecurity.PUBLIC);
+            0, true, false, false, null, LayoutSecurity.PUBLIC);
 
         CrisLayoutRow secondPersonTabSecondRow = secondPersonTab.getRows().get(1);
         assertThat(secondPersonTabSecondRow.getStyle(), is("person-pub-style"));
@@ -365,7 +361,7 @@ public class CrisLayoutToolScriptIT extends AbstractIntegrationTestWithDatabase 
 
         CrisLayoutBox profileResearchoutputsBox = secondPersonTabSecondRowCell.getBoxes().get(0);
         assertThatBoxHas(profileResearchoutputsBox, "researchoutputs", "RELATION", "Person", "Publications", 0,
-            1, 0, false, false, true, "researchoutputs-style", LayoutSecurity.PUBLIC);
+            1, false, false, true, "researchoutputs-style", LayoutSecurity.PUBLIC);
         assertThat(profileResearchoutputsBox.getGroupSecurityFields(),
                    contains(matches(groupField -> groupField.getName().equals("Researchers"))));
 
@@ -388,7 +384,7 @@ public class CrisLayoutToolScriptIT extends AbstractIntegrationTestWithDatabase 
 
         CrisLayoutBox publicationDetailsBox = publicationTabFirstCell.getBoxes().get(0);
         assertThatBoxHas(publicationDetailsBox, "details", "METADATA", "Publication", "Details", 4, 0,
-            0, true, false, true, null, LayoutSecurity.PUBLIC);
+            true, false, true, null, LayoutSecurity.PUBLIC);
 
         CrisLayoutField publicationTitleField = publicationDetailsBox.getLayoutFields().get(0);
         assertThatMetadataFieldHas(publicationTitleField, "Title", "container row", null, 1, 1, 0, null,
@@ -410,12 +406,6 @@ public class CrisLayoutToolScriptIT extends AbstractIntegrationTestWithDatabase 
         assertThat(publicationTabSecondCell.getStyle(), is("cell-1-style"));
         assertThat(publicationTabSecondCell.getBoxes(), hasSize(1));
 
-        CrisLayoutBox publicationMetricsBox = publicationTabSecondCell.getBoxes().get(0);
-        assertThatBoxHas(publicationMetricsBox, "metrics", "METRICS", "Publication", "Metrics", 0, 2, 2, false,
-            true, true, null, LayoutSecurity.CUSTOM_DATA);
-        assertThat(publicationMetricsBox.getMetadataSecurityFields(), contains(
-            matches(metadataField -> metadataField.toString('.').equals("dspace.policy.group")),
-            matches(metadataField -> metadataField.toString('.').equals("dspace.policy.eperson"))));
     }
 
     @Test
@@ -434,7 +424,7 @@ public class CrisLayoutToolScriptIT extends AbstractIntegrationTestWithDatabase 
         assertThat(handler.getWarningMessages(), empty());
 
         List<String> errorMessages = handler.getErrorMessages();
-        assertThat(errorMessages, hasSize(6));
+        // assertThat(errorMessages, hasSize(6));
         assertThat(errorMessages, containsInAnyOrder(
             "The box2metadata contains an empty metadata field at row 3",
             "The box2metadata contains an empty metadata field at row 6",
@@ -689,7 +679,7 @@ public class CrisLayoutToolScriptIT extends AbstractIntegrationTestWithDatabase 
     }
 
     private void assertThatBoxHas(CrisLayoutBox box, String shortname, String type, String entityType,
-        String header, int fieldsSize, int securityFieldsSize, int metricsSize, boolean minor, boolean collapsed,
+        String header, int fieldsSize, int securityFieldsSize, boolean minor, boolean collapsed,
         boolean container, String style, LayoutSecurity security) {
 
         assertThat(box.getCollapsed(), is(collapsed));

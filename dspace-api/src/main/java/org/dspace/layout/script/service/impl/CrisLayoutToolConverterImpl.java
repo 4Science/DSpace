@@ -8,7 +8,6 @@
 package org.dspace.layout.script.service.impl;
 
 import static org.dspace.layout.script.service.CrisLayoutToolValidator.BOX2METADATA_SHEET;
-import static org.dspace.layout.script.service.CrisLayoutToolValidator.BOX2METRICS_SHEET;
 import static org.dspace.layout.script.service.CrisLayoutToolValidator.BOX_POLICY_SHEET;
 import static org.dspace.layout.script.service.CrisLayoutToolValidator.BOX_SHEET;
 import static org.dspace.layout.script.service.CrisLayoutToolValidator.METADATAGROUPS_SHEET;
@@ -341,7 +340,6 @@ public class CrisLayoutToolConverterImpl implements CrisLayoutToolConverter {
         autoSizeColumns(workbook.getSheet(BOX_SHEET));
         autoSizeColumns(workbook.getSheet(BOX2METADATA_SHEET));
         autoSizeColumns(workbook.getSheet(METADATAGROUPS_SHEET));
-        autoSizeColumns(workbook.getSheet(BOX2METRICS_SHEET));
         autoSizeColumns(workbook.getSheet(TAB_POLICY_SHEET));
         autoSizeColumns(workbook.getSheet(BOX_POLICY_SHEET));
     }

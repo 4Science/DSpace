@@ -88,7 +88,6 @@ public class CrisLayoutToolValidatorImpl implements CrisLayoutToolValidator {
         validateTab2BoxSheet(workbook, result);
         validateBox2MetadataSheet(allMetadataFields, workbook, result);
         validateMetadataGroupsSheet(allMetadataFields, workbook, result);
-        validateBox2MetricsSheet(workbook, result);
         validateBoxPolicySheet(context, allMetadataFields, workbook, result);
         validateTabPolicySheet(context, allMetadataFields, workbook, result);
 
@@ -310,18 +309,6 @@ public class CrisLayoutToolValidatorImpl implements CrisLayoutToolValidator {
         }
 
         validateRenderingColumn(metadataGroupsSheet, fieldTypeColumn, result);
-
-    }
-
-    private void validateBox2MetricsSheet(Workbook workbook, CrisLayoutToolValidationResult result) {
-
-        Sheet box2MetricsSheet = workbook.getSheet(BOX2METRICS_SHEET);
-        if (box2MetricsSheet == null) {
-            result.addError("The " + BOX2METRICS_SHEET + " sheet is missing");
-            return;
-        }
-
-        validateColumnsPresence(box2MetricsSheet, result, ENTITY_COLUMN, BOX_COLUMN, METRIC_TYPE_COLUMN);
 
     }
 
