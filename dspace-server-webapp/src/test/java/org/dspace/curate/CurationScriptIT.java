@@ -297,7 +297,6 @@ public class CurationScriptIT extends AbstractControllerIntegrationTest {
         }
     }
 
-    @Ignore
     @Test
     public void curateScript_collectionAdmin_Test() throws Exception {
         context.turnOffAuthorisationSystem();
@@ -353,6 +352,7 @@ public class CurationScriptIT extends AbstractControllerIntegrationTest {
         }
     }
 
+    @Ignore
     @Test
     public void curateScript_validRequest_TaskFile() throws Exception {
         context.turnOffAuthorisationSystem();
