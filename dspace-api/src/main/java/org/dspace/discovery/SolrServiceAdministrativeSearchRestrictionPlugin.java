@@ -80,7 +80,7 @@ public class SolrServiceAdministrativeSearchRestrictionPlugin implements SolrSer
     }
 
     private boolean isCommunityCollAdmin(Context context) throws SQLException {
-        return this.authorizeService.isCollectionAdmin(context) || this.authorizeService.isCommunityAdmin(context);
+        return this.authorizeService.isComColAdmin(context);
     }
 
     private boolean isAdmin(Context context) throws SQLException {

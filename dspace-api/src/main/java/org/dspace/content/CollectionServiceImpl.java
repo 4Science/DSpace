@@ -1097,12 +1097,39 @@ public class CollectionServiceImpl extends DSpaceObjectServiceImpl<Collection> i
      *                                   terms. The terms are used to make also a prefix query on SOLR
      *                                   so it can be used to implement an autosuggest feature over the collection name
      * @return                           discovery search result objects
+     * @throws SQLException              if something goes wrong
      * @throws SearchServiceException    if search error
      */
     private DiscoverResult retrieveCollectionsWithSubmit(Context context, DiscoverQuery discoverQuery,
-        String entityType, Community community, String q)
-        throws SearchServiceException {
+                                                         String entityType, Community community, String q)
+        throws SQLException, SearchServiceException {
 
+        StringBuilder query = new StringBuilder();
+        EPerson currentUser = context.getCurrentUser();
+        if (!authorizeService.isAdmin(context)) {
+            String userId = "";
+            if (currentUser != null) {
+                userId = currentUser.getID().toString();
+            }
+            query.append("submit:(e").append(userId);
+
+            Set<Group> groups = groupService.allMemberGroupsSet(context, currentUser);
+            for (Group group : groups) {
+                query.append(" OR g").append(group.getID());
+            }
+            query.append(")");
+            discoverQuery.addFilterQueries(query.toString());
+        }
+        StringBuilder buildFilter = new StringBuilder();
+        if (community != null) {
+            buildFilter.append("location.comm:").append(community.getID().toString());
+        }
+        if (StringUtils.isNotBlank(entityType)) {
+            if (buildFilter.length() > 0) {
+                buildFilter.append(" AND ");
+            }
+            buildFilter.append("search.entitytype:").append(entityType);
+        }
 
         if (Objects.nonNull(community)) {
             discoverQuery.addFilterQueries("location.comm:" + community.getID().toString());
@@ -1111,10 +1138,13 @@ public class CollectionServiceImpl extends DSpaceObjectServiceImpl<Collection> i
             discoverQuery.addFilterQueries("search.entitytype:" + entityType);
         }
         if (StringUtils.isNotBlank(q)) {
-            q = searchService.formatAutoCompleteQuery(q, "dc.title_sort");
-            discoverQuery.setQuery(q);
+            StringBuilder buildQuery = new StringBuilder();
+            String escapedQuery = ClientUtils.escapeQueryChars(q);
+            buildQuery.append("(").append(escapedQuery).append(" OR dc.title_sort:*")
+                      .append(escapedQuery).append("*").append(")");
+            discoverQuery.setQuery(buildQuery.toString());
         }
-        discoverQuery.addRequiredAuthorization(Constants.ADD);
+        discoverQuery.addFilterQueries(buildFilter.toString());
         DiscoverResult resp = searchService.search(context, discoverQuery);
         return resp;
     }
