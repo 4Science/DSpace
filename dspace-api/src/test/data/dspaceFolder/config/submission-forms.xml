@@ -953,21 +953,67 @@ it, please enter the types and the actual numbers or codes.</hint>
      </row>
    </form>
 
-   <form name="onlyTitle">
-     <row>
-       <field>
-         <dc-schema>dc</dc-schema>
-         <dc-element>title</dc-element>
-         <dc-qualifier></dc-qualifier>
-         <repeatable>false</repeatable>
-         <label>Title</label>
-         <input-type>onebox</input-type>
-         <hint>Enter the main title of the item.</hint>
-         <required>You must enter a main title for this item.</required>
-         <!--    <language value-pairs-name="common_iso_languages">true</language> -->
-       </field>
-     </row>
-   </form>
+    <form name="onlyTitle">
+      <row>
+        <field>
+          <dc-schema>dc</dc-schema>
+          <dc-element>title</dc-element>
+          <dc-qualifier></dc-qualifier>
+          <repeatable>false</repeatable>
+          <label>Title</label>
+          <input-type>onebox</input-type>
+          <hint>Enter the main title of the item.</hint>
+          <required>You must enter a main title for this item.</required>
+          <!--    <language value-pairs-name="common_iso_languages">true</language> -->
+        </field>
+      </row>
+    </form>
+
+    <form name="cris-layout-test">
+      <row>
+        <field>
+          <dc-schema>dc</dc-schema>
+          <dc-element>type</dc-element>
+          <label>Event type</label>
+          <input-type value-pairs-name="event_types">dropdown</input-type>
+          <repeatable>false</repeatable>
+          <required />
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>dc</dc-schema>
+          <dc-element>type</dc-element>
+          <dc-qualifier>patent</dc-qualifier>
+          <label>Patent type</label>
+          <input-type value-pairs-name="patent-coar-types">dropdown</input-type>
+          <repeatable>false</repeatable>
+          <required />
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>dc</dc-schema>
+          <dc-element>type</dc-element>
+          <dc-qualifier>product</dc-qualifier>
+          <label>Product type</label>
+          <input-type value-pairs-name="product-coar-types">dropdown</input-type>
+          <repeatable>false</repeatable>
+          <required />
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>dc</dc-schema>
+          <dc-element>type</dc-element>
+          <dc-qualifier>publication</dc-qualifier>
+          <label>Publication type</label>
+          <input-type value-pairs-name="publication-coar-types">dropdown</input-type>
+          <repeatable>false</repeatable>
+          <required />
+        </field>
+      </row>
+    </form>
 
  </form-definitions>
 
@@ -1424,6 +1470,39 @@ it, please enter the types and the actual numbers or codes.</hint>
      <pair>
        <displayed-value>Workshop</displayed-value>
        <stored-value>Workshop</stored-value>
+     </pair>
+   </value-pairs>
+
+   <value-pairs value-pairs-name="patent-coar-types" dc-term="patent-coar-types">
+     <pair>
+       <displayed-value>Invention</displayed-value>
+       <stored-value>Invention</stored-value>
+     </pair>
+     <pair>
+       <displayed-value>Patent</displayed-value>
+       <stored-value>Patent</stored-value>
+     </pair>
+   </value-pairs>
+
+   <value-pairs value-pairs-name="product-coar-types" dc-term="product-coar-types">
+     <pair>
+       <displayed-value>Software</displayed-value>
+       <stored-value>Software</stored-value>
+     </pair>
+     <pair>
+       <displayed-value>Hardware</displayed-value>
+       <stored-value>Hardware</stored-value>
+     </pair>
+   </value-pairs>
+
+   <value-pairs value-pairs-name="publication-coar-types" dc-term="publication-coar-types">
+     <pair>
+       <displayed-value>Article</displayed-value>
+       <stored-value>Article</stored-value>
+     </pair>
+     <pair>
+       <displayed-value>Book</displayed-value>
+       <stored-value>Book</stored-value>
      </pair>
    </value-pairs>
 

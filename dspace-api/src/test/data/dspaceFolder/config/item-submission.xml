@@ -282,6 +282,12 @@
             <type>submission-form</type>
         </step-definition>
 
+        <step-definition id="cris-layout-test" mandatory="true">
+            <heading>submit.progressbar.describe.crislayouttest</heading>
+            <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
+            <type>submission-form</type>
+        </step-definition>
+
     </step-definitions>
 
     <!-- The submission-definitions map lays out the detailed definition of -->
@@ -451,6 +457,10 @@
             <step id="collection" />
             <step id="orgunit" />
             <step id="license" />
+        </submission-process>
+
+        <submission-process name="cris-layout-test-process">
+            <step id="cris-layout-test" />
         </submission-process>
 
     </submission-definitions>
