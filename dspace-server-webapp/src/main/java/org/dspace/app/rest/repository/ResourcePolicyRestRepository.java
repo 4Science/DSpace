@@ -15,7 +15,6 @@ import java.util.UUID;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
-import org.apache.logging.log4j.Logger;
 import org.dspace.app.rest.DiscoverableEndpointsService;
 import org.dspace.app.rest.Parameter;
 import org.dspace.app.rest.SearchRestMethod;
@@ -37,9 +36,6 @@ import org.dspace.content.DSpaceObject;
 import org.dspace.content.service.BitstreamService;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
-import org.dspace.discovery.IndexableObject;
-import org.dspace.discovery.IndexingService;
-import org.dspace.discovery.indexobject.factory.IndexObjectFactoryFactory;
 import org.dspace.eperson.EPerson;
 import org.dspace.eperson.Group;
 import org.dspace.eperson.service.EPersonService;
@@ -93,11 +89,6 @@ public class ResourcePolicyRestRepository extends DSpaceRestRepository<ResourceP
 
     @Autowired
     BitstreamService bitstreamService;
-
-    @Autowired
-    IndexingService indexingService;
-
-    private static final Logger log = org.apache.logging.log4j.LogManager.getLogger(ResourcePolicyRestRepository.class);
 
     @Override
     @PreAuthorize("hasPermission(#id, 'resourcepolicy', 'READ')")
@@ -333,27 +324,7 @@ public class ResourcePolicyRestRepository extends DSpaceRestRepository<ResourceP
                 throw new ResourceNotFoundException(
                     ResourcePolicyRest.CATEGORY + "." + ResourcePolicyRest.NAME + " with id: " + id + " not found");
             }
-            DSpaceObject dso = resourcePolicy.getdSpaceObject();
             resourcePolicyService.delete(context, resourcePolicy);
-
-            // Reindex the DSpaceObject to update Solr permissions after policy deletion
-            if (dso != null) {
-                try {
-                    IndexObjectFactoryFactory indexObjectFactory = IndexObjectFactoryFactory.getInstance();
-                    List<IndexableObject> indexableObjects = indexObjectFactory.getIndexableObjects(context, dso);
-                    if (!indexableObjects.isEmpty()) {
-                        indexingService.indexContent(context, indexableObjects.get(0));
-                    }
-                } catch (IllegalArgumentException e) {
-                    if (log.isDebugEnabled()) {
-                        log.debug(
-                            "Skipping Solr reindex for non-indexable DSpaceObject: {}",
-                            dso.getClass().getName(),
-                            e
-                        );
-                    }
-                }
-            }
 
             if (bitstreamService.isOriginalBitstream(resourcePolicy.getdSpaceObject())) {
                 bitstreamService.updateThumbnailResourcePolicies(context, (Bitstream) resourcePolicy.getdSpaceObject());
