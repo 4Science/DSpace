@@ -90,8 +90,6 @@ public interface SearchService {
     List<Item> getRelatedItems(Context context, Item item,
                                DiscoveryMoreLikeThisConfiguration moreLikeThisConfiguration);
 
-    String createLocationQueryForAdministrableDSOs(String epersonAndGroupClause);
-
     /**
      * Method to create a  Query that includes all
      * communities and collections a user may administrate.
@@ -125,15 +123,6 @@ public interface SearchService {
      * @return query with any special characters escaped
      */
     String escapeQueryChars(String query);
-
-    /**
-     * Utility method to format an autocomplete query over a specific field.
-     *
-     * @param query to search for
-     * @param autocompleteField the field to use to autocomplete search, if null or empty no field is used
-     * @return the constructed solr query
-     */
-    String formatAutoCompleteQuery(String query, String autocompleteField);
 
     FacetYearRange getFacetYearRange(Context context, IndexableObject scope, DiscoverySearchFilterFacet facet,
             List<String> filterQueries, DiscoverQuery parentQuery)

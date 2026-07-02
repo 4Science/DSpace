@@ -208,7 +208,7 @@ public class CollectionRestRepository extends DSpaceObjectRestRepository<Collect
                                               Math.toIntExact(pageable.getPageSize()));
             int tot = cs.countCollectionsWithSubmit(context, q, null, null);
             return converter.toRestPage(collections, pageable, tot, utils.obtainProjection());
-        } catch (SQLException e) {
+        } catch (SQLException | SearchServiceException e) {
             throw new RuntimeException(e.getMessage(), e);
         }
     }
@@ -316,33 +316,14 @@ public class CollectionRestRepository extends DSpaceObjectRestRepository<Collect
     @SearchRestMethod(name = "findAdminAuthorized")
     public Page<CollectionRest> findAdminAuthorized (
         Pageable pageable, @Parameter(value = "query") String query) {
-        return findAuthorized(pageable, Constants.ADMIN, query);
-    }
-
-    /**
-     * Returns Collections for which the current user has 'edit' privileges.
-     *
-     * @param pageable              The pagination information
-     * @param query                 The query used in the lookup
-     * @return
-     */
-    @PreAuthorize("hasAuthority('AUTHENTICATED')")
-    @SearchRestMethod(name = "findEditAuthorized")
-    public Page<CollectionRest> findEditAuthorized (
-        Pageable pageable, @Parameter(value = "query") String query) {
-        return findAuthorized(pageable, Constants.WRITE, query);
-    }
-
-    private Page<CollectionRest> findAuthorized(Pageable pageable, int action, String query) {
         try {
             Context context = obtainContext();
-            List<Collection> collections = authorizeService.findAuthorizedCollectionByAction(context, query,
-                action,
+            List<Collection> collections = authorizeService.findAdminAuthorizedCollection(context, query,
                 Math.toIntExact(pageable.getOffset()),
                 Math.toIntExact(pageable.getPageSize()));
-            long tot = authorizeService.countAuthorizedCollectionByAction(context, query, action);
-            return converter.toRestPage(collections, pageable, tot, utils.obtainProjection());
-        } catch (SearchServiceException e) {
+            long tot = authorizeService.countAdminAuthorizedCollection(context, query);
+            return converter.toRestPage(collections, pageable, tot , utils.obtainProjection());
+        } catch (SearchServiceException | SQLException e) {
             throw new RuntimeException(e.getMessage(), e);
         }
     }
@@ -371,8 +352,8 @@ public class CollectionRestRepository extends DSpaceObjectRestRepository<Collect
                 throw new ResourceNotFoundException("There was no entityType found with label: " + entityTypeLabel);
             }
             List<Collection> collections = cs.findCollectionsWithSubmit(context, query, null, entityTypeLabel,
-                                              Math.toIntExact(pageable.getOffset()),
-                                              Math.toIntExact(pageable.getPageSize()));
+                Math.toIntExact(pageable.getOffset()),
+                Math.toIntExact(pageable.getPageSize()));
             int tot = cs.countCollectionsWithSubmit(context, query, null, entityTypeLabel);
             return converter.toRestPage(collections, pageable, tot, utils.obtainProjection());
         } catch (SQLException e) {
@@ -410,8 +391,8 @@ public class CollectionRestRepository extends DSpaceObjectRestRepository<Collect
                     CommunityRest.CATEGORY + "." + CommunityRest.NAME + " with id: " + communityUuid + " not found");
             }
             List<Collection> collections = cs.findCollectionsWithSubmit(context, query, community, entityTypeLabel,
-                                              Math.toIntExact(pageable.getOffset()),
-                                              Math.toIntExact(pageable.getPageSize()));
+                Math.toIntExact(pageable.getOffset()),
+                Math.toIntExact(pageable.getPageSize()));
             int total = cs.countCollectionsWithSubmit(context, query, community, entityTypeLabel);
             return converter.toRestPage(collections, pageable, total, utils.obtainProjection());
         } catch (SQLException | SearchServiceException e) {

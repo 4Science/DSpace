@@ -45,8 +45,9 @@ public class SolrServicePrivateItemPlugin implements SolrServiceSearchPlugin {
                 solrQuery.addFilterQuery("NOT(discoverable:false)");
                 return;
             }
-            if (!authorizeService.isComColAdmin(context)) {
+            if (!authorizeService.isCommunityAdmin(context) && !authorizeService.isCollectionAdmin(context)) {
                 solrQuery.addFilterQuery("NOT(discoverable:false)");
+
             }
         } catch (SQLException ex) {
             log.error(LogHelper.getHeader(context, "Error looking up authorization rights of current user",
