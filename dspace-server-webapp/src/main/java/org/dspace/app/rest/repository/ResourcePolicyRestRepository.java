@@ -15,6 +15,7 @@ import java.util.UUID;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
+import org.apache.logging.log4j.Logger;
 import org.dspace.app.rest.DiscoverableEndpointsService;
 import org.dspace.app.rest.Parameter;
 import org.dspace.app.rest.SearchRestMethod;
@@ -38,7 +39,6 @@ import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.discovery.IndexableObject;
 import org.dspace.discovery.IndexingService;
-import org.apache.logging.log4j.Logger;
 import org.dspace.discovery.indexobject.factory.IndexObjectFactoryFactory;
 import org.dspace.eperson.EPerson;
 import org.dspace.eperson.Group;
@@ -346,7 +346,11 @@ public class ResourcePolicyRestRepository extends DSpaceRestRepository<ResourceP
                     }
                 } catch (IllegalArgumentException e) {
                     if (log.isDebugEnabled()) {
-                        log.debug("Skipping Solr reindex for non-indexable DSpaceObject: {}", dso.getClass().getName(), e);
+                        log.debug(
+                            "Skipping Solr reindex for non-indexable DSpaceObject: {}",
+                            dso.getClass().getName(),
+                            e
+                        );
                     }
                 }
             }
