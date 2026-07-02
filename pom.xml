@@ -4,34 +4,32 @@
     <groupId>org.dspace</groupId>
     <artifactId>dspace-parent</artifactId>
     <packaging>pom</packaging>
-<version>cris-2025.02.01-SNAPSHOT</version>
+    <version>cris-2025.02.01-SNAPSHOT</version>
     <name>DSpace Parent Project</name>
     <description>
        DSpace-CRIS is an open source extension of DSpace (http://www.dspace.org) providing out of box support for the CRIS / RIMS and moder Institution Repository use cases with advanced features and optimized configurations
     </description>
     <url>https://github.com/4Science/DSpace</url>
-
     <organization>
         <name>4Science</name>
         <url>https://www.4science.it</url>
     </organization>
-
     <properties>
         <!--=== GENERAL / DSPACE-API DEPENDENCIES ===-->
         <java.version>21</java.version>
         <spring.version>6.2.18</spring.version>
         <spring-ldap.version>3.3.7</spring-ldap.version>
         <spring-boot.version>3.5.14</spring-boot.version>
-        <spring-security.version>6.5.10</spring-security.version> <!-- sync with version used by spring-boot-->
+        <spring-security.version>6.5.10</spring-security.version>
+        <!-- sync with version used by spring-boot-->
         <hibernate.version>6.4.10.Final</hibernate.version>
         <hibernate-validator.version>8.0.3.Final</hibernate-validator.version>
         <postgresql.driver.version>42.7.11</postgresql.driver.version>
         <flyway.version>10.22.0</flyway.version>
         <solr.client.version>8.11.4</solr.client.version>
-
         <ehcache.version>3.12.0</ehcache.version>
         <errorprone.version>2.42.0</errorprone.version>
-<!-- NOTE: when updating jackson.version, also sync jackson-annotations.version below -->
+        <!-- NOTE: when updating jackson.version, also sync jackson-annotations.version below -->
         <jackson.version>2.21.3</jackson.version>
         <jackson-annotations.version>2.21</jackson-annotations.version>
         <jakarta-annotation.version>2.1.1</jakarta-annotation.version>
@@ -45,7 +43,7 @@
         <rome.version>1.19.0</rome.version>
         <!-- SLF4J is not used, but specified for dependency convergence issues between many dependencies -->
         <slf4j.version>2.0.17</slf4j.version>
-<tika.version>3.3.0</tika.version>
+        <tika.version>3.3.0</tika.version>
         <picocli.version>4.7.6</picocli.version>
         <!-- Sync BouncyCastle & ASM with whatever version Tika uses -->
         <!-- WARNING: BouncyCastle is also required by the maven-gpg-plugin to sign code during release. Do not update
@@ -61,18 +59,15 @@
              (used by Server webapp) -->
         <nimbus-jose-jwt.version>9.48</nimbus-jose-jwt.version>
         <json-smart.version>2.5.2</json-smart.version>
-
         <!--=== OTHER MODULE-SPECIFIC DEPENDENCIES ===-->
         <!-- Jena is used by both RDF and SWORDv2 -->
         <jena.version>4.10.0</jena.version>
         <!-- JClouds is used by dspace-api -->
         <jclouds.version>2.7.0</jclouds.version>
-
         <s3mock-testcontainers.version>4.11.0</s3mock-testcontainers.version>
         <testcontainers.version>2.0.3</testcontainers.version>
         <software.amazon.awssdk.version>2.32.31</software.amazon.awssdk.version>
         <software.amazon.awssdk.crt.version>0.38.12</software.amazon.awssdk.crt.version>
-
         <!--=== ADDON DEPENDENCIES ===-->
         <addons.version>[cris-2025.02.01-SNAPSHOT,cris-2025.02.01.9999-SNAPSHOT)</addons.version>
         <addon-iiif.version>${addons.version}</addon-iiif.version>
@@ -85,11 +80,9 @@
         <addon-loginmiur.version>${addons.version}</addon-loginmiur.version>
         <addon-importplus.version>${addons.version}</addon-importplus.version>
         <addon-video.version>${addons.version}</addon-video.version>
-
         <!--=== MAVEN SETTINGS ===-->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>${project.build.sourceEncoding}</project.reporting.outputEncoding>
-
         <!--=== TEST SETTINGS (CUSTOM) ===-->
         <!-- By default skip running all tests.
              NOTE: Tests are always built, because we have modules that depend on common test infrastructure.
@@ -99,12 +92,10 @@
         -->
         <skipUnitTests>true</skipUnitTests>
         <skipIntegrationTests>true</skipIntegrationTests>
-
         <!-- 'root.basedir' is the path to the root [dspace-src] dir. It must be redefined by each child POM,
                      as it is used to reference the LICENSE.header and *.properties file(s) in that directory. -->
         <root.basedir>${basedir}</root.basedir>
     </properties>
-
     <build>
         <!-- Define Maven Plugin Settings that should be inherited to ALL submodule POMs.
              (NOTE: individual POMs can override specific settings). -->
@@ -141,7 +132,7 @@
                             </goals>
                             <configuration>
                                 <rules>
-                                    <DependencyConvergence />
+                                    <DependencyConvergence/>
                                 </rules>
                             </configuration>
                         </execution>
@@ -176,7 +167,7 @@
                             </goals>
                             <configuration>
                                 <rules>
-                                    <requirePluginVersions />
+                                    <requirePluginVersions/>
                                 </rules>
                             </configuration>
                         </execution>
@@ -289,7 +280,7 @@
                         <excludes>
                             <exclude>**/Abstract*</exclude>
                         </excludes>
-                         <!-- Detailed logs in failsafe-reports/testName-output.txt instead of stdout -->
+                        <!-- Detailed logs in failsafe-reports/testName-output.txt instead of stdout -->
                         <redirectTestOutputToFile>true</redirectTestOutputToFile>
                         <!-- Ensure full stacktrace is logged (when errors occur) -->
                         <trimStackTrace>false</trimStackTrace>
@@ -421,10 +412,10 @@
                     <configuration>
                         <!-- Never fail a build based on Javadoc errors -->
                         <failOnError>false</failOnError>
-                        <detectLinks />
+                        <detectLinks/>
                         <links>
-                          <link>https://docs.spring.io/spring-framework/docs/current/javadoc-api/</link>
-                          <link>https://docs.spring.io/spring-security/site/docs/current/api/</link>
+                            <link>https://docs.spring.io/spring-framework/docs/current/javadoc-api/</link>
+                            <link>https://docs.spring.io/spring-security/site/docs/current/api/</link>
                         </links>
                     </configuration>
                 </plugin>
@@ -453,7 +444,7 @@
                     <artifactId>jacoco-maven-plugin</artifactId>
                     <version>0.8.14</version>
                 </plugin>
-<!-- Freeze versions of the remaining compiler plugins for reproducible builds -->
+                <!-- Freeze versions of the remaining compiler plugins for reproducible builds -->
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-install-plugin</artifactId>
@@ -471,7 +462,6 @@
                 </plugin>
             </plugins>
         </pluginManagement>
-
         <!-- These plugin settings only apply to this single POM and are not inherited
             to any submodules. -->
         <plugins>
@@ -540,7 +530,6 @@
                     </execution>
                 </executions>
             </plugin>
-
             <!-- Validate all XML formatted files in the project (including submodules) -->
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
@@ -575,13 +564,11 @@
                     </validationSets>
                 </configuration>
             </plugin>
-
             <!-- Enforce our version of Java, Maven, dependencies, etc. -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-enforcer-plugin</artifactId>
             </plugin>
-
             <!-- Enforce our code style via CheckStyle (see settings above) -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -589,7 +576,6 @@
             </plugin>
         </plugins>
     </build>
-
     <profiles>
         <profile>
             <id>pipeline</id>
@@ -646,8 +632,7 @@
                 </plugins>
             </build>
         </profile>
-
-      <!-- Profile which sets our default system properties for all Unit/Integration tests.
+        <!-- Profile which sets our default system properties for all Unit/Integration tests.
            By default, this sets UTF-8 encoding for all tests and gives tests 1GB of memory max.
            Both m-surefire-p and m-failsafe-p are unable to use MAVEN_OPTS because they fork a new JVM for testing.
            These default settings may be overridden via the commandline (e.g. "-Dtest.argLine=-Xmx512m"). -->
@@ -662,7 +647,6 @@
                 <test.argLine>-Xmx1024m -Dfile.encoding=UTF-8</test.argLine>
             </properties>
         </profile>
-
         <!-- This profile ensures that we generate the Unit Test Environment, whenever the testEnvironment.xml
              file is found. This allows us to run Unit & Integration tests separately for CI, etc. -->
         <profile>
@@ -703,7 +687,6 @@
                 </plugins>
             </build>
         </profile>
-
         <!-- Measure test coverage of Unit Tests using JaCoCo (when -DskipUnitTests=false) -->
         <profile>
             <id>measure-unit-test-coverage</id>
@@ -745,7 +728,6 @@
                 </plugins>
             </build>
         </profile>
-
         <!-- Measure test coverage of Integration Tests using JaCoCo (when -DskipIntegrationTests=false) -->
         <profile>
             <id>measure-integration-test-coverage</id>
@@ -788,7 +770,6 @@
                 </plugins>
             </build>
         </profile>
-
         <!--
              Generate a list of all THIRD PARTY open source licenses for all DSpace dependencies.
              This list is automatically written to the [src]/LICENSES_THIRD_PARTY file.
@@ -896,14 +877,12 @@
                 </plugins>
             </build>
         </profile>
-
         <!--
            These profiles activate the inclusion of various modules into
            the DSpace Build process. They activate automatically if the
            source module is in the local file system, correctly located
            relative to this file.
         -->
-
         <!--
            Builds DSpace "Assembly & Configuration" project
         -->
@@ -918,7 +897,6 @@
                 <module>dspace</module>
             </modules>
         </profile>
-
         <!--
            Builds central API for DSpace
         -->
@@ -933,7 +911,6 @@
                 <module>dspace-api</module>
             </modules>
         </profile>
-
         <!--
            Builds Services for DSpace
         -->
@@ -948,7 +925,6 @@
                 <module>dspace-services</module>
             </modules>
         </profile>
-
         <!--
            Builds XOAI Gateway extension for DSpace
         -->
@@ -963,7 +939,6 @@
                 <module>dspace-oai</module>
             </modules>
         </profile>
-
         <!--
              Builds RDF API and Data Provider extension for DSpace
         -->
@@ -978,7 +953,6 @@
                 <module>dspace-rdf</module>
             </modules>
         </profile>
-
         <!--
             Builds IIIF extension for DSpace
         -->
@@ -993,7 +967,6 @@
                 <module>dspace-iiif</module>
             </modules>
         </profile>
-
         <!--
      Builds SAML 2 extension for DSpace
 -->
@@ -1008,7 +981,6 @@
                 <module>dspace-saml2</module>
             </modules>
         </profile>
-
         <!--
             Builds IIIF addon for DSpace
         -->
@@ -1020,15 +992,14 @@
             <dependencyManagement>
                 <dependencies>
                     <dependency>
-                         <groupId>it.4science.dspace</groupId>
-                         <artifactId>addon-iiif-api</artifactId>
-                         <version>${addon-iiif.version}</version>
-                         <type>jar</type>
+                        <groupId>it.4science.dspace</groupId>
+                        <artifactId>addon-iiif-api</artifactId>
+                        <version>${addon-iiif.version}</version>
+                        <type>jar</type>
                     </dependency>
                 </dependencies>
             </dependencyManagement>
         </profile>
-
         <!--
             Builds OCR addon for DSpace
         -->
@@ -1037,22 +1008,21 @@
             <activation>
                 <activeByDefault>false</activeByDefault>
             </activation>
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>org.apache.xmlgraphics</groupId>
-                <artifactId>batik-codec</artifactId>
-                <version>1.19</version>
-            </dependency>
-            <dependency>
-                <groupId>org.dspace</groupId>
-                <artifactId>dspace-api</artifactId>
-                <version>${project.version}</version>
-            </dependency>
+            <dependencyManagement>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.apache.xmlgraphics</groupId>
+                        <artifactId>batik-codec</artifactId>
+                        <version>1.19</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>org.dspace</groupId>
+                        <artifactId>dspace-api</artifactId>
+                        <version>${project.version}</version>
+                    </dependency>
                 </dependencies>
             </dependencyManagement>
         </profile>
-
         <!--
             Builds Document Viewer addon for DSpace
         -->
@@ -1064,15 +1034,14 @@
             <dependencyManagement>
                 <dependencies>
                     <dependency>
-                         <groupId>it.4science.dspace</groupId>
-                         <artifactId>addon-docviewer-api</artifactId>
-                         <version>${addon-docviewer.version}</version>
-                         <type>jar</type>
+                        <groupId>it.4science.dspace</groupId>
+                        <artifactId>addon-docviewer-api</artifactId>
+                        <version>${addon-docviewer.version}</version>
+                        <type>jar</type>
                     </dependency>
                 </dependencies>
             </dependencyManagement>
         </profile>
-
         <!--
             Builds Analytics addon for DSpace
         -->
@@ -1084,15 +1053,14 @@
             <dependencyManagement>
                 <dependencies>
                     <dependency>
-                         <groupId>it.4science.dspace</groupId>
-                         <artifactId>addon-analytics-api</artifactId>
-                         <version>${addon-analytics.version}</version>
-                         <type>jar</type>
+                        <groupId>it.4science.dspace</groupId>
+                        <artifactId>addon-analytics-api</artifactId>
+                        <version>${addon-analytics.version}</version>
+                        <type>jar</type>
                     </dependency>
                 </dependencies>
             </dependencyManagement>
         </profile>
-
         <!--
             Builds loginmiur addon for DSpace
         -->
@@ -1104,15 +1072,14 @@
             <dependencyManagement>
                 <dependencies>
                     <dependency>
-                         <groupId>it.4science.dspace</groupId>
-                         <artifactId>addon-loginmiur-api</artifactId>
-                         <version>${addon-loginmiur.version}</version>
-                         <type>jar</type>
+                        <groupId>it.4science.dspace</groupId>
+                        <artifactId>addon-loginmiur-api</artifactId>
+                        <version>${addon-loginmiur.version}</version>
+                        <type>jar</type>
                     </dependency>
                 </dependencies>
             </dependencyManagement>
         </profile>
-
         <!--
             Builds Data Quality addon for DSpace
         -->
@@ -1124,15 +1091,14 @@
             <dependencyManagement>
                 <dependencies>
                     <dependency>
-                         <groupId>it.4science.dspace</groupId>
-                         <artifactId>addon-dataquality</artifactId>
-                         <version>${addon-dataquality.version}</version>
-                         <type>jar</type>
+                        <groupId>it.4science.dspace</groupId>
+                        <artifactId>addon-dataquality</artifactId>
+                        <version>${addon-dataquality.version}</version>
+                        <type>jar</type>
                     </dependency>
                 </dependencies>
             </dependencyManagement>
         </profile>
-
         <profile>
             <id>addon-networklab</id>
             <activation>
@@ -1163,7 +1129,6 @@
                 </dependencies>
             </dependencyManagement>
         </profile>
-
         <!-- Builds Orchestrator addon for DSpace -->
         <profile>
             <id>addon-orchestrator</id>
@@ -1172,33 +1137,31 @@
             </activation>
             <dependencyManagement>
                 <dependencies>
-            <dependency>
-                 <groupId>it.4science.dspace</groupId>
-                 <artifactId>addon-ocr-api</artifactId>
-                 <version>${addon-ocr.version}</version>
-                 <type>jar</type>
-            </dependency>
-        </dependencies>
+                    <dependency>
+                        <groupId>it.4science.dspace</groupId>
+                        <artifactId>addon-ocr-api</artifactId>
+                        <version>${addon-ocr.version}</version>
+                        <type>jar</type>
+                    </dependency>
+                </dependencies>
             </dependencyManagement>
         </profile>
-
         <profile>
-          <id>addon-importplus</id>
-          <activation>
-            <activeByDefault>false</activeByDefault>
-          </activation>
-          <dependencyManagement>
-            <dependencies>
-              <dependency>
-                <groupId>it.4science.dspace</groupId>
-                <artifactId>addon-importplus</artifactId>
-                <version>${addon-importplus.version}</version>
-                <type>jar</type>
-              </dependency>
-            </dependencies>
-          </dependencyManagement>
+            <id>addon-importplus</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            <dependencyManagement>
+                <dependencies>
+                    <dependency>
+                        <groupId>it.4science.dspace</groupId>
+                        <artifactId>addon-importplus</artifactId>
+                        <version>${addon-importplus.version}</version>
+                        <type>jar</type>
+                    </dependency>
+                </dependencies>
+            </dependencyManagement>
         </profile>
-
         <!--
            Builds SWORD extension for DSpace
         -->
@@ -1213,7 +1176,6 @@
                 <module>dspace-sword</module>
             </modules>
         </profile>
-
         <!--
            Builds SWORDv2 extension for DSpace
         -->
@@ -1228,7 +1190,6 @@
                 <module>dspace-swordv2</module>
             </modules>
         </profile>
-
         <!--
            Builds Server API webapp for DSpace
         -->
@@ -1243,7 +1204,6 @@
                 <module>dspace-server-webapp</module>
             </modules>
         </profile>
-
         <!--
          The 'release' profile is used by the 'maven-release-plugin' (see above)
          to actually perform a DSpace software release to Maven Central.
@@ -1325,7 +1285,6 @@
             </build>
         </profile>
     </profiles>
-
     <!--
       Dependency management provides a means to control which
       versions of dependency jars are used for compilation
@@ -1454,7 +1413,6 @@
                 <classifier>classes</classifier>
                 <version>cris-2025.02.01-SNAPSHOT</version>
             </dependency>
-
             <dependency>
                 <groupId>org.dspace</groupId>
                 <artifactId>dspace-sword</artifactId>
@@ -1508,46 +1466,38 @@
                 <artifactId>dspace-api-lang</artifactId>
                 <version>[9.0.0,10.0.0)</version>
             </dependency>
-
             <!-- DSpace third Party Dependencies -->
-
             <dependency>
                 <groupId>org.postgresql</groupId>
                 <artifactId>postgresql</artifactId>
                 <version>${postgresql.driver.version}</version>
             </dependency>
-
             <dependency>
                 <groupId>org.hibernate.orm</groupId>
                 <artifactId>hibernate-core</artifactId>
                 <version>${hibernate.version}</version>
             </dependency>
-
             <dependency>
                 <groupId>org.hibernate.orm</groupId>
                 <artifactId>hibernate-jpamodelgen</artifactId>
                 <version>${hibernate.version}</version>
             </dependency>
-
             <dependency>
                 <groupId>org.hibernate.orm</groupId>
                 <artifactId>hibernate-jcache</artifactId>
                 <version>${hibernate.version}</version>
             </dependency>
-
             <dependency>
                 <groupId>javax.cache</groupId>
                 <artifactId>cache-api</artifactId>
                 <version>${jcache-version}</version>
             </dependency>
-
             <dependency>
                 <groupId>org.hibernate.validator</groupId>
                 <artifactId>hibernate-validator</artifactId>
                 <!-- This artifact doesn't track the main Hibernate version. -->
                 <version>${hibernate-validator.version}</version>
             </dependency>
-
             <!-- Different Hibernate components introduce different (conflicting)
                  versions of jboss-logging. We specify it here to avoid dependency
                  convergence issues, and the version here is pinned to the version
@@ -1564,14 +1514,12 @@
                 <artifactId>jboss-logging</artifactId>
                 <version>3.5.0.Final</version>
             </dependency>
-
             <!-- Hibernate & Solr disagree on the version of antlr. So, specify the latest version -->
             <dependency>
                 <groupId>org.antlr</groupId>
                 <artifactId>antlr4-runtime</artifactId>
                 <version>4.13.2</version>
             </dependency>
-
             <!-- Rome is used for RSS / ATOM syndication feeds -->
             <dependency>
                 <groupId>com.rometools</groupId>
@@ -1588,13 +1536,11 @@
                 <artifactId>rome-utils</artifactId>
                 <version>${rome.version}</version>
             </dependency>
-
             <dependency>
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-orm</artifactId>
                 <version>${spring.version}</version>
             </dependency>
-
             <!-- Explicitly Specify Latest Version of Spring -->
             <dependency>
                 <artifactId>spring-core</artifactId>
@@ -1609,31 +1555,26 @@
                     </exclusion>
                 </exclusions>
             </dependency>
-
             <dependency>
                 <artifactId>spring-beans</artifactId>
                 <groupId>org.springframework</groupId>
                 <version>${spring.version}</version>
             </dependency>
-
             <dependency>
                 <artifactId>spring-aop</artifactId>
                 <groupId>org.springframework</groupId>
                 <version>${spring.version}</version>
             </dependency>
-
             <dependency>
                 <artifactId>spring-context</artifactId>
                 <groupId>org.springframework</groupId>
                 <version>${spring.version}</version>
             </dependency>
-
             <dependency>
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-context-support</artifactId>
                 <version>${spring.version}</version>
             </dependency>
-
             <dependency>
                 <groupId>org.springframework.ldap</groupId>
                 <artifactId>spring-ldap-core</artifactId>
@@ -1652,44 +1593,37 @@
                     </exclusion>
                 </exclusions>
             </dependency>
-
             <dependency>
                 <artifactId>spring-tx</artifactId>
                 <groupId>org.springframework</groupId>
                 <version>${spring.version}</version>
             </dependency>
-
             <dependency>
                 <artifactId>spring-jdbc</artifactId>
                 <groupId>org.springframework</groupId>
                 <version>${spring.version}</version>
             </dependency>
-
             <dependency>
                 <artifactId>spring-web</artifactId>
                 <groupId>org.springframework</groupId>
                 <version>${spring.version}</version>
             </dependency>
-
             <dependency>
                 <artifactId>spring-webmvc</artifactId>
                 <groupId>org.springframework</groupId>
                 <version>${spring.version}</version>
             </dependency>
-
             <dependency>
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-expression</artifactId>
                 <version>${spring.version}</version>
             </dependency>
-
             <dependency>
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-test</artifactId>
                 <version>${spring.version}</version>
                 <scope>test</scope>
             </dependency>
-
             <dependency>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-starter-test</artifactId>
@@ -1730,7 +1664,6 @@
                 <artifactId>spring-security-web</artifactId>
                 <version>${spring-security.version}</version>
             </dependency>
-
             <dependency>
                 <groupId>org.apache.solr</groupId>
                 <artifactId>solr-solrj</artifactId>
@@ -1741,7 +1674,6 @@
                 <artifactId>lucene-core</artifactId>
                 <version>${solr.client.version}</version>
             </dependency>
-
             <!-- Tika is used to extract full text from documents in order to index in Solr -->
             <dependency>
                 <groupId>org.apache.tika</groupId>
@@ -1816,7 +1748,6 @@
                 <artifactId>asm-tree</artifactId>
                 <version>${asm.version}</version>
             </dependency>
-
             <!-- Several dependencies disagree on version of GSON including Jena, Google-OAuth-Client
                  and OpenAIRE Broker-Client -->
             <dependency>
@@ -1824,7 +1755,6 @@
                 <artifactId>gson</artifactId>
                 <version>2.14.0</version>
             </dependency>
-
             <!-- Reminder: Keep icu4j (in Parent POM) synced with version used by lucene-analyzers-icu below,
              otherwise ICUFoldingFilterFactory may throw errors in tests.  -->
             <dependency>
@@ -1845,8 +1775,6 @@
                 <version>${solr.client.version}</version>
                 <scope>test</scope>
             </dependency>
-
-
             <dependency>
                 <groupId>org.apache.ant</groupId>
                 <artifactId>ant</artifactId>
@@ -1993,13 +1921,11 @@
                 <version>${jetty.version}</version>
                 <scope>runtime</scope>
             </dependency>
-
             <dependency>
                 <groupId>org.dspace</groupId>
                 <artifactId>mets</artifactId>
                 <version>1.5.2</version>
             </dependency>
-
             <!-- Required by Commons Configuration -->
             <dependency>
                 <groupId>commons-beanutils</groupId>
@@ -2109,7 +2035,6 @@
                 <artifactId>jakarta.servlet-api</artifactId>
                 <version>6.1.0</version>
             </dependency>
-
             <!-- Jaxen is needed by xoai and sword2-server, but they disagree on the versions -->
             <dependency>
                 <groupId>jaxen</groupId>
@@ -2121,7 +2046,6 @@
                 <artifactId>jdom2</artifactId>
                 <version>2.0.6.1</version>
             </dependency>
-
             <dependency>
                 <groupId>org.apache.logging.log4j</groupId>
                 <artifactId>log4j-api</artifactId>
@@ -2144,7 +2068,6 @@
                 <version>${log4j.version}</version>
                 <scope>runtime</scope>
             </dependency>
-
             <dependency>
                 <groupId>org.apache.pdfbox</groupId>
                 <artifactId>pdfbox</artifactId>
@@ -2167,7 +2090,6 @@
                 <artifactId>xml-apis</artifactId>
                 <version>1.4.01</version>
             </dependency>
-
             <!-- Keep icu4j synced with version used by lucene-analyzers-icu (Solr) -->
             <dependency>
                 <groupId>com.ibm.icu</groupId>
@@ -2257,7 +2179,6 @@
                 <version>4.12.0</version>
                 <scope>test</scope>
             </dependency>
-
             <!-- Findbugs annotations -->
             <dependency>
                 <groupId>com.google.code.findbugs</groupId>
@@ -2271,7 +2192,6 @@
                 <version>3.0.1u2</version>
                 <scope>provided</scope>
             </dependency>
-
             <!-- Converge miscellaneous transitive dependencies. -->
             <dependency>
                 <groupId>com.fasterxml</groupId>
@@ -2310,7 +2230,6 @@
                     </exclusion>
                 </exclusions>
             </dependency>
-
             <dependency>
                 <groupId>xom</groupId>
                 <artifactId>xom</artifactId>
@@ -2322,7 +2241,6 @@
                     </exclusion>
                 </exclusions>
             </dependency>
-
             <!-- json-path is needed by Spring HATEOAS -->
             <dependency>
                 <groupId>com.jayway.jsonpath</groupId>
@@ -2336,7 +2254,6 @@
                 <version>${json-path.version}</version>
                 <scope>test</scope>
             </dependency>
-
             <!-- JAXB API and implementation (no longer bundled as of Java 11) -->
             <dependency>
                 <groupId>jakarta.xml.bind</groupId>
@@ -2388,7 +2305,6 @@
             </dependency>
         </dependencies>
     </dependencyManagement>
-
     <licenses>
         <license>
             <name>DSpace-CRIS BSD License</name>
@@ -2399,12 +2315,10 @@
             </comments>
         </license>
     </licenses>
-
     <issueManagement>
         <system>GitHub</system>
         <url>https://github.com/4Science/DSpace/issues</url>
     </issueManagement>
-
     <mailingLists>
         <mailingList>
             <name>DSpace Technical Users List</name>
@@ -2458,40 +2372,35 @@
             </archive>
         </mailingList>
     </mailingLists>
-
     <developers>
         <developer>
-           <name>DSpace Committers</name>
-           <email>dspace-devel@googlegroups.com</email>
-           <url>https://wiki.lyrasis.org/display/DSPACE/DSpace+Committers</url>
-           <roles>
-             <role>committer</role>
-           </roles>
+            <name>DSpace Committers</name>
+            <email>dspace-devel@googlegroups.com</email>
+            <url>https://wiki.lyrasis.org/display/DSPACE/DSpace+Committers</url>
+            <roles>
+                <role>committer</role>
+            </roles>
         </developer>
     </developers>
-
     <contributors>
         <contributor>
-           <name>DSpace Contributors</name>
-           <email>dspace-tech@googlegroups.com</email>
-           <url>https://wiki.lyrasis.org/display/DSPACE/DSpaceContributors</url>
-           <roles>
-             <role>developer</role>
-           </roles>
+            <name>DSpace Contributors</name>
+            <email>dspace-tech@googlegroups.com</email>
+            <url>https://wiki.lyrasis.org/display/DSPACE/DSpaceContributors</url>
+            <roles>
+                <role>developer</role>
+            </roles>
         </contributor>
     </contributors>
-
     <!--
       Information about the SCM repository where source code exists.
     -->
     <scm>
-<connection>scm:git:git@github.com:4Science/DSpace.git</connection>
+        <connection>scm:git:git@github.com:4Science/DSpace.git</connection>
         <developerConnection>scm:git:git@github.com:4Science/DSpace.git</developerConnection>
         <url>https://github.com:4Science/DSpace</url>
         <tag>dspace-cris-2024.02.02</tag>
     </scm>
-
-
     <!-- Configure our release repositories to use Sonatype.
          See: http://central.sonatype.org/pages/apache-maven.html -->
     <distributionManagement>
@@ -2510,7 +2419,6 @@
             <url>https://wiki.duraspace.org/display/DSPACECRIS/DSpace-CRIS+Home</url>
         </site>
     </distributionManagement>
-
     <repositories>
         <!-- Check Maven Central first (before other repos below) -->
         <repository>

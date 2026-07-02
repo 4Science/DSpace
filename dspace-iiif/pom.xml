@@ -6,7 +6,6 @@
     <description>
         DSpace IIIF Extension
     </description>
-
     <!--
       A Parent POM that Maven inherits DSpace Default
       POM attributes from.
@@ -14,25 +13,21 @@
     <parent>
         <groupId>org.dspace</groupId>
         <artifactId>dspace-parent</artifactId>
-<version>cris-2025.02.01-SNAPSHOT</version>
+        <version>cris-2025.02.01-SNAPSHOT</version>
         <relativePath>..</relativePath>
     </parent>
-
     <properties>
         <!-- This is the path to the root [dspace-src] directory. -->
         <root.basedir>${basedir}/..</root.basedir>
         <!-- Default resource delimiter for Spring Boot, so it doesn't clash with Spring ${} placeholders-->
         <resource.delimiter>@</resource.delimiter>
     </properties>
-
     <dependencies>
-
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-api</artifactId>
             <version>${log4j.version}</version>
         </dependency>
-
         <!-- Needed to support Spring @Configuration classes (to register servlets/beans with Spring Boot webapp) -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -45,7 +40,6 @@
                 </exclusion>
             </exclusions>
         </dependency>
-
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
@@ -105,8 +99,6 @@
                 </exclusion>
             </exclusions>
         </dependency>
-
-
         <!-- iiif models. -->
         <dependency>
             <groupId>de.digitalcollections.iiif</groupId>
@@ -139,14 +131,10 @@
                 </exclusion>
             </exclusions>
         </dependency>
-
         <!-- Internal -->
         <dependency>
             <groupId>org.dspace</groupId>
             <artifactId>dspace-api</artifactId>
         </dependency>
-
-
     </dependencies>
-
 </project>

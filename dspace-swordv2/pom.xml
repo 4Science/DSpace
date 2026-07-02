@@ -4,7 +4,6 @@
     <packaging>jar</packaging>
     <name>DSpace SWORD v2</name>
     <description>DSpace SWORD v2 Deposit Service Provider Extension</description>
-
     <!--
        A Parent POM that Maven inherits DSpace Default
        POM attributes from.
@@ -12,22 +11,19 @@
     <parent>
         <groupId>org.dspace</groupId>
         <artifactId>dspace-parent</artifactId>
-<version>cris-2025.02.01-SNAPSHOT</version>
+        <version>cris-2025.02.01-SNAPSHOT</version>
         <relativePath>..</relativePath>
     </parent>
-
     <properties>
         <!-- This is the path to the root [dspace-src] directory. -->
         <root.basedir>${basedir}/..</root.basedir>
     </properties>
-
     <dependencies>
         <dependency>
             <groupId>jakarta.servlet</groupId>
             <artifactId>jakarta.servlet-api</artifactId>
             <scope>provided</scope>
         </dependency>
-
         <!-- SWORDv2 Java implementation -->
         <dependency>
             <groupId>io.gdcc</groupId>
@@ -65,13 +61,11 @@
                 </exclusion>
             </exclusions>
         </dependency>
-
         <!-- DSpace Java API -->
         <dependency>
             <groupId>org.dspace</groupId>
             <artifactId>dspace-api</artifactId>
         </dependency>
-
         <!-- Needed to support Spring @Configuration classes (to register servlets/beans with Spring Boot webapp) -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -84,12 +78,10 @@
                 </exclusion>
             </exclusions>
         </dependency>
-
         <!-- Log4j -->
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-api</artifactId>
         </dependency>
     </dependencies>
-
 </project>
