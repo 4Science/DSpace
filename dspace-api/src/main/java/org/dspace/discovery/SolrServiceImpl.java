@@ -612,6 +612,56 @@ public class SolrServiceImpl implements SearchService, IndexingService {
     }
 
     @Override
+    public String formatAutoCompleteQuery(String query, String autocompleteField) {
+        if (StringUtils.isNotBlank(query)) {
+            StringBuilder buildQuery = new StringBuilder();
+            String escapedQuery = escapeQueryChars(query);
+            buildQuery.append("(").append(escapedQuery).append(" OR ").append(autocompleteField).append(":*")
+                .append(escapedQuery).append("*").append(")");
+            return buildQuery.toString();
+        }
+        return query;
+    }
+
+    @Override
+    public String createLocationQueryForAdministrableDSOs(String epersonAndGroupClause) {
+        StringBuilder locationQuery = new StringBuilder();
+        try {
+            SolrQuery solrQuery = new SolrQuery();
+            String query = "*:*";
+            solrQuery.setQuery(query);
+            solrQuery.addField(SearchUtils.RESOURCE_ID_FIELD);
+            solrQuery.addField(SearchUtils.RESOURCE_TYPE_FIELD);
+            solrQuery.addFilterQuery("(" + SearchUtils.RESOURCE_TYPE_FIELD + ":" + IndexableCommunity.TYPE + " OR "
+                + SearchUtils.RESOURCE_TYPE_FIELD + ":" + IndexableCollection.TYPE + ")");
+            solrQuery.addFilterQuery("admin:(" + epersonAndGroupClause + ")");
+            solrQuery.setRows(Integer.MAX_VALUE);
+            QueryResponse solrQueryResponse = solrSearchCore.getSolr().query(solrQuery,
+                solrSearchCore.REQUEST_METHOD);
+            if (solrQueryResponse != null) {
+                List<String> containerUUIDs = new ArrayList<>();
+                for (SolrDocument doc : solrQueryResponse.getResults()) {
+                    String type = (String) doc.getFieldValue(SearchUtils.RESOURCE_TYPE_FIELD);
+                    String uniqueID = (String) doc.getFieldValue(SearchUtils.RESOURCE_ID_FIELD);
+                    if (IndexableCommunity.TYPE.equals(type)) {
+                        containerUUIDs.add("m" + uniqueID);
+                    } else if (IndexableCollection.TYPE.equals(type)) {
+                        containerUUIDs.add("l" + uniqueID);
+                    }
+                }
+                if (!containerUUIDs.isEmpty()) {
+                    locationQuery.append("location:(");
+                    locationQuery.append(String.join(" OR ", containerUUIDs));
+                    locationQuery.append(")");
+                }
+            }
+        } catch (Exception e) {
+            log.error("Unable to retrieve list of administrable DSOs from SOLR: " + e.getMessage(), e);
+        }
+        return locationQuery.toString();
+    }
+
+    @Override
     public String createLocationQueryForAdministrableItems(Context context)
         throws SQLException {
         StringBuilder locationQuery = new StringBuilder();

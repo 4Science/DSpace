@@ -107,6 +107,25 @@ public interface SearchService {
     String createLocationQueryForAdministrableItems(Context context) throws SQLException;
 
     /**
+     * Retrieves from Solr the list of administrable communities and collections for the
+     * current user based on a clause containing the e-person and group IDs.
+     * Builds and returns the "location" query part for these DSO's.
+     *
+     * @param epersonAndGroupClause A Solr filter clause containing one or more IDs, e.g. "eUUID OR gUUID"
+     * @return An empty string if no administrable DSO exists, or a string "location:(mUUID OR lUUID ...)"
+     */
+    String createLocationQueryForAdministrableDSOs(String epersonAndGroupClause);
+
+    /**
+     * Utility method to format an autocomplete query over a specific field.
+     *
+     * @param query to search for
+     * @param autocompleteField the field to use to autocomplete search, if null or empty no field is used
+     * @return the constructed solr query
+     */
+    String formatAutoCompleteQuery(String query, String autocompleteField);
+
+    /**
      * Transforms the metadata field of the given sort configuration into the indexed field which we can then use in
      * our Solr queries.
      *

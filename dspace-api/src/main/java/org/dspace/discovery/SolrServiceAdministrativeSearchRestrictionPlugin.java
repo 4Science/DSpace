@@ -8,9 +8,6 @@
 package org.dspace.discovery;
 
 import java.sql.SQLException;
-import java.util.Objects;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.Logger;
@@ -36,6 +33,8 @@ public class SolrServiceAdministrativeSearchRestrictionPlugin implements SolrSer
     protected AuthorizeService authorizeService;
     @Autowired
     protected GroupService groupService;
+    @Autowired
+    protected SearchService searchService;
 
     private static boolean isAdministrativeConfiguration(DiscoverQuery discoveryQuery) {
         return discoveryQuery != null &&
@@ -63,17 +62,33 @@ public class SolrServiceAdministrativeSearchRestrictionPlugin implements SolrSer
             }
 
             // Applies filter query to restrict search results to only those that are administrate by the current user
-            solrQuery.addFilterQuery(
-                Stream.concat(
-                          groupService.allMemberGroupsSet(context, context.getCurrentUser())
-                                      .stream()
-                                      .map(group -> "g" + group.getID()),
-                          Stream.of(context.getCurrentUser())
-                                .filter(Objects::nonNull)
-                                .map(eperson -> String.valueOf(eperson.getID()))
-                      )
-                      .collect(Collectors.joining(" OR ", "admin:(", ")"))
-            );
+            StringBuilder epersonAndGroupClause = new StringBuilder();
+            groupService.allMemberGroupsSet(context, context.getCurrentUser())
+                        .stream()
+                        .map(group -> "g" + group.getID())
+                        .forEach(clause -> {
+                            if (!epersonAndGroupClause.isEmpty()) {
+                                epersonAndGroupClause.append(" OR ");
+                            }
+                            epersonAndGroupClause.append(clause);
+                        });
+            if (context.getCurrentUser() != null) {
+                if (!epersonAndGroupClause.isEmpty()) {
+                    epersonAndGroupClause.append(" OR ");
+                }
+                epersonAndGroupClause.append("e").append(context.getCurrentUser().getID());
+            }
+
+            solrQuery.addFilterQuery("admin:(" + epersonAndGroupClause + ")");
+
+            // Add location-based fallback for items under administered communities/collections
+            // Items no longer have admin:gXXX indexed after removing hierarchy walking,
+            // so they need to match via the location field
+            String adminLocations = searchService
+                .createLocationQueryForAdministrableDSOs(epersonAndGroupClause.toString());
+            if (StringUtils.isNotBlank(adminLocations)) {
+                solrQuery.addFilterQuery(adminLocations);
+            }
         } catch (SQLException e) {
             log.error(LogHelper.getHeader(context, "Error while adding resource policy information to query", ""), e);
         }

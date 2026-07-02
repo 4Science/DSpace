@@ -323,7 +323,7 @@ public class CollectionRestRepository extends DSpaceObjectRestRepository<Collect
                 Math.toIntExact(pageable.getPageSize()));
             long tot = authorizeService.countAdminAuthorizedCollection(context, query);
             return converter.toRestPage(collections, pageable, tot , utils.obtainProjection());
-        } catch (SearchServiceException | SQLException e) {
+        } catch (SearchServiceException e) {
             throw new RuntimeException(e.getMessage(), e);
         }
     }

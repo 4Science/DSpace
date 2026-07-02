@@ -18,9 +18,6 @@ import org.dspace.authorize.ResourcePolicyOwnerVO;
 import org.dspace.content.Collection;
 import org.dspace.content.Community;
 import org.dspace.content.DSpaceObject;
-import org.dspace.content.Item;
-import org.dspace.content.Relationship;
-import org.dspace.content.RelationshipType;
 import org.dspace.core.Context;
 import org.dspace.discovery.SearchServiceException;
 import org.dspace.eperson.EPerson;
@@ -316,27 +313,19 @@ public interface AuthorizeService {
     public List<ResourcePolicy> getPoliciesActionFilter(Context c, DSpaceObject o, int actionID) throws SQLException;
 
     /**
-     * Return a list of date valid policy owners for a list of object that match the
-     * action.
-     *
-     * @param  c            context
-     * @param  dsoIds       DSpaceObject ids policies relate to
-     * @param  actionID     action (defined in class Constants)
-     * @return              list of resource policies
-     * @throws SQLException if there's a database problem
+     * Returns valid (non-expired) policy owner IDs for the given DSOs and action
+     * using a single batch HQL query. CRIS optimization.
      */
-    public List<ResourcePolicyOwnerVO> getValidPolicyOwnersActionFilter(Context c, List<UUID> dsoIds, int actionID)
-        throws SQLException;
+    List<ResourcePolicyOwnerVO> getValidPolicyOwnersActionFilter(Context c, List<UUID> dsoIds, int actionID) throws SQLException;
 
     /**
-     * Return a list of policies for an object that match the action except the
-     * record labeled with the rpType
+     * Return a list of policies for an object that match the action except the record labeled with the rpType
      *
-     * @param  c            context
-     * @param  o            DSpaceObject policies relate to
-     * @param  actionID     action (defined in class Constants)
-     * @param  rpType       the resource policy type
-     * @return              list of resource policies
+     * @param c        context
+     * @param o        DSpaceObject policies relate to
+     * @param actionID action (defined in class Constants)
+     * @param rpType   the resource policy type
+     * @return list of resource policies
      * @throws SQLException if there's a database problem
      */
     public List<ResourcePolicy> getPoliciesActionFilterExceptRpType(Context c, DSpaceObject o, int actionID,
@@ -580,6 +569,20 @@ public interface AuthorizeService {
         throws SearchServiceException, SQLException;
 
     /**
+     *  Finds communities for which the logged in user has the rights specified by the action parameter.
+     *
+     * @param context   the context whose user is checked against
+     * @param query     the optional extra query
+     * @param action    the action to check for
+     * @param offset    the offset for pagination
+     * @param limit     the amount of dso's to return
+     * @return          a list of communities for which the logged in user has the rights specified by the action
+     * @throws SearchServiceException
+     */
+    List<Community> findAuthorizedCommunityByAction(Context context, String query, int action, int offset, int limit)
+        throws SearchServiceException, SQLException;
+
+    /**
      * Counts communities for which the current user is admin, AND which match the query.
      *
      * @param context   context with the current user
@@ -592,6 +595,18 @@ public interface AuthorizeService {
         throws SearchServiceException, SQLException;
 
     /**
+     * Counts communities for which the current user has the rights specified by the action parameter.
+     *
+     * @param context   context with the current user
+     * @param query     the query for which to filter the results more
+     * @param action    the action to check for
+     * @return          the matching communities
+     * @throws SearchServiceException
+     */
+    long countAuthorizedCommunityByAction(Context context, String query, int action)
+        throws SearchServiceException;
+
+    /**
      * Finds collections for which the current user is admin, AND which match the query.
      *
      * @param context   context with the current user
@@ -600,10 +615,24 @@ public interface AuthorizeService {
      * @param limit     used for pagination of the results
      * @return          the matching collections
      * @throws SearchServiceException
-     * @throws SQLException
      */
     List<Collection> findAdminAuthorizedCollection(Context context, String query, int offset, int limit)
-        throws SearchServiceException, SQLException;
+        throws SearchServiceException;
+
+    /**
+     * Finds collections for which the current user has the rights specified by the action parameter.
+     *
+     * @param context   context with the current user
+     * @param query     the query for which to filter the results more
+     * @param action    the action to check for
+     * @param offset    used for pagination of the results
+     * @param limit     used for pagination of the results
+     * @return          the matching collections
+     * @throws SearchServiceException
+     */
+    List<Collection> findAuthorizedCollectionByAction(Context context, String query, int action, int offset,
+                                                      int limit)
+        throws SearchServiceException;
 
     /**
      * Counts collections for which the current user is admin, AND which match the query.
@@ -615,31 +644,19 @@ public interface AuthorizeService {
      * @throws SQLException
      */
     long countAdminAuthorizedCollection(Context context, String query)
-        throws SearchServiceException, SQLException;
+        throws SearchServiceException;
 
     /**
-     * Check if the current user is authorized to create/edit/delete a relationship
-     * of the given type between the leftItem and the rigthItem.
+     * Counts collections for which the current user has the rights specified by the action parameter.
      *
-     * @param  context          The DSpace context
-     * @param  relationshipType the type of the relationship to be checked
-     * @param  leftItem         the left item of the relationship
-     * @param  rightItem        the right item of the relationship
-     * @return                  true if the current user can create/edit or delete
-     *                          the relationship, false otherwise
+     * @param context   context with the current user
+     * @param query     the query for which to filter the results more
+     * @param action   the action to check for
+     * @return          the number of matching collections
+     * @throws SearchServiceException
      */
-    boolean canHandleRelationship(Context context, RelationshipType relationshipType, Item leftItem, Item rightItem);
-
-    /**
-     * Check if the current user is authorized to create/edit/delete the given
-     * relationship.
-     *
-     * @param  context      The DSpace context
-     * @param  relationship the type of the relationship to be created
-     * @return              true if the current user can create/edit or delete the
-     *                      relationship, false otherwise
-     */
-    boolean canHandleRelationship(Context context, Relationship relationship);
+    long countAuthorizedCollectionByAction(Context context, String query, int action)
+        throws SearchServiceException;
 
     /**
      * Returns true if the current user can manage accounts.

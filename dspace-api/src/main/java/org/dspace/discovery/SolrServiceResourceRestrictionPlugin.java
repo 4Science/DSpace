@@ -8,10 +8,9 @@
 package org.dspace.discovery;
 
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 import java.util.UUID;
+import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.Logger;
@@ -20,13 +19,7 @@ import org.apache.solr.common.SolrInputDocument;
 import org.dspace.authorize.ResourcePolicyOwnerVO;
 import org.dspace.authorize.service.AuthorizeService;
 import org.dspace.authorize.service.ResourcePolicyService;
-import org.dspace.content.Collection;
-import org.dspace.content.Community;
 import org.dspace.content.DSpaceObject;
-import org.dspace.content.Item;
-import org.dspace.content.factory.ContentServiceFactory;
-import org.dspace.content.service.CollectionService;
-import org.dspace.content.service.CommunityService;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.core.LogHelper;
@@ -37,12 +30,12 @@ import org.dspace.discovery.indexobject.IndexablePoolTask;
 import org.dspace.eperson.EPerson;
 import org.dspace.eperson.Group;
 import org.dspace.eperson.service.GroupService;
-import org.dspace.services.factory.DSpaceServicesFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * Restriction plugin that ensures that indexes all the resource policies.
- * When a search is performed extra filter queries are added to retrieve only results to which the user has READ access
+ * When a search is performed extra filter queries are added to retrieve only results to which the user has the
+ * required authorization.
  *
  * @author Kevin Van de Velde (kevin at atmire dot com)
  * @author Mark Diggory (markd at atmire dot com)
@@ -56,13 +49,11 @@ public class SolrServiceResourceRestrictionPlugin implements SolrServiceIndexPlu
     @Autowired(required = true)
     protected AuthorizeService authorizeService;
     @Autowired(required = true)
-    protected CommunityService communityService;
-    @Autowired(required = true)
-    protected CollectionService collectionService;
-    @Autowired(required = true)
     protected GroupService groupService;
     @Autowired(required = true)
     protected ResourcePolicyService resourcePolicyService;
+    @Autowired
+    protected SearchService searchService;
 
     @Override
     @SuppressWarnings("rawtypes")
@@ -74,40 +65,26 @@ public class SolrServiceResourceRestrictionPlugin implements SolrServiceIndexPlu
         }
 
         try {
+            // Index read, submit, edit and admin permissions — only DIRECT policies, no hierarchy walking
+            int[] actionsToIndex = new int[] { Constants.READ, Constants.WRITE, Constants.ADD, Constants.ADMIN };
 
-            List<ResourcePolicyOwnerVO> policies = authorizeService
-                .getValidPolicyOwnersActionFilter(context, List.of(dso.getID()), Constants.READ);
-
-            for (ResourcePolicyOwnerVO resourcePolicy : policies) {
-                addReadField(document, resourcePolicy, false);
-            }
-
-            // also index ADMIN policies as ADMIN permissions provides READ access
-            // going up through the hierarchy for communities, collections and items
-
-            List<UUID> dsoIds = new ArrayList<>();
-
-            while (dso != null) {
-                if (dso instanceof Community || dso instanceof Collection || dso instanceof Item) {
-                    dsoIds.add(dso.getID());
+            for (int action : actionsToIndex) {
+                String indexedActionName = getIndexedActionName(action);
+                List<ResourcePolicyOwnerVO> policies = authorizeService
+                    .getValidPolicyOwnersActionFilter(context, List.of(dso.getID()), action);
+                for (ResourcePolicyOwnerVO resourcePolicy : policies) {
+                    String fieldValue;
+                    if (resourcePolicy.getGroupId() != null) {
+                        fieldValue = "g" + resourcePolicy.getGroupId();
+                    } else {
+                        fieldValue = "e" + resourcePolicy.getEPersonId();
+                    }
+                    document.addField(indexedActionName, fieldValue);
                 }
-                dso = ContentServiceFactory.getInstance().getDSpaceObjectService(dso).getParentObject(context, dso);
             }
-
-            if (!dsoIds.isEmpty()) {
-
-                List<ResourcePolicyOwnerVO> policiesAdmin = authorizeService
-                    .getValidPolicyOwnersActionFilter(context, dsoIds, Constants.ADMIN);
-
-                for (ResourcePolicyOwnerVO resourcePolicy : policiesAdmin) {
-                    addReadField(document, resourcePolicy, true);
-                }
-
-            }
-
-        } catch (SQLException e) {
+        } catch (Exception e) {
             log.error(LogHelper.getHeader(context, "Error while indexing resource policies",
-                "DSpace object: (id " + dso.getID() + " type " + dso.getType() + ")"));
+                                           "DSpace object: (id " + dso.getID() + " type " + dso.getType() + ")"));
         }
 
     }
@@ -116,36 +93,66 @@ public class SolrServiceResourceRestrictionPlugin implements SolrServiceIndexPlu
     public void additionalSearchParameters(Context context, DiscoverQuery discoveryQuery, SolrQuery solrQuery) {
         try {
             if (!authorizeService.isAdmin(context)) {
-                StringBuilder resourceQuery = new StringBuilder();
-                //Always add the anonymous group id to the query
-                Group anonymousGroup = groupService.findByName(context, Group.ANONYMOUS);
-                String anonGroupId = "";
-                if (anonymousGroup != null) {
-                    anonGroupId = anonymousGroup.getID().toString();
-                }
-                resourceQuery.append("read:(g" + anonGroupId);
-                EPerson currentUser = context.getCurrentUser();
-                if (currentUser != null) {
-                    resourceQuery.append(" OR e").append(currentUser.getID());
-                }
 
+                EPerson currentUser = context.getCurrentUser();
+                StringBuilder epersonAndGroupClause = new StringBuilder();
+                if (currentUser != null) {
+                    epersonAndGroupClause.append("e").append(currentUser.getID());
+                }
                 //Retrieve all the groups the current user is a member of !
                 Set<Group> groups = groupService.allMemberGroupsSet(context, currentUser);
                 for (Group group : groups) {
-                    resourceQuery.append(" OR g").append(group.getID());
+                    if (!epersonAndGroupClause.isEmpty()) {
+                        epersonAndGroupClause.append(" OR g").append(group.getID());
+                    } else {
+                        epersonAndGroupClause.append("g").append(group.getID());
+                    }
                 }
 
-                resourceQuery.append(")");
+                StringBuilder resourceQuery = new StringBuilder();
 
-                String locations = DSpaceServicesFactory.getInstance()
-                                                          .getServiceManager()
-                                                          .getServiceByName(SearchService.class.getName(),
-                                                                            SearchService.class)
-                                                          .createLocationQueryForAdministrableItems(context);
+                List<Integer> actions  = discoveryQuery.getRequiredAuthorizations();
+                /*
+                 * The `actions` list specifies the permissions required beyond the default "read" permission.
+                 * It should not include "read" because checking for "read" is always implicit.
+                 *
+                 * The query is constructed as follows:
+                 * - If no actions are provided, it checks only for "read" or "admin" permissions.
+                 * - If "admin" is in the `actions` list, it checks only for admin permissions.
+                 * - Otherwise, it checks for both "read" and the other specified actions.
+                 *
+                 * The resulting query follows this structure: (read AND action) OR admin.
+                 */
+                if (actions.isEmpty()) {
+                    // If no actions are included, we only check for read permissions
+                    resourceQuery.append("(read:(").append(epersonAndGroupClause).append("))").append( " OR ")
+                        .append("admin:(").append(epersonAndGroupClause).append(")");
+                } else if (actions.contains(Constants.ADMIN)) {
+                    // If the actions array contains the admin action, we only check for admin permissions
+                    resourceQuery.append("admin:(").append(epersonAndGroupClause).append(")");
+                } else {
+                    // If the actions array contains other actions, we check for read permissions and the actions passed
+                    resourceQuery.append("(read:(").append(epersonAndGroupClause).append(")");
+                    for (int action : actions) {
+                        String actionName = getIndexedActionName(action);
+                        resourceQuery.append(" AND ").append(actionName).append(":(").append(epersonAndGroupClause)
+                            .append(")");
+                    }
+                    resourceQuery.append(")");
+                    resourceQuery.append(" OR ").append("admin:(")
+                        .append(epersonAndGroupClause).append(")");
+                }
 
-                if (StringUtils.isNotBlank(locations)) {
-                    resourceQuery.append(" OR ");
-                    resourceQuery.append(locations);
+                // Add to the query the locations the user has administrative rights on to cover the cases of
+                // inherited permissions only if the inherit authorizations flag is enabled
+                if (discoveryQuery.isInheritAuthorizationsEnabled()) {
+                    String locations = searchService
+                        .createLocationQueryForAdministrableDSOs(epersonAndGroupClause.toString());
+
+                    if (StringUtils.isNotBlank(locations)) {
+                        resourceQuery.append(" OR ");
+                        resourceQuery.append(locations);
+                    }
                 }
 
                 if (discoveryQuery.isIncludeNotDiscoverableOrWithdrawn()) {
@@ -157,6 +164,28 @@ public class SolrServiceResourceRestrictionPlugin implements SolrServiceIndexPlu
             }
         } catch (SQLException e) {
             log.error(LogHelper.getHeader(context, "Error while adding resource policy information to query", ""), e);
+        }
+    }
+
+    /**
+     * Get the action name used for solr indexing for the given action id
+     *
+     * @param action action id
+     * @return solr action name used for indexing
+     */
+    private String getIndexedActionName(int action) {
+
+        switch (action) {
+            case Constants.READ:
+                return "read";
+            case Constants.WRITE:
+                return "edit";
+            case Constants.ADD:
+                return "submit";
+            case Constants.ADMIN:
+                return "admin";
+            default:
+                return Constants.actionText[action].toLowerCase();
         }
     }
 
@@ -174,22 +203,5 @@ public class SolrServiceResourceRestrictionPlugin implements SolrServiceIndexPlu
         }
 
         return null;
-    }
-
-    private void addReadField(SolrInputDocument document, ResourcePolicyOwnerVO resourcePolicy, boolean addAdminField) {
-
-        String fieldValue;
-        if (resourcePolicy.getGroupId() != null) {
-            // We have a group add it to the value
-            fieldValue = "g" + resourcePolicy.getGroupId();
-        } else {
-            // We have an eperson add it to the value
-            fieldValue = "e" + resourcePolicy.getEPersonId();
-        }
-
-        document.addField("read", fieldValue);
-        if (addAdminField) {
-            document.addField("admin", fieldValue);
-        }
     }
 }
