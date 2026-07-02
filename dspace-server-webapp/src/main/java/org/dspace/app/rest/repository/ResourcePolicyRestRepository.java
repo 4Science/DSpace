@@ -38,6 +38,7 @@ import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.discovery.IndexableObject;
 import org.dspace.discovery.IndexingService;
+import org.apache.logging.log4j.Logger;
 import org.dspace.discovery.indexobject.factory.IndexObjectFactoryFactory;
 import org.dspace.eperson.EPerson;
 import org.dspace.eperson.Group;
@@ -95,6 +96,8 @@ public class ResourcePolicyRestRepository extends DSpaceRestRepository<ResourceP
 
     @Autowired
     IndexingService indexingService;
+
+    private static final Logger log = org.apache.logging.log4j.LogManager.getLogger(ResourcePolicyRestRepository.class);
 
     @Override
     @PreAuthorize("hasPermission(#id, 'resourcepolicy', 'READ')")
@@ -335,10 +338,16 @@ public class ResourcePolicyRestRepository extends DSpaceRestRepository<ResourceP
 
             // Reindex the DSpaceObject to update Solr permissions after policy deletion
             if (dso != null) {
-                IndexObjectFactoryFactory indexObjectFactory = IndexObjectFactoryFactory.getInstance();
-                List<IndexableObject> indexableObjects = indexObjectFactory.getIndexableObjects(context, dso);
-                if (!indexableObjects.isEmpty()) {
-                    indexingService.indexContent(context, indexableObjects.get(0));
+                try {
+                    IndexObjectFactoryFactory indexObjectFactory = IndexObjectFactoryFactory.getInstance();
+                    List<IndexableObject> indexableObjects = indexObjectFactory.getIndexableObjects(context, dso);
+                    if (!indexableObjects.isEmpty()) {
+                        indexingService.indexContent(context, indexableObjects.get(0));
+                    }
+                } catch (IllegalArgumentException e) {
+                    if (log.isDebugEnabled()) {
+                        log.debug("Skipping Solr reindex for non-indexable DSpaceObject: {}", dso.getClass().getName(), e);
+                    }
                 }
             }
 
