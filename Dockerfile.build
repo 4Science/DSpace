@@ -44,6 +44,6 @@ RUN install -g dspace -o dspace -m 664 /dev/null $DATA_FOLDER/local.cfg && \
 
 WORKDIR $DSPACE_INSTALL
 USER dspace
-ENV JAVA_TOOL_OPTIONS="-XX:MinRAMPercentage=20.0 -XX:MaxRAMPercentage=75.0 -XX:+HeapDumpOnOutOfMemoryError -XX:+UseG1GC"
+ENV JAVA_TOOL_OPTIONS="-XX:MinRAMPercentage=20.0 -XX:MaxRAMPercentage=75.0 -XX:+HeapDumpOnOutOfMemoryError -XX:+UseSerialGC -XX:TieredStopAtLevel=1"
 ENTRYPOINT ["java", "-XX:+PrintVMOptions", "-jar", "server-boot.jar", \
     "--dspace.dir=${DSPACE_INSTALL}", "--logging.config=${DSPACE_INSTALL}/config/log4j2-eks.xml"]
