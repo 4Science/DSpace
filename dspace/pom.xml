@@ -298,18 +298,18 @@
             <scope>runtime</scope>
         </dependency>
 
-    	<!-- This dependency ensures DSpace OAI JAR is added to [dspace]/lib/,
+        <!-- This dependency ensures DSpace OAI JAR is added to [dspace]/lib/,
              so that the 'dspace oai' launcher.xml command works.  -->
-    	<dependency>
+        <dependency>
             <groupId>org.dspace</groupId>
             <artifactId>dspace-oai</artifactId>
-    	</dependency>
+        </dependency>
 
         <!-- The Servlet API is also needed by the 'dspace oai' launcher.xml
              command. -->
-    	<dependency>
+        <dependency>
             <groupId>jakarta.servlet</groupId>
             <artifactId>jakarta.servlet-api</artifactId>
-    	</dependency>
+        </dependency>
     </dependencies>
 </project>

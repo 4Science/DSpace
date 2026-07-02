@@ -992,27 +992,27 @@
 
 
         <dependency>
-	        <groupId>de.undercouch</groupId>
-	        <artifactId>citeproc-java</artifactId>
-	        <version>3.3.0</version>
-	        <exclusions>
-	            <exclusion>
-	               <groupId>org.apache.commons</groupId>
-	               <artifactId>commons-lang3</artifactId>
-	            </exclusion>
-	            <exclusion>
-	               <groupId>org.jbibtex</groupId>
-	               <artifactId>jbibtex</artifactId>
-	            </exclusion>
-	            <exclusion>
-	               <groupId>org.antlr</groupId>
-	               <artifactId>antlr4-runtime</artifactId>
-	            </exclusion>
+            <groupId>de.undercouch</groupId>
+            <artifactId>citeproc-java</artifactId>
+            <version>3.3.0</version>
+            <exclusions>
+                <exclusion>
+                   <groupId>org.apache.commons</groupId>
+                   <artifactId>commons-lang3</artifactId>
+                </exclusion>
+                <exclusion>
+                   <groupId>org.jbibtex</groupId>
+                   <artifactId>jbibtex</artifactId>
+                </exclusion>
+                <exclusion>
+                   <groupId>org.antlr</groupId>
+                   <artifactId>antlr4-runtime</artifactId>
+                </exclusion>
                 <exclusion>
                     <groupId>org.ow2.asm</groupId>
                     <artifactId>asm-util</artifactId>
                 </exclusion>
-         	</exclusions>
+             </exclusions>
       </dependency>
         <dependency>
             <groupId>org.citationstyles</groupId>

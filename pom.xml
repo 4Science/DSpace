@@ -7,7 +7,7 @@
 <version>cris-2025.02.01-SNAPSHOT</version>
     <name>DSpace Parent Project</name>
     <description>
-   	DSpace-CRIS is an open source extension of DSpace (http://www.dspace.org) providing out of box support for the CRIS / RIMS and moder Institution Repository use cases with advanced features and optimized configurations
+       DSpace-CRIS is an open source extension of DSpace (http://www.dspace.org) providing out of box support for the CRIS / RIMS and moder Institution Repository use cases with advanced features and optimized configurations
     </description>
     <url>https://github.com/4Science/DSpace</url>
 
@@ -1232,7 +1232,7 @@
         <!--
            Builds Server API webapp for DSpace
         -->
-		<profile>
+        <profile>
             <id>dspace-server-webapp</id>
             <activation>
                 <file>
