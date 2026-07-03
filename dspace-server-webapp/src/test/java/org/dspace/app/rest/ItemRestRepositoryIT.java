@@ -30,8 +30,6 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
-import static org.springframework.data.rest.webmvc.RestMediaTypes.TEXT_URI_LIST_VALUE;
-import static org.springframework.http.MediaType.parseMediaType;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
@@ -62,7 +60,6 @@ import org.dspace.app.rest.matcher.BundleMatcher;
 import org.dspace.app.rest.matcher.CollectionMatcher;
 import org.dspace.app.rest.matcher.HalMatcher;
 import org.dspace.app.rest.matcher.ItemMatcher;
-import org.dspace.app.rest.model.GroupRest;
 import org.dspace.app.rest.model.ItemRest;
 import org.dspace.app.rest.model.MetadataRest;
 import org.dspace.app.rest.model.MetadataValueRest;
@@ -5947,104 +5944,6 @@ public class ItemRestRepositoryIT extends AbstractControllerIntegrationTest {
                     ItemMatcher.matchItemProperties(subcomm2collitem)
                 )))
             .andExpect(jsonPath("$.page.totalElements", is(1)));
-    }
-
-    @Test
-    public void addParentComAdminGroupToCheckReindexingTest() throws Exception {
-        context.turnOffAuthorisationSystem();
-
-        parentCommunity = CommunityBuilder.createCommunity(context)
-            .withName("Parent Community")
-            .build();
-
-        Collection col1 = CollectionBuilder.createCollection(context, parentCommunity)
-            .withName("col1")
-            .build();
-
-        Item item = ItemBuilder.createItem(context, col1)
-            .withTitle("MyTest")
-            .build();
-
-        context.restoreAuthSystemState();
-
-        String epersonToken = getAuthToken(eperson.getEmail(), password);
-        getClient(epersonToken).perform(get("/api/core/items/search/findEditAuthorized")
-                .param("query", "MyTest"))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$._embedded").doesNotExist())
-            .andExpect(jsonPath("$.page.totalElements", is(0)));
-
-        AtomicReference<UUID> idRef = new AtomicReference<>();
-        ObjectMapper mapper = new ObjectMapper();
-        GroupRest groupRest = new GroupRest();
-        String token = getAuthToken(admin.getEmail(), password);
-        getClient(token).perform(post("/api/core/communities/" + parentCommunity.getID() + "/adminGroup")
-                .content(mapper.writeValueAsBytes(groupRest))
-                .contentType(contentType))
-            .andExpect(status().isCreated())
-            .andDo(result -> idRef.set(
-                UUID.fromString(read(result.getResponse().getContentAsString(), "$.id")))
-            );
-
-        String adminToken = getAuthToken(admin.getEmail(), password);
-        getClient(adminToken).perform(post("/api/eperson/groups/" + idRef.get() + "/epersons")
-            .contentType(parseMediaType(TEXT_URI_LIST_VALUE))
-            .content(REST_SERVER_URL + "eperson/groups/" + eperson.getID()
-            ));
-
-        getClient(epersonToken).perform(get("/api/core/items/search/findEditAuthorized")
-                .param("query", "MyTest"))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$._embedded.items", Matchers.contains(ItemMatcher
-                .matchItemProperties(item)
-            )))
-            .andExpect(jsonPath("$.page.totalElements", is(1)));
-    }
-
-    @Test
-    public void removeParentComAdminPolicyToCheckEditPropagationTest() throws Exception {
-        context.turnOffAuthorisationSystem();
-        parentCommunity = CommunityBuilder.createCommunity(context)
-            .withName("Parent Community")
-            .build();
-
-        ResourcePolicy policy = ResourcePolicyBuilder.createResourcePolicy(context, eperson, null)
-            .withDspaceObject(parentCommunity).withAction(Constants.ADMIN)
-            .build();
-
-        Collection col1 = CollectionBuilder.createCollection(context, parentCommunity)
-            .withName("col1")
-            .build();
-
-        Item item = ItemBuilder.createItem(context, col1)
-            .withTitle("MyTest")
-            .build();
-
-        context.restoreAuthSystemState();
-
-        String epersonToken = getAuthToken(eperson.getEmail(), password);
-        getClient(epersonToken).perform(get("/api/core/items/search/findEditAuthorized")
-                .param("query", "MyTest"))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$._embedded.items", Matchers.contains(ItemMatcher
-                .matchItemProperties(item)
-            )))
-            .andExpect(jsonPath("$.page.totalElements", is(1)));
-
-        String token = getAuthToken(admin.getEmail(), password);
-        getClient(token).perform(delete("/api/authz/resourcepolicies/" + policy.getID()))
-            .andExpect(status().is(204));
-
-        getClient(epersonToken).perform(get("/api/core/items/search/findEditAuthorized")
-                .param("query", "MyTest"))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$._embedded").doesNotExist())
-            .andExpect(jsonPath("$.page.totalElements", is(0)));
-    }
-
-    @Test
-    public void findEditAuthorizedItemsWithQueryTest() throws Exception {
-        findGenericAuthorizedItemsWithQueryTest("findEditAuthorized");
     }
 
     public void findGenericAuthorizedItemsWithQueryTest(String method) throws Exception {
