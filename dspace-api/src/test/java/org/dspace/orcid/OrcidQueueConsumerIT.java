@@ -30,6 +30,7 @@ import static org.hamcrest.Matchers.is;
 
 import java.sql.SQLException;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
@@ -64,7 +65,6 @@ import org.dspace.services.factory.DSpaceServicesFactory;
 import org.dspace.utils.DSpace;
 import org.dspace.versioning.Version;
 import org.dspace.versioning.service.VersioningService;
-import java.time.LocalDate;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
