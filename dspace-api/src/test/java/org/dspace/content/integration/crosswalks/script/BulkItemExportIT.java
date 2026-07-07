@@ -549,6 +549,58 @@ public class BulkItemExportIT extends AbstractIntegrationTestWithDatabase {
     }
 
     @Test
+    public void testBulkItemExportChicagoWithMissingMetadata() throws Exception {
+
+        context.turnOffAuthorisationSystem();
+        Collection anotherCollection = createCollection(context, community)
+            .withAdminGroup(eperson).build();
+
+        // Create an archived Publication item with JUST entityType — no title, author,
+        // date, or URI
+        Item itemNoMetadata = ItemBuilder.createItem(context, collection)
+            .withEntityType("Publication")
+            .build();
+
+        // Create a workspace Publication item with no metadata
+        WorkspaceItem workspaceItem = WorkspaceItemBuilder
+            .createWorkspaceItem(context, anotherCollection)
+            .withEntityType("Publication")
+            .build();
+
+        // Create a workflow Publication item with no metadata
+        WorkflowItem workflowItem = WorkflowItemBuilder
+            .createWorkflowItem(context, anotherCollection)
+            .withEntityType("Publication")
+            .build();
+
+        context.restoreAuthSystemState();
+        context.commit();
+
+        String items = itemNoMetadata.getID().toString() + ";"
+            + workspaceItem.getItem().getID().toString() + ";"
+            + workflowItem.getItem().getID().toString();
+
+        String[] args = new String[] { "bulk-item-export", "-si", items, "-f", "publication-chicago",
+            "-e", eperson.getEmail() };
+
+        TestDSpaceRunnableHandler handler = new TestDSpaceRunnableHandler();
+        File txt = new File("publications.txt");
+        txt.deleteOnExit();
+
+        handleScript(args, ScriptLauncher.getConfig(kernelImpl), handler, kernelImpl, null);
+
+        assertThat("No errors should occur when exporting items with missing metadata",
+            handler.getErrorMessages(), empty());
+        assertThat("The output file should be created", txt.exists(), is(true));
+
+        try (FileInputStream fis = new FileInputStream(txt)) {
+            String content = IOUtils.toString(fis, Charset.defaultCharset());
+            assertThat("Output should contain a row for the archived item with n.d.",
+                content, containsString("n.d."));
+        }
+    }
+
+    @Test
     public void testBulkItemExportLimited() throws Exception {
 
         context.turnOffAuthorisationSystem();
