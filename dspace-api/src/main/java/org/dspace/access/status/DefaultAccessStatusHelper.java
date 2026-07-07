@@ -78,6 +78,10 @@ public class DefaultAccessStatusHelper implements AccessStatusHelper {
         if (item == null) {
             return new AccessStatus(UNKNOWN, null);
         }
+        AccessStatus itemAccessStatus = calculateAccessStatusForDso(context, item, threshold);
+        if (itemAccessStatus.getStatus().equals(RESTRICTED)) {
+            return new AccessStatus(RESTRICTED, null);
+        }
         Bitstream bitstream = getPrimaryOrFirstBitstreamInOriginalBundle(item);
         if (bitstream == null) {
             return new AccessStatus(METADATA_ONLY, null);
@@ -192,7 +196,7 @@ public class DefaultAccessStatusHelper implements AccessStatusHelper {
         List<ResourcePolicy> policies = resourcePolicyService.find(context, dso, Constants.READ);
         // Only calculate the embargo date for the current user
         EPerson currentUser = context.getCurrentUser();
-        List<ResourcePolicy> readPolicies = new ArrayList<ResourcePolicy>();
+        List<ResourcePolicy> readPolicies = new ArrayList<>();
         for (ResourcePolicy policy : policies) {
             EPerson eperson = policy.getEPerson();
             if (eperson != null && currentUser != null && eperson.getID() == currentUser.getID()) {
@@ -305,4 +309,66 @@ public class DefaultAccessStatusHelper implements AccessStatusHelper {
         }
         return EMBARGO;
     }
+
+    /**
+     * Look at the DSpace object's policies to determine an access status value.
+     *
+     * If the object is null, returns the "metadata.only" value.
+     * If any policy attached to the object is valid for the anonymous group,
+     * returns the "open.access" value.
+     * Otherwise, if the policy start date is before the embargo threshold date,
+     * returns the "embargo" value.
+     * Every other cases return the "restricted" value.
+     *
+     * @param context     the DSpace context
+     * @param dso         the DSpace object
+     * @param threshold   the embargo threshold date
+     * @return an access status value
+     */
+    private AccessStatus calculateAccessStatusForDso(Context context, DSpaceObject dso, LocalDate threshold)
+            throws SQLException {
+        if (dso == null) {
+            return new AccessStatus(METADATA_ONLY, null);
+        }
+        // Only consider read policies.
+        List<ResourcePolicy> policies = authorizeService.getPoliciesActionFilter(context, dso, Constants.READ);
+        int embargoCount = 0;
+        int openAccessCount = 0;
+        int restrictedCount = 0;
+        // Looks at all read policies.
+        for (ResourcePolicy policy : policies) {
+            boolean isValid = resourcePolicyService.isDateValid(policy);
+            Group group = policy.getGroup();
+            // The group must not be null here. However,
+            // if it is, consider this as an unexpected case.
+            if (StringUtils.equals(group.getName(), Group.ANONYMOUS)) {
+                // Only calculate the status for the anonymous group.
+                if (isValid) {
+                    // If the policy is valid, the anonymous group have access
+                    // to the bitstream.
+                    openAccessCount++;
+                } else {
+                    LocalDate startDate = policy.getStartDate();
+                    if (startDate != null && !startDate.isBefore(threshold)) {
+                        // If the policy start date have a value and if this value
+                        // is equal or superior to the configured forever date, the
+                        // access status is also restricted.
+                        restrictedCount++;
+                    } else {
+                        // If the current date is not between the policy start date
+                        // and end date, the access status is embargo.
+                        embargoCount++;
+                    }
+                }
+            }
+        }
+        if (openAccessCount > 0) {
+            return new AccessStatus(OPEN_ACCESS, null);
+        }
+        if (embargoCount > 0 && restrictedCount == 0) {
+            return new AccessStatus(EMBARGO, null);
+        }
+        return new AccessStatus(RESTRICTED, null);
+    }
+
 }

@@ -34,11 +34,15 @@ import java.util.List;
 import java.util.UUID;
 
 import org.dspace.AbstractIntegrationTestWithDatabase;
+import org.dspace.access.status.DefaultAccessStatusHelper;
 import org.dspace.authorize.AuthorizeException;
+import org.dspace.authorize.factory.AuthorizeServiceFactory;
+import org.dspace.authorize.service.AuthorizeService;
 import org.dspace.builder.CollectionBuilder;
 import org.dspace.builder.CommunityBuilder;
 import org.dspace.builder.ItemBuilder;
 import org.dspace.builder.OrcidHistoryBuilder;
+import org.dspace.builder.ResourcePolicyBuilder;
 import org.dspace.content.Collection;
 import org.dspace.content.Item;
 import org.dspace.content.MetadataValue;
@@ -47,14 +51,20 @@ import org.dspace.content.factory.ContentServiceFactory;
 import org.dspace.content.service.InstallItemService;
 import org.dspace.content.service.ItemService;
 import org.dspace.content.service.WorkspaceItemService;
+import org.dspace.core.Constants;
+import org.dspace.eperson.Group;
+import org.dspace.eperson.factory.EPersonServiceFactory;
+import org.dspace.eperson.service.GroupService;
 import org.dspace.orcid.consumer.OrcidQueueConsumer;
 import org.dspace.orcid.factory.OrcidServiceFactory;
 import org.dspace.orcid.service.OrcidQueueService;
+import org.dspace.orcid.service.OrcidSynchronizationService;
 import org.dspace.services.ConfigurationService;
 import org.dspace.services.factory.DSpaceServicesFactory;
 import org.dspace.utils.DSpace;
 import org.dspace.versioning.Version;
 import org.dspace.versioning.service.VersioningService;
+import java.time.LocalDate;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -69,6 +79,9 @@ public class OrcidQueueConsumerIT extends AbstractIntegrationTestWithDatabase {
 
     private OrcidQueueService orcidQueueService = OrcidServiceFactory.getInstance().getOrcidQueueService();
 
+    private OrcidSynchronizationService orcidSynchronizationService = OrcidServiceFactory.getInstance()
+            .getOrcidSynchronizationService();
+
     private ItemService itemService = ContentServiceFactory.getInstance().getItemService();
 
     private WorkspaceItemService workspaceItemService = ContentServiceFactory.getInstance().getWorkspaceItemService();
@@ -79,6 +92,10 @@ public class OrcidQueueConsumerIT extends AbstractIntegrationTestWithDatabase {
 
     private VersioningService versioningService = new DSpace().getServiceManager()
         .getServicesByType(VersioningService.class).get(0);
+
+    private GroupService groupService = EPersonServiceFactory.getInstance().getGroupService();
+
+    private AuthorizeService authorizeService = AuthorizeServiceFactory.getInstance().getAuthorizeService();
 
     private Collection profileCollection;
 
@@ -1309,6 +1326,87 @@ public class OrcidQueueConsumerIT extends AbstractIntegrationTestWithDatabase {
         orcidHistory = context.reloadEntity(orcidHistory);
         assertThat(orcidHistory.getEntity(), is(newPublication));
 
+    }
+
+    @Test
+    public void testOrcidQueueRestrictedOrEmbargoedItems() throws Exception {
+
+        context.turnOffAuthorisationSystem();
+
+        Item profile = ItemBuilder.createItem(context, profileCollection)
+                .withTitle("Test User")
+                .withOrcidIdentifier("0000-1111-2222-3333")
+                .withOrcidAccessToken("ab4d18a0-8d9a-40f1-b601-a417255c8d20", eperson)
+                .withOrcidSynchronizationPublicationsPreference(ALL)
+                .build();
+
+        Group adminGroup = groupService.findByName(context, Group.ADMIN);
+        Group anonymousGroup = groupService.findByName(context, Group.ANONYMOUS);
+
+        Collection publications = createCollection("Publications", "Publication");
+
+        Item standardPublication = ItemBuilder.createItem(context, publications)
+                .withTitle("Standard Publication")
+                .withAuthor("Test User", profile.getID().toString())
+                .withMetadata("datacite", "rights", "", DefaultAccessStatusHelper.OPEN_ACCESS)
+                .build();
+
+        authorizeService.removeAllPolicies(context, standardPublication);
+        ResourcePolicyBuilder.createResourcePolicy(context, eperson, anonymousGroup)
+                .withDspaceObject(standardPublication)
+                .withAction(Constants.READ)
+                .build();
+
+        int embargoYear = configurationService.getIntProperty("access.status.embargo.forever.year") - 1;
+        int embargoMonth = configurationService.getIntProperty("access.status.embargo.forever.month");
+        int embargoDay = configurationService.getIntProperty("access.status.embargo.forever.day");
+        LocalDate embargoDate = LocalDate.of(embargoYear, embargoMonth, embargoDay);
+
+        Item embargoedPublication = ItemBuilder.createItem(context, publications)
+                .withTitle("Embargoed Publication")
+                .withAuthor("Test User", profile.getID().toString())
+                .withMetadata("datacite", "rights", "", DefaultAccessStatusHelper.EMBARGO)
+                .build();
+
+        authorizeService.removeAllPolicies(context, embargoedPublication);
+        ResourcePolicyBuilder.createResourcePolicy(context, eperson, anonymousGroup)
+                .withDspaceObject(embargoedPublication)
+                .withAction(Constants.READ)
+                .withStartDate(embargoDate)
+                .build();
+
+        Item groupRestrictedPublication = ItemBuilder.createItem(context, publications)
+                .withTitle("Group Restricted Publication")
+                .withAuthor("Test User", profile.getID().toString())
+                .withMetadata("datacite", "rights", "", DefaultAccessStatusHelper.RESTRICTED)
+                .build();
+
+        authorizeService.removeAllPolicies(context, groupRestrictedPublication);
+        ResourcePolicyBuilder.createResourcePolicy(context, eperson, adminGroup)
+                .withDspaceObject(groupRestrictedPublication)
+                .withAction(Constants.READ)
+                .withStartDate(embargoDate)
+                .build();
+
+        Item noPolicyRestrictedPublication = ItemBuilder.createItem(context, publications)
+                .withTitle("No Policy Restricted Publication")
+                .withAuthor("Test User", profile.getID().toString())
+                .withMetadata("datacite", "rights", "", DefaultAccessStatusHelper.RESTRICTED)
+                .build();
+
+        authorizeService.removeAllPolicies(context, noPolicyRestrictedPublication);
+
+        context.restoreAuthSystemState();
+        context.commit();
+
+        assertThat(orcidSynchronizationService
+                .isSynchronizationAllowed(context, profile, standardPublication), is(true));
+        assertThat(orcidSynchronizationService
+                .isSynchronizationAllowed(context, profile, embargoedPublication), is(false));
+        assertThat(orcidSynchronizationService
+                .isSynchronizationAllowed(context, profile, groupRestrictedPublication), is(false));
+        assertThat(orcidSynchronizationService
+                .isSynchronizationAllowed(context, profile, noPolicyRestrictedPublication), is(false));
     }
 
     private void addMetadata(Item item, String schema, String element, String qualifier, String value,

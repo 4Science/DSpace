@@ -2304,7 +2304,6 @@ prevent the generation of resource policy entry values with null dspace_object a
     }
 
     private void createOrcidQueueRecordsToDeleteOnOrcid(Context context, Item entity) throws SQLException {
-
         String entityType = getEntityTypeLabel(entity);
         if (entityType == null || researcherProfileService.getProfileType().equals(entityType)) {
             return;
@@ -2312,13 +2311,12 @@ prevent the generation of resource policy entry values with null dspace_object a
 
         Map<Item, String> profileAndPutCodeMap = orcidHistoryService.findLastPutCodes(context, entity);
         for (Item profile : profileAndPutCodeMap.keySet()) {
-            if (orcidSynchronizationService.isSynchronizationAllowed(profile, entity)) {
+            if (orcidSynchronizationService.isSynchronizationAllowed(context, profile, entity)) {
                 String putCode = profileAndPutCodeMap.get(profile);
                 String title = getMetadataFirstValue(entity, "dc", "title", null, Item.ANY);
                 orcidQueueService.createEntityDeletionRecord(context, profile, title, entityType, putCode);
             }
         }
-
     }
 
     private void deleteOrcidHistoryRecords(Context context, Item item) throws SQLException {
