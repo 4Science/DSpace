@@ -27,6 +27,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
+import jakarta.inject.Named;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
@@ -61,6 +62,7 @@ import org.dspace.qaevent.dao.impl.QAEventsDAOImpl;
 import org.dspace.qaevent.service.QAEventActionService;
 import org.dspace.qaevent.service.QAEventSecurityService;
 import org.dspace.qaevent.service.QAEventService;
+import org.dspace.service.impl.HttpConnectionPoolService;
 import org.dspace.services.ConfigurationService;
 import org.dspace.services.factory.DSpaceServicesFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -104,6 +106,9 @@ public class QAEventServiceImpl implements QAEventService {
     @Autowired
     private QAEventActionService qaEventActionService;
 
+    @Autowired @Named("solrHttpConnectionPoolService")
+    protected HttpConnectionPoolService httpConnectionPoolService;
+
     private ObjectMapper jsonMapper;
 
     public QAEventServiceImpl() {
@@ -131,7 +136,9 @@ public class QAEventServiceImpl implements QAEventService {
         if (solr == null) {
             String solrService = DSpaceServicesFactory.getInstance().getConfigurationService()
                     .getProperty("qaevents.solr.server", "http://localhost:8983/solr/qaevent");
-            return new HttpSolrClient.Builder(solrService).build();
+            solr = new HttpSolrClient.Builder(solrService)
+                .withHttpClient(httpConnectionPoolService.getClient())
+                .build();
         }
         return solr;
     }

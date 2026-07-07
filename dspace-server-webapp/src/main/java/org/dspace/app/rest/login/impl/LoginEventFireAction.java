@@ -13,6 +13,8 @@ import org.dspace.core.Context;
 import org.dspace.eperson.EPerson;
 import org.dspace.services.EventService;
 import org.dspace.usage.UsageEvent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
@@ -25,6 +27,8 @@ import org.springframework.web.context.request.ServletRequestAttributes;
  */
 public class LoginEventFireAction implements PostLoggedInAction {
 
+    private static final Logger log = LoggerFactory.getLogger(LoginEventFireAction.class);
+
     @Autowired
     private EventService eventService;
 
@@ -32,10 +36,9 @@ public class LoginEventFireAction implements PostLoggedInAction {
     public void loggedIn(Context context) {
 
         HttpServletRequest request = getCurrentRequest();
-        EPerson currentUser = context.getCurrentUser();
-
+        EPerson
+            currentUser = context.getCurrentUser();
         eventService.fireEvent(new UsageEvent(UsageEvent.Action.LOGIN, request, context, currentUser));
-
     }
 
     private HttpServletRequest getCurrentRequest() {

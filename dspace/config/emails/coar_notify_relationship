@@ -11,6 +11,7 @@
 ##
 ##
 #set($subject = "DSpace: The Service ${params[0]} has related a Resource ""${params[6].object.subject}""")
+#if($global.put('X-SES-TENANT', $config.get('aws.ses.tenant')))#end
 
 A relationship announce notification has been received relating to the Item: ${params[1]}
 

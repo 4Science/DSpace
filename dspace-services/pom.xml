@@ -9,7 +9,7 @@
     <parent>
         <groupId>org.dspace</groupId>
         <artifactId>dspace-parent</artifactId>
-        <version>cris-2024.02.04-SNAPSHOT</version>
+        <version>cris-2024.02.05-SNAPSHOT</version>
         <relativePath>..</relativePath>
     </parent>
 

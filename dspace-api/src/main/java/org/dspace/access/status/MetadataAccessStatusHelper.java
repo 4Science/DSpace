@@ -10,6 +10,8 @@ package org.dspace.access.status;
 import static org.dspace.content.Item.ANY;
 
 import java.sql.SQLException;
+import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
 import java.util.Date;
 
 import org.dspace.content.Item;
@@ -19,7 +21,6 @@ import org.dspace.content.service.ItemService;
 import org.dspace.core.Context;
 import org.dspace.services.ConfigurationService;
 import org.dspace.services.factory.DSpaceServicesFactory;
-import org.joda.time.LocalDate;
 
 /**
  * implementation of the access status helper.
@@ -84,7 +85,7 @@ public class MetadataAccessStatusHelper implements AccessStatusHelper {
     private LocalDate parseDate(String dateStr) {
         try {
             return LocalDate.parse(dateStr);
-        } catch (IllegalArgumentException e) {
+        } catch (DateTimeParseException e) {
             return null;
         }
     }

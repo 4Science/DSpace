@@ -11,7 +11,7 @@
     <parent>
         <groupId>org.dspace</groupId>
         <artifactId>dspace-parent</artifactId>
-        <version>cris-2024.02.04-SNAPSHOT</version>
+        <version>cris-2024.02.05-SNAPSHOT</version>
         <relativePath>..</relativePath>
     </parent>
 
@@ -349,6 +349,11 @@
             <artifactId>log4j-slf4j2-impl</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-layout-template-json</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
             <groupId>org.hibernate.orm</groupId>
             <artifactId>hibernate-core</artifactId>
         </dependency>
@@ -372,7 +377,7 @@
             </exclusions>
         </dependency>
         <!-- https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-cache
-             Caching dependencies for sherpa service. -->
+             Caching dependencies for Open Policy Finder service. -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-cache</artifactId>
@@ -769,6 +774,7 @@
             <version>1.1.1</version>
         </dependency>
 
+        <!-- guava is needed by OAuth, Guice, Mockserver, ORCID, Solr, JClouds -->
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
@@ -846,9 +852,37 @@
 
         <!-- S3 -->
         <dependency>
-            <groupId>com.amazonaws</groupId>
-            <artifactId>aws-java-sdk-s3</artifactId>
-            <version>1.12.785</version>
+            <groupId>software.amazon.awssdk</groupId>
+            <artifactId>s3</artifactId>
+            <version>${software.amazon.awssdk.version}</version>
+            <exclusions>
+              <exclusion>
+                <groupId>software.amazon.awssdk</groupId>
+                <artifactId>netty-nio-client</artifactId>
+              </exclusion>
+              <exclusion>
+                <groupId>software.amazon.awssdk</groupId>
+                <artifactId>apache-client</artifactId>
+              </exclusion>
+            </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>software.amazon.awssdk.crt</groupId>
+            <artifactId>aws-crt</artifactId>
+            <version>${software.amazon.awssdk.crt.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>software.amazon.awssdk</groupId>
+            <artifactId>s3-transfer-manager</artifactId>
+            <version>${software.amazon.awssdk.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>software.amazon.awssdk</groupId>
+            <artifactId>url-connection-client</artifactId>
+            <version>${software.amazon.awssdk.version}</version>
         </dependency>
 
         <!-- TODO: This may need to be replaced with the "orcid-model" artifact once this ticket is resolved:
@@ -899,7 +933,6 @@
             <version>1.19.0</version>
             <scope>test</scope>
         </dependency>
-
         <!-- Used for Solr core export/import -->
         <dependency>
             <groupId>com.opencsv</groupId>
@@ -1051,26 +1084,16 @@
             </exclusions>
         </dependency>
 
-        <dependency>
-            <groupId>io.findify</groupId>
-            <artifactId>s3mock_2.13</artifactId>
-            <version>0.2.6</version>
-            <scope>test</scope>
-            <exclusions>
-                <exclusion>
-                    <groupId>com.amazonawsl</groupId>
-                    <artifactId>aws-java-sdk-s3</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>com.amazonaws</groupId>
-                    <artifactId>aws-java-sdk-s3</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
+
 
         <dependency>
             <groupId>com.squareup.okhttp3</groupId>
             <artifactId>mockwebserver</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.adobe.testing</groupId>
+            <artifactId>s3mock-testcontainers</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>

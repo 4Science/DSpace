@@ -23,7 +23,6 @@ import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.ArgumentMatchers.matches;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
@@ -35,6 +34,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.sql.SQLException;
+import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
 
@@ -61,6 +62,7 @@ import org.dspace.content.WorkspaceItem;
 import org.dspace.content.authority.ChoiceAuthorityServiceImpl;
 import org.dspace.content.authority.service.MetadataAuthorityService;
 import org.dspace.content.service.ItemService;
+import org.dspace.core.service.PluginService;
 import org.dspace.eperson.EPerson;
 import org.dspace.external.OrcidRestConnector;
 import org.dspace.external.provider.impl.OrcidV3AuthorDataProvider;
@@ -118,6 +120,9 @@ public class CrisConsumerIT extends AbstractControllerIntegrationTest {
     private OrcidV3AuthorDataProvider orcidV3AuthorDataProvider;
 
     @Autowired
+    private PluginService pluginService;
+
+    @Autowired
     private MetadataAuthorityService metadataAuthorityService;
 
     @Override
@@ -147,7 +152,6 @@ public class CrisConsumerIT extends AbstractControllerIntegrationTest {
         context.setCurrentUser(submitter);
 
         context.restoreAuthSystemState();
-
     }
 
     @Override
@@ -1062,8 +1066,7 @@ public class CrisConsumerIT extends AbstractControllerIntegrationTest {
         orcidV3AuthorDataProvider.setOrcidRestConnector(mockOrcidConnector);
 
         String orcid = "0000-0002-9029-1854";
-
-        when(mockOrcidConnector.get(matches("^\\d{4}-\\d{4}-\\d{4}-\\d{4}/person$"), any()))
+        when(mockOrcidConnector.get(eq(orcid), any()))
             .thenAnswer(i -> orcidPersonRecord.getInputStream());
 
         try {
@@ -1081,7 +1084,7 @@ public class CrisConsumerIT extends AbstractControllerIntegrationTest {
 
             context.restoreAuthSystemState();
 
-            verify(mockOrcidConnector).get(eq(orcid + "/person"), any());
+            verify(mockOrcidConnector).get(eq(orcid), any());
             verifyNoMoreInteractions(mockOrcidConnector);
 
             String authToken = getAuthToken(submitter.getEmail(), password);
@@ -1095,12 +1098,21 @@ public class CrisConsumerIT extends AbstractControllerIntegrationTest {
             Item author = itemService.find(context, authorId);
             assertThat(author, notNullValue());
             assertThat(author.getOwningCollection(), is(persons));
+
+            // Verify metadata fields populated from ORCID import
             assertThat(author.getMetadata(), hasItems(
                 with("dc.title", "Bollini, Andrea"),
                 with("person.familyName", "Bollini"),
                 with("person.givenName", "Andrea"),
+                with("person.email", "andrea.bollini@4science.it"),
                 with("person.identifier.orcid", orcid),
+                with("person.affiliation.name", "4Science"),
                 with("cris.sourceId", "ORCID::" + orcid)));
+
+            // Verify researcher URLs were imported from ORCID
+            List<MetadataValue> researcherUrls = itemService.getMetadataByMetadataString(author,
+                "oairecerif.identifier.url");
+            assertThat("Should have 4 researcher URLs from ORCID", researcherUrls, hasSize(4));
 
             context.turnOffAuthorisationSystem();
 
@@ -1129,17 +1141,12 @@ public class CrisConsumerIT extends AbstractControllerIntegrationTest {
     }
 
     @Test
-    public void testSherpaImportFiller() throws Exception {
+    public void testOpfImportFiller() throws Exception {
 
         try {
-            configurationService.setProperty("authority.controlled.dc.relation.journal", "true");
-            configurationService.setProperty("choices.plugin.dc.relation.journal", "JournalAuthority");
-            configurationService.setProperty("choices.presentation.dc.relation.journal", "suggest");
-            configurationService.setProperty("choices.closed.dc.relation.journal", "true");
-            configurationService.setProperty("cris.ItemAuthority.JournalAuthority.entityType", "Journal");
-            configurationService.setProperty("cris.ItemAuthority.JournalAuthority.relationshipType", "Journal");
-            metadataAuthorityService.clearCache();
-            choiceAuthorityService.clearCache();
+            // AuthorAuthority configuration provided by setUp() method
+            // Add JournalAuthority with special Open Policy Finder configurations
+            addJournalAuthorityWithOpfConfig();
 
             String issn = "2731-0582";
 
@@ -1169,7 +1176,7 @@ public class CrisConsumerIT extends AbstractControllerIntegrationTest {
             assertThat(journal.getOwningCollection(), is(journals));
             assertThat(journal.getMetadata(), hasItems(
                 with("dc.title", "Nature Synthesis"),
-                with("creativeworkseries.issn", issn),
+                with("dc.identifier.issn", issn),
                 with("cris.sourceId", "ISSN::" + issn)));
 
             context.turnOffAuthorisationSystem();
@@ -1222,6 +1229,169 @@ public class CrisConsumerIT extends AbstractControllerIntegrationTest {
 
         // check that the entity type equals to the entity type of the owning collection
         assertThat(itemService.getEntityType(context.reloadEntity(wsitem.getItem())), is("Publication"));
+    }
+
+    @Test
+    public void testAuthorityOnMultipleEntityTypesShouldResolveReference() throws Exception {
+        context.turnOffAuthorisationSystem();
+
+        // set configurations
+        configurationService.addPropertyValue("plugin.named.org.dspace.content.authority.ChoiceAuthority",
+            "org.dspace.content.authority.ItemAuthority = PersonOrgUnitAuthority");
+        configurationService.addPropertyValue("cris.ItemAuthority.PersonOrgUnitAuthority.entityType", "Person");
+        configurationService.addPropertyValue("cris.ItemAuthority.PersonOrgUnitAuthority.entityType", "OrgUnit");
+        configurationService.setProperty("cris.ItemAuthority.PersonOrgUnitAuthority.primaryEntityType", "Person");
+        configurationService.setProperty("choices.plugin.dc.contributor.author", "PersonOrgUnitAuthority");
+
+        Collection personCollection = createCollection("Person Collection", "Person", subCommunity);
+
+        Item item = ItemBuilder
+            .createItem(context, personCollection)
+            .withTitle("Francesco Pio Scognamiglio")
+            .withLegacyId("538cd81a-5c00-4c15-8f4e-b7ffbed225e3")
+            .inArchive().build();
+
+        Item testItem = ItemBuilder
+            .createItem(context, publicationCollection)
+            .withTitle("Test Item")
+            .withLegacyId("CNCE013761")
+            .withAuthor("Scognamiglio, Francesco Pio",
+                "will be referenced::LEGACY-ID::538cd81a-5c00-4c15-8f4e-b7ffbed225e3", 600)
+            .inArchive().build();
+
+        context.commit();
+        testItem = context.reloadEntity(testItem);
+
+        List<MetadataValue> metadata = testItem.getMetadata();
+        assertThat(metadata, hasItems(with("dc.contributor.author",
+            "Scognamiglio, Francesco Pio", item.getID().toString(),
+            0, 600)));
+
+        // revert changes on configurations
+        configurationService.addPropertyValue("plugin.named.org.dspace.content.authority.ChoiceAuthority",
+            "org.dspace.content.authority.ItemAuthority = PersonAuthority");
+        configurationService.setProperty("cris.ItemAuthority.PersonOrgUnitAuthority.entityType", null);
+        configurationService.setProperty("cris.ItemAuthority.PersonOrgUnitAuthority.primaryEntityType", null);
+        configurationService.setProperty("choices.plugin.dc.contributor.author", "PersonAuthority");
+        metadataAuthorityService.clearCache();
+        choiceAuthorityService.clearCache();
+    }
+
+    @Test
+    public void testAuthorityOnMultipleEntityTypesWithPrimaryEntityTypeShouldCreateItem() throws Exception {
+        context.turnOffAuthorisationSystem();
+
+        // set configurations
+        configurationService.addPropertyValue("plugin.named.org.dspace.content.authority.ChoiceAuthority",
+            "org.dspace.content.authority.ItemAuthority = PersonOrgUnitAuthority");
+        configurationService.addPropertyValue("cris.ItemAuthority.PersonOrgUnitAuthority.entityType", "Person");
+        configurationService.addPropertyValue("cris.ItemAuthority.PersonOrgUnitAuthority.entityType", "OrgUnit");
+        configurationService.setProperty("cris.ItemAuthority.PersonOrgUnitAuthority.primaryEntityType", "Person");
+        configurationService.setProperty("choices.plugin.dc.contributor.author", "PersonOrgUnitAuthority");
+
+        Collection personCollection = createCollection("Person Collection", "Person", subCommunity);
+
+        Item testItem = ItemBuilder
+            .createItem(context, publicationCollection)
+            .withTitle("Test Item")
+            .withLegacyId("CNCE013761")
+            .withAuthor("Scognamiglio, Francesco Pio")
+            .inArchive().build();
+
+        context.commit();
+        testItem = context.reloadEntity(testItem);
+        publicationCollection = context.reloadEntity(publicationCollection);
+        personCollection = context.reloadEntity(personCollection);
+
+        Iterator<Item> people = itemService.findByCollection(context, personCollection);
+        assertThat(people.hasNext(), is(true));
+        Item person = people.next();
+
+        List<MetadataValue> metadata = testItem.getMetadata();
+        assertThat(metadata, hasItems(with("dc.contributor.author",
+            "Scognamiglio, Francesco Pio", person.getID().toString(), 0, 600)));
+
+        // revert changes on configurations
+        configurationService.addPropertyValue("plugin.named.org.dspace.content.authority.ChoiceAuthority",
+            "org.dspace.content.authority.ItemAuthority = PersonAuthority");
+        configurationService.setProperty("cris.ItemAuthority.PersonOrgUnitAuthority.entityType", null);
+        configurationService.setProperty("cris.ItemAuthority.PersonOrgUnitAuthority.primaryEntityType", null);
+        configurationService.setProperty("choices.plugin.dc.contributor.author", "PersonAuthority");
+        metadataAuthorityService.clearCache();
+        choiceAuthorityService.clearCache();
+    }
+
+    @Test
+    public void testAuthorityOnMultipleEntityTypesWithoutPrimaryEntityTypeShouldNotCreateItem() throws Exception {
+        context.turnOffAuthorisationSystem();
+
+        // set configurations
+        configurationService.addPropertyValue("plugin.named.org.dspace.content.authority.ChoiceAuthority",
+            "org.dspace.content.authority.ItemAuthority = PersonOrgUnitAuthority");
+        configurationService.addPropertyValue("cris.ItemAuthority.PersonOrgUnitAuthority.entityType", "Person");
+        configurationService.addPropertyValue("cris.ItemAuthority.PersonOrgUnitAuthority.entityType", "OrgUnit");
+        // remove property to simulate no primary entity type
+        configurationService.setProperty("cris.ItemAuthority.PersonOrgUnitAuthority.primaryEntityType", null);
+        configurationService.setProperty("choices.plugin.dc.contributor.author", "PersonOrgUnitAuthority");
+
+        metadataAuthorityService.clearCache();
+        choiceAuthorityService.clearCache();
+
+        Collection personCollection = createCollection("Person Collection", "Person", subCommunity);
+
+        Item testItem = ItemBuilder
+            .createItem(context, publicationCollection)
+            .withTitle("Test Item")
+            .withLegacyId("CNCE013761")
+            .withAuthor("Scognamiglio, Francesco Pio")
+            .inArchive().build();
+
+        context.commit();
+        testItem = context.reloadEntity(testItem);
+        publicationCollection = context.reloadEntity(publicationCollection);
+        personCollection = context.reloadEntity(personCollection);
+
+        Iterator<Item> people = itemService.findByCollection(context, personCollection);
+        assertThat(people.hasNext(), is(false));
+
+        List<MetadataValue> metadata = testItem.getMetadata();
+        assertThat(metadata, hasItems(with("dc.contributor.author", "Scognamiglio, Francesco Pio")));
+
+        // revert changes on configurations
+        configurationService.addPropertyValue("plugin.named.org.dspace.content.authority.ChoiceAuthority",
+            "org.dspace.content.authority.ItemAuthority = PersonAuthority");
+        configurationService.setProperty("cris.ItemAuthority.PersonOrgUnitAuthority.entityType", null);
+        configurationService.setProperty("cris.ItemAuthority.PersonOrgUnitAuthority.primaryEntityType", null);
+        configurationService.setProperty("choices.plugin.dc.contributor.author", "PersonAuthority");
+        metadataAuthorityService.clearCache();
+        choiceAuthorityService.clearCache();
+    }
+
+    @Test
+    public void testAuthorityOnSingleEntityTypeWithoutPrimaryEntityTypeShouldCreateItem() throws Exception {
+        context.turnOffAuthorisationSystem();
+
+        Collection personCollection = createCollection("Person Collection", "Person", subCommunity);
+
+        Item testItem = ItemBuilder
+            .createItem(context, publicationCollection)
+            .withTitle("Test Item")
+            .withLegacyId("CNCE013761")
+            .withAuthor("Scognamiglio, Francesco Pio")
+            .inArchive().build();
+
+        context.commit();
+        testItem = context.reloadEntity(testItem);
+        publicationCollection = context.reloadEntity(publicationCollection);
+        personCollection = context.reloadEntity(personCollection);
+
+        Iterator<Item> people = itemService.findByCollection(context, personCollection);
+        assertThat(people.hasNext(), is(true));
+        Item person = people.next();
+
+        List<MetadataValue> metadata = testItem.getMetadata();
+        assertThat(metadata, hasItems(with("dc.contributor.author",
+            "Scognamiglio, Francesco Pio", person.getID().toString(), 0, 600)));
     }
 
     private ItemRest getItemViaRestByID(String authToken, UUID id) throws Exception {
@@ -1278,5 +1448,162 @@ public class CrisConsumerIT extends AbstractControllerIntegrationTest {
 
     private String generateMd5Hash(String value) {
         return DigestUtils.md5Hex(value.toUpperCase());
+    }
+
+    // ============================================================================
+    // Authority Configuration Helper Methods
+    // ============================================================================
+
+    /**
+     * Clears all authority-related caches to ensure configuration changes take effect.
+     * CRITICAL: This must be called after any authority configuration changes.
+     */
+    private void clearAllAuthorityCaches() throws Exception {
+        try {
+            pluginService.clearNamedPluginClasses();  // Can throw SubmissionConfigReaderException
+            choiceAuthorityService.clearCache();
+            metadataAuthorityService.clearCache();  // Critical for authority config reload
+        } catch (Exception e) {
+            throw new Exception("Failed to clear authority caches: " + e.getMessage(), e);
+        }
+    }
+
+    /**
+     * Sets up base authority configuration with AuthorAuthority for dc.contributor.author.
+     * This is the most common authority configuration used by majority of tests.
+     */
+    private void setupBaseAuthorityConfiguration() throws Exception {
+        configurationService.setProperty(
+            "plugin.named.org.dspace.content.authority.ChoiceAuthority",
+            new String[] { "org.dspace.content.authority.ItemAuthority = AuthorAuthority" }
+        );
+        configurationService.setProperty("choices.plugin.dc.contributor.author", "AuthorAuthority");
+        configurationService.setProperty("choices.presentation.dc.contributor.author", "suggest");
+        configurationService.setProperty("authority.controlled.dc.contributor.author", "true");
+        configurationService.setProperty("cris.ItemAuthority.AuthorAuthority.entityType", "Person");
+
+        clearAllAuthorityCaches();
+    }
+
+    /**
+     * Adds EditorAuthority configuration for dc.contributor.editor metadata.
+     * Preserves existing plugin configurations.
+     */
+    private void addEditorAuthority() throws Exception {
+        // Get existing plugin configuration and add EditorAuthority
+        String[] existingPlugins = configurationService
+            .getArrayProperty("plugin.named.org.dspace.content.authority.ChoiceAuthority");
+        String[] newPlugins = Arrays.copyOf(existingPlugins, existingPlugins.length + 1);
+        newPlugins[newPlugins.length - 1] = "org.dspace.content.authority.OrcidAuthority = EditorAuthority";
+
+        configurationService.setProperty("plugin.named.org.dspace.content.authority.ChoiceAuthority", newPlugins);
+        configurationService.setProperty("choices.plugin.dc.contributor.editor", "EditorAuthority");
+        configurationService.setProperty("choices.presentation.dc.contributor.editor", "suggest");
+        configurationService.setProperty("authority.controlled.dc.contributor.editor", "true");
+
+        clearAllAuthorityCaches();
+    }
+
+    /**
+     * Adds ProjectAuthority configuration for dc.relation.project metadata.
+     * Preserves existing plugin configurations.
+     */
+    private void addProjectAuthority() throws Exception {
+        String[] existingPlugins = configurationService
+            .getArrayProperty("plugin.named.org.dspace.content.authority.ChoiceAuthority");
+        String[] newPlugins = Arrays.copyOf(existingPlugins, existingPlugins.length + 1);
+        newPlugins[newPlugins.length - 1] = "org.dspace.content.authority.ItemAuthority = ProjectAuthority";
+
+        configurationService.setProperty("plugin.named.org.dspace.content.authority.ChoiceAuthority", newPlugins);
+        configurationService.setProperty("choices.plugin.dc.relation.project", "ProjectAuthority");
+        configurationService.setProperty("choices.presentation.dc.relation.project", "suggest");
+        configurationService.setProperty("authority.controlled.dc.relation.project", "true");
+        configurationService.setProperty("cris.ItemAuthority.ProjectAuthority.entityType", "Project");
+
+        clearAllAuthorityCaches();
+    }
+
+    /**
+     * Adds JournalAuthority configuration for dc.relation.journal metadata.
+     * Preserves existing plugin configurations.
+     */
+    private void addJournalAuthority() throws Exception {
+        String[] existingPlugins = configurationService
+            .getArrayProperty("plugin.named.org.dspace.content.authority.ChoiceAuthority");
+        String[] newPlugins = Arrays.copyOf(existingPlugins, existingPlugins.length + 1);
+        newPlugins[newPlugins.length - 1] = "org.dspace.content.authority.ItemAuthority = JournalAuthority";
+
+        configurationService.setProperty("plugin.named.org.dspace.content.authority.ChoiceAuthority", newPlugins);
+        configurationService.setProperty("choices.plugin.dc.relation.journal", "JournalAuthority");
+        configurationService.setProperty("choices.presentation.dc.relation.journal", "suggest");
+        configurationService.setProperty("authority.controlled.dc.relation.journal", "true");
+        configurationService.setProperty("cris.ItemAuthority.JournalAuthority.entityType", "Journal");
+
+        clearAllAuthorityCaches();
+    }
+
+    /**
+     * Adds OrgUnitAuthority configuration for person.affiliation.name metadata.
+     * Preserves existing plugin configurations.
+     */
+    private void addOrgUnitAuthority() throws Exception {
+        String[] existingPlugins = configurationService
+            .getArrayProperty("plugin.named.org.dspace.content.authority.ChoiceAuthority");
+        String[] newPlugins = Arrays.copyOf(existingPlugins, existingPlugins.length + 1);
+        newPlugins[newPlugins.length - 1] = "org.dspace.content.authority.ItemAuthority = OrgUnitAuthority";
+
+        configurationService.setProperty("plugin.named.org.dspace.content.authority.ChoiceAuthority", newPlugins);
+        configurationService.setProperty("choices.plugin.person.affiliation.name", "OrgUnitAuthority");
+        configurationService.setProperty("choices.presentation.person.affiliation.name", "suggest");
+        configurationService.setProperty("authority.controlled.person.affiliation.name", "true");
+        configurationService.setProperty("cris.ItemAuthority.OrgUnitAuthority.entityType", "OrgUnit");
+
+        clearAllAuthorityCaches();
+    }
+
+    /**
+     * Special configuration for Open Policy Finder journal import tests.
+     * Adds JournalAuthority with additional Open Policy Finder-specific configurations.
+     */
+    private void addJournalAuthorityWithOpfConfig() throws Exception {
+        addJournalAuthority();
+
+        // Additional Open Policy Finder-specific configurations
+        configurationService.setProperty("choices.closed.dc.relation.journal", "true");
+        configurationService.setProperty("cris.ItemAuthority.JournalAuthority.relationshipType", "Journal");
+
+        clearAllAuthorityCaches();
+    }
+
+    /**
+     * Replaces AuthorAuthority with ProjectAuthority only (for tests that don't need AuthorAuthority).
+     */
+    private void setupProjectAuthorityOnly() throws Exception {
+        configurationService.setProperty(
+            "plugin.named.org.dspace.content.authority.ChoiceAuthority",
+            new String[] { "org.dspace.content.authority.ItemAuthority = ProjectAuthority" }
+        );
+        configurationService.setProperty("choices.plugin.dc.relation.project", "ProjectAuthority");
+        configurationService.setProperty("choices.presentation.dc.relation.project", "suggest");
+        configurationService.setProperty("authority.controlled.dc.relation.project", "true");
+        configurationService.setProperty("cris.ItemAuthority.ProjectAuthority.entityType", "Project");
+
+        clearAllAuthorityCaches();
+    }
+
+    /**
+     * Replaces AuthorAuthority with JournalAuthority only (for tests that don't need AuthorAuthority).
+     */
+    private void setupJournalAuthorityOnly() throws Exception {
+        configurationService.setProperty(
+            "plugin.named.org.dspace.content.authority.ChoiceAuthority",
+            new String[] { "org.dspace.content.authority.ItemAuthority = JournalAuthority" }
+        );
+        configurationService.setProperty("choices.plugin.dc.relation.journal", "JournalAuthority");
+        configurationService.setProperty("choices.presentation.dc.relation.journal", "suggest");
+        configurationService.setProperty("authority.controlled.dc.relation.journal", "true");
+        configurationService.setProperty("cris.ItemAuthority.JournalAuthority.entityType", "Journal");
+
+        clearAllAuthorityCaches();
     }
 }

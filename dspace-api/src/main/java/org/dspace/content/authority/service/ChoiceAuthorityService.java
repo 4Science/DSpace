@@ -192,7 +192,14 @@ public interface ChoiceAuthorityService {
      *
      * @return       the entity type as a String
      */
-    String getLinkedEntityType(String fieldKey);
+    String[] getLinkedEntityTypes(String fieldKey);
+
+    /**
+     * Get the primary entity type starting from the metadata field.
+     *
+     * @return       the primary entity type as a String
+     */
+    String getPrimaryLinkedEntityType(String fieldKey);
 
     /**
      * Wrapper that calls getTopChoices method of the plugin.

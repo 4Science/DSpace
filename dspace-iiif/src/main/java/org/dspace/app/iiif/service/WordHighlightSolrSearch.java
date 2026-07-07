@@ -17,6 +17,7 @@ import java.util.UUID;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.inject.Named;
 import org.apache.commons.validator.routines.UrlValidator;
 import org.apache.logging.log4j.Logger;
 import org.apache.solr.client.solrj.SolrQuery;
@@ -32,6 +33,7 @@ import org.dspace.app.iiif.model.generator.ContentAsTextGenerator;
 import org.dspace.app.iiif.model.generator.ManifestGenerator;
 import org.dspace.app.iiif.model.generator.SearchResultGenerator;
 import org.dspace.app.iiif.service.utils.IIIFUtils;
+import org.dspace.service.impl.HttpConnectionPoolService;
 import org.dspace.services.ConfigurationService;
 import org.dspace.services.factory.DSpaceServicesFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -70,6 +72,9 @@ public class WordHighlightSolrSearch implements SearchAnnotationService {
     @Autowired
     ConfigurationService configurationService;
 
+    @Autowired @Named("solrHttpConnectionPoolService")
+    protected HttpConnectionPoolService httpConnectionPoolService;
+
     @Override
     public boolean useSearchPlugin(String className) {
         return className.contentEquals(WordHighlightSolrSearch.class.getCanonicalName());
@@ -90,7 +95,10 @@ public class WordHighlightSolrSearch implements SearchAnnotationService {
                 .getBooleanProperty("discovery.solr.url.validation.enabled", true);
         UrlValidator urlValidator = new UrlValidator(UrlValidator.ALLOW_LOCAL_URLS);
         if (urlValidator.isValid(solrService) || validationEnabled) {
-            HttpSolrClient solrServer = new HttpSolrClient.Builder(solrService).build();
+            HttpSolrClient solrServer =
+                new HttpSolrClient.Builder(solrService)
+                    .withHttpClient(httpConnectionPoolService.getClient())
+                    .build();
             solrServer.setUseMultiPartPost(true);
             SolrQuery solrQuery = getSolrQuery(adjustQuery(query), manifestId);
             QueryRequest req = new QueryRequest(solrQuery);

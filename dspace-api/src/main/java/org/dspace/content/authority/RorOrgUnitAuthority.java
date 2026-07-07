@@ -37,8 +37,6 @@ public class RorOrgUnitAuthority extends ItemAuthority {
         DSpaceServicesFactory.getInstance().getConfigurationService();
     private final PluginService pluginService = CoreServiceFactory.getInstance().getPluginService();
 
-    private String authorityName;
-
     @Override
     public Choices getMatches(String text, int start, int limit, String locale) {
 
@@ -167,17 +165,24 @@ public class RorOrgUnitAuthority extends ItemAuthority {
     }
 
     @Override
-    public String getLinkedEntityType() {
-        return configurationService.getProperty("cris.ItemAuthority." + authorityName + ".entityType");
+    public String[] getLinkedEntityTypes() {
+        return configurationService.getArrayProperty("cris.ItemAuthority." + authorityName + ".entityType");
     }
 
     @Override
-    public void setPluginInstanceName(String name) {
-        authorityName = name;
-    }
+    public String getPrimaryLinkedEntityType() {
+        String entityType = configurationService.getProperty(
+            "cris.ItemAuthority." + authorityName + ".primaryEntityType");
+        if (StringUtils.isNotBlank(entityType)) {
+            return entityType;
+        }
 
-    @Override
-    public String getPluginInstanceName() {
-        return authorityName;
+        // fallback strategy
+        String[] entityTypes = getLinkedEntityTypes();
+        if (entityTypes != null && entityTypes.length == 1) {
+            return entityTypes[0];
+        }
+
+        return null;
     }
 }

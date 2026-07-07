@@ -24,6 +24,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
+import jakarta.inject.Named;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -44,6 +45,7 @@ import org.dspace.content.dto.MetadataValueDTO;
 import org.dspace.content.service.ItemService;
 import org.dspace.core.Context;
 import org.dspace.core.exception.SQLRuntimeException;
+import org.dspace.service.impl.HttpConnectionPoolService;
 import org.dspace.services.factory.DSpaceServicesFactory;
 import org.dspace.util.UUIDUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -64,6 +66,9 @@ public class SolrSuggestionStorageServiceImpl implements SolrSuggestionStorageSe
     @Autowired
     private ItemService itemService;
 
+    @Autowired @Named("solrHttpConnectionPoolService")
+    protected HttpConnectionPoolService httpConnectionPoolService;
+
     /**
      * Get solr client which use suggestion core
      * 
@@ -73,7 +78,10 @@ public class SolrSuggestionStorageServiceImpl implements SolrSuggestionStorageSe
         if (solrSuggestionClient == null) {
             String solrService = DSpaceServicesFactory.getInstance().getConfigurationService()
                     .getProperty("suggestion.solr.server", "http://localhost:8983/solr/suggestion");
-            solrSuggestionClient = new HttpSolrClient.Builder(solrService).build();
+            solrSuggestionClient =
+                new HttpSolrClient.Builder(solrService)
+                    .withHttpClient(httpConnectionPoolService.getClient())
+                    .build();
         }
         return solrSuggestionClient;
     }

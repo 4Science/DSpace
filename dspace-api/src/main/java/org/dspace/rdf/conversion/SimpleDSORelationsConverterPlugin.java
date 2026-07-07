@@ -354,7 +354,8 @@ public class SimpleDSORelationsConverterPlugin
         // add all items
         Iterator<Item> items = itemService.findAllByCollection(context, collection);
         while (items.hasNext()) {
-            String id = RDFUtil.generateIdentifier(context, items.next());
+            Item item = items.next();
+            String id = RDFUtil.generateIdentifier(context, item);
             if (id != null) {
                 for (String link : collection2item) {
                     m.add(m.createResource(myId),
@@ -362,6 +363,7 @@ public class SimpleDSORelationsConverterPlugin
                           m.createResource(id));
                 }
             }
+            context.uncacheEntity(item);
         }
 
         if (m.isEmpty()) {
