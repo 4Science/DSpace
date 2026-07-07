@@ -341,7 +341,7 @@ public class DefaultAccessStatusHelper implements AccessStatusHelper {
             Group group = policy.getGroup();
             // The group must not be null here. However,
             // if it is, consider this as an unexpected case.
-            if (StringUtils.equals(group.getName(), Group.ANONYMOUS)) {
+            if (group != null && StringUtils.equals(group.getName(), Group.ANONYMOUS)) {
                 // Only calculate the status for the anonymous group.
                 if (isValid) {
                     // If the policy is valid, the anonymous group have access
