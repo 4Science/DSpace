@@ -4,20 +4,17 @@
     <packaging>jar</packaging>
     <name>DSpace OAI-PMH</name>
     <description>DSpace OAI-PMH Extension</description>
-
     <parent>
         <artifactId>dspace-parent</artifactId>
         <groupId>org.dspace</groupId>
         <version>cris-2025.02.01-SNAPSHOT</version>
         <relativePath>..</relativePath>
     </parent>
-
     <properties>
         <!-- This is the path to the root [dspace-src] directory. -->
         <root.basedir>${basedir}/..</root.basedir>
         <xoai.version>3.4.1</xoai.version>
     </properties>
-
     <build>
         <plugins>
             <plugin>
@@ -33,7 +30,6 @@
             </plugin>
         </plugins>
     </build>
-
     <dependencies>
         <dependency>
             <groupId>commons-cli</groupId>
@@ -47,7 +43,6 @@
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
         </dependency>
-
         <!-- OAI Data Provider Framework -->
         <dependency>
             <groupId>org.dspace</groupId>
@@ -101,13 +96,11 @@
                 </exclusion>
             </exclusions>
         </dependency>
-
         <!-- Java Injection -->
         <dependency>
             <groupId>jakarta.inject</groupId>
             <artifactId>jakarta.inject-api</artifactId>
         </dependency>
-
         <!-- Needed to support Spring @Configuration classes (to register servlets/beans with Spring Boot webapp) -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -118,14 +111,8 @@
                     <groupId>org.springframework.boot</groupId>
                     <artifactId>spring-boot-starter-logging</artifactId>
                 </exclusion>
-                <!-- Spring JCL is unnecessary and conflicts with commons-logging when both are on classpath -->
-                <exclusion>
-                    <groupId>org.springframework</groupId>
-                    <artifactId>spring-jcl</artifactId>
-                </exclusion>
             </exclusions>
         </dependency>
-
         <!-- Spring Boot Thymeleaf templating -->
         <dependency>
             <groupId>org.springframework</groupId>
@@ -137,26 +124,22 @@
             <artifactId>spring-boot-starter-thymeleaf</artifactId>
             <version>${spring-boot.version}</version>
         </dependency>
-
         <!-- Internal -->
         <dependency>
             <groupId>org.dspace</groupId>
             <artifactId>dspace-api</artifactId>
         </dependency>
-
         <!-- Web API -->
         <dependency>
             <groupId>jakarta.servlet</groupId>
             <artifactId>jakarta.servlet-api</artifactId>
             <scope>provided</scope>
         </dependency>
-
         <!-- Logging -->
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-api</artifactId>
         </dependency>
-
         <!-- Testing -->
         <dependency>
             <groupId>junit</groupId>

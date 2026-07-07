@@ -9,7 +9,8 @@
 services:
   dspace-cli:
     environment:
-      - LOADASSETS=https://github.com/4Science/DSpace-CRIS-Files/releases/download/cris-2025.02.00/assetstore.tar.gz
+      # This assetstore zip is available from https://github.com/4Science/DSpace-CRIS-Files/releases/tag/cris-2025.02.00
+      - LOADASSETS=${LOADASSETS:-https://github.com/4Science/DSpace-CRIS-Files/releases/download/cris-2025.02.00/assetstore.tar.gz}
     entrypoint:
       - /bin/bash
       - '-c'

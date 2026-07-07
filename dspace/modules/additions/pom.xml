@@ -1,34 +1,31 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-   <modelVersion>4.0.0</modelVersion>
-   <groupId>org.dspace.modules</groupId>
-   <artifactId>additions</artifactId>
-   <name>DSpace Kernel :: Additions and Local Customizations</name>
-   <description>
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>org.dspace.modules</groupId>
+    <artifactId>additions</artifactId>
+    <name>DSpace Kernel :: Additions and Local Customizations</name>
+    <description>
        This project allows you to easily create your own "additions.jar"
        including custom Java classes. This JAR will be automatically included
        in all DSpace web applications.
-   </description>
-   <packaging>jar</packaging>
-
-   <!--
-   A Parent POM that Maven inherits DSpace Defaults
-   POM attributes from.
-   -->
-   <parent>
-      <groupId>org.dspace</groupId>
-      <artifactId>modules</artifactId>
-      <version>cris-2025.02.01-SNAPSHOT</version>
-      <relativePath>..</relativePath>
-   </parent>
-
-   <properties>
-       <!-- This is the path to the root [dspace-src] directory. -->
-       <root.basedir>${basedir}/../../..</root.basedir>
-   </properties>
-
-   <build>
-      <plugins>
-         <!-- This plugin allows us to run a Groovy script in our Maven POM
+    </description>
+    <packaging>jar</packaging>
+    <!--
+    A Parent POM that Maven inherits DSpace Defaults
+    POM attributes from.
+    -->
+    <parent>
+        <groupId>org.dspace</groupId>
+        <artifactId>modules</artifactId>
+        <version>cris-2025.02.01-SNAPSHOT</version>
+        <relativePath>..</relativePath>
+    </parent>
+    <properties>
+        <!-- This is the path to the root [dspace-src] directory. -->
+        <root.basedir>${basedir}/../../..</root.basedir>
+    </properties>
+    <build>
+        <plugins>
+            <!-- This plugin allows us to run a Groovy script in our Maven POM
                  (see: https://groovy.github.io/gmaven/groovy-maven-plugin/execute.html )
                  We are generating a OS-agnostic version (agnostic.build.dir) of
                  the ${project.build.directory} property (full path of target dir).
@@ -37,278 +34,267 @@
                  Otherwise, the Unit Test Framework will not work on Windows OS.
                  This Groovy code was mostly borrowed from:
                  http://stackoverflow.com/questions/3872355/how-to-convert-file-separator-in-maven
-            -->
-         <plugin>
-            <groupId>org.codehaus.gmaven</groupId>
-            <artifactId>groovy-maven-plugin</artifactId>
-            <executions>
-               <execution>
-                  <id>setproperty</id>
-                  <phase>initialize</phase>
-                  <goals>
-                     <goal>execute</goal>
-                  </goals>
-                  <configuration>
-                     <source>
-                        project.properties['agnostic.build.dir'] = project.build.directory.replace(File.separator, '/');
-                        log.info("Initializing Maven property 'agnostic.build.dir' to: {}", project.properties['agnostic.build.dir']);
-                     </source>
-                  </configuration>
-               </execution>
-            </executions>
-         </plugin>
-      </plugins>
-   </build>
-
-   <profiles>
-      <!-- Setup the Unit Test Environment (when -DskipUnitTests=false) -->
-      <profile>
-         <id>unit-test-environment</id>
-         <activation>
-            <activeByDefault>false</activeByDefault>
-            <property>
-               <name>skipUnitTests</name>
-               <value>false</value>
-            </property>
-         </activation>
-         <build>
-            <plugins>
-               <!-- Unit Testing setup: This plugin unzips the
+                -->
+            <plugin>
+                <groupId>org.codehaus.gmaven</groupId>
+                <artifactId>groovy-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>setproperty</id>
+                        <phase>initialize</phase>
+                        <goals>
+                            <goal>execute</goal>
+                        </goals>
+                        <configuration>
+                            <source>
+                                project.properties['agnostic.build.dir'] = project.build.directory.replace(File.separator, '/');
+                                log.info("Initializing Maven property 'agnostic.build.dir' to: {}", project.properties['agnostic.build.dir']);
+                            </source>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+    <profiles>
+        <!-- Setup the Unit Test Environment (when -DskipUnitTests=false) -->
+        <profile>
+            <id>unit-test-environment</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+                <property>
+                    <name>skipUnitTests</name>
+                    <value>false</value>
+                </property>
+            </activation>
+            <build>
+                <plugins>
+                    <!-- Unit Testing setup: This plugin unzips the
                     'testEnvironment.zip' file (created by dspace-parent POM), into
                     the 'target/testing/' folder, to essentially create a test
                     install of DSpace, against which Tests can be run. -->
-               <plugin>
-                  <artifactId>maven-dependency-plugin</artifactId>
-                  <configuration>
-                     <outputDirectory>${project.build.directory}/testing</outputDirectory>
-                     <artifactItems>
-                        <artifactItem>
-                           <groupId>org.dspace</groupId>
-                           <artifactId>dspace-parent</artifactId>
-                           <version>${project.version}</version>
-                           <type>zip</type>
-                           <classifier>testEnvironment</classifier>
-                        </artifactItem>
-                     </artifactItems>
-                  </configuration>
-                  <executions>
-                     <execution>
-                        <id>setupUnitTestEnvironment</id>
-                        <phase>generate-test-resources</phase>
-                        <goals>
-                           <goal>unpack</goal>
-                        </goals>
-                     </execution>
-                  </executions>
-               </plugin>
-
-               <!-- Run Unit Testing! This plugin just kicks off the tests (when enabled). -->
-               <plugin>
-                  <artifactId>maven-surefire-plugin</artifactId>
-                  <configuration>
-                     <systemPropertyVariables>
-                        <!-- Specify the dspace.dir to use for test environment -->
-                        <!-- This system property is loaded by AbstractDSpaceTest to initialize the test environment -->
-                        <dspace.dir>${agnostic.build.dir}/testing/dspace</dspace.dir>
-                        <!-- Turn off any DSpace logging -->
-                        <dspace.log.init.disable>true</dspace.log.init.disable>
-                        <solr.install.dir>${agnostic.build.dir}/testing/dspace/solr/</solr.install.dir>
-                     </systemPropertyVariables>
-                  </configuration>
-               </plugin>
-            </plugins>
-         </build>
-         <dependencies>
-            <!-- When running tests, also include test classes from dspace-api
-                     (this test-jar is only built when tests are enabled). -->
-            <dependency>
-               <groupId>org.dspace</groupId>
-               <artifactId>dspace-api</artifactId>
-               <type>test-jar</type>
-               <scope>test</scope>
-            </dependency>
-         </dependencies>
-      </profile>
-
-      <!-- Setup the Integration Test Environment (when -DskipIntegrationTests=false) -->
-      <profile>
-         <id>integration-test-environment</id>
-         <activation>
-            <activeByDefault>false</activeByDefault>
-            <property>
-               <name>skipIntegrationTests</name>
-               <value>false</value>
-            </property>
-         </activation>
-         <build>
-            <plugins>
-               <!-- Integration Testing setup: This plugin unzips the
+                    <plugin>
+                        <artifactId>maven-dependency-plugin</artifactId>
+                        <configuration>
+                            <outputDirectory>${project.build.directory}/testing</outputDirectory>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>org.dspace</groupId>
+                                    <artifactId>dspace-parent</artifactId>
+                                    <version>${project.version}</version>
+                                    <type>zip</type>
+                                    <classifier>testEnvironment</classifier>
+                                </artifactItem>
+                            </artifactItems>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>setupUnitTestEnvironment</id>
+                                <phase>generate-test-resources</phase>
+                                <goals>
+                                    <goal>unpack</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <!-- Run Unit Testing! This plugin just kicks off the tests (when enabled). -->
+                    <plugin>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <configuration>
+                            <systemPropertyVariables>
+                                <!-- Specify the dspace.dir to use for test environment -->
+                                <!-- This system property is loaded by AbstractDSpaceTest to initialize the test environment -->
+                                <dspace.dir>${agnostic.build.dir}/testing/dspace</dspace.dir>
+                                <!-- Turn off any DSpace logging -->
+                                <dspace.log.init.disable>true</dspace.log.init.disable>
+                                <solr.install.dir>${agnostic.build.dir}/testing/dspace/solr/</solr.install.dir>
+                            </systemPropertyVariables>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+            <dependencies>
+                <!-- When running tests, also include test classes from dspace-api
+                            (this test-jar is only built when tests are enabled). -->
+                <dependency>
+                    <groupId>org.dspace</groupId>
+                    <artifactId>dspace-api</artifactId>
+                    <type>test-jar</type>
+                    <scope>test</scope>
+                </dependency>
+            </dependencies>
+        </profile>
+        <!-- Setup the Integration Test Environment (when -DskipIntegrationTests=false) -->
+        <profile>
+            <id>integration-test-environment</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+                <property>
+                    <name>skipIntegrationTests</name>
+                    <value>false</value>
+                </property>
+            </activation>
+            <build>
+                <plugins>
+                    <!-- Integration Testing setup: This plugin unzips the
                     'testEnvironment.zip' file (created by dspace-parent POM), into
                     the 'target/testing/' folder, to essentially create a test
                     install of DSpace, against which Tests can be run. -->
-               <plugin>
-                  <artifactId>maven-dependency-plugin</artifactId>
-                  <configuration>
-                     <outputDirectory>${project.build.directory}/testing</outputDirectory>
-                     <artifactItems>
-                        <artifactItem>
-                           <groupId>org.dspace</groupId>
-                           <artifactId>dspace-parent</artifactId>
-                           <version>${project.version}</version>
-                           <type>zip</type>
-                           <classifier>testEnvironment</classifier>
-                        </artifactItem>
-                     </artifactItems>
-                  </configuration>
-                  <executions>
-                     <execution>
-                        <id>setupIntegrationTestEnvironment</id>
-                        <phase>pre-integration-test</phase>
-                        <goals>
-                           <goal>unpack</goal>
-                        </goals>
-                     </execution>
-                  </executions>
-               </plugin>
-
-               <!-- Run Integration Testing! This plugin just kicks off the tests (when enabled). -->
-               <plugin>
-                  <artifactId>maven-failsafe-plugin</artifactId>
-                  <configuration>
-                     <systemPropertyVariables>
-                        <!-- Specify the dspace.dir to use for test environment -->
-                        <dspace.dir>${agnostic.build.dir}/testing/dspace</dspace.dir>
-                        <!-- Turn off any DSpace logging -->
-                        <dspace.log.init.disable>true</dspace.log.init.disable>
-                        <solr.install.dir>${agnostic.build.dir}/testing/dspace/solr/</solr.install.dir>
-                     </systemPropertyVariables>
-                  </configuration>
-               </plugin>
-            </plugins>
-         </build>
-         <dependencies>
-            <!-- When running tests, also include test classes from dspace-api
-                     (this test-jar is only built when tests are enabled). -->
-            <dependency>
-               <groupId>org.dspace</groupId>
-               <artifactId>dspace-api</artifactId>
-               <type>test-jar</type>
-               <scope>test</scope>
-            </dependency>
-         </dependencies>
-      </profile>
-
-      <profile>
-         <id>addon-iiif</id>
-         <activation>
-            <property>
-               <name>iiif.on</name>
-            </property>
-         </activation>
-         <dependencies>
-            <dependency>
-               <groupId>it.4science.dspace</groupId>
-               <artifactId>addon-iiif-api</artifactId>
-               <version>${addon-iiif.version}</version>
-               <type>jar</type>
-            </dependency>
-         </dependencies>
-      </profile>
-
-      <profile>
-         <id>addon-ocr</id>
-         <activation>
-            <property>
-               <name>ocr.on</name>
-            </property>
-         </activation>
-         <dependencies>
-            <dependency>
-               <groupId>it.4science.dspace</groupId>
-               <artifactId>addon-ocr-api</artifactId>
-               <version>${addon-ocr.version}</version>
-               <type>jar</type>
-            </dependency>
-         </dependencies>
-      </profile>
-
-      <profile>
-         <id>addon-document-viewer</id>
-         <activation>
-            <property>
-               <name>docviewer.on</name>
-            </property>
-         </activation>
-         <dependencies>
-            <dependency>
-               <groupId>it.4science.dspace</groupId>
-               <artifactId>addon-docviewer-api</artifactId>
-               <version>${addon-docviewer.version}</version>
-               <type>jar</type>
-            </dependency>
-         </dependencies>
-      </profile>
-
-     <profile>
-         <id>addon-analytics</id>
-          <activation>
-             <property>
-                <name>analytics.on</name>
-             </property>
-          </activation>
-         <dependencies>
-             <dependency>
-                 <groupId>it.4science.dspace</groupId>
-                 <artifactId>addon-analytics-api</artifactId>
-                 <version>${addon-analytics.version}</version>
-                 <type>jar</type>
-             </dependency>
-         </dependencies>
-     </profile>
-
-      <profile>
-         <id>addon-dataquality</id>
-         <activation>
-            <property>
-               <name>dq.on</name>
-            </property>
-         </activation>
-         <dependencies>
-            <dependency>
-               <groupId>it.4science.dspace</groupId>
-               <artifactId>addon-dataquality</artifactId>
-               <version>${addon-dataquality.version}</version>
-               <type>jar</type>
-            </dependency>
-         </dependencies>
-      </profile>
-
-      <!-- Builds Orchestrator addon for DSpace -->
-      <profile>
-         <id>addon-orchestrator</id>
-         <activation>
-            <property>
-               <name>orchestrator.on</name>
-            </property>
-         </activation>
-         <dependencies>
-            <dependency>
-               <groupId>it.4science.dspace</groupId>
-               <artifactId>addon-orchestrator-api</artifactId>
-               <version>${addon-orchestrator.version}</version>
-               <type>jar</type>
-            </dependency>
-         </dependencies>
-      </profile>
-
-      <!-- Builds LoginMIUR addon for DSpace -->
+                    <plugin>
+                        <artifactId>maven-dependency-plugin</artifactId>
+                        <configuration>
+                            <outputDirectory>${project.build.directory}/testing</outputDirectory>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>org.dspace</groupId>
+                                    <artifactId>dspace-parent</artifactId>
+                                    <version>${project.version}</version>
+                                    <type>zip</type>
+                                    <classifier>testEnvironment</classifier>
+                                </artifactItem>
+                            </artifactItems>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>setupIntegrationTestEnvironment</id>
+                                <phase>pre-integration-test</phase>
+                                <goals>
+                                    <goal>unpack</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <!-- Run Integration Testing! This plugin just kicks off the tests (when enabled). -->
+                    <plugin>
+                        <artifactId>maven-failsafe-plugin</artifactId>
+                        <configuration>
+                            <systemPropertyVariables>
+                                <!-- Specify the dspace.dir to use for test environment -->
+                                <dspace.dir>${agnostic.build.dir}/testing/dspace</dspace.dir>
+                                <!-- Turn off any DSpace logging -->
+                                <dspace.log.init.disable>true</dspace.log.init.disable>
+                                <solr.install.dir>${agnostic.build.dir}/testing/dspace/solr/</solr.install.dir>
+                            </systemPropertyVariables>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+            <dependencies>
+                <!-- When running tests, also include test classes from dspace-api
+                            (this test-jar is only built when tests are enabled). -->
+                <dependency>
+                    <groupId>org.dspace</groupId>
+                    <artifactId>dspace-api</artifactId>
+                    <type>test-jar</type>
+                    <scope>test</scope>
+                </dependency>
+            </dependencies>
+        </profile>
+        <profile>
+            <id>addon-iiif</id>
+            <activation>
+                <property>
+                    <name>iiif.on</name>
+                </property>
+            </activation>
+            <dependencies>
+                <dependency>
+                    <groupId>it.4science.dspace</groupId>
+                    <artifactId>addon-iiif-api</artifactId>
+                    <version>${addon-iiif.version}</version>
+                    <type>jar</type>
+                </dependency>
+            </dependencies>
+        </profile>
+        <profile>
+            <id>addon-ocr</id>
+            <activation>
+                <property>
+                    <name>ocr.on</name>
+                </property>
+            </activation>
+            <dependencies>
+                <dependency>
+                    <groupId>it.4science.dspace</groupId>
+                    <artifactId>addon-ocr-api</artifactId>
+                    <version>${addon-ocr.version}</version>
+                    <type>jar</type>
+                </dependency>
+            </dependencies>
+        </profile>
+        <profile>
+            <id>addon-document-viewer</id>
+            <activation>
+                <property>
+                    <name>docviewer.on</name>
+                </property>
+            </activation>
+            <dependencies>
+                <dependency>
+                    <groupId>it.4science.dspace</groupId>
+                    <artifactId>addon-docviewer-api</artifactId>
+                    <version>${addon-docviewer.version}</version>
+                    <type>jar</type>
+                </dependency>
+            </dependencies>
+        </profile>
+        <profile>
+            <id>addon-analytics</id>
+            <activation>
+                <property>
+                    <name>analytics.on</name>
+                </property>
+            </activation>
+            <dependencies>
+                <dependency>
+                    <groupId>it.4science.dspace</groupId>
+                    <artifactId>addon-analytics-api</artifactId>
+                    <version>${addon-analytics.version}</version>
+                    <type>jar</type>
+                </dependency>
+            </dependencies>
+        </profile>
+        <profile>
+            <id>addon-dataquality</id>
+            <activation>
+                <property>
+                    <name>dq.on</name>
+                </property>
+            </activation>
+            <dependencies>
+                <dependency>
+                    <groupId>it.4science.dspace</groupId>
+                    <artifactId>addon-dataquality</artifactId>
+                    <version>${addon-dataquality.version}</version>
+                    <type>jar</type>
+                </dependency>
+            </dependencies>
+        </profile>
+        <!-- Builds Orchestrator addon for DSpace -->
+        <profile>
+            <id>addon-orchestrator</id>
+            <activation>
+                <property>
+                    <name>orchestrator.on</name>
+                </property>
+            </activation>
+            <dependencies>
+                <dependency>
+                    <groupId>it.4science.dspace</groupId>
+                    <artifactId>addon-orchestrator-api</artifactId>
+                    <version>${addon-orchestrator.version}</version>
+                    <type>jar</type>
+                </dependency>
+            </dependencies>
+        </profile>
+        <!-- Builds LoginMIUR addon for DSpace -->
         <profile>
             <id>addon-loginmiur</id>
-             <activation>
+            <activation>
                 <property>
-                   <name>loginmiur.on</name>
+                    <name>loginmiur.on</name>
                 </property>
-             </activation>
+            </activation>
             <dependencies>
                 <dependency>
                     <groupId>it.4science.dspace</groupId>
@@ -318,32 +304,30 @@
                 </dependency>
             </dependencies>
         </profile>
-
-       <profile>
-           <id>addon-networklab</id>
-           <activation>
-               <property>
-                   <name>nl.on</name>
-               </property>
-           </activation>
-           <dependencies>
-               <dependency>
-                   <groupId>it.4science.dspace</groupId>
-                   <artifactId>addon-networklab</artifactId>
-                   <version>${addon-networklab.version}</version>
-                   <type>jar</type>
-               </dependency>
-           </dependencies>
-       </profile>
-
-       <!-- Builds Import plus addon for DSpace -->
+        <profile>
+            <id>addon-networklab</id>
+            <activation>
+                <property>
+                    <name>nl.on</name>
+                </property>
+            </activation>
+            <dependencies>
+                <dependency>
+                    <groupId>it.4science.dspace</groupId>
+                    <artifactId>addon-networklab</artifactId>
+                    <version>${addon-networklab.version}</version>
+                    <type>jar</type>
+                </dependency>
+            </dependencies>
+        </profile>
+        <!-- Builds Import plus addon for DSpace -->
         <profile>
             <id>addon-importplus</id>
-             <activation>
+            <activation>
                 <property>
-                   <name>importplus.on</name>
+                    <name>importplus.on</name>
                 </property>
-             </activation>
+            </activation>
             <dependencies>
                 <dependency>
                     <groupId>it.4science.dspace</groupId>
@@ -353,107 +337,99 @@
                 </dependency>
             </dependencies>
         </profile>
-
-   </profiles>
-
-   <!--
-   Runtime and Compile Time dependencies for DSpace.
-   -->
-   <dependencies>
-      <dependency>
-         <groupId>org.dspace</groupId>
-         <artifactId>dspace-api</artifactId>
-      </dependency>
-      <dependency>
-          <groupId>org.dspace</groupId>
-          <artifactId>dspace-api</artifactId>
-          <type>test-jar</type>
-          <scope>test</scope>
-      </dependency>
-      <dependency>
-         <groupId>org.dspace</groupId>
-         <artifactId>dspace-api-lang</artifactId>
-      </dependency>
-      <dependency>
-          <groupId>org.dspace</groupId>
-          <artifactId>dspace-services</artifactId>
-      </dependency>
-      <dependency>
-         <groupId>jakarta.servlet</groupId>
-         <artifactId>jakarta.servlet-api</artifactId>
-         <scope>provided</scope>
-      </dependency>
-      <dependency>
-         <groupId>ant-contrib</groupId>
-         <artifactId>ant-contrib</artifactId>
-         <version>1.0b3</version>
-         <exclusions>
-            <exclusion>
-               <groupId>ant</groupId>
-               <artifactId>ant</artifactId>
-            </exclusion>
-         </exclusions>
-      </dependency>
-      <dependency>
-         <groupId>org.apache.solr</groupId>
-         <artifactId>solr-solrj</artifactId>
-         <version>${solr.client.version}</version>
-      </dependency>
-      <!-- Solr Core is only needed for Integration Tests (to run a MockSolrServer) -->
-      <!-- The following Solr / Lucene dependencies also support integration tests -->
-      <dependency>
-         <groupId>org.apache.solr</groupId>
-         <artifactId>solr-core</artifactId>
-         <version>${solr.client.version}</version>
-         <scope>test</scope>
-         <exclusions>
-            <!-- Later version provided by Hibernate -->
-            <exclusion>
-               <groupId>org.antlr</groupId>
-               <artifactId>antlr4-runtime</artifactId>
-            </exclusion>
-         </exclusions>
-      </dependency>
-      <dependency>
-         <groupId>org.apache.lucene</groupId>
-         <artifactId>lucene-analyzers-icu</artifactId>
-         <scope>test</scope>
-      </dependency>
-      <dependency>
-         <groupId>org.apache.lucene</groupId>
-         <artifactId>lucene-analyzers-smartcn</artifactId>
-         <scope>test</scope>
-      </dependency>
-      <dependency>
-         <groupId>org.apache.lucene</groupId>
-         <artifactId>lucene-analyzers-stempel</artifactId>
-         <scope>test</scope>
-      </dependency>
-      <dependency>
-         <groupId>junit</groupId>
-         <artifactId>junit</artifactId>
-         <scope>test</scope>
-      </dependency>
-      <dependency>
-         <groupId>org.hamcrest</groupId>
-         <artifactId>hamcrest</artifactId>
-         <scope>test</scope>
-      </dependency>
-      <dependency>
-         <groupId>com.h2database</groupId>
-         <artifactId>h2</artifactId>
-         <scope>test</scope>
-      </dependency>
-      <dependency>
-         <groupId>org.mockito</groupId>
-         <artifactId>mockito-core</artifactId>
-         <scope>test</scope>
-      </dependency>
-
-   </dependencies>
-
-
-  <scm>
-    <tag>dspace-9.2</tag>
-  </scm>
+    </profiles>
+    <!--
+    Runtime and Compile Time dependencies for DSpace.
+    -->
+    <dependencies>
+        <dependency>
+            <groupId>org.dspace</groupId>
+            <artifactId>dspace-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.dspace</groupId>
+            <artifactId>dspace-api</artifactId>
+            <type>test-jar</type>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.dspace</groupId>
+            <artifactId>dspace-api-lang</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.dspace</groupId>
+            <artifactId>dspace-services</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>jakarta.servlet</groupId>
+            <artifactId>jakarta.servlet-api</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>ant-contrib</groupId>
+            <artifactId>ant-contrib</artifactId>
+            <version>1.0b3</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>ant</groupId>
+                    <artifactId>ant</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.solr</groupId>
+            <artifactId>solr-solrj</artifactId>
+            <version>${solr.client.version}</version>
+        </dependency>
+        <!-- Solr Core is only needed for Integration Tests (to run a MockSolrServer) -->
+        <!-- The following Solr / Lucene dependencies also support integration tests -->
+        <dependency>
+            <groupId>org.apache.solr</groupId>
+            <artifactId>solr-core</artifactId>
+            <version>${solr.client.version}</version>
+            <scope>test</scope>
+            <exclusions>
+                <!-- Later version provided by Hibernate -->
+                <exclusion>
+                    <groupId>org.antlr</groupId>
+                    <artifactId>antlr4-runtime</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.lucene</groupId>
+            <artifactId>lucene-analyzers-icu</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.lucene</groupId>
+            <artifactId>lucene-analyzers-smartcn</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.lucene</groupId>
+            <artifactId>lucene-analyzers-stempel</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.hamcrest</groupId>
+            <artifactId>hamcrest</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
 </project>
