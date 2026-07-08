@@ -171,7 +171,7 @@ definitions:
         script:
           - export HASH_COMMIT=${BITBUCKET_COMMIT:0:8}
           - export BRANCH_NAME=$(echo "$BITBUCKET_BRANCH" | tr '[:upper:]' '[:lower:]' | sed 's|/|--|g')
-          - docker build -build-arg DOCKER_REGISTRY="public.ecr.aws/docker/library" -f ./dspace/src/main/docker/dspace-solr/Dockerfile -t solr8:${BRANCH_NAME}-${HASH_COMMIT} -t solr8:${BRANCH_NAME}-latest .
+          - docker build --build-arg DOCKER_REGISTRY="public.ecr.aws/docker/library" -f ./dspace/src/main/docker/dspace-solr/Dockerfile -t solr8:${BRANCH_NAME}-${HASH_COMMIT} -t solr8:${BRANCH_NAME}-latest .
           - pipe: atlassian/aws-ecr-push-image:2.5.0
             variables:
               AWS_ACCESS_KEY_ID: $AWS_ACCESS_KEY_ID
@@ -195,7 +195,7 @@ definitions:
         script:
           - export HASH_COMMIT=${BITBUCKET_COMMIT:0:8}
           - export BRANCH_NAME=$(echo "$BITBUCKET_BRANCH" | tr '[:upper:]' '[:lower:]' | sed 's|/|--|g')
-          - docker build -build-arg DOCKER_REGISTRY="public.ecr.aws/docker/library" -f ./dspace/src/main/docker/dspace-solr/Dockerfile9 -t solr9:${BRANCH_NAME}-${HASH_COMMIT} -t solr9:${BRANCH_NAME}-latest .
+          - docker build --build-arg DOCKER_REGISTRY="public.ecr.aws/docker/library" -f ./dspace/src/main/docker/dspace-solr/Dockerfile9 -t solr9:${BRANCH_NAME}-${HASH_COMMIT} -t solr9:${BRANCH_NAME}-latest .
           - pipe: atlassian/aws-ecr-push-image:2.5.0
             variables:
               AWS_ACCESS_KEY_ID: $AWS_ACCESS_KEY_ID
