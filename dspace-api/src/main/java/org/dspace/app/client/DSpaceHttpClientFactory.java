@@ -14,6 +14,7 @@ import java.util.List;
 import org.apache.http.HttpRequestInterceptor;
 import org.apache.http.HttpResponseInterceptor;
 import org.apache.http.client.HttpClient;
+import org.apache.http.client.config.CookieSpecs;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
@@ -41,6 +42,8 @@ public class DSpaceHttpClientFactory {
     @Autowired(required = false)
     private List<HttpResponseInterceptor> responseInterceptors;
 
+    private final RequestConfig requestConfig = RequestConfig.custom().setCookieSpec(CookieSpecs.STANDARD).build();
+
     /**
      * Get an instance of {@link DSpaceHttpClientFactory} from the Spring context.
      * @return the bean instance
@@ -55,7 +58,7 @@ public class DSpaceHttpClientFactory {
      * @return the client
      */
     public CloseableHttpClient build() {
-        return build(HttpClientBuilder.create(), true);
+        return build(create(requestConfig), true);
     }
 
     /**
@@ -64,13 +67,7 @@ public class DSpaceHttpClientFactory {
      * @return the client
      */
     public HttpClientBuilder builder(boolean setProxy) {
-        HttpClientBuilder clientBuilder = HttpClientBuilder.create();
-        if (setProxy) {
-            clientBuilder.setRoutePlanner(proxyRoutePlanner);
-        }
-        getRequestInterceptors().forEach(clientBuilder::addInterceptorLast);
-        getResponseInterceptors().forEach(clientBuilder::addInterceptorLast);
-        return clientBuilder;
+        return configureBuilder(create(requestConfig), setProxy);
     }
 
     /**
@@ -80,7 +77,7 @@ public class DSpaceHttpClientFactory {
      * @return the client
      */
     public CloseableHttpClient buildWithoutProxy() {
-        return build(HttpClientBuilder.create(), false);
+        return build(create(requestConfig), false);
     }
 
     /**
@@ -91,10 +88,14 @@ public class DSpaceHttpClientFactory {
      * @return              the client
      */
     public CloseableHttpClient buildWithoutAutomaticRetries(int maxConnTotal) {
-        HttpClientBuilder clientBuilder = HttpClientBuilder.create()
+        HttpClientBuilder clientBuilder = create(requestConfig)
                 .disableAutomaticRetries()
                 .setMaxConnTotal(maxConnTotal);
         return build(clientBuilder, true);
+    }
+
+    protected HttpClientBuilder create(RequestConfig rq) {
+        return HttpClientBuilder.create().setDefaultRequestConfig(rq);
     }
 
     /**
@@ -104,18 +105,25 @@ public class DSpaceHttpClientFactory {
      * @return               the client
      */
     public CloseableHttpClient buildWithRequestConfig(RequestConfig requestConfig) {
-        HttpClientBuilder httpClientBuilder = HttpClientBuilder.create()
-                .setDefaultRequestConfig(requestConfig);
-        return build(httpClientBuilder, true);
+        String cookieSpec = requestConfig.getCookieSpec();
+        RequestConfig rq = requestConfig;
+        if (!CookieSpecs.STANDARD.equals(cookieSpec)) {
+            rq = RequestConfig.copy(requestConfig).setCookieSpec(CookieSpecs.STANDARD).build();
+        }
+        return build(create(rq), true);
     }
 
     private CloseableHttpClient build(HttpClientBuilder clientBuilder, boolean setProxy) {
+        return configureBuilder(clientBuilder, setProxy).build();
+    }
+
+    protected HttpClientBuilder configureBuilder(HttpClientBuilder clientBuilder, boolean setProxy) {
         if (setProxy) {
             clientBuilder.setRoutePlanner(proxyRoutePlanner);
         }
         getRequestInterceptors().forEach(clientBuilder::addInterceptorLast);
         getResponseInterceptors().forEach(clientBuilder::addInterceptorLast);
-        return clientBuilder.build();
+        return clientBuilder;
     }
 
     public ConfigurationService getConfigurationService() {

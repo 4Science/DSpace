@@ -34,10 +34,10 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 import java.text.ParseException;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -70,26 +70,25 @@ import org.dspace.services.factory.DSpaceServicesFactory;
 import org.dspace.utils.DSpace;
 import org.junit.Before;
 import org.junit.Test;
-import org.springframework.format.datetime.DateFormatter;
 
 /**
  * Integration tests for {@link BulkImportWorkbookBuilder}.
  *
  * @author Luca Giamminonni (luca.giamminonni at 4Science)
- *
  */
 public class BulkImportWorkbookBuilderIT extends AbstractIntegrationTestWithDatabase {
 
     private static final Pattern UUID_PATTERN = compile(
         "[0-9a-fA-F]{8}\\-[0-9a-fA-F]{4}\\-[0-9a-fA-F]{4}\\-[0-9a-fA-F]{4}\\-[0-9a-fA-F]{12}");
 
-    private ItemService itemService = ContentServiceFactory.getInstance().getItemService();
+    private final ItemService itemService = ContentServiceFactory.getInstance().getItemService();
 
-    private ConfigurationService configurationService = DSpaceServicesFactory.getInstance().getConfigurationService();
+    private final ConfigurationService configurationService =
+        DSpaceServicesFactory.getInstance().getConfigurationService();
 
-    private BitstreamService bitstreamService = ContentServiceFactory.getInstance().getBitstreamService();
+    private final BitstreamService bitstreamService = ContentServiceFactory.getInstance().getBitstreamService();
 
-    private GroupService groupService = EPersonServiceFactory.getInstance().getGroupService();
+    private final GroupService groupService = EPersonServiceFactory.getInstance().getGroupService();
 
     private Collection publications;
 
@@ -123,18 +122,18 @@ public class BulkImportWorkbookBuilderIT extends AbstractIntegrationTestWithData
         context.turnOffAuthorisationSystem();
 
         Item author = ItemBuilder.createItem(context, persons)
-            .withTitle("White, Walter")
-            .build();
+                                 .withTitle("White, Walter")
+                                 .build();
 
         String authorId = author.getID().toString();
 
         Item testUser = ItemBuilder.createItem(context, persons)
-                .withTitle("Test User")
-                .build();
+                                   .withTitle("Test User")
+                                   .build();
 
         Item jesse = ItemBuilder.createItem(context, persons)
-                .withTitle("Jesse Pinkman")
-                .build();
+                                .withTitle("Jesse Pinkman")
+                                .build();
 
         context.restoreAuthSystemState();
 
@@ -150,9 +149,9 @@ public class BulkImportWorkbookBuilderIT extends AbstractIntegrationTestWithData
 
         List<BitstreamDTO> bitstreams = new ArrayList<BitstreamDTO>();
         bitstreams.add(new BitstreamDTO("ORIGINAL", storeInTempLocation("First bitstream content"),
-            List.of(new MetadataValueDTO("dc", "title", null, "Bitstream 1"))));
+                                        List.of(new MetadataValueDTO("dc", "title", null, "Bitstream 1"))));
         bitstreams.add(new BitstreamDTO("ORIGINAL", storeInTempLocation("Second bitstream content"),
-            List.of(new MetadataValueDTO("dc", "title", null, "Bitstream 2"))));
+                                        List.of(new MetadataValueDTO("dc", "title", null, "Bitstream 2"))));
 
         ItemDTO firstItemDTO = new ItemDTO("DOI::12345", metadata, bitstreams);
 
@@ -162,23 +161,23 @@ public class BulkImportWorkbookBuilderIT extends AbstractIntegrationTestWithData
         metadata.add(new MetadataValueDTO("dc", "type", null, "Book"));
         metadata.add(new MetadataValueDTO("dc", "language", "iso", "it"));
         metadata.add(new MetadataValueDTO("dc", "contributor", "author", null, "Jesse Pinkman",
-                jesse.getID().toString(), 600));
+                                          jesse.getID().toString(), 600));
         metadata.add(new MetadataValueDTO("oairecerif", "author", "affiliation", PLACEHOLDER_PARENT_METADATA_VALUE));
         metadata.add(new MetadataValueDTO("dc", "contributor", "author", null, "Test User",
-                testUser.getID().toString(), 600));
+                                          testUser.getID().toString(), 600));
         metadata.add(new MetadataValueDTO("oairecerif", "author", "affiliation", "Company"));
 
         bitstreams = new ArrayList<BitstreamDTO>();
 
         bitstreams.add(new BitstreamDTO("ORIGINAL", storeInTempLocation("Third bitstream content"),
-            List.of(new MetadataValueDTO("dc", "title", null, "Bitstream 3"))));
+                                        List.of(new MetadataValueDTO("dc", "title", null, "Bitstream 3"))));
 
         List<ResourcePolicyDTO> policies = new ArrayList<>();
         policies.add(new ResourcePolicyDTO("embargo", "Test policy", READ, TYPE_CUSTOM, parseDate("2025-02-12"), null));
         policies.add(new ResourcePolicyDTO("lease", "My policy", WRITE, TYPE_CUSTOM, null, parseDate("2025-02-12")));
 
         bitstreams.add(new BitstreamDTO("MY BUNDLE", storeInTempLocation("Fourth bitstream content"),
-            List.of(new MetadataValueDTO("dc", "title", null, "Bitstream 4")), policies));
+                                        List.of(new MetadataValueDTO("dc", "title", null, "Bitstream 4")), policies));
 
         ItemDTO secondItemDTO = new ItemDTO("DOI::98765", false, metadata, bitstreams);
 
@@ -186,8 +185,8 @@ public class BulkImportWorkbookBuilderIT extends AbstractIntegrationTestWithData
 
         String tempLocation = storeInTempLocation(workbook);
 
-        String[] args = new String[] { "bulk-import", "-c", publications.getID().toString(), "-f", tempLocation,
-        "-e", admin.getEmail()};
+        String[] args = new String[] {"bulk-import", "-c", publications.getID().toString(), "-f", tempLocation,
+            "-e", admin.getEmail()};
         TestDSpaceRunnableHandler handler = new TestDSpaceRunnableHandler();
 
         handleScript(args, ScriptLauncher.getConfig(kernelImpl), handler, kernelImpl, eperson);
@@ -274,8 +273,8 @@ public class BulkImportWorkbookBuilderIT extends AbstractIntegrationTestWithData
     private List<Bitstream> getItemBitstreamsByBundle(Item item, String bundleName) {
         try {
             return itemService.getBundles(item, bundleName).stream()
-                .flatMap(bundle -> bundle.getBitstreams().stream())
-                .collect(Collectors.toList());
+                              .flatMap(bundle -> bundle.getBitstreams().stream())
+                              .collect(Collectors.toList());
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -287,7 +286,7 @@ public class BulkImportWorkbookBuilderIT extends AbstractIntegrationTestWithData
 
     private org.hamcrest.Matcher<Bitstream> hasContent(String content) {
         return LambdaMatcher.matches(bitstream -> content.equals(getBitstreamContent(bitstream)),
-            "Expected bitstream with content " + content);
+                                     "Expected bitstream with content " + content);
     }
 
     @SuppressWarnings("unchecked")
@@ -307,8 +306,8 @@ public class BulkImportWorkbookBuilderIT extends AbstractIntegrationTestWithData
         }
     }
 
-    private Date parseDate(String date) throws ParseException {
-        return new DateFormatter("yyyy-MM-dd").parse(date, Locale.getDefault());
+    private LocalDate parseDate(String date) throws ParseException {
+        return LocalDate.parse(date, DateTimeFormatter.ISO_LOCAL_DATE);
     }
 
     private String storeInTempLocation(String fileContent) throws IOException {

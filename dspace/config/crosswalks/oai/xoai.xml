@@ -84,7 +84,7 @@
         <!--
             Openaire Guidelines 4.0:
 
-            - https://openaire-guidelines-for-literature-repository-managers.readthedocs.io/en/v4.0.0/
+            - https://openaire-guidelines-for-literature-repository-managers.readthedocs.io/en/4.0.1/
 
             There is a limitation over the embargoedEndDate parameter:
 
@@ -99,7 +99,7 @@
             <Format ref="oaidc"/>
             <Format ref="oaiopenaire"/>
             <Description>
-                This contexts complies with Openaire Guidelines for Literature Repositories v4.0.
+                This contexts complies with OpenAIRE Guidelines for Institutional and Thematic Repository Managers v4.0.
             </Description>
         </Context>
         <!--
@@ -242,8 +242,8 @@
             <Namespace>http://irdb.nii.ac.jp/oai</Namespace>
             <SchemaLocation>http://irdb.nii.ac.jp/oai/junii2-3-1.xsd</SchemaLocation>
         </Format>
-        <!-- Metadata format based on the Openaire 4.0 guidelines
-             https://openaire-guidelines-for-literature-repository-managers.readthedocs.io/en/v4.0.0/use_of_oai_pmh.html
+        <!-- Metadata format based on the OpenAIRE 4.0 guidelines
+             https://openaire-guidelines-for-literature-repository-managers.readthedocs.io/en/4.0.1/use_of_oai_pmh.html
         -->
         <Format id="oaiopenaire">
             <Prefix>oai_openaire</Prefix>

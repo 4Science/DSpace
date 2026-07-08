@@ -33,18 +33,18 @@ Past releases and future releases are documented in the [RoadMap page](https://w
 Documentation is available on our [Documentation Wiki](https://wiki.lyrasis.org/display/DSPACECRIS/Technical+and+User+documentation) please check also the documentation from the parent DSpace project as basic features and principle are common and only described in the [DSpace documentation](https://wiki.lyrasis.org/display/DSDOC/).
 
 The latest DSpace Installation instructions are available at:
-https://wiki.lyrasis.org/display/DSDOC8x/Installing+DSpace
+https://wiki.lyrasis.org/display/DSDOC9x/Installing+DSpace
 
 Please be aware that, as a Java web application, DSpace-CRIS requires a database (PostgreSQL or Oracle), a servlet container (usually Tomcat) and a SOLR instance in order to function.
 
 More information about these and all other prerequisites can be found in the Installation instructions above.
 
-## Running DSpace-CRIS 8 in Docker
+## Running DSpace-CRIS 9 in Docker
 
 **NOTE**: At this time, we do not have production-ready Docker images for DSpace-CRIS.
 That said, we do have quick-start Docker Compose scripts for development or testing purposes.
 
-See [Running DSpace 8 with Docker Compose](dspace/src/main/docker-compose/README.md)
+See [Running DSpace-CRIS 9 with Docker Compose](dspace/src/main/docker-compose/README.md)
 
 ## Contributing
 

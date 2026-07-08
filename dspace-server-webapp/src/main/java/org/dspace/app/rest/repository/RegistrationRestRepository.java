@@ -31,6 +31,7 @@ import org.dspace.app.rest.exception.UnprocessableEntityException;
 import org.dspace.app.rest.model.RegistrationRest;
 import org.dspace.app.rest.model.patch.Patch;
 import org.dspace.app.rest.repository.patch.ResourcePatch;
+import org.dspace.app.rest.repository.patch.operation.RegistrationEmailPatchOperation;
 import org.dspace.app.rest.utils.Utils;
 import org.dspace.app.util.AuthorizeUtil;
 import org.dspace.authenticate.service.AuthenticationService;
@@ -43,6 +44,7 @@ import org.dspace.eperson.Group;
 import org.dspace.eperson.InvalidReCaptchaException;
 import org.dspace.eperson.RegistrationData;
 import org.dspace.eperson.RegistrationTypeEnum;
+import org.dspace.eperson.factory.CaptchaServiceFactory;
 import org.dspace.eperson.service.AccountService;
 import org.dspace.eperson.service.CaptchaService;
 import org.dspace.eperson.service.EPersonService;
@@ -64,13 +66,11 @@ import org.springframework.stereotype.Component;
 @Component(RegistrationRest.CATEGORY + "." + RegistrationRest.PLURAL_NAME)
 public class RegistrationRestRepository extends DSpaceRestRepository<RegistrationRest, Integer> {
 
-    private static Logger log = LogManager.getLogger(RegistrationRestRepository.class);
-
     public static final String TOKEN_QUERY_PARAM = "token";
     public static final String TYPE_QUERY_PARAM = "accountRequestType";
     public static final String TYPE_REGISTER = RegistrationTypeEnum.REGISTER.toString().toLowerCase();
     public static final String TYPE_FORGOT = RegistrationTypeEnum.FORGOT.toString().toLowerCase();
-
+    private static final Logger log = LogManager.getLogger(RegistrationRestRepository.class);
     @Autowired
     private EPersonService ePersonService;
 
@@ -83,8 +83,8 @@ public class RegistrationRestRepository extends DSpaceRestRepository<Registratio
     @Autowired
     private RequestService requestService;
 
-    @Autowired
-    private CaptchaService captchaService;
+    // TODO: Work towards full coverage of captcha, so we can use getCaptchaService() here instead
+    private CaptchaService captchaService = CaptchaServiceFactory.getInstance().getGoogleCaptchaService();
 
     @Autowired
     private ConfigurationService configurationService;
@@ -93,16 +93,20 @@ public class RegistrationRestRepository extends DSpaceRestRepository<Registratio
     private RegistrationDataService registrationDataService;
 
     @Autowired
+    private Utils utils;
+
+    @Autowired
+    private ResourcePatch<RegistrationData> resourcePatch;
+
+    @Autowired
+    private ObjectMapper mapper;
+
+    @Autowired
     private AuthorizeService authorizeService;
 
     @Autowired
     private GroupService groupService;
 
-    @Autowired
-    private Utils utils;
-
-    @Autowired
-    private ResourcePatch<RegistrationData> resourcePatch;
 
     @Override
     @PreAuthorize("permitAll()")
@@ -118,9 +122,8 @@ public class RegistrationRestRepository extends DSpaceRestRepository<Registratio
     @Override
     public RegistrationRest createAndReturn(Context context) {
         HttpServletRequest request = requestService.getCurrentRequest().getHttpServletRequest();
-        ObjectMapper mapper = new ObjectMapper();
         RegistrationRest registrationRest;
-        String captchaToken = request.getHeader("X-Recaptcha-Token");
+        String captchaToken = request.getHeader("x-captcha-payload");
         boolean verificationEnabled = configurationService.getBooleanProperty("registration.verification.enabled");
 
         if (verificationEnabled) {
@@ -180,23 +183,35 @@ public class RegistrationRestRepository extends DSpaceRestRepository<Registratio
                               + registrationRest.getEmail(), e);
             }
         } else if (accountType.equalsIgnoreCase(TYPE_REGISTER)) {
-            try {
-                String email = registrationRest.getEmail();
-                if (!AuthorizeUtil.authorizeNewAccountRegistration(context, request)) {
-                    throw new AccessDeniedException(
-                        "Registration is disabled, you are not authorized to create a new Authorization");
-                }
+            if (eperson == null) {
+                try {
+                    String email = registrationRest.getEmail();
+                    if (!AuthorizeUtil.authorizeNewAccountRegistration(context, request)) {
+                        throw new AccessDeniedException(
+                            "Registration is disabled, you are not authorized to create a new Authorization");
+                    }
 
-                if (!authenticationService.canSelfRegister(context, request, registrationRest.getEmail())) {
-                    throw new UnprocessableEntityException(
-                        String.format("Registration is not allowed with email address" +
-                                          " %s", email));
-                }
+                    if (!authenticationService.canSelfRegister(context, request, registrationRest.getEmail())) {
+                        throw new UnprocessableEntityException(
+                            String.format("Registration is not allowed with email address" +
+                                              " %s", email));
+                    }
 
-                accountService.sendRegistrationInfo(context, registrationRest.getEmail(), registrationRest.getGroups());
-            } catch (SQLException | IOException | MessagingException | AuthorizeException e) {
-                log.error("Something went wrong with sending registration info email: "
-                              + registrationRest.getEmail(), e);
+                    accountService.sendRegistrationInfo(context, registrationRest.getEmail(),
+                                                        registrationRest.getGroups());
+                } catch (SQLException | IOException | MessagingException | AuthorizeException e) {
+                    log.error("Something went wrong with sending registration info email: "
+                                  + registrationRest.getEmail(), e);
+                }
+            } else {
+                // if an eperson with this email already exists then send "forgot password" email instead
+                try {
+                    accountService.sendForgotPasswordInfo(context, registrationRest.getEmail(),
+                                                          registrationRest.getGroups());
+                } catch (SQLException | IOException | MessagingException | AuthorizeException e) {
+                    log.error("Something went wrong with sending forgot password info email: "
+                                  + registrationRest.getEmail(), e);
+                }
             }
         }
         return null;
@@ -236,6 +251,24 @@ public class RegistrationRestRepository extends DSpaceRestRepository<Registratio
         return converter.toRest(registrationData, utils.obtainProjection());
     }
 
+    private void validateToken(Context context, String token) {
+        try {
+            RegistrationData registrationData =
+                registrationDataService.findByToken(context, token);
+            if (registrationData == null || !registrationDataService.isValid(registrationData)) {
+                throw new AccessDeniedException("The token is invalid");
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * This method can be used to update a {@link RegistrationData} with a given {@code id} that has a valid
+     * {@code token} with the actions described in the {@link Patch} object.
+     * This method is used to patch the email value, and will generate a completely new {@code token} that will be
+     * sent with an email {@link RegistrationEmailPatchOperation}.
+     */
     @Override
     public RegistrationRest patch(
         HttpServletRequest request, String apiCategory, String model, Integer id, Patch patch
@@ -261,18 +294,6 @@ public class RegistrationRestRepository extends DSpaceRestRepository<Registratio
             throw new RuntimeException(e.getMessage(), e);
         }
         return null;
-    }
-
-    private void validateToken(Context context, String token) {
-        try {
-            RegistrationData registrationData =
-                registrationDataService.findByToken(context, token);
-            if (registrationData == null || !registrationDataService.isValid(registrationData)) {
-                throw new AccessDeniedException("The token is invalid");
-            }
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
     }
 
     public void setCaptchaService(CaptchaService captchaService) {

@@ -30,12 +30,12 @@ import static org.hamcrest.Matchers.is;
 
 import java.sql.SQLException;
 import java.time.Instant;
-import java.util.Date;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
 import org.dspace.AbstractIntegrationTestWithDatabase;
-import org.dspace.access.status.AccessStatusHelper;
+import org.dspace.access.status.DefaultAccessStatusHelper;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.authorize.factory.AuthorizeServiceFactory;
 import org.dspace.authorize.service.AuthorizeService;
@@ -65,7 +65,6 @@ import org.dspace.services.factory.DSpaceServicesFactory;
 import org.dspace.utils.DSpace;
 import org.dspace.versioning.Version;
 import org.dspace.versioning.service.VersioningService;
-import org.joda.time.LocalDate;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -175,7 +174,7 @@ public class OrcidQueueConsumerIT extends AbstractIntegrationTestWithDatabase {
             .withMetadata("crisrp.country::IT")
             .withPutCode("123456")
             .withOperation(OrcidOperation.INSERT)
-            .withTimestamp(Date.from(Instant.ofEpochMilli(100000)))
+            .withTimestamp(Instant.ofEpochMilli(100000))
             .withStatus(201)
             .build();
 
@@ -184,7 +183,7 @@ public class OrcidQueueConsumerIT extends AbstractIntegrationTestWithDatabase {
             .withMetadata("crisrp.country::IT")
             .withPutCode("123456")
             .withOperation(OrcidOperation.DELETE)
-            .withTimestamp(Date.from(Instant.ofEpochMilli(200000)))
+            .withTimestamp(Instant.ofEpochMilli(200000))
             .withStatus(204)
             .build();
 
@@ -219,7 +218,7 @@ public class OrcidQueueConsumerIT extends AbstractIntegrationTestWithDatabase {
             .withMetadata("crisrp.country::IT")
             .withPutCode("123456")
             .withOperation(OrcidOperation.INSERT)
-            .withTimestamp(Date.from(Instant.ofEpochMilli(100000)))
+            .withTimestamp(Instant.ofEpochMilli(100000))
             .withStatus(201)
             .build();
 
@@ -228,7 +227,7 @@ public class OrcidQueueConsumerIT extends AbstractIntegrationTestWithDatabase {
             .withMetadata("crisrp.country::IT")
             .withPutCode("123456")
             .withOperation(OrcidOperation.DELETE)
-            .withTimestamp(Date.from(Instant.ofEpochMilli(200000)))
+            .withTimestamp(Instant.ofEpochMilli(200000))
             .withStatus(204)
             .build();
 
@@ -237,7 +236,7 @@ public class OrcidQueueConsumerIT extends AbstractIntegrationTestWithDatabase {
             .withMetadata("crisrp.country::IT")
             .withPutCode("123456")
             .withOperation(OrcidOperation.INSERT)
-            .withTimestamp(Date.from(Instant.ofEpochMilli(300000)))
+            .withTimestamp(Instant.ofEpochMilli(300000))
             .withStatus(201)
             .build();
 
@@ -271,7 +270,7 @@ public class OrcidQueueConsumerIT extends AbstractIntegrationTestWithDatabase {
             .withMetadata("crisrp.country::IT")
             .withPutCode("123456")
             .withOperation(OrcidOperation.INSERT)
-            .withTimestamp(Date.from(Instant.ofEpochMilli(100000)))
+            .withTimestamp(Instant.ofEpochMilli(100000))
             .withStatus(201)
             .build();
 
@@ -280,7 +279,7 @@ public class OrcidQueueConsumerIT extends AbstractIntegrationTestWithDatabase {
             .withMetadata("crisrp.country::IT")
             .withPutCode("123456")
             .withOperation(OrcidOperation.DELETE)
-            .withTimestamp(Date.from(Instant.ofEpochMilli(200000)))
+            .withTimestamp(Instant.ofEpochMilli(200000))
             .withStatus(400)
             .build();
 
@@ -1349,7 +1348,7 @@ public class OrcidQueueConsumerIT extends AbstractIntegrationTestWithDatabase {
         Item standardPublication = ItemBuilder.createItem(context, publications)
                 .withTitle("Standard Publication")
                 .withAuthor("Test User", profile.getID().toString())
-                .withMetadata("datacite", "rights", "", AccessStatusHelper.OPEN_ACCESS)
+                .withMetadata("datacite", "rights", "", DefaultAccessStatusHelper.OPEN_ACCESS)
                 .build();
 
         authorizeService.removeAllPolicies(context, standardPublication);
@@ -1361,12 +1360,12 @@ public class OrcidQueueConsumerIT extends AbstractIntegrationTestWithDatabase {
         int embargoYear = configurationService.getIntProperty("access.status.embargo.forever.year") - 1;
         int embargoMonth = configurationService.getIntProperty("access.status.embargo.forever.month");
         int embargoDay = configurationService.getIntProperty("access.status.embargo.forever.day");
-        Date embargoDate = new LocalDate(embargoYear, embargoMonth, embargoDay).toDate();
+        LocalDate embargoDate = LocalDate.of(embargoYear, embargoMonth, embargoDay);
 
         Item embargoedPublication = ItemBuilder.createItem(context, publications)
                 .withTitle("Embargoed Publication")
                 .withAuthor("Test User", profile.getID().toString())
-                .withMetadata("datacite", "rights", "", AccessStatusHelper.EMBARGO)
+                .withMetadata("datacite", "rights", "", DefaultAccessStatusHelper.EMBARGO)
                 .build();
 
         authorizeService.removeAllPolicies(context, embargoedPublication);
@@ -1379,7 +1378,7 @@ public class OrcidQueueConsumerIT extends AbstractIntegrationTestWithDatabase {
         Item groupRestrictedPublication = ItemBuilder.createItem(context, publications)
                 .withTitle("Group Restricted Publication")
                 .withAuthor("Test User", profile.getID().toString())
-                .withMetadata("datacite", "rights", "", AccessStatusHelper.RESTRICTED)
+                .withMetadata("datacite", "rights", "", DefaultAccessStatusHelper.RESTRICTED)
                 .build();
 
         authorizeService.removeAllPolicies(context, groupRestrictedPublication);
@@ -1392,7 +1391,7 @@ public class OrcidQueueConsumerIT extends AbstractIntegrationTestWithDatabase {
         Item noPolicyRestrictedPublication = ItemBuilder.createItem(context, publications)
                 .withTitle("No Policy Restricted Publication")
                 .withAuthor("Test User", profile.getID().toString())
-                .withMetadata("datacite", "rights", "", AccessStatusHelper.RESTRICTED)
+                .withMetadata("datacite", "rights", "", DefaultAccessStatusHelper.RESTRICTED)
                 .build();
 
         authorizeService.removeAllPolicies(context, noPolicyRestrictedPublication);

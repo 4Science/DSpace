@@ -162,6 +162,7 @@ public class VocabularyEntryDetailsIT extends AbstractControllerIntegrationTest 
          .andExpect(jsonPath("$.page.totalElements", Matchers.is(12)));
     }
 
+    @Test
     public void srscSearchTopNoAuthorityTest() throws Exception {
         String tokenAdmin = getAuthToken(admin.getEmail(), password);
         String tokenEPerson = getAuthToken(eperson.getEmail(), password);

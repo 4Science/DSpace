@@ -27,6 +27,7 @@ import com.fasterxml.jackson.databind.json.JsonMapper;
 import eu.dnetlib.broker.BrokerClient;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.dspace.content.DSpaceObject;
 import org.dspace.content.Item;
@@ -44,7 +45,7 @@ import org.dspace.services.factory.DSpaceServicesFactory;
 import org.dspace.utils.DSpace;
 
 /**
- * Implementation of {@link DSpaceRunnable} to perfom a QAEvents import from a
+ * Implementation of {@link DSpaceRunnable} to perform a QAEvents import from a
  * json file. The JSON file contains an array of JSON Events, where each event
  * has the following structure. The message attribute follows the structure
  * documented at
@@ -292,7 +293,7 @@ public class OpenaireEventsImport
      */
     private void storeOpenaireQAEvent(QAEvent event) {
 
-        if (!StringUtils.equalsAny(event.getTopic(), topicsToImport)) {
+        if (!Strings.CS.equalsAny(event.getTopic(), topicsToImport)) {
             handler.logWarning("Event for topic " + event.getTopic() + " is not allowed in the qaevents.cfg");
             return;
         }
@@ -323,7 +324,7 @@ public class OpenaireEventsImport
         try {
             return brokerClient.listSubscriptions(openaireBrokerURL, email);
         } catch (Exception ex) {
-            throw new IllegalArgumentException("An error occurs retriving the subscriptions "
+            throw new IllegalArgumentException("An error occurs retrieving the subscriptions "
                 + "from the OPENAIRE broker: " + getMessage(ex), ex);
         }
     }

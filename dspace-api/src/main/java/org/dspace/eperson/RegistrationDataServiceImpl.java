@@ -8,8 +8,8 @@
 package org.dspace.eperson;
 
 import java.sql.SQLException;
+import java.time.Instant;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.content.MetadataField;
 import org.dspace.content.MetadataValue;
@@ -204,7 +204,7 @@ public class RegistrationDataServiceImpl implements RegistrationDataService {
     private boolean areEquals(RegistrationDataMetadata m, String schema, String element, String qualifier) {
         return m.getMetadataField().getMetadataSchema().equals(schema)
             && m.getMetadataField().getElement().equals(element)
-            && StringUtils.equals(m.getMetadataField().getQualifier(), qualifier);
+            && Strings.CS.equals(m.getMetadataField().getQualifier(), qualifier);
     }
 
     private RegistrationDataMetadata createMetadata(
@@ -251,7 +251,7 @@ public class RegistrationDataServiceImpl implements RegistrationDataService {
 
     @Override
     public void markAsExpired(Context context, RegistrationData registrationData) throws SQLException {
-        registrationData.setExpires(new Date());
+        registrationData.setExpires(Instant.now());
         registrationDataDAO.save(context, registrationData);
     }
 
@@ -262,12 +262,12 @@ public class RegistrationDataServiceImpl implements RegistrationDataService {
 
     @Override
     public void deleteExpiredRegistrations(Context context) throws SQLException {
-        registrationDataDAO.deleteExpiredBy(context, new Date());
+        registrationDataDAO.deleteExpiredBy(context, Instant.now());
     }
 
     @Override
     public boolean isValid(RegistrationData rd) {
-        return rd.getExpires() == null || rd.getExpires().after(new Date());
+        return rd.getExpires() == null || rd.getExpires().isAfter(Instant.now());
     }
 
 }

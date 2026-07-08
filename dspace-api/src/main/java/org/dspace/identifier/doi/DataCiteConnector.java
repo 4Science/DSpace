@@ -11,6 +11,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 import java.util.Iterator;
 import java.util.Map;
@@ -102,6 +103,11 @@ public class DataCiteConnector
      * dependency injection.
      */
     protected String METADATA_PATH;
+    /**
+     * Name of crosswalk to convert metadata into DataCite Metadata Scheme. Set
+     * by spring dependency injection.
+     */
+    protected String CROSSWALK_NAME;
 
     protected ConfigurationService configurationService;
 
@@ -335,22 +341,26 @@ public class DataCiteConnector
         try {
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             xwalk.disseminate(context, dso, baos);
-            SAXBuilder builder = new SAXBuilder();
+            SAXBuilder builder = XMLUtils.getSAXBuilder();
             Document document = builder.build(new ByteArrayInputStream(baos.toByteArray()));
             root = document.getRootElement();
         } catch (AuthorizeException ae) {
             log.error("Caught an AuthorizeException while disseminating DSO"
                     + " with type {} and ID {}. Giving up to reserve DOI {}.",
                     dso.getType(), dso.getID(), doi, ae);
-            throw new DOIIdentifierException("AuthorizeException occured while "
-                + "converting " + dSpaceObjectService.getTypeText(dso) + "/" + dso + ".", ae,
+            throw new DOIIdentifierException("AuthorizeException occurred while "
+                                                 + "converting " + dSpaceObjectService.getTypeText(dso) + "/" + dso
+                .getID()
+                                                 + " using crosswalk " + CROSSWALK_NAME + ".", ae,
                                              DOIIdentifierException.CONVERSION_ERROR);
         } catch (CrosswalkException ce) {
             log.error("Caught a CrosswalkException while reserving a DOI ({})"
                     + " for DSO with type {} and ID {}. Won't reserve the doi.",
                     doi, dso.getType(), dso.getID(), ce);
-            throw new DOIIdentifierException("CrosswalkException occured while "
-                + "converting " + dSpaceObjectService.getTypeText(dso) + "/" + dso + ".", ce,
+            throw new DOIIdentifierException("CrosswalkException occurred while "
+                                                 + "converting " + dSpaceObjectService.getTypeText(dso) + "/" + dso
+                .getID()
+                                                 + " using crosswalk " + CROSSWALK_NAME + ".", ce,
                                              DOIIdentifierException.CONVERSION_ERROR);
         } catch (IOException | SQLException | JDOMException ex) {
             throw new RuntimeException(ex);
@@ -368,7 +378,7 @@ public class DataCiteConnector
                           + "crosswalk to generate the metadata used another DOI than "
                           + "the DOI we're reserving. Cannot reserve DOI {} for {} {}.",
                     doi, dSpaceObjectService.getTypeText(dso), dso.getID());
-            throw new IllegalStateException("An internal error occured while "
+            throw new IllegalStateException("An internal error occurred while "
                                                 + "generating the metadata. Unable to reserve doi, see logs "
                                                 + "for further information.");
         }
@@ -787,7 +797,7 @@ public class DataCiteConnector
         SAXBuilder saxBuilder = XMLUtils.getSAXBuilder();
         Document doc = null;
         try {
-            doc = saxBuilder.build(new ByteArrayInputStream(content.getBytes("UTF-8")));
+            doc = saxBuilder.build(new ByteArrayInputStream(content.getBytes(StandardCharsets.UTF_8)));
         } catch (IOException ioe) {
             throw new RuntimeException("Got an IOException while reading from a string?!", ioe);
         } catch (JDOMException jde) {

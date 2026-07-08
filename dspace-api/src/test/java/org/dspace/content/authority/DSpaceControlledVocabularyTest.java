@@ -8,12 +8,16 @@
 package org.dspace.content.authority;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 
 import java.io.IOException;
+import java.util.Locale;
 
 import org.dspace.AbstractDSpaceTest;
 import org.dspace.core.factory.CoreServiceFactory;
+import org.dspace.services.ConfigurationService;
+import org.dspace.services.factory.DSpaceServicesFactory;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -26,12 +30,19 @@ import org.junit.Test;
  * @author mwood
  */
 public class DSpaceControlledVocabularyTest extends AbstractDSpaceTest {
+
+    private static final ConfigurationService configurationService =
+        DSpaceServicesFactory.getInstance().getConfigurationService();
+
     public DSpaceControlledVocabularyTest() {
     }
 
     @BeforeClass
     public static void setUpClass()
         throws Exception {
+
+        configurationService.setProperty("webui.supported.locales", new String[] {Locale.ENGLISH.getLanguage(),
+            Locale.ITALIAN.getLanguage(), Locale.GERMAN.getLanguage()});
     }
 
     @AfterClass
@@ -48,29 +59,12 @@ public class DSpaceControlledVocabularyTest extends AbstractDSpaceTest {
     }
 
     /**
-     * Test of getPluginNames method, of class DSpaceControlledVocabulary.
-     */
-/*
-    @Test
-    public void testGetPluginNames()
-    {
-        System.out.println("getPluginNames");
-        String[] expResult = null;
-        String[] result = DSpaceControlledVocabulary.getPluginNames();
-        assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
-    }
-*/
-
-    /**
      * Test of getMatches method, of class DSpaceControlledVocabulary.
      * @throws java.io.IOException passed through.
      * @throws java.lang.ClassNotFoundException passed through.
      */
     @Test
-    public void testGetMatches() throws IOException, ClassNotFoundException {
-        System.out.println("getMatches");
+    public void testGetMatchesByLabelNoLocale() throws IOException, ClassNotFoundException {
 
         final String PLUGIN_INTERFACE = "org.dspace.content.authority.ChoiceAuthority";
 
@@ -86,47 +80,213 @@ public class DSpaceControlledVocabularyTest extends AbstractDSpaceTest {
             CoreServiceFactory.getInstance().getPluginService().getNamedPlugin(Class.forName(PLUGIN_INTERFACE), "farm");
         assertNotNull(instance);
         Choices result = instance.getMatches(text, start, limit, locale);
+        assertNotEquals("At least one match expected", 0, result.values.length);
         assertEquals("north 40", result.values[0].value);
     }
 
     /**
-     * Test of getBestMatch method, of class DSpaceControlledVocabulary.
+     * Test of getMatches method of class
+     * DSpaceControlledVocabulary using a localized controlled vocabulary with no locale (fallback to default)
+     * @throws java.lang.ClassNotFoundException passed through.
      */
-/*
     @Test
-    public void testGetBestMatch()
-    {
-        System.out.println("getBestMatch");
-        String field = "";
-        String text = "";
-        int collection = 0;
-        String locale = "";
-        DSpaceControlledVocabulary instance = new DSpaceControlledVocabulary();
-        Choices expResult = null;
-        Choices result = instance.getBestMatch(field, text, collection, locale);
-        assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+    public void testGetMatchesByIdNoLocale() throws ClassNotFoundException {
+        configurationService.setProperty("vocabulary.plugin.countries.storeIDs", true);
+        final String PLUGIN_INTERFACE = "org.dspace.content.authority.ChoiceAuthority";
+
+        String idValue = "DZA";
+        String labelPart = "Alge";
+        int start = 0;
+        int limit = 10;
+        // This "countries" Controlled Vocab is included in TestEnvironment data
+        // (under /src/test/data/dspaceFolder/) and it should be auto-loaded
+        // by test configs in /src/test/data/dspaceFolder/config/local.cfg
+        DSpaceControlledVocabulary instance = (DSpaceControlledVocabulary)
+            CoreServiceFactory.getInstance().getPluginService().getNamedPlugin(Class.forName(PLUGIN_INTERFACE),
+                "countries");
+        assertNotNull(instance);
+        Choices result = instance.getMatches(labelPart, start, limit, null);
+        assertNotEquals("At least one match expected", 0, result.values.length);
+        assertEquals("Africa::Algeria", result.values[0].value);
+        assertEquals("Algeria", result.values[0].label);
+        assertEquals("countries:" + idValue, result.values[0].authority);
     }
-*/
 
     /**
-     * Test of getLabel method, of class DSpaceControlledVocabulary.
+     * Test of getBestMatch method of class
+     * DSpaceControlledVocabulary using a localized controlled vocabulary with no locale (fallback to default)
+     * @throws java.lang.ClassNotFoundException passed through.
      */
-/*
     @Test
-    public void testGetLabel()
-    {
-        System.out.println("getLabel");
-        String field = "";
-        String key = "";
-        String locale = "";
-        DSpaceControlledVocabulary instance = new DSpaceControlledVocabulary();
-        String expResult = "";
-        String result = instance.getLabel(field, key, locale);
-        assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+    public void testGetBestMatchByIdNoLocale() throws ClassNotFoundException {
+        configurationService.setProperty("vocabulary.plugin.countries.storeIDs", true);
+        final String PLUGIN_INTERFACE = "org.dspace.content.authority.ChoiceAuthority";
+
+        String idValue = "DZA";
+        // This "countries" Controlled Vocab is included in TestEnvironment data
+        // (under /src/test/data/dspaceFolder/) and it should be auto-loaded
+        // by test configs in /src/test/data/dspaceFolder/config/local.cfg
+        DSpaceControlledVocabulary instance = (DSpaceControlledVocabulary)
+            CoreServiceFactory.getInstance().getPluginService().getNamedPlugin(Class.forName(PLUGIN_INTERFACE),
+                "countries");
+        assertNotNull(instance);
+        Choices result = instance.getBestMatch(idValue, null);
+        assertNotEquals("At least one match expected", 0, result.values.length);
+        assertEquals("Africa::Algeria", result.values[0].value);
+        assertEquals("Algeria", result.values[0].label);
+        assertEquals("countries:" + idValue, result.values[0].authority);
     }
-*/
+
+    /**
+     * Test of getBestMatch method of class
+     * DSpaceControlledVocabulary using a localized controlled vocabulary with no locale (fallback to default)
+     *
+     * @throws java.lang.ClassNotFoundException passed through.
+     */
+    @Test
+    public void testGetBestMatchByLabelNoLocale() throws ClassNotFoundException {
+        configurationService.setProperty("vocabulary.plugin.countries.storeIDs", false);
+        final String PLUGIN_INTERFACE = "org.dspace.content.authority.ChoiceAuthority";
+
+        String idValue = "Algeria";
+        // This "countries" Controlled Vocab is included in TestEnvironment data
+        // (under /src/test/data/dspaceFolder/) and it should be auto-loaded
+        // by test configs in /src/test/data/dspaceFolder/config/local.cfg
+        DSpaceControlledVocabulary instance = (DSpaceControlledVocabulary)
+            CoreServiceFactory.getInstance().getPluginService().getNamedPlugin(Class.forName(PLUGIN_INTERFACE),
+                                                                               "countries");
+        assertNotNull(instance);
+        Choices result = instance.getBestMatch(idValue, null);
+        assertNotEquals("At least one match expected", 0, result.values.length);
+        assertEquals("Africa::Algeria", result.values[0].value);
+        assertEquals("Algeria", result.values[0].label);
+        assertEquals("countries:DZA", result.values[0].authority);
+    }
+
+    /**
+     * Test of getMatches method of class DSpaceControlledVocabulary
+     * using a localized controlled vocabulary with valid locale parameter
+     * (localized label returned).
+     * @throws java.lang.ClassNotFoundException if class under test cannot be found.
+     */
+    @Test
+    public void testGetMatchesGermanLocale() throws ClassNotFoundException {
+        final String PLUGIN_INTERFACE = "org.dspace.content.authority.ChoiceAuthority";
+
+        String idValue = "DZA";
+        String labelPart = "Alge";
+        int start = 0;
+        int limit = 10;
+        // This "countries" Controlled Vocab is included in TestEnvironment data
+        // (under /src/test/data/dspaceFolder/) and it should be auto-loaded
+        // by test configs in /src/test/data/dspaceFolder/config/local.cfg
+        DSpaceControlledVocabulary instance = (DSpaceControlledVocabulary)
+            CoreServiceFactory.getInstance().getPluginService().getNamedPlugin(Class.forName(PLUGIN_INTERFACE),
+                "countries");
+        assertNotNull(instance);
+        Choices result = instance.getMatches(labelPart, start, limit, "de");
+        assertNotEquals("At least one match expected", 0, result.values.length);
+        assertEquals("Afrika::Algerien", result.values[0].value);
+        assertEquals("Algerien", result.values[0].label);
+        assertEquals("countries:" + idValue, result.values[0].authority);
+    }
+
+    /**
+     * Test of getBestMatch method of class DSpaceControlledVocabulary
+     * using a localized controlled vocabulary with valid locale parameter
+     * (localized label returned).
+     * @throws java.lang.ClassNotFoundException if class under test cannot be found.
+     */
+    @Test
+    public void testGetBestMatchByIdGermanLocale() throws ClassNotFoundException {
+        configurationService.setProperty("vocabulary.plugin.countries.storeIDs", true);
+        final String PLUGIN_INTERFACE = "org.dspace.content.authority.ChoiceAuthority";
+
+        String idValue = "DZA";
+        // This "countries" Controlled Vocab is included in TestEnvironment data
+        // (under /src/test/data/dspaceFolder/) and it should be auto-loaded
+        // by test configs in /src/test/data/dspaceFolder/config/local.cfg
+        DSpaceControlledVocabulary instance = (DSpaceControlledVocabulary)
+            CoreServiceFactory.getInstance().getPluginService().getNamedPlugin(Class.forName(PLUGIN_INTERFACE),
+                "countries");
+        assertNotNull(instance);
+        Choices result = instance.getBestMatch(idValue, "de");
+        assertNotEquals("At least one match expected", 0, result.values.length);
+        assertEquals("Afrika::Algerien", result.values[0].value);
+        assertEquals("Algerien", result.values[0].label);
+        assertEquals("countries:" + idValue, result.values[0].authority);
+    }
+
+    /**
+     * Test of getBestMatch method of class
+     * DSpaceControlledVocabulary using a localized controlled vocabulary with valid locale parameter (localized
+     * label returned)
+     */
+    @Test
+    public void testGetBestMatchByLabelGermanLocale() throws ClassNotFoundException {
+        configurationService.setProperty("vocabulary.plugin.countries.storeIDs", false);
+        final String PLUGIN_INTERFACE = "org.dspace.content.authority.ChoiceAuthority";
+
+        String idValue = "Algerien";
+        // This "countries" Controlled Vocab is included in TestEnvironment data
+        // (under /src/test/data/dspaceFolder/) and it should be auto-loaded
+        // by test configs in /src/test/data/dspaceFolder/config/local.cfg
+        DSpaceControlledVocabulary instance = (DSpaceControlledVocabulary)
+            CoreServiceFactory.getInstance().getPluginService().getNamedPlugin(Class.forName(PLUGIN_INTERFACE),
+                                                                               "countries");
+        assertNotNull(instance);
+        Choices result = instance.getBestMatch(idValue, "de");
+        assertEquals("Afrika::Algerien", result.values[0].value);
+        assertEquals("Algerien", result.values[0].label);
+        assertEquals("countries:DZA", result.values[0].authority);
+    }
+
+    /**
+     * Test of getChoice method of class
+     * DSpaceControlledVocabulary using a localized controlled vocabulary with no locale (fallback to default)
+     * @throws java.lang.ClassNotFoundException passed through.
+     */
+    @Test
+    public void testGetChoiceNoLocale() throws ClassNotFoundException {
+        configurationService.setProperty("vocabulary.plugin.countries.storeIDs", true);
+        final String PLUGIN_INTERFACE = "org.dspace.content.authority.ChoiceAuthority";
+
+        String idValue = "DZA";
+        // This "countries" Controlled Vocab is included in TestEnvironment data
+        // (under /src/test/data/dspaceFolder/) and it should be auto-loaded
+        // by test configs in /src/test/data/dspaceFolder/config/local.cfg
+        DSpaceControlledVocabulary instance = (DSpaceControlledVocabulary)
+            CoreServiceFactory.getInstance().getPluginService().getNamedPlugin(Class.forName(PLUGIN_INTERFACE),
+                "countries");
+        assertNotNull(instance);
+        Choice result = instance.getChoice(idValue, null);
+        assertEquals("Africa::Algeria", result.value);
+        assertEquals("Algeria", result.label);
+        assertEquals("countries:" + idValue, result.authority);
+    }
+
+    /**
+     * Test of getChoice method of class
+     * DSpaceControlledVocabulary using a localized controlled vocabulary with valid locale parameter (localized
+     * label returned)
+     * @throws java.lang.ClassNotFoundException passed through.
+     */
+    @Test
+    public void testGetChoiceGermanLocale() throws ClassNotFoundException {
+        configurationService.setProperty("vocabulary.plugin.countries.storeIDs", true);
+        final String PLUGIN_INTERFACE = "org.dspace.content.authority.ChoiceAuthority";
+
+        String idValue = "DZA";
+        // This "countries" Controlled Vocab is included in TestEnvironment data
+        // (under /src/test/data/dspaceFolder/) and it should be auto-loaded
+        // by test configs in /src/test/data/dspaceFolder/config/local.cfg
+        DSpaceControlledVocabulary instance = (DSpaceControlledVocabulary)
+            CoreServiceFactory.getInstance().getPluginService().getNamedPlugin(Class.forName(PLUGIN_INTERFACE),
+                "countries");
+        assertNotNull(instance);
+        Choice result = instance.getChoice(idValue, "de");
+        assertEquals("Afrika::Algerien", result.value);
+        assertEquals("Algerien", result.label);
+        assertEquals("countries:" + idValue, result.authority);
+    }
 }

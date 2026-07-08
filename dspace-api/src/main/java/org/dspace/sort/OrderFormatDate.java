@@ -7,7 +7,7 @@
  */
 package org.dspace.sort;
 
-import java.util.Date;
+import java.time.ZonedDateTime;
 
 import org.dspace.util.MultiFormatDateParser;
 
@@ -21,7 +21,7 @@ import org.dspace.util.MultiFormatDateParser;
 public class OrderFormatDate implements OrderFormatDelegate {
     @Override
     public String makeSortString(String value, String language) {
-        Date result = MultiFormatDateParser.parse(value);
+        ZonedDateTime result = MultiFormatDateParser.parse(value);
 
         // If parsing was successful we return the value as an ISO instant,
         // otherwise we return null so Solr does not index this date value.

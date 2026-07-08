@@ -53,6 +53,9 @@ public class ScriptRestRepository extends DSpaceRestRepository<ScriptRest, Strin
     @Autowired
     private DSpaceRunnableParameterConverter dSpaceRunnableParameterConverter;
 
+    @Autowired
+    private ObjectMapper mapper;
+
     @Override
     @PreAuthorize("permitAll()")
     public ScriptRest findOne(Context context, String name) {
@@ -120,9 +123,8 @@ public class ScriptRestRepository extends DSpaceRestRepository<ScriptRest, Strin
     private List<DSpaceCommandLineParameter> processPropertiesToDSpaceCommandLineParameters(String propertiesJson)
         throws IOException {
         List<ParameterValueRest> parameterValueRestList = new LinkedList<>();
-        ObjectMapper objectMapper = new ObjectMapper();
         if (StringUtils.isNotBlank(propertiesJson)) {
-            parameterValueRestList = Arrays.asList(objectMapper.readValue(propertiesJson, ParameterValueRest[].class));
+            parameterValueRestList = Arrays.asList(mapper.readValue(propertiesJson, ParameterValueRest[].class));
         }
 
         List<DSpaceCommandLineParameter> dSpaceCommandLineParameters = new LinkedList<>();

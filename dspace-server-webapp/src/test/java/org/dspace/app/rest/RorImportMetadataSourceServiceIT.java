@@ -45,6 +45,7 @@ public class RorImportMetadataSourceServiceIT extends AbstractLiveImportIntegrat
         CloseableHttpClient originalHttpClient = liveImportClient.getHttpClient();
         CloseableHttpClient httpClient = Mockito.mock(CloseableHttpClient.class);
 
+        //ror-records.json is the result of a GET request to https://api.ror.org/v2/organizations at 16/07/2025.
         try (InputStream file = getClass().getResourceAsStream("ror-records.json")) {
 
             String jsonResponse = IOUtils.toString(file, Charset.defaultCharset());
@@ -59,18 +60,19 @@ public class RorImportMetadataSourceServiceIT extends AbstractLiveImportIntegrat
 
             ImportRecord record = recordsImported.iterator().next();
 
-            assertThat(record.getValueList(), hasSize(11));
+            assertThat(record.getValueList(), hasSize(9));
 
-            assertThat(record.getSingleValue("dc.title"), is("The University of Texas"));
-            assertThat(record.getSingleValue("organization.identifier.ror"), is("https://ror.org/02f6dcw23"));
-            assertThat(record.getSingleValue("oairecerif.acronym"), is("UTHSCSA"));
-            assertThat(record.getSingleValue("oairecerif.identifier.url"), is("http://www.uthscsa.edu/"));
+            assertThat(record.getSingleValue("dc.title"),
+                    is("University American College Skopje"));
+            assertThat(record.getSingleValue("organization.identifier.ror"), is("https://ror.org/05hknds03"));
+            assertThat(record.getSingleValue("oairecerif.acronym"), is("UACS"));
+            assertThat(record.getSingleValue("oairecerif.identifier.url"), is("https://uacs.edu.mk"));
             assertThat(record.getSingleValue("dc.type"), is("Education"));
-            assertThat(record.getSingleValue("organization.address.addressCountry"), is("US"));
-            assertThat(record.getSingleValue("organization.foundingDate"), is("1959"));
-            assertThat(record.getValue("organization", "identifier", "crossrefid"), hasSize(2));
-            assertThat(record.getSingleValue("organization.identifier.isni"), is("0000 0001 0629 5880"));
-            assertThat(record.getSingleValue("organization.parentOrganization"), is("The University of Texas System"));
+            assertThat(record.getSingleValue("organization.address.addressCountry"), is("MK"));
+            assertThat(record.getSingleValue("organization.address.addressLocality"), is("Skopje"));
+            assertThat(record.getSingleValue("organization.foundingDate"), is("2005"));
+            assertThat(record.getSingleValue("organization.identifier.isni"), is("0000 0004 0446 4427"));
+
 
         } finally {
             liveImportClient.setHttpClient(originalHttpClient);
@@ -93,7 +95,7 @@ public class RorImportMetadataSourceServiceIT extends AbstractLiveImportIntegrat
 
             context.restoreAuthSystemState();
             Integer count = rorServiceImpl.count("test");
-            assertThat(count, equalTo(200));
+            assertThat(count, equalTo(115409));
         } finally {
             liveImportClient.setHttpClient(originalHttpClient);
         }
@@ -107,6 +109,8 @@ public class RorImportMetadataSourceServiceIT extends AbstractLiveImportIntegrat
 
         try (InputStream file = getClass().getResourceAsStream("ror-record.json")) {
 
+            System.out.println("file = " + file.toString());
+
             String jsonResponse = IOUtils.toString(file, Charset.defaultCharset());
 
             liveImportClient.setHttpClient(httpClient);
@@ -114,19 +118,20 @@ public class RorImportMetadataSourceServiceIT extends AbstractLiveImportIntegrat
             when(httpClient.execute(ArgumentMatchers.any())).thenReturn(response);
 
             context.restoreAuthSystemState();
-            ImportRecord record = rorServiceImpl.getRecord("https://ror.org/01sps7q28");
-            assertThat(record.getValueList(), hasSize(9));
-            assertThat(record.getSingleValue("dc.title"), is("The University of Texas Health Science Center at Tyler"));
-            assertThat(record.getSingleValue("organization.identifier.ror"), is("https://ror.org/01sps7q28"));
-            assertThat(record.getSingleValue("oairecerif.acronym"), is("UTHSCT"));
-            assertThat(record.getSingleValue("oairecerif.identifier.url"),
-                is("https://www.utsystem.edu/institutions/university-texas-health-science-center-tyler"));
-            assertThat(record.getSingleValue("dc.type"), is("Healthcare"));
-            assertThat(record.getSingleValue("organization.address.addressCountry"), is("US"));
-            assertThat(record.getSingleValue("organization.foundingDate"), is("1947"));
-            assertThat(record.getSingleValue("organization.identifier.isni"), is("0000 0000 9704 5790"));
-            assertThat(record.getSingleValue("organization.parentOrganization"), is("The University of Texas System"));
+            ImportRecord record = rorServiceImpl.getRecord("https://ror.org/02437s643");
 
+            assertThat(record.getValueList(), hasSize(10));
+            assertThat(record.getSingleValue("dc.title"),
+                    is("University of Illinois Chicago, Rockford campus"));
+            assertThat(record.getSingleValue("organization.identifier.ror"), is("https://ror.org/02437s643"));
+            assertThat(record.getSingleValue("oairecerif.acronym"), is("UICOMR"));
+            assertThat(record.getSingleValue("oairecerif.identifier.url"), is("https://www.uillinois.edu"));
+            assertThat(record.getSingleValue("dc.type"), is("Education"));
+            assertThat(record.getSingleValue("organization.address.addressCountry"), is("US"));
+            assertThat(record.getSingleValue("organization.address.addressLocality"), is("Rockford"));
+            assertThat(record.getSingleValue("organization.foundingDate"), is("1972"));
+            assertThat(record.getSingleValue("organization.identifier.isni"), is("0000 0000 9018 7542"));
+            assertThat(record.getSingleValue("organization.parentOrganization"), is("University of Illinois Chicago"));
         } finally {
             liveImportClient.setHttpClient(originalHttpClient);
         }
@@ -146,7 +151,7 @@ public class RorImportMetadataSourceServiceIT extends AbstractLiveImportIntegrat
 
             context.restoreAuthSystemState();
             int tot = rorServiceImpl.getRecordsCount("test query");
-            assertEquals(200, tot);
+            assertEquals(115409, tot);
         } finally {
             liveImportClient.setHttpClient(originalHttpClient);
         }

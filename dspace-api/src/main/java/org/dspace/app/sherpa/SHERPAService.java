@@ -41,23 +41,24 @@ import org.springframework.cache.annotation.Cacheable;
  * Note, this service is ported from DSpace 6 for the ability to search policies by ISSN
  * There are also new DataProvider implementations provided for use as 'external sources'
  * of journal and publisher data
+ *
+ * @author Kim Shepherd
  * @see org.dspace.external.provider.impl.SHERPAv2JournalDataProvider
  * @see org.dspace.external.provider.impl.SHERPAv2PublisherDataProvider
- * @author Kim Shepherd
  */
 public class SHERPAService {
 
+    /**
+     * log4j category
+     */
+    private static final Logger log = LogManager.getLogger(SHERPAService.class);
+    @Autowired
+    ConfigurationService configurationService;
     private int maxNumberOfTries;
     private long sleepBetweenTimeouts;
     private int timeout = 5000;
     private String endpoint = null;
     private String apiKey = null;
-
-    /** log4j category */
-    private static final Logger log = LogManager.getLogger(SHERPAService.class);
-
-    @Autowired
-    ConfigurationService configurationService;
 
     /**
      * Complete initialization of the Bean.
@@ -67,7 +68,7 @@ public class SHERPAService {
     private void init() {
         // Get endpoint and API key from configuration
         endpoint = configurationService.getProperty("sherpa.romeo.url",
-            "https://v2.sherpa.ac.uk/cgi/retrieve");
+                                                    "https://v2.sherpa.ac.uk/cgi/retrieve");
         apiKey = configurationService.getProperty("sherpa.romeo.apikey");
     }
 
@@ -77,8 +78,9 @@ public class SHERPAService {
      * successfully, a simple error response will be returned.
      * Otherwise, the response body will be passed to SHERPAResponse for parsing as JSON
      * and the final result returned to the calling method
+     *
      * @param query ISSN string to pass in an "issn equals" API query
-     * @return      SHERPAResponse containing an error or journal policies
+     * @return SHERPAResponse containing an error or journal policies
      */
     @Cacheable(key = "#query", condition = "#query != null", cacheNames = "sherpa.searchByJournalISSN")
     public SHERPAResponse searchByJournalISSN(String query) {
@@ -89,13 +91,14 @@ public class SHERPAService {
      * Perform an API request to the SHERPA v2 API - this could be a search or a get for any entity type
      * but the return object here must be a SHERPAPublisherResponse not the journal-centric SHERPAResponse
      * For more information about the type, field and predicate arguments, see the SHERPA v2 API documentation
-     * @param type          entity type eg "publisher"
-     * @param field         field eg "issn" or "title"
-     * @param predicate     predicate eg "equals" or "contains-word"
-     * @param value         the actual value to search for (eg an ISSN or partial title)
-     * @param start         start / offset of search results
-     * @param limit         maximum search results to return
-     * @return              SHERPAPublisherResponse object
+     *
+     * @param type      entity type eg "publisher"
+     * @param field     field eg "issn" or "title"
+     * @param predicate predicate eg "equals" or "contains-word"
+     * @param value     the actual value to search for (eg an ISSN or partial title)
+     * @param start     start / offset of search results
+     * @param limit     maximum search results to return
+     * @return SHERPAPublisherResponse object
      */
     public SHERPAPublisherResponse performPublisherRequest(String type, String field, String predicate, String value,
                                                            int start, int limit) {
@@ -148,7 +151,7 @@ public class SHERPAService {
                         try {
                             content = responseBody.getContent();
                             sherpaResponse =
-                                new SHERPAPublisherResponse(content, SHERPAFormat.JSON);
+                                new SHERPAPublisherResponse(content, SHERPAPublisherResponse.SHERPAFormat.JSON);
                         } catch (IOException e) {
                             log.error("Encountered exception while contacting SHERPA/RoMEO: " + e.getMessage(), e);
                         } finally {
@@ -169,7 +172,7 @@ public class SHERPAService {
                 String errorMessage = "Encountered exception while contacting SHERPA/RoMEO: " + e.getMessage();
                 log.error(errorMessage, e);
                 sherpaResponse = new SHERPAPublisherResponse(errorMessage);
-            }  catch (InterruptedException e) {
+            } catch (InterruptedException e) {
                 String errorMessage = "Encountered exception while sleeping thread: " + e.getMessage();
                 log.error(errorMessage, e);
                 sherpaResponse = new SHERPAPublisherResponse(errorMessage);
@@ -193,13 +196,14 @@ public class SHERPAService {
     /**
      * Perform an API request to the SHERPA v2 API - this could be a search or a get for any entity type
      * For more information about the type, field and predicate arguments, see the SHERPA v2 API documentation
-     * @param type          entity type eg "publication" or "publisher"
-     * @param field         field eg "issn" or "title"
-     * @param predicate     predicate eg "equals" or "contains-word"
-     * @param value         the actual value to search for (eg an ISSN or partial title)
-     * @param start         start / offset of search results
-     * @param limit         maximum search results to return
-     * @return              SHERPAResponse object
+     *
+     * @param type      entity type eg "publication" or "publisher"
+     * @param field     field eg "issn" or "title"
+     * @param predicate predicate eg "equals" or "contains-word"
+     * @param value     the actual value to search for (eg an ISSN or partial title)
+     * @param start     start / offset of search results
+     * @param limit     maximum search results to return
+     * @return SHERPAResponse object
      */
     public SHERPAResponse performRequest(String type, String field, String predicate, String value,
                                          int start, int limit) {
@@ -296,11 +300,11 @@ public class SHERPAService {
     /**
      * Perform an API request to the SHERPA v2 API to count the results related to the given parameters.
      *
-     * @param type          entity type eg "publication" or "publisher"
-     * @param field         field eg "issn" or "title"
-     * @param predicate     predicate eg "equals" or "contains-word"
-     * @param value         the actual value to search for (eg an ISSN or partial title)
-     * @return              the count
+     * @param type      entity type eg "publication" or "publisher"
+     * @param field     field eg "issn" or "title"
+     * @param predicate predicate eg "equals" or "contains-word"
+     * @param value     the actual value to search for (eg an ISSN or partial title)
+     * @return the count
      */
     public int performCountRequest(String type, String field, String predicate, String value) {
 
@@ -349,9 +353,10 @@ public class SHERPAService {
     /**
      * Construct HTTP GET object for a "field,predicate,value" query with default start, limit
      * eg. "title","contains-word","Lancet" or "issn","equals","1234-1234"
-     * @param field the field (issn, title, etc)
+     *
+     * @param field     the field (issn, title, etc)
      * @param predicate the predicate (contains-word, equals, etc - see API docs)
-     * @param value the query value itself
+     * @param value     the query value itself
      * @return HttpGet method which can then be executed by the client
      * @throws URISyntaxException if the URL build fails
      */
@@ -363,11 +368,12 @@ public class SHERPAService {
     /**
      * Construct HTTP GET object for a "field,predicate,value" query
      * eg. "title","contains-word","Lancet" or "issn","equals","1234-1234"
-     * @param field the field (issn, title, etc)
+     *
+     * @param field     the field (issn, title, etc)
      * @param predicate the predicate (contains-word, equals, etc - see API docs)
-     * @param value the query value itself
-     * @param start row offset
-     * @param limit number of results to return
+     * @param value     the query value itself
+     * @param start     row offset
+     * @param limit     number of results to return
      * @return HttpGet object to be executed by the client
      * @throws URISyntaxException
      */
@@ -379,17 +385,18 @@ public class SHERPAService {
     /**
      * Construct HTTP GET object for a "field,predicate,value" query
      * eg. "title","contains-word","Lancet" or "issn","equals","1234-1234"
-     * @param field the field (issn, title, etc)
+     *
+     * @param field     the field (issn, title, etc)
      * @param predicate the predicate (contains-word, equals, etc - see API docs)
-     * @param value the query value itself
-     * @param format the requested format
-     * @param start row offset
-     * @param limit number of results to return
+     * @param value     the query value itself
+     * @param format    the requested format
+     * @param start     row offset
+     * @param limit     number of results to return
      * @return HttpGet object to be executed by the client
      * @throws URISyntaxException
      */
     public HttpGet constructHttpGet(String type, String field, String predicate, String value, SHERPAFormat format,
-        int start, int limit) throws URISyntaxException {
+                                    int start, int limit) throws URISyntaxException {
 
         // Sanitise query string (strip some characters) field, predicate and value
         if (null == type) {
@@ -416,7 +423,7 @@ public class SHERPAService {
             uriBuilder.addParameter("api-key", apiKey);
         }
 
-        log.debug("SHERPA API URL: " + uriBuilder.toString());
+        log.debug("SHERPA API URL: " + uriBuilder);
 
         // Create HTTP GET object
         HttpGet method = new HttpGet(uriBuilder.build());
@@ -424,20 +431,21 @@ public class SHERPAService {
         // Set connection parameters
         int timeout = 5000;
         method.setConfig(RequestConfig.custom()
-            .setConnectionRequestTimeout(timeout)
-            .setConnectTimeout(timeout)
-            .setSocketTimeout(timeout)
-            .build());
+                                      .setConnectionRequestTimeout(timeout)
+                                      .setConnectTimeout(timeout)
+                                      .setSocketTimeout(timeout)
+                                      .build());
 
         return method;
     }
 
     /**
      * Prepare the API query for execution by the HTTP client
-     * @param query     ISSN query string
-     * @param endpoint  API endpoint (base URL)
-     * @param apiKey    API key parameter
-     * @return          URI object
+     *
+     * @param query    ISSN query string
+     * @param endpoint API endpoint (base URL)
+     * @param apiKey   API key parameter
+     * @return URI object
      * @throws URISyntaxException
      */
     public URI prepareQuery(String query, String endpoint, String apiKey) throws URISyntaxException {
@@ -459,7 +467,7 @@ public class SHERPAService {
         if (StringUtils.isNotBlank(apiKey)) {
             uriBuilder.addParameter("api-key", apiKey);
         }
-        log.debug("Would search SHERPA endpoint with " + uriBuilder.toString());
+        log.debug("Would search SHERPA endpoint with " + uriBuilder);
 
         // Return final built URI
         return uriBuilder.build();

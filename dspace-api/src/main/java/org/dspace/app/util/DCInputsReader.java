@@ -24,6 +24,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.FactoryConfigurationError;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.dspace.content.Collection;
 import org.dspace.content.MetadataSchemaEnum;
 import org.dspace.core.Utils;
@@ -494,7 +495,7 @@ public class DCInputsReader {
                 // we omit the duplicate validation, allowing multiple
                 // fields definition for
                 // the same metadata and different visibility/type-bind
-            } else if (StringUtils.equalsIgnoreCase(npg.getNodeName(), "relation-field")) {
+            } else if (Strings.CI.equals(npg.getNodeName(), "relation-field")) {
                 Map<String, String> relationField = new HashMap<>();
                 processField(formName, npg, relationField);
                 fields.add(relationField);
@@ -541,7 +542,7 @@ public class DCInputsReader {
                             field.put("language." + PAIR_TYPE_NAME, pairTypeName);
                         }
                     }
-                } else if (StringUtils.equalsIgnoreCase(tagName, "linked-metadata-field")) {
+                } else if (Strings.CI.equals(tagName, "linked-metadata-field")) {
                     for (int j = 0; j < nd.getChildNodes().getLength(); j ++) {
                         Node nestedNode = nd.getChildNodes().item(j);
                         String nestedTagName = nestedNode.getNodeName();

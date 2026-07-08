@@ -171,7 +171,7 @@ public interface BitstreamService extends DSpaceObjectService<Bitstream>, DSpace
     /**
      * Determine if this bitstream is registered (available elsewhere on
      * filesystem than in assetstore). More about registered items:
-     * https://wiki.duraspace.org/display/DSDOC3x/Registering+(not+Importing)+Bitstreams+via+Simple+Archive+Format
+     * https://wiki.lyrasis.org/display/DSDOC3x/Registering+(not+Importing)+Bitstreams+via+Simple+Archive+Format
      *
      * @param bitstream DSpace bitstream
      * @return true if the bitstream is registered, false otherwise
@@ -241,6 +241,16 @@ public interface BitstreamService extends DSpaceObjectService<Bitstream>, DSpace
      */
     @Nullable
     Long getLastModified(Bitstream bitstream) throws IOException;
+
+    /**
+     * Checks if the given bitstream is inside one of the bundle
+     *
+     * @param bitstream bitstream to verify
+     * @param bundleNames names of the bundles to serch for
+     * @return true if is in one of the bundles, false otherwise
+     * @throws SQLException
+     */
+    boolean isInBundle(Bitstream bitstream, java.util.Collection<String> bundleNames) throws SQLException;
 
     List<Bitstream> findShowableByItem(Context context, UUID itemId, String bundleName,
         Map<String, String> filterMetadata) throws SQLException;

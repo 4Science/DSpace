@@ -11,7 +11,6 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.dspace.content.DCPersonName;
 import org.dspace.importer.external.metadatamapping.MetadataFieldConfig;
 import org.dspace.importer.external.metadatamapping.MetadataFieldMapping;
 import org.dspace.importer.external.metadatamapping.MetadatumDTO;
@@ -78,18 +77,32 @@ public class CombinedMetadatumContributor<T> implements MetadataContributor<T> {
         LinkedList<LinkedList<MetadatumDTO>> metadatumLists = new LinkedList<>();
 
         for (MetadataContributor metadatumContributor : metadatumContributors) {
-            LinkedList<MetadatumDTO> metadatums = (LinkedList<MetadatumDTO>) metadatumContributor.contributeMetadata(t);
-            metadatumLists.add(metadatums);
+            LinkedList<MetadatumDTO> metadatums = new LinkedList<>(metadatumContributor.contributeMetadata(t));
+            if (!metadatums.isEmpty()) {
+                metadatumLists.add(metadatums);
+            }
         }
-        MetadatumDTO[] firstList = new MetadatumDTO[metadatumLists.getFirst().size()];
-        firstList = metadatumLists.getFirst().toArray(firstList);
-        MetadatumDTO[] secondList = new MetadatumDTO[firstList.length];
-        secondList = metadatumLists.getLast().toArray(secondList);
 
-        for (int i = 0; i < firstList.length; i++) {
-            DCPersonName name =
-                new DCPersonName(firstList[i].getValue(), secondList[i].getValue());
-            values.add(metadataFieldMapping.toDCValue(field, name.toString()));
+        if (metadatumLists.isEmpty()) {
+            return values;
+        }
+
+        int maxSize = metadatumLists.stream().mapToInt(List::size).max().orElse(0);
+
+        for (int i = 0; i < maxSize; i++) {
+            StringBuilder value = new StringBuilder();
+
+            for (List<MetadatumDTO> metadatums : metadatumLists) {
+                if (i < metadatums.size()) {
+                    value.append(metadatums.get(i).getValue());
+                }
+
+                if (!metadatums.equals(metadatumLists.get(metadatumLists.size() - 1))) {
+                    value.append(separator);
+                }
+            }
+
+            values.add(metadataFieldMapping.toDCValue(field, value.toString()));
         }
 
         return values;

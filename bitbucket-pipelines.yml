@@ -1,15 +1,12 @@
-image: maven:3.9.8-eclipse-temurin-17-focal
+image: maven:3.9.11-eclipse-temurin-21
 
 definitions:
-  docker:
-    memory: 4096  # increase memory for docker-in-docker from 1GB to 4GB
   caches:
-    gradle-java17: ~/.gradle/caches
-    gradlewrapper-java17: ~/.gradle/wrapper
-    maven-java17: ~/.m2/repository
+    gradle-java21: ~/.gradle/caches
+    gradlewrapper-java21: ~/.gradle/wrapper
+    maven-java21: ~/.m2/repository
   mvnVars:
-    &setEnv export MAVEN_OPTS="-Xmx4096M" &&
-    export MAVEN_ARGS="-Dorg.slf4j.simpleLogger.showDateTime=true -Dorg.slf4j.simpleLogger.dateTimeFormat=HH:mm:ss,SSS"
+    &setEnv export MAVEN_ARGS="-Dorg.slf4j.simpleLogger.showDateTime=true -Dorg.slf4j.simpleLogger.dateTimeFormat=HH:mm:ss,SSS"
   steps:
     - step: &install
         runs-on:
@@ -21,12 +18,12 @@ definitions:
         clone:
           depth: 2
         caches:
-          - gradle-java17
-          - gradlewrapper-java17
-          - maven-java17
+          - gradle-java21
+          - gradlewrapper-java21
+          - maven-java21
         script:
           - *setEnv
-          - mvn install -ntp -T 1C -B -P-assembly,pipeline $MAVEN_ARGS
+          - mvn install -ntp -T 1C -B -P-assembly,pipeline -Drun.jvmArguments="-XX:MaxRAMPercentage=50.0 -XX:+UseStringDeduplication -XX:+UseCompressedOops -XX:+UnlockExperimentalVMOptions -XX:+UseContainerSupport" $MAVEN_ARGS
         artifacts:
           - target/local-repo/**
           - dspace-server-webapp/target/**
@@ -43,13 +40,13 @@ definitions:
         name: unit-test-code-checks
         size: 2x
         caches:
-          - gradle-java17
-          - gradlewrapper-java17
-          - maven-java17
+          - gradle-java21
+          - gradlewrapper-java21
+          - maven-java21
         script:
           - *setEnv
           - cp -rf target/local-repo/** ~/.m2/repository/
-          - mvn -T 1C test -B -pl dspace-api,dspace-server-webapp,dspace-services,dspace-oai -P-assembly -nsu -ntp -Dmaven.main.skip -DuseIncrementalCompilation=false -Dtest.argLine="-XX:MaxRAMPercentage=75 -XX:InitialRAMPercentage=60 -XX:+UseG1GC -XX:+HeapDumpOnOutOfMemoryError" -DskipUnitTests=false $MAVEN_ARGS
+          - mvn -T 1C test -B -pl dspace-api,dspace-server-webapp,dspace-services,dspace-oai -P-assembly -nsu -ntp -Dmaven.main.skip -DuseIncrementalCompilation=false -Dtest.argLine="-XX:MaxMetaspaceSize=2g -Xmx2g -XX:+UseG1GC -XX:MaxGCPauseMillis=1000 -XX:+HeapDumpOnOutOfMemoryError -XX:+UseStringDeduplication -XX:+UseCompressedOops -XX:+UnlockExperimentalVMOptions -XX:+UseContainerSupport" -DskipUnitTests=false $MAVEN_ARGS
         artifacts:
           - dspace-api/target/surefire-reports/*-output.txt
           - dspace-server-webapp/target/surefire-reports/*-output.txt
@@ -69,14 +66,16 @@ definitions:
           - arm64.group
         name: integration-tests-dspace-api
         size: 1x
+        services:
+          - docker
         caches:
-          - gradle-java17
-          - gradlewrapper-java17
-          - maven-java17
+          - gradle-java21
+          - gradlewrapper-java21
+          - maven-java21
         script:
           - *setEnv
           - cp -rf target/local-repo/** ~/.m2/repository/
-          - mvn verify -pl dspace-api -nsu -ntp -Dmaven.main.skip -DuseIncrementalCompilation=true -DskipUnitTests=true -DskipIntegrationTests=false -B -Dsurefire.rerunFailingTestsCount=2 -Dtest.argLine="-XX:MaxRAMPercentage=75 -XX:InitialRAMPercentage=60 -XX:+UseG1GC -XX:+HeapDumpOnOutOfMemoryError" $MAVEN_ARGS
+          - mvn verify -pl dspace-api -nsu -ntp -Dmaven.main.skip -DuseIncrementalCompilation=true -DskipUnitTests=true -DskipIntegrationTests=false -B -Dsurefire.rerunFailingTestsCount=2 -Dtest.argLine="-XX:MaxMetaspaceSize=1g -Xmx1g -XX:+UseG1GC -XX:MaxGCPauseMillis=1000 -XX:+HeapDumpOnOutOfMemoryError -XX:+UseStringDeduplication -XX:+UseCompressedOops -XX:+UnlockExperimentalVMOptions -XX:+UseContainerSupport" $MAVEN_ARGS
         artifacts:
           - dspace-api/target/surefire-reports/*-output.txt
           - dspace-api/target/failsafe-reports/*-output.txt
@@ -90,15 +89,17 @@ definitions:
           - arm64.group
         name: integration-tests-with-test-jars
         size: 2x
+        services:
+          - docker
         caches:
-          - gradle-java17
-          - gradlewrapper-java17
-          - maven-java17
+          - gradle-java21
+          - gradlewrapper-java21
+          - maven-java21
         script:
           - *setEnv
           - #- ./dspace-api/src/test/data/dspaceFolder/bin/install_grobid.sh
           - cp -rf target/local-repo/** ~/.m2/repository/
-          - mvn verify -pl dspace-server-webapp -nsu -ntp -Dmaven.main.skip -DuseIncrementalCompilation=true -Dit.test=*IT,\!GenericAuthorizationFeatureIT,\!WorkspaceItemRestRepositoryIT,\!ItemImportIT,\!ItemRestRepositoryIT,\!LeftTiltedRelationshipRestRepositoryIT,\!RelationshipRestRepositoryIT,\!StatisticsRestRepositoryIT,\!DiscoveryRestControllerIT,\!PatchMetadataIT,\!VersionRestRepositoryIT,\!CollectionRestRepositoryIT,\!DiscoveryScopeBasedRestControllerIT,\!BrowsesResourceControllerIT,\!BitstreamRestRepositoryIT,\!RightTiltedRelationshipRestRepositoryIT,\!ResearcherProfileRestRepositoryIT,\!StatisticsRestSearchByCategoryRepositoryIT,\!TaskRestRepositoriesIT -DskipUnitTests=true -DskipIntegrationTests=false -B -Dsurefire.rerunFailingTestsCount=2 -Dtest.argLine="-XX:+UseG1GC -XX:MaxRAMPercentage=75 -XX:InitialRAMPercentage=60 -XX:+HeapDumpOnOutOfMemoryError" $MAVEN_ARGS
+          - mvn verify -pl dspace-server-webapp -nsu -ntp -Dmaven.main.skip -DuseIncrementalCompilation=true -Dit.test=*IT,\!GenericAuthorizationFeatureIT,\!WorkspaceItemRestRepositoryIT,\!ItemImportIT,\!ItemRestRepositoryIT,\!LeftTiltedRelationshipRestRepositoryIT,\!RelationshipRestRepositoryIT,\!StatisticsRestRepositoryIT,\!DiscoveryRestControllerIT,\!PatchMetadataIT,\!VersionRestRepositoryIT,\!CollectionRestRepositoryIT,\!DiscoveryScopeBasedRestControllerIT,\!BrowsesResourceControllerIT,\!BitstreamRestRepositoryIT,\!RightTiltedRelationshipRestRepositoryIT,\!ResearcherProfileRestRepositoryIT,\!StatisticsRestSearchByCategoryRepositoryIT,\!TaskRestRepositoriesIT -DskipUnitTests=true -DskipIntegrationTests=false -B -Dsurefire.rerunFailingTestsCount=2 -Dtest.argLine="-XX:MaxMetaspaceSize=1g -Xmx2g -XX:+UseG1GC -XX:MaxGCPauseMillis=1000 -XX:+HeapDumpOnOutOfMemoryError -XX:+UseStringDeduplication -XX:+UseCompressedOops -XX:+UnlockExperimentalVMOptions -XX:+UseContainerSupport" $MAVEN_ARGS
         artifacts:
           - dspace-server-webapp/target/surefire-reports/*-output.txt
           - dspace-server-webapp/target/failsafe-reports/*-output.txt
@@ -113,13 +114,13 @@ definitions:
         name: integration-tests-slow
         size: 1x
         caches:
-          - gradle-java17
-          - gradlewrapper-java17
-          - maven-java17
+          - gradle-java21
+          - gradlewrapper-java21
+          - maven-java21
         script:
           - *setEnv
           - cp -rf target/local-repo/** ~/.m2/repository/
-          - mvn verify -pl dspace-server-webapp -nsu -ntp -Dmaven.main.skip -Dit.test=GenericAuthorizationFeatureIT,WorkspaceItemRestRepositoryIT,ItemImportIT,ItemRestRepositoryIT,LeftTiltedRelationshipRestRepositoryIT,RelationshipRestRepositoryIT,StatisticsRestRepositoryIT,DiscoveryRestControllerIT,PatchMetadataIT,VersionRestRepositoryIT,CollectionRestRepositoryIT,DiscoveryScopeBasedRestControllerIT,BrowsesResourceControllerIT,BitstreamRestRepositoryIT,RightTiltedRelationshipRestRepositoryIT,ResearcherProfileRestRepositoryIT,StatisticsRestSearchByCategoryRepositoryIT,TaskRestRepositoriesIT -DskipUnitTests=true -DskipIntegrationTests=false -B -Dsurefire.rerunFailingTestsCount=2 -Dtest.argLine="-XX:MaxRAMPercentage=75 -XX:InitialRAMPercentage=60 -XX:+UseG1GC -XX:+HeapDumpOnOutOfMemoryError" $MAVEN_ARGS
+          - mvn verify -pl dspace-server-webapp -nsu -ntp -Dmaven.main.skip -Dit.test=GenericAuthorizationFeatureIT,WorkspaceItemRestRepositoryIT,ItemImportIT,ItemRestRepositoryIT,LeftTiltedRelationshipRestRepositoryIT,RelationshipRestRepositoryIT,StatisticsRestRepositoryIT,DiscoveryRestControllerIT,PatchMetadataIT,VersionRestRepositoryIT,CollectionRestRepositoryIT,DiscoveryScopeBasedRestControllerIT,BrowsesResourceControllerIT,BitstreamRestRepositoryIT,RightTiltedRelationshipRestRepositoryIT,ResearcherProfileRestRepositoryIT,StatisticsRestSearchByCategoryRepositoryIT,TaskRestRepositoriesIT -DskipUnitTests=true -DskipIntegrationTests=false -B -Dsurefire.rerunFailingTestsCount=2 -Dtest.argLine="-XX:MaxMetaspaceSize=1g -Xmx1g -XX:+UseG1GC -XX:MaxGCPauseMillis=1000 -XX:+HeapDumpOnOutOfMemoryError -XX:+UseStringDeduplication -XX:+UseCompressedOops -XX:+UnlockExperimentalVMOptions -XX:+UseContainerSupport" $MAVEN_ARGS
         artifacts:
           - dspace-server-webapp/target/surefire-reports/*-output.txt
           - dspace-server-webapp/target/failsafe-reports/*-output.txt
@@ -127,6 +128,7 @@ definitions:
           - ./*.dumpstream
 
     - step: &build-and-push
+        oidc: true
         runs-on:
           - self.hosted
           - linux.arm64
@@ -144,13 +146,14 @@ definitions:
           - docker build -f Dockerfile.build -t dspace-cris:${BRANCH_NAME}-${HASH_COMMIT} -t dspace-cris:${BRANCH_NAME}-latest .
           - pipe: atlassian/aws-ecr-push-image:2.5.0
             variables:
-              AWS_ACCESS_KEY_ID: $AWS_ACCESS_KEY_ID
-              AWS_SECRET_ACCESS_KEY: $AWS_SECRET_ACCESS_KEY
+              # DEV-2276: OIDC web-identity auth instead of static workspace keys
+              AWS_OIDC_ROLE_ARN: $AWS_OIDC_ROLE_ARN
               AWS_DEFAULT_REGION: $AWS_REGION
               IMAGE_NAME: dspace-cris
               TAGS: "${BRANCH_NAME}-${HASH_COMMIT} ${BRANCH_NAME}-latest"
 
     - step: &build-and-push-solr8
+        oidc: true
         runs-on:
           - self.hosted
           - linux.arm64
@@ -162,17 +165,18 @@ definitions:
           - docker
         script:
           - export HASH_COMMIT=${BITBUCKET_COMMIT:0:8}
-          - export BRANCH_NAME=$(echo "$BITBUCKET_BRANCH" | awk -F'/' '{if(NF==1)val=$1; else if(NF==2)val=$1"--"$2; else if(NF==3)val=$2; else if(NF==4)val=$2"--"$3; print tolower(val)}')
+          - export BRANCH_NAME=$(echo "$BITBUCKET_BRANCH" | tr '[:upper:]' '[:lower:]' | sed 's|/|--|g')
           - docker build -f ./dspace/src/main/docker/dspace-solr/Dockerfile -t solr8:${BRANCH_NAME}-${HASH_COMMIT} -t solr8:${BRANCH_NAME}-latest .
           - pipe: atlassian/aws-ecr-push-image:2.5.0
             variables:
-              AWS_ACCESS_KEY_ID: $AWS_ACCESS_KEY_ID
-              AWS_SECRET_ACCESS_KEY: $AWS_SECRET_ACCESS_KEY
+              # DEV-2276: OIDC web-identity auth instead of static workspace keys
+              AWS_OIDC_ROLE_ARN: $AWS_OIDC_ROLE_ARN
               AWS_DEFAULT_REGION: $AWS_REGION
               IMAGE_NAME: solr8
               TAGS: "${BRANCH_NAME}-${HASH_COMMIT} ${BRANCH_NAME}-latest"
 
     - step: &build-and-push-solr9
+        oidc: true
         runs-on:
           - self.hosted
           - linux.arm64
@@ -184,12 +188,12 @@ definitions:
           - docker
         script:
           - export HASH_COMMIT=${BITBUCKET_COMMIT:0:8}
-          - export BRANCH_NAME=$(echo "$BITBUCKET_BRANCH" | awk -F'/' '{if(NF==1)val=$1; else if(NF==2)val=$1"--"$2; else if(NF==3)val=$2; else if(NF==4)val=$2"--"$3; print tolower(val)}')
+          - export BRANCH_NAME=$(echo "$BITBUCKET_BRANCH" | tr '[:upper:]' '[:lower:]' | sed 's|/|--|g')
           - docker build -f ./dspace/src/main/docker/dspace-solr/Dockerfile9 -t solr9:${BRANCH_NAME}-${HASH_COMMIT} -t solr9:${BRANCH_NAME}-latest .
           - pipe: atlassian/aws-ecr-push-image:2.5.0
             variables:
-              AWS_ACCESS_KEY_ID: $AWS_ACCESS_KEY_ID
-              AWS_SECRET_ACCESS_KEY: $AWS_SECRET_ACCESS_KEY
+              # DEV-2276: OIDC web-identity auth instead of static workspace keys
+              AWS_OIDC_ROLE_ARN: $AWS_OIDC_ROLE_ARN
               AWS_DEFAULT_REGION: $AWS_REGION
               IMAGE_NAME: solr9
               TAGS: "${BRANCH_NAME}-${HASH_COMMIT} ${BRANCH_NAME}-latest"
@@ -284,34 +288,53 @@ definitions:
           - git commit -am "Enable test environment for ${BRANCH_NAME}" || echo "No changes to commit"
           - git push
 
-pipelines:
-  branches:
-    'main-cris':
-      - step: *install
-      - parallel: &parallel-pipeline
+    - step: &check-branch-name-allowed
+        name: Check allowed branch name
+        image: alpine:latest
+        script:
+          - |
+            if [[ "$BITBUCKET_BRANCH" = "main-cris" ]] || [[ "$BITBUCKET_BRANCH" == dspace-cris-20*_02_x ]] || [[ "$BITBUCKET_BRANCH" == prod/* ]] || [[ "$BITBUCKET_BRANCH" == test/* ]]; then
+              echo "Branch $BITBUCKET_BRANCH is allowed."
+            else
+              echo "This pipeline can only run on main-cris, dspace-cris-20*_02_x, prod/**, or test/**"
+              exit 1
+            fi
+
+    - parallel: &parallel-test-steps
+        steps:
           - step: *unit-test-code-checks
           - step: *integration-tests-with-test-jars
           - step: *integration-tests-slow
           - step: *integration-tests-dspace-api
-    'dspace-cris-2024_02_x':
+
+pipelines:
+  branches:
+    'main-cris':
+      - step: *check-branch-name-allowed
       - step: *install
-      - parallel: *parallel-pipeline
+      - parallel: *parallel-test-steps
+    'dspace-cris-20*_02_x':
+      - step: *check-branch-name-allowed
+      - step: *install
+      - parallel: *parallel-test-steps
       - step: *build-and-push
       - step: *deploy-on-dev
       - step: *deploy-on-staging
     'prod/**':
+      - step: *check-branch-name-allowed
       - step: *install
-      - parallel: *parallel-pipeline
+      - parallel: *parallel-test-steps
       - step: *build-and-push
       - step: *deploy-on-dev
       - step: *deploy-on-staging
-      - step: *build-and-push-solr8
+      - step: *build-and-push-solr9
     'test/**':
+      - step: *check-branch-name-allowed
       - step: *install
-      - parallel: *parallel-pipeline
+      - parallel: *parallel-test-steps
       - step: *build-and-push
       - step: *deploy-on-test
-      - step: *build-and-push-solr8
+      - step: *build-and-push-solr9
 
   pull-requests:
     '**':
@@ -336,10 +359,15 @@ pipelines:
       - step: *install
       - step: *build-and-push
       - step: *deploy-on-dev
+    deploy-on-staging:
+      - step: *check-branch-name-allowed
+      - step: *install
+      - step: *build-and-push
+      - step: *deploy-on-staging
     e2e-test:
       - step: *install
       - step: *build-and-push
-      - step: *build-and-push-solr8
+      - step: *build-and-push-solr9
     turn-on-dev:
       - step: *turn-on-dev
     turn-on-staging:

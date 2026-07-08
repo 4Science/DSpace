@@ -18,6 +18,7 @@ import org.apache.commons.collections.MapUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpResponse;
+import org.apache.http.client.config.CookieSpecs;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
@@ -53,6 +54,7 @@ public class LiveImportClientImpl implements LiveImportClient {
         RequestConfig config = RequestConfig.custom()
             .setConnectionRequestTimeout(timeout)
             .setConnectTimeout(timeout)
+            .setCookieSpec(CookieSpecs.STANDARD)
             .setSocketTimeout(timeout)
             .build();
         try (CloseableHttpClient httpClient = Optional.ofNullable(this.httpClient)
@@ -90,7 +92,9 @@ public class LiveImportClientImpl implements LiveImportClient {
     @Override
     public String executeHttpPostRequest(String URL, Map<String, Map<String, String>> params, String entry) {
         HttpPost method = null;
-        RequestConfig config = RequestConfig.custom().build();
+        RequestConfig config = RequestConfig.custom()
+                                            //.setCookieSpec(CookieSpecs.STANDARD)
+                                            .build();
         try (CloseableHttpClient httpClient = Optional.ofNullable(this.httpClient)
                 .orElse(DSpaceHttpClientFactory.getInstance().buildWithRequestConfig(config))) {
 

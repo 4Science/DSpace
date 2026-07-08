@@ -44,7 +44,7 @@ public class CustomUrlValidator implements SubmissionStepValidator {
 
     private static final String ERROR_VALIDATION_CONFLICT = "error.validation.custom-url.conflict";
 
-    private static final Pattern URL_PATH_PATTERN = Pattern.compile("[\\/.a-zA-Z0-9-_]+$");
+    private static final Pattern URL_PATH_PATTERN = Pattern.compile("^[.a-zA-Z0-9-_]+$");
 
     @Autowired
     private ItemService itemService;
@@ -58,12 +58,12 @@ public class CustomUrlValidator implements SubmissionStepValidator {
     public List<ValidationError> validate(Context context, InProgressSubmission<?> obj, SubmissionStepConfig config) {
         Item item = obj.getItem();
         return customUrlService.getCustomUrl(item)
-            .map(customUrl -> validateUrl(context, item, customUrl, config))
-            .orElse(List.of());
+                               .map(customUrl -> validateUrl(context, item, customUrl, config))
+                               .orElse(List.of());
     }
 
     private List<ValidationError> validateUrl(Context context, Item item, String customUrl,
-        SubmissionStepConfig config) {
+                                              SubmissionStepConfig config) {
 
         if (customUrl.isBlank()) {
             return urlValidationError(ERROR_VALIDATION_EMPTY, config);
@@ -91,14 +91,16 @@ public class CustomUrlValidator implements SubmissionStepValidator {
 
     private Iterator<Item> findItemsByCustomUrl(Context context, String customUrl) {
         return new IteratorChain<Item>(
-            findArchivedByMetadataField(context, "cris", "customurl", null, customUrl),
-            findArchivedByMetadataField(context, "cris", "customurl", "old", customUrl));
+            findArchivedByMetadataFieldExcludingOldVersions(context, "dspace", "customurl", null, customUrl),
+            findArchivedByMetadataFieldExcludingOldVersions(context, "dspace", "customurl", "old", customUrl));
     }
 
-    private Iterator<Item> findArchivedByMetadataField(Context context, String schema, String element,
-        String qualifier, String value) {
+    private Iterator<Item> findArchivedByMetadataFieldExcludingOldVersions(Context context, String schema,
+                                                                           String element, String qualifier,
+                                                                           String value) {
         try {
-            return itemService.findArchivedByMetadataField(context, schema, element, qualifier, value);
+            return itemService.findArchivedByMetadataFieldExcludingOldVersions(context, schema, element, qualifier,
+                                                                               value);
         } catch (SQLException | AuthorizeException e) {
             throw new RuntimeException(e);
         }

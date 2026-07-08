@@ -15,8 +15,8 @@ import static org.dspace.content.authority.Choices.CF_ACCEPTED;
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.SQLException;
+import java.time.Instant;
 import java.time.Period;
-import java.util.Date;
 import java.util.UUID;
 
 import org.apache.logging.log4j.LogManager;
@@ -168,6 +168,14 @@ public class ItemBuilder extends AbstractDSpaceObjectBuilder<Item> {
 
     public ItemBuilder withEditorAffiliation(String affiliation) {
         return addMetadataValue(item, "oairecerif", "editor", "affiliation", affiliation);
+    }
+
+    public ItemBuilder withISSN(String issn) {
+        return addMetadataValue(item, "dc", "identifier", "issn", issn);
+    }
+
+    public ItemBuilder withISBN(String isbn) {
+        return addMetadataValue(item, "dc", "identifier", "isbn", isbn);
     }
 
     public ItemBuilder withPersonIdentifierFirstName(final String personIdentifierFirstName) {
@@ -808,11 +816,11 @@ public class ItemBuilder extends AbstractDSpaceObjectBuilder<Item> {
     }
 
     public ItemBuilder withCustomUrl(String url) {
-        return setMetadataSingleValue(item, "cris", "customurl", null, url);
+        return setMetadataSingleValue(item, "dspace", "customurl", null, url);
     }
 
     public ItemBuilder withOldCustomUrl(String url) {
-        return addMetadataValue(item, "cris", "customurl", "old", url);
+        return addMetadataValue(item, "dspace", "customurl", "old", url);
     }
 
     public ItemBuilder withScopusPublicationLastImport(String date) {
@@ -980,7 +988,7 @@ public class ItemBuilder extends AbstractDSpaceObjectBuilder<Item> {
     }
 
 
-    public Item buildWithLastModifiedDate(Date lastModifiedDate) {
+    public Item buildWithLastModifiedDate(Instant lastModifiedDate) {
         try {
             installItemService.installItem(context, workspaceItem, this.handle);
             itemService.updateLastModifiedDate(context, item, lastModifiedDate);

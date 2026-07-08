@@ -8,8 +8,10 @@
 package org.dspace.access.status;
 
 import java.sql.SQLException;
-import java.util.Date;
+import java.time.LocalDate;
 
+import org.dspace.content.AccessStatus;
+import org.dspace.content.Bitstream;
 import org.dspace.content.Item;
 import org.dspace.core.Context;
 
@@ -17,12 +19,6 @@ import org.dspace.core.Context;
  * Plugin interface for the access status calculation.
  */
 public interface AccessStatusHelper {
-
-    public static final String EMBARGO = "embargo";
-    public static final String METADATA_ONLY = "metadata.only";
-    public static final String OPEN_ACCESS = "open.access";
-    public static final String RESTRICTED = "restricted";
-    public static final String UNKNOWN = "unknown";
 
     /**
      * Calculate the access status for the item.
@@ -33,17 +29,31 @@ public interface AccessStatusHelper {
      * @return an access status value
      * @throws SQLException An exception that provides information on a database access error or other errors.
      */
-    public String getAccessStatusFromItem(Context context, Item item, Date threshold)
-        throws SQLException;
+    AccessStatus getAccessStatusFromItem(Context context,
+        Item item, LocalDate threshold, String type) throws SQLException;
 
     /**
-     * Retrieve embargo information for the item
+     * Calculate the anonymous access status for the item.
      *
      * @param context the DSpace context
      * @param item the item to check for embargo information
      * @param threshold the embargo threshold date
-     * @return an embargo date
+     * @return the access status
      * @throws SQLException An exception that provides information on a database access error or other errors.
      */
-    public String getEmbargoFromItem(Context context, Item item, Date threshold) throws SQLException;
+    AccessStatus getAnonymousAccessStatusFromItem(Context context,
+        Item item, LocalDate threshold) throws SQLException;
+
+    /**
+     * Calculate the access status for the bitstream.
+     *
+     * @param context the DSpace context
+     * @param bitstream the bitstream
+     * @param threshold the embargo threshold date
+     * @param type the type of calculation
+     * @return the access status
+     * @throws SQLException An exception that provides information on a database access error or other errors.
+     */
+    AccessStatus getAccessStatusFromBitstream(Context context,
+        Bitstream bitstream, LocalDate threshold, String type) throws SQLException;
 }

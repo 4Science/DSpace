@@ -30,6 +30,7 @@ import org.dspace.access.status.DefaultAccessStatusHelper;
 import org.dspace.access.status.factory.AccessStatusServiceFactory;
 import org.dspace.access.status.service.AccessStatusService;
 import org.dspace.authorize.AuthorizeException;
+import org.dspace.content.AccessStatus;
 import org.dspace.content.Item;
 import org.dspace.content.MetadataValue;
 import org.dspace.content.service.ItemService;
@@ -67,6 +68,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 public class OrcidSynchronizationServiceImpl implements OrcidSynchronizationService {
 
     private static final Logger log = LoggerFactory.getLogger(OrcidSynchronizationServiceImpl.class);
+
     @Autowired
     private ItemService itemService;
 
@@ -118,7 +120,8 @@ public class OrcidSynchronizationServiceImpl implements OrcidSynchronizationServ
             itemService.addMetadata(context, profile, "dspace", "orcid", "scope", null, scope);
         }
 
-        if (isBlank(itemService.getMetadataFirstValue(profile, "dspace", "orcid", "authenticated", Item.ANY))) {
+        if (isBlank(itemService.getMetadataFirstValue(
+                profile, "dspace", "orcid", "authenticated", Item.ANY))) {
             String currentDate = ISO_DATE_TIME.format(now());
             itemService.setMetadataSingleValue(context, profile, "dspace", "orcid", "authenticated", null, currentDate);
         }
@@ -249,10 +252,11 @@ public class OrcidSynchronizationServiceImpl implements OrcidSynchronizationServ
     private boolean isRestrictedAccess(Context context, Item item) {
         try {
             AccessStatusService accessStatusService = AccessStatusServiceFactory.getInstance()
-                    .getAccessStatusService();
-            String accessStatus = accessStatusService.getAccessStatus(context, item);
-            return org.apache.commons.lang3.StringUtils.equalsAny(accessStatus,
-                DefaultAccessStatusHelper.RESTRICTED, DefaultAccessStatusHelper.EMBARGO);
+                                                                                .getAccessStatusService();
+            AccessStatus accessStatus = accessStatusService.getAccessStatus(context, item);
+            return org.apache.commons.lang3.StringUtils.equalsAny(accessStatus.getStatus(),
+                                                                  DefaultAccessStatusHelper.RESTRICTED,
+                                                                  DefaultAccessStatusHelper.EMBARGO);
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }

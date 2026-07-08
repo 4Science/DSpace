@@ -8,7 +8,7 @@
 package org.dspace.app.rest.submit.step;
 
 import java.sql.SQLException;
-import java.util.Date;
+import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -313,9 +313,9 @@ public class CorrectionStep extends AbstractProcessingStep {
     private CorrectionPolicy checkPolicyStartDate(ResourcePolicy originalPolicy,
                                                   ResourcePolicy correctedPolicy) {
 
-        Optional<Date> original = Optional.ofNullable(originalPolicy == null ? null :
+        Optional<LocalDate> original = Optional.ofNullable(originalPolicy == null ? null :
             originalPolicy.getStartDate());
-        Optional<Date> corrected = Optional.ofNullable(correctedPolicy == null ? null :
+        Optional<LocalDate> corrected = Optional.ofNullable(correctedPolicy == null ? null :
             correctedPolicy.getStartDate());
 
         if (original.isEmpty() && corrected.isEmpty()) {
@@ -334,9 +334,9 @@ public class CorrectionStep extends AbstractProcessingStep {
 
     private CorrectionPolicy checkPolicyEndDate(ResourcePolicy originalPolicy,
                                                 ResourcePolicy correctedPolicy) {
-        Optional<Date> original = Optional.ofNullable(originalPolicy == null ? null :
+        Optional<LocalDate> original = Optional.ofNullable(originalPolicy == null ? null :
             originalPolicy.getEndDate());
-        Optional<Date> corrected = Optional.ofNullable(correctedPolicy == null ? null :
+        Optional<LocalDate> corrected = Optional.ofNullable(correctedPolicy == null ? null :
             correctedPolicy.getEndDate());
 
         if (original.isEmpty() && corrected.isEmpty()) {

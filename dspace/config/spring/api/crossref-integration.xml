@@ -49,13 +49,13 @@
         <constructor-arg value="dc.relation.ispartof"/>
     </bean>
 
-    <bean name="mapConverterCrossRefToCoarPublicationType" class="org.dspace.util.SimpleMapConverter" init-method="init">
-        <property name="converterNameFile" value="mapConverter-crossref-to-coar-publication-type.properties" />
+    <bean name="mapConverterCrossRefToDSpacePublicationType" class="org.dspace.util.SimpleMapConverter" init-method="init">
+        <property name="converterNameFile" value="mapConverter-crossref-to-dspace-publication-type.properties" />
         <property name="configurationService" ref="org.dspace.services.ConfigurationService" />
-        <property name="defaultValue" value="other"/>
+        <property name="defaultValue" value="Other"/>
     </bean>
     <bean id="crossrefTypeValueMapping" class="org.dspace.importer.external.metadatamapping.transform.StringJsonValueMappingMetadataProcessorService">
-        <property name="valueMapConverter" ref="mapConverterCrossRefToCoarPublicationType"/>
+        <property name="valueMapConverter" ref="mapConverterCrossRefToDSpacePublicationType"/>
         <property name="path" value="/type"/>
     </bean>
     <bean id="crossrefDoiTypeContrib" class="org.dspace.importer.external.metadatamapping.contributor.SimpleJsonPathMetadataContributor">
@@ -121,7 +121,7 @@
         <property name="query" value="/ISSN"/>
     </bean>
     <bean id="crossref.issn" class="org.dspace.importer.external.metadatamapping.MetadataFieldConfig">
-        <constructor-arg value="dc.relation.issn"/>
+        <constructor-arg value="dc.identifier.issn"/>
     </bean>
 
     <bean id="crossrefVolume" class="org.dspace.importer.external.metadatamapping.contributor.SimpleJsonPathMetadataContributor">

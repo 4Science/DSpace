@@ -24,7 +24,7 @@ import org.dspace.core.Constants;
  * Broker for ChoiceAuthority plugins, and for other information configured
  * about the choice aspect of authority control for a metadata field.
  *
- * Configuration keys, per metadata field (e.g. "dc.contributer.author")
+ * Configuration keys, per metadata field (e.g. "dc.contributor.author")
  * {@code
  * # names the ChoiceAuthority plugin called for this field
  * choices.plugin.<FIELD> = name-of-plugin
@@ -192,7 +192,14 @@ public interface ChoiceAuthorityService {
      *
      * @return       the entity type as a String
      */
-    String getLinkedEntityType(String fieldKey);
+    String[] getLinkedEntityTypes(String fieldKey);
+
+    /**
+     * Get the primary entity type starting from the metadata field.
+     *
+     * @return       the primary entity type as a String
+     */
+    String getPrimaryLinkedEntityType(String fieldKey);
 
     /**
      * Wrapper that calls getTopChoices method of the plugin.

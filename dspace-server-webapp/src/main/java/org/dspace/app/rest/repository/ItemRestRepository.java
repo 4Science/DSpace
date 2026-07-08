@@ -23,7 +23,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.ServletInputStream;
 import jakarta.servlet.http.HttpServletRequest;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.dspace.app.customurl.CustomUrlService;
 import org.dspace.app.rest.Parameter;
 import org.dspace.app.rest.SearchRestMethod;
@@ -98,6 +98,9 @@ public class ItemRestRepository extends DSpaceObjectRestRepository<Item, ItemRes
 
     @Autowired
     private UriListHandlerService uriListHandlerService;
+
+    @Autowired
+    private ObjectMapper mapper;
 
     @Autowired
     private CustomUrlService customUrlService;
@@ -193,7 +196,6 @@ public class ItemRestRepository extends DSpaceObjectRestRepository<Item, ItemRes
     protected ItemRest createAndReturn(Context context) throws AuthorizeException, SQLException {
         HttpServletRequest req = getRequestService().getCurrentRequest().getHttpServletRequest();
         String owningCollectionUuidString = req.getParameter("owningCollection");
-        ObjectMapper mapper = new ObjectMapper();
         ItemRest itemRest = null;
         try {
             ServletInputStream input = req.getInputStream();
@@ -242,7 +244,6 @@ public class ItemRestRepository extends DSpaceObjectRestRepository<Item, ItemRes
                            JsonNode jsonNode)
         throws RepositoryMethodNotImplementedException, SQLException, AuthorizeException {
         HttpServletRequest req = getRequestService().getCurrentRequest().getHttpServletRequest();
-        ObjectMapper mapper = new ObjectMapper();
         ItemRest itemRest = null;
         try {
             itemRest = mapper.readValue(jsonNode.toString(), ItemRest.class);
@@ -257,7 +258,7 @@ public class ItemRestRepository extends DSpaceObjectRestRepository<Item, ItemRes
             throw new AccessDeniedException("Current user not authorized for this operation");
         }
 
-        if (StringUtils.equals(uuid.toString(), itemRest.getId())) {
+        if (Strings.CS.equals(uuid.toString(), itemRest.getId())) {
             metadataConverter.setMetadata(context, item, itemRest.getMetadata());
         } else {
             throw new IllegalArgumentException("The UUID in the Json and the UUID in the url do not match: "
@@ -316,9 +317,9 @@ public class ItemRestRepository extends DSpaceObjectRestRepository<Item, ItemRes
 
     @SearchRestMethod(name = "findByCustomURL")
     public ItemRest findByCustomUrl(@Parameter(value = "q", required = true) String customUrl) {
-        return findItemByUuidOrCustomUrl(obtainContext(), customUrl)
-            .map(item -> (ItemRest) converter.toRest(item, utils.obtainProjection()))
-            .orElse(null);
+        Item item = findItemByUuidOrCustomUrl(obtainContext(), customUrl)
+            .orElseThrow(() -> new ResourceNotFoundException("Item with custom URL '" + customUrl + "' not found"));
+        return converter.toRest(item, utils.obtainProjection());
     }
 
     private Optional<Item> findItemByUuidOrCustomUrl(Context context, String customUrl) {

@@ -16,7 +16,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.SQLException;
-import java.util.Calendar;
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 import java.util.StringTokenizer;
@@ -108,72 +108,65 @@ import org.dspace.xmlworkflow.storedcomponents.service.XmlWorkflowItemService;
  * metadata are delete, specifying only the dc.title it will obtain an append on
  * the other metadata]; use this option many times on the single metadata e.g.
  * -m dc.title -m dc.contributor.*) -d to remove the item
- * 
+ *
  * Status changes: -p to send in workspace -w to send in workspace step one -y
  * to send in workspace step two -x to send in workspace step three -z to send
  * inarchive
- * 
- * 
+ *
+ *
  * Call the script with the option -h to discover more setting.
- * 
+ *
  * <em>For massive import see {@link ItemImportMainOA}</em>
  */
 public class ItemImportOA {
 
-    private DSpace dspace = new DSpace();
-
-    /** logger */
-    private static Logger log = LogManager.getLogger(ItemImportOA.class);
-
+    /**
+     * logger
+     */
+    private static final Logger log = LogManager.getLogger(ItemImportOA.class);
+    private final DSpace dspace = new DSpace();
+    private final ConfigurationService configurationService =
+        DSpaceServicesFactory.getInstance().getConfigurationService();
+    private final ItemService itemService = ContentServiceFactory.getInstance().getItemService();
+    private final CollectionService collectionService = ContentServiceFactory.getInstance().getCollectionService();
+    private final MetadataSchemaService metadataSchemaService = ContentServiceFactory.getInstance()
+                                                                                     .getMetadataSchemaService();
+    private final BundleService bundleService = ContentServiceFactory.getInstance().getBundleService();
+    private final BitstreamService bitstreamService = ContentServiceFactory.getInstance().getBitstreamService();
+    private final BitstreamFormatService bitstreamFormatService = ContentServiceFactory.getInstance()
+                                                                                       .getBitstreamFormatService();
+    private final MetadataFieldService metadataFieldService =
+        ContentServiceFactory.getInstance().getMetadataFieldService();
+    private final HandleService handleService = HandleServiceFactory.getInstance().getHandleService();
+    private final IdentifierService identifierService = IdentifierServiceFactory.getInstance().getIdentifierService();
+    private final EPersonService epersonService = EPersonServiceFactory.getInstance().getEPersonService();
+    private final GroupService groupService = EPersonServiceFactory.getInstance().getGroupService();
+    private final AuthorizeService authorizeService = AuthorizeServiceFactory.getInstance().getAuthorizeService();
+    private final WorkspaceItemService workspaceItemService =
+        ContentServiceFactory.getInstance().getWorkspaceItemService();
+    private final XmlWorkflowService workflowService = XmlWorkflowServiceFactory.getInstance().getXmlWorkflowService();
+    private final XmlWorkflowItemService workflowItemService = XmlWorkflowServiceFactory.getInstance()
+                                                                                        .getXmlWorkflowItemService();
+    private final PoolTaskService poolTaskService = XmlWorkflowServiceFactory.getInstance().getPoolTaskService();
+    private final ClaimedTaskService claimedTaskService =
+        XmlWorkflowServiceFactory.getInstance().getClaimedTaskService();
+    private final ImpBitstreamService impBitstreamService = ImpServiceFactory.getInstance().getImpBitstreamService();
+    private final ImpBitstreamMetadatavalueService impBitstreamMetadatavalueService =
+        ImpServiceFactory.getInstance().getImpBitstreamMetadatavalueService();
+    private final ImpMetadatavalueService impMetadatavalueService = ImpServiceFactory.getInstance()
+                                                                                     .getImpMetadatavalueService();
+    private final ImpRecordService impRecordService = ImpServiceFactory.getInstance().getImpRecordService();
+    private final ImpWorkflowNStateService impWorkflowNStateService = ImpServiceFactory.getInstance()
+                                                                                       .getImpWorkflowNStateService();
+    private final InstallItemService installItemService = ContentServiceFactory.getInstance().getInstallItemService();
     private boolean workflow = false;
-
     private boolean reinstate = false;
-
     private boolean withdrawn = false;
-
     private boolean backToWorkspace = false;
-
     private EPerson myEPerson = null;
-
     private EPerson batchJob = null;
-
     private String[] metadataClean = null;
-
     private String sourceRef = null;
-
-    private ConfigurationService configurationService = DSpaceServicesFactory.getInstance().getConfigurationService();
-    private ItemService itemService = ContentServiceFactory.getInstance().getItemService();
-    private CollectionService collectionService = ContentServiceFactory.getInstance().getCollectionService();
-    private MetadataSchemaService metadataSchemaService = ContentServiceFactory.getInstance()
-            .getMetadataSchemaService();
-    private BundleService bundleService = ContentServiceFactory.getInstance().getBundleService();
-    private BitstreamService bitstreamService = ContentServiceFactory.getInstance().getBitstreamService();
-    private BitstreamFormatService bitstreamFormatService = ContentServiceFactory.getInstance()
-            .getBitstreamFormatService();
-    private MetadataFieldService metadataFieldService = ContentServiceFactory.getInstance().getMetadataFieldService();
-    private HandleService handleService = HandleServiceFactory.getInstance().getHandleService();
-    private IdentifierService identifierService = IdentifierServiceFactory.getInstance().getIdentifierService();
-    private EPersonService epersonService = EPersonServiceFactory.getInstance().getEPersonService();
-    private GroupService groupService = EPersonServiceFactory.getInstance().getGroupService();
-    private AuthorizeService authorizeService = AuthorizeServiceFactory.getInstance().getAuthorizeService();
-    private WorkspaceItemService workspaceItemService = ContentServiceFactory.getInstance().getWorkspaceItemService();
-    private XmlWorkflowService workflowService = XmlWorkflowServiceFactory.getInstance().getXmlWorkflowService();
-    private XmlWorkflowItemService workflowItemService = XmlWorkflowServiceFactory.getInstance()
-            .getXmlWorkflowItemService();
-
-    private PoolTaskService poolTaskService = XmlWorkflowServiceFactory.getInstance().getPoolTaskService();
-    private ClaimedTaskService claimedTaskService = XmlWorkflowServiceFactory.getInstance().getClaimedTaskService();
-
-    private ImpBitstreamService impBitstreamService = ImpServiceFactory.getInstance().getImpBitstreamService();
-    private ImpBitstreamMetadatavalueService impBitstreamMetadatavalueService = ImpServiceFactory.getInstance()
-            .getImpBitstreamMetadatavalueService();
-    private ImpMetadatavalueService impMetadatavalueService = ImpServiceFactory.getInstance()
-            .getImpMetadatavalueService();
-    private ImpRecordService impRecordService = ImpServiceFactory.getInstance().getImpRecordService();
-    private ImpWorkflowNStateService impWorkflowNStateService = ImpServiceFactory.getInstance()
-            .getImpWorkflowNStateService();
-    private InstallItemService installItemService = ContentServiceFactory.getInstance().getInstallItemService();
-
 
     public static void main(String[] argv) {
         Context context = null;
@@ -213,9 +206,11 @@ public class ItemImportOA {
         options.addOption("I", "importID", true, "import ID");
         options.addOption("k", "handle", true, "handle of item");
         options.addOption("m", "metadata", true,
-                "List of metadata to remove first and after do an update [by default all metadata are delete,"
-                        + " specifying only the dc.title it will obtain an append on the other metadata];"
-                        + " use this option many times on the single metadata e.g. -m dc.title -m dc.contributor.*");
+                          "List of metadata to remove first and after do an update [by default all metadata are delete,"
+                              + " specifying only the dc.title it will obtain an append on the other metadata];"
+                              +
+                              " use this option many times on the single metadata e.g. -m dc.title -m dc.contributor" +
+                              ".*");
         options.addOption("o", "item", true, "item UUID");
         options.addOption("p", "workspace", false, "send submission back to workspace");
         options.addOption("r", "replace", false, "update items");
@@ -240,7 +235,7 @@ public class ItemImportOA {
             System.out.println("replacing items: ItemImport -r -e eperson -c collection");
             System.out.println("deleting items: ItemImport -d -e eperson");
             System.out.println(
-                    "If multiple collections are specified, the first collection will be the one that owns the item.");
+                "If multiple collections are specified, the first collection will be the one that owns the item.");
 
             System.exit(0);
         }
@@ -309,10 +304,7 @@ public class ItemImportOA {
         if (line.hasOption('k')) {
             handle = line.getOptionValue('k').trim();
         }
-        boolean clearOldBitstream = false;
-        if (line.hasOption('b')) {
-            clearOldBitstream = true;
-        }
+        boolean clearOldBitstream = line.hasOption('b');
 
         if (line.hasOption('R')) {
             myLoader.setSourceRef(line.getOptionValue('R'));
@@ -394,7 +386,7 @@ public class ItemImportOA {
                 }
 
                 System.out.println(
-                        owningPrefix + " Collection: " + collectionService.getMetadata(mycollections[i], "name"));
+                    owningPrefix + " Collection: " + collectionService.getMetadata(mycollections[i], "name"));
             }
         } // end of validating collections
 
@@ -421,7 +413,7 @@ public class ItemImportOA {
     }
 
     private void replaceItems(Context c, Collection[] mycollections, String imp_record_id, UUID item_id,
-            ImpRecord impRecord, boolean clearOldBitstream) throws Exception {
+                              ImpRecord impRecord, boolean clearOldBitstream) throws Exception {
 
         Item oldItem = itemService.find(c, item_id);
 
@@ -434,14 +426,14 @@ public class ItemImportOA {
     }
 
     private void processItemUpdate(Context c, ImpRecord impRecord, boolean clearOldBitstream, Item item)
-            throws SQLException, AuthorizeException, TransformerException, IOException, WorkflowException,
-            WorkflowConfigurationException, MessagingException {
+        throws SQLException, AuthorizeException, TransformerException, IOException, WorkflowException,
+        WorkflowConfigurationException, MessagingException {
 
         if (metadataClean != null && metadataClean.length > 0) {
             for (String mc : metadataClean) {
                 StringTokenizer dcf = new StringTokenizer(mc.trim(), ".");
 
-                String[] tokens = { "", "", "" };
+                String[] tokens = {"", "", ""};
                 int i = 0;
                 while (dcf.hasMoreTokens()) {
                     tokens[i] = dcf.nextToken().trim();
@@ -465,8 +457,9 @@ public class ItemImportOA {
                 "dbms-import.replace.metadata-to-keep", new String[] {});
 
             List<MetadataValue> metadataToDelete = item.getMetadata().stream()
-                .filter(metadataValue -> shouldBeDeleted(metadataValue, metadataFieldsToKeep))
-                .collect(Collectors.toList());
+                                                       .filter(metadataValue -> shouldBeDeleted(metadataValue,
+                                                                                                metadataFieldsToKeep))
+                                                       .collect(Collectors.toList());
 
             itemService.removeMetadataValues(c, item, metadataToDelete);
 
@@ -478,7 +471,8 @@ public class ItemImportOA {
         processImportBitstream(c, item, impRecord, clearOldBitstream);
 
         List<AdditionalMetadataUpdateProcessPlugin> plugins = dspace.getServiceManager()
-                .getServicesByType(AdditionalMetadataUpdateProcessPlugin.class);
+                                                                    .getServicesByType(
+                                                                        AdditionalMetadataUpdateProcessPlugin.class);
         for (AdditionalMetadataUpdateProcessPlugin plugin : plugins) {
             plugin.process(c, item, getSourceRef());
         }
@@ -536,7 +530,7 @@ public class ItemImportOA {
      * writing
      */
     private UUID addItem(Context c, Collection[] mycollections, ImpRecord impRecord, String handle,
-            boolean clearOldBitstream) throws Exception {
+                         boolean clearOldBitstream) throws Exception {
 
         // hanlde withdraw
         if (withdrawn) {
@@ -562,8 +556,9 @@ public class ItemImportOA {
         // and the bitstreams
         processImportBitstream(c, myitem, impRecord, clearOldBitstream);
 
-        List<AdditionalMetadataUpdateProcessPlugin> plugins = DSpaceServicesFactory.getInstance().getServiceManager()
-                .getServicesByType(AdditionalMetadataUpdateProcessPlugin.class);
+        List<AdditionalMetadataUpdateProcessPlugin> plugins =
+            DSpaceServicesFactory.getInstance().getServiceManager()
+                                 .getServicesByType(AdditionalMetadataUpdateProcessPlugin.class);
         for (AdditionalMetadataUpdateProcessPlugin plugin : plugins) {
             plugin.process(c, myitem, getSourceRef());
         }
@@ -592,7 +587,7 @@ public class ItemImportOA {
     }
 
     private void processWorkflow(Context context, XmlWorkflowItem wfi, ImpRecord impRecord) throws SQLException,
-            IOException, AuthorizeException, WorkflowConfigurationException, MessagingException, WorkflowException {
+        IOException, AuthorizeException, WorkflowConfigurationException, MessagingException, WorkflowException {
         List<ImpWorkflowNState> impWorkflowNStates = impWorkflowNStateService.searchWorkflowOps(context, impRecord);
         for (ImpWorkflowNState iwns : impWorkflowNStates) {
             EPerson user = null;
@@ -606,18 +601,18 @@ public class ItemImportOA {
             if ("CLAIM".equalsIgnoreCase(iwns.getImpWNStateOp())) {
                 PoolTask task = poolTaskService.findByWorkflowIdAndEPerson(context, wfi, user);
 
-                XmlWorkflowServiceFactory factory = (XmlWorkflowServiceFactory) XmlWorkflowServiceFactory.getInstance();
+                XmlWorkflowServiceFactory factory = XmlWorkflowServiceFactory.getInstance();
                 Workflow workflow = factory.getWorkflowFactory().getWorkflow(task.getWorkflowItem().getCollection());
                 Step step = workflow.getStep(task.getStepID());
                 WorkflowActionConfig currentActionConfig = step.getActionConfig(task.getActionID());
                 workflowService.doState(context, user, null, task.getWorkflowItem().getID(), workflow,
-                        currentActionConfig);
+                                        currentActionConfig);
             } else if ("ADVANCE".equalsIgnoreCase(iwns.getImpWNStateOp())) {
                 ClaimedTask claimedTask = claimedTaskService.findByWorkflowIdAndEPerson(context, wfi, user);
 
-                XmlWorkflowServiceFactory factory = (XmlWorkflowServiceFactory) XmlWorkflowServiceFactory.getInstance();
+                XmlWorkflowServiceFactory factory = XmlWorkflowServiceFactory.getInstance();
                 Workflow workflow = factory.getWorkflowFactory()
-                        .getWorkflow(claimedTask.getWorkflowItem().getCollection());
+                                           .getWorkflow(claimedTask.getWorkflowItem().getCollection());
                 Step step = workflow.getStep(claimedTask.getStepID());
                 WorkflowActionConfig currentActionConfig = step.getActionConfig(claimedTask.getActionID());
 
@@ -629,7 +624,7 @@ public class ItemImportOA {
                 // Use org.jmockit.HttpServletRequest?. The dependency with "org.jmockit",
                 // "jmockit" exist in pom.xml with test scope.
                 workflowService.doState(context, user, null, claimedTask.getWorkflowItem().getID(), workflow,
-                        currentActionConfig);
+                                        currentActionConfig);
             } else if ("UNCLAIM".equalsIgnoreCase(iwns.getImpWNStateOp())) {
                 workflowService.sendWorkflowItemBackSubmission(context, wfi, user, impRecord.getImpSourceref(), "");
             } else if ("ABORT".equalsIgnoreCase(iwns.getImpWNStateOp())) {
@@ -639,7 +634,7 @@ public class ItemImportOA {
     }
 
     private void loadDublinCore(Context c, Item myitem, ImpRecord impRecord)
-            throws SQLException, AuthorizeException, TransformerException {
+        throws SQLException, AuthorizeException, TransformerException {
         List<ImpMetadatavalue> impMetadatavlues = impMetadatavalueService.searchByImpRecordId(c, impRecord);
         // Add each one as a new format to the registry
         for (ImpMetadatavalue row_data : impMetadatavlues) {
@@ -656,7 +651,7 @@ public class ItemImportOA {
      * Get the information from the TableRow for the specific metadata. The
      * authority column can use the special value [GUESS], case insensitive, to rely
      * on the getBestMatch to guess a potential authority
-     * 
+     *
      * @param c
      * @param i
      * @param schema
@@ -666,7 +661,7 @@ public class ItemImportOA {
      * @throws AuthorizeException
      */
     private void addDCValue(Context c, Item i, String schema, ImpMetadatavalue n)
-            throws TransformerException, SQLException, AuthorizeException {
+        throws TransformerException, SQLException, AuthorizeException {
         String value = n.getImpValue();
         // compensate for empty value getting read as "null", which won't
         // display
@@ -687,7 +682,7 @@ public class ItemImportOA {
         Integer securityLevel = n.getSecurityLevel();
 
         System.out.println(
-                "\tSchema: " + schema + " Element: " + element + " Qualifier: " + qualifier + " Value: " + value);
+            "\tSchema: " + schema + " Element: " + element + " Qualifier: " + qualifier + " Value: " + value);
 
         if (qualifier == null || qualifier.equals("none") || "".equals(qualifier)) {
             qualifier = null;
@@ -715,7 +710,7 @@ public class ItemImportOA {
 
         if (foundField == null) {
             System.out.println("ERROR: Metadata field: '" + schema + "." + element + "." + qualifier
-                    + "' was not found in the registry.");
+                                   + "' was not found in the registry.");
             return;
         }
 
@@ -726,23 +721,23 @@ public class ItemImportOA {
                 itemService.addMetadata(c, i, schema, element, qualifier, language, value);
             } else {
                 itemService.addSecuredMetadata(c, i, schema, element, qualifier, language, value, null, -1,
-                    securityLevel);
+                                               securityLevel);
             }
         } else {
             if (securityLevel == null) {
                 if (order > -1) {
                     itemService.addMetadata(c, i, schema, element, qualifier, language, value, authority, confidence,
-                        order);
+                                            order);
                 } else {
                     itemService.addMetadata(c, i, schema, element, qualifier, language, value, authority, confidence);
                 }
             } else {
                 if (order > -1) {
                     itemService.addMetadataInPlaceSecured(c, i, schema, element, qualifier, language, value, authority,
-                        confidence, order, securityLevel);
+                                                          confidence, order, securityLevel);
                 } else {
                     itemService.addSecuredMetadata(c, i, schema, element, qualifier, language, value, authority,
-                        confidence, securityLevel);
+                                                   confidence, securityLevel);
                 }
             }
         }
@@ -750,7 +745,7 @@ public class ItemImportOA {
 
     /**
      * Import a bitstream to relative item.
-     * 
+     *
      * @param c
      * @param i
      * @param impRecord
@@ -759,7 +754,7 @@ public class ItemImportOA {
      * @throws SQLException
      */
     private void processImportBitstream(Context c, Item i, ImpRecord impRecord, boolean clearOldBitstream)
-            throws SQLException, IOException, AuthorizeException {
+        throws SQLException, IOException, AuthorizeException {
 
         if (clearOldBitstream) {
             List<Bundle> bnds = i.getBundles();
@@ -806,14 +801,10 @@ public class ItemImportOA {
                 } else if (embargo_policy == ImpBitstream.USE_GROUP) {
                     try {
                         embargoGroup = groupService.find(c, imp_bitstream.getEmbargoGroup());
-                        if (embargo_start_date != null) {
-                            start_date = embargo_start_date;
-                        } else {
-                            start_date = null;
-                        }
+                        start_date = embargo_start_date;
                     } catch (Exception e) {
                         throw new SQLException(
-                                "The group with UUID " + imp_bitstream.getEmbargoGroup() + " does not exist", e);
+                            "The group with UUID " + imp_bitstream.getEmbargoGroup() + " does not exist", e);
                     }
                 } else if (embargo_policy == ImpBitstream.EMBARGO && embargo_start_date != null) {
                     start_date = embargo_start_date;
@@ -823,7 +814,7 @@ public class ItemImportOA {
             }
 
             Bitstream bs = processBitstreamEntry(c, i, filepath, bundleName, description, primary_bitstream, name_file,
-                    assetstore, embargoGroup, start_date, imp_bitstream);
+                                                 assetstore, embargoGroup, start_date, imp_bitstream);
 
             // HACK: replace the bytea with a register like operation
             if (imp_bitstream.getImpBlob() != null) {
@@ -834,7 +825,7 @@ public class ItemImportOA {
                     assetstorePath = configurationService.getProperty("assetstore.dir") + File.separatorChar;
                 } else {
                     assetstorePath = configurationService.getProperty("assetstore.dir." + bs.getStoreNumber())
-                            + File.separatorChar;
+                        + File.separatorChar;
                 }
                 int length = assetstorePath.length();
                 imp_bitstream.setFilepath(bs.getSource().substring(length));
@@ -846,28 +837,28 @@ public class ItemImportOA {
 
     /**
      * Process bitstream
-     * 
+     *
      * @param c
      * @param i
      * @param bitstreamPath
      * @param bundleName
      * @param description
-     * @param license
      * @throws SQLException
      * @throws IOException
      * @throws AuthorizeException
      */
     private Bitstream processBitstreamEntry(Context c, Item i, String bitstreamPath, String bundleName,
-            String description, Boolean primaryBitstream, String name_file, int alreadyInAssetstoreNr,
-            Group embargoGroup, String start_date, ImpBitstream imp_bitstream_id)
-            throws SQLException, IOException, AuthorizeException {
+                                            String description, Boolean primaryBitstream, String name_file,
+                                            int alreadyInAssetstoreNr,
+                                            Group embargoGroup, String start_date, ImpBitstream imp_bitstream_id)
+        throws SQLException, IOException, AuthorizeException {
         String fullpath = null;
 
         if (alreadyInAssetstoreNr == -1) {
             fullpath = bitstreamPath;
         } else {
             fullpath = configurationService.getProperty("assetstore.dir." + alreadyInAssetstoreNr) + File.separatorChar
-                    + bitstreamPath;
+                + bitstreamPath;
         }
 
         Bitstream bs = null;
@@ -940,23 +931,22 @@ public class ItemImportOA {
         if (embargoGroup == null) {
             embargoGroup = groupService.findByName(c, Group.ANONYMOUS);
         }
-        Date embargoDate = null;
+        LocalDate embargoDate = null;
         if (StringUtils.isNotBlank(start_date)) {
             String[] split_date = start_date.split("/");
             int embargo_year = Integer.parseInt(split_date[2]);
             int embargo_month = Integer.parseInt(split_date[1]);
             int embargo_day = Integer.parseInt(split_date[0]);
             if (embargo_year > 0 && embargo_month > 0 && embargo_day > 0) {
-                Calendar cal = Calendar.getInstance();
-                embargo_month--;
-                cal.clear();
-                cal.set(embargo_year, embargo_month, embargo_day, 0, 0, 0);
-                embargoDate = cal.getTime();
+                embargoDate = LocalDate.of(embargo_year, embargo_month, embargo_day);
             }
         }
         authorizeService.removeAllPolicies(c, bs);
-        ResourcePolicy rp = authorizeService.createResourcePolicy(c, bs, embargoGroup, null,
-                Constants.DEFAULT_BITSTREAM_READ, null, null, null, embargoDate, null);
+        ResourcePolicy rp =
+            authorizeService.createResourcePolicy(c, bs, embargoGroup, null,
+                                                  Constants.DEFAULT_BITSTREAM_READ,
+                                                  null, null, null,
+                                                  embargoDate, null);
 
         processBitstreamMetadata(c, bs, imp_bitstream_id);
         bitstreamService.update(c, bs);
@@ -965,7 +955,7 @@ public class ItemImportOA {
 
     private void processBitstreamMetadata(Context c, Bitstream b, ImpBitstream imp_bitstream_id) throws SQLException {
         List<ImpBitstreamMetadatavalue> impBitstreamMetadatavalues = impBitstreamMetadatavalueService
-                .searchByImpBitstream(c, imp_bitstream_id);
+            .searchByImpBitstream(c, imp_bitstream_id);
 
         for (ImpBitstreamMetadatavalue tr : impBitstreamMetadatavalues) {
             String schema = tr.getImpSchema();
@@ -977,7 +967,7 @@ public class ItemImportOA {
             String language = tr.getTextLang();
 
             System.out.println(
-                    "\tSchema: " + schema + " Element: " + element + " Qualifier: " + qualifier + " Value: " + value);
+                "\tSchema: " + schema + " Element: " + element + " Qualifier: " + qualifier + " Value: " + value);
 
             if (!StringUtils.isNotBlank(qualifier) || StringUtils.equals("none", qualifier)) {
                 qualifier = null;

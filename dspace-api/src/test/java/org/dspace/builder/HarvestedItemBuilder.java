@@ -47,7 +47,7 @@ public class HarvestedItemBuilder extends AbstractBuilder<HarvestedItem, Harvest
     }
 
     public HarvestedItemBuilder withHarvestDate(Date harvestDate) {
-        this.harvestedItem.setHarvestDate(harvestDate);
+        this.harvestedItem.setHarvestDate(harvestDate.toInstant());
         return this;
     }
 

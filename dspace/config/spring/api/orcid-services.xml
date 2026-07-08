@@ -63,6 +63,27 @@
 	<bean id="orcidWorkFactoryFieldMapping" class="org.dspace.orcid.model.OrcidWorkFieldMapping" >
 		<property name="contributorFields" value="${orcid.mapping.work.contributors}" />
 		<property name="externalIdentifierFields" value="${orcid.mapping.work.external-ids}" />
+    <property name="externalIdentifierPartOfMap">
+        <map>
+            <entry key="issn">
+                <list>
+                    <value>journal-article</value>
+                    <value>magazine-article</value>
+                    <value>newspaper-article</value>
+                    <value>data-set</value>
+                    <value>learning-object</value>
+                    <value>other</value>
+                </list>
+            </entry>
+            <entry key="isbn">
+                <list>
+                    <value>book-chapter</value>
+                    <value>book-review</value>
+                    <value>other</value>
+                </list>
+            </entry>
+        </map>
+    </property>
 		<property name="publicationDateField" value="${orcid.mapping.work.publication-date}" />
 		<property name="titleField" value="${orcid.mapping.work.title}" />
 		<property name="journalTitleField" value="${orcid.mapping.work.journal-title}" />
@@ -280,7 +301,7 @@
     <bean name="mapConverterOrcidToDSpacePublicationType" class="org.dspace.util.SimpleMapConverter" init-method="init">
 		<property name="converterNameFile" value="orcid/mapConverter-orcid-to-dspace-publication-type.properties" />
 		<property name="configurationService" ref="org.dspace.services.ConfigurationService" />
-		<property name="defaultValue" value="Controlled Vocabulary for Resource Type Genres::other"/>
+		<property name="defaultValue" value="other"/>
 	</bean>
     
     <bean name="mapConverterOrcidToDSpaceLanguageCode" class="org.dspace.util.SimpleMapConverter" init-method="init">

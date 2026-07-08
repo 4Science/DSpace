@@ -88,6 +88,7 @@ public class SubscriptionEmailNotificationServiceImpl implements SubscriptionEma
     @SuppressWarnings({ "rawtypes" })
     private void performForContent(Context context, DSpaceRunnableHandler handler,
                                    String subscriptionType, String frequency) {
+        EPerson currentEperson = context.getCurrentUser();
         try {
             List<Subscription> subscriptions =
                 findAllSubscriptionsBySubscriptionTypeAndFrequency(context, subscriptionType, frequency);
@@ -99,7 +100,10 @@ public class SubscriptionEmailNotificationServiceImpl implements SubscriptionEma
             for (Subscription subscription : subscriptions) {
                 DSpaceObject dSpaceObject = subscription.getDSpaceObject();
                 EPerson ePerson = subscription.getEPerson();
-
+                // Set the current user to the subscribed eperson because the Solr query checks
+                // the permissions of the current user in the ANONYMOUS group.
+                // If there is no user (i.e., `current user = null`), it will send an email with no new items.
+                context.setCurrentUser(ePerson);
                 if (!authorizeService.authorizeActionBoolean(context, ePerson, dSpaceObject, READ, true)) {
                     iterator++;
                     continue;
@@ -165,10 +169,14 @@ public class SubscriptionEmailNotificationServiceImpl implements SubscriptionEma
             log.error(e.getMessage(), e);
             handler.handleException(e);
             context.abort();
+        } finally {
+            // Reset the current user because it was changed to subscriber eperson
+            context.setCurrentUser(currentEperson);
         }
     }
 
     private void performForStatistics(Context context, String subscriptionType, String frequency) {
+        EPerson currentEperson = context.getCurrentUser();
         List<Subscription> subscriptions =
             findAllSubscriptionsBySubscriptionTypeAndFrequency(context, subscriptionType, frequency);
         List<CrisMetrics> crisMetricsList = new ArrayList<>();
@@ -177,6 +185,10 @@ public class SubscriptionEmailNotificationServiceImpl implements SubscriptionEma
         for (Subscription subscription : subscriptions) {
             EPerson ePerson = subscription.getEPerson();
             DSpaceObject dSpaceObject = subscription.getDSpaceObject();
+            // Set the current user to the subscribed eperson because the Solr query checks
+            // the permissions of the current user in the ANONYMOUS group.
+            // If there is no user (i.e., `current user = null`), it will send an email with no new items.
+            context.setCurrentUser(ePerson);
             try {
                 crisMetricsList.addAll(crisMetricsService.findAllByDSO(context, dSpaceObject));
             } catch (Exception e) {
@@ -195,6 +207,9 @@ public class SubscriptionEmailNotificationServiceImpl implements SubscriptionEma
             }
             iterator++;
         }
+
+        // Reset the current user because it was changed to subscriber eperson
+        context.setCurrentUser(currentEperson);
     }
 
     @SuppressWarnings("rawtypes")

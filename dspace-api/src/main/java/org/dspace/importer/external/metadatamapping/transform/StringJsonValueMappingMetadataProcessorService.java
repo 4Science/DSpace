@@ -28,7 +28,6 @@ import org.dspace.util.SimpleMapConverter;
  * <code>journal-article = Article<code/>
  *
  * @author paulo-graca
- *
  */
 public class StringJsonValueMappingMetadataProcessorService implements JsonPathMetadataProcessor {
 
@@ -50,8 +49,8 @@ public class StringJsonValueMappingMetadataProcessorService implements JsonPathM
 
             String stringValue = abstractNode.get().asText();
             values.add(Optional.ofNullable(stringValue)
-                         .map(value -> valueMapConverter != null ? valueMapConverter.getValue(value) : value)
-                         .orElse(valueMapConverter.getValue(null)));
+                               .map(value -> valueMapConverter != null ? valueMapConverter.getValue(value) : value)
+                               .orElse(valueMapConverter.getValue(null)));
         }
         return values;
     }

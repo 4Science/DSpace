@@ -17,7 +17,7 @@
    <parent>
       <groupId>org.dspace</groupId>
       <artifactId>modules</artifactId>
-      <version>cris-2025.01.00-SNAPSHOT</version>
+      <version>cris-2026.01.00-SNAPSHOT</version>
       <relativePath>..</relativePath>
    </parent>
 
@@ -412,6 +412,10 @@
                <groupId>org.antlr</groupId>
                <artifactId>antlr4-runtime</artifactId>
             </exclusion>
+            <exclusion>
+               <groupId>org.apache.logging.log4j</groupId>
+               <artifactId>log4j-slf4j-impl</artifactId>
+            </exclusion>
          </exclusions>
       </dependency>
       <dependency>
@@ -446,7 +450,7 @@
       </dependency>
       <dependency>
          <groupId>org.mockito</groupId>
-         <artifactId>mockito-inline</artifactId>
+         <artifactId>mockito-core</artifactId>
          <scope>test</scope>
       </dependency>
 

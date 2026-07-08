@@ -39,6 +39,8 @@ public abstract class ScriptConfiguration<T extends DSpaceRunnable> implements B
 
     private String name;
 
+    private boolean isVisibleFromUI = true;
+
     /**
      * Generic getter for the description
      * @return the description value of this ScriptConfiguration
@@ -107,7 +109,7 @@ public abstract class ScriptConfiguration<T extends DSpaceRunnable> implements B
     public abstract Options getOptions();
 
     /**
-     * The getter for the options of the Script (help informations)
+     * The getter for the options of the Script (help information)
      * 
      * @return the options value of this ScriptConfiguration for help
      */
@@ -122,5 +124,17 @@ public abstract class ScriptConfiguration<T extends DSpaceRunnable> implements B
     @Override
     public void setBeanName(String beanName) {
         this.name = beanName;
+    }
+
+    /**
+     * The getter for isVisibleFromUI, the default is true
+     * @return true if the script is visible from the UI, false otherwise.
+     */
+    public boolean getIsVisibleFromUI() {
+        return this.isVisibleFromUI;
+    }
+
+    public void setIsVisibleFromUI(boolean isVisibleFromUI) {
+        this.isVisibleFromUI = isVisibleFromUI;
     }
 }

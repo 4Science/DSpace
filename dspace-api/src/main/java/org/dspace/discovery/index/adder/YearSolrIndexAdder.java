@@ -7,11 +7,11 @@
  */
 package org.dspace.discovery.index.adder;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Collection;
 
 import org.apache.solr.common.SolrInputDocument;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
 
 /**
  * Implementation of {@link IndexAdder} defining index adder for handling year of a date.
@@ -21,7 +21,7 @@ import org.joda.time.format.DateTimeFormatter;
  */
 public class YearSolrIndexAdder implements IndexAdder {
 
-    private static final DateTimeFormatter dtf = DateTimeFormat.forPattern("yyyy-MM-dd");
+    private static final DateTimeFormatter DTF = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
     private static final String SOLR_POSTFIX_YEAR = ".year";
 
@@ -32,7 +32,10 @@ public class YearSolrIndexAdder implements IndexAdder {
             document.addField(solrFieldName, value);
             document.addField(solrFieldName.concat(SOLR_POSTFIX_KEYWORD), value);
             document.addField(solrFieldName.concat(SOLR_POSTFIX_FILTER), value);
-            document.addField(solrFieldName.concat(SOLR_POSTFIX_YEAR), dtf.parseLocalDate(value).getYear());
+
+            int year = LocalDate.parse(value, DTF).getYear();
+            document.addField(solrFieldName.concat(SOLR_POSTFIX_YEAR), year);
         }
     }
 }
+

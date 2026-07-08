@@ -24,6 +24,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 import com.google.common.collect.ImmutableList;
+import jakarta.inject.Named;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.validator.routines.UrlValidator;
 import org.apache.logging.log4j.LogManager;
@@ -59,6 +60,7 @@ import org.dspace.deduplication.Deduplication;
 import org.dspace.deduplication.service.DeduplicationService;
 import org.dspace.discovery.SearchServiceException;
 import org.dspace.handle.factory.HandleServiceFactory;
+import org.dspace.service.impl.HttpConnectionPoolService;
 import org.dspace.services.ConfigurationService;
 import org.dspace.services.factory.DSpaceServicesFactory;
 import org.dspace.utils.DSpace;
@@ -176,6 +178,10 @@ public class SolrDedupServiceImpl implements DedupService {
     @Autowired(required = true)
     protected IDedupUtils dedupUtils;
 
+    @Autowired
+    @Named("solrHttpConnectionPoolService")
+    protected HttpConnectionPoolService httpConnectionPoolService;
+
     /***
      * Deduplication status
      * <p>
@@ -235,7 +241,10 @@ public class SolrDedupServiceImpl implements DedupService {
                     || configurationService.getBooleanProperty("deduplication.solr.url.validation.enabled", true)) {
                 try {
                     log.debug("Solr URL: " + solrService);
-                    solr = new HttpSolrClient.Builder(solrService).build();
+                    solr =
+                        new HttpSolrClient.Builder(solrService)
+                            .withHttpClient(httpConnectionPoolService.getClient())
+                            .build();
 
                     ((HttpSolrClient) solr).setBaseURL(solrService);
 

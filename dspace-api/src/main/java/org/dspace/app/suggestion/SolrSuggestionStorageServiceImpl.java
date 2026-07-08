@@ -24,7 +24,9 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
+import jakarta.inject.Named;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.solr.client.solrj.SolrClient;
@@ -44,6 +46,7 @@ import org.dspace.content.dto.MetadataValueDTO;
 import org.dspace.content.service.ItemService;
 import org.dspace.core.Context;
 import org.dspace.core.exception.SQLRuntimeException;
+import org.dspace.service.impl.HttpConnectionPoolService;
 import org.dspace.services.factory.DSpaceServicesFactory;
 import org.dspace.util.UUIDUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -64,6 +67,9 @@ public class SolrSuggestionStorageServiceImpl implements SolrSuggestionStorageSe
     @Autowired
     private ItemService itemService;
 
+    @Autowired @Named("solrHttpConnectionPoolService")
+    protected HttpConnectionPoolService httpConnectionPoolService;
+
     /**
      * Get solr client which use suggestion core
      * 
@@ -73,7 +79,10 @@ public class SolrSuggestionStorageServiceImpl implements SolrSuggestionStorageSe
         if (solrSuggestionClient == null) {
             String solrService = DSpaceServicesFactory.getInstance().getConfigurationService()
                     .getProperty("suggestion.solr.server", "http://localhost:8983/solr/suggestion");
-            solrSuggestionClient = new HttpSolrClient.Builder(solrService).build();
+            solrSuggestionClient =
+                new HttpSolrClient.Builder(solrService)
+                    .withHttpClient(httpConnectionPoolService.getClient())
+                    .build();
         }
         return solrSuggestionClient;
     }
@@ -154,18 +163,18 @@ public class SolrSuggestionStorageServiceImpl implements SolrSuggestionStorageSe
 
     private List<String> getAllValues(Suggestion suggestion, String schema, String element, String qualifier) {
         return suggestion.getMetadata().stream()
-                .filter(st -> StringUtils.isNotBlank(st.getValue()) && StringUtils.equals(st.getSchema(), schema)
-                        && StringUtils.equals(st.getElement(), element)
-                        && StringUtils.equals(st.getQualifier(), qualifier))
+                .filter(st -> StringUtils.isNotBlank(st.getValue()) && Strings.CS.equals(st.getSchema(), schema)
+                        && Strings.CS.equals(st.getElement(), element)
+                        && Strings.CS.equals(st.getQualifier(), qualifier))
                 .map(st -> st.getValue()).collect(Collectors.toList());
     }
 
     private String getFirstValue(Suggestion suggestion, String schema, String element, String qualifier) {
         return suggestion.getMetadata().stream()
             .filter(st -> StringUtils.isNotBlank(st.getValue())
-                && StringUtils.equals(st.getSchema(), schema)
-                        && StringUtils.equals(st.getElement(), element)
-                        && StringUtils.equals(st.getQualifier(), qualifier))
+                && Strings.CS.equals(st.getSchema(), schema)
+                        && Strings.CS.equals(st.getElement(), element)
+                        && Strings.CS.equals(st.getQualifier(), qualifier))
                 .map(st -> st.getValue()).findFirst().orElse(null);
     }
 

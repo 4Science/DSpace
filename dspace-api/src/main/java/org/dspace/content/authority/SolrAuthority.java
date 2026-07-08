@@ -18,6 +18,7 @@ import java.util.Map.Entry;
 import java.util.Objects;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.solr.client.solrj.SolrQuery;
@@ -80,15 +81,15 @@ public class SolrAuthority implements ChoiceAuthority {
                 Integer.parseInt(locale);
                 locale = null;
             } catch (NumberFormatException e) {
-                //Everything is allright
+                //Everything is alright
             }
             if (locale != null && !"".equals(locale)) {
                 localSearchField = searchField + "_" + locale;
             }
 
-            String query = "(" + toQuery(searchField, text) + ") ";
+            String query = "(" + toQuery(searchField, text) + ")";
             if (!localSearchField.equals("")) {
-                query += " or (" + toQuery(localSearchField, text) + ")";
+                query += " OR (" + toQuery(localSearchField, text) + ")";
             }
             queryArgs.setQuery(query);
         }
@@ -202,7 +203,7 @@ public class SolrAuthority implements ChoiceAuthority {
     }
 
     private String toQuery(String searchField, String text) {
-        return searchField + ":(" + text.toLowerCase().replaceAll(":", "\\\\:") + "*) or " + searchField + ":(" + text
+        return searchField + ":(" + text.toLowerCase().replaceAll(":", "\\\\:") + "*) OR " + searchField + ":(" + text
             .toLowerCase().replaceAll(":", "\\\\:") + ")";
     }
 
@@ -290,7 +291,7 @@ public class SolrAuthority implements ChoiceAuthority {
         for (Entry<?, ?> conf : configurationService.getProperties().entrySet()) {
             var key = (String) conf.getKey();
             var value = (String) conf.getValue();
-            if (StringUtils.startsWith(key, CHOICES_PLUGIN_PREFIX) && StringUtils.equals(value, authorityName)) {
+            if (Strings.CS.startsWith(key, CHOICES_PLUGIN_PREFIX) && Strings.CS.equals(value, authorityName)) {
                 this.field = key.substring(CHOICES_PLUGIN_PREFIX.length()).replace(".", "_");
                 // exit the look immediately as we have found it
                 break;

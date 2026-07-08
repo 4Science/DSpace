@@ -22,8 +22,8 @@ public interface SuggestionService {
     /** find a {@link SuggestionTarget } by source name and suggestion id */
     SuggestionTarget find(Context context, String source, UUID id);
 
-    /** count all suggetion targets by suggestion source */
-    long countAll(Context context, String source);
+    /** count all suggestion targets by suggestion source */
+    public long countAll(Context context, String source);
 
     /** find all suggestion targets by source (paged) */
     List<SuggestionTarget> findAllTargets(Context context, String source, int pageSize, long offset);

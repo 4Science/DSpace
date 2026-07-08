@@ -7,17 +7,20 @@
  */
 package org.dspace.eperson;
 
+import static java.time.ZoneOffset.UTC;
+
 import java.io.IOException;
 import java.sql.SQLException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.ResourceBundle;
-import java.util.TimeZone;
 
 import jakarta.mail.MessagingException;
 import org.apache.commons.cli.CommandLine;
@@ -164,19 +167,11 @@ public class SubscribeCLITool {
 
         // Get the start and end dates for yesterday
 
-        // The date should reflect the timezone as well. Otherwise we stand to lose that information
-        // in truncation and roll to an earlier date than intended.
-        Calendar cal = Calendar.getInstance(TimeZone.getDefault());
-        cal.setTime(new Date());
+        ZonedDateTime midnightYesterday = ZonedDateTime.now(UTC)
+                                                       .minusDays(1)
+                                                       .truncatedTo(ChronoUnit.DAYS);
 
-        // What we actually want to pass to Harvest is "Midnight of yesterday in my current timezone"
-        // Truncation will actually pass in "Midnight of yesterday in UTC", which will be,
-        // at least in CDT, "7pm, the day before yesterday, in my current timezone".
-        cal.add(Calendar.HOUR, -24);
-        cal.set(Calendar.HOUR_OF_DAY, 0);
-        cal.set(Calendar.MINUTE, 0);
-        cal.set(Calendar.SECOND, 0);
-        Date midnightYesterday = cal.getTime();
+        Instant midnightYesterdayInstant = midnightYesterday.toInstant();
 
 
         // FIXME: text of email should be more configurable from an
@@ -227,7 +222,7 @@ public class SubscribeCLITool {
                         itemInfos.size()).append("\n\n");
 
                     for (int j = 0; j < itemInfos.size(); j++) {
-                        HarvestedItemInfo hii = (HarvestedItemInfo) itemInfos
+                        HarvestedItemInfo hii = itemInfos
                             .get(j);
 
                         String title = hii.item.getName();
@@ -266,11 +261,11 @@ public class SubscribeCLITool {
         }
 
         // Send an e-mail if there were any new items
-        if (emailText.length() > 0) {
+        if (!emailText.isEmpty()) {
 
             if (test) {
                 log.info(LogHelper.getHeader(context, "subscription:", "eperson=" + eperson.getEmail()));
-                log.info(LogHelper.getHeader(context, "subscription:", "text=" + emailText.toString()));
+                log.info(LogHelper.getHeader(context, "subscription:", "text=" + emailText));
 
             } else {
 
@@ -356,7 +351,7 @@ public class SubscribeCLITool {
         String yesterday = sdf.format(thisTimeYesterday);
 
         for (HarvestedItemInfo infoObject : completeList) {
-            Date lastUpdate = infoObject.item.getLastModified();
+            Instant lastUpdate = infoObject.item.getLastModified();
             String lastUpdateStr = sdf.format(lastUpdate);
 
             // has the item modified today?
