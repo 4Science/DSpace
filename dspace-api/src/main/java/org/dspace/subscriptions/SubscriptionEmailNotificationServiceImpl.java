@@ -41,12 +41,14 @@ import org.dspace.scripts.DSpaceRunnable;
 import org.dspace.scripts.handler.DSpaceRunnableHandler;
 import org.dspace.subscriptions.service.DSpaceObjectUpdates;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 /**
  * Implementation of {@link DSpaceRunnable} to find subscribed objects and send notification mails about them
  *
  * @author alba aliu
  */
+@Service
 public class SubscriptionEmailNotificationServiceImpl implements SubscriptionEmailNotificationService {
 
     private static final Logger log = LogManager.getLogger(SubscriptionEmailNotificationServiceImpl.class);
@@ -74,10 +76,10 @@ public class SubscriptionEmailNotificationServiceImpl implements SubscriptionEma
     }
 
     public void perform(Context context, DSpaceRunnableHandler handler, String subscriptionType, String frequency) {
-        // Verify if subscriptionType is "content" or "subscription"
         if (supportedSubscriptionTypes.get(0).equals(subscriptionType)) {
             performForContent(context, handler, subscriptionType, frequency);
-        } else if (supportedSubscriptionTypes.get(1).equals(subscriptionType)) {
+        } else if (supportedSubscriptionTypes.size() > 1
+                && supportedSubscriptionTypes.get(1).equals(subscriptionType)) {
             performForStatistics(context, subscriptionType, frequency);
         } else {
             throw new IllegalArgumentException(
@@ -100,9 +102,6 @@ public class SubscriptionEmailNotificationServiceImpl implements SubscriptionEma
             for (Subscription subscription : subscriptions) {
                 DSpaceObject dSpaceObject = subscription.getDSpaceObject();
                 EPerson ePerson = subscription.getEPerson();
-                // Set the current user to the subscribed eperson because the Solr query checks
-                // the permissions of the current user in the ANONYMOUS group.
-                // If there is no user (i.e., `current user = null`), it will send an email with no new items.
                 context.setCurrentUser(ePerson);
                 if (!authorizeService.authorizeActionBoolean(context, ePerson, dSpaceObject, READ, true)) {
                     iterator++;
@@ -145,7 +144,6 @@ public class SubscriptionEmailNotificationServiceImpl implements SubscriptionEma
                 }
 
                 if (iterator < subscriptions.size() - 1) {
-                    // as the subscriptions are ordered by eperson id, so we send them by ePerson
                     if (ePerson.equals(subscriptions.get(iterator + 1).getEPerson())) {
                         iterator++;
                         continue;
@@ -158,7 +156,6 @@ public class SubscriptionEmailNotificationServiceImpl implements SubscriptionEma
                         entityItemsByEntityType.clear();
                     }
                 } else {
-                    //in the end of the iteration
                     contentGenerator.notifyForSubscriptions(
                         ePerson, communityItems, collectionsItems, entityItemsByEntityType
                     );
@@ -170,7 +167,6 @@ public class SubscriptionEmailNotificationServiceImpl implements SubscriptionEma
             handler.handleException(e);
             context.abort();
         } finally {
-            // Reset the current user because it was changed to subscriber eperson
             context.setCurrentUser(currentEperson);
         }
     }

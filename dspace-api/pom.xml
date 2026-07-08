@@ -3,7 +3,6 @@
     <artifactId>dspace-api</artifactId>
     <name>DSpace Kernel :: API and Implementation</name>
     <description>DSpace core data model and service APIs.</description>
-
     <!--
        A Parent POM that Maven inherits DSpace Defaults
        POM attributes from.
@@ -14,12 +13,10 @@
         <version>cris-2025.02.01-SNAPSHOT</version>
         <relativePath>..</relativePath>
     </parent>
-
     <properties>
         <!-- This is the path to the root [dspace-src] directory. -->
         <root.basedir>${basedir}/..</root.basedir>
     </properties>
-
     <!--
        Runtime and Compile Time dependencies for DSpace.
     -->
@@ -97,11 +94,10 @@
                     </execution>
                 </executions>
             </plugin>
-
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>buildnumber-maven-plugin</artifactId>
-                <version>3.2.1</version>
+                <version>3.3.0</version>
                 <configuration>
                     <revisionOnScmFailure>UNKNOWN_REVISION</revisionOnScmFailure>
                 </configuration>
@@ -114,7 +110,6 @@
                     </execution>
                 </executions>
             </plugin>
-
             <!-- This plugin allows us to run a Groovy script in our Maven POM
                  (see: https://groovy.github.io/gmaven/groovy-maven-plugin/execute.html )
                  We are generating a OS-agnostic version (agnostic.build.dir) of
@@ -144,7 +139,6 @@
                     </execution>
                 </executions>
             </plugin>
-
             <plugin>
                 <groupId>com.mycila</groupId>
                 <artifactId>license-maven-plugin</artifactId>
@@ -157,7 +151,6 @@
                     </excludes>
                 </configuration>
             </plugin>
-
             <!-- Used to create/generate 'org.dspace.workflow' classes from our workflow-curation.xsd via JAXB -->
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
@@ -180,11 +173,8 @@
                     </execution>
                 </executions>
             </plugin>
-
         </plugins>
     </build>
-
-
     <profiles>
         <profile>
             <id>spotbugs</id>
@@ -200,7 +190,6 @@
                 </plugins>
             </build>
         </profile>
-
         <!-- Setup the Unit Test Environment (when -DskipUnitTests=false) -->
         <profile>
             <id>unit-test-environment</id>
@@ -241,7 +230,6 @@
                             </execution>
                         </executions>
                     </plugin>
-
                     <!-- Run Unit Testing! This plugin just kicks off the tests. -->
                     <plugin>
                         <artifactId>maven-surefire-plugin</artifactId>
@@ -260,7 +248,6 @@
                 </plugins>
             </build>
         </profile>
-
         <!-- Setup the Integration Test Environment (when -DskipIntegrationTests=false) -->
         <profile>
             <id>integration-test-environment</id>
@@ -301,7 +288,6 @@
                             </execution>
                         </executions>
                     </plugin>
-
                     <!-- Run Integration Testing! This plugin just kicks off the tests. -->
                     <plugin>
                         <artifactId>maven-failsafe-plugin</artifactId>
@@ -320,7 +306,6 @@
             </build>
         </profile>
     </profiles>
-
     <dependencies>
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
@@ -388,19 +373,14 @@
             <artifactId>hibernate-validator-cdi</artifactId>
             <version>${hibernate-validator.version}</version>
         </dependency>
-
+        <dependency>
+            <groupId>org.springframework.ldap</groupId>
+            <artifactId>spring-ldap-core</artifactId>
+        </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-orm</artifactId>
-            <exclusions>
-                <!-- Spring JCL is unnecessary and conflicts with commons-logging when both are on classpath -->
-                <exclusion>
-                    <groupId>org.springframework</groupId>
-                    <artifactId>spring-jcl</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
-
         <dependency>
             <groupId>net.handle</groupId>
             <artifactId>handle</artifactId>
@@ -426,6 +406,11 @@
                 <exclusion>
                     <groupId>org.bouncycastle</groupId>
                     <artifactId>bcprov-jdk15on</artifactId>
+                </exclusion>
+                <!-- Excluded because this library is incompatible with Jakarta EE. -->
+                <exclusion>
+                    <groupId>javax.annotation</groupId>
+                    <artifactId>javax.annotation-api</artifactId>
                 </exclusion>
                 <exclusion>
                     <artifactId>jetty-security</artifactId>
@@ -457,7 +442,6 @@
                 </exclusion>
             </exclusions>
         </dependency>
-
         <!-- Jetty is needed to run Handle Server ONLY. This is why it is a runtime dependency. -->
         <dependency>
             <groupId>org.eclipse.jetty</groupId>
@@ -478,6 +462,13 @@
             <groupId>org.eclipse.jetty</groupId>
             <artifactId>jetty-annotations</artifactId>
             <scope>runtime</scope>
+            <!-- Excluded because this library is incompatible with Jakarta EE. -->
+            <exclusions>
+                <exclusion>
+                    <groupId>javax.annotation</groupId>
+                    <artifactId>javax.annotation-api</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.eclipse.jetty</groupId>
@@ -524,7 +515,6 @@
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-dbcp2</artifactId>
         </dependency>
-
         <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
@@ -645,7 +635,6 @@
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpmime</artifactId>
         </dependency>
-
         <!-- SolrJ is used to communicate with Solr throughout the dspace-api -->
         <dependency>
             <groupId>org.apache.solr</groupId>
@@ -722,7 +711,6 @@
             <artifactId>lucene-analyzers-stempel</artifactId>
             <scope>test</scope>
         </dependency>
-
         <!-- Tika is used to extract full text from documents in order to index in Solr -->
         <dependency>
             <groupId>org.apache.tika</groupId>
@@ -738,7 +726,6 @@
                 </exclusion>
             </exclusions>
         </dependency>
-
         <dependency>
             <groupId>com.maxmind.geoip2</groupId>
             <artifactId>geoip2</artifactId>
@@ -751,45 +738,38 @@
         <dependency>
             <groupId>dnsjava</groupId>
             <artifactId>dnsjava</artifactId>
-            <version>3.6.3</version>
+            <version>3.6.4</version>
         </dependency>
-
         <dependency>
             <groupId>com.coverity.security</groupId>
             <artifactId>coverity-escapers</artifactId>
             <version>1.1.1</version>
         </dependency>
-
         <!-- guava is needed by OAuth, Guice, Mockserver, ORCID, Solr, JClouds -->
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
         </dependency>
-
         <!-- Gson is needed by JENA, borker-client, OAuth, Handle and JClouds -->
         <dependency>
             <groupId>com.google.code.gson</groupId>
             <artifactId>gson</artifactId>
         </dependency>
-
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
         </dependency>
-
         <dependency>
             <groupId>jdbm</groupId>
             <artifactId>jdbm</artifactId>
             <version>1.0</version>
         </dependency>
-
         <!-- For ImageMagick MediaFilters -->
         <dependency>
             <groupId>org.im4java</groupId>
             <artifactId>im4java</artifactId>
             <version>1.4.0</version>
         </dependency>
-
         <!-- Flyway DB API (flywaydb.org) is used to manage DB upgrades automatically. -->
         <dependency>
             <groupId>org.flywaydb</groupId>
@@ -801,7 +781,6 @@
             <artifactId>flyway-database-postgresql</artifactId>
             <version>${flyway.version}</version>
         </dependency>
-
         <!-- FindBugs -->
         <dependency>
             <groupId>com.google.code.findbugs</groupId>
@@ -811,12 +790,10 @@
             <groupId>com.google.code.findbugs</groupId>
             <artifactId>annotations</artifactId>
         </dependency>
-
         <dependency>
             <groupId>jakarta.inject</groupId>
             <artifactId>jakarta.inject-api</artifactId>
         </dependency>
-
         <!-- JAXB API and implementation (no longer bundled as of Java 11) -->
         <dependency>
             <groupId>jakarta.xml.bind</groupId>
@@ -826,7 +803,6 @@
             <groupId>org.glassfish.jaxb</groupId>
             <artifactId>jaxb-runtime</artifactId>
         </dependency>
-
         <!-- Jersey / JAX-RS client (jakarta.ws.rs.*) dependencies needed to integrate with external sources/services -->
         <dependency>
             <groupId>org.glassfish.jersey.core</groupId>
@@ -840,42 +816,37 @@
             <artifactId>jersey-hk2</artifactId>
             <version>${jersey.version}</version>
         </dependency>
-
         <!-- S3 -->
         <dependency>
             <groupId>software.amazon.awssdk</groupId>
             <artifactId>s3</artifactId>
-            <version>${software.amazon.awssdk.version}</version>
+            <version>2.43.2</version>
             <exclusions>
-              <exclusion>
-                <groupId>software.amazon.awssdk</groupId>
-                <artifactId>netty-nio-client</artifactId>
-              </exclusion>
-              <exclusion>
-                <groupId>software.amazon.awssdk</groupId>
-                <artifactId>apache-client</artifactId>
-              </exclusion>
+                <exclusion>
+                    <groupId>software.amazon.awssdk</groupId>
+                    <artifactId>netty-nio-client</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>software.amazon.awssdk</groupId>
+                    <artifactId>apache-client</artifactId>
+                </exclusion>
             </exclusions>
         </dependency>
-
         <dependency>
             <groupId>software.amazon.awssdk.crt</groupId>
             <artifactId>aws-crt</artifactId>
-            <version>${software.amazon.awssdk.crt.version}</version>
+            <version>0.45.2</version>
         </dependency>
-
         <dependency>
             <groupId>software.amazon.awssdk</groupId>
             <artifactId>s3-transfer-manager</artifactId>
-            <version>${software.amazon.awssdk.version}</version>
+            <version>2.43.2</version>
         </dependency>
-
         <dependency>
             <groupId>software.amazon.awssdk</groupId>
             <artifactId>url-connection-client</artifactId>
-            <version>${software.amazon.awssdk.version}</version>
+            <version>2.43.2</version>
         </dependency>
-
         <!-- TODO: This may need to be replaced with the "orcid-model" artifact once this ticket is resolved:
              https://github.com/ORCID/orcid-model/issues/50 -->
         <!-- Maintained at https://github.com/DSpace/orcid-model -->
@@ -903,20 +874,17 @@
                 </exclusion>
             </exclusions>
         </dependency>
-
         <dependency>
             <groupId>org.json</groupId>
             <artifactId>json</artifactId>
             <version>20231013</version>
         </dependency>
-
         <!-- To extract metadata from Json response, e.g. SimpleJsonPathMetadataContributor -->
         <dependency>
             <groupId>com.jayway.jsonpath</groupId>
             <artifactId>json-path</artifactId>
             <version>${json-path.version}</version>
         </dependency>
-
         <!-- Useful for testing command-line tools that call System.exit() -->
         <!-- Note: system-lambda replaces system-rules for Java 21 compatibility -->
         <!-- (system-rules uses SecurityManager which is removed in Java 21) -->
@@ -926,35 +894,30 @@
             <version>1.2.1</version>
             <scope>test</scope>
         </dependency>
-
         <!-- Used for Solr core export/import -->
         <dependency>
             <groupId>com.opencsv</groupId>
             <artifactId>opencsv</artifactId>
             <version>5.12.0</version>
         </dependency>
-
         <!-- Email templating -->
         <dependency>
             <groupId>org.apache.velocity</groupId>
             <artifactId>velocity-engine-core</artifactId>
             <version>2.4.1</version>
         </dependency>
-
         <dependency>
             <groupId>org.xmlunit</groupId>
             <artifactId>xmlunit-core</artifactId>
             <version>2.11.0</version>
             <scope>test</scope>
         </dependency>
-
         <dependency>
             <groupId>org.apache.bcel</groupId>
             <artifactId>bcel</artifactId>
-            <version>6.11.0</version>
+            <version>6.12.0</version>
             <scope>test</scope>
         </dependency>
-
         <dependency>
             <groupId>org.apache.xmlgraphics</groupId>
             <artifactId>fop</artifactId>
@@ -974,37 +937,34 @@
                 </exclusion>
             </exclusions>
         </dependency>
-
         <dependency>
             <groupId>org.apache.xmlgraphics</groupId>
             <artifactId>fop-pdf-images</artifactId>
             <version>2.9</version>
         </dependency>
-
-
         <dependency>
-	        <groupId>de.undercouch</groupId>
-	        <artifactId>citeproc-java</artifactId>
-	        <version>3.3.0</version>
-	        <exclusions>
-	            <exclusion>
-	               <groupId>org.apache.commons</groupId>
-	               <artifactId>commons-lang3</artifactId>
-	            </exclusion>
-	            <exclusion>
-	               <groupId>org.jbibtex</groupId>
-	               <artifactId>jbibtex</artifactId>
-	            </exclusion>
-	            <exclusion>
-	               <groupId>org.antlr</groupId>
-	               <artifactId>antlr4-runtime</artifactId>
-	            </exclusion>
+            <groupId>de.undercouch</groupId>
+            <artifactId>citeproc-java</artifactId>
+            <version>3.3.0</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.apache.commons</groupId>
+                    <artifactId>commons-lang3</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.jbibtex</groupId>
+                    <artifactId>jbibtex</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.antlr</groupId>
+                    <artifactId>antlr4-runtime</artifactId>
+                </exclusion>
                 <exclusion>
                     <groupId>org.ow2.asm</groupId>
                     <artifactId>asm-util</artifactId>
                 </exclusion>
-         	</exclusions>
-      </dependency>
+            </exclusions>
+        </dependency>
         <dependency>
             <groupId>org.citationstyles</groupId>
             <artifactId>styles</artifactId>
@@ -1015,7 +975,6 @@
             <artifactId>locales</artifactId>
             <version>25.4</version>
         </dependency>
-
         <!-- required for openaire api integration -->
         <dependency>
             <groupId>eu.openaire</groupId>
@@ -1029,13 +988,11 @@
                 </exclusion>
             </exclusions>
         </dependency>
-
         <dependency>
             <groupId>eu.openaire</groupId>
             <artifactId>broker-client</artifactId>
             <version>1.1.2</version>
         </dependency>
-
         <dependency>
             <groupId>org.mock-server</groupId>
             <artifactId>mockserver-junit-rule</artifactId>
@@ -1077,43 +1034,108 @@
                 </exclusion>
             </exclusions>
         </dependency>
-
+        <dependency>
+            <groupId>com.adobe.testing</groupId>
+            <artifactId>s3mock-testcontainers</artifactId>
+            <version>4.12.4</version>
+            <scope>test</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.testcontainers</groupId>
+                    <artifactId>testcontainers</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <!-- Override version of testcontainers that is used by s3mock-testcontainers dependency above.
+             TODO: This works around a bug with testcontainers 2.0.2. It may be possible to remove this testcontainers
+             dependency (and the exclusion above) after the next upgrade of s3mock-testcontainers. -->
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>testcontainers</artifactId>
+            <version>2.0.5</version>
+            <scope>test</scope>
+        </dependency>
+        <!-- JClouds Assetstorage Support -->
+        <dependency>
+            <groupId>org.apache.jclouds</groupId>
+            <artifactId>jclouds-core</artifactId>
+            <version>${jclouds.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.google.code.gson</groupId>
+                    <artifactId>gson</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.sun.xml.bind</groupId>
+                    <artifactId>jaxb-impl</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>javax.annotation</groupId>
+                    <artifactId>javax.annotation-api</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>jakarta.ws.rs</groupId>
+                    <artifactId>jakarta.ws.rs-api</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.jclouds</groupId>
+            <artifactId>jclouds-blobstore</artifactId>
+            <version>${jclouds.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>jakarta.ws.rs</groupId>
+                    <artifactId>jakarta.ws.rs-api</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.jclouds.api</groupId>
+            <artifactId>filesystem</artifactId>
+            <version>${jclouds.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.jclouds.provider</groupId>
+            <artifactId>aws-s3</artifactId>
+            <version>${jclouds.version}</version>
+        </dependency>
+        <!-- required frontpage generation -->
+        <dependency>
+            <groupId>org.thymeleaf</groupId>
+            <artifactId>thymeleaf</artifactId>
+            <version>3.1.5.RELEASE</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.javassist</groupId>
+                    <artifactId>javassist</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.xhtmlrenderer</groupId>
+            <artifactId>flying-saucer-pdf</artifactId>
+            <version>9.13.3</version>
+            <exclusions>
+                <!-- Conflicts with Hibernate. Use version that is brought in via Hibernate -->
+                <exclusion>
+                    <groupId>net.bytebuddy</groupId>
+                    <artifactId>byte-buddy</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
         <dependency>
             <groupId>com.squareup.okhttp3</groupId>
             <artifactId>mockwebserver</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>com.adobe.testing</groupId>
-            <artifactId>s3mock-testcontainers</artifactId>
+            <groupId>com.icegreen</groupId>
+            <artifactId>greenmail</artifactId>
+            <version>1.6.15</version>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>org.thymeleaf</groupId>
-            <artifactId>thymeleaf</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.xhtmlrenderer</groupId>
-            <artifactId>flying-saucer-pdf</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.jclouds</groupId>
-            <artifactId>jclouds-core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.jclouds.provider</groupId>
-            <artifactId>aws-s3</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.jclouds.api</groupId>
-            <artifactId>filesystem</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.jclouds</groupId>
-            <artifactId>jclouds-blobstore</artifactId>
-        </dependency>
     </dependencies>
-
     <dependencyManagement>
         <dependencies>
             <!-- for mockserver -->
@@ -1181,7 +1203,6 @@
                 <version>2.13.16</version>
                 <scope>test</scope>
             </dependency>
-
             <!-- JClouds Assetstorage Support -->
             <dependency>
                 <groupId>org.apache.jclouds</groupId>
@@ -1206,7 +1227,6 @@
                     </exclusion>
                 </exclusions>
             </dependency>
-
             <dependency>
                 <groupId>org.apache.jclouds</groupId>
                 <artifactId>jclouds-blobstore</artifactId>
@@ -1218,19 +1238,16 @@
                     </exclusion>
                 </exclusions>
             </dependency>
-
             <dependency>
                 <groupId>org.apache.jclouds.api</groupId>
                 <artifactId>filesystem</artifactId>
                 <version>${jclouds.version}</version>
             </dependency>
-
             <dependency>
                 <groupId>org.apache.jclouds.provider</groupId>
                 <artifactId>aws-s3</artifactId>
                 <version>${jclouds.version}</version>
             </dependency>
-
             <!-- required frontpage generation -->
             <dependency>
                 <groupId>org.thymeleaf</groupId>
@@ -1243,7 +1260,6 @@
                     </exclusion>
                 </exclusions>
             </dependency>
-
             <dependency>
                 <groupId>org.xhtmlrenderer</groupId>
                 <artifactId>flying-saucer-pdf</artifactId>
@@ -1260,8 +1276,6 @@
                     </exclusion>
                 </exclusions>
             </dependency>
-
         </dependencies>
     </dependencyManagement>
-
 </project>
