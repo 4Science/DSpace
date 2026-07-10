@@ -207,12 +207,21 @@ public class AuthorizationRestRepository extends DSpaceRestRepository<Authorizat
 
     private String pluralizeType(String type) {
         int index = type.lastIndexOf('.');
-        if (index < 0) {
-            return English.plural(type);
-        }
+        String prefix = index < 0 ? "" : type.substring(0, index + 1);
+        String segment = index < 0 ? type : type.substring(index + 1);
+        return prefix + smartPlural(segment);
+    }
 
-        return type.substring(0, index + 1)
-            + English.plural(type.substring(index + 1));
+    private String smartPlural(String segment) {
+        return isAlreadyPlural(segment) ? segment : English.plural(segment);
+    }
+
+    private boolean isAlreadyPlural(String segment) {
+        if (!segment.endsWith("s") || segment.length() < 2) {
+            return false;
+        }
+        String candidateSingular = segment.substring(0, segment.length() - 1);
+        return English.plural(candidateSingular).equals(segment);
     }
 
     private List<Authorization> findAuthorizationsByUUIDList(
