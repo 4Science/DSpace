@@ -20,6 +20,7 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.atteo.evo.inflector.English;
 import org.dspace.app.rest.Parameter;
 import org.dspace.app.rest.SearchRestMethod;
 import org.dspace.app.rest.authorization.Authorization;
@@ -195,13 +196,23 @@ public class AuthorizationRestRepository extends DSpaceRestRepository<Authorizat
         }
 
         List<Authorization> authorizations =
-                findAuthorizationsByUUIDList(context, type, uuidList, user, featureNames);
+                findAuthorizationsByUUIDList(context, pluralizeType(type), uuidList, user, featureNames);
 
         if (ObjectUtils.notEqual(currUser, user)) {
             // restore the real current user
             context.restoreContextUser();
         }
         return converter.toRestPage(authorizations, pageable, utils.obtainProjection());
+    }
+
+    private String pluralizeType(String type) {
+        int index = type.lastIndexOf('.');
+        if (index < 0) {
+            return English.plural(type);
+        }
+
+        return type.substring(0, index + 1)
+            + English.plural(type.substring(index + 1));
     }
 
     private List<Authorization> findAuthorizationsByUUIDList(
