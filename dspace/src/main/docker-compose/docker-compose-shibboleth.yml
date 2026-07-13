@@ -18,7 +18,7 @@ networks:
     external: true
 services:
   dspace-shibboleth:
-    container_name: dspace-shibboleth
+    container_name: "${COMPOSE_PROJECT_NAME:-}dspace-shibboleth"
     depends_on:
       - dspace
     image: "${DOCKER_REGISTRY:-docker.io}/${DOCKER_OWNER:-dspace}/dspace-shibboleth"

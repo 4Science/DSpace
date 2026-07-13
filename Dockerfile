@@ -17,15 +17,16 @@ ARG DOCKER_REGISTRY=docker.io
 FROM ${DOCKER_REGISTRY}/4science/dspace-cris-dependencies:${DSPACE_VERSION} AS build
 ARG TARGET_DIR=dspace-installer
 WORKDIR /app
-# The dspace-installer directory will be written to /install
 USER root
-RUN mkdir /install \
+# The dspace-installer directory will be written to /install
+RUN mkdir -p /install /install/config /install/bin /install/solr /install/var \
     && chown -Rv dspace: /install \
     && chown -Rv dspace: /app
 USER dspace
 # Copy the DSpace source code (from local machine) into the workdir (excluding .dockerignore contents)
-COPY --chown=dspace . /app/
-# Build DSpace
+COPY --chown=dspace --parents pom.xml **/pom.xml /app/
+COPY --chown=dspace --parents **/src /app/
+# Build DSpace (note: this build doesn't include the optional, deprecated "dspace-rest" webapp)
 # Copy the dspace-installer directory to /install.  Clean up the build to keep the docker image small
 # Maven flags here ensure that we skip building test environment and skip all code verification checks.
 # These flags speed up this compilation as much as reasonably possible.
@@ -34,37 +35,39 @@ RUN mvn -nsu -ntp package ${MAVEN_FLAGS}
 RUN mv /app/dspace/modules/server-boot/target/server-boot-*.jar /install/server-boot.jar && \
   java -Djarmode=layertools -jar /install/server-boot.jar extract --destination /install/server-boot
 
-# Step 2 - Run Ant Deploy
-FROM docker.io/eclipse-temurin:${JDK_VERSION} AS ant_build
-ARG TARGET_DIR=dspace-installer
-# COPY the /install directory from 'build' container to /dspace-src in this container
-COPY --from=build /install /dspace-src
-WORKDIR /dspace-src
-# Install Apache Ant
-RUN apt-get update \
-    && apt-get install -y --no-install-recommends ant \
-    && apt-get purge -y --auto-remove \
-    && rm -rf /var/lib/apt/lists/*
-# Run necessary 'ant' deploy scripts
-RUN ant init_installation update_configs update_code update_webapps
-
-# Step 3 - Start up DSpace via Runnable JAR
-FROM docker.io/eclipse-temurin:${JDK_VERSION}
-# Below syntax may look odd, but it is how to override dspace.cfg settings via env variables.
-# See https://github.com/DSpace/DSpace/blob/main/dspace/config/config-definition.xml
-# "dspace__P__dir" is setting the value of the "dspace.dir" configuration. This is our installation directory.
+# Step 2 - Run installation
+# Create a new tomcat image that does not retain the thze build directory contents
+FROM docker.io/eclipse-temurin:${JDK_VERSION}-jre AS install
+# Expose Tomcat port (8080) and Handle Server HTTP port (8000)
+EXPOSE 8080 8000 5005
+# NOTE: dspace__P__dir must align with the "dspace.dir" default configuration.
 ENV dspace__P__dir=/dspace
-# Copy the /dspace directory from 'ant_build' container to /dspace in this container
-COPY --from=ant_build /dspace $dspace__P__dir
 WORKDIR $dspace__P__dir
+
 # Need host command for "[dspace]/bin/make-handle-config"
 RUN apt-get update \
     && apt-get install -y --no-install-recommends host \
     && apt-get purge -y --auto-remove \
     && rm -rf /var/lib/apt/lists/*
-# Expose Tomcat port (8080) & Handle Server HTTP port (8000)
-EXPOSE 8080 8000
-# Give java extra memory (2GB)
-ENV JAVA_OPTS=-Xmx2000m
-# On startup, run DSpace Runnable JAR (uses the "dspace.dir" setting defined in "dspace__P__dir" env variable)
-ENTRYPOINT ["java", "-jar", "webapps/server-boot.jar"]
+
+RUN useradd -m -d /home/dspace -s /bin/bash dspace
+
+COPY --from=build --chown=dspace /install/server-boot/dependencies/ /app/server-boot/
+COPY --from=build --chown=dspace /install/server-boot/spring-boot-loader/ /app/server-boot/
+COPY --from=build --chown=dspace /install/server-boot/snapshot-dependencies/ /app/server-boot/
+COPY --from=build --chown=dspace /install/server-boot/application/ /app/server-boot/
+
+COPY --chown=dspace dspace/config/ $dspace__P__dir/config/
+COPY --chown=dspace dspace/bin/ $dspace__P__dir/bin/
+RUN install -d -m 0755 -o dspace -g dspace $dspace__P__dir/assetstore/ $dspace__P__dir/upload/ \
+    $dspace__P__dir/handle-server/ $dspace__P__dir/log/ $dspace__P__dir/var/ \
+    && ln -s /app/server-boot/BOOT-INF/lib $dspace__P__dir/lib \
+    && chown -h dspace:dspace $dspace__P__dir/lib \
+    && chmod +x $dspace__P__dir/bin/*
+
+WORKDIR /app/server-boot
+
+USER dspace
+ENV JAVA_OPTS="-Xmx2000m -Ddspace.dir=$dspace__P__dir -Djava.io.tmpdir=/tmp"
+ENV JAVA_TOOL_OPTIONS="-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005"
+ENTRYPOINT [ "java", "-XX:+UseParallelGC", "-XX:MaxRAMPercentage=75", "org.springframework.boot.loader.launch.JarLauncher", "--dspace.dir=/dspace", "--logging.config=/dspace/config/log4j2-container.xml" ]

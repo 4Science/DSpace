@@ -18,7 +18,7 @@ networks:
     external: true
 services:
   dspace-iiif:
-    container_name: dspace-iiif
+    container_name: "${COMPOSE_PROJECT_NAME:-}dspace-iiif"
     depends_on:
       - dspace
     # Using UCLA Library image as it seems to be most maintained at this time. There is no official image.
