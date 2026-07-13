@@ -1,6 +1,5 @@
 networks:
-  default:
-    name: ${COMPOSE_PROJECT_NAME:-}_dspacenet
+  dspacenet:
     ipam:
       config:
         # Define a custom subnet for our DSpace network, so that we can easily trust requests from host to container.
@@ -41,6 +40,8 @@ services:
       dockerfile: Dockerfile.test
     depends_on:
     - dspacedb
+    networks:
+      dspacenet:
     ports:
     - published: 8080
       target: 8080
@@ -74,6 +75,8 @@ services:
       POSTGRES_DB: dspace
       POSTGRES_USER: dspace
       POSTGRES_PASSWORD: dspace
+    networks:
+      dspacenet:
     ports:
     - published: 5432
       target: 5432
@@ -91,6 +94,8 @@ services:
       args:
         SOLR_VERSION: "${SOLR_VER:-9.8}"
         # SOLR_VERSION: "${SOLR_VER:-8.11.4}"
+    networks:
+      dspacenet:
     ports:
     - published: 8983
       target: 8983

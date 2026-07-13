@@ -60,7 +60,7 @@ COPY --from=build --chown=dspace /install/server-boot/application/ /app/server-b
 COPY --chown=dspace dspace/config/ $dspace__P__dir/config/
 COPY --chown=dspace dspace/bin/ $dspace__P__dir/bin/
 RUN install -d -m 0755 -o dspace -g dspace $dspace__P__dir/assetstore/ $dspace__P__dir/upload/ \
-    $dspace__P__dir/handle-server/ $dspace__P__dir/log/ $dspace__P__dir/var/ \
+    $dspace__P__dir/handle-server/ $dspace__P__dir/log/ $dspace__P__dir/var/ $dspace__P__dir/rdf-store/ $dspace__P__dir/temp/ \
     && ln -s /app/server-boot/BOOT-INF/lib $dspace__P__dir/lib \
     && chown -h dspace:dspace $dspace__P__dir/lib \
     && chmod +x $dspace__P__dir/bin/*
