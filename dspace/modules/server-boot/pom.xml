@@ -2,7 +2,6 @@
     <modelVersion>4.0.0</modelVersion>
     <artifactId>server-boot</artifactId>
     <name>DSpace Server Webapp:: Executable JAR</name>
-
     <!--
       A Parent POM that Maven inherits DSpace Default
       POM attributes from.
@@ -13,14 +12,11 @@
         <version>cris-2025.02.01-SNAPSHOT</version>
         <relativePath>..</relativePath>
     </parent>
-
     <properties>
         <!-- This is the path to the root [dspace-src] directory. -->
         <root.basedir>${basedir}/../../..</root.basedir>
     </properties>
-
     <dependencies>
-
         <dependency>
             <groupId>org.dspace.modules</groupId>
             <artifactId>additions</artifactId>
@@ -34,7 +30,6 @@
             <groupId>org.dspace</groupId>
             <artifactId>dspace-server-webapp</artifactId>
         </dependency>
-
         <!-- Test Dependencies -->
         <dependency>
             <groupId>org.dspace</groupId>
@@ -104,9 +99,7 @@
             <artifactId>lucene-analyzers-icu</artifactId>
             <scope>test</scope>
         </dependency>
-
     </dependencies>
-
     <build>
         <plugins>
             <plugin>
@@ -119,13 +112,8 @@
                             <goal>repackage</goal>
                         </goals>
                     </execution>
-            </executions>
+                </executions>
             </plugin>
         </plugins>
     </build>
-
-
-  <scm>
-    <tag>dspace-9.2</tag>
-  </scm>
 </project>

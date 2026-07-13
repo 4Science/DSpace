@@ -27,6 +27,7 @@ import org.apache.pdfbox.pdmodel.PDPage;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.authorize.service.AuthorizeService;
 import org.dspace.content.Bitstream;
+import org.dspace.content.BitstreamFormat;
 import org.dspace.content.Collection;
 import org.dspace.content.Community;
 import org.dspace.content.DSpaceObject;
@@ -243,7 +244,8 @@ public class CitationDocumentServiceImpl implements CitationDocumentService, Ini
 
     @Override
     public boolean canGenerateCitationVersion(Context context, Bitstream bitstream) throws SQLException {
-        return VALID_TYPES.contains(bitstream.getFormat(context).getMIMEType());
+        BitstreamFormat format = bitstream.getFormat(context);
+        return format != null && VALID_TYPES.contains(format.getMIMEType());
     }
 
     @Override

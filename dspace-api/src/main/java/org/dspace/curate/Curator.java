@@ -19,6 +19,8 @@ import java.util.Map;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.dspace.app.util.factory.UtilServiceFactory;
+import org.dspace.app.util.service.DSpaceObjectUtils;
 import org.dspace.content.Collection;
 import org.dspace.content.Community;
 import org.dspace.content.DSpaceObject;
@@ -91,6 +93,7 @@ public class Curator {
     protected TaskResolver resolver = new TaskResolver();
     protected TxScope txScope = TxScope.OBJECT;
     protected CommunityService communityService;
+    protected DSpaceObjectUtils dspaceObjectUtils;
     protected ItemService itemService;
     protected HandleService handleService;
     protected DSpaceRunnableHandler handler;
@@ -112,6 +115,7 @@ public class Curator {
      */
     public Curator() {
         communityService = ContentServiceFactory.getInstance().getCommunityService();
+        dspaceObjectUtils = UtilServiceFactory.getInstance().getDSpaceObjectUtils();
         itemService = ContentServiceFactory.getInstance().getItemService();
         handleService = HandleServiceFactory.getInstance().getHandleService();
         resolver = new TaskResolver();
@@ -267,7 +271,7 @@ public class Curator {
             //Save the context on current execution thread
             curationCtx.set(c);
 
-            DSpaceObject dso = handleService.resolveToObject(c, id);
+            DSpaceObject dso = dspaceObjectUtils.findDSpaceObject(c,id);
             if (dso != null) {
                 curate(dso);
             } else {

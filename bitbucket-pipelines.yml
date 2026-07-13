@@ -1,4 +1,5 @@
-image: maven:3.9.11-eclipse-temurin-21
+image:
+  name: public.ecr.aws/docker/library/maven:3.9.11-eclipse-temurin-21
 
 definitions:
   caches:
@@ -70,6 +71,7 @@ definitions:
           - docker
         caches:
           - gradle-java21
+          - docker
           - gradlewrapper-java21
           - maven-java21
         script:
@@ -93,6 +95,7 @@ definitions:
           - docker
         caches:
           - gradle-java21
+          - docker
           - gradlewrapper-java21
           - maven-java21
         script:
@@ -137,12 +140,14 @@ definitions:
         image: atlassian/default-image:4  # Default Bitbucket image with Docker support
         services:
           - docker
+        caches:
+          - docker
         script:
           - apt-get update && apt-get install -y python3-pip
           - pip3 install awscli
           - export HASH_COMMIT=${BITBUCKET_COMMIT:0:8}
           - export BRANCH_NAME=$(echo "$BITBUCKET_BRANCH" | tr '[:upper:]' '[:lower:]' | sed 's|/|--|g')
-          - docker build -f Dockerfile.build -t dspace-cris:${BRANCH_NAME}-${HASH_COMMIT} -t dspace-cris:${BRANCH_NAME}-latest .
+          - docker build --build-arg DOCKER_REGISTRY="public.ecr.aws/docker/library" -f Dockerfile.build -t dspace-cris:${BRANCH_NAME}-${HASH_COMMIT} -t dspace-cris:${BRANCH_NAME}-latest .
           - pipe: atlassian/aws-ecr-push-image:2.5.0
             variables:
               AWS_ACCESS_KEY_ID: $AWS_ACCESS_KEY_ID
@@ -161,10 +166,12 @@ definitions:
         image: atlassian/default-image:4  # Default Bitbucket image with Docker support
         services:
           - docker
+        caches:
+          - docker
         script:
           - export HASH_COMMIT=${BITBUCKET_COMMIT:0:8}
           - export BRANCH_NAME=$(echo "$BITBUCKET_BRANCH" | tr '[:upper:]' '[:lower:]' | sed 's|/|--|g')
-          - docker build -f ./dspace/src/main/docker/dspace-solr/Dockerfile -t solr8:${BRANCH_NAME}-${HASH_COMMIT} -t solr8:${BRANCH_NAME}-latest .
+          - docker build --build-arg DOCKER_REGISTRY="public.ecr.aws/docker/library" -f ./dspace/src/main/docker/dspace-solr/Dockerfile -t solr8:${BRANCH_NAME}-${HASH_COMMIT} -t solr8:${BRANCH_NAME}-latest .
           - pipe: atlassian/aws-ecr-push-image:2.5.0
             variables:
               AWS_ACCESS_KEY_ID: $AWS_ACCESS_KEY_ID
@@ -183,10 +190,12 @@ definitions:
         image: atlassian/default-image:4  # Default Bitbucket image with Docker support
         services:
           - docker
+        caches:
+          - docker
         script:
           - export HASH_COMMIT=${BITBUCKET_COMMIT:0:8}
           - export BRANCH_NAME=$(echo "$BITBUCKET_BRANCH" | tr '[:upper:]' '[:lower:]' | sed 's|/|--|g')
-          - docker build -f ./dspace/src/main/docker/dspace-solr/Dockerfile9 -t solr9:${BRANCH_NAME}-${HASH_COMMIT} -t solr9:${BRANCH_NAME}-latest .
+          - docker build --build-arg DOCKER_REGISTRY="public.ecr.aws/docker/library" -f ./dspace/src/main/docker/dspace-solr/Dockerfile9 -t solr9:${BRANCH_NAME}-${HASH_COMMIT} -t solr9:${BRANCH_NAME}-latest .
           - pipe: atlassian/aws-ecr-push-image:2.5.0
             variables:
               AWS_ACCESS_KEY_ID: $AWS_ACCESS_KEY_ID
@@ -304,6 +313,10 @@ definitions:
           - step: *integration-tests-slow
           - step: *integration-tests-dspace-api
 
+    - parallel: &parallel-build-and-push
+          - step: *build-and-push
+          - step: *build-and-push-solr9
+
     - step: &merge-prod-into-test
         name: Merge prod into test
         image: atlassian/default-image:4
@@ -332,25 +345,23 @@ pipelines:
       - step: *check-branch-name-allowed
       - step: *install
       - parallel: *parallel-test-steps
-      - step: *build-and-push
+      - parallel: *parallel-build-and-push
       - step: *deploy-on-dev
       - step: *deploy-on-staging
     'prod/**':
       - step: *check-branch-name-allowed
       - step: *install
       - parallel: *parallel-test-steps
-      - step: *build-and-push
+      - parallel: *parallel-build-and-push
       - step: *deploy-on-dev
       - step: *deploy-on-staging
-      - step: *build-and-push-solr9
       - step: *merge-prod-into-test
     'test/**':
       - step: *check-branch-name-allowed
       - step: *install
       - parallel: *parallel-test-steps
-      - step: *build-and-push
+      - parallel: *parallel-build-and-push
       - step: *deploy-on-test
-      - step: *build-and-push-solr9
 
   pull-requests:
     '**':
@@ -373,22 +384,22 @@ pipelines:
       - step: *unit-test-code-checks
     deploy-on-dev:
       - step: *install
-      - step: *build-and-push
+      - parallel: *parallel-build-and-push
       - step: *deploy-on-dev
     deploy-on-staging:
       - step: *check-branch-name-allowed
       - step: *install
-      - step: *build-and-push
+      - parallel: *parallel-build-and-push
       - step: *deploy-on-staging
     deploy-on-test:
       - step: *check-branch-name-allowed
       - step: *install
-      - step: *build-and-push
+      - parallel: *parallel-build-and-push
       - step: *deploy-on-test
-    e2e-test:
+    build-images:
+      - step: *check-branch-name-allowed
       - step: *install
-      - step: *build-and-push
-      - step: *build-and-push-solr9
+      - parallel: *parallel-build-and-push
     turn-on-dev:
       - step: *turn-on-dev
     turn-on-staging:
