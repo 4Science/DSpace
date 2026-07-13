@@ -28,7 +28,7 @@
         <property name="description" value="export metadata from a discovery search" />
         <property name="dspaceRunnableClass" value="org.dspace.app.bulkedit.MetadataExportSearchCli" />
     </bean>
-    
+
     <bean id="retry-tracker" class="org.dspace.statistics.export.RetryFailedOpenUrlTrackerScriptConfiguration" scope="prototype">
         <property name="description" value="Retry all failed commits to the OpenURLTracker"/>
         <property name="dspaceRunnableClass" value="org.dspace.statistics.export.RetryFailedOpenUrlTracker"/>
@@ -171,13 +171,20 @@
        <property name="dspaceRunnableClass" value="org.dspace.app.suggestion.openaire.PublicationLoaderRunnableCli"/>
     </bean>
 
-    <bean id="dspace-object-deletion" class="org.dspace.deletion.process.DSpaceObjectDeletionProcessScriptConfiguration" primary="true">
-        <property name="description" value="DSpace object deletion process"/>
-        <property name="dspaceRunnableClass" value="org.dspace.deletion.process.DSpaceObjectDeletionProcess"/>
+    <bean id="object-deletion" class="org.dspace.deletion.process.DSpaceObjectDeletionProcessCliScriptConfiguration" primary="true">
+        <property name="description" value="Permanently delete the given object along with all child objects. WARNING: This action cannot be undone." />
+        <property name="dspaceRunnableClass" value="org.dspace.deletion.process.DSpaceObjectDeletionProcessCli"/>
     </bean>
 
     <bean id="itemDeletionStrategy" class="org.dspace.deletion.process.strategies.ItemDeletionStrategy" />
     <bean id="communityDeletionStrategy" class="org.dspace.deletion.process.strategies.CommunityDeletionStrategy" />
     <bean id="collectionDeletionStrategy" class="org.dspace.deletion.process.strategies.CollectionDeletionStrategy" />
+
+    <bean id="solr-core-management"
+          class="org.dspace.app.solr.SolrCoreExportImportCliScriptConfiguration" primary="true">
+        <property name="description"
+            value="Export and import complete SOLR cores with UUID range partitioning and cursorMark pagination"/>
+        <property name="dspaceRunnableClass" value="org.dspace.app.solr.SolrCoreExportImportCli"/>
+    </bean>
 
 </beans>
