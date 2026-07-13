@@ -68,6 +68,6 @@ RUN install -d -m 0755 -o dspace -g dspace $dspace__P__dir/assetstore/ $dspace__
 WORKDIR /app/server-boot
 
 USER dspace
-ENV JAVA_OPTS="-Xmx2000m -Ddspace.dir=$dspace__P__dir"
+ENV JAVA_OPTS="-Xmx2000m -Ddspace.dir=$dspace__P__dir -Djava.io.tmpdir=/tmp"
 ENV JAVA_TOOL_OPTIONS="-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005"
 ENTRYPOINT [ "java", "-XX:+UseParallelGC", "-XX:MaxRAMPercentage=75", "org.springframework.boot.loader.launch.JarLauncher", "--dspace.dir=/dspace", "--logging.config=/dspace/config/log4j2-container.xml" ]

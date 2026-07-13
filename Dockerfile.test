@@ -74,7 +74,7 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/*
 
 USER dspace
-ENV JAVA_OPTS="-Xmx2000m -Ddspace.dir=$dspace__P__dir"
+ENV JAVA_OPTS="-Xmx2000m -Ddspace.dir=$dspace__P__dir -Djava.io.tmpdir=/tmp"
 ENV JAVA_TOOL_OPTIONS="-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005"
 ENV LOGGING_CONFIG="$dspace__P__dir/config/log4j2-container.xml"
 ENTRYPOINT [ "java", "-XX:+UseParallelGC", "-XX:MaxRAMPercentage=75", "org.springframework.boot.loader.launch.JarLauncher" ]

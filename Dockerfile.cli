@@ -64,7 +64,7 @@ RUN install -d -m 0755 -o dspace -g dspace $dspace__P__dir/assetstore/ $dspace__
     && chmod +x $dspace__P__dir/bin/*
 
 USER dspace
-ENV JAVA_OPTS="-Xmx1000m -Ddspace.dir=$dspace__P__dir"
+ENV JAVA_OPTS="-Xmx1000m -Ddspace.dir=$dspace__P__dir -Djava.io.tmpdir=/tmp"
 
 # On startup, run DSpace commandline script
 ENTRYPOINT ["./bin/dspace"]
