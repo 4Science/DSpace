@@ -13,6 +13,7 @@ import static java.util.List.of;
 import static java.util.Optional.ofNullable;
 import static org.apache.commons.collections.CollectionUtils.isEmpty;
 import static org.apache.commons.lang3.EnumUtils.isValidEnum;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.dspace.content.Item.ANY;
 import static org.dspace.profile.OrcidEntitySyncPreference.DISABLED;
 
@@ -24,9 +25,12 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.Strings;
+import org.apache.commons.codec.binary.StringUtils;
+import org.dspace.access.status.DefaultAccessStatusHelper;
+import org.dspace.access.status.factory.AccessStatusServiceFactory;
+import org.dspace.access.status.service.AccessStatusService;
 import org.dspace.authorize.AuthorizeException;
+import org.dspace.content.AccessStatus;
 import org.dspace.content.Item;
 import org.dspace.content.MetadataValue;
 import org.dspace.content.service.ItemService;
@@ -116,7 +120,7 @@ public class OrcidSynchronizationServiceImpl implements OrcidSynchronizationServ
             itemService.addMetadata(context, profile, "dspace", "orcid", "scope", null, scope);
         }
 
-        if (StringUtils.isBlank(itemService.getMetadataFirstValue(
+        if (isBlank(itemService.getMetadataFirstValue(
                 profile, "dspace", "orcid", "authenticated", Item.ANY))) {
             String currentDate = ISO_DATE_TIME.format(now());
             itemService.setMetadataSingleValue(context, profile, "dspace", "orcid", "authenticated", null, currentDate);
@@ -125,7 +129,7 @@ public class OrcidSynchronizationServiceImpl implements OrcidSynchronizationServ
         setAccessToken(context, profile, ePerson, accessToken);
 
         EPerson ePersonByOrcid = ePersonService.findByNetid(context, orcid);
-        if (ePersonByOrcid == null && StringUtils.isBlank(ePerson.getNetid())) {
+        if (ePersonByOrcid == null && isBlank(ePerson.getNetid())) {
             ePerson.setNetid(orcid);
             updateEPerson(context, ePerson);
         }
@@ -205,7 +209,7 @@ public class OrcidSynchronizationServiceImpl implements OrcidSynchronizationServ
         String newValue = value.name();
         String oldValue = itemService.getMetadataFirstValue(profile, "dspace", "orcid", "sync-mode", Item.ANY);
 
-        if (Strings.CS.equals(oldValue, newValue)) {
+        if (StringUtils.equals(oldValue, newValue)) {
             return false;
         } else {
             itemService.setMetadataSingleValue(context, profile, "dspace", "orcid", "sync-mode", null, value.name());
@@ -215,7 +219,7 @@ public class OrcidSynchronizationServiceImpl implements OrcidSynchronizationServ
     }
 
     @Override
-    public boolean isSynchronizationAllowed(Item profile, Item item) {
+    public boolean isSynchronizationAllowed(Context context, Item profile, Item item) {
 
         if (isOrcidSynchronizationDisabled()) {
             return false;
@@ -223,6 +227,11 @@ public class OrcidSynchronizationServiceImpl implements OrcidSynchronizationServ
 
         String entityType = itemService.getEntityTypeLabel(item);
         if (entityType == null) {
+            return false;
+        }
+
+        // Check if the item is restricted
+        if (isRestrictedAccess(context, item)) {
             return false;
         }
 
@@ -238,6 +247,19 @@ public class OrcidSynchronizationServiceImpl implements OrcidSynchronizationServ
 
         return false;
 
+    }
+
+    private boolean isRestrictedAccess(Context context, Item item) {
+        try {
+            AccessStatusService accessStatusService = AccessStatusServiceFactory.getInstance()
+                                                                                .getAccessStatusService();
+            AccessStatus accessStatus = accessStatusService.getAccessStatus(context, item);
+            return org.apache.commons.lang3.StringUtils.equalsAny(accessStatus.getStatus(),
+                                                                  DefaultAccessStatusHelper.RESTRICTED,
+                                                                  DefaultAccessStatusHelper.EMBARGO);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override

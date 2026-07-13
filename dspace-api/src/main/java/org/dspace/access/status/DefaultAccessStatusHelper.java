@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-import org.apache.commons.lang3.Strings;
+import org.apache.commons.lang3.StringUtils;
 import org.dspace.authorize.ResourcePolicy;
 import org.dspace.authorize.factory.AuthorizeServiceFactory;
 import org.dspace.authorize.service.AuthorizeService;
@@ -78,6 +78,10 @@ public class DefaultAccessStatusHelper implements AccessStatusHelper {
         if (item == null) {
             return new AccessStatus(UNKNOWN, null);
         }
+        AccessStatus itemAccessStatus = calculateAccessStatusForDso(context, item, threshold);
+        if (itemAccessStatus.getStatus().equals(RESTRICTED)) {
+            return new AccessStatus(RESTRICTED, null);
+        }
         Bitstream bitstream = getPrimaryOrFirstBitstreamInOriginalBundle(item);
         if (bitstream == null) {
             return new AccessStatus(METADATA_ONLY, null);
@@ -98,8 +102,8 @@ public class DefaultAccessStatusHelper implements AccessStatusHelper {
      * @return the access status
      */
     @Override
-    public AccessStatus getAccessStatusFromBitstream(Context context,
-        Bitstream bitstream, LocalDate threshold, String type) throws SQLException {
+    public AccessStatus getAccessStatusFromBitstream(Context context, Bitstream bitstream,
+                                                     LocalDate threshold, String type) throws SQLException {
         if (bitstream == null) {
             return new AccessStatus(UNKNOWN, null);
         }
@@ -137,18 +141,18 @@ public class DefaultAccessStatusHelper implements AccessStatusHelper {
         List<Bundle> bundles = item.getBundles(Constants.DEFAULT_BUNDLE_NAME);
         // Check for primary bitstreams first.
         Bitstream bitstream = bundles.stream()
-            .map(bundle -> bundle.getPrimaryBitstream())
-            .filter(Objects::nonNull)
-            .findFirst()
-            .orElse(null);
+                .map(bundle -> bundle.getPrimaryBitstream())
+                .filter(Objects::nonNull)
+                .findFirst()
+                .orElse(null);
         if (bitstream == null) {
             // If there is no primary bitstream,
             // take the first bitstream in the bundles.
             bitstream = bundles.stream()
-                .map(bundle -> bundle.getBitstreams())
-                .flatMap(List::stream)
-                .findFirst()
-                .orElse(null);
+                    .map(bundle -> bundle.getBitstreams())
+                    .flatMap(List::stream)
+                    .findFirst()
+                    .orElse(null);
         }
         return bitstream;
     }
@@ -167,7 +171,7 @@ public class DefaultAccessStatusHelper implements AccessStatusHelper {
         List<ResourcePolicy> readPolicies = resourcePolicyService.find(context, dso, Constants.READ);
         // Filter the policies with the anonymous group
         List<ResourcePolicy> filteredPolicies = readPolicies.stream()
-            .filter(p -> p.getGroup() != null && Strings.CS.equals(p.getGroup().getName(), Group.ANONYMOUS))
+            .filter(p -> (p.getGroup() != null) && StringUtils.equals(p.getGroup().getName(), Group.ANONYMOUS))
             .collect(Collectors.toList());
         return filteredPolicies;
     }
@@ -220,7 +224,7 @@ public class DefaultAccessStatusHelper implements AccessStatusHelper {
      */
     private List<ResourcePolicy> getReadPolicies(Context context, DSpaceObject dso, String type)
             throws SQLException {
-        if (Strings.CI.equals(type, STATUS_FOR_CURRENT_USER)) {
+        if (StringUtils.equalsIgnoreCase(type, STATUS_FOR_CURRENT_USER)) {
             return getCurrentUserReadPolicies(context, dso);
         } else {
             // Only calculate the status for the anonymous group read policies
@@ -305,4 +309,66 @@ public class DefaultAccessStatusHelper implements AccessStatusHelper {
         }
         return EMBARGO;
     }
+
+    /**
+     * Look at the DSpace object's policies to determine an access status value.
+     *
+     * If the object is null, returns the "metadata.only" value.
+     * If any policy attached to the object is valid for the anonymous group,
+     * returns the "open.access" value.
+     * Otherwise, if the policy start date is before the embargo threshold date,
+     * returns the "embargo" value.
+     * Every other cases return the "restricted" value.
+     *
+     * @param context     the DSpace context
+     * @param dso         the DSpace object
+     * @param threshold   the embargo threshold date
+     * @return an access status value
+     */
+    private AccessStatus calculateAccessStatusForDso(Context context, DSpaceObject dso, LocalDate threshold)
+            throws SQLException {
+        if (dso == null) {
+            return new AccessStatus(METADATA_ONLY, null);
+        }
+        // Only consider read policies.
+        List<ResourcePolicy> policies = authorizeService.getPoliciesActionFilter(context, dso, Constants.READ);
+        int embargoCount = 0;
+        int openAccessCount = 0;
+        int restrictedCount = 0;
+        // Looks at all read policies.
+        for (ResourcePolicy policy : policies) {
+            boolean isValid = resourcePolicyService.isDateValid(policy);
+            Group group = policy.getGroup();
+            // The group must not be null here. However,
+            // if it is, consider this as an unexpected case.
+            if (group != null && StringUtils.equals(group.getName(), Group.ANONYMOUS)) {
+                // Only calculate the status for the anonymous group.
+                if (isValid) {
+                    // If the policy is valid, the anonymous group have access
+                    // to the bitstream.
+                    openAccessCount++;
+                } else {
+                    LocalDate startDate = policy.getStartDate();
+                    if (startDate != null && !startDate.isBefore(threshold)) {
+                        // If the policy start date have a value and if this value
+                        // is equal or superior to the configured forever date, the
+                        // access status is also restricted.
+                        restrictedCount++;
+                    } else {
+                        // If the current date is not between the policy start date
+                        // and end date, the access status is embargo.
+                        embargoCount++;
+                    }
+                }
+            }
+        }
+        if (openAccessCount > 0) {
+            return new AccessStatus(OPEN_ACCESS, null);
+        }
+        if (embargoCount > 0 && restrictedCount == 0) {
+            return new AccessStatus(EMBARGO, null);
+        }
+        return new AccessStatus(RESTRICTED, null);
+    }
+
 }
