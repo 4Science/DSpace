@@ -5,7 +5,9 @@
  *
  * http://www.dspace.org/license/
  */
-package org.dspace.statistics;
+package org.dspace.solr;
+
+import java.util.Optional;
 
 import org.apache.solr.client.solrj.SolrClient;
 
@@ -18,8 +20,8 @@ public interface SolrClientFactory {
     /**
      * Instantiate a SolrClient connected to a specified core.
      *
-     * @param coreUrl URL of the core to connect with.
+     * @param urlProperty URL of the core to connect with.
      * @return a connection to the given core.
      */
-    public SolrClient getClient(String coreUrl);
+    Optional<SolrClient> getClient(String urlProperty);
 }
