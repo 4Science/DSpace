@@ -16,6 +16,7 @@ import org.apache.logging.log4j.Logger;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.content.Collection;
 import org.dspace.content.Item;
+import org.dspace.content.service.CollectionService;
 import org.dspace.content.service.ItemService;
 import org.dspace.core.Context;
 import org.dspace.core.LogHelper;
@@ -55,6 +56,8 @@ public class XmlWorkflowItemServiceImpl implements XmlWorkflowItemService {
     protected WorkflowItemRoleService workflowItemRoleService;
     @Autowired(required = true)
     protected GroupService groupService;
+    @Autowired(required = true)
+    protected CollectionService collectionService;
 
     /*
      * The current step in the workflow system in which this workflow item is present
@@ -218,16 +221,19 @@ public class XmlWorkflowItemServiceImpl implements XmlWorkflowItemService {
      * Check if a WORKFLOW_ROLE group related to the given collection exists.
      */
     @Override
-    public boolean isWorkflowConfigured(Context context, Collection collection) throws SQLException {
+    public boolean isWorkflowConfigured(Context context, Collection collection) {
 
         if (collection == null) {
             return false;
 
         }
 
-        String groupName = "COLLECTION_" + collection.getID() + "_WORKFLOW_ROLE";
-        Group workflowRoleGroup = groupService.findByNamePrefix(context, groupName);
-
-        return workflowRoleGroup != null && !groupService.isEmpty(workflowRoleGroup);
+        for (int i = 1; i <= 3; i++) {
+            Group workflowGroup = collectionService.getWorkflowGroup(context, collection, i);
+            if (workflowGroup != null) {
+                return !groupService.isEmpty(workflowGroup);
+            }
+        }
+        return false;
     }
 }
