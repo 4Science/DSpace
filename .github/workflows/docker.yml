@@ -239,7 +239,27 @@ jobs:
           result=$(wget -O- -q http://127.0.0.1:8000/)
           echo "$result"
           echo "$result" | grep -oE "Handle Proxy"
+      # Collect full logs and container app logs on failure so they can be inspected/historicized.
+      # The containers are still running at this point (shutdown runs after with if: always()),
+      # so "docker compose logs" re-captures the complete output fresh from the running services.
+      - name: Collect logs on failure
+        if: failure()
+        run: |
+          mkdir -p /tmp/dspace-deploy-logs
+          docker compose -f docker-compose.yml logs --no-color --timestamps > /tmp/dspace-deploy-logs/compose-full.log 2>&1 || true
+          docker cp dspace:/dspace/log /tmp/dspace-deploy-logs/dspace-app-log 2>/dev/null || true
+          docker cp dspace:/dspace/handle-server/logs /tmp/dspace-deploy-logs/handle-server-log 2>/dev/null || true
+      - name: Upload failure logs
+        if: failure()
+        continue-on-error: true
+        uses: actions/upload-artifact@v4
+        with:
+          name: docker-deploy-logs-${{ github.run_id }}
+          path: /tmp/dspace-deploy-logs/
+          retention-days: 7
+          if-no-files-found: warn
       # Shutdown our containers
       - name: Shutdown Docker containers
+        if: always()
         run: |
           docker compose -f docker-compose.yml down
