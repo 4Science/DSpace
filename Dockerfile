@@ -39,7 +39,7 @@ RUN mv /app/dspace/modules/server-boot/target/server-boot-*.jar /install/server-
 # Create a new tomcat image that does not retain the thze build directory contents
 FROM docker.io/eclipse-temurin:${JDK_VERSION}-jre AS install
 # Expose Tomcat port (8080) and Handle Server HTTP port (8000)
-EXPOSE 8080 8000 5005
+EXPOSE 8080 8000
 # NOTE: dspace__P__dir must align with the "dspace.dir" default configuration.
 ENV dspace__P__dir=/dspace
 WORKDIR $dspace__P__dir
@@ -69,5 +69,5 @@ WORKDIR /app/server-boot
 
 USER dspace
 ENV JAVA_OPTS="-Xmx2000m -Ddspace.dir=$dspace__P__dir -Djava.io.tmpdir=/tmp"
-ENV JAVA_TOOL_OPTIONS="-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005"
-ENTRYPOINT [ "java", "-XX:+UseParallelGC", "-XX:MaxRAMPercentage=75", "org.springframework.boot.loader.launch.JarLauncher", "--dspace.dir=/dspace", "--logging.config=/dspace/config/log4j2-container.xml" ]
+ENV LOGGING_CONFIG="$dspace__P__dir/config/log4j2-container.xml"
+ENTRYPOINT [ "java", "-XX:+UseParallelGC", "-XX:MaxRAMPercentage=75", "org.springframework.boot.loader.launch.JarLauncher"]

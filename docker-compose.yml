@@ -64,7 +64,7 @@ services:
       /dspace/bin/dspace database repair
       /dspace/bin/dspace database migrate
       /dspace/bin/dspace database migrate ignored
-      java -XX:+UseParallelGC -XX:MaxRAMPercentage=75 org.springframework.boot.loader.launch.JarLauncher
+      java -XX:+UseParallelGC -XX:MaxRAMPercentage=75 org.springframework.boot.loader.launch.JarLauncher --dspace.dir=${dspace__P__dir:-/dspace}
   # DSpace PostgreSQL database container
   dspacedb:
     container_name: dspacedb
