@@ -18,7 +18,6 @@ networks:
     external: true
 services:
   database:
-    container_name: "${COMPOSE_PROJECT_NAME:-}matomodb"
     image: mariadb:10.11.5-jammy
     command: --max-allowed-packet=64MB
     environment:
@@ -27,7 +26,6 @@ services:
       - MYSQL_DATABASE=matomo
       - MYSQL_USER=matomo
   matomo:
-    container_name: "${COMPOSE_PROJECT_NAME:-}matomo"
     image: matomo:5.2.2-apache
     environment:
       - MATOMO_DATABASE_HOST=database

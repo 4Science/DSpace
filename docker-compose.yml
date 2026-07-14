@@ -10,7 +10,7 @@ networks:
 services:
   # DSpace (backend) webapp container
   dspace:
-    container_name: "${COMPOSE_PROJECT_NAME:-}dspace"
+    container_name: dspace
     environment:
       # Below syntax may look odd, but it is how to override dspace.cfg settings via env variables.
       # See https://github.com/DSpace/DSpace/blob/main/dspace/config/config-definition.xml
@@ -41,7 +41,7 @@ services:
     depends_on:
     - dspacedb
     networks:
-      dspacenet:
+      - dspacenet
     ports:
     - published: 8080
       target: 8080
@@ -67,7 +67,7 @@ services:
       java -XX:+UseParallelGC -XX:MaxRAMPercentage=75 org.springframework.boot.loader.launch.JarLauncher
   # DSpace PostgreSQL database container
   dspacedb:
-    container_name: "${COMPOSE_PROJECT_NAME:-}dspacedb"
+    container_name: dspacedb
     # Uses the base PostgreSQL image
     image: "docker.io/postgres:${POSTGRES_VERSION:-15}"
     environment:
@@ -85,7 +85,7 @@ services:
     - pgdata:/pgdata
   # DSpace Solr container
   dspacesolr:
-    container_name: "${COMPOSE_PROJECT_NAME:-}dspacesolr"
+    container_name: dspacesolr
     image: "${DOCKER_REGISTRY:-docker.io}/${DOCKER_OWNER:-4science}/dspace-cris-solr:${DSPACE_VER:-dspace-cris-2025_02_x}"
     build:
       context: .

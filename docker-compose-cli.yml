@@ -7,7 +7,7 @@ networks:
 services:
   dspace-cli:
     image: "${DOCKER_REGISTRY:-docker.io}/${DOCKER_OWNER:-4science}/dspace-cris-cli:${DSPACE_VER:-dspace-cris-2025_02_x}"
-    container_name: "${COMPOSE_PROJECT_NAME:-}dspace-cli"
+    container_name: dspace-cli
     build:
       context: .
       dockerfile: Dockerfile.cli
