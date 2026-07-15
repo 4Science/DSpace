@@ -68,4 +68,10 @@
         <description>Connection to an embedded Solr instance.</description>
     </bean>
 
+    <bean id='ocrSolrClientFactory'
+          class='org.dspace.statistics.EmbeddedSolrClientFactory'
+          autowire-candidate='true'>
+        <description>Connection to an embedded Solr instance.</description>
+    </bean>
+
 </beans>

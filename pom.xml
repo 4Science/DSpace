@@ -79,7 +79,6 @@
         <addon-orchestrator.version>${addons.version}</addon-orchestrator.version>
         <addon-loginmiur.version>${addons.version}</addon-loginmiur.version>
         <addon-importplus.version>${addons.version}</addon-importplus.version>
-        <addon-video.version>${addons.version}</addon-video.version>
         <!--=== MAVEN SETTINGS ===-->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>${project.build.sourceEncoding}</project.reporting.outputEncoding>
@@ -1020,9 +1019,16 @@
                         <artifactId>dspace-api</artifactId>
                         <version>${project.version}</version>
                     </dependency>
+                    <dependency>
+                        <groupId>it.4science.dspace</groupId>
+                        <artifactId>addon-ocr-rest</artifactId>
+                        <version>${addon-ocr.version}</version>
+                        <type>jar</type>
+                    </dependency>
                 </dependencies>
             </dependencyManagement>
         </profile>
+
         <!--
             Builds Document Viewer addon for DSpace
         -->
@@ -2217,6 +2223,12 @@
                 <groupId>com.fasterxml.jackson.datatype</groupId>
                 <artifactId>jackson-datatype-jsr310</artifactId>
                 <version>${jackson.version}</version>
+            </dependency>
+            <!-- Solr-core and Postgres disagree on versions of Checker Qual -->
+            <dependency>
+                <groupId>org.checkerframework</groupId>
+                <artifactId>checker-qual</artifactId>
+                <version>3.37.0</version>
             </dependency>
             <dependency>
                 <groupId>com.google.guava</groupId>

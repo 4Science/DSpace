@@ -43,6 +43,12 @@
           class='org.dspace.statistics.HttpSolrClientFactory'>
         <description>HTTP connection to a Solr instance.</description>
     </bean>
+
+    <bean id='ocrSolrClientFactory'
+          class='org.dspace.statistics.HttpSolrClientFactory'
+          autowire-candidate='true'>
+        <description>HTTP connection to a Solr instance.</description>
+    </bean>
     
     <!-- quality assurance broker service -->
     <bean id="org.dspace.qaevent.service.QAEventService" class="org.dspace.qaevent.service.impl.QAEventServiceImpl" />
