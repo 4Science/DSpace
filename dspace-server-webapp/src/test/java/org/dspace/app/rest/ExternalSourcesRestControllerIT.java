@@ -70,9 +70,19 @@ public class ExternalSourcesRestControllerIT extends AbstractControllerIntegrati
                         ExternalSourceMatcher.matchExternalSource("suggestion", "suggestion", false),
                         ExternalSourceMatcher.matchExternalSource("openaireProject", "openaireProject", false),
                         ExternalSourceMatcher.matchExternalSource("crossref", "crossref", false),
-                        ExternalSourceMatcher.matchExternalSource("orcidWorks", "orcidWorks", false)
+                        ExternalSourceMatcher.matchExternalSource("orcidWorks", "orcidWorks", false),
+                        ExternalSourceMatcher.matchExternalSource("openalexPublication", "openalexPublication", false),
+                        ExternalSourceMatcher.matchExternalSource("openalexPublicationByAuthorId",
+                                                                  "openalexPublicationByAuthorId", false),
+                        ExternalSourceMatcher.matchExternalSource("openalexPublicationByDOI",
+                                                                  "openalexPublicationByDOI", false),
+                        ExternalSourceMatcher.matchExternalSource("openalexPerson", "openalexPerson", false),
+                        ExternalSourceMatcher.matchExternalSource("openalexJournal", "openalexJournal", false),
+                        ExternalSourceMatcher.matchExternalSource("openalexInstitution", "openalexInstitution", false),
+                        ExternalSourceMatcher.matchExternalSource("openalexPublisher", "openalexPublisher", false),
+                        ExternalSourceMatcher.matchExternalSource("openalexFunder", "openalexFunder", false)
                    )))
-                   .andExpect(jsonPath("$.page.totalElements", Matchers.is(16)));
+                   .andExpect(jsonPath("$.page.totalElements", Matchers.is(24)));
     }
 
     @Test
