@@ -19,12 +19,12 @@ import org.dspace.app.rest.utils.ContextUtil;
 import org.dspace.authorize.service.AuthorizeService;
 import org.dspace.content.Collection;
 import org.dspace.content.WorkspaceItem;
+import org.dspace.content.service.CollectionService;
 import org.dspace.content.service.WorkspaceItemService;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.eperson.EPerson;
 import org.dspace.eperson.service.EPersonService;
-import org.dspace.eperson.service.GroupService;
 import org.dspace.services.RequestService;
 import org.dspace.services.model.Request;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,14 +40,14 @@ import org.springframework.stereotype.Component;
  * permission WRITE.
  * </p>
  * <p>
- * This plugin loads the workspace item by that ID and allows deposit if
- * the current user is either the original submitter or a member of the
- * collection's submitters group. This means:
+ * This plugin loads the workspace item by that ID and allows deposit if the current user is either the
+ * original submitter, or a member of the collection's submitters group when the collection is a shared
+ * workspace. This means:
  * <ul>
- *   <li>The original submitter can always deposit.</li>
- *   <li>Any submitter of the same collection (shared workspace) can deposit.</li>
- *   <li>Authors who are also submitters of the same collection can deposit.</li>
- *   <li>Authors who are not submitters of the collection cannot deposit.</li>
+ *   <li>The original submitter can always deposit their own workspace item.</li>
+ *   <li>Any other submitter of the collection can deposit only if the collection is a shared workspace.</li>
+ *   <li>In a non-shared-workspace collection, only the original submitter can deposit.</li>
+ *   <li>Users who are not submitters of the collection can never deposit.</li>
  * </ul>
  * </p>
  *
@@ -71,7 +71,7 @@ public class DepositRestPermissionEvaluatorPlugin extends RestObjectPermissionEv
     private AuthorizeService authorizeService;
 
     @Autowired
-    private GroupService groupService;
+    private CollectionService collectionService;
 
     @Override
     public boolean hasDSpacePermission(Authentication authentication, Serializable targetId,
@@ -108,9 +108,11 @@ public class DepositRestPermissionEvaluatorPlugin extends RestObjectPermissionEv
                 return true;
             }
 
-            // Allow deposit if the user is in the collection's submitters group
+            // Allow deposit if the collection is a shared workspace and the user is in the collection's
+            // submitters group. Outside a shared workspace, only the original submitter (checked above) may
+            // deposit their own workspace item.
             Collection collection = workspaceItem.getCollection();
-            if (collection != null) {
+            if (collection != null && collectionService.isSharedWorkspace(context, collection)) {
                 return authorizeService.authorizeActionBoolean(context, collection, Constants.ADD);
             }
 
