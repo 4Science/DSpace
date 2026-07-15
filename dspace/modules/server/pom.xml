@@ -10,12 +10,10 @@
         <version>cris-2025.02.01-SNAPSHOT</version>
         <relativePath>..</relativePath>
     </parent>
-
     <properties>
         <!-- This is the path to the root [dspace-src] directory. -->
         <root.basedir>${basedir}/../../..</root.basedir>
     </properties>
-
     <build>
         <plugins>
             <!-- Unpack the "additions" module into our target directory,
@@ -113,7 +111,6 @@
             </plugin>
         </plugins>
     </build>
-
     <profiles>
         <!-- Setup the Unit Test Environment (when -DskipUnitTests=false) -->
         <profile>
@@ -155,7 +152,6 @@
                             </execution>
                         </executions>
                     </plugin>
-
                     <!-- Run Unit Testing! This plugin just kicks off the tests (when enabled). -->
                     <plugin>
                         <artifactId>maven-surefire-plugin</artifactId>
@@ -184,7 +180,6 @@
                 </dependency>
             </dependencies>
         </profile>
-
         <!-- Setup the Integration Test Environment (when -DskipIntegrationTests=false) -->
         <profile>
             <id>integration-test-environment</id>
@@ -225,7 +220,6 @@
                             </execution>
                         </executions>
                     </plugin>
-
                     <!-- Run Integration Testing! This plugin just kicks off the tests (when enabled). -->
                     <plugin>
                         <artifactId>maven-failsafe-plugin</artifactId>
@@ -285,7 +279,6 @@
                 </dependency>
             </dependencies>
         </profile>
-
         <!-- Builds Orchestrator addon for DSpace -->
         <profile>
             <id>addon-orchestrator</id>
@@ -304,9 +297,7 @@
             </dependencies>
         </profile>
     </profiles>
-
     <dependencies>
-
         <dependency>
             <groupId>org.dspace.modules</groupId>
             <artifactId>additions</artifactId>
@@ -321,7 +312,6 @@
             <scope>provided</scope>
             <version>${spring-boot.version}</version>
         </dependency>
-
         <!-- Test Dependencies -->
         <dependency>
             <groupId>org.dspace</groupId>
@@ -394,11 +384,5 @@
             <version>2.0.8</version>
             <scope>test</scope>
         </dependency>
-
     </dependencies>
-
-
-  <scm>
-    <tag>dspace-9.2</tag>
-  </scm>
 </project>

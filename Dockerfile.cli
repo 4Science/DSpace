@@ -17,6 +17,7 @@ ARG AWS_REGION=eu-west-1
 # Step 1 - Run Maven Build
 FROM ${DOCKER_REGISTRY}/4science/dspace-cris-dependencies:${DSPACE_VERSION} AS build
 ARG TARGET_DIR=dspace-installer
+USER root
 WORKDIR /app
 # The dspace-installer directory will be written to /install
 RUN mkdir -p /install /install/config /install/bin /install/solr \
@@ -26,8 +27,6 @@ USER dspace
 # Copy the DSpace source code (from local machine) into the workdir (excluding .dockerignore contents)
 COPY --chown=dspace --parents pom.xml **/pom.xml /app/
 COPY --chown=dspace --parents **/src /app/
-# Build DSpace (note: this build doesn't include the optional, deprecated "dspace-rest" webapp)
-# Copy the dspace-installer directory to /install.  Clean up the build to keep the docker image small
 # Maven flags here ensure that we skip building test environment and skip all code verification checks.
 # These flags speed up this compilation as much as reasonably possible.
 ENV MAVEN_FLAGS="-P-assembly -P-test-environment -Denforcer.skip=true -Dcheckstyle.skip=true -Dlicense.skip=true -Dxml.skip=true"
@@ -36,16 +35,18 @@ RUN mv /app/dspace/modules/server-boot/target/server-boot-*.jar /install/server-
   java -Djarmode=layertools -jar /install/server-boot.jar extract --destination /install/server-boot
 
 # Step 2 - Run installation
-# Create a new tomcat image that does not retain the thze build directory contents
 FROM docker.io/eclipse-temurin:${JDK_VERSION}-jre AS install
+# Below syntax may look odd, but it is how to override dspace.cfg settings via env variables.
+# See https://github.com/DSpace/DSpace/blob/main/dspace/config/config-definition.xml
+# "dspace__P__dir" is setting the value of the "dspace.dir" configuration. This is our installation directory.
+ENV dspace__P__dir=/dspace
 # Install unzip for AIPs
 RUN apt-get update \
     && apt-get install -y --no-install-recommends unzip \
     && apt-get purge -y --auto-remove \
     && rm -rf /var/lib/apt/lists/*
 # NOTE: DSPACE_INSTALL must align with the "dspace.dir" default configuration.
-ENV DSPACE_INSTALL=/dspace
-WORKDIR $DSPACE_INSTALL
+WORKDIR $dspace__P__dir
 
 RUN useradd -m -d /home/dspace -s /bin/bash dspace
 
@@ -54,13 +55,18 @@ COPY --from=build --chown=dspace /install/server-boot/spring-boot-loader/ /app/s
 COPY --from=build --chown=dspace /install/server-boot/snapshot-dependencies/ /app/server-boot/
 COPY --from=build --chown=dspace /install/server-boot/application/ /app/server-boot/
 
-COPY --chown=dspace dspace/config/ $DSPACE_INSTALL/config/
-COPY --chown=dspace dspace/bin/ $DSPACE_INSTALL/bin/
-RUN install -d -m 0755 -o dspace -g dspace $DSPACE_INSTALL/assetstore/ $DSPACE_INSTALL/upload/ \
-    $DSPACE_INSTALL/handle-server/ $DSPACE_INSTALL/log/ $DSPACE_INSTALL/var/ \
-    && ln -s /app/server-boot/BOOT-INF/lib $DSPACE_INSTALL/lib \
-    && chown -h dspace:dspace $DSPACE_INSTALL/lib \
-    && chmod +x $DSPACE_INSTALL/bin/*
+COPY --chown=dspace dspace/config/ $dspace__P__dir/config/
+COPY --chown=dspace dspace/bin/ $dspace__P__dir/bin/
+RUN install -d -m 0755 -o dspace -g dspace $dspace__P__dir/assetstore/ $dspace__P__dir/upload/ \
+    $dspace__P__dir/handle-server/ $dspace__P__dir/log/ $dspace__P__dir/var/ $dspace__P__dir/rdf-store/ $dspace__P__dir/temp/ \
+    && ln -s /app/server-boot/BOOT-INF/lib $dspace__P__dir/lib \
+    && chown -h dspace:dspace $dspace__P__dir/lib \
+    && chmod +x $dspace__P__dir/bin/*
 
 USER dspace
-ENV JAVA_OPTS="-Xmx1000m -Ddspace.dir=$DSPACE_INSTALL"
+ENV JAVA_OPTS="-Xmx1000m -Ddspace.dir=$dspace__P__dir -Djava.io.tmpdir=/tmp"
+
+# On startup, run DSpace commandline script
+ENTRYPOINT ["./bin/dspace"]
+# By default just pass 'help' command to ./bin/dspace
+CMD ["help"]

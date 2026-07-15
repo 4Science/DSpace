@@ -5,7 +5,6 @@
     <description>
         DSpace Server Webapp (Spring Boot)
     </description>
-
     <!--
       A Parent POM that Maven inherits DSpace Default
       POM attributes from.
@@ -16,21 +15,18 @@
         <version>cris-2025.02.01-SNAPSHOT</version>
         <relativePath>..</relativePath>
     </parent>
-
     <properties>
         <!-- This is the path to the root [dspace-src] directory. -->
         <root.basedir>${basedir}/..</root.basedir>
-
         <!-- Default resource delimiter for Spring Boot, so it doesn't clash with Spring ${} placeholders-->
         <resource.delimiter>@</resource.delimiter>
     </properties>
-
     <build>
         <plugins>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>properties-maven-plugin</artifactId>
-                <version>1.2.1</version>
+                <version>1.3.0</version>
                 <executions>
                     <execution>
                         <phase>initialize</phase>
@@ -162,7 +158,6 @@
             </plugin>
         </plugins>
     </build>
-
     <profiles>
         <!-- Setup the Unit Test Environment (when -DskipUnitTests=false) -->
         <profile>
@@ -204,7 +199,6 @@
                             </execution>
                         </executions>
                     </plugin>
-
                     <!-- Run Unit Testing! This plugin just kicks off the tests -->
                     <plugin>
                         <artifactId>maven-surefire-plugin</artifactId>
@@ -221,9 +215,7 @@
                     </plugin>
                 </plugins>
             </build>
-
         </profile>
-
         <!-- Setup the Integration Test Environment (when -DskipIntegrationTests=false) -->
         <profile>
             <id>integration-test-environment</id>
@@ -264,7 +256,6 @@
                             </execution>
                         </executions>
                     </plugin>
-
                     <!-- Run Integration Testing! This plugin just kicks off the tests (when enabled). -->
                     <plugin>
                         <artifactId>maven-failsafe-plugin</artifactId>
@@ -281,7 +272,6 @@
                 </plugins>
             </build>
         </profile>
-
         <profile>
             <id>addon-iiif</id>
             <activation>
@@ -298,7 +288,6 @@
                 </dependency>
             </dependencies>
         </profile>
-
         <profile>
             <id>addon-ocr</id>
             <activation>
@@ -315,7 +304,6 @@
                 </dependency>
             </dependencies>
         </profile>
-
         <!--
             Builds Audio Video addon for DSpace
         -->
@@ -335,7 +323,6 @@
                 </dependency>
             </dependencies>
         </profile>
-
         <profile>
             <id>addon-document-viewer</id>
             <activation>
@@ -352,63 +339,57 @@
                 </dependency>
             </dependencies>
         </profile>
-
-	   	<profile>
-			<id>addon-analytics</id>
-	         <activation>
-	            <property>
-	               <name>analytics.on</name>
-	            </property>
-	         </activation>
-			<dependencies>
-				<dependency>
-					<groupId>it.4science.dspace</groupId>
-					<artifactId>addon-analytics-api</artifactId>
-					<version>${addon-analytics.version}</version>
-					<type>jar</type>
-				</dependency>
-			</dependencies>
-		</profile>
-
+        <profile>
+            <id>addon-analytics</id>
+            <activation>
+                <property>
+                    <name>analytics.on</name>
+                </property>
+            </activation>
+            <dependencies>
+                <dependency>
+                    <groupId>it.4science.dspace</groupId>
+                    <artifactId>addon-analytics-api</artifactId>
+                    <version>${addon-analytics.version}</version>
+                    <type>jar</type>
+                </dependency>
+            </dependencies>
+        </profile>
         <!-- Builds LoginMIUR addon for DSpace -->
-	   	<profile>
-        <id>addon-loginmiur</id>
-             <activation>
+        <profile>
+            <id>addon-loginmiur</id>
+            <activation>
                 <property>
-                   <name>loginmiur.on</name>
+                    <name>loginmiur.on</name>
                 </property>
-             </activation>
-        <dependencies>
-          <dependency>
-            <groupId>it.4science.dspace</groupId>
-            <artifactId>addon-loginmiur-api</artifactId>
-            <version>${addon-loginmiur.version}</version>
-            <type>jar</type>
-          </dependency>
-        </dependencies>
-      </profile>
-
+            </activation>
+            <dependencies>
+                <dependency>
+                    <groupId>it.4science.dspace</groupId>
+                    <artifactId>addon-loginmiur-api</artifactId>
+                    <version>${addon-loginmiur.version}</version>
+                    <type>jar</type>
+                </dependency>
+            </dependencies>
+        </profile>
         <!-- Builds Import Plus addon for DSpace -->
-      <profile>
-        <id>addon-importplus</id>
-             <activation>
+        <profile>
+            <id>addon-importplus</id>
+            <activation>
                 <property>
-                   <name>importplus.on</name>
+                    <name>importplus.on</name>
                 </property>
-             </activation>
-        <dependencies>
-          <dependency>
-            <groupId>it.4science.dspace</groupId>
-            <artifactId>addon-importplus</artifactId>
-            <version>${addon-importplus.version}</version>
-            <type>jar</type>
-          </dependency>
-        </dependencies>
-      </profile>
+            </activation>
+            <dependencies>
+                <dependency>
+                    <groupId>it.4science.dspace</groupId>
+                    <artifactId>addon-importplus</artifactId>
+                    <version>${addon-importplus.version}</version>
+                    <type>jar</type>
+                </dependency>
+            </dependencies>
+        </profile>
     </profiles>
-
-
-
     <dependencyManagement>
         <dependencies>
             <dependency>
@@ -418,9 +399,7 @@
             </dependency>
         </dependencies>
     </dependencyManagement>
-
     <dependencies>
-
         <!-- Spring Boot dependencies -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -434,7 +413,6 @@
                 </exclusion>
             </exclusions>
         </dependency>
-
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-rest</artifactId>
@@ -447,13 +425,11 @@
                 </exclusion>
             </exclusions>
         </dependency>
-
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-aop</artifactId>
             <version>${spring-boot.version}</version>
         </dependency>
-
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-actuator</artifactId>
@@ -471,13 +447,11 @@
                 </exclusion>
             </exclusions>
         </dependency>
-
         <dependency>
             <groupId>com.flipkart.zjsonpatch</groupId>
             <artifactId>zjsonpatch</artifactId>
             <version>0.4.16</version>
         </dependency>
-
         <!-- HAL Browser (via WebJars) : https://github.com/mikekelly/hal-browser -->
         <!-- This is primarily used to pull in the HAL Browser core Javascript code ('js' folder), as we've overridden
              many dependencies below and the HTML pages in src/main/webapp/ -->
@@ -488,7 +462,6 @@
             <artifactId>hal-browser</artifactId>
             <version>ad9b865</version>
         </dependency>
-
         <!-- Pull in several WebJars dependencies used to update/enhance the default HAL Browser -->
         <!-- Pull in current version of JQuery via WebJars
              Made available at: webjars/jquery/dist/jquery.min.js -->
@@ -557,7 +530,6 @@
             <artifactId>bootstrap</artifactId>
             <version>4.6.2</version>
         </dependency>
-
         <!-- Add in Spring Security for AuthN and AuthZ -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -571,7 +543,6 @@
                 </exclusion>
             </exclusions>
         </dependency>
-
         <!-- Add in log4j support by excluding default logging, and using starter-log4j -->
         <!-- See: https://docs.spring.io/spring-boot/docs/current/reference/html/howto.html#howto-logging -->
         <dependency>
@@ -583,51 +554,38 @@
                     <groupId>org.springframework.boot</groupId>
                     <artifactId>spring-boot-starter-logging</artifactId>
                 </exclusion>
-                <!-- Spring JCL is unnecessary and conflicts with commons-logging when both are on classpath -->
-                <exclusion>
-                    <groupId>org.springframework</groupId>
-                    <artifactId>spring-jcl</artifactId>
-                </exclusion>
             </exclusions>
         </dependency>
-
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-log4j2</artifactId>
             <version>${spring-boot.version}</version>
         </dependency>
-
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-api</artifactId>
             <version>${log4j.version}</version>
         </dependency>
-
         <!-- DSpace dependencies -->
-
         <!-- Moved here from optional modules list to ensure that iiif-apis mime.types resource is first in classpath -->
         <dependency>
             <groupId>org.dspace</groupId>
             <artifactId>dspace-iiif</artifactId>
         </dependency>
-
         <dependency>
             <groupId>org.dspace</groupId>
             <artifactId>dspace-api</artifactId>
         </dependency>
-
         <dependency>
             <groupId>org.dspace</groupId>
             <artifactId>dspace-api</artifactId>
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>
-
         <dependency>
             <groupId>org.dspace</groupId>
             <artifactId>dspace-services</artifactId>
         </dependency>
-
         <!-- DSpace modules to deploy (these modules are all optional, but add features/endpoints to webapp) -->
         <!-- You may choose to comment out any of these modules if you do not want/need its features -->
         <dependency>
@@ -656,7 +614,6 @@
             <groupId>org.dspace</groupId>
             <artifactId>dspace-swordv2</artifactId>
         </dependency>
-
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-collections4</artifactId>
@@ -669,7 +626,6 @@
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
         </dependency>
-
         <dependency>
             <groupId>com.nimbusds</groupId>
             <artifactId>nimbus-jose-jwt</artifactId>
@@ -682,13 +638,11 @@
                 </exclusion>
             </exclusions>
         </dependency>
-
         <dependency>
             <groupId>org.apache.solr</groupId>
             <artifactId>solr-solrj</artifactId>
             <version>${solr.client.version}</version>
         </dependency>
-
         <!-- https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-cache
              Caching dependencies for iiif endpoint. -->
         <dependency>
@@ -713,7 +667,6 @@
                 </exclusion>
             </exclusions>
         </dependency>
-
         <!-- TEST DEPENDENCIES -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -730,7 +683,7 @@
         <dependency>
             <groupId>org.apache.httpcomponents.client5</groupId>
             <artifactId>httpclient5</artifactId>
-            <version>5.5.1</version>
+            <version>5.6.1</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -817,8 +770,8 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-          <groupId>jakarta.annotation</groupId>
-          <artifactId>jakarta.annotation-api</artifactId>
+            <groupId>jakarta.annotation</groupId>
+            <artifactId>jakarta.annotation-api</artifactId>
         </dependency>
         <dependency>
             <groupId>io.findify</groupId>
@@ -842,5 +795,4 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
-
 </project>
