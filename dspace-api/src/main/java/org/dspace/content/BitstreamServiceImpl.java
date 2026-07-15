@@ -566,8 +566,7 @@ public class BitstreamServiceImpl extends DSpaceObjectServiceImpl<Bitstream> imp
 
         try {
 
-            return streamOf(getItemBitstreams(context, item))
-                .filter(bitstream -> isContainedInBundleNamed(bitstream, bundleName))
+            return streamOf(bitstreamDAO.findByItemAndBundle(context, item.getID(), bundleName))
                 .filter(bitstream -> hasAllMetadataValues(bitstream, filterMetadata))
                 .collect(Collectors.toList());
 
@@ -579,21 +578,6 @@ public class BitstreamServiceImpl extends DSpaceObjectServiceImpl<Bitstream> imp
 
     public boolean exists(Context context, UUID id) throws SQLException {
         return this.bitstreamDAO.exists(context, Bitstream.class, id);
-    }
-
-    private boolean isContainedInBundleNamed(Bitstream bitstream, String name) {
-
-        if (StringUtils.isEmpty(name)) {
-            return true;
-        }
-
-        try {
-            return bitstream.getBundles().stream()
-                .anyMatch(bundle -> name.equals(bundle.getName()));
-        } catch (SQLException e) {
-            throw new SQLRuntimeException(e);
-        }
-
     }
 
     private boolean hasAllMetadataValues(Bitstream bitstream, Map<String, String> filterMetadata) {
