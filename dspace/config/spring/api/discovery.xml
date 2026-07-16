@@ -80,7 +80,6 @@
         <value>dc.contributor.author</value>
         <value>dc.contributor.editor</value>
     </util:list>
-
     <alias name="solrServiceResourceIndexPlugin" alias="org.dspace.discovery.SolrServiceResourceRestrictionPlugin"/>
 
     <!-- Additional indexing plugin make filtering by has content in original bundle (like pdf's, images) posible via SOLR -->
