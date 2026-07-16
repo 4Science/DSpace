@@ -102,9 +102,9 @@ public class AuditSolrServiceImpl implements AuditService {
     @Override
     public SolrClient getSolr() throws SolrServerException, IOException {
         if (solr == null) {
-            String solrService = configurationService.getProperty("audit.solr.server");
-            log.debug("Solr audit URL: " + solrService);
-            SolrClient solrServer = httpSolrClientFactory.getClient(solrService);
+            SolrClient solrServer = httpSolrClientFactory.getClient("audit.solr.server").orElseThrow(()
+                    -> new SolrServerException( "Unable to get Solr client for audit core, " +
+                            "audit.solr.server may not be configured"));
             SolrQuery solrQuery = new SolrQuery().setQuery("*:*");
             // checking SOLR is alive
             solrServer.query(solrQuery);
