@@ -166,11 +166,6 @@
         <property name="dspaceRunnableClass" value="org.dspace.app.bulkaccesscontrol.BulkAccessControlCli"/>
     </bean>
 
-    <bean id="import-openaire-suggestions" class="org.dspace.app.suggestion.openaire.PublicationLoaderCliScriptConfiguration">
-       <property name="description" value="Imports suggestions from OpenAIRE for publication claim"/>
-       <property name="dspaceRunnableClass" value="org.dspace.app.suggestion.openaire.PublicationLoaderRunnableCli"/>
-    </bean>
-
     <bean id="object-deletion" class="org.dspace.deletion.process.DSpaceObjectDeletionProcessCliScriptConfiguration" primary="true">
         <property name="description" value="Permanently delete the given object along with all child objects. WARNING: This action cannot be undone." />
         <property name="dspaceRunnableClass" value="org.dspace.deletion.process.DSpaceObjectDeletionProcessCli"/>
@@ -185,6 +180,12 @@
         <property name="description"
             value="Export and import complete SOLR cores with UUID range partitioning and cursorMark pagination"/>
         <property name="dspaceRunnableClass" value="org.dspace.app.solr.SolrCoreExportImportCli"/>
+    </bean>
+
+    <bean id="import-loader-suggestions"
+          class="org.dspace.app.suggestion.script.PublicationLoaderCliScriptConfiguration">
+        <property name="description" value="Imports suggestions from external providers for publication claim"/>
+        <property name="dspaceRunnableClass" value="org.dspace.app.suggestion.runnable.PublicationLoaderRunnableCli"/>
     </bean>
 
 </beans>

@@ -47,9 +47,15 @@ public class ExternalSourcesByEntityTypesIT extends AbstractControllerIntegratio
                                 ExternalSourceMatcher.matchExternalSource("scopus", "scopus", false),
                                 ExternalSourceMatcher.matchExternalSource("suggestion", "suggestion", false),
                                 ExternalSourceMatcher.matchExternalSource("crossref", "crossref", false),
-                                ExternalSourceMatcher.matchExternalSource("orcidWorks", "orcidWorks", false)
+                                ExternalSourceMatcher.matchExternalSource("orcidWorks", "orcidWorks", false),
+                                ExternalSourceMatcher.matchExternalSource("openalexPublication", "openalexPublication",
+                                                                           false),
+                                ExternalSourceMatcher.matchExternalSource("openalexPublicationByAuthorId",
+                                                                           "openalexPublicationByAuthorId", false),
+                                ExternalSourceMatcher.matchExternalSource("openalexPublicationByDOI",
+                                                                           "openalexPublicationByDOI", false)
                                 )))
-                            .andExpect(jsonPath("$.page.totalElements", Matchers.is(8)));
+                            .andExpect(jsonPath("$.page.totalElements", Matchers.is(11)));
         // mock and ORCID are configured without any entity type
         getClient()
                 .perform(get("/api/integration/externalsources/search/findByEntityType").param("entityType", "Funding"))
@@ -72,7 +78,7 @@ public class ExternalSourcesByEntityTypesIT extends AbstractControllerIntegratio
                                 ExternalSourceMatcher.matchExternalSource("mock3", "mock3", false),
                                 ExternalSourceMatcher.matchExternalSource("pubmed", "pubmed", false)
                             )))
-                            .andExpect(jsonPath("$.page.totalElements", Matchers.is(8)));
+                            .andExpect(jsonPath("$.page.totalElements", Matchers.is(11)));
     }
     @Test
     public void findAllByAuthorizedExternalSource() throws Exception {
