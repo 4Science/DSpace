@@ -144,7 +144,7 @@ public class BitstreamServiceImpl extends DSpaceObjectServiceImpl<Bitstream> imp
         UUID bitstreamID = bitstreamStorageService.store(context, bitstreamDAO.create(context, new Bitstream()), is);
 
         log.info(LogHelper.getHeader(context, "create_bitstream",
-                                     "bitstream_id=" + bitstreamID));
+                                      "bitstream_id=" + bitstreamID));
 
         // Set the format to "unknown"
         Bitstream bitstream = find(context, bitstreamID);
@@ -152,7 +152,7 @@ public class BitstreamServiceImpl extends DSpaceObjectServiceImpl<Bitstream> imp
 
         context.addEvent(
             new Event(Event.CREATE, Constants.BITSTREAM, bitstreamID,
-                new EventDetail(DetailType.BITSTREAM_CHECKSUM, bitstream.getChecksum()),
+                bitstream.getChecksum(), DetailType.BITSTREAM_CHECKSUM,
                 getIdentifiers(context, bitstream)));
 
         return bitstream;
@@ -169,7 +169,7 @@ public class BitstreamServiceImpl extends DSpaceObjectServiceImpl<Bitstream> imp
         UUID itemUUID = getItem(b).stream().findFirst().map(Item::getID).orElse(null);
         context.addEvent(
             new Event(Event.CREATE, Constants.BITSTREAM, b.getID(), Constants.ITEM, itemUUID,
-                new EventDetail(DetailType.BITSTREAM_CHECKSUM, b.getChecksum()), getIdentifiers(context, b)));
+                b.getChecksum(), DetailType.BITSTREAM_CHECKSUM, getIdentifiers(context, b)));
         return b;
     }
 
@@ -210,15 +210,15 @@ public class BitstreamServiceImpl extends DSpaceObjectServiceImpl<Bitstream> imp
             context, bitstream, assetstore, bitstreamPath);
 
         log.info(LogHelper.getHeader(context,
-                                     "create_bitstream",
-                                     "bitstream_id=" + bitstream.getID()));
+                                      "create_bitstream",
+                                      "bitstream_id=" + bitstream.getID()));
 
         // Set the format to "unknown"
         setFormat(context, bitstream, null);
 
         context.addEvent(new Event(Event.CREATE, Constants.BITSTREAM,
-                bitstream.getID(), "REGISTER",
-                DetailType.INFO, getIdentifiers(context, bitstream)));
+                bitstream.getID(), bitstream.getChecksum(), DetailType.BITSTREAM_CHECKSUM,
+                getIdentifiers(context, bitstream)));
 
         return bitstream;
     }
@@ -268,7 +268,7 @@ public class BitstreamServiceImpl extends DSpaceObjectServiceImpl<Bitstream> imp
         authorizeService.authorizeAction(context, bitstream, Constants.WRITE);
 
         log.info(LogHelper.getHeader(context, "update_bitstream",
-                                     "bitstream_id=" + bitstream.getID()));
+                                      "bitstream_id=" + bitstream.getID()));
         super.update(context, bitstream);
         if (bitstream.isModified()) {
             context.addEvent(new Event(Event.MODIFY, Constants.BITSTREAM, bitstream.getID(), null,
@@ -279,7 +279,8 @@ public class BitstreamServiceImpl extends DSpaceObjectServiceImpl<Bitstream> imp
             UUID itemUUID = getItem(bitstream).stream().findFirst().map(Item::getID).orElse(null);
             context.addEvent(
                     new Event(Event.MODIFY_METADATA, Constants.BITSTREAM, bitstream.getID(),
-                            bitstream.getDetails(), DetailType.DSO_SUMMARY,
+                            Constants.ITEM, itemUUID,
+                            bitstream.getMetadataEventDetails(), DetailType.DSO_SUMMARY,
                             getIdentifiers(context, bitstream)));
             bitstream.clearModified();
             bitstream.clearDetails();
@@ -296,7 +297,7 @@ public class BitstreamServiceImpl extends DSpaceObjectServiceImpl<Bitstream> imp
         // Check authorisation
         authorizeService.authorizeAction(context, bitstream, Constants.DELETE);
         log.info(LogHelper.getHeader(context, "delete_bitstream",
-                                     "bitstream_id=" + bitstream.getID()));
+                                      "bitstream_id=" + bitstream.getID()));
 
         ArrayList<EventDetail> detailList = new ArrayList<>();
         detailList.add(new EventDetail(DetailType.BITSTREAM_SEQUENCE_ID, String.valueOf(bitstream.getSequenceID())));

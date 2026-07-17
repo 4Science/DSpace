@@ -40,7 +40,6 @@ import org.dspace.content.service.BitstreamService;
 import org.dspace.services.ConfigurationService;
 import org.hamcrest.Matchers;
 import org.junit.After;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -447,7 +446,6 @@ public class AuditEventRestRepositoryIT extends AbstractControllerIntegrationTes
             .andExpect(jsonPath("$.page.totalElements", is(10)));
     }
 
-    @Ignore
     @Test
     public void findByObjectBitstreamTest() throws Exception {
         configurationService.setProperty("audit.enabled", true);
