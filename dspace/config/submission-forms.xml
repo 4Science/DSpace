@@ -2342,9 +2342,9 @@ it, please enter the types and the actual numbers or codes.</hint>
       <row>
         <field>
           <dc-schema>crisequipment</dc-schema>
-          <dc-element>decomission</dc-element>
+          <dc-element>decommission</dc-element>
           <dc-qualifier>date</dc-qualifier>
-          <label>Decomission Date</label>
+          <label>Decommission Date</label>
           <input-type>date</input-type>
           <repeatable>false</repeatable>
           <required />
