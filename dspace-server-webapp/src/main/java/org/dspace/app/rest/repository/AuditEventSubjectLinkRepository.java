@@ -13,7 +13,7 @@ import java.util.UUID;
 import jakarta.annotation.Nullable;
 import jakarta.servlet.http.HttpServletRequest;
 import org.dspace.app.audit.AuditEvent;
-import org.dspace.app.audit.AuditService;
+import org.dspace.app.audit.AuditSolrServiceImpl;
 import org.dspace.app.rest.model.AuditEventRest;
 import org.dspace.app.rest.model.DSpaceObjectRest;
 import org.dspace.app.rest.projection.Projection;
@@ -34,7 +34,7 @@ public class AuditEventSubjectLinkRepository extends AbstractDSpaceRestRepositor
         implements LinkRestRepository {
 
     @Autowired
-    private AuditService auditService;
+    private AuditSolrServiceImpl auditSolrService;
 
     @Autowired
     private DSpaceObjectUtils dspaceObjectUtil;
@@ -46,22 +46,29 @@ public class AuditEventSubjectLinkRepository extends AbstractDSpaceRestRepositor
                                                Projection projection) {
         try {
             Context context = obtainContext();
-            AuditEvent audit = auditService.findEvent(context, auditId);
-            if (audit == null) {
-                throw new ResourceNotFoundException("No such audit event: " + auditId.toString());
-            }
-            UUID objUUID = audit.getSubjectUUID();
-            DSpaceObject dso = null;
-            if (objUUID != null) {
-                dso = dspaceObjectUtil.findDSpaceObject(context, objUUID);
-            }
+            AuditEvent audit = getAuditEvent(context, auditId);
+            UUID subjectUUID = audit.getSubjectUUID();
+            String subjectType = audit.getSubjectType();
+            DSpaceObject dso = getDSpaceObject(context, subjectUUID, subjectType);
             if (dso != null) {
                 return (DSpaceObjectRest) converter.toRest(dso, utils.obtainProjection());
             } else {
                 return null;
             }
         } catch (SQLException e) {
-            throw new RuntimeException(e.getMessage(), e);
+            throw new RuntimeException("Failed to retrieve audit event subject for audit ID: " + auditId.toString(), e);
         }
+    }
+
+    private AuditEvent getAuditEvent(Context context, UUID auditId) {
+        AuditEvent audit = auditSolrService.findEvent(context, auditId);
+        if (audit == null) {
+            throw new ResourceNotFoundException("No such audit event: " + auditId.toString());
+        }
+        return audit;
+    }
+
+    private DSpaceObject getDSpaceObject(Context context, UUID subjectUUID, String subjectType) throws SQLException {
+        return subjectUUID != null ? dspaceObjectUtil.findDSpaceObject(context, subjectUUID, subjectType) : null;
     }
 }

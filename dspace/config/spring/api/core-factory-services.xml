@@ -62,7 +62,7 @@
     <bean id="orcidServiceFactory" class="org.dspace.orcid.factory.OrcidServiceFactoryImpl"/>
 
     <bean id="crisMetricsServiceFactory" class="org.dspace.externalservices.scopus.factory.CrisMetricsServiceFactoryImpl"/>
-    
+
     <bean id="supervisionOrderServiceFactory" class="org.dspace.supervision.factory.SupervisionOrderServiceFactoryImpl"/>
 
     <bean id="notifyServiceFactory" class="org.dspace.app.ldn.factory.NotifyServiceFactoryImpl"/>
@@ -74,5 +74,10 @@
     <bean id="contentReportServiceFactory" class="org.dspace.content.factory.ContentReportServiceFactoryImpl"/>
 
     <bean id="captchaServiceFactory" class="org.dspace.eperson.factory.CaptchaServiceFactoryImpl"/>
+
+    <!-- solrDocumentFactory Default factory -->
+    <bean id="defaultSolrDocumentFactory" class="org.dspace.discovery.DefaultSolrDocumentFactory" autowire-candidate="true"/>
+
+    <bean id="auditServiceFactory" class="org.dspace.app.audit.factory.AuditServiceFactoryImpl"/>
 
 </beans>
