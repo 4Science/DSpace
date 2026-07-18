@@ -20,6 +20,7 @@ import org.dspace.content.service.ItemService;
 import org.dspace.core.Context;
 import org.dspace.discovery.DiscoverQuery;
 import org.dspace.discovery.DiscoverResultIterator;
+import org.dspace.discovery.SearchService;
 import org.dspace.discovery.indexobject.IndexableItem;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -34,6 +35,8 @@ public class DiscoveryConfigurationUtilsService {
     private ItemService itemService;
     @Autowired
     private DiscoveryConfigurationService searchConfigurationService;
+    @Autowired
+    private SearchService solrService;
 
     public Iterator<Item> findByRelation(Context context, Item item, String relationName) {
         String entityType = itemService.getMetadataFirstValue(item, "dspace", "entity", "type", Item.ANY);
@@ -61,7 +64,7 @@ public class DiscoveryConfigurationUtilsService {
         } else {
             DiscoverySortFieldConfiguration sortField =
                 discoveryConfiguration.getSearchSortConfiguration().getDefaultSortField();
-            discoverQuery.setSortField(sortField.getMetadataField(),
+            discoverQuery.setSortField(solrService.toSortFieldIndex(sortField.getMetadataField(), sortField.getType()),
                                        DiscoverQuery.SORT_ORDER.valueOf(sortField.getDefaultSortOrder().name()));
         }
 
