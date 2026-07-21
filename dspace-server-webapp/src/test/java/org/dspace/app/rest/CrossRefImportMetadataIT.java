@@ -26,26 +26,36 @@ import org.apache.commons.io.IOUtils;
 import org.dspace.app.rest.test.AbstractControllerIntegrationTest;
 import org.dspace.importer.external.crossref.CrossRefImportMetadataSourceServiceImpl;
 import org.dspace.importer.external.liveimportclient.service.LiveImportClient;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.util.ReflectionTestUtils;
 
 public class CrossRefImportMetadataIT extends AbstractControllerIntegrationTest {
 
-    @MockitoBean
+    @Mock
     private LiveImportClient liveImportClient;
 
     @Autowired
     @Qualifier("CrossRefImportService")
     private CrossRefImportMetadataSourceServiceImpl crossRefImportService;
 
+    private Object originalLiveImportClient;
+
     @Before
     public void setUp() throws Exception {
         super.setUp();
+        originalLiveImportClient =
+            ReflectionTestUtils.getField(crossRefImportService, "liveImportClient");
         ReflectionTestUtils.setField(crossRefImportService, "liveImportClient", liveImportClient);
+    }
+
+    @After
+    public void after() {
+        ReflectionTestUtils.setField(crossRefImportService, "liveImportClient", originalLiveImportClient);
     }
 
     @Test
