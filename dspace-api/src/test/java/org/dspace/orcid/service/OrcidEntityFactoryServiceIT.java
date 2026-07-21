@@ -81,6 +81,8 @@ public class OrcidEntityFactoryServiceIT extends AbstractIntegrationTestWithData
 
     private Collection fundings;
 
+    private static final String issn = "1234-1234X";
+
     @Before
     public void setup() {
 
@@ -191,6 +193,93 @@ public class OrcidEntityFactoryServiceIT extends AbstractIntegrationTestWithData
         assertThat(externalIds, has(selfExternalId("eid", "scopus-id")));
         assertThat(externalIds, has(selfExternalId("handle", publication.getHandle())));
 
+    }
+
+    @Test
+    public void testJournalArticleAndISSN() {
+        context.turnOffAuthorisationSystem();
+
+        Item publication = ItemBuilder.createItem(context, publications)
+            .withTitle("Test publication")
+            .withAuthor("Walter White")
+            .withAuthor("Jesse Pinkman")
+            .withEditor("Editor")
+            .withIssueDate("2021-04-30")
+            .withDescriptionAbstract("Publication description")
+            .withLanguage("en_US")
+            .withType("Article")
+            .withIsPartOf("Journal")
+            .withISSN(issn)
+            .withDoiIdentifier("doi-id")
+            .withScopusIdentifier("scopus-id")
+            .build();
+
+        context.restoreAuthSystemState();
+
+        Activity activity = entityFactoryService.createOrcidObject(context, publication);
+        assertThat(activity, instanceOf(Work.class));
+
+        Work work = (Work) activity;
+        assertThat(work.getJournalTitle(), notNullValue());
+        assertThat(work.getJournalTitle().getContent(), is("Journal"));
+        assertThat(work.getLanguageCode(), is("en"));
+        assertThat(work.getPublicationDate(), matches(date("2021", "04", "30")));
+        assertThat(work.getShortDescription(), is("Publication description"));
+        assertThat(work.getPutCode(), nullValue());
+        assertThat(work.getWorkType(), is(WorkType.JOURNAL_ARTICLE));
+        assertThat(work.getWorkTitle(), notNullValue());
+        assertThat(work.getWorkTitle().getTitle(), notNullValue());
+        assertThat(work.getWorkTitle().getTitle().getContent(), is("Test publication"));
+        assertThat(work.getWorkContributors(), notNullValue());
+        assertThat(work.getUrl(), matches(urlEndsWith(publication.getHandle())));
+
+        List<Contributor> contributors = work.getWorkContributors().getContributor();
+        assertThat(contributors, hasSize(3));
+        assertThat(contributors, has(contributor("Walter White", AUTHOR, FIRST)));
+        assertThat(contributors, has(contributor("Editor", EDITOR, FIRST)));
+        assertThat(contributors, has(contributor("Jesse Pinkman", AUTHOR, ADDITIONAL)));
+
+        assertThat(work.getExternalIdentifiers(), notNullValue());
+
+        List<ExternalID> externalIds = work.getExternalIdentifiers().getExternalIdentifier();
+        assertThat(externalIds, hasSize(4));
+        assertThat(externalIds, has(selfExternalId("doi", "doi-id")));
+        assertThat(externalIds, has(selfExternalId("eid", "scopus-id")));
+        assertThat(externalIds, has(selfExternalId("handle", publication.getHandle())));
+        // journal-article should have PART_OF rel for ISSN
+        assertThat(externalIds, has(externalId("issn", issn, Relationship.PART_OF)));
+    }
+
+    @Test
+    public void testJournalWithISSN() {
+        context.turnOffAuthorisationSystem();
+
+        Item publication = ItemBuilder.createItem(context, publications)
+            .withTitle("Test journal")
+            .withEditor("Editor")
+            .withType("Journal")
+            .withISSN(issn)
+            .build();
+
+        context.restoreAuthSystemState();
+
+        Activity activity = entityFactoryService.createOrcidObject(context, publication);
+        assertThat(activity, instanceOf(Work.class));
+
+        Work work = (Work) activity;
+        assertThat(work.getWorkType(), is(WorkType.JOURNAL_ISSUE));
+        assertThat(work.getWorkTitle(), notNullValue());
+        assertThat(work.getWorkTitle().getTitle(), notNullValue());
+        assertThat(work.getWorkTitle().getTitle().getContent(), is("Test journal"));
+        assertThat(work.getUrl(), matches(urlEndsWith(publication.getHandle())));
+
+        assertThat(work.getExternalIdentifiers(), notNullValue());
+
+        List<ExternalID> externalIds = work.getExternalIdentifiers().getExternalIdentifier();
+        assertThat(externalIds, hasSize(2));
+        // journal-issue should have SELF rel for ISSN
+        assertThat(externalIds, has(selfExternalId("issn", issn)));
+        assertThat(externalIds, has(selfExternalId("handle", publication.getHandle())));
     }
 
     @Test

@@ -58,7 +58,7 @@ public class EditItemFeature implements AuthorizationFeature {
     @Override
     public boolean isAuthorized(Context context, BaseObjectRest object) throws SQLException, SearchServiceException {
         if (object instanceof SiteRest) {
-            return itemService.countItemsWithEdit(context) > 0;
+            return itemService.countItemsWithEdit(context, "") > 0;
         } else {
             Item item = null;
 

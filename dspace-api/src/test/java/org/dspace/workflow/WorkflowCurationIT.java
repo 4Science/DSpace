@@ -23,12 +23,17 @@ import org.dspace.content.MetadataValue;
 import org.dspace.content.factory.ContentServiceFactory;
 import org.dspace.content.service.ItemService;
 import org.dspace.core.Context;
+import org.dspace.core.LegacyPluginServiceImpl;
 import org.dspace.ctask.testing.MarkerTask;
 import org.dspace.curate.Curator;
 import org.dspace.eperson.EPerson;
 import org.dspace.xmlworkflow.storedcomponents.XmlWorkflowItem;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringRunner;
 
 /**
  * Test the attachment of curation tasks to workflows.
@@ -39,6 +44,8 @@ import org.junit.Test;
 public class WorkflowCurationIT extends AbstractIntegrationTestWithDatabase {
 
     private ItemService itemService = ContentServiceFactory.getInstance().getItemService();
+    @Autowired
+    private LegacyPluginServiceImpl legacyPluginService;
 
     /**
      * Basic smoke test of a curation task attached to a workflow step.
@@ -49,6 +56,7 @@ public class WorkflowCurationIT extends AbstractIntegrationTestWithDatabase {
     public void curationTest()
             throws Exception {
         context.turnOffAuthorisationSystem();
+        legacyPluginService.clearNamedPluginClasses();
 
         //** GIVEN **
 

@@ -3439,6 +3439,7 @@ public class WorkspaceItemRestRepositoryIT extends AbstractControllerIntegration
                                (witem, "Workspace Item 1", "2019-01-01", "ExtraEntry"))));
     }
 
+    @Test
     public void patchReplaceMetadataOnItemStillInSubmissionTest() throws Exception {
         context.turnOffAuthorisationSystem();
 
@@ -7916,6 +7917,7 @@ public class WorkspaceItemRestRepositoryIT extends AbstractControllerIntegration
             .andExpect(jsonPath("$.sections.upload.files[0].accessConditions", empty()));
     }
 
+    @Test
     public void deleteWorkspaceItemWithMinRelationshipsTest() throws Exception {
         context.turnOffAuthorisationSystem();
 
@@ -10312,6 +10314,7 @@ ResourcePolicyBuilder.createResourcePolicy(context, null, adminGroup)
             )));
     }
 
+    @Test
     public void verifyBitstreamPolicyNotDuplicatedTest() throws Exception {
         context.turnOffAuthorisationSystem();
 
