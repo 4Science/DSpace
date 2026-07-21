@@ -22,6 +22,7 @@ import java.io.InputStream;
 import java.util.List;
 
 import org.dspace.AbstractIntegrationTestWithDatabase;
+import org.dspace.app.util.XMLUtils;
 import org.dspace.builder.ItemBuilder;
 import org.dspace.content.Collection;
 import org.dspace.content.Community;
@@ -55,7 +56,7 @@ public class CERIFIngestionCrosswalkIT extends AbstractIntegrationTestWithDataba
 
     private CERIFIngestionCrosswalk crosswalk;
 
-    private SAXBuilder builder = new SAXBuilder();
+    private SAXBuilder builder = XMLUtils.getSAXBuilder();
 
     private PluginService pluginService = CoreServiceFactory.getInstance().getPluginService();
 

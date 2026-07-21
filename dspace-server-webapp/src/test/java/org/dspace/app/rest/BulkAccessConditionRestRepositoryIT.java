@@ -42,16 +42,22 @@ public class BulkAccessConditionRestRepositoryIT extends AbstractControllerInteg
             .andExpect(jsonPath("$._embedded.bulkaccessconditionoptions", containsInAnyOrder(allOf(
                 hasJsonPath("$.id", is("default")),
                 hasJsonPath("$.itemAccessConditionOptions", Matchers.containsInAnyOrder(
-                    AccessConditionOptionMatcher.matchAccessConditionOption("openaccess", false , false, null, null),
-                    AccessConditionOptionMatcher.matchAccessConditionOption("embargo", true , false, "+36MONTHS", null),
-                    AccessConditionOptionMatcher.matchAccessConditionOption("administrator", false , false, null, null),
-                    AccessConditionOptionMatcher.matchAccessConditionOption("lease", false , true, null, "+6MONTHS"))
+                    AccessConditionOptionMatcher.matchAccessConditionOption(
+                        "itemOnlyPolicy", false, false, null, null
+                    ),
+                    AccessConditionOptionMatcher.matchAccessConditionOption("openaccess", false, false, null, null),
+                    AccessConditionOptionMatcher.matchAccessConditionOption("embargo", true, false, "+36MONTHS", null),
+                    AccessConditionOptionMatcher.matchAccessConditionOption("administrator", false, false, null, null),
+                    AccessConditionOptionMatcher.matchAccessConditionOption("lease", false, true, null, "+6MONTHS"))
                 ),
                 hasJsonPath("$.bitstreamAccessConditionOptions", Matchers.containsInAnyOrder(
+                    AccessConditionOptionMatcher.matchAccessConditionOption(
+                        "bitstreamOnlyPolicy", false , false, null, null
+                    ),
                     AccessConditionOptionMatcher.matchAccessConditionOption("openaccess", false , false, null, null),
                     AccessConditionOptionMatcher.matchAccessConditionOption("embargo", true , false, "+36MONTHS", null),
-                    AccessConditionOptionMatcher.matchAccessConditionOption("administrator", false , false, null, null),
-                    AccessConditionOptionMatcher.matchAccessConditionOption("lease", false , true, null, "+6MONTHS"))
+                    AccessConditionOptionMatcher.matchAccessConditionOption("lease", false , true, null, "+6MONTHS"),
+                    AccessConditionOptionMatcher.matchAccessConditionOption("administrator", false , false, null, null))
                 )))));
     }
 
@@ -145,12 +151,16 @@ public class BulkAccessConditionRestRepositoryIT extends AbstractControllerInteg
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.id", is("default")))
             .andExpect(jsonPath("$.itemAccessConditionOptions", Matchers.containsInAnyOrder(
+                AccessConditionOptionMatcher.matchAccessConditionOption("itemOnlyPolicy", false , false, null, null),
                 AccessConditionOptionMatcher.matchAccessConditionOption("openaccess", false , false, null, null),
                 AccessConditionOptionMatcher.matchAccessConditionOption("embargo", true , false, "+36MONTHS", null),
                 AccessConditionOptionMatcher.matchAccessConditionOption("administrator", false , false, null, null),
                 AccessConditionOptionMatcher.matchAccessConditionOption("lease", false , true, null, "+6MONTHS"))
             ))
             .andExpect(jsonPath("$.bitstreamAccessConditionOptions", Matchers.containsInAnyOrder(
+                AccessConditionOptionMatcher.matchAccessConditionOption(
+                    "bitstreamOnlyPolicy", false , false, null, null
+                ),
                 AccessConditionOptionMatcher.matchAccessConditionOption("openaccess", false , false, null, null),
                 AccessConditionOptionMatcher.matchAccessConditionOption("embargo", true , false, "+36MONTHS", null),
                 AccessConditionOptionMatcher.matchAccessConditionOption("administrator", false , false, null, null),

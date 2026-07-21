@@ -37,6 +37,7 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.dspace.app.util.XMLUtils;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.content.DSpaceObject;
 import org.dspace.content.Item;
@@ -63,7 +64,7 @@ import org.xml.sax.SAXException;
  * Intended use: cataloging tool in workflow and general curation.
  * The task uses a URL 'template' to compose the service call, e.g.
  *
- * <p>{@code http://www.sherpa.ac.uk/romeo/api29.php?issn=\{dc.identifier.issn\}}
+ * <p>{@code http://www.openpolicyfinder.jisc.ac.uk/api29.php?issn=\{dc.identifier.issn\}}
  *
  * <p>Task will substitute the value of the passed item's metadata field
  * in the {parameter} position. If multiple values are present in the
@@ -176,7 +177,7 @@ public class MetadataWebService extends AbstractCurationTask implements Namespac
         fieldSeparator = (fldSep != null) ? fldSep : " ";
         urlTemplate = taskProperty("template");
         templateParam = urlTemplate.substring(urlTemplate.indexOf("{") + 1,
-                                              urlTemplate.indexOf("}"));
+                urlTemplate.indexOf("}"));
         String[] parsed = parseTransform(templateParam);
         lookupField = parsed[0];
         lookupTransform = parsed[1];
@@ -204,13 +205,9 @@ public class MetadataWebService extends AbstractCurationTask implements Namespac
             }
         }
         // initialize response document parser
-        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-        factory.setNamespaceAware(true);
         try {
-            // disallow DTD parsing to ensure no XXE attacks can occur
-            // See https://cheatsheetseries.owasp.org/cheatsheets/XML_External_Entity_Prevention_Cheat_Sheet.html
-            factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
-            factory.setXIncludeAware(false);
+            DocumentBuilderFactory factory = XMLUtils.getDocumentBuilderFactory();
+            factory.setNamespaceAware(true);
             docBuilder = factory.newDocumentBuilder();
         } catch (ParserConfigurationException pcE) {
             log.error("caught exception: " + pcE);

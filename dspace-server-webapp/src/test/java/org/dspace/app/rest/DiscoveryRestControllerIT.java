@@ -2994,6 +2994,62 @@ public class DiscoveryRestControllerIT extends AbstractControllerIntegrationTest
 
     }
 
+    /**
+     * Tests if the config discovery.solr.fulltext.charLimit properly controls the max solr HitHighlights search
+     * character limits(hl.maxAnalyzedChars)
+     * @throws Exception
+     */
+    @Test
+    public void discoverSearchObjectsTestForHitHighlightsLength() throws Exception {
+        context.turnOffAuthorisationSystem();
+
+        int maxText = configurationService.getIntProperty("discovery.solr.fulltext.charLimit", 100000);
+        configurationService.setProperty("discovery.solr.fulltext.charLimit", "1000");
+
+        parentCommunity = CommunityBuilder.createCommunity(context)
+                                          .withName("Parent Community")
+                                          .build();
+        Collection col1 = CollectionBuilder.createCollection(context, parentCommunity).withName("Collection 1").build();
+        String query = "testhithighlights";
+        Item publicItem1 = ItemBuilder.createItem(context, col1)
+                                      .withTitle("testHitHighlightsShort")
+                                      .withIssueDate("2010-10-17")
+                                      .withAuthor("Wesker, Albert")
+                                      .withSubject("RPD Tunneling department")
+                                      .withDescriptionAbstract(StringUtils.repeat('a', 950) + " " + query)
+                                      .build();
+
+        Item publicItem2 = ItemBuilder.createItem(context, col1)
+                                      .withTitle("testHitHighlightsLong")
+                                      .withIssueDate("1990-02-13")
+                                      .withAuthor("Doe, Jane")
+                                      .withSubject("NEPS")
+                                      .withDescriptionAbstract(StringUtils.repeat('a', 1000) + " " + query)
+                                      .build();
+
+        getClient().perform(get("/api/discover/search/objects")
+                                .param("query", query))
+                   .andExpect(status().isOk())
+                   .andExpect(jsonPath("$.type", is("discover")))
+                   .andExpect(jsonPath("$._embedded.searchResult.page", is(
+                       PageMatcher.pageEntry(0, 20)
+                   )))
+                   .andExpect(jsonPath("$._embedded.searchResult._embedded.objects", Matchers.containsInAnyOrder(
+                       SearchResultMatcher
+                           .matchOnItemNameAndHitHighlight("item", "items",
+                                                           "testHitHighlightsShort", query, "dc.description.abstract"),
+                        SearchResultMatcher
+                            .matchOnItemNameAndNotHitHighlight("item", "items",
+                                                            "testHitHighlightsLong", query, "dc.description.abstract")
+                   )))
+                   .andExpect(jsonPath("$._links.self.href", containsString("/api/discover/search/objects")))
+        ;
+        configurationService.setProperty("discovery.solr.fulltext.charLimit", maxText);
+        CommunityBuilder.deleteCommunity(parentCommunity.getID());
+        context.restoreAuthSystemState();
+
+    }
+
     @Test
     public void discoverSearchObjectsWithQueryOperatorContains_query() throws Exception {
         //We turn off the authorization system in order to create the structure as defined below

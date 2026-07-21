@@ -27,6 +27,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.dspace.app.util.XMLUtils;
 import org.dspace.content.Item;
 import org.dspace.importer.external.datamodel.ImportRecord;
 import org.dspace.importer.external.datamodel.Query;
@@ -149,9 +150,7 @@ public class WOSImportMetadataSourceServiceImpl extends AbstractImportMetadataSo
                     return 0;
                 }
 
-                SAXBuilder saxBuilder = new SAXBuilder();
-                // disallow DTD parsing to ensure no XXE attacks can occur
-                saxBuilder.setFeature("http://apache.org/xml/features/disallow-doctype-decl",true);
+                SAXBuilder saxBuilder = XMLUtils.getSAXBuilder();
                 Document document = saxBuilder.build(new StringReader(response));
                 Element root = document.getRootElement();
                 XPathExpression<Element> xpath = XPathFactory.instance().compile("//*[@name=\"RecordsFound\"]",
@@ -295,9 +294,7 @@ public class WOSImportMetadataSourceServiceImpl extends AbstractImportMetadataSo
 
     private List<Element> splitToRecords(String recordsSrc) {
         try {
-            SAXBuilder saxBuilder = new SAXBuilder();
-            // disallow DTD parsing to ensure no XXE attacks can occur
-            saxBuilder.setFeature("http://apache.org/xml/features/disallow-doctype-decl",true);
+            SAXBuilder saxBuilder = XMLUtils.getSAXBuilder();
             Document document = saxBuilder.build(new StringReader(recordsSrc));
             Element root = document.getRootElement();
             String cData = XPathFactory.instance().compile("//*[@name=\"Records\"]",

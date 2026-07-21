@@ -34,6 +34,7 @@ import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.util.EntityUtils;
+import org.dspace.app.util.XMLUtils;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.content.DSpaceObject;
 import org.dspace.content.Item;
@@ -335,7 +336,7 @@ public class DataCiteConnector
         try {
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             xwalk.disseminate(context, dso, baos);
-            SAXBuilder builder = new SAXBuilder();
+            SAXBuilder builder = XMLUtils.getSAXBuilder();
             Document document = builder.build(new ByteArrayInputStream(baos.toByteArray()));
             root = document.getRootElement();
         } catch (AuthorizeException ae) {
@@ -783,7 +784,7 @@ public class DataCiteConnector
         }
 
         // parse the XML
-        SAXBuilder saxBuilder = new SAXBuilder();
+        SAXBuilder saxBuilder = XMLUtils.getSAXBuilder();
         Document doc = null;
         try {
             doc = saxBuilder.build(new ByteArrayInputStream(content.getBytes("UTF-8")));

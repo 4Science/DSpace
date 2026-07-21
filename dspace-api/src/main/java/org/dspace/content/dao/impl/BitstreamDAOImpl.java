@@ -133,7 +133,7 @@ public class BitstreamDAOImpl extends AbstractHibernateDSODAO<Bitstream> impleme
             "  where mv.dSpaceObject = b and " +
             "  ms.name = 'bitstream' and " +
             "  mf.element = 'hide' and " +
-            "  mf.qualifier = null and " +
+            "  mf.qualifier is null and " +
             "  (mv.value = 'true' or mv.value = 'yes') " +
             ")" +
             " AND (" +

@@ -9,8 +9,7 @@
     -->
     <bean id="org.dspace.identifier.service.IdentifierService"
           class="org.dspace.identifier.IdentifierServiceImpl"
-          autowire="byType"
-          scope="singleton">
+          autowire="byType">
     </bean>
 
     <!-- If you disable versioning, you need to use the default HandleIdentifierProvider. -->
@@ -20,11 +19,11 @@
     </bean>
     -->
 
-      <!-- If you enabled versioning, you should use one of the versioned
-           handle identifier provider instead of the default one.
-           The VersionedHandleIdentifierProvider creates a new versioned
-           handle for every new version.
-           -->
+    <!-- If you enabled versioning, you should use one of the versioned
+         handle identifier provider instead of the default one.
+         The VersionedHandleIdentifierProvider creates a new versioned
+         handle for every new version.
+         -->
     <bean id="org.dspace.identifier.HandleIdentifierProvider" class="org.dspace.identifier.VersionedHandleIdentifierProvider" scope="singleton">
         <property name="configurationService" ref="org.dspace.services.ConfigurationService"/>
     </bean>
@@ -101,10 +100,10 @@
     -->
     <!-- Uncomment this to use the DataCite API directly as DOIConnector.
     <bean id="org.dspace.identifier.doi.DOIConnector"
-        class="org.dspace.identifier.doi.DataCiteConnector"
-        scope="singleton">
+          class="org.dspace.identifier.doi.DataCiteConnector"
+          scope="singleton">
         <property name='DATACITE_SCHEME' value='https'/>
-        <property name='DATACITE_HOST' value='mds.test.datacite.org'/>
+        <property name='DATACITE_HOST' value='${doi.datacite.host}'/>
         <property name='DATACITE_DOI_PATH' value='/doi/' />
         <property name='DATACITE_METADATA_PATH' value='/metadata/' />
         <property name='disseminationCrosswalkByEntityType'>
@@ -165,9 +164,7 @@
         <property name="configurationValue" value="${identifier.doi.namespaceseparator}" />
     </bean>
 
-    &lt;!&ndash; Below there are defined the generation strategy &ndash;&gt;
     <bean id="defaultDoiGenerationStrategy" class="org.dspace.identifier.generators.ConfigurableDoiGenerationStrategy">
-        &lt;!&ndash; Filter configured in item-filters.xml file &ndash;&gt;
         <constructor-arg name="filter" ref="always_true_filter" />
         <constructor-arg name="doiNamespaceGenerator" ref="defaultValueNamespace" />
         <constructor-arg name="generationType" value="DEFAULT" />
@@ -181,7 +178,7 @@
             <map>
                 <entry key="collections">
                     <list>
-                        <value>123456789/6</value>
+                        <value>${doi.generator.collection.publication.handle:-}</value>
                     </list>
                 </entry>
             </map>
@@ -190,17 +187,19 @@
     <bean id="publicationFilter" class="org.dspace.content.logic.DefaultFilter">
         <property name="statement" ref="publicationCollectionCond"/>
     </bean>
+    <bean id="publicationDOIGenerationStrategy" class="org.dspace.identifier.generators.ConfigurableDoiGenerationStrategy">
+        <constructor-arg name="filter" ref="publicationFilter" />
+        <constructor-arg name="doiNamespaceGenerator" ref="defaultValueNamespace" />
+        <constructor-arg name="generationType" value="CUSTOM" />
+    </bean>
+    -->
+<!--
 
     <bean id="publicationGenerator" class="org.dspace.identifier.generators.FixedConfigurationValueNamespaceGenerator">
         <property name="configurationValue" value="publications/dspace-local/" />
     </bean>
 
-    <bean id="thesisDoiGenerationStrategy" class="org.dspace.identifier.generators.ConfigurableDoiGenerationStrategy">
-        <constructor-arg name="filter" ref="publicationFilter" />
-        <constructor-arg name="doiNamespaceGenerator" ref="publicationGenerator" />
-        <constructor-arg name="generationType" value="CUSTOM" />
-    </bean>
-    -->
+-->
     <!-- CUSTOM GENERATORS -->
 
 </beans>

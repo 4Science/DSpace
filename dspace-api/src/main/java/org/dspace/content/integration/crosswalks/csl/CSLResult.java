@@ -10,7 +10,9 @@ package org.dspace.content.integration.crosswalks.csl;
 import static org.apache.commons.lang.ArrayUtils.nullToEmpty;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import de.undercouch.citeproc.output.Bibliography;
 
@@ -29,8 +31,12 @@ public class CSLResult {
 
     private final String citation;
 
-    public CSLResult(String format, String[] itemIds, String[] citationEntries) {
+    public CSLResult(String format, Collection<String> itemIds, String[] citationEntries) {
         this(format, convertToUUIDs(itemIds), citationEntries, null);
+    }
+
+    public CSLResult(String format, String[] itemIds, String[] citationEntries) {
+        this(format, convertToUUIDs(Arrays.stream(itemIds).collect(Collectors.toList())), citationEntries, null);
     }
 
     public CSLResult(String format, UUID[] itemIds, String[] citationEntries) {
@@ -50,8 +56,8 @@ public class CSLResult {
 
     }
 
-    public static CSLResult fromBibliography(String format, Bibliography bibliogr) {
-        UUID[] entryIds = convertToUUIDs(bibliogr.getEntryIds());
+    public static CSLResult fromBibliography(String format, Bibliography bibliogr, Collection<String> itemIds) {
+        UUID[] entryIds = convertToUUIDs(itemIds);
         return new CSLResult(format, entryIds, bibliogr.getEntries(), bibliogr.makeString());
     }
 
@@ -67,8 +73,8 @@ public class CSLResult {
         return citation;
     }
 
-    private static UUID[] convertToUUIDs(String[] itemIds) {
-        return Arrays.stream(nullToEmpty(itemIds))
+    private static UUID[] convertToUUIDs(Collection<String> itemIds) {
+        return itemIds.stream()
             .map(UUID::fromString)
             .toArray(UUID[]::new);
     }

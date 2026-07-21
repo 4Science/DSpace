@@ -55,11 +55,17 @@ public abstract class DSpaceItem implements Item {
 
 
     private List<String> getMetadata(String schema, String element) {
+        if (this.getMetadata() == null || this.getMetadata().getMetadata() == null) {
+            return new ArrayList<>();
+        }
         List<Element> metadata = this.getMetadata().getMetadata().getElement();
         return values(filter(flat(filter(metadata, schema)), element));
     }
 
     private List<String> getMetadata(String schema, String element, String qualifier) {
+        if (this.getMetadata() == null || this.getMetadata().getMetadata() == null) {
+            return new ArrayList<>();
+        }
         List<Element> metadata = this.getMetadata().getMetadata().getElement();
         return values(filter(flat(filter(flat(filter(metadata, schema)), element)), qualifier));
     }

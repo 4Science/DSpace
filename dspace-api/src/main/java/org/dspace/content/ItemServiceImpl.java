@@ -811,7 +811,7 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
     }
 
     @Override
-    public void update(Context context, Item item) throws SQLException, AuthorizeException {
+    public void update(Context context, Item item, boolean updateLastModified) throws SQLException, AuthorizeException {
         // Check authorisation
         // only do write authorization if user is not an editor
         if (!canEdit(context, item)) {
@@ -855,8 +855,11 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
         }
 
         if (item.isMetadataModified() || item.isModified()) {
-            // Set the last modified date
-            item.setLastModified(new Date());
+            if (updateLastModified) {
+                // Set the last modified date
+                item.setLastModified(new Date());
+            }
+
 
             itemDAO.save(context, item);
 
@@ -870,6 +873,11 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
             item.clearModified();
             item.clearDetails();
         }
+    }
+
+    @Override
+    public void update(Context context, Item item) throws SQLException, AuthorizeException {
+        update(context, item, true);
     }
 
 
@@ -2286,7 +2294,7 @@ prevent the generation of resource policy entry values with null dspace_object a
 
         Map<Item, String> profileAndPutCodeMap = orcidHistoryService.findLastPutCodes(context, entity);
         for (Item profile : profileAndPutCodeMap.keySet()) {
-            if (orcidSynchronizationService.isSynchronizationAllowed(profile, entity)) {
+            if (orcidSynchronizationService.isSynchronizationAllowed(context, profile, entity)) {
                 String putCode = profileAndPutCodeMap.get(profile);
                 String title = getMetadataFirstValue(entity, "dc", "title", null, Item.ANY);
                 orcidQueueService.createEntityDeletionRecord(context, profile, title, entityType, putCode);

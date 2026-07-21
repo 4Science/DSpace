@@ -1613,6 +1613,43 @@ public class WorkspaceItemRestRepositoryIT extends AbstractControllerIntegration
 
     @Test
     /**
+     * Test the creation of workspaceitems POSTing to the resource collection endpoint a binary file
+     *
+     * @throws Exception
+     */
+    public void createSingleWorkspaceItemFromBinaryFileTest() throws Exception {
+        context.turnOffAuthorisationSystem();
+
+        Community community = CommunityBuilder.createCommunity(context)
+            .withName("Community")
+            .build();
+        Collection col = CollectionBuilder.createCollection(context, community)
+            .withName("Collection")
+            .withEntityType("Publication")
+            .withSubmissionDefinition("traditional")
+            .withSubmitterGroup(eperson)
+            .build();
+
+
+        InputStream binary = getClass().getResourceAsStream("testfile.bin");
+        final MockMultipartFile binaryFile = new MockMultipartFile("file", "/local/path/testfile.bin",
+            "application/octet-stream", binary);
+
+        context.restoreAuthSystemState();
+
+        String authToken = getAuthToken(eperson.getEmail(), password);
+
+        getClient(authToken).perform(multipart("/api/submission/workspaceitems")
+                .file(binaryFile)
+                .param("embed", "collection"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$._embedded.workspaceitems[0].sections.upload.files", hasSize(1)));
+
+        binary.close();
+    }
+
+    @Test
+    /**
      * Test the creation of workspaceitems POSTing to the resource collection endpoint a tsv file
      *
      * @throws Exception
@@ -9801,7 +9838,7 @@ ResourcePolicyBuilder.createResourcePolicy(context, null, adminGroup)
     }
 
     @Test
-    public void sherpaPolicySectionCacheTest() throws Exception {
+    public void opfPolicySectionCacheTest() throws Exception {
         context.turnOffAuthorisationSystem();
 
         String dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX";
@@ -9829,15 +9866,15 @@ ResourcePolicyBuilder.createResourcePolicy(context, null, adminGroup)
         getClient(token).perform(get("/api/submission/workspaceitems/" + witem.getID()))
                         .andExpect(status().isOk())
                         .andExpect(jsonPath("$", Matchers.allOf(
-                                hasJsonPath("$.sections.sherpaPolicies.sherpaResponse.error", is(false)))))
+                                hasJsonPath("$.sections.opfPolicies.opfResponse.error", is(false)))))
                         .andExpect(jsonPath("$", Matchers.allOf(
-                                hasJsonPath("$.sections.sherpaPolicies.sherpaResponse.journals[0].titles[0]",
+                                hasJsonPath("$.sections.opfPolicies.opfResponse.journals[0].titles[0]",
                                          is("Nature Synthesis")))))
                         .andExpect(jsonPath("$", Matchers.allOf(
-                                hasJsonPath("$.sections.sherpaPolicies.sherpaResponse.journals[0].issns[0]",
+                                hasJsonPath("$.sections.opfPolicies.opfResponse.journals[0].issns[0]",
                                          is("2731-0582")))))
                         .andDo(result -> retrievalTime.set(read(
-                               result.getResponse().getContentAsString(), "$.sections.sherpaPolicies.retrievalTime")));
+                               result.getResponse().getContentAsString(), "$.sections.opfPolicies.retrievalTime")));
 
         Date date = new SimpleDateFormat(dateFormat).parse(retrievalTime.get());
 
@@ -9845,15 +9882,15 @@ ResourcePolicyBuilder.createResourcePolicy(context, null, adminGroup)
         getClient(token).perform(get("/api/submission/workspaceitems/" + witem.getID()))
                         .andExpect(status().isOk())
                         .andExpect(jsonPath("$", Matchers.allOf(
-                                hasJsonPath("$.sections.sherpaPolicies.sherpaResponse.error", is(false)))))
+                                hasJsonPath("$.sections.opfPolicies.opfResponse.error", is(false)))))
                         .andExpect(jsonPath("$", Matchers.allOf(
-                                hasJsonPath("$.sections.sherpaPolicies.sherpaResponse.journals[0].titles[0]",
+                                hasJsonPath("$.sections.opfPolicies.opfResponse.journals[0].titles[0]",
                                          is("Nature Synthesis")))))
                         .andExpect(jsonPath("$", Matchers.allOf(
-                                hasJsonPath("$.sections.sherpaPolicies.sherpaResponse.journals[0].issns[0]",
+                                hasJsonPath("$.sections.opfPolicies.opfResponse.journals[0].issns[0]",
                                          is("2731-0582")))))
                         .andDo(result -> retrievalTime2.set(read(
-                               result.getResponse().getContentAsString(), "$.sections.sherpaPolicies.retrievalTime")));
+                               result.getResponse().getContentAsString(), "$.sections.opfPolicies.retrievalTime")));
 
         Date date2 = new SimpleDateFormat(dateFormat).parse(retrievalTime2.get());
 
@@ -9861,7 +9898,7 @@ ResourcePolicyBuilder.createResourcePolicy(context, null, adminGroup)
 
         // create a list of values to use in add operation
         List<Operation> operations = new ArrayList<>();
-        operations.add(new RemoveOperation("/sections/sherpaPolicies/retrievalTime"));
+        operations.add(new RemoveOperation("/sections/opfPolicies/retrievalTime"));
 
         // empty the cache and verify the retrivatTime
         String patchBody = getPatchContent(operations);
@@ -9870,15 +9907,15 @@ ResourcePolicyBuilder.createResourcePolicy(context, null, adminGroup)
                         .contentType(MediaType.APPLICATION_JSON_PATCH_JSON))
                         .andExpect(status().isOk())
                         .andExpect(jsonPath("$", Matchers.allOf(
-                                hasJsonPath("$.sections.sherpaPolicies.sherpaResponse.error", is(false)))))
+                                hasJsonPath("$.sections.opfPolicies.opfResponse.error", is(false)))))
                         .andExpect(jsonPath("$", Matchers.allOf(
-                                hasJsonPath("$.sections.sherpaPolicies.sherpaResponse.journals[0].titles[0]",
+                                hasJsonPath("$.sections.opfPolicies.opfResponse.journals[0].titles[0]",
                                          is("Nature Synthesis")))))
                         .andExpect(jsonPath("$", Matchers.allOf(
-                                hasJsonPath("$.sections.sherpaPolicies.sherpaResponse.journals[0].issns[0]",
+                                hasJsonPath("$.sections.opfPolicies.opfResponse.journals[0].issns[0]",
                                          is("2731-0582")))))
                         .andDo(result -> retrievalTime.set(read(
-                               result.getResponse().getContentAsString(), "$.sections.sherpaPolicies.retrievalTime")));
+                               result.getResponse().getContentAsString(), "$.sections.opfPolicies.retrievalTime")));
 
         date = new SimpleDateFormat(dateFormat).parse(retrievalTime.get());
 
@@ -9888,22 +9925,22 @@ ResourcePolicyBuilder.createResourcePolicy(context, null, adminGroup)
         getClient(token).perform(get("/api/submission/workspaceitems/" + witem.getID()))
                         .andExpect(status().isOk())
                         .andExpect(jsonPath("$", Matchers.allOf(
-                                hasJsonPath("$.sections.sherpaPolicies.sherpaResponse.error", is(false)))))
+                                hasJsonPath("$.sections.opfPolicies.opfResponse.error", is(false)))))
                         .andExpect(jsonPath("$", Matchers.allOf(
-                                hasJsonPath("$.sections.sherpaPolicies.sherpaResponse.journals[0].titles[0]",
+                                hasJsonPath("$.sections.opfPolicies.opfResponse.journals[0].titles[0]",
                                          is("Nature Synthesis")))))
                         .andExpect(jsonPath("$", Matchers.allOf(
-                                hasJsonPath("$.sections.sherpaPolicies.sherpaResponse.journals[0].issns[0]",
+                                hasJsonPath("$.sections.opfPolicies.opfResponse.journals[0].issns[0]",
                                          is("2731-0582")))))
                         .andDo(result -> retrievalTime2.set(read(
-                               result.getResponse().getContentAsString(), "$.sections.sherpaPolicies.retrievalTime")));
+                               result.getResponse().getContentAsString(), "$.sections.opfPolicies.retrievalTime")));
 
         date2 = new SimpleDateFormat(dateFormat).parse(retrievalTime2.get());
         assertTrue(date.equals(date2));
     }
 
     @Test
-    public void sherpaPolicySectionWithWrongIssnCacheTest() throws Exception {
+    public void opfPolicySectionWithWrongIssnCacheTest() throws Exception {
         context.turnOffAuthorisationSystem();
 
         String dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX";
@@ -9931,13 +9968,13 @@ ResourcePolicyBuilder.createResourcePolicy(context, null, adminGroup)
         getClient(token).perform(get("/api/submission/workspaceitems/" + witem.getID()))
                         .andExpect(status().isOk())
                         .andExpect(jsonPath("$", Matchers.allOf(
-                                hasJsonPath("$.sections.sherpaPolicies.sherpaResponse.error", is(true)))))
+                                hasJsonPath("$.sections.opfPolicies.opfResponse.error", is(true)))))
                         .andExpect(jsonPath("$", Matchers.allOf(
-                              hasJsonPath("$.sections.sherpaPolicies.sherpaResponse.message", is("No results found")))))
+                              hasJsonPath("$.sections.opfPolicies.opfResponse.message", is("No results found")))))
                         .andExpect(jsonPath("$", Matchers.allOf(
-                                hasJsonPath("$.sections.sherpaPolicies.sherpaResponse.journals", nullValue()))))
+                                hasJsonPath("$.sections.opfPolicies.opfResponse.journals", nullValue()))))
                         .andDo(result -> retrievalTime.set(read(
-                               result.getResponse().getContentAsString(), "$.sections.sherpaPolicies.retrievalTime")));
+                               result.getResponse().getContentAsString(), "$.sections.opfPolicies.retrievalTime")));
 
         Date date = new SimpleDateFormat(dateFormat).parse(retrievalTime.get());
 
@@ -9945,13 +9982,13 @@ ResourcePolicyBuilder.createResourcePolicy(context, null, adminGroup)
         getClient(token).perform(get("/api/submission/workspaceitems/" + witem.getID()))
                         .andExpect(status().isOk())
                         .andExpect(jsonPath("$", Matchers.allOf(
-                                hasJsonPath("$.sections.sherpaPolicies.sherpaResponse.error", is(true)))))
+                                hasJsonPath("$.sections.opfPolicies.opfResponse.error", is(true)))))
                         .andExpect(jsonPath("$", Matchers.allOf(
-                              hasJsonPath("$.sections.sherpaPolicies.sherpaResponse.message", is("No results found")))))
+                              hasJsonPath("$.sections.opfPolicies.opfResponse.message", is("No results found")))))
                         .andExpect(jsonPath("$", Matchers.allOf(
-                                hasJsonPath("$.sections.sherpaPolicies.sherpaResponse.journals", nullValue()))))
+                                hasJsonPath("$.sections.opfPolicies.opfResponse.journals", nullValue()))))
                         .andDo(result -> retrievalTime2.set(read(
-                               result.getResponse().getContentAsString(), "$.sections.sherpaPolicies.retrievalTime")));
+                               result.getResponse().getContentAsString(), "$.sections.opfPolicies.retrievalTime")));
 
         Date date2 = new SimpleDateFormat(dateFormat).parse(retrievalTime2.get());
 
@@ -9959,7 +9996,7 @@ ResourcePolicyBuilder.createResourcePolicy(context, null, adminGroup)
 
         // create a list of values to use in add operation
         List<Operation> operations = new ArrayList<>();
-        operations.add(new RemoveOperation("/sections/sherpaPolicies/retrievalTime"));
+        operations.add(new RemoveOperation("/sections/opfPolicies/retrievalTime"));
 
         // empty the cache and verify the retrivatTime
         String patchBody = getPatchContent(operations);
@@ -9968,13 +10005,13 @@ ResourcePolicyBuilder.createResourcePolicy(context, null, adminGroup)
                         .contentType(MediaType.APPLICATION_JSON_PATCH_JSON))
                         .andExpect(status().isOk())
                         .andExpect(jsonPath("$", Matchers.allOf(
-                                hasJsonPath("$.sections.sherpaPolicies.sherpaResponse.error", is(true)))))
+                                hasJsonPath("$.sections.opfPolicies.opfResponse.error", is(true)))))
                         .andExpect(jsonPath("$", Matchers.allOf(
-                              hasJsonPath("$.sections.sherpaPolicies.sherpaResponse.message", is("No results found")))))
+                              hasJsonPath("$.sections.opfPolicies.opfResponse.message", is("No results found")))))
                         .andExpect(jsonPath("$", Matchers.allOf(
-                                hasJsonPath("$.sections.sherpaPolicies.sherpaResponse.journals", nullValue()))))
+                                hasJsonPath("$.sections.opfPolicies.opfResponse.journals", nullValue()))))
                         .andDo(result -> retrievalTime.set(read(
-                               result.getResponse().getContentAsString(), "$.sections.sherpaPolicies.retrievalTime")));
+                               result.getResponse().getContentAsString(), "$.sections.opfPolicies.retrievalTime")));
 
         date = new SimpleDateFormat(dateFormat).parse(retrievalTime.get());
 
@@ -9984,13 +10021,13 @@ ResourcePolicyBuilder.createResourcePolicy(context, null, adminGroup)
         getClient(token).perform(get("/api/submission/workspaceitems/" + witem.getID()))
                         .andExpect(status().isOk())
                         .andExpect(jsonPath("$", Matchers.allOf(
-                                hasJsonPath("$.sections.sherpaPolicies.sherpaResponse.error", is(true)))))
+                                hasJsonPath("$.sections.opfPolicies.opfResponse.error", is(true)))))
                         .andExpect(jsonPath("$", Matchers.allOf(
-                              hasJsonPath("$.sections.sherpaPolicies.sherpaResponse.message", is("No results found")))))
+                              hasJsonPath("$.sections.opfPolicies.opfResponse.message", is("No results found")))))
                         .andExpect(jsonPath("$", Matchers.allOf(
-                                hasJsonPath("$.sections.sherpaPolicies.sherpaResponse.journals", nullValue()))))
+                                hasJsonPath("$.sections.opfPolicies.opfResponse.journals", nullValue()))))
                         .andDo(result -> retrievalTime2.set(read(
-                               result.getResponse().getContentAsString(), "$.sections.sherpaPolicies.retrievalTime")));
+                               result.getResponse().getContentAsString(), "$.sections.opfPolicies.retrievalTime")));
 
         date2 = new SimpleDateFormat(dateFormat).parse(retrievalTime2.get());
         assertTrue(date.equals(date2));

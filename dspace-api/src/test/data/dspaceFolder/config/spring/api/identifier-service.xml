@@ -41,7 +41,7 @@
     </bean>
 
     <bean id="org.dspace.identifier.doi.DOIConnector"
-          class="org.dspace.identifier.doi.DataCiteConnector">
+          class="org.dspace.identifier.doi.MockDataCiteConnector">
       <property name='DATACITE_SCHEME' value='https'/>
       <property name='DATACITE_HOST' value='mds.test.datacite.org'/>
       <property name='DATACITE_DOI_PATH' value='/doi/'/>
