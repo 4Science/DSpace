@@ -85,7 +85,7 @@ public class CanImportMetadataFeatureIT extends AbstractControllerIntegrationTes
         getClient(tokenAdmin).perform(get("/api/authz/authorizations/missingScript" ))
                 .andExpect(status().isNotFound());
         getClient(epersonToken).perform(get("/api/authz/authorizations/missingScript" ))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isNotFound());
     }
 
 
