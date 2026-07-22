@@ -101,15 +101,15 @@ public interface CollectionService
      */
     public List<Collection> findAll(Context context, Integer limit, Integer offset) throws SQLException;
 
-    public List<Collection> findAuthorizedOptimized(Context context, int actionID) throws java.sql.SQLException;
+    public List<Collection> findAuthorizedOptimized(Context context, int actionID) throws SQLException;
 
-    public List<Collection> findDirectMapped(Context context, int actionID) throws java.sql.SQLException;
+    public List<Collection> findDirectMapped(Context context, int actionID) throws SQLException;
 
     public List<Collection> findGroup2CommunityMapped(Context context) throws SQLException;
 
     public List<Collection> findGroup2GroupMapped(Context context, int actionID) throws SQLException;
 
-    public List<Collection> findGroupMapped(Context context, int actionID) throws java.sql.SQLException;
+    public List<Collection> findGroupMapped(Context context, int actionID) throws SQLException;
 
     /**
      * Give the collection a logo. Passing in <code>null</code> removes any
@@ -306,7 +306,7 @@ public interface CollectionService
     public boolean canEditBoolean(Context context, Collection collection) throws SQLException;
 
     public boolean canEditBoolean(Context context, Collection collection, boolean useInheritance)
-        throws java.sql.SQLException;
+        throws SQLException;
 
     public void canEdit(Context context, Collection collection) throws SQLException, AuthorizeException;
 
@@ -325,7 +325,19 @@ public interface CollectionService
      * @throws SQLException if database error
      */
     public List<Collection> findAuthorized(Context context, Community community, int actionID)
-        throws java.sql.SQLException;
+        throws SQLException;
+
+    /**
+     * return an array of collections that user has a given permission on
+     *
+     * @param context DSpace Context
+     * @param community (optional) restrict search to a community, else null
+     * @param actions  List of the of the action ADD, READ, ADMIN, etc.
+     * @return Collection [] of collections with matching permissions
+     * @throws SQLException if database error
+     */
+    public List<Collection> findAuthorized(Context context, Community community, List<Integer> actions)
+        throws SQLException;
 
     /**
      *
@@ -393,6 +405,23 @@ public interface CollectionService
      * @throws SearchServiceException    if search error
      */
     public List<Collection> findCollectionsWithSubmit(String q, Context context, Community community,
+            String entityType, int offset, int limit) throws SQLException, SearchServiceException;
+
+    /**
+     * Returns collections for which the current user has 'submit' privileges.
+     * Context-first overload (DSpace 8.4 signature).
+     *
+     * @param context          DSpace Context
+     * @param q                limit the returned collection to those with metadata values matching the query terms
+     * @param community        parent community, could be null
+     * @param entityType       limit the returned collection to those related to given entity type
+     * @param offset           the position of the first result to return
+     * @param limit            paging limit
+     * @return                 discovery search result objects
+     * @throws SQLException              if something goes wrong
+     * @throws SearchServiceException    if search error
+     */
+    public List<Collection> findCollectionsWithSubmit(Context context, String q, Community community,
             String entityType, int offset, int limit) throws SQLException, SearchServiceException;
 
     /**
@@ -555,6 +584,21 @@ public interface CollectionService
      * @throws SearchServiceException    if search error
      */
     public int countCollectionsWithSubmit(String q, Context context, Community community, String entityType)
+        throws SQLException, SearchServiceException;
+
+    /**
+     * Counts the collections for which the current user has 'submit' privileges.
+     * Context-first overload (DSpace 8.4 signature).
+     *
+     * @param context          DSpace Context
+     * @param q                limit the returned collection to those with metadata values matching the query terms
+     * @param community        parent community, could be null
+     * @param entityType       limit the returned collection to those related to given entity type
+     * @return                 total collections found
+     * @throws SQLException              if something goes wrong
+     * @throws SearchServiceException    if search error
+     */
+    public int countCollectionsWithSubmit(Context context, String q, Community community, String entityType)
         throws SQLException, SearchServiceException;
 
     /**
