@@ -82,6 +82,7 @@ public class SendLDNMessageActionIT extends AbstractIntegrationTestWithDatabase 
     private LDNMessageService ldnMessageService = NotifyServiceFactory.getInstance().getLDNMessageService();
     private WorkflowService workflowService = WorkflowServiceFactory.getInstance().getWorkflowService();
     private SendLDNMessageAction sendLDNMessageAction;
+    private ConfigurationService configurationService = DSpaceServicesFactory.getInstance().getConfigurationService();
 
     @BeforeClass
     public static void tearUp() {

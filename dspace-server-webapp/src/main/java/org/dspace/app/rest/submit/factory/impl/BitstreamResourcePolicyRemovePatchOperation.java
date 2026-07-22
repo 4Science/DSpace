@@ -88,7 +88,7 @@ public class BitstreamResourcePolicyRemovePatchOperation
             List<ResourcePolicy> defaultCollectionPolicies = authorizeService
                 .getPoliciesActionFilter(context, item.getOwningCollection(), Constants.DEFAULT_BITSTREAM_READ);
 
-            itemService.addDefaultPoliciesNotInPlace(context, bitstream, defaultCollectionPolicies);
+            authorizeService.addDefaultPoliciesNotInPlace(context, bitstream, defaultCollectionPolicies);
         }
 
         if (bitstream != null) {
