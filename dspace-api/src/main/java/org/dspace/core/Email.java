@@ -361,7 +361,7 @@ public class Email {
     public void send() throws MessagingException, IOException {
         build();
         boolean disabled = getConfigurationService().getBooleanProperty("mail.server.disabled", false);
-        String[] fixedRecipients = config.getArrayProperty("mail.server.fixedRecipient");
+        String[] fixedRecipients = getConfigurationService().getArrayProperty("mail.server.fixedRecipient");
         if (disabled) {
             String formattedMessage = format(message, body);
 
@@ -397,8 +397,8 @@ public class Email {
 
         // Get the mail configuration properties
         String from = getConfigurationService().getProperty("mail.from.address");
-        boolean disabled = config.getBooleanProperty("mail.server.disabled", false);
-        String[] fixedRecipients = config.getArrayProperty("mail.server.fixedRecipient");
+        boolean disabled = getConfigurationService().getBooleanProperty("mail.server.disabled", false);
+        String[] fixedRecipients = getConfigurationService().getArrayProperty("mail.server.fixedRecipient");
 
         // If no character set specified, attempt to retrieve a default
         if (charset == null) {
@@ -549,7 +549,7 @@ public class Email {
         StringBuilder text =
             new StringBuilder("Message not sent due to mail.server.disabled:\n");
 
-        String[] fixedRecipients = config.getArrayProperty("mail.server.fixedRecipient");
+        String[] fixedRecipients = getConfigurationService().getArrayProperty("mail.server.fixedRecipient");
 
         if (fixedRecipients.length > 0) {
             text.append("\n===REAL RECIPIENT===\n");
