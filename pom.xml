@@ -30,7 +30,7 @@
         <flyway.version>10.22.0</flyway.version>
         <solr.client.version>8.11.4</solr.client.version>
 
-        <ehcache.version>3.12.8</ehcache.version>
+        <ehcache.version>3.12.0</ehcache.version>
         <errorprone.version>2.42.0</errorprone.version>
         <!-- NOTE: when updating jackson.version, also sync jackson-databind.version below -->
         <jackson.version>2.21.3</jackson.version>
@@ -68,8 +68,8 @@
 
         <s3mock-testcontainers.version>4.11.0</s3mock-testcontainers.version>
         <testcontainers.version>2.0.3</testcontainers.version>
-        <software.amazon.awssdk.version>2.32.31</software.amazon.awssdk.version>
-        <software.amazon.awssdk.crt.version>0.38.12</software.amazon.awssdk.crt.version>
+        <software.amazon.awssdk.version>2.43.2</software.amazon.awssdk.version>
+        <software.amazon.awssdk.crt.version>0.45.2</software.amazon.awssdk.crt.version>
         <spring-ldap.version>3.3.7</spring-ldap.version>
         <jackson-annotations.version>2.21</jackson-annotations.version>
 
