@@ -67,7 +67,7 @@ public class RorImportMetadataSourceServiceIT extends AbstractLiveImportIntegrat
             assertThat(record.getSingleValue("organization.identifier.ror"), is("https://ror.org/05hknds03"));
             assertThat(record.getSingleValue("oairecerif.acronym"), is("UACS"));
             assertThat(record.getSingleValue("oairecerif.identifier.url"), is("https://uacs.edu.mk"));
-            assertThat(record.getSingleValue("dc.type"), is("education"));
+            assertThat(record.getSingleValue("dc.type"), is("Education"));
             assertThat(record.getSingleValue("organization.address.addressCountry"), is("MK"));
             assertThat(record.getSingleValue("organization.address.addressLocality"), is("Skopje"));
             assertThat(record.getSingleValue("organization.foundingDate"), is("2005"));
