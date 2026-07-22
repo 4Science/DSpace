@@ -230,6 +230,12 @@ public class BitstreamRestController {
             return false;
         }
 
+        // A null/undefined MIME Type (BitstreamFormat.getMIMEType() returns null for a "null" mimetype,
+        // see DSC-2402) cannot be safely displayed inline, so it should be downloaded.
+        if (format.getMIMEType() == null) {
+            return false;
+        }
+
         // Return false for BANNED inline formats. Some formats, especially XML / HTML / Javascript based formats,
         // when loaded inline may be susceptible to XSS attacks. Therefore, we will refuse to allow those formats to be
         // displayed inline for security purposes.
