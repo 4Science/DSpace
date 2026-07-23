@@ -7927,8 +7927,14 @@ public class WorkspaceItemRestRepositoryIT extends AbstractControllerIntegration
         parentCommunity = CommunityBuilder.createCommunity(context)
                                           .withName("Parent Community")
                                           .build();
-        Collection col1 = CollectionBuilder.createCollection(context, parentCommunity).withName("Collection 1")
-                                           .withEntityType("Person").build();
+        Collection col1 = CollectionBuilder.createCollection(context, parentCommunity)
+                                           .withName("Collection 1")
+                                           .withEntityType("Person")
+                                           .build();
+        Collection col2 = CollectionBuilder.createCollection(context, parentCommunity)
+                                           .withName("Publication Collection")
+                                           .withEntityType("Publication")
+                                           .build();
 
         Item author1 = ItemBuilder.createItem(context, col1)
                                   .withTitle("Author1")
@@ -7945,12 +7951,16 @@ public class WorkspaceItemRestRepositoryIT extends AbstractControllerIntegration
                                   .build();
 
         //2. One workspace item.
-        WorkspaceItem workspaceItem = WorkspaceItemBuilder.createWorkspaceItem(context, col1)
-                                                          .withEntityType("Publication")
-                                                          .build();
+        WorkspaceItem workspaceItem = WorkspaceItemBuilder.createWorkspaceItem(context, col2).build();
 
-        EntityType publication = EntityTypeBuilder.createEntityTypeBuilder(context, "Publication").build();
-        EntityType person = EntityTypeBuilder.createEntityTypeBuilder(context, "Person").build();
+        EntityType publication = entityTypeService.findByEntityType(context, "Publication");
+        if (publication == null) {
+            publication = EntityTypeBuilder.createEntityTypeBuilder(context, "Publication").build();
+        }
+        EntityType person = entityTypeService.findByEntityType(context, "Person");
+        if (person == null) {
+            person = EntityTypeBuilder.createEntityTypeBuilder(context, "Person").build();
+        }
 
 
         RelationshipType isAuthorOfPublication = RelationshipTypeBuilder
@@ -7988,7 +7998,6 @@ public class WorkspaceItemRestRepositoryIT extends AbstractControllerIntegration
                 .andExpect(status().is(404));
         getClient(token).perform(get("/api/core/relationships/" + relationship2.getID()))
                 .andExpect(status().is(404));
-
     }
 
     @Test
