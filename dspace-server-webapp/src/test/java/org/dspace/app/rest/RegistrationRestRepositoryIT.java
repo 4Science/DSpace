@@ -662,16 +662,39 @@ public class RegistrationRestRepositoryIT extends AbstractControllerIntegrationT
     @Test
     public void givenRegistrationDataWithEmail_whenPatchWithDifferentToken_thenThrowError()
         throws Exception {
-        // Create first registration request of type "external-login" with an associated email address.
+
+        // Create first registration
+        ObjectMapper mapper = new ObjectMapper();
+        RegistrationRest registrationRest = new RegistrationRest();
+        registrationRest.setEmail(eperson.getEmail());
+        registrationRest.setUser(eperson.getID());
+
+        // Post first RegistrationData to create registration entry
+        getClient().perform(post("/api/eperson/registrations")
+                                .param(TYPE_QUERY_PARAM, TYPE_REGISTER)
+                                .content(mapper.writeValueAsBytes(registrationRest))
+                                .contentType(contentType))
+                   .andExpect(status().isCreated());
+
         RegistrationData registrationData =
-            createNewRegistrationData(null, "test@example.org", RegistrationTypeEnum.ORCID);
+            registrationDataService.findByEmail(context, registrationRest.getEmail());
 
         assertThat(registrationData, notNullValue());
         assertThat(registrationData.getToken(), not(emptyOrNullString()));
 
-        // Create second registration request of type "external-login" with a different associated email address.
+        // Create second registration with different email
+        RegistrationRest registration2Rest = new RegistrationRest();
+        registration2Rest.setEmail("person@example.org");
+
+        // Post second RegistrationData to create registration entry
+        getClient().perform(post("/api/eperson/registrations")
+                                .param(TYPE_QUERY_PARAM, TYPE_REGISTER)
+                                .content(mapper.writeValueAsBytes(registration2Rest))
+                                .contentType(contentType))
+                   .andExpect(status().isCreated());
+
         RegistrationData registration2Data =
-            createNewRegistrationData(null, "different@example.org", RegistrationTypeEnum.ORCID);
+            registrationDataService.findByEmail(context, registration2Rest.getEmail());
 
         assertThat(registration2Data, notNullValue());
         assertThat(registration2Data.getToken(), not(emptyOrNullString()));
