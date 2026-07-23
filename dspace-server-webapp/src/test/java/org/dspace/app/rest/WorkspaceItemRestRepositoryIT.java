@@ -2422,7 +2422,8 @@ public class WorkspaceItemRestRepositoryIT extends AbstractControllerIntegration
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$._embedded.item.metadata['dc.title'][0].value", is("SimpleTitle")))
                 .andExpect(jsonPath("$._embedded.item.metadata['dc.date.issued'][0].value", is(today)))
-                .andExpect(jsonPath("$._embedded.item.metadata['cris.policy.eperson'][0].value", is(user.getEmail())))
+                .andExpect(jsonPath("$._embedded.item.metadata['cris.policy.eperson'][0].value",
+                                 is(user.getFullName())))
                 .andExpect(jsonPath("$._embedded.item.metadata['cris.policy.eperson'][0].authority",
                                  is(user.getID().toString())))
                 .andExpect(jsonPath("$._embedded.item.metadata['cris.policy.group'][0].value", is(group.getName())))
