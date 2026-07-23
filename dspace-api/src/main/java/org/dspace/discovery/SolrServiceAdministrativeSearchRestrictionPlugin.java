@@ -13,6 +13,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.dspace.authorize.service.AuthorizeService;
@@ -28,14 +29,16 @@ import org.springframework.beans.factory.annotation.Autowired;
  */
 public class SolrServiceAdministrativeSearchRestrictionPlugin implements SolrServiceSearchPlugin {
 
-    private static final Logger log =
-        org.apache.logging.log4j.LogManager.getLogger(SolrServiceAdministrativeSearchRestrictionPlugin.class);
+    private static final Logger log = LogManager.getLogger(SolrServiceAdministrativeSearchRestrictionPlugin.class);
+
     public static final String SEARCH_CONFIGURATION_PREFIX = "administrative";
 
     @Autowired
     protected AuthorizeService authorizeService;
     @Autowired
     protected GroupService groupService;
+    @Autowired
+    protected SearchService searchService;
 
     private static boolean isAdministrativeConfiguration(DiscoverQuery discoveryQuery) {
         return discoveryQuery != null &&
@@ -62,18 +65,28 @@ public class SolrServiceAdministrativeSearchRestrictionPlugin implements SolrSer
                 return;
             }
 
-            // Applies filter query to restrict search results to only those that are administrate by the current user
-            solrQuery.addFilterQuery(
+            // Applies filter query to restrict search results to only those that are administrated by the
+            // current user. Direct ADMIN permissions are matched via the "admin" field, while inherited ADMIN
+            // permissions are resolved at query-time through the location-ancestor field (same mechanism used
+            // by SolrServiceResourceRestrictionPlugin).
+            String epersonAndGroupClause =
                 Stream.concat(
                           groupService.allMemberGroupsSet(context, context.getCurrentUser())
                                       .stream()
                                       .map(group -> "g" + group.getID()),
                           Stream.of(context.getCurrentUser())
                                 .filter(Objects::nonNull)
-                                .map(eperson -> String.valueOf(eperson.getID()))
+                                .map(eperson -> "e" + eperson.getID())
                       )
-                      .collect(Collectors.joining(" OR ", "admin:(", ")"))
-            );
+                      .collect(Collectors.joining(" OR "));
+
+            StringBuilder resourceQuery = new StringBuilder("admin:(").append(epersonAndGroupClause).append(")");
+
+            String locations = searchService.createLocationQueryForAdministrableDSOs(epersonAndGroupClause);
+            if (StringUtils.isNotBlank(locations)) {
+                resourceQuery.append(" OR ").append(locations);
+            }
+            solrQuery.addFilterQuery(resourceQuery.toString());
         } catch (SQLException e) {
             log.error(LogHelper.getHeader(context, "Error while adding resource policy information to query", ""), e);
         }
