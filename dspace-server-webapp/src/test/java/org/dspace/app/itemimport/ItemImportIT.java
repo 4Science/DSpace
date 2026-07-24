@@ -65,6 +65,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.test.web.servlet.ResultMatcher;
 
 /**
  * Basic integration testing for the SAF Import feature via UI {@link ItemImport}.
@@ -88,6 +89,9 @@ public class ItemImportIT extends AbstractEntityIntegrationTest {
     private ProcessService processService;
     @Autowired
     private DSpaceRunnableParameterConverter dSpaceRunnableParameterConverter;
+    @Autowired
+    private ObjectMapper mapper;
+
     private Collection collection;
     private Path workDir;
     private static final String TEMP_DIR = ItemImport.TEMP_DIR;
@@ -238,6 +242,39 @@ public class ItemImportIT extends AbstractEntityIntegrationTest {
 
         // reinstate old configuration
         configurationService.setProperty("dspace.task.executor", oldExecutor);
+    }
+
+    @Test
+    public void importItemUsingInvalidZipName() throws Exception {
+        String zipfileName = "saf-bitstreams.zip";
+        // This zip name is invalid as it must only contain a file name.
+        // This is an example path traversal attack.
+        String badZipFileName = "../../../" + zipfileName;
+
+        // First attack attempt. Provide a path traversal via both "-z" param and "filename" of multipart request.
+        LinkedList<DSpaceCommandLineParameter> parameters = new LinkedList<>();
+        parameters.add(new DSpaceCommandLineParameter("-a", ""));
+        parameters.add(new DSpaceCommandLineParameter("-c", collection.getID().toString()));
+        parameters.add(new DSpaceCommandLineParameter("-z", badZipFileName));
+        MockMultipartFile bitstreamFile = new MockMultipartFile("file", badZipFileName,
+                                                                MediaType.APPLICATION_OCTET_STREAM_VALUE,
+                                                                getClass().getResourceAsStream("saf-bitstreams.zip"));
+
+        // Verify this import will fail and throw a 422 error
+        performImportScriptExpectError(parameters, bitstreamFile, status().isUnprocessableEntity());
+
+        // Second attack attempt. Provide a path traversal via "-z" param but a VALID file in "filename"
+        // of multipart request.
+        parameters = new LinkedList<>();
+        parameters.add(new DSpaceCommandLineParameter("-a", ""));
+        parameters.add(new DSpaceCommandLineParameter("-c", collection.getID().toString()));
+        parameters.add(new DSpaceCommandLineParameter("-z", badZipFileName));
+        bitstreamFile = new MockMultipartFile("file", zipfileName,
+                                              MediaType.APPLICATION_OCTET_STREAM_VALUE,
+                                              getClass().getResourceAsStream("saf-bitstreams.zip"));
+
+        // Verify this import will also fail and throw a 422 error
+        performImportScriptExpectError(parameters, bitstreamFile, status().isUnprocessableEntity());
     }
 
     @Test
@@ -501,5 +538,24 @@ public class ItemImportIT extends AbstractEntityIntegrationTest {
                 ProcessMatcher.matchProcess("import", String.valueOf(admin.getID()),
                     processId, parameters, ProcessStatus.COMPLETED))));
         ProcessBuilder.deleteProcess(processId);
+    }
+
+    private void performImportScriptExpectError(LinkedList<DSpaceCommandLineParameter> parameters,
+                                               MockMultipartFile bitstreamFile,
+                                               ResultMatcher expectedErrorMatcher)
+        throws Exception {
+        List<ParameterValueRest> list = parameters.stream()
+                                                  .map(dSpaceCommandLineParameter -> dSpaceRunnableParameterConverter
+                                                      .convert(dSpaceCommandLineParameter, Projection.DEFAULT))
+                                                  .collect(Collectors.toList());
+
+        AtomicReference<Integer> idRef = new AtomicReference<>();
+
+        // Verify process fails
+        getClient(getAuthToken(admin.getEmail(), password))
+            .perform(multipart("/api/system/scripts/import/processes")
+                         .file(bitstreamFile)
+                         .param("properties", mapper.writeValueAsString(list)))
+            .andExpect(expectedErrorMatcher);
     }
 }
