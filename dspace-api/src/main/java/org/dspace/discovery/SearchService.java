@@ -93,22 +93,6 @@ public interface SearchService {
     String createLocationQueryForAdministrableDSOs(String epersonAndGroupClause);
 
     /**
-     * Method to create a  Query that includes all
-     * communities and collections a user may administrate.
-     * If a user has the appropriate rights to administrate communities and/or
-     * collections we want to look up all contents of those communities and/or
-     * collections, ignoring the read policies of the items (e.g. to list all
-     * private items of communities/collections the user administrates). This
-     * method returns a query to filter for items that belong to those
-     * communities/collections only.
-     *
-     * @param context The relevant DSpace Context.
-     * @return query string specific to the user's rights
-     * @throws SQLException An exception that provides information on a database access error or other errors.
-     */
-    String createLocationQueryForAdministrableItems(Context context) throws SQLException;
-
-    /**
      * Transforms the metadata field of the given sort configuration into the indexed field which we can then use in
      * our Solr queries.
      *
