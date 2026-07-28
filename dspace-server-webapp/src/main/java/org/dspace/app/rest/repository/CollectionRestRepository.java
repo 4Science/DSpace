@@ -188,10 +188,10 @@ public class CollectionRestRepository extends DSpaceObjectRestRepository<Collect
                     CommunityRest.CATEGORY + "." + CommunityRest.NAME + " with id: " + communityUuid
                         + " not found");
             }
-            List<Collection> collections = cs.findCollectionsWithSubmit(q, context, com, null,
+            List<Collection> collections = cs.findCollectionsWithSubmit(context, q, com, null,
                                               Math.toIntExact(pageable.getOffset()),
                                               Math.toIntExact(pageable.getPageSize()));
-            int tot = cs.countCollectionsWithSubmit(q, context, com, null);
+            int tot = cs.countCollectionsWithSubmit(context, q, com, null);
             return converter.toRestPage(collections, pageable, tot , utils.obtainProjection());
         } catch (SQLException | SearchServiceException e) {
             throw new RuntimeException(e.getMessage(), e);
@@ -203,12 +203,12 @@ public class CollectionRestRepository extends DSpaceObjectRestRepository<Collect
                                                 Pageable pageable) throws SearchServiceException {
         try {
             Context context = obtainContext();
-            List<Collection> collections = cs.findCollectionsWithSubmit(q, context, null, null,
+            List<Collection> collections = cs.findCollectionsWithSubmit(context, q, null, null,
                                               Math.toIntExact(pageable.getOffset()),
                                               Math.toIntExact(pageable.getPageSize()));
-            int tot = cs.countCollectionsWithSubmit(q, context, null, null);
+            int tot = cs.countCollectionsWithSubmit(context, q, null, null);
             return converter.toRestPage(collections, pageable, tot, utils.obtainProjection());
-        } catch (SQLException e) {
+        } catch (SQLException | SearchServiceException e) {
             throw new RuntimeException(e.getMessage(), e);
         }
     }
@@ -351,10 +351,10 @@ public class CollectionRestRepository extends DSpaceObjectRestRepository<Collect
             if (entityType == null) {
                 throw new ResourceNotFoundException("There was no entityType found with label: " + entityTypeLabel);
             }
-            List<Collection> collections = cs.findCollectionsWithSubmit(query, context, null, entityTypeLabel,
+            List<Collection> collections = cs.findCollectionsWithSubmit(context, query, null, entityTypeLabel,
                 Math.toIntExact(pageable.getOffset()),
                 Math.toIntExact(pageable.getPageSize()));
-            int tot = cs.countCollectionsWithSubmit(query, context, null, entityTypeLabel);
+            int tot = cs.countCollectionsWithSubmit(context, query, null, entityTypeLabel);
             return converter.toRestPage(collections, pageable, tot, utils.obtainProjection());
         } catch (SQLException e) {
             throw new RuntimeException(e.getMessage(), e);
@@ -390,10 +390,10 @@ public class CollectionRestRepository extends DSpaceObjectRestRepository<Collect
                 throw new ResourceNotFoundException(
                     CommunityRest.CATEGORY + "." + CommunityRest.NAME + " with id: " + communityUuid + " not found");
             }
-            List<Collection> collections = cs.findCollectionsWithSubmit(query, context, community, entityTypeLabel,
+            List<Collection> collections = cs.findCollectionsWithSubmit(context, query, community, entityTypeLabel,
                 Math.toIntExact(pageable.getOffset()),
                 Math.toIntExact(pageable.getPageSize()));
-            int total = cs.countCollectionsWithSubmit(query, context, community, entityTypeLabel);
+            int total = cs.countCollectionsWithSubmit(context, query, community, entityTypeLabel);
             return converter.toRestPage(collections, pageable, total, utils.obtainProjection());
         } catch (SQLException | SearchServiceException e) {
             throw new RuntimeException(e.getMessage(), e);

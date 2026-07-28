@@ -74,9 +74,6 @@ public class S3BitStoreServiceIT extends AbstractIntegrationTestWithDatabase {
     private static S3Presigner s3Presigner;
 
     private static final String DEFAULT_BUCKET_NAME = "dspace-asset-localhost";
-    public static final String S3_ENDPOINT = "http://127.0.0.1:8001";
-    public static final int MAX_CONNECTIONS = 5;
-    public static final int CONNECTION_TIMEOUT = 1000;
 
     private S3BitStoreService s3BitStoreService;
 

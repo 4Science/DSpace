@@ -59,6 +59,7 @@
                 <value>researcherid</value>
                 <value>mailto</value>
                 <value>ror</value>
+                <value>core</value>
             </list>
         </constructor-arg>
     </bean>

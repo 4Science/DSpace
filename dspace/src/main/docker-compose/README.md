@@ -70,14 +70,14 @@ OPTIONALLY, you can build DSpace-CRIS images using a different JDK_VERSION like 
 ```
 docker compose -f docker-compose.yml -f docker-compose-cli.yml build --build-arg JDK_VERSION=17
 ```
-Default is Java 11, but other LTS releases (e.g. 17) are also supported.
+Default is Java 17
 
-## Run DSpace-CRIS 2024_02_x REST from your current branch
+## Run DSpace-CRIS 2025_02_x REST from your current branch
 ```
 docker compose -p dcris25 up -d
 ```
 
-## Run DSpace-CRIS 2024_02_x REST and Angular from your branch
+## Run DSpace-CRIS 2025_02_x REST and Angular from your branch
 
 ```
 docker compose -p dcris25 -f docker-compose.yml -f dspace/src/main/docker-compose/docker-compose-angular.yml up -d
@@ -90,7 +90,7 @@ NOTE: This starts the UI in development mode. It will take a few minutes to see 
 
 See documentation in [DSpace User Interface Docker instructions](https://github.com/DSpace/dspace-angular/blob/main/docker/README.md#run-dspace-rest-and-dspace-angular-from-local-branches).
 
-## Run DSpace-CRIS 2024_02_x REST with a IIIF Image Server from your branch
+## Run DSpace-CRIS 2025_02_x REST with a IIIF Image Server from your branch
 *Only useful for testing IIIF support in a development environment*
 
 This command starts our `dspace-iiif` container alongside the REST API.
@@ -101,7 +101,7 @@ which can be used when IIIF support is enabled in DSpace-CRIS (`iiif.enabled=tru
 docker compose -p dcris25 -f docker-compose.yml -f dspace/src/main/docker-compose/docker-compose-iiif.yml up -d
 ```
 
-## Run DSpace-CRIS 2024_02_x REST and Shibboleth SP (in Apache) from your branch
+## Run DSpace-CRIS 2025_02_x REST and Shibboleth SP (in Apache) from your branch
 *Only useful for testing Shibboleth in a development environment*
 
 This Shibboleth container uses https://samltest.id/ as an IdP (see `../docker/dspace-shibboleth/`).

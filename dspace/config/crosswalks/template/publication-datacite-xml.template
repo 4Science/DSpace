@@ -31,6 +31,9 @@
   <titles>
     <title>@dc.title@</title>
   </titles>
+  @if.not.metadata.dc-publisher.start@
+   <publisher>(:unav)</publisher>
+  @if.not.metadata.dc-publisher.end@
   @if.metadata.dc-publisher.start@
   <publisher
   @relation.dc-publisher.start@

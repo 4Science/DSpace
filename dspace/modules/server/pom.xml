@@ -7,15 +7,13 @@
     <parent>
         <artifactId>modules</artifactId>
         <groupId>org.dspace</groupId>
-        <version>cris-2025.02.00-SNAPSHOT</version>
+        <version>cris-2025.02.02-SNAPSHOT</version>
         <relativePath>..</relativePath>
     </parent>
-
     <properties>
         <!-- This is the path to the root [dspace-src] directory. -->
         <root.basedir>${basedir}/../../..</root.basedir>
     </properties>
-
     <build>
         <plugins>
             <!-- Unpack the "additions" module into our target directory,
@@ -113,7 +111,6 @@
             </plugin>
         </plugins>
     </build>
-
     <profiles>
         <!-- Setup the Unit Test Environment (when -DskipUnitTests=false) -->
         <profile>
@@ -155,7 +152,6 @@
                             </execution>
                         </executions>
                     </plugin>
-
                     <!-- Run Unit Testing! This plugin just kicks off the tests (when enabled). -->
                     <plugin>
                         <artifactId>maven-surefire-plugin</artifactId>
@@ -184,7 +180,6 @@
                 </dependency>
             </dependencies>
         </profile>
-
         <!-- Setup the Integration Test Environment (when -DskipIntegrationTests=false) -->
         <profile>
             <id>integration-test-environment</id>
@@ -225,7 +220,6 @@
                             </execution>
                         </executions>
                     </plugin>
-
                     <!-- Run Integration Testing! This plugin just kicks off the tests (when enabled). -->
                     <plugin>
                         <artifactId>maven-failsafe-plugin</artifactId>
@@ -285,6 +279,23 @@
                 </dependency>
             </dependencies>
         </profile>
+        <profile>
+            <id>addon-ocr</id>
+            <activation>
+                <property>
+                    <name>ocr.on</name>
+                </property>
+            </activation>
+            <dependencies>
+                <dependency>
+                    <groupId>it.4science.dspace</groupId>
+                    <artifactId>addon-ocr-rest</artifactId>
+                    <version>${addon-ocr.version}</version>
+                    <type>jar</type>
+                </dependency>
+            </dependencies>
+        </profile>
+
 
         <!-- Builds Orchestrator addon for DSpace -->
         <profile>
@@ -304,9 +315,7 @@
             </dependencies>
         </profile>
     </profiles>
-
     <dependencies>
-
         <dependency>
             <groupId>org.dspace.modules</groupId>
             <artifactId>additions</artifactId>
@@ -321,7 +330,6 @@
             <scope>provided</scope>
             <version>${spring-boot.version}</version>
         </dependency>
-
         <!-- Test Dependencies -->
         <dependency>
             <groupId>org.dspace</groupId>
@@ -364,7 +372,7 @@
         </dependency>
         <dependency>
             <groupId>org.mockito</groupId>
-            <artifactId>mockito-inline</artifactId>
+            <artifactId>mockito-core</artifactId>
             <scope>test</scope>
         </dependency>
         <!-- Solr Core is only needed for Integration Tests (to run a MockSolrServer) -->
@@ -380,6 +388,10 @@
                     <groupId>org.antlr</groupId>
                     <artifactId>antlr4-runtime</artifactId>
                 </exclusion>
+                <exclusion>
+                    <groupId>org.apache.logging.log4j</groupId>
+                    <artifactId>log4j-slf4j-impl</artifactId>
+                </exclusion>
             </exclusions>
         </dependency>
         <dependency>
@@ -394,11 +406,5 @@
             <version>2.0.8</version>
             <scope>test</scope>
         </dependency>
-
     </dependencies>
-
-
-  <scm>
-    <tag>dspace-9.2</tag>
-  </scm>
 </project>

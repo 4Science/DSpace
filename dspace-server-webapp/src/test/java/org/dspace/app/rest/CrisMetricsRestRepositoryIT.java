@@ -517,7 +517,7 @@ public class CrisMetricsRestRepositoryIT extends AbstractControllerIntegrationTe
                 .withMetricType("wosCitation")
                 // without a metric count "null"
                 .isLast(true).build();
-
+        context.commit();
         context.restoreAuthSystemState();
 
         String[] args = new String[]{"update-metrics-in-solr"};
@@ -612,6 +612,7 @@ public class CrisMetricsRestRepositoryIT extends AbstractControllerIntegrationTe
                 .withMetricType("wosCitation")
                 // without a metric count "null"
                 .isLast(true).build();
+        context.commit();
         context.restoreAuthSystemState();
         //save all metrics on solr search core
         String[] args = new String[]{"update-metrics-in-solr"};
@@ -702,6 +703,7 @@ public class CrisMetricsRestRepositoryIT extends AbstractControllerIntegrationTe
                 .withRank(30.0)
                 .isLast(true).build();
         context.restoreAuthSystemState();
+        context.commit();
         //save all metrics on solr search core
         String[] args = new String[]{"update-metrics-in-solr"};
         TestDSpaceRunnableHandler handler = new TestDSpaceRunnableHandler();

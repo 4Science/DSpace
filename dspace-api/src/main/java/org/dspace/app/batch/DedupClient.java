@@ -82,7 +82,7 @@ public class DedupClient {
 
         options.addOption(OptionBuilder.isRequired(false).withDescription("print this help message").create("h"));
 
-        options.addOption(OptionBuilder.isRequired(false).withDescription("optimize search core").create("o"));
+        options.addOption(OptionBuilder.isRequired(false).withDescription("optimize dedup core").create("o"));
 
         options.addOption("e", "readfile", true, "Read the identifier from a file");
 

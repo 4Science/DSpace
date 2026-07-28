@@ -159,7 +159,6 @@ public class DCDateTest {
         assertThat("testDCDateIntBits 22", dc.getHourUTC(), equalTo(2));
         assertThat("testDCDateIntBits 23", dc.getMinuteUTC(), equalTo(30));
         assertThat("testDCDateIntBits 24", dc.getSecondUTC(), equalTo(5));
-
     }
 
     /**
@@ -312,7 +311,6 @@ public class DCDateTest {
         assertThat("testDCDateString 12", dc.getSecondUTC(), equalTo(1));
     }
 
-
     /**
      * Test of toString method, of class DCDate.
      */
@@ -370,50 +368,41 @@ public class DCDateTest {
         assertThat("testToDate 4", dc.toDate(), equalTo(zdt));
     }
 
-
     /**
      * Test of displayDate method, of class DCDate.
      */
     @Test
     public void testDisplayDate() {
         dc = new DCDate("2010");
-        assertThat("testDisplayDate 1 ", dc.displayDate(true, true,
-                                                        new Locale("en_GB")),
+        assertThat("testDisplayDate 1 ", dc.displayDate(true, true, Locale.of("en", "GB")),
                    equalTo("2010"));
 
         dc = new DCDate("2010-04");
-        assertThat("testDisplayDate 2 ", dc.displayDate(true, true,
-                                                        new Locale("en_GB")),
+        assertThat("testDisplayDate 2 ", dc.displayDate(true, true, Locale.of("en", "GB")),
                    equalTo("Apr-2010"));
 
         dc = new DCDate("2010-04-14");
-        assertThat("testDisplayDate 3 ", dc.displayDate(true, true,
-                                                        new Locale("en_GB")),
+        assertThat("testDisplayDate 3 ", dc.displayDate(true, true, Locale.of("en", "GB")),
                    equalTo("14-Apr-2010"));
 
         dc = new DCDate("2010-04-14T00:00:01Z");
-        assertThat("testDisplayDate 4 ", dc.displayDate(true, true,
-                                                        new Locale("en_GB")),
+        assertThat("testDisplayDate 4 ", dc.displayDate(true, true, Locale.of("en", "GB")),
                    equalTo("13-Apr-2010 16:00:01"));
 
         dc = new DCDate("2010-04-14T00:00:01Z");
-        assertThat("testDisplayDate 5 ", dc.displayDate(false, true,
-                                                        new Locale("en_GB")),
+        assertThat("testDisplayDate 5 ", dc.displayDate(false, true, Locale.of("en", "GB")),
                    equalTo("13-Apr-2010"));
 
         dc = new DCDate("2010-04-14T00:00:01Z");
-        assertThat("testDisplayDate 6 ", dc.displayDate(true, false,
-                                                        new Locale("es")),
+        assertThat("testDisplayDate 6 ", dc.displayDate(true, false, Locale.of("es")),
                    equalTo("14-abr-2010 00:00:01"));
 
         dc = new DCDate("2010-04-14T00:00:01Z");
-        assertThat("testDisplayDate 7 ", dc.displayDate(false, false,
-                                                        new Locale("en_GB")),
+        assertThat("testDisplayDate 7 ", dc.displayDate(false, false, Locale.of("en", "GB")),
                    equalTo("14-Apr-2010"));
 
         dc = new DCDate("2010-04-14T00:00:01.000");
-        assertThat("testDisplayDate 8 ", dc.displayDate(false, false,
-                        new Locale("en_GB")),
+        assertThat("testDisplayDate 8 ", dc.displayDate(false, false, Locale.of("en", "GB")),
                 equalTo("14-Apr-2010"));
     }
 
@@ -427,69 +416,66 @@ public class DCDateTest {
         assertEquals("testGetCurrent 0", DCDate.getCurrent().toDate().toLocalDate(), today);
     }
 
-
     /**
      * Test of getMonthName method, of class DCDate.
      */
     @Test
     public void testGetMonthName() {
-        assertThat("testGetMonthName 0", DCDate.getMonthName(-1, new Locale("en")),
+        assertThat("testGetMonthName 0", DCDate.getMonthName(-1, Locale.of("en")),
                    equalTo("Unspecified"));
-        assertThat("testGetMonthName 1", DCDate.getMonthName(0, new Locale("en")),
+        assertThat("testGetMonthName 1", DCDate.getMonthName(0, Locale.of("en")),
                    equalTo("Unspecified"));
-        assertThat("testGetMonthName 2", DCDate.getMonthName(13, new Locale("en")),
+        assertThat("testGetMonthName 2", DCDate.getMonthName(13, Locale.of("en")),
                    equalTo("Unspecified"));
-        assertThat("testGetMonthName 3", DCDate.getMonthName(14, new Locale("en")),
+        assertThat("testGetMonthName 3", DCDate.getMonthName(14, Locale.of("en")),
                    equalTo("Unspecified"));
-
-        assertThat("testGetMonthName 4", DCDate.getMonthName(1, new Locale("en")),
+        assertThat("testGetMonthName 4", DCDate.getMonthName(1, Locale.of("en")),
                    equalTo("January"));
-        assertThat("testGetMonthName 5", DCDate.getMonthName(2, new Locale("en")),
+        assertThat("testGetMonthName 5", DCDate.getMonthName(2, Locale.of("en")),
                    equalTo("February"));
-        assertThat("testGetMonthName 6", DCDate.getMonthName(3, new Locale("en")),
+        assertThat("testGetMonthName 6", DCDate.getMonthName(3, Locale.of("en")),
                    equalTo("March"));
-        assertThat("testGetMonthName 7", DCDate.getMonthName(4, new Locale("en")),
+        assertThat("testGetMonthName 7", DCDate.getMonthName(4, Locale.of("en")),
                    equalTo("April"));
-        assertThat("testGetMonthName 8", DCDate.getMonthName(5, new Locale("en")),
+        assertThat("testGetMonthName 8", DCDate.getMonthName(5, Locale.of("en")),
                    equalTo("May"));
-        assertThat("testGetMonthName 9", DCDate.getMonthName(6, new Locale("en")),
+        assertThat("testGetMonthName 9", DCDate.getMonthName(6, Locale.of("en")),
                    equalTo("June"));
-        assertThat("testGetMonthName 10", DCDate.getMonthName(7, new Locale("en")),
+        assertThat("testGetMonthName 10", DCDate.getMonthName(7, Locale.of("en")),
                    equalTo("July"));
-        assertThat("testGetMonthName 11", DCDate.getMonthName(8, new Locale("en")),
+        assertThat("testGetMonthName 11", DCDate.getMonthName(8, Locale.of("en")),
                    equalTo("August"));
-        assertThat("testGetMonthName 12", DCDate.getMonthName(9, new Locale("en")),
+        assertThat("testGetMonthName 12", DCDate.getMonthName(9, Locale.of("en")),
                    equalTo("September"));
-        assertThat("testGetMonthName 13", DCDate.getMonthName(10, new Locale("en")),
+        assertThat("testGetMonthName 13", DCDate.getMonthName(10, Locale.of("en")),
                    equalTo("October"));
-        assertThat("testGetMonthName 14", DCDate.getMonthName(11, new Locale("en")),
+        assertThat("testGetMonthName 14", DCDate.getMonthName(11, Locale.of("en")),
                    equalTo("November"));
-        assertThat("testGetMonthName 15", DCDate.getMonthName(12, new Locale("en")),
+        assertThat("testGetMonthName 15", DCDate.getMonthName(12, Locale.of("en")),
                    equalTo("December"));
-
-        assertThat("testGetMonthName 16", DCDate.getMonthName(1, new Locale("es")),
+        assertThat("testGetMonthName 16", DCDate.getMonthName(1, Locale.of("es")),
                    equalTo("enero"));
-        assertThat("testGetMonthName 17", DCDate.getMonthName(2, new Locale("es")),
+        assertThat("testGetMonthName 17", DCDate.getMonthName(2, Locale.of("es")),
                    equalTo("febrero"));
-        assertThat("testGetMonthName 18", DCDate.getMonthName(3, new Locale("es")),
+        assertThat("testGetMonthName 18", DCDate.getMonthName(3, Locale.of("es")),
                    equalTo("marzo"));
-        assertThat("testGetMonthName 19", DCDate.getMonthName(4, new Locale("es")),
+        assertThat("testGetMonthName 19", DCDate.getMonthName(4, Locale.of("es")),
                    equalTo("abril"));
-        assertThat("testGetMonthName 20", DCDate.getMonthName(5, new Locale("es")),
+        assertThat("testGetMonthName 20", DCDate.getMonthName(5, Locale.of("es")),
                    equalTo("mayo"));
-        assertThat("testGetMonthName 21", DCDate.getMonthName(6, new Locale("es")),
+        assertThat("testGetMonthName 21", DCDate.getMonthName(6, Locale.of("es")),
                    equalTo("junio"));
-        assertThat("testGetMonthName 22", DCDate.getMonthName(7, new Locale("es")),
+        assertThat("testGetMonthName 22", DCDate.getMonthName(7, Locale.of("es")),
                    equalTo("julio"));
-        assertThat("testGetMonthName 23", DCDate.getMonthName(8, new Locale("es")),
+        assertThat("testGetMonthName 23", DCDate.getMonthName(8, Locale.of("es")),
                    equalTo("agosto"));
-        assertThat("testGetMonthName 24", DCDate.getMonthName(9, new Locale("es")),
+        assertThat("testGetMonthName 24", DCDate.getMonthName(9, Locale.of("es")),
                    equalTo("septiembre"));
-        assertThat("testGetMonthName 25", DCDate.getMonthName(10, new Locale("es")),
+        assertThat("testGetMonthName 25", DCDate.getMonthName(10, Locale.of("es")),
                    equalTo("octubre"));
-        assertThat("testGetMonthName 26", DCDate.getMonthName(11, new Locale("es")),
+        assertThat("testGetMonthName 26", DCDate.getMonthName(11, Locale.of("es")),
                    equalTo("noviembre"));
-        assertThat("testGetMonthName 27", DCDate.getMonthName(12, new Locale("es")),
+        assertThat("testGetMonthName 27", DCDate.getMonthName(12, Locale.of("es")),
                    equalTo("diciembre"));
     }
 
