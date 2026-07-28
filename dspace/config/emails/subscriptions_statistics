@@ -1,6 +1,7 @@
 ## E-mail sent to designated address about statistics on subscribed items
 ##
 #set($subject = "${config.get('dspace.name')}: Statistics of records which you are subscribed")
+#if($global.put('X-SES-TENANT', $config.get('aws.ses.tenant')))#end
 
 This automatic email is sent by ${config.get('dspace.name')} based on the subscribed statistics updates.
 See additional details in the file attached.

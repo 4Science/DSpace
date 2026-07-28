@@ -81,10 +81,11 @@ public class BulkItemExportIT extends AbstractIntegrationTestWithDatabase {
         File xml = new File("person.xml");
         xml.deleteOnExit();
 
-        String[] args = new String[] { "bulk-item-export", "-t", "Person", "-f", "person-xml" };
+        String[] args = new String[] { "bulk-item-export", "-t", "Person", "-f", "person-xml",
+            "-e", eperson.getEmail() };
         TestDSpaceRunnableHandler handler = new TestDSpaceRunnableHandler();
 
-        handleScript(args, ScriptLauncher.getConfig(kernelImpl), handler, kernelImpl, eperson);
+        handleScript(args, ScriptLauncher.getConfig(kernelImpl), handler, kernelImpl, null);
 
         assertThat(handler.getErrorMessages(), empty());
         assertThat(handler.getInfoMessages(), hasItem("Found 3 items to export"));
@@ -113,10 +114,11 @@ public class BulkItemExportIT extends AbstractIntegrationTestWithDatabase {
         File xml = new File("person.xml");
         xml.deleteOnExit();
 
-        String[] args = new String[] { "bulk-item-export", "-t", "Person", "-f", "person-xml", "-q", "Edward" };
+        String[] args = new String[] { "bulk-item-export", "-t", "Person", "-f", "person-xml", "-q", "Edward",
+            "-e", eperson.getEmail() };
         TestDSpaceRunnableHandler handler = new TestDSpaceRunnableHandler();
 
-        handleScript(args, ScriptLauncher.getConfig(kernelImpl), handler, kernelImpl, eperson);
+        handleScript(args, ScriptLauncher.getConfig(kernelImpl), handler, kernelImpl, null);
 
         assertThat(handler.getErrorMessages(), empty());
         assertThat(handler.getInfoMessages(), hasItem("Found 2 items to export"));
@@ -146,10 +148,10 @@ public class BulkItemExportIT extends AbstractIntegrationTestWithDatabase {
         xml.deleteOnExit();
 
         String[] args = new String[] { "bulk-item-export", "-t", "Person", "-f", "person-xml",
-            "-sf", "subject=Science" };
+            "-sf", "subject=Science", "-e", eperson.getEmail() };
         TestDSpaceRunnableHandler handler = new TestDSpaceRunnableHandler();
 
-        handleScript(args, ScriptLauncher.getConfig(kernelImpl), handler, kernelImpl, eperson);
+        handleScript(args, ScriptLauncher.getConfig(kernelImpl), handler, kernelImpl, null);
 
         assertThat(handler.getErrorMessages(), empty());
         assertThat(handler.getInfoMessages(), hasItem("Found 2 items to export"));
@@ -179,10 +181,10 @@ public class BulkItemExportIT extends AbstractIntegrationTestWithDatabase {
         xml.deleteOnExit();
 
         String[] args = new String[] { "bulk-item-export", "-t", "Person", "-f", "person-xml",
-            "-sf", "subject=Science&title=Walter White" };
+            "-sf", "subject=Science&title=Walter White", "-e", eperson.getEmail() };
         TestDSpaceRunnableHandler handler = new TestDSpaceRunnableHandler();
 
-        handleScript(args, ScriptLauncher.getConfig(kernelImpl), handler, kernelImpl, eperson);
+        handleScript(args, ScriptLauncher.getConfig(kernelImpl), handler, kernelImpl, null);
 
         assertThat(handler.getErrorMessages(), empty());
         assertThat(handler.getInfoMessages(), hasItem("Found 1 items to export"));
@@ -212,10 +214,10 @@ public class BulkItemExportIT extends AbstractIntegrationTestWithDatabase {
         xml.deleteOnExit();
 
         String[] args = new String[] { "bulk-item-export", "-t", "Person", "-f", "person-xml",
-            "-s", collection.getID().toString() };
+            "-s", collection.getID().toString(), "-e", eperson.getEmail() };
         TestDSpaceRunnableHandler handler = new TestDSpaceRunnableHandler();
 
-        handleScript(args, ScriptLauncher.getConfig(kernelImpl), handler, kernelImpl, eperson);
+        handleScript(args, ScriptLauncher.getConfig(kernelImpl), handler, kernelImpl, null);
 
         assertThat(handler.getErrorMessages(), empty());
         assertThat(handler.getInfoMessages(), hasItem("Found 2 items to export"));
@@ -268,10 +270,10 @@ public class BulkItemExportIT extends AbstractIntegrationTestWithDatabase {
         xml.deleteOnExit();
 
         String[] args = new String[] { "bulk-item-export", "-t", "Person", "-f", "person-xml",
-            "-s", orgUnitId, "-c", "RELATION.OrgUnit.people" };
+            "-s", orgUnitId, "-c", "RELATION.OrgUnit.people", "-e", eperson.getEmail() };
         TestDSpaceRunnableHandler handler = new TestDSpaceRunnableHandler();
 
-        handleScript(args, ScriptLauncher.getConfig(kernelImpl), handler, kernelImpl, eperson);
+        handleScript(args, ScriptLauncher.getConfig(kernelImpl), handler, kernelImpl, null);
 
         assertThat(handler.getErrorMessages(), empty());
         assertThat(handler.getInfoMessages(), hasItem("Found 2 items to export"));
@@ -304,10 +306,10 @@ public class BulkItemExportIT extends AbstractIntegrationTestWithDatabase {
         xml.deleteOnExit();
 
         String[] args = new String[] { "bulk-item-export", "-t", "Person", "-f", "person-xml",
-            "-s", collection.getID().toString(), "-sf", "subject=Science", "-q", "Edward" };
+            "-s", collection.getID().toString(), "-sf", "subject=Science", "-q", "Edward", "-e", eperson.getEmail() };
         TestDSpaceRunnableHandler handler = new TestDSpaceRunnableHandler();
 
-        handleScript(args, ScriptLauncher.getConfig(kernelImpl), handler, kernelImpl, eperson);
+        handleScript(args, ScriptLauncher.getConfig(kernelImpl), handler, kernelImpl, null);
 
         assertThat(handler.getErrorMessages(), empty());
         assertThat(handler.getInfoMessages(), hasItem("Found 1 items to export"));
@@ -336,10 +338,11 @@ public class BulkItemExportIT extends AbstractIntegrationTestWithDatabase {
         File xml = new File("person.xml");
         xml.deleteOnExit();
 
-        String[] args = new String[] { "bulk-item-export", "-t", "Person", "-f", "person-xml", "-so", "dc.title,ASC" };
+        String[] args = new String[] { "bulk-item-export", "-t", "Person", "-f", "person-xml", "-so", "dc.title,ASC",
+            "-e", eperson.getEmail() };
         TestDSpaceRunnableHandler handler = new TestDSpaceRunnableHandler();
 
-        handleScript(args, ScriptLauncher.getConfig(kernelImpl), handler, kernelImpl, eperson);
+        handleScript(args, ScriptLauncher.getConfig(kernelImpl), handler, kernelImpl, null);
 
         assertThat(handler.getErrorMessages(), empty());
         assertThat(handler.getInfoMessages(), hasItem("Found 3 items to export"));
@@ -368,10 +371,11 @@ public class BulkItemExportIT extends AbstractIntegrationTestWithDatabase {
         File xml = new File("person.xml");
         xml.deleteOnExit();
 
-        String[] args = new String[] { "bulk-item-export", "-t", "Person", "-f", "person-xml", "-so", "dc.title,DESC" };
+        String[] args = new String[] { "bulk-item-export", "-t", "Person", "-f", "person-xml", "-so", "dc.title,DESC",
+            "-e", eperson.getEmail() };
         TestDSpaceRunnableHandler handler = new TestDSpaceRunnableHandler();
 
-        handleScript(args, ScriptLauncher.getConfig(kernelImpl), handler, kernelImpl, eperson);
+        handleScript(args, ScriptLauncher.getConfig(kernelImpl), handler, kernelImpl, null);
 
         assertThat(handler.getErrorMessages(), empty());
         assertThat(handler.getInfoMessages(), hasItem("Found 3 items to export"));
@@ -390,10 +394,10 @@ public class BulkItemExportIT extends AbstractIntegrationTestWithDatabase {
     @Test
     public void testBulkItemExportWithoutExportFormat() throws Exception {
 
-        String[] args = new String[] { "bulk-item-export", "-t", "Person" };
+        String[] args = new String[] { "bulk-item-export", "-t", "Person", "-e", eperson.getEmail() };
         TestDSpaceRunnableHandler handler = new TestDSpaceRunnableHandler();
 
-        handleScript(args, ScriptLauncher.getConfig(kernelImpl), handler, kernelImpl, eperson);
+        handleScript(args, ScriptLauncher.getConfig(kernelImpl), handler, kernelImpl, null);
 
         List<String> errorMessages = handler.getErrorMessages();
         assertThat(errorMessages, hasSize(1));
@@ -403,10 +407,10 @@ public class BulkItemExportIT extends AbstractIntegrationTestWithDatabase {
     @Test
     public void testBulkItemExportWithInvalidFormat() throws Exception {
 
-        String[] args = new String[] { "bulk-item-export", "-t", "Person", "-f", "invalid" };
+        String[] args = new String[] { "bulk-item-export", "-t", "Person", "-f", "invalid", "-e", eperson.getEmail() };
         TestDSpaceRunnableHandler handler = new TestDSpaceRunnableHandler();
 
-        handleScript(args, ScriptLauncher.getConfig(kernelImpl), handler, kernelImpl, eperson);
+        handleScript(args, ScriptLauncher.getConfig(kernelImpl), handler, kernelImpl, null);
 
         List<String> errorMessages = handler.getErrorMessages();
         assertThat(errorMessages, hasSize(1));
@@ -416,10 +420,11 @@ public class BulkItemExportIT extends AbstractIntegrationTestWithDatabase {
     @Test
     public void testBulkItemExportWithInvalidFilter() throws Exception {
 
-        String[] args = new String[] { "bulk-item-export", "-t", "Person", "-f", "person-xml", "-sf", "testFilter" };
+        String[] args = new String[] { "bulk-item-export", "-t", "Person", "-f", "person-xml", "-sf", "testFilter",
+            "-e", eperson.getEmail() };
         TestDSpaceRunnableHandler handler = new TestDSpaceRunnableHandler();
 
-        handleScript(args, ScriptLauncher.getConfig(kernelImpl), handler, kernelImpl, eperson);
+        handleScript(args, ScriptLauncher.getConfig(kernelImpl), handler, kernelImpl, null);
 
         List<String> errorMessages = handler.getErrorMessages();
         assertThat(errorMessages, hasSize(1));
@@ -429,10 +434,10 @@ public class BulkItemExportIT extends AbstractIntegrationTestWithDatabase {
     @Test
     public void testBulkItemExportWithoutEntityType() throws Exception {
 
-        String[] args = new String[] { "bulk-item-export", "-f", "person-xml" };
+        String[] args = new String[] { "bulk-item-export", "-f", "person-xml", "-e", eperson.getEmail() };
         TestDSpaceRunnableHandler handler = new TestDSpaceRunnableHandler();
 
-        handleScript(args, ScriptLauncher.getConfig(kernelImpl), handler, kernelImpl, eperson);
+        handleScript(args, ScriptLauncher.getConfig(kernelImpl), handler, kernelImpl, null);
 
         assertThat(handler.getErrorMessages(), empty());
         assertThat(handler.getInfoMessages(), contains("Found 0 items to export",
@@ -457,10 +462,11 @@ public class BulkItemExportIT extends AbstractIntegrationTestWithDatabase {
         File xml = new File("person.xml");
         xml.deleteOnExit();
 
-        String[] args = new String[] { "bulk-item-export", "-t", "Person", "-f", "person-xml", "-q", "Edward" };
+        String[] args = new String[] { "bulk-item-export", "-t", "Person", "-f", "person-xml", "-q", "Edward",
+            "-e", eperson.getEmail() };
         TestDSpaceRunnableHandler handler = new TestDSpaceRunnableHandler();
 
-        handleScript(args, ScriptLauncher.getConfig(kernelImpl), handler, kernelImpl, eperson);
+        handleScript(args, ScriptLauncher.getConfig(kernelImpl), handler, kernelImpl, null);
 
         assertThat(handler.getErrorMessages(), empty());
         assertThat(handler.getInfoMessages(), hasItem("Found 1 items to export"));
@@ -492,10 +498,10 @@ public class BulkItemExportIT extends AbstractIntegrationTestWithDatabase {
         xml.deleteOnExit();
 
         String[] args = new String[] { "bulk-item-export", "-t", "Person", "-f", "person-xml",
-            "-q", "Edward", "-c", "workspace" };
+            "-q", "Edward", "-c", "workspace", "-e", eperson.getEmail() };
         TestDSpaceRunnableHandler handler = new TestDSpaceRunnableHandler();
 
-        handleScript(args, ScriptLauncher.getConfig(kernelImpl), handler, kernelImpl, eperson);
+        handleScript(args, ScriptLauncher.getConfig(kernelImpl), handler, kernelImpl, null);
 
         assertThat(handler.getErrorMessages(), empty());
         assertThat(handler.getInfoMessages(), hasItem("Found 3 items to export"));
@@ -524,13 +530,14 @@ public class BulkItemExportIT extends AbstractIntegrationTestWithDatabase {
 
         String items = item1.getID().toString() + ";" + item2.getID().toString();
 
-        String[] args = new String[] { "bulk-item-export", "-si", items, "-f", "publication-chicago" };
+        String[] args = new String[] { "bulk-item-export", "-si", items, "-f", "publication-chicago",
+            "-e", eperson.getEmail() };
 
         TestDSpaceRunnableHandler handler = new TestDSpaceRunnableHandler();
         File txt = new File("publications.txt");
         txt.deleteOnExit();
 
-        handleScript(args, ScriptLauncher.getConfig(kernelImpl), handler, kernelImpl, eperson);
+        handleScript(args, ScriptLauncher.getConfig(kernelImpl), handler, kernelImpl, null);
 
         try (FileInputStream fis = new FileInputStream(txt)) {
             String content = IOUtils.toString(fis, Charset.defaultCharset());
@@ -538,6 +545,58 @@ public class BulkItemExportIT extends AbstractIntegrationTestWithDatabase {
                     containsString("“Edward Red,” n.d. http://localhost:4000/handle/" + item1.getHandle()));
             assertThat(content,
                     containsString("“Walter White,” n.d. http://localhost:4000/handle/" + item2.getHandle()));
+        }
+    }
+
+    @Test
+    public void testBulkItemExportChicagoWithMissingMetadata() throws Exception {
+
+        context.turnOffAuthorisationSystem();
+        Collection anotherCollection = createCollection(context, community)
+            .withAdminGroup(eperson).build();
+
+        // Create an archived Publication item with JUST entityType — no title, author,
+        // date, or URI
+        Item itemNoMetadata = ItemBuilder.createItem(context, collection)
+            .withEntityType("Publication")
+            .build();
+
+        // Create a workspace Publication item with no metadata
+        WorkspaceItem workspaceItem = WorkspaceItemBuilder
+            .createWorkspaceItem(context, anotherCollection)
+            .withEntityType("Publication")
+            .build();
+
+        // Create a workflow Publication item with no metadata
+        WorkflowItem workflowItem = WorkflowItemBuilder
+            .createWorkflowItem(context, anotherCollection)
+            .withEntityType("Publication")
+            .build();
+
+        context.restoreAuthSystemState();
+        context.commit();
+
+        String items = itemNoMetadata.getID().toString() + ";"
+            + workspaceItem.getItem().getID().toString() + ";"
+            + workflowItem.getItem().getID().toString();
+
+        String[] args = new String[] { "bulk-item-export", "-si", items, "-f", "publication-chicago",
+            "-e", eperson.getEmail() };
+
+        TestDSpaceRunnableHandler handler = new TestDSpaceRunnableHandler();
+        File txt = new File("publications.txt");
+        txt.deleteOnExit();
+
+        handleScript(args, ScriptLauncher.getConfig(kernelImpl), handler, kernelImpl, null);
+
+        assertThat("No errors should occur when exporting items with missing metadata",
+            handler.getErrorMessages(), empty());
+        assertThat("The output file should be created", txt.exists(), is(true));
+
+        try (FileInputStream fis = new FileInputStream(txt)) {
+            String content = IOUtils.toString(fis, Charset.defaultCharset());
+            assertThat("Output should contain a row for the archived item with n.d.",
+                content, containsString("n.d."));
         }
     }
 
@@ -562,24 +621,29 @@ public class BulkItemExportIT extends AbstractIntegrationTestWithDatabase {
         File xml = new File("person.xml");
         xml.deleteOnExit();
 
-        String[] args = new String[] { "bulk-item-export", "-t", "Person", "-f", "person-xml", "-so", "dc.title,ASC" };
+        String[] adminArgs = new String[] { "bulk-item-export", "-t", "Person", "-f", "person-xml",
+            "-so", "dc.title,ASC", "-e", admin.getEmail() };
         TestDSpaceRunnableHandler handler = new TestDSpaceRunnableHandler();
 
-        handleScript(args, ScriptLauncher.getConfig(kernelImpl), handler, kernelImpl, admin);
+        handleScript(adminArgs, ScriptLauncher.getConfig(kernelImpl), handler, kernelImpl, null);
 
         assertThat(handler.getErrorMessages(), empty());
         assertThat(handler.getInfoMessages(), hasItem("Found 3 items to export"));
         assertThat("The xml file should be created", xml.exists(), is(true));
 
         // eperson is the collection admin, so the output will be the same as the admin.
-        handleScript(args, ScriptLauncher.getConfig(kernelImpl), handler, kernelImpl, eperson);
+        String[] epersonArgs = new String[] { "bulk-item-export", "-t", "Person", "-f", "person-xml",
+            "-so", "dc.title,ASC", "-e", eperson.getEmail() };
+        handleScript(epersonArgs, ScriptLauncher.getConfig(kernelImpl), handler, kernelImpl, null);
 
         assertThat(handler.getErrorMessages(), empty());
         assertThat(handler.getInfoMessages(), hasItem("Found 3 items to export"));
         assertThat("The xml file should be created", xml.exists(), is(true));
 
         // member is a newly created eperson, so it will be treated as a generic logged user.
-        handleScript(args, ScriptLauncher.getConfig(kernelImpl), handler, kernelImpl, member);
+        String[] memberArgs = new String[] { "bulk-item-export", "-t", "Person", "-f", "person-xml",
+            "-so", "dc.title,ASC", "-e", member.getEmail() };
+        handleScript(memberArgs, ScriptLauncher.getConfig(kernelImpl), handler, kernelImpl, null);
 
         assertThat(handler.getErrorMessages(), empty());
         assertThat(handler.getInfoMessages(), hasItem("Export will be limited to 2 items."));
@@ -587,6 +651,7 @@ public class BulkItemExportIT extends AbstractIntegrationTestWithDatabase {
         assertThat("The xml file should be created", xml.exists(), is(true));
 
         // null eperson, so it will be treated as there is no user logged in.
+        String[] args = new String[] { "bulk-item-export", "-t", "Person", "-f", "person-xml", "-so", "dc.title,ASC" };
         handleScript(args, ScriptLauncher.getConfig(kernelImpl), handler, kernelImpl, null);
 
         assertThat(handler.getErrorMessages(), empty());
@@ -619,10 +684,11 @@ public class BulkItemExportIT extends AbstractIntegrationTestWithDatabase {
                                        "-f", "publication-csv",
                                        "-sf", "dateIssued=[2025 TO *],equals",
                                        "-c", "site",
-                                       "-so", "score,DESC" };
+                                       "-so", "score,DESC",
+                                       "-e", eperson.getEmail() };
 
         TestDSpaceRunnableHandler handler = new TestDSpaceRunnableHandler();
-        handleScript(args, ScriptLauncher.getConfig(kernelImpl), handler, kernelImpl, eperson);
+        handleScript(args, ScriptLauncher.getConfig(kernelImpl), handler, kernelImpl, null);
 
         assertThat(handler.getErrorMessages(), empty());
         assertThat(handler.getInfoMessages(), hasItem("Found 2 items to export"));
@@ -662,10 +728,11 @@ public class BulkItemExportIT extends AbstractIntegrationTestWithDatabase {
                                        "-f", "publication-csv",
                                        "-sf", "dateIssued=[2025 TO *]",
                                        "-c", "site",
-                                       "-so", "score,DESC" };
+                                       "-so", "score,DESC",
+                                       "-e", eperson.getEmail() };
 
         TestDSpaceRunnableHandler handler = new TestDSpaceRunnableHandler();
-        handleScript(args, ScriptLauncher.getConfig(kernelImpl), handler, kernelImpl, eperson);
+        handleScript(args, ScriptLauncher.getConfig(kernelImpl), handler, kernelImpl, null);
 
         assertThat(handler.getErrorMessages(), empty());
         assertThat(handler.getInfoMessages(), hasItem("Found 3 items to export"));
@@ -704,10 +771,11 @@ public class BulkItemExportIT extends AbstractIntegrationTestWithDatabase {
                                        "-f", "publication-csv",
                                        "-sf", "dateIssued=[* TO 2024],equals",
                                        "-c", "site",
-                                       "-so", "score,DESC" };
+                                       "-so", "score,DESC",
+                                       "-e", eperson.getEmail() };
 
         TestDSpaceRunnableHandler handler = new TestDSpaceRunnableHandler();
-        handleScript(args, ScriptLauncher.getConfig(kernelImpl), handler, kernelImpl, eperson);
+        handleScript(args, ScriptLauncher.getConfig(kernelImpl), handler, kernelImpl, null);
 
         assertThat(handler.getErrorMessages(), empty());
         assertThat(handler.getInfoMessages(), hasItem("Found 4 items to export"));
@@ -747,10 +815,11 @@ public class BulkItemExportIT extends AbstractIntegrationTestWithDatabase {
                                        "-f", "publication-csv",
                                        "-sf", "dateIssued=[2024 TO 2024],equals",
                                        "-c", "site",
-                                       "-so", "score,DESC" };
+                                       "-so", "score,DESC",
+                                       "-e", eperson.getEmail() };
 
         TestDSpaceRunnableHandler handler = new TestDSpaceRunnableHandler();
-        handleScript(args, ScriptLauncher.getConfig(kernelImpl), handler, kernelImpl, eperson);
+        handleScript(args, ScriptLauncher.getConfig(kernelImpl), handler, kernelImpl, null);
 
         assertThat(handler.getErrorMessages(), empty());
         assertThat(handler.getInfoMessages(), hasItem("Found 2 items to export"));
@@ -788,7 +857,7 @@ public class BulkItemExportIT extends AbstractIntegrationTestWithDatabase {
     }
 
     private EPerson createEPerson() {
-        return EPersonBuilder.createEPerson(context).build();
+        return EPersonBuilder.createEPerson(context).withEmail("member@email.com").build();
     }
 
     private WorkspaceItem createWorkspaceItem(Collection collection, String title, String subject, String entityType) {

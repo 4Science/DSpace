@@ -7,7 +7,7 @@
     <parent>
         <artifactId>modules</artifactId>
         <groupId>org.dspace</groupId>
-        <version>cris-2024.02.04-SNAPSHOT</version>
+        <version>cris-2024.02.05-SNAPSHOT</version>
         <relativePath>..</relativePath>
     </parent>
 
@@ -285,6 +285,23 @@
                 </dependency>
             </dependencies>
         </profile>
+        <profile>
+            <id>addon-ocr</id>
+            <activation>
+                <property>
+                    <name>ocr.on</name>
+                </property>
+            </activation>
+            <dependencies>
+                <dependency>
+                    <groupId>it.4science.dspace</groupId>
+                    <artifactId>addon-ocr-rest</artifactId>
+                    <version>${addon-ocr.version}</version>
+                    <type>jar</type>
+                </dependency>
+            </dependencies>
+        </profile>
+
 
         <!-- Builds Orchestrator addon for DSpace -->
         <profile>

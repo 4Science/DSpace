@@ -17,6 +17,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.Spliterators;
 import java.util.UUID;
 import java.util.regex.Pattern;
@@ -540,6 +541,16 @@ public class BitstreamServiceImpl extends DSpaceObjectServiceImpl<Bitstream> imp
     }
 
     @Override
+    public boolean isInBundle(Bitstream bitstream, java.util.Collection<String> bundleNames) throws SQLException {
+        Set<String> bundles =
+            bitstream.getBundles()
+                     .stream()
+                     .map(Bundle::getName)
+                     .collect(Collectors.toSet());
+        return bundleNames.stream().anyMatch(bundles::contains);
+    }
+
+    @Override
     public List<Bitstream> findShowableByItem(Context context, UUID itemId, String bundleName,
             Map<String, String> filterMetadata) throws SQLException {
 
@@ -555,8 +566,7 @@ public class BitstreamServiceImpl extends DSpaceObjectServiceImpl<Bitstream> imp
 
         try {
 
-            return streamOf(getItemBitstreams(context, item))
-                .filter(bitstream -> isContainedInBundleNamed(bitstream, bundleName))
+            return streamOf(bitstreamDAO.findByItemAndBundle(context, item.getID(), bundleName))
                 .filter(bitstream -> hasAllMetadataValues(bitstream, filterMetadata))
                 .collect(Collectors.toList());
 
@@ -568,21 +578,6 @@ public class BitstreamServiceImpl extends DSpaceObjectServiceImpl<Bitstream> imp
 
     public boolean exists(Context context, UUID id) throws SQLException {
         return this.bitstreamDAO.exists(context, Bitstream.class, id);
-    }
-
-    private boolean isContainedInBundleNamed(Bitstream bitstream, String name) {
-
-        if (StringUtils.isEmpty(name)) {
-            return true;
-        }
-
-        try {
-            return bitstream.getBundles().stream()
-                .anyMatch(bundle -> name.equals(bundle.getName()));
-        } catch (SQLException e) {
-            throw new SQLRuntimeException(e);
-        }
-
     }
 
     private boolean hasAllMetadataValues(Bitstream bitstream, Map<String, String> filterMetadata) {

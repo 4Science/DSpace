@@ -8,16 +8,20 @@
 package org.dspace.app.rest.repository;
 
 import java.sql.SQLException;
+import java.util.Objects;
 import java.util.UUID;
 import javax.annotation.Nullable;
 
 import jakarta.servlet.http.HttpServletRequest;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.dspace.app.rest.model.EPersonRest;
 import org.dspace.app.rest.model.ItemRest;
 import org.dspace.app.rest.projection.Projection;
 import org.dspace.content.Item;
 import org.dspace.content.service.ItemService;
 import org.dspace.core.Context;
+import org.dspace.eperson.EPerson;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.rest.webmvc.ResourceNotFoundException;
@@ -34,6 +38,8 @@ public class ItemSubmitterLinkRepository extends AbstractDSpaceRestRepository
     @Autowired
     ItemService itemService;
 
+    private static final Logger log = LogManager.getLogger(ItemSubmitterLinkRepository.class);
+
     /**
      * Retrieve the submitter for an item.
      *
@@ -46,14 +52,18 @@ public class ItemSubmitterLinkRepository extends AbstractDSpaceRestRepository
     @PreAuthorize("hasPermission(#id, 'ITEM', 'READ')")
     public EPersonRest getItemSubmitter(@Nullable HttpServletRequest request, UUID id,
                                         @Nullable Pageable optionalPageable, Projection projection) {
+        EPerson submitter;
         try {
             Context context = obtainContext();
             Item item = itemService.find(context, id);
             if (item == null) {
                 throw new ResourceNotFoundException("No such item: " + id);
             }
-
-            return converter.toRest(item.getSubmitter(), projection);
+            submitter = item.getSubmitter();
+            if (Objects.nonNull(submitter)) {
+                return converter.toRest(submitter, projection);
+            }
+            return null;
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }

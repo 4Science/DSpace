@@ -42,7 +42,9 @@ import org.dspace.core.Context;
 import org.dspace.discovery.DiscoverQuery;
 import org.dspace.discovery.DiscoverQuery.SORT_ORDER;
 import org.dspace.discovery.DiscoverResultIterator;
+import org.dspace.discovery.IndexingService;
 import org.dspace.discovery.SearchServiceException;
+import org.dspace.discovery.SearchUtils;
 import org.dspace.discovery.indexobject.IndexableCollection;
 import org.dspace.discovery.indexobject.IndexableItem;
 import org.dspace.eperson.EPerson;
@@ -65,7 +67,7 @@ import org.hibernate.LazyInitializationException;
 /**
  * Implementation of {@link DSpaceRunnable}
  * to import Publications from external service as Scopus and Web Of Science.
- * 
+ *
  * @author Mykhaylo Boychuk (mykhaylo.boychuk at 4science.it)
  */
 public class CreateWorkspaceItemWithExternalSource extends DSpaceRunnable<
@@ -96,6 +98,8 @@ public class CreateWorkspaceItemWithExternalSource extends DSpaceRunnable<
     @SuppressWarnings("rawtypes")
     private WorkflowService workflowService;
 
+    private IndexingService indexingService;
+
     @Override
     public void setup() throws ParseException {
         configurationService = DSpaceServicesFactory.getInstance().getConfigurationService();
@@ -111,6 +115,8 @@ public class CreateWorkspaceItemWithExternalSource extends DSpaceRunnable<
                                       LiveImportDataProvider.class));
         workflowService = WorkflowServiceFactory.getInstance()
             .getWorkflowService();
+        indexingService = serviceManager.getServiceByName(IndexingService.class.getName(), IndexingService.class);
+
         this.service = commandLine.getOptionValue('s');
         if (commandLine.hasOption('l')) {
             this.searchLimit = Integer.valueOf(commandLine.getOptionValue('l'));
@@ -294,6 +300,7 @@ public class CreateWorkspaceItemWithExternalSource extends DSpaceRunnable<
                         addMetadata(wsItem.getItem(), metadataList);
                     }
                     workflowService.start(context, wsItem);
+                    context.uncacheEntity(itemFromWs);
                 }
                 countDataObjects++;
             }
@@ -403,6 +410,7 @@ public class CreateWorkspaceItemWithExternalSource extends DSpaceRunnable<
             discoverQuery.setSortField(lastImportMetadataField, SORT_ORDER.asc);
         } else {
             discoverQuery.setQuery("-" + lastImportMetadataField + ": [* TO *]");
+            discoverQuery.setSortField(SearchUtils.LAST_INDEXED_FIELD, SORT_ORDER.asc);
         }
 
         return new DiscoverResultIterator<Item, UUID>(context, discoverQuery);
@@ -464,7 +472,8 @@ public class CreateWorkspaceItemWithExternalSource extends DSpaceRunnable<
             String metadataField = "cris.lastimport." + service + "-publication";
             String currentDate = DCDate.getCurrent().toString();
             itemService.setMetadataSingleValue(context, item, new MetadataFieldName(metadataField), null, currentDate);
-            itemService.update(context, item);
+            itemService.update(context, item, false);
+            indexingService.updateLastPublicationImport(context, item, service, currentDate);
         } catch (SQLException | AuthorizeException e) {
             throw new RuntimeException(e);
         }

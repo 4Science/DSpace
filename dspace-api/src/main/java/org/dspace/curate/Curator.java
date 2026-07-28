@@ -587,8 +587,8 @@ public class Curator {
                 if (dso == null) {
                     throw new IOException("DSpaceObject is null");
                 }
-                statusCode = task.perform(dso);
                 String id = (dso.getHandle() != null) ? dso.getHandle() : "workflow item: " + dso.getID();
+                statusCode = task.perform(dso);
                 logInfo(logMessage(id));
                 visit(dso);
                 return !suspend(statusCode);

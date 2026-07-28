@@ -162,9 +162,10 @@ public class WorkflowItemRestRepository extends DSpaceRestRepository<WorkflowIte
     }
 
     @Override
+    @PreAuthorize("hasPermission(@workflowSecurityUtils.parseIdFromUriList(#stringList), 'WORKFLOWITEM', 'WRITE')")
     protected WorkflowItemRest createAndReturn(Context context, List<String> stringList) {
         XmlWorkflowItem source;
-        if (stringList == null || stringList.isEmpty() || stringList.size() > 1) {
+        if (stringList == null || stringList.size() != 1) {
             throw new UnprocessableEntityException("The given URI list could not be properly parsed to one result");
         }
         try {
