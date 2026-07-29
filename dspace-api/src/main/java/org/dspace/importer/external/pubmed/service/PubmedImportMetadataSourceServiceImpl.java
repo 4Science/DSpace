@@ -323,6 +323,15 @@ public class PubmedImportMetadataSourceServiceImpl extends AbstractImportMetadat
             String queryKey = getSingleElementValue(response, "QueryKey");
             String webEnv = getSingleElementValue(response, "WebEnv");
 
+            // The esearch stored the whole result set in the history server. Before fetching, make sure the
+            // requested offset is within the available records: efetch returns an "OUT OF RANGE" error (HTTP 400)
+            // if retstart is greater than or equal to the total number of records stored in the history.
+            String totalCountValue = getSingleElementValue(response, "Count");
+            Integer totalCount = StringUtils.isNumeric(totalCountValue) ? Integer.valueOf(totalCountValue) : null;
+            if (Objects.nonNull(totalCount) && start >= totalCount) {
+                return records;
+            }
+
             URIBuilder uriBuilder2 = new URIBuilder(urlFetch);
             if (StringUtils.isNotBlank(apiKey)) {
                 uriBuilder2.addParameter("api_key", apiKey);
