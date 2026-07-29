@@ -17,13 +17,12 @@ import static org.junit.Assert.fail;
 import static org.junit.Assume.assumeNotNull;
 import static org.mockito.Mockito.mock;
 
-import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
-import java.util.Set;
 
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.logging.log4j.LogManager;
@@ -52,7 +51,7 @@ import org.dspace.identifier.generators.DoiGenerationStrategy;
 import org.dspace.identifier.service.DOIService;
 import org.dspace.services.ConfigurationService;
 import org.dspace.services.factory.DSpaceServicesFactory;
-import org.dspace.workflow.WorkflowException;
+import org.dspace.utils.DSpace;
 import org.dspace.workflow.WorkflowItem;
 import org.dspace.workflow.factory.WorkflowServiceFactory;
 import org.junit.After;
@@ -84,8 +83,8 @@ public class DOIIdentifierProviderTest
     protected CollectionService collectionService = ContentServiceFactory.getInstance().getCollectionService();
     protected ItemService itemService = ContentServiceFactory.getInstance().getItemService();
     protected WorkspaceItemService workspaceItemService = ContentServiceFactory.getInstance().getWorkspaceItemService();
-    protected Set<DoiGenerationStrategy> doiGenerationStrategies =
-        IdentifierServiceFactory.getInstance().getDoiGenerationStrategies();
+    protected List<DoiGenerationStrategy> doiGenerationStrategies = new DSpace().getServiceManager()
+            .getServicesByType(DoiGenerationStrategy.class);
 
     private static Community community;
     private static Collection collection;
@@ -137,7 +136,7 @@ public class DOIIdentifierProviderTest
             provider.setConfigurationService(config);
             provider.setDOIConnector(connector);
             provider.setFilter(null);
-            provider.setDoiGenerationStrategies(doiGenerationStrategies);
+            provider.setDoiGenerationStrategies(new HashSet<>(doiGenerationStrategies));
         } catch (AuthorizeException ex) {
             log.error("Authorization Error in init", ex);
             fail("Authorization Error in init: " + ex.getMessage());
@@ -170,11 +169,9 @@ public class DOIIdentifierProviderTest
      *
      * @throws SQLException       if database error
      * @throws AuthorizeException if authorization error
-     * @throws IOException        if IO error
+     * @throws Exception        if error
      */
-    private Item newItem()
-        throws SQLException, AuthorizeException, IOException, IllegalAccessException, IdentifierException,
-        WorkflowException {
+    private Item newItem() throws Exception {
         context.turnOffAuthorisationSystem();
 
         WorkspaceItem wsItem = workspaceItemService.create(context, collection, false);
@@ -210,11 +207,13 @@ public class DOIIdentifierProviderTest
                 provider.DOI_ELEMENT,
                 provider.DOI_QUALIFIER,
                                   null);
-        itemService.addMetadata(context, item, provider.MD_SCHEMA,
-                provider.DOI_ELEMENT,
-                provider.DOI_QUALIFIER,
-                                null,
-                                remainder);
+        if (!remainder.isEmpty()) {
+            itemService.addMetadata(context, item, provider.MD_SCHEMA,
+                                    provider.DOI_ELEMENT,
+                                    provider.DOI_QUALIFIER,
+                                    null,
+                                    remainder);
+        }
 
         itemService.update(context, item);
         //we need to commit the changes so we don't block the table for testing
@@ -223,8 +222,7 @@ public class DOIIdentifierProviderTest
         return item;
     }
 
-    public String createDOI(Item item, Integer status, boolean metadata)
-        throws SQLException, IdentifierException, AuthorizeException {
+    public String createDOI(Item item, Integer status, boolean metadata) throws Exception {
         return this.createDOI(item, status, metadata, null);
     }
 
@@ -236,12 +234,11 @@ public class DOIIdentifierProviderTest
      * @param metadata Whether the DOI should be included in the metadata of the item.
      * @param doi      The DOI or null if we should generate one.
      * @return the DOI
-     * @throws SQLException if database error
+     * @throws Exception if error
      * @throws org.dspace.identifier.IdentifierException passed through.
      * @throws org.dspace.authorize.AuthorizeException passed through.
      */
-    public String createDOI(Item item, Integer status, boolean metadata, String doi)
-        throws SQLException, IdentifierException, AuthorizeException {
+    public String createDOI(Item item, Integer status, boolean metadata, String doi) throws Exception {
         context.turnOffAuthorisationSystem();
         // we need some random data. UUIDs would be bloated here
         Random random = new Random();
@@ -311,9 +308,7 @@ public class DOIIdentifierProviderTest
     }
 
     @Test
-    public void testStore_DOI_as_item_metadata()
-        throws SQLException, AuthorizeException, IOException, IdentifierException, IllegalAccessException,
-        WorkflowException {
+    public void testStore_DOI_as_item_metadata() throws Exception {
         Item item = newItem();
         String doi = DOI.SCHEME + PREFIX + "/" + NAMESPACE_SEPARATOR
             + Long.toHexString(new Date().getTime());
@@ -335,9 +330,7 @@ public class DOIIdentifierProviderTest
     }
 
     @Test
-    public void testGet_DOI_out_of_item_metadata()
-        throws SQLException, AuthorizeException, IOException, IdentifierException, IllegalAccessException,
-        WorkflowException {
+    public void testGet_DOI_out_of_item_metadata() throws Exception {
         Item item = newItem();
         String doi = DOI.SCHEME + PREFIX + "/" + NAMESPACE_SEPARATOR
             + Long.toHexString(new Date().getTime());
@@ -515,9 +508,7 @@ public class DOIIdentifierProviderTest
     }
 
     @Test
-    public void testRemove_DOI_from_item_metadata()
-        throws SQLException, AuthorizeException, IOException, IdentifierException, WorkflowException,
-        IllegalAccessException {
+    public void testRemove_DOI_from_item_metadata() throws Exception {
         Item item = newItem();
         String doi = DOI.SCHEME + PREFIX + "/" + NAMESPACE_SEPARATOR
             + Long.toHexString(new Date().getTime());
@@ -547,9 +538,7 @@ public class DOIIdentifierProviderTest
     }
 
     @Test
-    public void testGet_DOI_by_DSpaceObject()
-        throws SQLException, AuthorizeException, IOException,
-        IllegalArgumentException, IdentifierException, WorkflowException, IllegalAccessException {
+    public void testGet_DOI_by_DSpaceObject() throws Exception {
         Item item = newItem();
         String doi = this.createDOI(item, DOIIdentifierProvider.IS_REGISTERED, false);
 
@@ -560,9 +549,7 @@ public class DOIIdentifierProviderTest
     }
 
     @Test
-    public void testGet_DOI_lookup()
-        throws SQLException, AuthorizeException, IOException,
-        IllegalArgumentException, IdentifierException, WorkflowException, IllegalAccessException {
+    public void testGet_DOI_lookup() throws Exception {
         Item item = newItem();
         String doi = this.createDOI(item, DOIIdentifierProvider.IS_REGISTERED, false);
 
@@ -573,9 +560,7 @@ public class DOIIdentifierProviderTest
     }
 
     @Test
-    public void testGet_DSpaceObject_by_DOI()
-        throws SQLException, AuthorizeException, IOException,
-        IllegalArgumentException, IdentifierException, WorkflowException, IllegalAccessException {
+    public void testGet_DSpaceObject_by_DOI() throws Exception {
         Item item = newItem();
         String doi = this.createDOI(item, DOIIdentifierProvider.IS_REGISTERED, false);
 
@@ -588,9 +573,7 @@ public class DOIIdentifierProviderTest
     }
 
     @Test
-    public void testResolve_DOI()
-        throws SQLException, AuthorizeException, IOException,
-        IllegalArgumentException, IdentifierException, WorkflowException, IllegalAccessException {
+    public void testResolve_DOI() throws Exception {
         Item item = newItem();
         String doi = this.createDOI(item, DOIIdentifierProvider.IS_REGISTERED, false);
 
@@ -607,9 +590,7 @@ public class DOIIdentifierProviderTest
      * problems while deleting DOIs.
      */
     @Test
-    public void testRemove_two_DOIs_from_item_metadata()
-        throws SQLException, AuthorizeException, IOException, IdentifierException, WorkflowException,
-        IllegalAccessException {
+    public void testRemove_two_DOIs_from_item_metadata() throws Exception {
         // add two DOIs.
         Item item = newItem();
         String doi1 = this.createDOI(item, DOIIdentifierProvider.IS_REGISTERED, true);
@@ -665,9 +646,7 @@ public class DOIIdentifierProviderTest
     }
 
     @Test
-    public void testMintDOI()
-        throws SQLException, AuthorizeException, IOException, IllegalAccessException, IdentifierException,
-        WorkflowException {
+    public void testMintDOI() throws Exception {
         Item item = newItem();
         String doi = null;
         try {
@@ -690,9 +669,7 @@ public class DOIIdentifierProviderTest
     }
 
     @Test
-    public void testMint_returns_existing_DOI()
-        throws SQLException, AuthorizeException, IOException, IdentifierException, WorkflowException,
-        IllegalAccessException {
+    public void testMint_returns_existing_DOI() throws Exception {
         Item item = newItem();
         String doi = this.createDOI(item, null, true);
 
@@ -706,9 +683,7 @@ public class DOIIdentifierProviderTest
      * Test minting a DOI with a filter that always returns false and therefore never mints the DOI
      */
     @Test
-    public void testMint_DOI_withNonMatchingFilter()
-        throws SQLException, AuthorizeException, IOException, IllegalAccessException, IdentifierException,
-        WorkflowException {
+    public void testMint_DOI_withNonMatchingFilter() throws Exception {
         Item item = newItem();
         boolean wasFiltered = false;
         try {
@@ -734,9 +709,7 @@ public class DOIIdentifierProviderTest
      * (this should have hte same results as base testMint_DOI, but here we use an explicit filter rather than null)
      */
     @Test
-    public void testMint_DOI_withMatchingFilter()
-        throws SQLException, AuthorizeException, IOException, IllegalAccessException, IdentifierException,
-        WorkflowException {
+    public void testMint_DOI_withMatchingFilter() throws Exception {
         Item item = newItem();
         String doi = null;
         boolean wasFiltered = false;
@@ -771,9 +744,7 @@ public class DOIIdentifierProviderTest
 
 
     @Test
-    public void testReserve_DOI()
-        throws SQLException, SQLException, AuthorizeException, IOException,
-        IdentifierException, WorkflowException, IllegalAccessException {
+    public void testReserve_DOI() throws Exception {
         Item item = newItem();
         String doi = this.createDOI(item, null, true);
 
@@ -787,9 +758,7 @@ public class DOIIdentifierProviderTest
     }
 
     @Test
-    public void testRegister_unreserved_DOI()
-        throws SQLException, SQLException, AuthorizeException, IOException,
-        IdentifierException, WorkflowException, IllegalAccessException {
+    public void testRegister_unreserved_DOI() throws Exception {
         Item item = newItem();
         String doi = this.createDOI(item, null, true);
 
@@ -803,9 +772,7 @@ public class DOIIdentifierProviderTest
     }
 
     @Test
-    public void testRegister_reserved_DOI()
-        throws SQLException, SQLException, AuthorizeException, IOException,
-        IdentifierException, WorkflowException, IllegalAccessException {
+    public void testRegister_reserved_DOI() throws Exception {
         Item item = newItem();
         String doi = this.createDOI(item, DOIIdentifierProvider.IS_RESERVED, true);
 
@@ -819,9 +786,7 @@ public class DOIIdentifierProviderTest
     }
 
     @Test
-    public void testCreate_and_Register_DOI()
-        throws SQLException, SQLException, AuthorizeException, IOException,
-        IdentifierException, WorkflowException, IllegalAccessException {
+    public void testCreate_and_Register_DOI() throws Exception {
         Item item = newItem();
 
         // Register, skipping the filter
@@ -843,9 +808,7 @@ public class DOIIdentifierProviderTest
     }
 
     @Test
-    public void testDelete_specified_DOI()
-        throws SQLException, AuthorizeException, IOException, IdentifierException, WorkflowException,
-        IllegalAccessException {
+    public void testDelete_specified_DOI() throws Exception {
         Item item = newItem();
         String doi1 = this.createDOI(item, DOIIdentifierProvider.IS_REGISTERED, true);
         String doi2 = this.createDOI(item, DOIIdentifierProvider.IS_REGISTERED, true);
@@ -885,9 +848,7 @@ public class DOIIdentifierProviderTest
     }
 
     @Test
-    public void testDelete_all_DOIs()
-        throws SQLException, AuthorizeException, IOException, IdentifierException, IllegalAccessException,
-        WorkflowException {
+    public void testDelete_all_DOIs() throws Exception {
         Item item = newItem();
         String doi1 = this.createDOI(item, DOIIdentifierProvider.IS_REGISTERED, true);
         String doi2 = this.createDOI(item, DOIIdentifierProvider.IS_REGISTERED, true);
@@ -927,9 +888,7 @@ public class DOIIdentifierProviderTest
     }
 
     @Test
-    public void testUpdateMetadataSkippedForPending()
-            throws SQLException, AuthorizeException, IOException, IdentifierException, IllegalAccessException,
-            WorkflowException  {
+    public void testUpdateMetadataSkippedForPending() throws Exception  {
         context.turnOffAuthorisationSystem();
         Item item = newItem();
         // Mint a new DOI with PENDING status
@@ -948,9 +907,7 @@ public class DOIIdentifierProviderTest
 
 
     @Test
-    public void testMintDoiAfterOrphanedPendingDOI()
-        throws SQLException, AuthorizeException, IOException, IdentifierException, IllegalAccessException,
-            WorkflowException {
+    public void testMintDoiAfterOrphanedPendingDOI() throws Exception {
         context.turnOffAuthorisationSystem();
         Item item1 = newItem();
         // Mint a new DOI with PENDING status
@@ -987,9 +944,7 @@ public class DOIIdentifierProviderTest
     }
 
     @Test
-    public void testUpdateMetadataSkippedForMinted()
-            throws SQLException, AuthorizeException, IOException, IdentifierException, IllegalAccessException,
-            WorkflowException  {
+    public void testUpdateMetadataSkippedForMinted() throws Exception  {
         context.turnOffAuthorisationSystem();
         Item item = newItem();
         // Mint a new DOI with MINTED status
@@ -1007,9 +962,7 @@ public class DOIIdentifierProviderTest
     }
 
     @Test
-    public void testLoadOrCreateDOIReturnsMintedStatus()
-            throws SQLException, AuthorizeException, IOException, IdentifierException, IllegalAccessException,
-            WorkflowException {
+    public void testLoadOrCreateDOIReturnsMintedStatus() throws Exception {
         Item item = newItem();
         // Mint a DOI without an explicit reserve or register context
         String mintedDoi = provider.mint(context, item, DSpaceServicesFactory.getInstance()

@@ -74,6 +74,7 @@
     <bean id="sharedWorkspaceSolrIndexPlugin" class="org.dspace.discovery.SharedWorkspaceSolrIndexPlugin">
         <constructor-arg name="additionalReadMetadata" ref="sharedWorkspaceAuthorMetadataFields"/>
     </bean>
+    <bean id="solrServiceAdministrativeSearchRestrictionPlugin" class="org.dspace.discovery.SolrServiceAdministrativeSearchRestrictionPlugin"/>
 
     <util:list id="sharedWorkspaceAuthorMetadataFields" value-type="java.lang.String">
         <value>dc.contributor.author</value>
@@ -782,6 +783,7 @@
                 <ref bean="searchFilterObjectNamedType" />
                 <ref bean="searchFilterType" />
                 <ref bean="searchFilterIssued" />
+                <ref bean="searchFilterEntityType" />
             </list>
         </property>
         <!--The sort filters for the discovery search-->
@@ -853,6 +855,7 @@
                 <ref bean="searchFilterObjectNamedType" />
                 <ref bean="searchFilterType" />
                 <ref bean="searchFilterIssued" />
+                <ref bean="searchFilterEntityType" />
             </list>
         </property>
         <!--The sort filters for the discovery search-->
@@ -928,6 +931,7 @@
                 <ref bean="searchFilterObjectNamedType" />
                 <ref bean="searchFilterType" />
                 <ref bean="searchFilterIssued" />
+                <ref bean="searchFilterEntityType" />
             </list>
         </property>
         <!--The sort filters for the discovery search-->
@@ -1006,6 +1010,7 @@
                 <ref bean="searchFilterType" />
                 <ref bean="searchFilterIssued" />
                 <ref bean="searchFilterSubmitter" />
+                <ref bean="searchFilterEntityType" />
             </list>
         </property>
         <!--The sort filters for the discovery search-->
@@ -3547,18 +3552,18 @@
     </bean>
     <bean id="sortOrganizationAddressCountry"
           class="org.dspace.discovery.configuration.DiscoverySortFieldConfiguration">
-        <property name="metadataField" value="organisation.address.addressCountry"/>
+        <property name="metadataField" value="organization.address.addressCountry"/>
         <property name="defaultSortOrder" value="asc"/>
     </bean>
 
     <bean id="sortOrganizationAddressLocality"
           class="org.dspace.discovery.configuration.DiscoverySortFieldConfiguration">
-        <property name="metadataField" value="organisation.address.addressLocality"/>
+        <property name="metadataField" value="organization.address.addressLocality"/>
         <property name="defaultSortOrder" value="asc"/>
     </bean>
 
     <bean id="sortOrganizationFoundingDate" class="org.dspace.discovery.configuration.DiscoverySortFieldConfiguration">
-        <property name="metadataField" value="organisation.foundingDate"/>
+        <property name="metadataField" value="organization.foundingDate"/>
         <property name="type" value="date"/>
         <property name="defaultSortOrder" value="desc"/>
     </bean>

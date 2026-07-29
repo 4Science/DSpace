@@ -46,10 +46,17 @@
     <date dateType="Available">@dc.date.available@</date>
     @if.not.metadata.datacite-available.end@
   </dates>
-  <language>@dc.language.iso@</language>
+  <language>@virtual.place.dc-language-iso.0@</language>
+  @if.metadata.dc-type.start@
   <resourceType resourceTypeGeneral="@virtual.mapConverter.type2datacite.dc-type@">
   @virtual.mapConverter.type2datacitelabel.dc-type@
   </resourceType>
+  @if.metadata.dc-type.end@
+  @if.not.metadata.dc-type.start@
+  <resourceType resourceTypeGeneral="Other">
+    Unknown
+  </resourceType>
+  @if.not.metadata.dc-type.end@
   <alternateIdentifiers>
     <alternateIdentifier alternateIdentifierType="url">@dc.identifier.uri@</alternateIdentifier>
     <alternateIdentifier alternateIdentifierType="doi">@virtual.alternative-doi.dc-identifier-doi@</alternateIdentifier>

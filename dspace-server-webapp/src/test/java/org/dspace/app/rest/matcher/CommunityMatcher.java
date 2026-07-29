@@ -16,7 +16,6 @@ import static org.hamcrest.Matchers.is;
 import java.util.List;
 import java.util.UUID;
 
-import org.dspace.content.Collection;
 import org.dspace.content.Community;
 import org.hamcrest.Matcher;
 import org.hamcrest.Matchers;
@@ -32,6 +31,7 @@ public class CommunityMatcher {
                 hasJsonPath("$.uuid", is(uuid.toString())),
                 hasJsonPath("$.handle", is(handle)),
                 hasJsonPath("$.type", is("community")),
+                hasJsonPath("$.uniqueType", is("core.community")),
                 matchLinks(uuid)
         );
     }
@@ -45,6 +45,7 @@ public class CommunityMatcher {
                 hasJsonPath("$.name", is(titles.get(0))),
                 hasJsonPath("$.handle", is(handle)),
                 hasJsonPath("$.type", is("community")),
+                hasJsonPath("$.uniqueType", is("core.community")),
                 hasJsonPath("$._embedded.collections", Matchers.not(Matchers.empty())),
                 hasJsonPath("$._embedded.logo", Matchers.not(Matchers.empty())),
                 matchLinks(uuid)
@@ -84,6 +85,7 @@ public class CommunityMatcher {
             hasJsonPath("$.name", is(name)),
             hasJsonPath("$.handle", is(handle)),
             hasJsonPath("$.type", is("community")),
+            hasJsonPath("$.uniqueType", is("core.community")),
             hasJsonPath("$.metadata", Matchers.allOf(
                 MetadataMatcher.matchMetadata("dc.title", name)
             ))
@@ -129,18 +131,6 @@ public class CommunityMatcher {
         );
     }
 
-    public static Matcher<? super Object> matchCommunityWithCollectionEntry(String name, UUID uuid, String handle,
-                                                                            Collection col) {
-        return allOf(
-            matchProperties(name, uuid, handle),
-            hasJsonPath("$._embedded.collections._embedded.collections[0]",
-                        CollectionMatcher
-                            .matchCollectionEntry(col.getName(), col.getID(), col.getHandle(), col.getLogo())),
-            hasJsonPath("$._embedded.logo", Matchers.not(Matchers.empty())),
-            matchLinks(uuid)
-        );
-    }
-
     public static String getNonAdminEmbeds() {
         return "collections,logo,parentCommunity,subcommunities";
     }
@@ -149,6 +139,7 @@ public class CommunityMatcher {
         return allOf(hasJsonPath("$.uuid", is(community.getID().toString())),
                 hasJsonPath("$.name", is(community.getName())),
                 hasJsonPath("$.type", is("community")),
+                hasJsonPath("$.uniqueType", is("core.community")),
                 hasJsonPath("$.handle", is(community.getHandle())));
     }
 }

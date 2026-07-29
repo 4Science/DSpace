@@ -225,7 +225,7 @@ public class SolrDedupServiceImpl implements DedupService {
         }
     }
 
-    protected SolrClient getSolr() {
+    public SolrClient getSolr() {
         if (solr == null) {
             String solrService = DSpaceServicesFactory.getInstance().getConfigurationService()
                     .getProperty("deduplication.search.server");

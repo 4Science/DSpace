@@ -24,7 +24,7 @@ public class UsageEvent extends Event {
 
     public static final UsageEvent createUsageEvent(
         final Context context, final HttpServletRequest req,
-        final DSpaceObjectService dSpaceObjectService, final UUID targetId,
+        final DSpaceObjectService<?> dSpaceObjectService, final UUID targetId,
         final String referrer
     ) {
         try {

@@ -45,7 +45,7 @@ public class ItemExport extends DSpaceRunnable<ItemExportScriptConfiguration<Ite
 
     private String exportFormat;
 
-    private Context context;
+    protected Context context;
 
     @Override
     public void setup() throws ParseException {
@@ -128,7 +128,7 @@ public class ItemExport extends DSpaceRunnable<ItemExportScriptConfiguration<Ite
 
     }
 
-    private void assignCurrentUserInContext() throws SQLException {
+    protected void assignCurrentUserInContext() throws SQLException {
         UUID uuid = getEpersonIdentifier();
         if (uuid != null) {
             EPerson ePerson = EPersonServiceFactory.getInstance().getEPersonService().find(context, uuid);
@@ -136,7 +136,7 @@ public class ItemExport extends DSpaceRunnable<ItemExportScriptConfiguration<Ite
         }
     }
 
-    private void assignSpecialGroupsInContext() throws SQLException {
+    protected void assignSpecialGroupsInContext() throws SQLException {
         for (UUID uuid : handler.getSpecialGroups()) {
             context.setSpecialGroup(uuid);
         }

@@ -22,7 +22,7 @@ public class AccessConditionBitstream {
 
     private String mode;
 
-    private Constraint constraints;
+    private BitstreamConstraint constraints;
 
     private List<AccessCondition> accessConditions;
 
@@ -34,11 +34,11 @@ public class AccessConditionBitstream {
         this.mode = mode;
     }
 
-    public Constraint getConstraints() {
+    public BitstreamConstraint getConstraints() {
         return constraints;
     }
 
-    public void setConstraints(Constraint constraints) {
+    public void setConstraints(BitstreamConstraint constraints) {
         this.constraints = constraints;
     }
 

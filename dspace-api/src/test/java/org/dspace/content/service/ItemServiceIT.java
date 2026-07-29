@@ -11,7 +11,9 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
@@ -696,8 +698,7 @@ public class ItemServiceIT extends AbstractIntegrationTestWithDatabase {
 
     @Test
     public void testFindAndCountItemsWithEditEPerson() throws Exception {
-        ResourcePolicy rp = ResourcePolicyBuilder.createResourcePolicy(context)
-            .withUser(eperson)
+        ResourcePolicy rp = ResourcePolicyBuilder.createResourcePolicy(context, eperson, null)
             .withDspaceObject(item)
             .withAction(Constants.WRITE)
             .build();
@@ -710,8 +711,7 @@ public class ItemServiceIT extends AbstractIntegrationTestWithDatabase {
 
     @Test
     public void testFindAndCountItemsWithAdminEPerson() throws Exception {
-         ResourcePolicy rp = ResourcePolicyBuilder.createResourcePolicy(context)
-            .withUser(eperson)
+         ResourcePolicy rp = ResourcePolicyBuilder.createResourcePolicy(context, eperson, null)
             .withDspaceObject(item)
             .withAction(Constants.ADMIN)
             .build();
@@ -730,8 +730,7 @@ public class ItemServiceIT extends AbstractIntegrationTestWithDatabase {
             .build();
         context.restoreAuthSystemState();
 
-        ResourcePolicy rp = ResourcePolicyBuilder.createResourcePolicy(context)
-            .withGroup(group)
+        ResourcePolicy rp = ResourcePolicyBuilder.createResourcePolicy(context, null, group)
             .withDspaceObject(item)
             .withAction(Constants.WRITE)
             .build();
@@ -750,8 +749,7 @@ public class ItemServiceIT extends AbstractIntegrationTestWithDatabase {
             .build();
         context.restoreAuthSystemState();
 
-        ResourcePolicy rp = ResourcePolicyBuilder.createResourcePolicy(context)
-            .withGroup(group)
+        ResourcePolicy rp = ResourcePolicyBuilder.createResourcePolicy(context, null, group)
             .withDspaceObject(item)
             .withAction(Constants.ADMIN)
             .build();
@@ -937,4 +935,40 @@ public class ItemServiceIT extends AbstractIntegrationTestWithDatabase {
         assertThat(metadataValue.getAuthority(), equalTo(authority));
         assertThat(metadataValue.getPlace(), equalTo(place));
     }
+
+
+    @Test
+    public void testIsLatestVersion() throws Exception {
+        assertTrue("Original should be the latest version", this.itemService.isLatestVersion(context, item));
+
+        context.turnOffAuthorisationSystem();
+
+        Version firstVersion = versioningService.createNewVersion(context, item);
+        Item firstPublication = firstVersion.getItem();
+        WorkspaceItem firstPublicationWSI = workspaceItemService.findByItem(context, firstPublication);
+        installItemService.installItem(context, firstPublicationWSI);
+
+        context.commit();
+        context.restoreAuthSystemState();
+
+        assertTrue("First version should be valid", this.itemService.isLatestVersion(context, firstPublication));
+        assertFalse("Original version should not be valid", this.itemService.isLatestVersion(context, item));
+
+        context.turnOffAuthorisationSystem();
+
+        Version secondVersion = versioningService.createNewVersion(context, item);
+        Item secondPublication = secondVersion.getItem();
+        WorkspaceItem secondPublicationWSI = workspaceItemService.findByItem(context, secondPublication);
+        installItemService.installItem(context, secondPublicationWSI);
+
+        context.commit();
+        context.restoreAuthSystemState();
+
+        assertTrue("Second version should be valid", this.itemService.isLatestVersion(context, secondPublication));
+        assertFalse("First version should not be valid", this.itemService.isLatestVersion(context, firstPublication));
+        assertFalse("Original version should not be valid", this.itemService.isLatestVersion(context, item));
+
+        context.turnOffAuthorisationSystem();
+    }
+
 }

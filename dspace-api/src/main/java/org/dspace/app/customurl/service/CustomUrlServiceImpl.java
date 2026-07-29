@@ -17,6 +17,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.dspace.app.customurl.CustomUrlService;
 import org.dspace.content.Item;
 import org.dspace.content.MetadataValue;
@@ -129,10 +130,12 @@ public class CustomUrlServiceImpl implements CustomUrlService {
     @Override
     @SuppressWarnings("rawtypes")
     public Optional<Item> findItemByCustomUrl(Context context, String customUrl) {
-
+        if (StringUtils.isBlank(customUrl)) {
+            return Optional.empty();
+        }
         DiscoverQuery discoverQuery = new DiscoverQuery();
         discoverQuery.addDSpaceObjectFilter(IndexableItem.TYPE);
-        discoverQuery.addFilterQueries("customurl:" + customUrl);
+        discoverQuery.addFilterQueries("customurl:" + searchService.escapeQueryChars(customUrl));
         discoverQuery.setIncludeNotDiscoverableOrWithdrawn(true);
 
         List<IndexableObject> indexableObjects = findIndexableObjects(context, discoverQuery);

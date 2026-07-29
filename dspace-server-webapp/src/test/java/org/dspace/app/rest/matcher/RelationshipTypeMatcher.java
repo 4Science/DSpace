@@ -89,6 +89,7 @@ public class RelationshipTypeMatcher {
             hasJsonPath("$.rightMinCardinality", is(rightMinCardinality)),
             hasJsonPath("$.rightMaxCardinality", is(rightMaxCardinality)),
             hasJsonPath("$.type", is("relationshiptype")),
+            hasJsonPath("$.uniqueType", is("core.relationshiptype")),
             hasJsonPath("$._links.self.href", containsString("/api/core/relationshiptypes/" + id)),
             hasJsonPath("$._links.leftType.href", containsString("/api/core/entitytypes/" + leftEntityTypeId)),
             hasJsonPath("$._links.rightType.href", containsString("/api/core/entitytypes/" + rightEntityTypeId))

@@ -550,6 +550,226 @@ public class ScriptRestRepositoryIT extends AbstractControllerIntegrationTest {
     }
 
     @Test
+    public void findBulkImportScriptByAdminsTest() throws Exception {
+        context.turnOffAuthorisationSystem();
+        EPerson comAdmin = EPersonBuilder.createEPerson(context)
+                .withEmail("comAdmin@example.com")
+                .withPassword(password).build();
+        EPerson colAdmin = EPersonBuilder.createEPerson(context)
+                .withEmail("colAdmin@example.com")
+                .withPassword(password).build();
+        EPerson itemAdmin = EPersonBuilder.createEPerson(context)
+                .withEmail("itemAdmin@example.com")
+                .withPassword(password).build();
+        Community community = CommunityBuilder.createCommunity(context)
+                                          .withName("Community")
+                                          .withAdminGroup(comAdmin)
+                                          .build();
+        Collection collection = CollectionBuilder.createCollection(context, community)
+                                                .withName("Collection")
+                                                .withAdminGroup(colAdmin)
+                                                .build();
+        ItemBuilder.createItem(context, collection).withAdminUser(itemAdmin)
+                .withTitle("Test item").build();
+        context.restoreAuthSystemState();
+        ScriptConfiguration bulkImportScriptConfiguration =
+                scriptConfigurations.stream().filter(scriptConfiguration
+                        -> scriptConfiguration.getName().equals("bulk-import"))
+            .findAny().get();
+
+        String comAdminToken = getAuthToken(comAdmin.getEmail(), password);
+        String colAdminToken = getAuthToken(colAdmin.getEmail(), password);
+        String itemAdminToken = getAuthToken(itemAdmin.getEmail(), password);
+        getClient(comAdminToken).perform(get("/api/system/scripts/" + bulkImportScriptConfiguration.getName()))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$", ScriptMatcher
+                .matchScript(
+                        bulkImportScriptConfiguration.getName(),
+                        bulkImportScriptConfiguration.getDescription())));
+        getClient(colAdminToken).perform(get("/api/system/scripts/" + bulkImportScriptConfiguration.getName()))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$", ScriptMatcher
+                .matchScript(
+                        bulkImportScriptConfiguration.getName(),
+                        bulkImportScriptConfiguration.getDescription())));
+        getClient(itemAdminToken).perform(get("/api/system/scripts/" + bulkImportScriptConfiguration.getName()))
+            .andExpect(status().isForbidden());
+    }
+
+    @Test
+    public void findBulkAccessControlScriptByAdminsTest() throws Exception {
+        context.turnOffAuthorisationSystem();
+        EPerson comAdmin = EPersonBuilder.createEPerson(context)
+                .withEmail("comAdmin@example.com")
+                .withPassword(password).build();
+        EPerson colAdmin = EPersonBuilder.createEPerson(context)
+                .withEmail("colAdmin@example.com")
+                .withPassword(password).build();
+        EPerson itemAdmin = EPersonBuilder.createEPerson(context)
+                .withEmail("itemAdmin@example.com")
+                .withPassword(password).build();
+        Community community = CommunityBuilder.createCommunity(context)
+                .withName("Community")
+                .withAdminGroup(comAdmin)
+                .build();
+        Collection collection = CollectionBuilder.createCollection(context, community)
+                .withName("Collection")
+                .withAdminGroup(colAdmin)
+                .build();
+        ItemBuilder.createItem(context, collection).withAdminUser(itemAdmin)
+                .withTitle("Test item").build();
+        context.restoreAuthSystemState();
+        ScriptConfiguration scriptConfiguration =
+                scriptConfigurations.stream().filter(configuration
+                                -> configuration.getName().equals("bulk-access-control"))
+                        .findAny().get();
+
+        String comAdminToken = getAuthToken(comAdmin.getEmail(), password);
+        String colAdminToken = getAuthToken(colAdmin.getEmail(), password);
+        String itemAdminToken = getAuthToken(itemAdmin.getEmail(), password);
+        getClient(comAdminToken).perform(get("/api/system/scripts/" + scriptConfiguration.getName()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", ScriptMatcher
+                        .matchScript(
+                                scriptConfiguration.getName(),
+                                scriptConfiguration.getDescription())));
+        getClient(colAdminToken).perform(get("/api/system/scripts/" + scriptConfiguration.getName()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", ScriptMatcher
+                        .matchScript(
+                                scriptConfiguration.getName(),
+                                scriptConfiguration.getDescription())));
+        getClient(itemAdminToken).perform(get("/api/system/scripts/" + scriptConfiguration.getName()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", ScriptMatcher
+                        .matchScript(
+                                scriptConfiguration.getName(),
+                                scriptConfiguration.getDescription())));
+    }
+
+    @Test
+    public void findCollectionExportScriptByAdminsTest() throws Exception {
+        context.turnOffAuthorisationSystem();
+        EPerson comAdmin = EPersonBuilder.createEPerson(context)
+                .withEmail("comAdmin@example.com")
+                .withPassword(password).build();
+        EPerson colAdmin = EPersonBuilder.createEPerson(context)
+                .withEmail("colAdmin@example.com")
+                .withPassword(password).build();
+        EPerson itemAdmin = EPersonBuilder.createEPerson(context)
+                .withEmail("itemAdmin@example.com")
+                .withPassword(password).build();
+        Community community = CommunityBuilder.createCommunity(context)
+                .withName("Community")
+                .withAdminGroup(comAdmin)
+                .build();
+        Collection collection = CollectionBuilder.createCollection(context, community)
+                .withName("Collection")
+                .withAdminGroup(colAdmin)
+                .build();
+        ItemBuilder.createItem(context, collection).withAdminUser(itemAdmin)
+                .withTitle("Test item").build();
+        context.restoreAuthSystemState();
+        ScriptConfiguration scriptConfiguration =
+                scriptConfigurations.stream().filter(configuration
+                                -> configuration.getName().equals("collection-export"))
+                        .findAny().get();
+
+        String comAdminToken = getAuthToken(comAdmin.getEmail(), password);
+        String colAdminToken = getAuthToken(colAdmin.getEmail(), password);
+        String itemAdminToken = getAuthToken(itemAdmin.getEmail(), password);
+        getClient(comAdminToken).perform(get("/api/system/scripts/" + scriptConfiguration.getName()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", ScriptMatcher
+                        .matchScript(
+                                scriptConfiguration.getName(),
+                                scriptConfiguration.getDescription())));
+        getClient(colAdminToken).perform(get("/api/system/scripts/" + scriptConfiguration.getName()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", ScriptMatcher
+                        .matchScript(
+                                scriptConfiguration.getName(),
+                                scriptConfiguration.getDescription())));
+        getClient(itemAdminToken).perform(get("/api/system/scripts/" + scriptConfiguration.getName()))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    public void findItemExportScriptTest() throws Exception {
+        ScriptConfiguration scriptConfiguration =
+                scriptConfigurations.stream().filter(configuration
+                                -> configuration.getName().equals("item-export"))
+                        .findAny().get();
+
+        getClient().perform(get("/api/system/scripts/" + scriptConfiguration.getName()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", ScriptMatcher
+                        .matchScript(
+                                scriptConfiguration.getName(),
+                                scriptConfiguration.getDescription())));
+    }
+
+    @Test
+    public void findBulkItemExportScriptByAdminsTest() throws Exception {
+        context.turnOffAuthorisationSystem();
+        EPerson comAdmin = EPersonBuilder.createEPerson(context)
+                .withEmail("comAdmin@example.com")
+                .withPassword(password).build();
+        EPerson colAdmin = EPersonBuilder.createEPerson(context)
+                .withEmail("colAdmin@example.com")
+                .withPassword(password).build();
+        EPerson itemAdmin = EPersonBuilder.createEPerson(context)
+                .withEmail("itemAdmin@example.com")
+                .withPassword(password).build();
+        Community community = CommunityBuilder.createCommunity(context)
+                .withName("Community")
+                .withAdminGroup(comAdmin)
+                .build();
+        Collection collection = CollectionBuilder.createCollection(context, community)
+                .withName("Collection")
+                .withAdminGroup(colAdmin)
+                .build();
+        ItemBuilder.createItem(context, collection).withAdminUser(itemAdmin)
+                .withTitle("Test item").build();
+        context.restoreAuthSystemState();
+        ScriptConfiguration scriptConfiguration =
+                scriptConfigurations.stream().filter(configuration
+                                -> configuration.getName().equals("bulk-item-export"))
+                        .findAny().get();
+
+        String comAdminToken = getAuthToken(comAdmin.getEmail(), password);
+        String colAdminToken = getAuthToken(colAdmin.getEmail(), password);
+        String itemAdminToken = getAuthToken(itemAdmin.getEmail(), password);
+        String loggedInToken = getAuthToken(eperson.getEmail(), password);
+        getClient(comAdminToken).perform(get("/api/system/scripts/" + scriptConfiguration.getName()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", ScriptMatcher
+                        .matchScript(
+                                scriptConfiguration.getName(),
+                                scriptConfiguration.getDescription())));
+        getClient(colAdminToken).perform(get("/api/system/scripts/" + scriptConfiguration.getName()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", ScriptMatcher
+                        .matchScript(
+                                scriptConfiguration.getName(),
+                                scriptConfiguration.getDescription())));
+        getClient(itemAdminToken).perform(get("/api/system/scripts/" + scriptConfiguration.getName()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", ScriptMatcher
+                        .matchScript(
+                                scriptConfiguration.getName(),
+                                scriptConfiguration.getDescription())));
+        getClient(loggedInToken).perform(get("/api/system/scripts/" + scriptConfiguration.getName()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", ScriptMatcher
+                        .matchScript(
+                                scriptConfiguration.getName(),
+                                scriptConfiguration.getDescription())));
+        getClient().perform(get("/api/system/scripts/" + scriptConfiguration.getName()))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
     public void findOneScriptByNameNotAuthenticatedTest() throws Exception {
         getClient().perform(get("/api/system/scripts/mock-script"))
                         .andExpect(status().isUnauthorized());
@@ -557,10 +777,21 @@ public class ScriptRestRepositoryIT extends AbstractControllerIntegrationTest {
 
     @Test
     public void findOneScriptByNameTestAccessDenied() throws Exception {
-        String token = getAuthToken(eperson.getEmail(), password);
+        String[] excludedScripts = new String[] {"curate", "bulk-import",
+                "item-export", "bulk-item-export", "bulk-access-control",
+                "collection-export"};
 
-        getClient(token).perform(get("/api/system/scripts/mock-script"))
-                        .andExpect(status().isForbidden());
+        String token = getAuthToken(eperson.getEmail(), password);
+        scriptConfigurations.stream().filter(scriptConfiguration ->
+                        !StringUtils.equalsAny(scriptConfiguration.getName(), excludedScripts))
+                .forEach(scriptConfiguration -> {
+                    try {
+                        getClient(token).perform(get("/api/system/scripts/" + scriptConfiguration.getName()))
+                                .andExpect(status().isForbidden());
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                });
     }
 
     @Test

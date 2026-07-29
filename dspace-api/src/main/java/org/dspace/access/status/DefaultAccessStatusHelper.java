@@ -41,11 +41,6 @@ import org.joda.time.LocalDate;
  *  * Users can override this method for enhanced functionality.
  */
 public class DefaultAccessStatusHelper implements AccessStatusHelper {
-    public static final String EMBARGO = "embargo";
-    public static final String METADATA_ONLY = "metadata.only";
-    public static final String OPEN_ACCESS = "open.access";
-    public static final String RESTRICTED = "restricted";
-    public static final String UNKNOWN = "unknown";
 
     protected ItemService itemService =
             ContentServiceFactory.getInstance().getItemService();
@@ -74,6 +69,10 @@ public class DefaultAccessStatusHelper implements AccessStatusHelper {
             throws SQLException {
         if (item == null) {
             return UNKNOWN;
+        }
+        String itemStatus = calculateAccessStatusForDso(context, item, threshold);
+        if (StringUtils.equals(itemStatus, EMBARGO) || StringUtils.equals(itemStatus, RESTRICTED)) {
+            return itemStatus;
         }
         // Consider only the original bundles.
         List<Bundle> bundles = item.getBundles(Constants.DEFAULT_BUNDLE_NAME);
@@ -156,9 +155,6 @@ public class DefaultAccessStatusHelper implements AccessStatusHelper {
         }
         if (embargoCount > 0 && restrictedCount == 0) {
             return EMBARGO;
-        }
-        if (unknownCount > 0) {
-            return UNKNOWN;
         }
         return RESTRICTED;
     }

@@ -20,7 +20,7 @@ public class MockSolrSuggestionProvider extends SolrSuggestionProvider {
     }
 
     @Override
-    public void importRecords(Context context, Item item) throws Exception {
+    public void importRecords(Context context, Item item, String additionalQuery) throws Exception {
         throw new UnsupportedOperationException();
     }
 

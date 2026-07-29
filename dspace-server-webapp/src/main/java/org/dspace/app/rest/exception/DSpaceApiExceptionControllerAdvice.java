@@ -19,6 +19,7 @@ import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.catalina.connector.ClientAbortException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.dspace.app.exception.ResourceAlreadyExistsException;
@@ -266,6 +267,14 @@ public class DSpaceApiExceptionControllerAdvice extends ResponseEntityExceptionH
                                                         HttpStatus status, WebRequest request) {
         // we want the 400 status for missing parameters, see https://jira.lyrasis.org/browse/DS-4428
         return super.handleTypeMismatch(ex, headers, HttpStatus.BAD_REQUEST, request);
+    }
+
+    @ExceptionHandler(ClientAbortException.class)
+    public void clientAbortExceptionHandler(HttpServletRequest request, ClientAbortException e) {
+        // This usually means the browser closed or disconnected or
+        // something. We can't do anything. To avoid excessive stack traces
+        // in log, just print a simple message
+        log.warn("ClientAbortException");
     }
 
     @ExceptionHandler(Exception.class)

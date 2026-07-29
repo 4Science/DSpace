@@ -9,6 +9,7 @@ package org.dspace.app.rest;
 
 import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
 import static javax.servlet.http.HttpServletResponse.SC_OK;
+import static net.bytebuddy.matcher.ElementMatchers.anyOf;
 import static org.apache.commons.codec.CharEncoding.UTF_8;
 import static org.apache.commons.io.IOUtils.toInputStream;
 import static org.dspace.app.rest.matcher.MetadataMatcher.matchMetadata;
@@ -55,6 +56,7 @@ import org.dspace.builder.BundleBuilder;
 import org.dspace.builder.CollectionBuilder;
 import org.dspace.builder.CommunityBuilder;
 import org.dspace.builder.EPersonBuilder;
+import org.dspace.builder.GroupBuilder;
 import org.dspace.builder.ItemBuilder;
 import org.dspace.builder.ResourcePolicyBuilder;
 import org.dspace.builder.WorkspaceItemBuilder;
@@ -87,25 +89,19 @@ import org.springframework.test.web.servlet.MvcResult;
 public class BitstreamRestRepositoryIT extends AbstractControllerIntegrationTest {
 
     @Autowired
-    private BitstreamService bitstreamService;
-
-    @Autowired
-    private ResourcePolicyService resourcePolicyService;
-
-    @Autowired
-    private BitstreamFormatService bitstreamFormatService;
-
-    @Autowired
-    private GroupService groupService;
-
-    @Autowired
-    private ItemService itemService;
-
-    @Autowired
     CollectionService collectionService;
-
     @Autowired
     CommunityService communityService;
+    @Autowired
+    private BitstreamService bitstreamService;
+    @Autowired
+    private ResourcePolicyService resourcePolicyService;
+    @Autowired
+    private BitstreamFormatService bitstreamFormatService;
+    @Autowired
+    private GroupService groupService;
+    @Autowired
+    private ItemService itemService;
 
     @Test
     public void findAllTest() throws Exception {
@@ -711,7 +707,7 @@ public class BitstreamRestRepositoryIT extends AbstractControllerIntegrationTest
 
         // Replace anon read policy on bundle of bitstream with ePerson READ policy
         resourcePolicyService.removePolicies(context, bitstream.getBundles().get(0), Constants.READ);
-        ResourcePolicyBuilder.createResourcePolicy(context).withUser(eperson)
+        ResourcePolicyBuilder.createResourcePolicy(context, eperson, null)
                              .withAction(Constants.READ)
                              .withDspaceObject(bitstream.getBundles().get(0)).build();
 
@@ -774,9 +770,9 @@ public class BitstreamRestRepositoryIT extends AbstractControllerIntegrationTest
 
         // Replace anon read policy on bundle of bitstream with ePerson READ policy
         resourcePolicyService.removePolicies(context, bitstream.getBundles().get(0), Constants.READ);
-        ResourcePolicyBuilder.createResourcePolicy(context).withUser(eperson)
-            .withAction(Constants.READ)
-            .withDspaceObject(bitstream.getBundles().get(0)).build();
+        ResourcePolicyBuilder.createResourcePolicy(context, eperson, null)
+                             .withAction(Constants.READ)
+                             .withDspaceObject(bitstream.getBundles().get(0)).build();
 
         context.restoreAuthSystemState();
 
@@ -899,7 +895,7 @@ public class BitstreamRestRepositoryIT extends AbstractControllerIntegrationTest
 
         // Replace anon read policy on item of bitstream with ePerson READ policy
         resourcePolicyService.removePolicies(context, publicItem1, Constants.READ);
-        ResourcePolicyBuilder.createResourcePolicy(context).withUser(eperson)
+        ResourcePolicyBuilder.createResourcePolicy(context, eperson, null)
                              .withAction(Constants.READ)
                              .withDspaceObject(publicItem1).build();
 
@@ -1547,8 +1543,7 @@ public class BitstreamRestRepositoryIT extends AbstractControllerIntegrationTest
                                         .build();
         }
 
-        ResourcePolicyBuilder.createResourcePolicy(context)
-                             .withUser(eperson)
+        ResourcePolicyBuilder.createResourcePolicy(context, eperson, null)
                              .withAction(WRITE)
                              .withDspaceObject(col1)
                              .build();
@@ -2992,6 +2987,102 @@ public class BitstreamRestRepositoryIT extends AbstractControllerIntegrationTest
     }
 
     @Test
+    public void findShowableByItemWithHideMetadata() throws Exception {
+
+        //Turn off the authorization system, otherwise we can't make the objects
+        context.turnOffAuthorisationSystem();
+
+        //** GIVEN **
+        //1. A community-collection structure with one parent community and one collection.
+        parentCommunity =
+            CommunityBuilder.createCommunity(context)
+                            .withName("Parent Community")
+                            .build();
+        Collection col1 = CollectionBuilder.createCollection(context, parentCommunity).withName("Collection 1").build();
+
+        //2. A public item that is readable by Anonymous
+        Item publicItem =
+            ItemBuilder.createItem(context, col1)
+                       .withTitle("Public item with hidden bitstream")
+                       .withIssueDate("2017-10-17")
+                       .withAuthor("Smith, Donald")
+                       .build();
+
+        // 3. Create visible bitstream in ORIGINAL bundle
+        Bitstream visibleBitstream =
+            BitstreamBuilder.createBitstream(context, publicItem, toInputStream("visible content", UTF_8))
+                            .withName("visible-file.txt")
+                            .withFormat("text/plain")
+                            .build();
+
+        // 4. Create hidden bitstream in ORIGINAL bundle with bitstream.hide = true metadata
+        Bitstream hiddenBitstream =
+            BitstreamBuilder.createBitstream(context, publicItem, toInputStream("hidden content", UTF_8))
+                            .withName("hidden-file.txt")
+                            .withMetadata("bitstream", "hide", null, "true")
+                            .withFormat("text/plain")
+                            .build();
+
+        // 5. Create another visible bitstream with bitstream.hide = false (should be shown)
+        Bitstream explicitlyVisibleBitstream =
+            BitstreamBuilder.createBitstream(context, publicItem, toInputStream("explicitly visible", UTF_8))
+                            .withName("explicitly-visible.txt")
+                            .withMetadata("bitstream", "hide", null, "false")
+                            .withFormat("text/plain")
+                            .build();
+
+        // 6. Create another hidden bitstream with bitstream.hide = yes (should be filtered)
+        Bitstream hiddenBitstreamYes =
+            BitstreamBuilder.createBitstream(context, publicItem, toInputStream("hidden yes content", UTF_8))
+                            .withName("hidden-yes-file.txt")
+                            .withFormat("text/plain")
+                            .build();
+
+        // Add bitstream.hide = yes metadata
+        bitstreamService.addMetadata(context, hiddenBitstreamYes, "bitstream", "hide", null, null, "yes");
+
+        context.commit();
+        context.restoreAuthSystemState();
+
+        String token = getAuthToken(admin.getEmail(), password);
+
+        //** WHEN & THEN **
+        // Test 1: Search for bitstreams in ORIGINAL bundle
+        // Should return only visible bitstreams (visibleBitstream and explicitlyVisibleBitstream)
+        // Should NOT return hidden bitstreams (hiddenBitstream and hiddenBitstreamYes)
+        getClient(token).perform(
+                            get("/api/core/bitstreams/search/showableByItem")
+                                .param("uuid", publicItem.getID().toString())
+                                .param("name", Constants.CONTENT_BUNDLE_NAME)
+                        )
+                        .andExpect(status().isOk())
+                        .andExpect(content().contentType(contentType))
+                        .andExpect(
+                            jsonPath(
+                                "$._embedded.bitstreams",
+                                allOf(
+                                    hasItem(BitstreamMatcher.matchProperties(visibleBitstream)),
+                                    hasItem(BitstreamMatcher.matchProperties(explicitlyVisibleBitstream))
+                                )
+                            )
+                        )
+                        .andExpect(
+                            jsonPath("$._embedded.bitstreams", hasSize(2))
+                        )
+                        .andExpect(
+                            jsonPath(
+                                "$._embedded.bitstreams",
+                                not(
+                                    anyOf(
+                                        hasItem(BitstreamMatcher.matchProperties(hiddenBitstream)),
+                                        hasItem(BitstreamMatcher.matchProperties(hiddenBitstreamYes))
+                                    )
+                                )
+                            )
+                        );
+    }
+
+    @Test
     public void deleteBitstreamsInBulk() throws Exception {
         context.turnOffAuthorisationSystem();
         parentCommunity = CommunityBuilder.createCommunity(context)
@@ -3323,10 +3414,12 @@ public class BitstreamRestRepositoryIT extends AbstractControllerIntegrationTest
                                           .withEmail("col2admin@test.com")
                                           .withPassword(password)
                                           .build();
-        Group col1_AdminGroup = collectionService.createAdministrators(context, col1);
-        Group col2_AdminGroup = collectionService.createAdministrators(context, col2);
-        groupService.addMember(context, col1_AdminGroup, col1Admin);
-        groupService.addMember(context, col2_AdminGroup, col2Admin);
+        Group col1_AdminGroup = GroupBuilder.createCollectionAdminGroup(context, col1)
+                .addMember(col1Admin)
+                .build();
+        Group col2_AdminGroup = GroupBuilder.createCollectionAdminGroup(context, col2)
+                .addMember(col2Admin)
+                .build();
         Item publicItem1 = ItemBuilder.createItem(context, col1)
                                       .withTitle("Test item 1")
                                       .build();
@@ -3427,8 +3520,9 @@ public class BitstreamRestRepositoryIT extends AbstractControllerIntegrationTest
                                                      .withEmail("parentComAdmin@test.com")
                                                      .withPassword(password)
                                                      .build();
-        Group parentComAdminGroup = communityService.createAdministrators(context, parentCommunity);
-        groupService.addMember(context, parentComAdminGroup, parentCommunityAdmin);
+        Group parentComAdminGroup = GroupBuilder.createCommunityAdminGroup(context, parentCommunity)
+                .addMember(parentCommunityAdmin)
+                .build();
         Item publicItem1 = ItemBuilder.createItem(context, col1)
                                       .withTitle("Test item 1")
                                       .build();

@@ -13,6 +13,7 @@ import static org.dspace.app.suggestion.SuggestionUtils.getFirstEntryByMetadatum
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrServerException;
@@ -104,9 +105,9 @@ public class OAIREPublicationLoader extends SolrSuggestionProvider {
      * @throws IOException
      */
     @Override
-    public void importRecords(Context context, Item researcher)
+    public void importRecords(Context context, Item researcher, String additionalQuery)
             throws Exception {
-        List<ExternalDataObject> metadata = getImportRecords(researcher);
+        List<ExternalDataObject> metadata = getImportRecords(researcher, additionalQuery);
         List<Suggestion> records = reduceAndTransform(researcher, metadata);
         for (Suggestion record : records) {
             solrSuggestionStorageService.addSuggestion(record, false, false);
@@ -158,8 +159,13 @@ public class OAIREPublicationLoader extends SolrSuggestionProvider {
      * @param researcher item to extract metadata from
      * @return list of ImportRecord
      */
-    private List<ExternalDataObject> getImportRecords(Item researcher) {
+    private List<ExternalDataObject> getImportRecords(Item researcher, String additionalQuery) {
         List<String> searchValues = searchMetadataValues(researcher);
+        if (StringUtils.isNotBlank(additionalQuery)) {
+            searchValues = searchValues.stream()
+                .map(value -> StringUtils.join(new String[] {value, additionalQuery}, " "))
+                .collect(Collectors.toList());
+        }
         List<ExternalDataObject> matchingRecords = new ArrayList<>();
         for (String searchValue : searchValues) {
             matchingRecords.addAll(primaryProvider.searchExternalDataObjects(searchValue, 0, 9999));

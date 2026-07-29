@@ -40,7 +40,7 @@ public class MigrationUtils {
     private MigrationUtils() { }
 
     /**
-     * Drop a given Database Constraint (based on the current database type).
+     * Drop a given Database BitstreamConstraint (based on the current database type).
      * Returns a "checksum" for this migration which can be used as part of
      * a Flyway Java migration
      *

@@ -7,9 +7,6 @@
  */
 package org.dspace.identifier.factory;
 
-import java.util.Set;
-
-import org.dspace.identifier.generators.DoiGenerationStrategy;
 import org.dspace.identifier.service.DOIService;
 import org.dspace.identifier.service.IdentifierService;
 import org.dspace.services.factory.DSpaceServicesFactory;
@@ -25,8 +22,6 @@ public abstract class IdentifierServiceFactory {
     public abstract IdentifierService getIdentifierService();
 
     public abstract DOIService getDOIService();
-
-    public abstract Set<DoiGenerationStrategy> getDoiGenerationStrategies();
 
     public static IdentifierServiceFactory getInstance() {
         return DSpaceServicesFactory.getInstance().getServiceManager()

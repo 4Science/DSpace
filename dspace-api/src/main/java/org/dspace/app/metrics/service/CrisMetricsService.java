@@ -30,8 +30,6 @@ public interface CrisMetricsService {
 
     public List<CrisMetrics> findAll(Context context, Integer limit, Integer offset) throws SQLException;
 
-    public List<CrisMetrics> findAllByDSO(Context context, DSpaceObject dSpaceObject) throws SQLException;
-
     public List<CrisMetrics> findAllLast(Context context, Integer limit, Integer offset) throws SQLException;
 
     public int countAllLast(Context context) throws SQLException;
@@ -40,12 +38,18 @@ public interface CrisMetricsService {
 
     public CrisMetrics create(Context context, DSpaceObject dSpaceObject) throws SQLException, AuthorizeException;
 
+    public CrisMetrics create(Context context, int resourceType, UUID resourceId)
+            throws SQLException, AuthorizeException;
+
     public void delete(Context context, CrisMetrics crisMetrics) throws SQLException, AuthorizeException;
 
     public void deleteByResourceID(Context context, DSpaceObject dSpaceObject) throws SQLException, AuthorizeException;
 
     public CrisMetrics findLastMetricByResourceIdAndMetricsTypes(Context context, String metricType, UUID resourceUuid)
             throws SQLException;
+
+    public List<CrisMetrics> findLastMetricsByResourceId(Context context, UUID resourceUuid,
+            Integer limit, Integer offset) throws SQLException;
 
     public CrisMetrics uniqueLastMetricByResourceIdAndResourceTypeIdAndMetricsType(Context context, String metricType,
                              UUID resourceUuid, boolean last) throws SQLException;

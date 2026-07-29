@@ -4,30 +4,26 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans
            http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
 
-    <!-- Identifier Service Application Interface.  Will be autowired with
+    <!-- Identifier Service Application Interface. Will be autowired with
          any Identifier Providers present in Spring context.
     -->
     <bean id="org.dspace.identifier.service.IdentifierService"
           class="org.dspace.identifier.IdentifierServiceImpl"
-          autowire="byType"
-          scope="singleton">
-        <!-- ADDITIONAL PROVIDERS -->
-        <!--
-        <property name="providers">
-            <list>
-                <ref bean="org.dspace.identifier.HandleIdentifierProvider"/>
-                <ref bean="org.dspace.identifier.DOIIdentifierProvider"/>
-            </list>
-        </property>
-        -->
-        <!-- ADDITIONAL PROVIDERS -->
+          autowire="byType">
     </bean>
 
-      <!-- If you enabled versioning, you should use one of the versioned
-           handle identifier provider instead of the default one.
-           The VersionedHandleIdentifierProvider creates a new versioned
-           handle for every new version.
-           -->
+    <!-- If you disable versioning, you need to use the default HandleIdentifierProvider. -->
+    <!--
+    <bean id="org.dspace.identifier.HandleIdentifierProvider" class="org.dspace.identifier.HandleIdentifierProvider" scope="singleton">
+        <property name="configurationService" ref="org.dspace.services.ConfigurationService"/>
+    </bean>
+    -->
+
+    <!-- If you enabled versioning, you should use one of the versioned
+         handle identifier provider instead of the default one.
+         The VersionedHandleIdentifierProvider creates a new versioned
+         handle for every new version.
+         -->
     <bean id="org.dspace.identifier.HandleIdentifierProvider" class="org.dspace.identifier.VersionedHandleIdentifierProvider" scope="singleton">
         <property name="configurationService" ref="org.dspace.services.ConfigurationService"/>
     </bean>
@@ -37,7 +33,7 @@
            a new version is created the previous version gets a new
            handle. This leads to a handle that points always to the
            newest version, but there is no permanent handle, that
-           will always keep pointing to the acutal newest one.
+           will always keep pointing to the actual newest one.
            -->
     <!--
     <bean id="org.dspace.identifier.HandleIdentifierProvider" class="org.dspace.identifier.VersionedHandleIdentifierProviderWithCanonicalHandles" scope="singleton">
@@ -45,13 +41,12 @@
     </bean>
     -->
 
-    <!-- provider to mint and register DOIs with DSpace.
-         To mint DOIs you need a registration agency. The DOIIdentifierProvider
-         maintains the doi database table and handling of DSpaceObject. It uses
-         a DOIConnector that handles all API calls to your DOI registration
-         agency. Please configure a DOIConnector as well! -->
+    <!-- DOIIdentifierProvider mints and registers DOIs with DSpace.
+         The DOIIdentifierProvider maintains the doi database table and handling
+         of DSpaceObject. It uses a DOIConnector that handles all API calls to
+         your DOI registration agency. Please configure a DOIConnector as well!
 
-    <!-- In order to mint DOIs with DSpace, get an agreement with a DOI
+         In order to mint DOIs with DSpace, get an agreement with a DOI
          registration agency,  take a look into dspace.cfg, and activate either
          the DOIIdentifierProvider or the VersionedDOIIdentifierProvider,
          depending on whether you have Item Level Versioning activated or not.
@@ -79,7 +74,9 @@
     -->
 
     <!-- An optional logical item filter can be included in provider configuration based
-    on the filters defined in item-filters.xml, eg. -->
+    on the filters defined in item-filters.xml, eg.
+    Of course, you can use a filter on the VersionedDOIIdentifierProvider as well.
+    -->
     <!--
     <bean id="org.dspace.identifier.DOIIdentifierProvider"
         class="org.dspace.identifier.DOIIdentifierProvider"
@@ -103,10 +100,10 @@
     -->
     <!-- Uncomment this to use the DataCite API directly as DOIConnector.
     <bean id="org.dspace.identifier.doi.DOIConnector"
-        class="org.dspace.identifier.doi.DataCiteConnector"
-        scope="singleton">
+          class="org.dspace.identifier.doi.DataCiteConnector"
+          scope="singleton">
         <property name='DATACITE_SCHEME' value='https'/>
-        <property name='DATACITE_HOST' value='mds.test.datacite.org'/>
+        <property name='DATACITE_HOST' value='${doi.datacite.host}'/>
         <property name='DATACITE_DOI_PATH' value='/doi/' />
         <property name='DATACITE_METADATA_PATH' value='/metadata/' />
         <property name='disseminationCrosswalkByEntityType'>
@@ -167,9 +164,7 @@
         <property name="configurationValue" value="${identifier.doi.namespaceseparator}" />
     </bean>
 
-    &lt;!&ndash; Below there are defined the generation strategy &ndash;&gt;
     <bean id="defaultDoiGenerationStrategy" class="org.dspace.identifier.generators.ConfigurableDoiGenerationStrategy">
-        &lt;!&ndash; Filter configured in item-filters.xml file &ndash;&gt;
         <constructor-arg name="filter" ref="always_true_filter" />
         <constructor-arg name="doiNamespaceGenerator" ref="defaultValueNamespace" />
         <constructor-arg name="generationType" value="DEFAULT" />
@@ -183,7 +178,7 @@
             <map>
                 <entry key="collections">
                     <list>
-                        <value>123456789/6</value>
+                        <value>${doi.generator.collection.publication.handle:-}</value>
                     </list>
                 </entry>
             </map>
@@ -192,17 +187,19 @@
     <bean id="publicationFilter" class="org.dspace.content.logic.DefaultFilter">
         <property name="statement" ref="publicationCollectionCond"/>
     </bean>
+    <bean id="publicationDOIGenerationStrategy" class="org.dspace.identifier.generators.ConfigurableDoiGenerationStrategy">
+        <constructor-arg name="filter" ref="publicationFilter" />
+        <constructor-arg name="doiNamespaceGenerator" ref="defaultValueNamespace" />
+        <constructor-arg name="generationType" value="CUSTOM" />
+    </bean>
+    -->
+<!--
 
     <bean id="publicationGenerator" class="org.dspace.identifier.generators.FixedConfigurationValueNamespaceGenerator">
         <property name="configurationValue" value="publications/dspace-local/" />
     </bean>
 
-    <bean id="thesisDoiGenerationStrategy" class="org.dspace.identifier.generators.ConfigurableDoiGenerationStrategy">
-        <constructor-arg name="filter" ref="publicationFilter" />
-        <constructor-arg name="doiNamespaceGenerator" ref="publicationGenerator" />
-        <constructor-arg name="generationType" value="CUSTOM" />
-    </bean>
-    -->
+-->
     <!-- CUSTOM GENERATORS -->
 
 </beans>

@@ -30,14 +30,10 @@ import org.dspace.services.factory.DSpaceServicesFactory;
  */
 public class ImportFileUtil {
 
-    private static final Logger log = LogManager.getLogger(ImportFileUtil.class);
-
     public static final String REMOTE = "REMOTE";
-
-    private static final String LOCAL = "LOCAL";
-
     public static final String FTP = "FTP";
-
+    private static final Logger log = LogManager.getLogger(ImportFileUtil.class);
+    private static final String LOCAL = "LOCAL";
     private static final String HTTP_PREFIX = "http:";
 
     private static final String HTTPS_PREFIX = "https:";
@@ -47,6 +43,14 @@ public class ImportFileUtil {
     private static final String FTP_PREFIX = "ftp:";
 
     private static final String UNKNOWN = "UNKNOWN";
+    protected DSpaceRunnableHandler handler;
+
+    public ImportFileUtil() {
+    }
+
+    public ImportFileUtil(DSpaceRunnableHandler handler) {
+        this.handler = handler;
+    }
 
     /**
      * This method check if the given {@param possibleChild} is contained in the specified
@@ -73,14 +77,6 @@ public class ImportFileUtil {
                                     .getArrayProperty("allowed.ips.import");
     }
 
-    protected DSpaceRunnableHandler handler;
-
-    public ImportFileUtil() {}
-
-    public ImportFileUtil(DSpaceRunnableHandler handler) {
-        this.handler = handler;
-    }
-
     public Optional<InputStream> getInputStream(String path) {
         String fileLocationType = getFileLocationTypeByPath(path);
 
@@ -98,6 +94,7 @@ public class ImportFileUtil {
             handler.logWarning(message);
         }
     }
+
 
     private String getFileLocationTypeByPath(String path) {
         if (StringUtils.isNotBlank(path)) {
@@ -160,9 +157,18 @@ public class ImportFileUtil {
     }
 
     private Optional<InputStream> getInputStreamOfRemoteFile(String path) throws IOException {
-        return Optional.of(new URL(path))
-                       .filter(url -> Set.of(getAllowedIps()).contains(url.getHost()))
-                       .map(this::openStream);
+        URL url = getUrl(path);
+        Set<String> allowedIps = Set.of(getAllowedIps());
+        String host = url.getHost();
+
+        if (allowedIps.isEmpty() || allowedIps.contains(host)) {
+            return Optional.ofNullable(openStream(url));
+        }
+
+        // Log the rejected domain
+        logWarning(String.format("Domain '%s' is not in the allowed list. Path: %s", host, path));
+
+        return Optional.empty();
     }
 
     protected InputStream openStream(URL url) {
@@ -173,9 +179,19 @@ public class ImportFileUtil {
         }
     }
 
+    protected URL getUrl(String path) throws IOException {
+        return new URL(path);
+    }
+
     private Optional<InputStream> getInputStreamOfFtpFile(String url) throws IOException {
-        URL urlObject = new URL(url);
+        URL urlObject = getUrl(url);
         URLConnection urlConnection = urlObject.openConnection();
-        return Optional.of(urlConnection.getInputStream());
+        InputStream inputStream = urlConnection.getInputStream();
+        if (inputStream == null) {
+            logError(
+                String.format("Failed to obtain InputStream for FTP URL: %s. getInputStream() returned null", url));
+            return Optional.empty();
+        }
+        return Optional.of(inputStream);
     }
 }

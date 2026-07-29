@@ -73,6 +73,7 @@ public class CollectionMatcher {
                 hasJsonPath("$.name", is(name)),
                 hasJsonPath("$.handle", is(handle)),
                 hasJsonPath("$.type", is("collection")),
+                hasJsonPath("$.uniqueType", is("core.collection")),
                 hasJsonPath("$.metadata", Matchers.allOf(
                         MetadataMatcher.matchMetadata("dc.title", name)
                 )));
@@ -137,6 +138,7 @@ public class CollectionMatcher {
         return allOf(hasJsonPath("$.uuid", is(collection.getID().toString())),
                 hasJsonPath("$.name", is(collection.getName())),
                 hasJsonPath("$.type", is("collection")),
+                hasJsonPath("$.uniqueType", is("core.collection")),
                 hasJsonPath("$.handle", is(collection.getHandle())));
     }
 

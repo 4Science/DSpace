@@ -1413,7 +1413,7 @@ public class SupervisionOrderRestRepositoryIT extends AbstractControllerIntegrat
             getClient(authTokenA).perform(patch("/api/workflow/workflowitems/" + idRef.get())
                                               .content(patchBody)
                                               .contentType(contentType))
-                                 .andExpect(status().isUnprocessableEntity());
+                                 .andExpect(status().isForbidden());
 
         } finally {
             if (idRef.get() != null) {

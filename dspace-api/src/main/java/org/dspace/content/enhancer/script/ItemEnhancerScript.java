@@ -73,9 +73,9 @@ public class ItemEnhancerScript extends DSpaceRunnable<ItemEnhancerScriptConfigu
         try {
             int total = itemService.countArchivedItems(context);
             for (int offset = 0; offset < total; offset += PAGE_SIZE) {
+                // commit and session clear within the enhance method
+                // do one by one to reduce the risk of conflict with the enhance thread
                 findItemsToEnhance(offset).forEachRemaining(this::enhanceItem);
-                context.commit();
-                context.clear();
             }
         } catch (SQLException e) {
             throw new SQLRuntimeException(e);
@@ -91,13 +91,10 @@ public class ItemEnhancerScript extends DSpaceRunnable<ItemEnhancerScriptConfigu
     }
 
     private void enhanceItem(Item item) {
-        itemEnhancerService.enhance(context, item, force);
-        uncacheItem(item);
-    }
-
-    private void uncacheItem(Item item) {
         try {
-            context.uncacheEntity(item);
+            itemEnhancerService.enhance(context, item, force);
+            context.commit();
+            context.clear();
         } catch (SQLException e) {
             throw new SQLRuntimeException(e);
         }

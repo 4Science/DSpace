@@ -219,7 +219,7 @@ public class ItemImport extends DSpaceRunnable<ItemImportScriptConfiguration> {
             itemImportService.setHandler(handler);
 
             try {
-                context.turnOffAuthorisationSystem();
+                handleAuthorizationSystem(context);
 
                 readZip(context, itemImportService);
 
@@ -231,6 +231,8 @@ public class ItemImport extends DSpaceRunnable<ItemImportScriptConfiguration> {
                 context.abort();
                 throw new Exception(
                     "Error committing changes to database: " + e.getMessage() + ", aborting most recent changes", e);
+            } finally {
+                handleAuthorizationSystem(context);
             }
 
             if (isTest) {
@@ -350,7 +352,7 @@ public class ItemImport extends DSpaceRunnable<ItemImportScriptConfiguration> {
             }
 
             workFile = new File(itemImportService.getTempWorkDir() + File.separator
-                    + zipfilename + "-" + context.getCurrentUser().getID());
+                    + zipfilename + "-" + UUID.randomUUID());
             FileUtils.copyInputStreamToFile(optionalFileStream.get(), workFile);
         } else {
             throw new IllegalArgumentException(
@@ -358,7 +360,7 @@ public class ItemImport extends DSpaceRunnable<ItemImportScriptConfiguration> {
         }
 
         workDir = new File(itemImportService.getTempWorkDir() + File.separator + TEMP_DIR
-                           + File.separator + context.getCurrentUser().getID());
+                           + File.separator + UUID.randomUUID());
         sourcedir = itemImportService.unzip(workFile, workDir.getAbsolutePath());
     }
 

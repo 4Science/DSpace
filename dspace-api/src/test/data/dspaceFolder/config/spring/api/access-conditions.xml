@@ -45,6 +45,18 @@
         <property name="hasStartDate" value="false"/>
         <property name="hasEndDate" value="false"/>
     </bean>
+    <bean id="itemOnlyPolicy" class="org.dspace.submit.model.AccessConditionOption">
+        <property name="groupName" value="Anonymous"/>
+        <property name="name" value="itemOnlyPolicy"/>
+        <property name="hasStartDate" value="false"/>
+        <property name="hasEndDate" value="false"/>
+    </bean>
+    <bean id="bitstreamOnlyPolicy" class="org.dspace.submit.model.AccessConditionOption">
+        <property name="groupName" value="Anonymous"/>
+        <property name="name" value="bitstreamOnlyPolicy"/>
+        <property name="hasStartDate" value="false"/>
+        <property name="hasEndDate" value="false"/>
+    </bean>
 <!--     <bean id="networkAdministration" class="org.dspace.submit.model.AccessConditionOption">
     	<property name="groupName" value="INSTITUTIONAL_NETWORK"/>
         <property name="name" value="networkAdministration"/>
@@ -109,6 +121,7 @@
                 <ref bean="administrator"/>
                 <ref bean="embargoed" />
                 <ref bean="lease"/>
+                <ref bean="itemOnlyPolicy"/>
             </list>
         </property>
         <property name="bitstreamAccessConditionOptions">
@@ -117,6 +130,7 @@
                 <ref bean="administrator"/>
                 <ref bean="embargoed" />
                 <ref bean="lease"/>
+                <ref bean="bitstreamOnlyPolicy"/>
             </list>
         </property>
     </bean>

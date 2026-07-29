@@ -113,8 +113,9 @@ public class DSpaceControlledVocabulary extends SelfNamedPlugin implements Hiera
                 }
             }
             String vocabulariesPath = DSpaceServicesFactory.getInstance().getConfigurationService()
-                                                           .getProperty(
-                                                               "dspace.dir") + "/config/controlled-vocabularies/";
+                                                           .getProperty("dspace.dir") +
+                                                           File.separator + "config" +
+                                                           File.separator + "controlled-vocabularies";
             String[] xmlFiles = (new File(vocabulariesPath)).list(new xmlFilter());
             List<String> names = new ArrayList<String>();
             for (String filename : xmlFiles) {
@@ -252,6 +253,7 @@ public class DSpaceControlledVocabulary extends SelfNamedPlugin implements Hiera
 
     @Override
     public boolean isHierarchical() {
+        init();
         return true;
     }
 

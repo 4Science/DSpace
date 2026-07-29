@@ -21,23 +21,21 @@ import org.dspace.core.service.PluginService;
 import org.dspace.importer.external.datamodel.ImportRecord;
 import org.dspace.importer.external.exception.MetadataSourceException;
 import org.dspace.importer.external.metadatamapping.MetadatumDTO;
-import org.dspace.importer.external.ror.service.RorImportMetadataSourceServiceImpl;
+import org.dspace.importer.external.ror.service.RorImportMetadataSourceService;
+import org.dspace.importer.external.ror.service.RorServicesFactory;
 import org.dspace.services.ConfigurationService;
 import org.dspace.services.factory.DSpaceServicesFactory;
-import org.dspace.utils.DSpace;
 
 public class RorOrgUnitAuthority extends ItemAuthority {
 
-    private final RorImportMetadataSourceServiceImpl rorImportMetadataSource = new DSpace().getServiceManager()
-        .getServicesByType(RorImportMetadataSourceServiceImpl.class).get(0);
+    private final RorImportMetadataSourceService rorImportMetadataSource =
+        RorServicesFactory.getInstance().getRorImportMetadataSourceService();
 
     private final ItemAuthorityServiceFactory itemAuthorityServiceFactory =
         dspace.getServiceManager().getServiceByName("itemAuthorityServiceFactory", ItemAuthorityServiceFactory.class);
     private final ConfigurationService configurationService =
         DSpaceServicesFactory.getInstance().getConfigurationService();
     private final PluginService pluginService = CoreServiceFactory.getInstance().getPluginService();
-
-    private String authorityName;
 
     @Override
     public Choices getMatches(String text, int start, int limit, String locale) {
@@ -169,15 +167,5 @@ public class RorOrgUnitAuthority extends ItemAuthority {
     @Override
     public String getLinkedEntityType() {
         return configurationService.getProperty("cris.ItemAuthority." + authorityName + ".entityType");
-    }
-
-    @Override
-    public void setPluginInstanceName(String name) {
-        authorityName = name;
-    }
-
-    @Override
-    public String getPluginInstanceName() {
-        return authorityName;
     }
 }

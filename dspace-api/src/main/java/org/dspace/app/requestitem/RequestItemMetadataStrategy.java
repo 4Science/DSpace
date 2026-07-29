@@ -13,11 +13,11 @@ import java.util.Collections;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.validator.routines.EmailValidator;
 import org.dspace.content.Item;
 import org.dspace.content.MetadataValue;
 import org.dspace.content.service.ItemService;
 import org.dspace.core.Context;
-import org.dspace.core.I18nUtil;
 import org.dspace.services.ConfigurationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.lang.NonNull;
@@ -57,6 +57,7 @@ public class RequestItemMetadataStrategy extends RequestItemSubmitterStrategy {
             }
             boolean useNames = vals.size() == nameVals.size();
             if (!vals.isEmpty()) {
+                EmailValidator emailValidator = EmailValidator.getInstance(false, false);
                 authors = new ArrayList<>(vals.size());
                 for (int authorIndex = 0; authorIndex < vals.size(); authorIndex++) {
                     String email = vals.get(authorIndex).getValue();
@@ -66,42 +67,47 @@ public class RequestItemMetadataStrategy extends RequestItemSubmitterStrategy {
                     }
 
                     if (StringUtils.isBlank(fullname)) {
-                        fullname = I18nUtil.getMessage(
-                                "org.dspace.app.requestitem.RequestItemMetadataStrategy.unnamed",
-                                context);
+                        fullname = email;
                     }
-                    RequestItemAuthor author = new RequestItemAuthor(
-                            fullname, email);
-                    authors.add(author);
+
+                    if (emailValidator.isValid(email)) {
+                        RequestItemAuthor author = new RequestItemAuthor(fullname, email);
+                        authors.add(author);
+                    }
                 }
-                return authors;
+                return authors.size() > 0 ? authors : fallback(context, item);
             } else {
-                return Collections.EMPTY_LIST;
+                return fallback(context, item);
             }
         } else {
-            // Uses the basic strategy to look for the original submitter
-            authors = super.getRequestItemAuthor(context, item);
-
-            // Remove from the list authors that do not have email addresses.
-            for (RequestItemAuthor author : authors) {
-                if (null == author.getEmail()) {
-                    authors.remove(author);
-                }
-            }
-
-            if (authors.isEmpty()) { // No author email addresses!  Fall back
-                //First get help desk name and email
-                String email = configurationService.getProperty("mail.helpdesk");
-                String name = configurationService.getProperty("mail.helpdesk.name");
-                // If help desk mail is null get the mail and name of admin
-                if (email == null) {
-                    email = configurationService.getProperty("mail.admin");
-                    name = configurationService.getProperty("mail.admin.name");
-                }
-                authors.add(new RequestItemAuthor(name, email));
-            }
-            return authors;
+            return fallback(context, item);
         }
+    }
+
+    private List<RequestItemAuthor> fallback(Context context, Item item) throws SQLException {
+        List<RequestItemAuthor> authors;
+        // Uses the basic strategy to look for the original submitter
+        authors = super.getRequestItemAuthor(context, item);
+
+        // Remove from the list authors that do not have email addresses.
+        for (RequestItemAuthor author : authors) {
+            if (null == author.getEmail()) {
+                authors.remove(author);
+            }
+        }
+
+        if (authors.isEmpty()) { // No author email addresses!  Fall back
+            //First get help desk name and email
+            String email = configurationService.getProperty("mail.helpdesk");
+            String name = configurationService.getProperty("mail.helpdesk.name");
+            // If help desk mail is null get the mail and name of admin
+            if (email == null) {
+                email = configurationService.getProperty("mail.admin");
+                name = configurationService.getProperty("mail.admin.name");
+            }
+            authors.add(new RequestItemAuthor(name, email));
+        }
+        return authors;
     }
 
     public void setEmailMetadata(@NonNull String emailMetadata) {
@@ -110,6 +116,14 @@ public class RequestItemMetadataStrategy extends RequestItemSubmitterStrategy {
 
     public void setFullNameMetadata(@NonNull String fullNameMetadata) {
         this.fullNameMetadata = fullNameMetadata;
+    }
+
+    public void setConfigurationService(ConfigurationService configurationService) {
+        this.configurationService = configurationService;
+    }
+
+    public void setItemService(ItemService itemService) {
+        this.itemService = itemService;
     }
 
 }

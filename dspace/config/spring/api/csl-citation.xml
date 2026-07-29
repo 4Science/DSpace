@@ -24,6 +24,7 @@
         <property name="issued" value="dc.date.issued"/>
         <property name="author" value="dc.contributor.author"/>
         <property name="editor" value="dc.contributor.editor"/>
+        <property name="containerTitle" value="dc.relation.ispartof"/>
     </bean>
     
     <bean name="mapConverterPublicationTypes" class="org.dspace.util.SimpleMapConverter" init-method="init">

@@ -33,7 +33,8 @@ public class OrcidHistoryMatcher {
                 hasJsonPath("$.status", is(status)),
                 hasJsonPath("$.putCode", is(putCode)),
                 hasJsonPath("$.responseMessage", is(responseMessage)),
-                hasJsonPath("$.type", is("orcidhistory"))
+                hasJsonPath("$.type", is("orcidhistory")),
+                hasJsonPath("$.uniqueType", is("eperson.orcidhistory"))
         );
     }
 }

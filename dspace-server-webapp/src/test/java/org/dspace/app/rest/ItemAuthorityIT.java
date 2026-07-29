@@ -999,6 +999,58 @@ public class ItemAuthorityIT extends AbstractControllerIntegrationTest {
                     ItemAuthority.DEFAULT))));
     }
 
+    @Test
+    public void ignoreWithdrawnAndNonDiscoverableItemAuthorityTest() throws Exception {
+        context.turnOffAuthorisationSystem();
+
+        configurationService.setProperty("plugin.named.org.dspace.content.authority.ChoiceAuthority",
+                new String[] { "org.dspace.content.authority.ItemAuthority = PersonAuthority" });
+
+        configurationService.setProperty("cris.ItemAuthority.PersonAuthority.entityType", "Person");
+
+        pluginService.clearNamedPluginClasses();
+        choiceAuthorityService.clearCache();
+
+        parentCommunity = CommunityBuilder.createCommunity(context).build();
+        Collection col1 = CollectionBuilder.createCollection(context, parentCommunity).build();
+
+        Item person1 = ItemBuilder.createItem(context, col1)
+                .withTitle("Author 1")
+                .withType("mytype")
+                .withEntityType("Person")
+                .build();
+
+        Item person2 = ItemBuilder.createItem(context, col1)
+                .withTitle("Author 2")
+                .withEntityType("Person")
+                .build();
+
+        ItemBuilder.createItem(context, col1)
+                .withTitle("Author 3")
+                .withType("anotherType")
+                .withEntityType("Person")
+                .makeUnDiscoverable()
+                .build();
+
+        ItemBuilder.createItem(context, col1)
+                .withTitle("Author 4")
+                .withEntityType("Person")
+                .withdrawn()
+                .build();
+
+        context.restoreAuthSystemState();
+
+        String token = getAuthToken(eperson.getEmail(), password);
+        getClient(token).perform(get("/api/submission/vocabularies/PersonAuthority/entries").param("filter", "Author"))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.page.totalElements", Matchers.is(2)))
+                .andExpect(jsonPath("$._embedded.entries",
+                        Matchers.containsInAnyOrder(
+                                ItemAuthorityMatcher.matchItemAuthorityProperties(person1.getID().toString(),
+                                        "Author 1", "Author 1", "vocabularyEntry"),
+                                ItemAuthorityMatcher.matchItemAuthorityProperties(person2.getID().toString(),
+                                        "Author 2", "Author 2", "vocabularyEntry"))));
+    }
+
     @Override
     @After
     // We need to cleanup the authorities cache once than the configuration has been restored

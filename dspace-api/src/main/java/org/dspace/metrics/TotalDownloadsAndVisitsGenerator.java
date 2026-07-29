@@ -41,7 +41,7 @@ public class TotalDownloadsAndVisitsGenerator {
         // first check item visits
         StringBuilder filterQuery = new StringBuilder();
         filterQuery.append("(statistics_type:").append(SolrLoggerServiceImpl.StatisticsType.VIEW
-                .text()).append(")");
+                .text()).append(")").append(" AND -isBot:true");
         ObjectCount[] topCounts = solrLoggerService
                                       .queryFacetField(query,
                                                        filterQuery.toString(),
@@ -56,7 +56,8 @@ public class TotalDownloadsAndVisitsGenerator {
             views += (int) topCount.getCount();
             // check bitstreams  statistics related with this item
             String bitStreamQuery = "owningItem" + ":" + topCount.getValue() + " AND type:" + Constants.BITSTREAM
-                    + " AND -bundleName:LICENSE AND -bundleName:THUMBNAIL AND -bundleName:SWORD AND -bundleName:TEXT";
+                    + " AND -bundleName:LICENSE AND -bundleName:THUMBNAIL AND -bundleName:SWORD"
+                    + " AND -bundleName:TEXT AND -isBot:true";
             ObjectCount[] topCounts1 = solrLoggerService
                                            .queryFacetField(bitStreamQuery,
                                                             filterQuery.toString(),

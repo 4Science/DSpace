@@ -24,6 +24,8 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.dspace.app.metrics.CrisMetrics;
+import org.dspace.content.DSpaceObject;
+import org.dspace.content.factory.ContentServiceFactory;
 import org.dspace.core.Context;
 import org.dspace.core.Email;
 import org.dspace.core.I18nUtil;
@@ -88,8 +90,14 @@ public class StatisticsGenerator {
                 // for each cris metrics add a row
                 Row sheetRowdata = sheet.createRow(rowCount);
                 Cell cell = sheetRowdata.createCell(1);
-                cell.setCellValue(crisMetrics.getResource().getName());
-
+                DSpaceObject dso = ContentServiceFactory.getInstance()
+                        .getDSpaceObjectService(crisMetrics.getResourceType()).find(c, crisMetrics.getResource());
+                if (dso != null) {
+                    cell.setCellValue(dso.getName());
+                } else {
+                    cell.setCellValue("Unknown");
+                }
+                c.uncacheEntity(dso);
                 Cell cell2 = sheetRowdata.createCell(2);
                 cell2.setCellValue(crisMetrics.getMetricType());
 

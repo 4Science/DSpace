@@ -30,7 +30,8 @@ public class SuggestionMatcher {
                 hasJsonPath("$.metadata['dc.source'][1].value", is("Source 2")),
                 hasJsonPath("$.score"),
                 hasJsonPath("$.evidences"),
-                hasJsonPath("$.type", is("suggestion"))
+                hasJsonPath("$.type", is("suggestion")),
+                hasJsonPath("$.uniqueType", is("integration.suggestion"))
         );
     }
 
@@ -50,7 +51,8 @@ public class SuggestionMatcher {
                                         hasJsonPath("$.score", is(String.format("%.2f", evidenceScore))),
                                         hasJsonPath("$.notes", is(evidenceNote))))
                         )),
-                hasJsonPath("$.type", is("suggestion"))
+                hasJsonPath("$.type", is("suggestion")),
+                hasJsonPath("$.uniqueType", is("integration.suggestion"))
         );
     }
 

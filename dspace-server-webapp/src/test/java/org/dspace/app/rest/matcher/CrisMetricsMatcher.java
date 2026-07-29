@@ -38,17 +38,19 @@ public class CrisMetricsMatcher {
                      hasJsonPath("$.deltaPeriod1", is(crisMetrics.getDeltaPeriod1())),
                      hasJsonPath("$.deltaPeriod2", is(crisMetrics.getDeltaPeriod2())),
                      hasJsonPath("$.rank", is(crisMetrics.getRank())),
-                     hasJsonPath("$.type", is(CrisMetricsRest.NAME))
+                     hasJsonPath("$.type", is(CrisMetricsRest.NAME)),
+                     hasJsonPath("$.uniqueType", is("cris.metric"))
                      );
     }
 
     public static Matcher<? super Object> matchCrisDynamicMetrics(UUID itemUuid, String type, String remark) {
         return allOf(
                 hasJsonPath("$.id", itemUuid != null ?
-                                        is(itemUuid.toString() + ":" + type) :
+                                        is(itemUuid + ":" + type) :
                                         Matchers.endsWith("-" + type)),
                 hasJsonPath("$.metricType", is(type)),
                 hasJsonPath("$.type", is(CrisMetricsRest.NAME)),
+                hasJsonPath("$.uniqueType", is("cris.metric")),
                 hasJsonPath("$.remark", containsString(remark))
                 );
     }

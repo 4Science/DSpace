@@ -24,6 +24,7 @@ public class SiteMatcher {
             hasJsonPath("$.uuid", is(site.getID().toString())),
             hasJsonPath("$.name", is(site.getName())),
             hasJsonPath("$.type", is("site")),
+            hasJsonPath("$.uniqueType", is("core.site")),
             hasJsonPath("$._links.self.href", containsString("/api/core/sites/" + site.getID()))
 
         );

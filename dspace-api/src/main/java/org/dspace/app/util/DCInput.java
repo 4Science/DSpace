@@ -165,7 +165,7 @@ public class DCInput {
      * The scope of the input sets, this restricts hidden metadata fields from
      * view by the end user during submission.
      */
-    public static final String SUBMISSION_SCOPE = "submit";
+    public static final String SUBMISSION_SCOPE = "submission";
 
     /**
      * Class constructor for creating a DCInput object based on the contents of
@@ -188,7 +188,7 @@ public class DCInput {
         language = Boolean.valueOf(fieldMap.get("language"));
         valueLanguageList = new ArrayList<>();
         if (language) {
-            String languageNameTmp = fieldMap.get("value-pairs-name");
+            String languageNameTmp = fieldMap.get("language.value-pairs-name");
             if (StringUtils.isBlank(languageNameTmp)) {
                 languageNameTmp = LanguageName;
             }
@@ -206,7 +206,7 @@ public class DCInput {
         // these types are list-controlled
         if ("dropdown".equals(inputType) || "qualdrop_value".equals(inputType)
             || "list".equals(inputType)) {
-            valueListName = fieldMap.get("value-pairs-name");
+            valueListName = fieldMap.get(inputType + ".value-pairs-name");
             valueList = listMap.get(valueListName);
         }
         hint = fieldMap.get("hint");
@@ -264,7 +264,7 @@ public class DCInput {
 
     /**
      * Is this DCInput for display in the given scope? The scope should be
-     * either "workflow" or "submit", as per the input forms definition. If the
+     * either "workflow" or "submission", as per the input forms definition. If the
      * internal visibility is set to "null" then this will always return true.
      *
      * @param scope String identifying the scope that this input's visibility

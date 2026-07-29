@@ -19,11 +19,13 @@ import org.dspace.app.rest.RestResourceController;
  *
  * @author Andrea Bollini (andrea.bollini at 4science.it)
  */
-@LinksRest(links = {
+@LinksRest(
+    links = {
         @LinkRest(method = "getEperson", name = AuditEventRest.EPERSON),
         @LinkRest(method = "getObject", name = AuditEventRest.OBJECT),
         @LinkRest(method = "getSubject", name = AuditEventRest.SUBJECT)
-})
+    }
+)
 public class AuditEventRest extends BaseObjectRest<UUID> {
     public static final String NAME = "auditevent";
     public static final String CATEGORY = RestAddressableModel.SYSTEM;

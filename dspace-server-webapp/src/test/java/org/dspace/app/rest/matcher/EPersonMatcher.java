@@ -37,6 +37,7 @@ public class EPersonMatcher {
     public static Matcher<? super Object> matchEPersonOnEmail(String email) {
         return allOf(
             hasJsonPath("$.type", is("eperson")),
+            hasJsonPath("$.uniqueType", is("eperson.eperson")),
             hasJsonPath("$.email", is(email))
             );
     }
@@ -50,15 +51,10 @@ public class EPersonMatcher {
 
         return allOf(
                 hasJsonPath("$.type", is("eperson")),
+                hasJsonPath("$.uniqueType", is("eperson.eperson")),
                 hasJsonPath("$.email", is(email)),
                 hasJsonPath("$._embedded.groups._embedded.groups", containsInAnyOrder(
                         matchers)));
-    }
-
-    public static Matcher<? super Object> matchDefaultTestEPerson() {
-        return allOf(
-                hasJsonPath("$.type", is("eperson"))
-        );
     }
 
     /**
@@ -85,6 +81,7 @@ public class EPersonMatcher {
                 hasJsonPath("$.uuid", is(ePerson.getID().toString())),
                 hasJsonPath("$.name", is(ePerson.getName())),
                 hasJsonPath("$.type", is("eperson")),
+                hasJsonPath("$.uniqueType", is("eperson.eperson")),
                 hasJsonPath("$.canLogIn", not(empty())),
                 hasJsonPath("$.metadata", Matchers.allOf(
                         MetadataMatcher.matchMetadata("eperson.firstname", ePerson.getFirstName()),

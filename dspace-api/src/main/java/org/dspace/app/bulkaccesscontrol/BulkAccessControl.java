@@ -29,10 +29,13 @@ import java.util.TimeZone;
 import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.dspace.app.bulkaccesscontrol.exception.BulkAccessControlException;
 import org.dspace.app.bulkaccesscontrol.model.AccessCondition;
 import org.dspace.app.bulkaccesscontrol.model.AccessConditionBitstream;
@@ -45,9 +48,11 @@ import org.dspace.app.mediafilter.service.MediaFilterService;
 import org.dspace.app.util.DSpaceObjectUtilsImpl;
 import org.dspace.app.util.service.DSpaceObjectUtils;
 import org.dspace.authorize.AuthorizeException;
+import org.dspace.authorize.ResourcePolicy;
 import org.dspace.authorize.factory.AuthorizeServiceFactory;
 import org.dspace.authorize.service.ResourcePolicyService;
 import org.dspace.content.Bitstream;
+import org.dspace.content.Bundle;
 import org.dspace.content.Collection;
 import org.dspace.content.DSpaceObject;
 import org.dspace.content.Item;
@@ -63,6 +68,7 @@ import org.dspace.discovery.indexobject.IndexableItem;
 import org.dspace.eperson.EPerson;
 import org.dspace.eperson.factory.EPersonServiceFactory;
 import org.dspace.eperson.service.EPersonService;
+import org.dspace.eperson.service.GroupService;
 import org.dspace.scripts.DSpaceRunnable;
 import org.dspace.services.ConfigurationService;
 import org.dspace.services.factory.DSpaceServicesFactory;
@@ -76,6 +82,8 @@ import org.dspace.utils.DSpace;
  *
  */
 public class BulkAccessControl extends DSpaceRunnable<BulkAccessControlScriptConfiguration<BulkAccessControl>> {
+
+    private static final Log log = LogFactory.getLog(BulkAccessControl.class);
 
     private DSpaceObjectUtils dSpaceObjectUtils;
 
@@ -98,6 +106,8 @@ public class BulkAccessControl extends DSpaceRunnable<BulkAccessControlScriptCon
     private ConfigurationService configurationService;
 
     private MediaFilterService mediaFilterService;
+
+    private GroupService groupService;
 
     private Map<String, AccessConditionOption> itemAccessConditions;
 
@@ -126,6 +136,7 @@ public class BulkAccessControl extends DSpaceRunnable<BulkAccessControlScriptCon
             "bulkAccessConditionConfigurationService", BulkAccessConditionConfigurationService.class);
         this.dSpaceObjectUtils = new DSpace().getServiceManager().getServiceByName(
             DSpaceObjectUtilsImpl.class.getName(), DSpaceObjectUtilsImpl.class);
+        this.groupService = EPersonServiceFactory.getInstance().getGroupService();
 
         BulkAccessConditionConfiguration bulkAccessConditionConfiguration =
             bulkAccessConditionConfigurationService.getBulkAccessConditionConfiguration("default");
@@ -204,18 +215,23 @@ public class BulkAccessControl extends DSpaceRunnable<BulkAccessControlScriptCon
         AccessConditionItem item = accessControl.getItem();
         AccessConditionBitstream bitstream = accessControl.getBitstream();
 
-        if (Objects.isNull(item) && Objects.isNull(bitstream)) {
-            handler.logError("item or bitstream node must be provided");
-            throw new BulkAccessControlException("item or bitstream node must be provided");
+        boolean itemPresent = Objects.nonNull(item);
+        boolean bitstreamPresent = Objects.nonNull(bitstream);
+
+        if (!itemPresent && !bitstreamPresent) {
+            String error = "Item or Bitstream node must be provided";
+            handler.logError(error);
+            throw new BulkAccessControlException(error);
         }
 
-        if (Objects.nonNull(item)) {
+        if (itemPresent) {
             validateItemNode(item);
         }
 
-        if (Objects.nonNull(bitstream)) {
+        if (bitstreamPresent) {
             validateBitstreamNode(bitstream);
         }
+
     }
 
     /**
@@ -245,7 +261,7 @@ public class BulkAccessControl extends DSpaceRunnable<BulkAccessControlScriptCon
         }
 
         for (AccessCondition accessCondition : accessConditions) {
-            validateAccessCondition(accessCondition);
+            validateItemAccessCondition(accessCondition);
         }
     }
 
@@ -280,7 +296,7 @@ public class BulkAccessControl extends DSpaceRunnable<BulkAccessControlScriptCon
         validateConstraint(bitstream);
 
         for (AccessCondition accessCondition : bitstream.getAccessConditions()) {
-            validateAccessCondition(accessCondition);
+            validateBitstreamAccessCondition(accessCondition);
         }
     }
 
@@ -301,12 +317,33 @@ public class BulkAccessControl extends DSpaceRunnable<BulkAccessControlScriptCon
             DSpaceObject dso =
                 dSpaceObjectUtils.findDSpaceObject(context, UUID.fromString(uuids.get(0)));
 
-            if (Objects.nonNull(dso) && dso.getType() != Constants.ITEM) {
-                handler.logError("constraint is not supported when uuid isn't an Item");
-                throw new BulkAccessControlException("constraint is not supported when uuid isn't an Item");
+            if (dso == null) {
+                String msg = "Unable to find Dspace Object";
+                handler.logError(msg);
+                throw new BulkAccessControlException(msg);
+            }
+
+            if (!isValidType(dso)) {
+                String msg = "constraint is not supported when uuid isn't an Dspace Object";
+                handler.logError(msg);
+                throw new BulkAccessControlException(msg);
+            }
+        }
+
+        if (bitstream.getConstraints() != null && bitstream.getConstraints().getUuid() != null) {
+            for (String uuid : bitstream.getConstraints().getUuid()) {
+                DSpaceObject b =
+                    dSpaceObjectUtils.findDSpaceObject(context, UUID.fromString(uuid));
+
+                if (b == null) {
+                    String msg = "Unable to find bistream " + uuid;
+                    handler.logError(msg);
+                    throw new BulkAccessControlException(msg);
+                }
             }
         }
     }
+
 
     /**
      * check the validation of access condition,
@@ -317,18 +354,52 @@ public class BulkAccessControl extends DSpaceRunnable<BulkAccessControlScriptCon
      * @param accessCondition the accessCondition
      * @throws BulkAccessControlException if the accessCondition is invalid
      */
-    private void validateAccessCondition(AccessCondition accessCondition) {
+    private void validateItemAccessCondition(AccessCondition accessCondition) {
+        String conditionName = accessCondition.getName();
 
-        if (!itemAccessConditions.containsKey(accessCondition.getName())) {
-            handler.logError("wrong access condition <" + accessCondition.getName() + ">");
-            throw new BulkAccessControlException("wrong access condition <" + accessCondition.getName() + ">");
+        boolean isItemAccessCondition = itemAccessConditions.containsKey(conditionName);
+
+        if (!isItemAccessCondition) {
+            String errorMessage = "Invalid Item access condition: <" + conditionName + ">";
+            handler.logError(errorMessage);
+            throw new BulkAccessControlException(errorMessage);
         }
 
         try {
-            itemAccessConditions.get(accessCondition.getName()).validateResourcePolicy(
-                context, accessCondition.getName(), accessCondition.getStartDate(), accessCondition.getEndDate());
+            AccessConditionOption option = itemAccessConditions.get(conditionName);
+            option.validateResourcePolicy(
+                context,
+                conditionName,
+                accessCondition.getStartDate(),
+                accessCondition.getEndDate()
+            );
         } catch (Exception e) {
-            handler.logError("invalid access condition, " + e.getMessage());
+            handler.handleException(e);
+        }
+    }
+
+
+    private void validateBitstreamAccessCondition(AccessCondition accessCondition) {
+        String conditionName = accessCondition.getName();
+
+        boolean isBitstreamAccessCondition = uploadAccessConditions.containsKey(conditionName);
+
+        if (!isBitstreamAccessCondition) {
+            String errorMessage = "Invalid Bitstream access condition <" + conditionName + ">";
+            handler.logError(errorMessage);
+            throw new BulkAccessControlException(errorMessage);
+        }
+
+        try {
+            AccessConditionOption option = uploadAccessConditions.get(conditionName);
+            option.validateResourcePolicy(
+                context,
+                conditionName,
+                accessCondition.getStartDate(),
+                accessCondition.getEndDate()
+            );
+
+        } catch (Exception e) {
             handler.handleException(e);
         }
     }
@@ -364,7 +435,7 @@ public class BulkAccessControl extends DSpaceRunnable<BulkAccessControlScriptCon
             }
 
             if (Objects.nonNull(accessControl.getBitstream())) {
-                updateBitstreamsPolicies(item, accessControl);
+                updateBitstreamsPolicies(item, accessControl.getBitstream());
             }
 
             context.commit();
@@ -396,6 +467,15 @@ public class BulkAccessControl extends DSpaceRunnable<BulkAccessControlScriptCon
         return StringUtils.joinWith(" OR ", query);
     }
 
+    private boolean isValidType(DSpaceObject dso) {
+        return dso != null &&
+            (
+                Constants.COMMUNITY == dso.getType() ||
+                Constants.COLLECTION == dso.getType() ||
+                Constants.ITEM == dso.getType()
+            );
+    }
+
     private Iterator<Item> findItems(String query, int start, int limit)
         throws SearchServiceException {
 
@@ -416,7 +496,7 @@ public class BulkAccessControl extends DSpaceRunnable<BulkAccessControlScriptCon
         discoverQuery.setQuery(query);
         discoverQuery.setStart(start);
         discoverQuery.setMaxResults(limit);
-
+        discoverQuery.setSortField("search.resourceid", DiscoverQuery.SORT_ORDER.asc);
         return discoverQuery;
     }
 
@@ -468,6 +548,128 @@ public class BulkAccessControl extends DSpaceRunnable<BulkAccessControlScriptCon
     }
 
     /**
+     * Applies access conditions to bitstreams filtered by bundle and bitstream constraints.
+     *
+     * @param item the item containing the bundles
+     * @param bundleNames list of bundle names to filter (e.g., "ORIGINAL") or null to allow all
+     * @param bundleConstraints list of bundle UUIDs to filter or null
+     * @param bitstreamConstraints list of bitstream UUIDs to filter or null
+     * @param mode the access control mode
+     * @param accessConditions the access conditions to apply
+     */
+    private void applyAccessConditionsToBitstreams(Item item,
+                                                   List<String> bundleNames,
+                                                   List<String> bundleConstraints,
+                                                   List<String> bitstreamConstraints,
+                                                   String mode,
+                                                   List<AccessCondition> accessConditions) {
+
+        // look over all the bundles and force initialization of bitstreams collection
+        // to avoid lazy initialization exception
+        long count = item.getBundles()
+                         .stream()
+                         .mapToLong(bundle ->
+                                      bundle.getBitstreams().size())
+                         .sum();
+
+        Stream<Bundle> bundleStream = item.getBundles().stream();
+
+        if (bundleNames != null) {
+            bundleStream = bundleStream.filter(b -> bundleNames.contains(b.getName()));
+        }
+
+        if (bundleConstraints != null && !bundleConstraints.isEmpty()) {
+            bundleStream = bundleStream.filter(b -> bundleConstraints.contains(b.getID().toString()));
+        }
+
+
+        bundleStream.map(bundle ->
+                             Map.entry(
+                                 bundle,
+                                 bundle.getBitstreams().stream()
+                                       .filter(bitstream ->
+                                                   bitstreamConstraints == null ||
+                                                   bitstreamConstraints.isEmpty() ||
+                                                   bitstreamConstraints.contains(bitstream.getID().toString())
+                                       )
+                                     .collect(Collectors.toList())
+                             )
+                    )
+                    .forEach(entry -> {
+                        // if we are going to apply the constraint to all bitstreams
+                        updateBundlePolicy(context, entry.getKey(), mode, bitstreamConstraints, accessConditions);
+                        entry.getValue().forEach(bitstream -> {
+                            try {
+                                updateBitstreamPolicies(bitstream, item, mode, accessConditions);
+                            } catch (RuntimeException e) {
+                                handler.logError("Cannot update policies on bitstream " + bitstream.getID(), e);
+                            }
+                        });
+                    });
+    }
+
+    private void updateBundlePolicy(Context context, Bundle bundle, String mode, List<String> bitstreamConstraints,
+                                    List<AccessCondition> accessConditions) {
+        if (
+            REPLACE_MODE.equals(mode) &&
+                (bitstreamConstraints == null || bitstreamConstraints.isEmpty())
+        ) {
+            // we need to replace the policy of the related bundle!
+            removeReadPolicies(bundle, TYPE_CUSTOM);
+            removeReadPolicies(bundle, TYPE_INHERITED);
+        }
+        accessConditions.stream()
+                        .map(ac -> Map.entry(ac, uploadAccessConditions.get(ac.getName())))
+                        .filter(entry -> withoutAccessCondition(context, bundle, entry.getKey(), entry.getValue()))
+                        .forEach(
+                            entry ->
+                                    createResourcePolicy(
+                                        bundle,
+                                        entry.getKey(),
+                                        entry.getValue()
+                                    )
+            );
+    }
+
+    private boolean withoutAccessCondition(
+        Context context, Bundle bundle, AccessCondition accessCondition, AccessConditionOption option
+    ) {
+        try {
+            List<ResourcePolicy> resourcePolicies =
+                resourcePolicyService.find(
+                    context,
+                    bundle,
+                    groupService.findByName(context, option.getGroupName()),
+                    Constants.READ
+                );
+            return resourcePolicies.stream().noneMatch(
+                rp ->
+                        Objects.equals(accessCondition.getStartDate(), rp.getStartDate()) &&
+                        Objects.equals(accessCondition.getEndDate(), rp.getEndDate())
+
+            );
+        } catch (SQLException e) {
+            handler.logError("Cannot retrieve resource policy for bundle " + bundle.getID(), e);
+        }
+        return false;
+    }
+
+    private void applyAccessConditionsToBitstreams(Item item,
+                                                   AccessConditionBitstream accessConditionBitstream,
+                                                   String mode,
+                                                   List<AccessCondition> accessConditions) {
+        List<String> bitstreamConstraints = accessConditionBitstream.getConstraints() != null
+            ? accessConditionBitstream.getConstraints().getUuid()
+            : null;
+        applyAccessConditionsToBitstreams(item,
+                                          List.of(CONTENT_BUNDLE_NAME),
+                                          null,
+                                          bitstreamConstraints,
+                                          mode,
+                                          accessConditions);
+    }
+
+    /**
      * update the resource policies of all item's bitstreams
      * or bitstreams specified into constraint node,
      * and derivative bitstreams.
@@ -475,27 +677,15 @@ public class BulkAccessControl extends DSpaceRunnable<BulkAccessControlScriptCon
      * <strong>NOTE:</strong> only bitstreams of ORIGINAL bundles
      *
      * @param item the item contains bitstreams
-     * @param accessControl the access control input
+     * @param conditionBitstream the bitstream condition in input
      */
-    private void updateBitstreamsPolicies(Item item, BulkAccessControlInput accessControl) {
-        AccessConditionBitstream.Constraint constraints = accessControl.getBitstream().getConstraints();
-
-        // look over all the bundles and force initialization of bitstreams collection
-        // to avoid lazy initialization exception
-        long count = item.getBundles()
-                         .stream()
-                         .flatMap(bundle ->
-                             bundle.getBitstreams().stream())
-                         .count();
-
-        item.getBundles(CONTENT_BUNDLE_NAME).stream()
-            .flatMap(bundle -> bundle.getBitstreams().stream())
-            .filter(bitstream -> constraints == null ||
-                constraints.getUuid() == null ||
-                constraints.getUuid().size() == 0 ||
-                constraints.getUuid().contains(bitstream.getID().toString()))
-            .forEach(bitstream -> updateBitstreamPolicies(bitstream, item, accessControl));
+    private void updateBitstreamsPolicies(Item item, AccessConditionBitstream conditionBitstream) {
+        applyAccessConditionsToBitstreams(item,
+                                          conditionBitstream,
+                                          conditionBitstream.getMode(),
+                                          conditionBitstream.getAccessConditions());
     }
+
 
     /**
      * check that the bitstream node is existed,
@@ -520,22 +710,22 @@ public class BulkAccessControl extends DSpaceRunnable<BulkAccessControlScriptCon
      *
      * @param bitstream the bitstream
      * @param item the item of bitstream
-     * @param accessControl the access control input
+     * @param mode the bulk access control mode
+     * @param accessConditions the list of access condition in input
      * @throws RuntimeException if something goes wrong in the database
      * or an authorization error occurs
      */
-    private void updateBitstreamPolicies(Bitstream bitstream, Item item, BulkAccessControlInput accessControl) {
+    private void updateBitstreamPolicies(Bitstream bitstream, Item item, String mode,
+                                         List<AccessCondition> accessConditions) {
 
-        AccessConditionBitstream acBitstream = accessControl.getBitstream();
-
-        if (REPLACE_MODE.equals(acBitstream.getMode())) {
+        if (REPLACE_MODE.equals(mode)) {
             removeReadPolicies(bitstream, TYPE_CUSTOM);
             removeReadPolicies(bitstream, TYPE_INHERITED);
         }
 
         try {
-            setBitstreamPolicies(bitstream, item, accessControl);
-            logInfo(acBitstream.getAccessConditions(), acBitstream.getMode(), bitstream);
+            setBitstreamPolicies(bitstream, item, accessConditions);
+            logInfo(accessConditions, mode, bitstream);
         } catch (SQLException | AuthorizeException e) {
             throw new RuntimeException(e);
         }
@@ -566,15 +756,14 @@ public class BulkAccessControl extends DSpaceRunnable<BulkAccessControlScriptCon
      *
      * @param bitstream the bitstream
      * @param item the item of bitstream
-     * @param accessControl the access control input
+     * @param accessConditions the access conditions list in input
      * @throws SQLException if something goes wrong in the database
      * @throws AuthorizeException if an authorization error occurs
      */
-    private void setBitstreamPolicies(Bitstream bitstream, Item item, BulkAccessControlInput accessControl)
+    private void setBitstreamPolicies(Bitstream bitstream, Item item, List<AccessCondition> accessConditions)
         throws SQLException, AuthorizeException {
 
-        accessControl.getBitstream()
-                     .getAccessConditions()
+        accessConditions
                      .forEach(accessCondition -> createResourcePolicy(bitstream, accessCondition,
                          uploadAccessConditions.get(accessCondition.getName())));
 

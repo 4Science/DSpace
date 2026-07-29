@@ -74,7 +74,7 @@
         <property name="query" value="/bibcode"/>
     </bean>
     <bean id="ads.id" class="org.dspace.importer.external.metadatamapping.MetadataFieldConfig">
-        <constructor-arg value="dc.identifier.other"/>
+        <constructor-arg value="dc.identifier.adsbibcode"/>
     </bean>
 
     <bean id="adsTypeContrib" class="org.dspace.importer.external.metadatamapping.contributor.SimpleJsonPathMetadataContributor">

@@ -63,7 +63,7 @@ public class OrcidPublicationLoader extends SolrSuggestionProvider {
     }
 
     @Override
-    public void importRecords(Context context, Item researcher) throws Exception {
+    public void importRecords(Context context, Item researcher, String additionalQuery) throws Exception {
         importWorks(context, researcher, itemService.getMetadata(researcher, "person.identifier.orcid"));
     }
 
