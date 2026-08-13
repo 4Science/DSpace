@@ -142,6 +142,8 @@ public class OrcidSynchronizationServiceImpl implements OrcidSynchronizationServ
             orcidWebhookService.unregister(context, profile);
         }
 
+        String orcid = itemService.getMetadataFirstValue(profile, "person", "identifier", "orcid", Item.ANY);
+
         itemService.clearMetadata(context, profile, "person", "identifier", "orcid", Item.ANY);
         itemService.clearMetadata(context, profile, "dspace", "orcid", "scope", Item.ANY);
         itemService.clearMetadata(context, profile, "dspace", "orcid", "authenticated", Item.ANY);
@@ -150,6 +152,12 @@ public class OrcidSynchronizationServiceImpl implements OrcidSynchronizationServ
         if (profileToken == null) {
             log.warn("Cannot find any token related to the user profile: {}", profile.getID());
             return;
+        }
+
+        EPerson eperson = ePersonService.findByNetid(context, orcid);
+        if (eperson != null ) {
+            eperson.setNetid(null);
+            updateEPerson(context, eperson);
         }
 
         orcidTokenService.deleteByProfileItem(context, profile);
