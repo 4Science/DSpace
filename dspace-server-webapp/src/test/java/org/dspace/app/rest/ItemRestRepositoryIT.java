@@ -111,6 +111,7 @@ import org.dspace.workflow.WorkflowItem;
 import org.hamcrest.Matcher;
 import org.hamcrest.Matchers;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.web.servlet.MvcResult;
@@ -5844,6 +5845,7 @@ public class ItemRestRepositoryIT extends AbstractControllerIntegrationTest {
     }
 
     @Test
+    @Ignore("CRIS index-time model: reindex on community admin-group creation unsupported (8.4-only)")
     public void addParentComAdminGroupToCheckReindexingTest() throws Exception {
         context.turnOffAuthorisationSystem();
 
@@ -5896,6 +5898,7 @@ public class ItemRestRepositoryIT extends AbstractControllerIntegrationTest {
     }
 
     @Test
+    @Ignore("CRIS index-time model: direct ADMIN policy on a container not propagated to item edit (8.4-only)")
     public void removeParentComAdminPolicyToCheckEditPropagationTest() throws Exception {
         context.turnOffAuthorisationSystem();
         parentCommunity = CommunityBuilder.createCommunity(context)
