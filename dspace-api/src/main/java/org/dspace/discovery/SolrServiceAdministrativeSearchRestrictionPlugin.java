@@ -37,8 +37,6 @@ public class SolrServiceAdministrativeSearchRestrictionPlugin implements SolrSer
     protected AuthorizeService authorizeService;
     @Autowired
     protected GroupService groupService;
-    @Autowired
-    protected SearchService searchService;
 
     private static boolean isAdministrativeConfiguration(DiscoverQuery discoveryQuery) {
         return discoveryQuery != null &&
@@ -65,28 +63,18 @@ public class SolrServiceAdministrativeSearchRestrictionPlugin implements SolrSer
                 return;
             }
 
-            // Applies filter query to restrict search results to only those that are administrated by the
-            // current user. Direct ADMIN permissions are matched via the "admin" field, while inherited ADMIN
-            // permissions are resolved at query-time through the location-ancestor field (same mechanism used
-            // by SolrServiceResourceRestrictionPlugin).
-            String epersonAndGroupClause =
+            // Applies filter query to restrict search results to only those that are administrate by the current user
+            solrQuery.addFilterQuery(
                 Stream.concat(
                           groupService.allMemberGroupsSet(context, context.getCurrentUser())
                                       .stream()
                                       .map(group -> "g" + group.getID()),
                           Stream.of(context.getCurrentUser())
                                 .filter(Objects::nonNull)
-                                .map(eperson -> "e" + eperson.getID())
+                                .map(eperson -> String.valueOf(eperson.getID()))
                       )
-                      .collect(Collectors.joining(" OR "));
-
-            StringBuilder resourceQuery = new StringBuilder("admin:(").append(epersonAndGroupClause).append(")");
-
-            String locations = searchService.createLocationQueryForAdministrableDSOs(epersonAndGroupClause);
-            if (StringUtils.isNotBlank(locations)) {
-                resourceQuery.append(" OR ").append(locations);
-            }
-            solrQuery.addFilterQuery(resourceQuery.toString());
+                      .collect(Collectors.joining(" OR ", "admin:(", ")"))
+            );
         } catch (SQLException e) {
             log.error(LogHelper.getHeader(context, "Error while adding resource policy information to query", ""), e);
         }

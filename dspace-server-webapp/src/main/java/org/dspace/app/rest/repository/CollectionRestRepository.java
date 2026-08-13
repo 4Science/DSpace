@@ -20,6 +20,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.ServletInputStream;
 import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.dspace.app.rest.Parameter;
 import org.dspace.app.rest.SearchRestMethod;
@@ -84,7 +85,7 @@ import org.springframework.web.multipart.MultipartFile;
 @Component(CollectionRest.CATEGORY + "." + CollectionRest.PLURAL_NAME)
 public class CollectionRestRepository extends DSpaceObjectRestRepository<Collection, CollectionRest> {
 
-    public static Logger log = org.apache.logging.log4j.LogManager.getLogger(CollectionRestRepository.class);
+    public static Logger log = LogManager.getLogger(CollectionRestRepository.class);
 
     @Autowired
     CommunityService communityService;
@@ -188,7 +189,7 @@ public class CollectionRestRepository extends DSpaceObjectRestRepository<Collect
             List<Collection> collections = cs.findCollectionsWithSubmit(q, context, com, null,
                                               Math.toIntExact(pageable.getOffset()),
                                               Math.toIntExact(pageable.getPageSize()));
-            int tot = cs.countCollectionsWithSubmit(context, q, com, null);
+            int tot = cs.countCollectionsWithSubmit(q, context, com, null);
             return converter.toRestPage(collections, pageable, tot , utils.obtainProjection());
         } catch (SQLException | SearchServiceException e) {
             throw new RuntimeException(e.getMessage(), e);
@@ -203,7 +204,7 @@ public class CollectionRestRepository extends DSpaceObjectRestRepository<Collect
             List<Collection> collections = cs.findCollectionsWithSubmit(q, context, null, null,
                                               Math.toIntExact(pageable.getOffset()),
                                               Math.toIntExact(pageable.getPageSize()));
-            int tot = cs.countCollectionsWithSubmit(context, q, null, null);
+            int tot = cs.countCollectionsWithSubmit(q, context,  null, null);
             return converter.toRestPage(collections, pageable, tot, utils.obtainProjection());
         } catch (SQLException e) {
             throw new RuntimeException(e.getMessage(), e);
@@ -367,10 +368,10 @@ public class CollectionRestRepository extends DSpaceObjectRestRepository<Collect
             if (entityType == null) {
                 throw new ResourceNotFoundException("There was no entityType found with label: " + entityTypeLabel);
             }
-            List<Collection> collections = cs.findCollectionsWithSubmit(context, query,null, entityTypeLabel,
+            List<Collection> collections = cs.findCollectionsWithSubmit(query, context, null, entityTypeLabel,
                 Math.toIntExact(pageable.getOffset()),
                 Math.toIntExact(pageable.getPageSize()));
-            int tot = cs.countCollectionsWithSubmit(context, query,null, entityTypeLabel);
+            int tot = cs.countCollectionsWithSubmit(query, context, null, entityTypeLabel);
             return converter.toRestPage(collections, pageable, tot, utils.obtainProjection());
         } catch (SQLException e) {
             throw new RuntimeException(e.getMessage(), e);
@@ -406,10 +407,10 @@ public class CollectionRestRepository extends DSpaceObjectRestRepository<Collect
                 throw new ResourceNotFoundException(
                     CommunityRest.CATEGORY + "." + CommunityRest.NAME + " with id: " + communityUuid + " not found");
             }
-            List<Collection> collections = cs.findCollectionsWithSubmit(context, query, community, entityTypeLabel,
+            List<Collection> collections = cs.findCollectionsWithSubmit(query, context, community, entityTypeLabel,
                 Math.toIntExact(pageable.getOffset()),
                 Math.toIntExact(pageable.getPageSize()));
-            int total = cs.countCollectionsWithSubmit(context, query, community, entityTypeLabel);
+            int total = cs.countCollectionsWithSubmit(query, context, community, entityTypeLabel);
             return converter.toRestPage(collections, pageable, total, utils.obtainProjection());
         } catch (SQLException | SearchServiceException e) {
             throw new RuntimeException(e.getMessage(), e);

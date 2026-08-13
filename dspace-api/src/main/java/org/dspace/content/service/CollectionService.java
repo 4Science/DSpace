@@ -408,23 +408,6 @@ public interface CollectionService
             String entityType, int offset, int limit) throws SQLException, SearchServiceException;
 
     /**
-     * Returns collections for which the current user has 'submit' privileges.
-     * Context-first overload (DSpace 8.4 signature).
-     *
-     * @param context          DSpace Context
-     * @param q                limit the returned collection to those with metadata values matching the query terms
-     * @param community        parent community, could be null
-     * @param entityType       limit the returned collection to those related to given entity type
-     * @param offset           the position of the first result to return
-     * @param limit            paging limit
-     * @return                 discovery search result objects
-     * @throws SQLException              if something goes wrong
-     * @throws SearchServiceException    if search error
-     */
-    public List<Collection> findCollectionsWithSubmit(Context context, String q, Community community,
-            String entityType, int offset, int limit) throws SQLException, SearchServiceException;
-
-    /**
      * Returns true if the given collection is configured so that all items are
      * shared among all submitters of the collection itself.
      *
@@ -584,21 +567,6 @@ public interface CollectionService
      * @throws SearchServiceException    if search error
      */
     public int countCollectionsWithSubmit(String q, Context context, Community community, String entityType)
-        throws SQLException, SearchServiceException;
-
-    /**
-     * Counts the collections for which the current user has 'submit' privileges.
-     * Context-first overload (DSpace 8.4 signature).
-     *
-     * @param context          DSpace Context
-     * @param q                limit the returned collection to those with metadata values matching the query terms
-     * @param community        parent community, could be null
-     * @param entityType       limit the returned collection to those related to given entity type
-     * @return                 total collections found
-     * @throws SQLException              if something goes wrong
-     * @throws SearchServiceException    if search error
-     */
-    public int countCollectionsWithSubmit(Context context, String q, Community community, String entityType)
         throws SQLException, SearchServiceException;
 
     /**

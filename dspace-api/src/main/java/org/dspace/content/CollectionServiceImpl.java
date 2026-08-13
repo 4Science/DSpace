@@ -1075,20 +1075,6 @@ public class CollectionServiceImpl extends DSpaceObjectServiceImpl<Collection> i
     }
 
     @Override
-    public List<Collection> findCollectionsWithSubmit(Context context, String q, Community community,
-            String entityType, int offset, int limit) throws SQLException, SearchServiceException {
-        // context-first overload (DSpace 8.4 signature) delegating to the q-first implementation
-        return findCollectionsWithSubmit(q, context, community, entityType, offset, limit);
-    }
-
-    @Override
-    public int countCollectionsWithSubmit(Context context, String q, Community community, String entityType)
-        throws SQLException, SearchServiceException {
-        // context-first overload (DSpace 8.4 signature) delegating to the q-first implementation
-        return countCollectionsWithSubmit(q, context, community, entityType);
-    }
-
-    @Override
     public boolean isSharedWorkspace(Context context, Collection collection) {
         return toBoolean(getMetadataFirstValue(collection, "cris", "workspace", "shared", Item.ANY));
     }
@@ -1115,8 +1101,35 @@ public class CollectionServiceImpl extends DSpaceObjectServiceImpl<Collection> i
      * @throws SearchServiceException    if search error
      */
     private DiscoverResult retrieveCollectionsWithSubmit(Context context, DiscoverQuery discoverQuery,
-        String entityType, Community community, String q)
+                                                         String entityType, Community community, String q)
         throws SQLException, SearchServiceException {
+
+        StringBuilder query = new StringBuilder();
+        EPerson currentUser = context.getCurrentUser();
+        if (!authorizeService.isAdmin(context)) {
+            String userId = "";
+            if (currentUser != null) {
+                userId = currentUser.getID().toString();
+            }
+            query.append("submit:(e").append(userId);
+
+            Set<Group> groups = groupService.allMemberGroupsSet(context, currentUser);
+            for (Group group : groups) {
+                query.append(" OR g").append(group.getID());
+            }
+            query.append(")");
+            discoverQuery.addFilterQueries(query.toString());
+        }
+        StringBuilder buildFilter = new StringBuilder();
+        if (community != null) {
+            buildFilter.append("location.comm:").append(community.getID().toString());
+        }
+        if (StringUtils.isNotBlank(entityType)) {
+            if (buildFilter.length() > 0) {
+                buildFilter.append(" AND ");
+            }
+            buildFilter.append("search.entitytype:").append(entityType);
+        }
 
         if (Objects.nonNull(community)) {
             discoverQuery.addFilterQueries("location.comm:" + community.getID().toString());
@@ -1125,10 +1138,13 @@ public class CollectionServiceImpl extends DSpaceObjectServiceImpl<Collection> i
             discoverQuery.addFilterQueries("search.entitytype:" + entityType);
         }
         if (StringUtils.isNotBlank(q)) {
-            q = searchService.formatAutoCompleteQuery(q, "dc.title_sort");
-            discoverQuery.setQuery(q);
+            StringBuilder buildQuery = new StringBuilder();
+            String escapedQuery = ClientUtils.escapeQueryChars(q);
+            buildQuery.append("(").append(escapedQuery).append(" OR dc.title_sort:*")
+                      .append(escapedQuery).append("*").append(")");
+            discoverQuery.setQuery(buildQuery.toString());
         }
-        discoverQuery.addRequiredAuthorization(Constants.ADD);
+        discoverQuery.addFilterQueries(buildFilter.toString());
         DiscoverResult resp = searchService.search(context, discoverQuery);
         return resp;
     }
@@ -1269,9 +1285,8 @@ public class CollectionServiceImpl extends DSpaceObjectServiceImpl<Collection> i
 
     @Override
     public List<Collection> findCollectionsAdministeredByEntityType(String query, String entityType,
-                                                                    Context context, int offset, int limit)
+                                                                     Context context, int offset, int limit)
             throws SQLException, SearchServiceException {
-
         DiscoverQuery discoverQuery = new DiscoverQuery();
         discoverQuery.setDSpaceObjectFilter(IndexableCollection.TYPE);
         discoverQuery.setStart(offset);

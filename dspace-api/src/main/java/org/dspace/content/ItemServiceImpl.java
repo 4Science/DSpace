@@ -31,10 +31,12 @@ import java.util.UUID;
 import java.util.function.Supplier;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.Logger;
+import org.apache.solr.client.solrj.util.ClientUtils;
 import org.dspace.app.metrics.service.CrisMetricsService;
 import org.dspace.app.requestitem.RequestItem;
 import org.dspace.app.requestitem.service.RequestItemService;
@@ -1574,13 +1576,26 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
      */
     private DiscoverResult retrieveItemsWithEdit(Context context, DiscoverQuery discoverQuery, String q)
         throws SearchServiceException {
-        if (StringUtils.isNotBlank(q)) {
-            // Although not all items will have a metadata dc.title, we use it for autocomplete because it is the
-            // most common. Ideally, we should use a field that all indexed items have
-            q = searchService.formatAutoCompleteQuery(q, "dc.title_sort");
-            discoverQuery.setQuery(q);
+        try {
+            EPerson currentUser = context.getCurrentUser();
+            if (!authorizeService.isAdmin(context)) {
+                String userId = currentUser != null ? "e" + currentUser.getID().toString() : "e";
+                Stream<String> groupIds = groupService.allMemberGroupsSet(context, currentUser).stream()
+                    .map(group -> "g" + group.getID());
+                String query = Stream.concat(Stream.of(userId), groupIds)
+                    .collect(Collectors.joining(" OR ", "edit:(", ")"));
+                discoverQuery.addFilterQueries(query);
+            }
+        } catch (SQLException e) {
+            throw new SearchServiceException(e.getMessage(), e);
         }
-        discoverQuery.addRequiredAuthorization(Constants.WRITE);
+        if (StringUtils.isNotBlank(q)) {
+            StringBuilder buildQuery = new StringBuilder();
+            String escapedQuery = ClientUtils.escapeQueryChars(q);
+            buildQuery.append("(").append(escapedQuery).append(" OR dc.title_sort:*")
+                .append(escapedQuery).append("*").append(")");
+            discoverQuery.setQuery(buildQuery.toString());
+        }
         return searchService.search(context, discoverQuery);
     }
 
