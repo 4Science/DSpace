@@ -275,6 +275,13 @@ public class BitstreamStorageServiceImpl implements BitstreamStorageService, Ini
                         continue;
                     }
 
+                    // Check whether the bitstore file should be kept before
+                    // expunging the database record, because expunge() would
+                    // make the bitstream entity stale for subsequent queries.
+                    boolean isRegistered = isRegisteredBitstream(bitstream.getInternalId());
+                    boolean hasDuplicate = !bitstreamService
+                        .findDuplicateInternalIdentifier(context, bitstream).isEmpty();
+
                     if (deleteDbRecords) {
                         log.debug("deleting db record");
                         if (verbose) {
@@ -287,16 +294,15 @@ public class BitstreamStorageServiceImpl implements BitstreamStorageService, Ini
                         bitstreamService.expunge(context, bitstream);
                     }
 
-                    if (isRegisteredBitstream(bitstream.getInternalId())) {
+                    if (isRegistered) {
                         context.uncacheEntity(bitstream);
-                        continue; // do not delete registered bitstreams
+                        continue; // do not delete registered bitstreams from the bitstore
                     }
 
-
-                    // Since versioning allows for multiple bitstreams, check if the internal
-                    // identifier isn't used on
-                    // another place
-                    if (bitstreamService.findDuplicateInternalIdentifier(context, bitstream).isEmpty()) {
+                    // Since versioning allows for multiple bitstreams, only
+                    // remove the file if no other bitstream shares this
+                    // internal identifier
+                    if (!hasDuplicate) {
                         this.getStore(bitstream.getStoreNumber()).remove(bitstream);
 
                         String message = ("Deleted bitstreamID " + bid + ", internalID " + bitstream.getInternalId());
@@ -452,7 +458,7 @@ public class BitstreamStorageServiceImpl implements BitstreamStorageService, Ini
             //modulo
             if ((processedCounter % batchCommitSize) == 0) {
                 log.info("Migration Commit Checkpoint: " + processedCounter);
-                context.dispatchEvents();
+                context.commit();
             }
         }
 
