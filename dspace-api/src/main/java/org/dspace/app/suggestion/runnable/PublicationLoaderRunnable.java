@@ -49,6 +49,7 @@ public class PublicationLoaderRunnable
     protected String profile;
     protected String loader;
     protected String filterQuery;
+    protected String additionalQuery;
     private SolrSuggestionProvider publicationLoader = null;
     private ConfigurationService configurationService;
     private ItemService itemService;
@@ -84,6 +85,7 @@ public class PublicationLoaderRunnable
         loader = commandLine.getOptionValue("l");
         profile = commandLine.getOptionValue("s");
         filterQuery = !commandLine.hasOption("f") ? "" : commandLine.getOptionValue("f");
+        additionalQuery = !commandLine.hasOption("a") ? "" : commandLine.getOptionValue("a");
         if (profile == null) {
             LOGGER.info("No argument for -s, process all profile");
         } else {
@@ -112,23 +114,42 @@ public class PublicationLoaderRunnable
         }
 
         publicationLoader = getPublicationLoader(loader);
+        if (commandLine.hasOption("q") && !isPublicationLoaderSupportingQuery(publicationLoader)) {
+            throw new IllegalArgumentException("The provided argument -q isn't allowed with loader " + loader);
+        }
 
+        // default query for scopus: AF-ID(<affiliation-id>) AND PUBYEAR = <year>
         try {
             context = new Context();
             context.turnOffAuthorisationSystem();
-            DiscoverResultItemIterator researchers = findResearchers();
-            while (researchers.hasNext()) {
-                Item researcher = researchers.next();
-                researcher = context.reloadEntity(researcher);
-                publicationLoader.importRecords(context, researcher, null);
-                setLastImportMetadataValue(researcher);
-                context.commit();
-                context.uncacheEntity(researcher);
+            if (commandLine.hasOption("q")) {
+                String query = commandLine.getOptionValue("q");
+                publicationLoader.importRecords(context, query);
+            } else {
+                DiscoverResultItemIterator researchers = findResearchers();
+                while (researchers.hasNext()) {
+                    Item researcher = researchers.next();
+                    researcher = context.reloadEntity(researcher);
+                    publicationLoader.importRecords(context, researcher, additionalQuery);
+                    setLastImportMetadataValue(researcher);
+                    context.commit();
+                    context.uncacheEntity(researcher);
+                }
             }
         } finally {
             context.restoreAuthSystemState();
             context.complete();
         }
+    }
+
+    /**
+     * Checks whether the given publication loader supports query-based imports.
+     *
+     * @param publicationLoader the loader to check.
+     * @return true if the loader supports query-based imports, false otherwise.
+     */
+    private boolean isPublicationLoaderSupportingQuery(SolrSuggestionProvider publicationLoader) {
+        return publicationLoader.isSupportingQuery();
     }
 
     /**

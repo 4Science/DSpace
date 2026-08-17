@@ -91,6 +91,10 @@ public class AuthorizeServicePermissionEvaluatorPlugin extends RestObjectPermiss
                         return true;
                     }
 
+                    if (dSpaceObject instanceof Bitstream && ((Bitstream) dSpaceObject).isDeleted()) {
+                        return true; // Let downstream REST layer handle with 404
+                    }
+
 
                     if (dSpaceObject instanceof Item) {
                         Item item = (Item) dSpaceObject;

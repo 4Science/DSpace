@@ -21,6 +21,7 @@ import java.sql.SQLException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
@@ -998,8 +999,20 @@ public class SolrServiceImpl implements SearchService, IndexingService {
             solrQuery.set("hl.maxAnalyzedChars", Integer.toString(
                 configurationService
                     .getIntProperty("discovery.solr.fulltext.charLimit", 100000)));
+            boolean escapeHTML = configurationService.getBooleanProperty("discovery.highlights.escape-html", true);
+            String[] renderHTMLForFields =
+                configurationService.getArrayProperty("discovery.highlights.html-allowed-fields");
             for (DiscoverHitHighlightingField highlightingField : discoveryQuery.getHitHighlightingFields()) {
                 solrQuery.addHighlightField(highlightingField.getField() + "_hl");
+                boolean allowHTMLInField = Arrays.stream(renderHTMLForFields)
+                    .anyMatch(field -> highlightingField.getField().matches(field));
+                if (!escapeHTML || allowHTMLInField) {
+                    solrQuery.add("f." + highlightingField.getField() + "_hl." + HighlightParams.METHOD, "original");
+                } else {
+                    solrQuery.add("f." + highlightingField.getField() + "_hl." + HighlightParams.METHOD, "unified");
+                    solrQuery.add("f." + highlightingField.getField() + "_hl." + HighlightParams.ENCODER, "html");
+                }
+
                 solrQuery.add("f." + highlightingField.getField() + "_hl." + HighlightParams.FRAGSIZE,
                               String.valueOf(highlightingField.getMaxChars()));
                 solrQuery.add("f." + highlightingField.getField() + "_hl." + HighlightParams.SNIPPETS,

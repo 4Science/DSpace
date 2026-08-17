@@ -29,6 +29,7 @@ import org.dspace.content.service.EntityTypeService;
 import org.dspace.content.service.ItemService;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
+import org.dspace.discovery.SearchService;
 import org.dspace.discovery.SolrSearchCore;
 import org.dspace.discovery.indexobject.IndexableCollection;
 import org.dspace.eperson.EPerson;
@@ -52,6 +53,9 @@ public class EntityTypeServiceImpl implements EntityTypeService {
 
     @Autowired
     protected SolrSearchCore solrSearchCore;
+
+    @Autowired
+    protected SearchService searchService;
 
     @Override
     public EntityType findByEntityType(Context context, String entityType) throws SQLException {

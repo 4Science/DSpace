@@ -1,11 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd"
-       default-lazy-init="true">
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd" default-lazy-init="true">
 
-    <bean name="org.dspace.storage.bitstore.BitstreamStorageService"
-          class="org.dspace.storage.bitstore.BitstreamStorageServiceImpl">
+    <bean name="org.dspace.storage.bitstore.BitstreamStorageService" class="org.dspace.storage.bitstore.BitstreamStorageServiceImpl">
         <property name="incoming" value="${assetstore.index.primary}"/>
         <property name="stores">
             <map>
@@ -54,6 +52,16 @@
              If not provided, it will be based on targetThroughputGbps
         -->
         <property name="maxConcurrency" value="${assetstore.s3.maxConcurrency}"/>
+
+        <!-- The factor of available memory to use for calculating the maximum concurrency.
+             Uses custom heuristics to determine the maximum concurrency based on the available memory and the configured memory usage factor.
+             If not provided, it will use parameters from the AWS SDK defaults, which are based on the available processors and memory.
+             Be careful when changing this value, as setting it too high or not setting at all may cause out of memory errors.
+        -->
+        <property name="memoryUsageFactor" value="${assetstore.s3.memoryUsageFactor:}"/>
+
+        <!-- The initial buffer size in bytes for reading from S3. If not specified it will be determined by AWS SDK-->
+        <property name="initialReadBufferSizeInBytes" value="${assetstore.s3.initialReadBufferSizeInBytes:}"/>
 
         <!-- The algorithm the S3 client will use to create a checksum when doing putObject. -->
         <property name="s3ChecksumAlgorithm" value="${assetstore.s3.s3ChecksumAlgorithm}"/>

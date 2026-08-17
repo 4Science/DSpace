@@ -48,7 +48,7 @@ public class RelationshipTypeDAOImpl extends AbstractHibernateDAO<RelationshipTy
                     criteriaBuilder.equal(relationshipTypeRoot.get(RelationshipType_.rightType), rightType),
                 criteriaBuilder.equal(relationshipTypeRoot.get(RelationshipType_.leftwardType), leftwardType),
                 criteriaBuilder.equal(relationshipTypeRoot.get(RelationshipType_.rightwardType), rightwardType)));
-        return uniqueResult(context, criteriaQuery, false, RelationshipType.class);
+        return uniqueResult(context, criteriaQuery, true, RelationshipType.class);
     }
 
     @Override
@@ -98,7 +98,7 @@ public class RelationshipTypeDAOImpl extends AbstractHibernateDAO<RelationshipTy
         List<jakarta.persistence.criteria.Order> orderList = new LinkedList<>();
         orderList.add(criteriaBuilder.asc(relationshipTypeRoot.get(RelationshipType_.ID)));
         criteriaQuery.orderBy(orderList);
-        return list(context, criteriaQuery, false, RelationshipType.class, limit, offset);
+        return list(context, criteriaQuery, true, RelationshipType.class, limit, offset);
     }
 
     @Override
@@ -124,7 +124,7 @@ public class RelationshipTypeDAOImpl extends AbstractHibernateDAO<RelationshipTy
                     criteriaBuilder.equal(relationshipTypeRoot.get(RelationshipType_.rightType), entityType)
             );
         }
-        return list(context, criteriaQuery, false, RelationshipType.class, limit, offset);
+        return list(context, criteriaQuery, true, RelationshipType.class, limit, offset);
     }
 
     @Override

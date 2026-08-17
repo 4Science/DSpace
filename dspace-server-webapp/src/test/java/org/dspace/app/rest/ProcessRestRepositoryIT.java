@@ -1107,6 +1107,9 @@ public class ProcessRestRepositoryIT extends AbstractControllerIntegrationTest {
         AutowireCapableBeanFactory factory = applicationContext.getAutowireCapableBeanFactory();
         ProcessRestRepository newBean = factory.createBean(ProcessRestRepository.class);
         Assert.assertNotNull(newBean);
+        // init() is bound to ApplicationReadyEvent (not @PostConstruct), which createBean does not fire,
+        // so we invoke it explicitly to simulate the application becoming ready after the restart
+        newBean.init();
 
         getClient(token).perform(get("/api/system/processes/"))
                         .andExpect(status().isOk())

@@ -21,7 +21,6 @@ import org.dspace.content.Bitstream;
 import org.dspace.content.Bundle;
 import org.dspace.content.Collection;
 import org.dspace.content.Community;
-import org.dspace.content.DSpaceObject;
 import org.dspace.content.EntityType;
 import org.dspace.content.Item;
 import org.dspace.content.MetadataValue;
@@ -919,23 +918,23 @@ public interface ItemService
     /**
       * finds all items for which the current user has editing rights
       * @param context DSpace context object
+      * @param q search query
       * @param offset page offset
       * @param limit  page size limit
       * @return list of items for which the current user has editing rights
-      * @throws SQLException
       * @throws SearchServiceException
       */
-    List<Item> findItemsWithEdit(Context context, int offset, int limit)
-        throws SQLException, SearchServiceException;
+    List<Item> findItemsWithEdit(Context context, String q, int offset, int limit)
+        throws SearchServiceException;
 
     /**
     * counts all items for which the current user has editing rights
     * @param context DSpace context object
+    * @param q search query
     * @return list of items for which the current user has editing rights
-    * @throws SQLException
     * @throws SearchServiceException
     */
-    int countItemsWithEdit(Context context) throws SQLException, SearchServiceException;
+    int countItemsWithEdit(Context context, String q) throws SearchServiceException;
 
     /**
      * Check if the supplied item is an inprogress submission
@@ -1054,22 +1053,6 @@ public interface ItemService
      * @return the entity type of the given item, or null if not found.
      */
     EntityType getEntityType(Context context, Item item) throws SQLException;
-
-    /**
-     * Add the default policies, which have not been already added to the given
-     * DSpace object
-     *
-     * @param  context                   The relevant DSpace Context.
-     * @param  dso                       The DSpace Object to add policies to
-     * @param  defaultCollectionPolicies list of policies
-     * @throws SQLException              An exception that provides information on a
-     *                                   database access error or other errors.
-     * @throws AuthorizeException        Exception indicating the current user of
-     *                                   the context does not have permission to
-     *                                   perform a particular action.
-     */
-    void addDefaultPoliciesNotInPlace(Context context, DSpaceObject dso, List<ResourcePolicy> defaultCollectionPolicies)
-        throws SQLException, AuthorizeException;
 
     public Iterator<Item> findRelatedItemsByAuthorityControlledFields(Context context,
                                                                       Item item, List<String> authorities);
