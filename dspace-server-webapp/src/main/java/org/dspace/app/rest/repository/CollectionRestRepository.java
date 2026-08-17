@@ -20,6 +20,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.ServletInputStream;
 import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.dspace.app.rest.Parameter;
 import org.dspace.app.rest.SearchRestMethod;
@@ -84,7 +85,7 @@ import org.springframework.web.multipart.MultipartFile;
 @Component(CollectionRest.CATEGORY + "." + CollectionRest.PLURAL_NAME)
 public class CollectionRestRepository extends DSpaceObjectRestRepository<Collection, CollectionRest> {
 
-    public static Logger log = org.apache.logging.log4j.LogManager.getLogger(CollectionRestRepository.class);
+    public static Logger log = LogManager.getLogger(CollectionRestRepository.class);
 
     @Autowired
     CommunityService communityService;
@@ -323,6 +324,43 @@ public class CollectionRestRepository extends DSpaceObjectRestRepository<Collect
                 Math.toIntExact(pageable.getPageSize()));
             long tot = authorizeService.countAdminAuthorizedCollection(context, query);
             return converter.toRestPage(collections, pageable, tot , utils.obtainProjection());
+        } catch (SearchServiceException | SQLException e) {
+            throw new RuntimeException(e.getMessage(), e);
+        }
+    }
+
+    /**
+     * Returns Collections for which the current user has 'edit' privileges.
+     * NOTE: edit rights on a Collection coincide with admin rights (direct or inherited),
+     * which are resolved at index-time on the Solr {@code admin} field.
+     *
+     * @param pageable              The pagination information
+     * @param query                 The query used in the lookup
+     * @return Page of Collections (REST representation) for which the current user has editing rights
+     */
+    @PreAuthorize("hasAuthority('AUTHENTICATED')")
+    @SearchRestMethod(name = "findEditAuthorized")
+    public Page<CollectionRest> findEditAuthorized (Pageable pageable,
+                                                    @Parameter(value = "query") String query) {
+        return findAuthorized(pageable, Constants.WRITE, query);
+    }
+
+    /**
+     * Returns Collections for which the current user has the privileges specified by {@code action}.
+     *
+     * @param pageable  The pagination information
+     * @param action    The action to check for (e.g. {@link Constants#WRITE})
+     * @param query     The query used in the lookup
+     * @return Page of Collections (REST representation) for which the current user is authorized
+     */
+    private Page<CollectionRest> findAuthorized(Pageable pageable, int action, String query) {
+        try {
+            Context context = obtainContext();
+            List<Collection> collections = authorizeService.findAuthorizedCollectionByAction(context, query, action,
+                                                                               Math.toIntExact(pageable.getOffset()),
+                                                                               Math.toIntExact(pageable.getPageSize()));
+            long tot = authorizeService.countAuthorizedCollectionByAction(context, query, action);
+            return converter.toRestPage(collections, pageable, tot, utils.obtainProjection());
         } catch (SearchServiceException | SQLException e) {
             throw new RuntimeException(e.getMessage(), e);
         }

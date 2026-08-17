@@ -592,6 +592,42 @@ public interface AuthorizeService {
         throws SearchServiceException, SQLException;
 
     /**
+     * Finds communities for which the current user has the rights specified by the {@code action}.
+     * CRIS note: the permission inheritance is already resolved at index-time on the Solr
+     * {@code admin} field, and no {@code edit}/{@code submit} field is indexed at container level.
+     * Therefore, for communities the actions WRITE/ADD are served through the same {@code admin}
+     * filter used by {@link #findAdminAuthorizedCommunity}. The {@code action} parameter is kept for
+     * REST API fidelity with upstream DSpace.
+     *
+     * @param context   context with the current user
+     * @param query     the optional extra query for which to filter the results more
+     * @param action    the action to check for (e.g. {@code Constants.WRITE} / {@code Constants.ADD})
+     * @param offset    used for pagination of the results
+     * @param limit     used for pagination of the results
+     * @return          the matching communities
+     * @throws SearchServiceException
+     * @throws SQLException
+     */
+    List<Community> findAuthorizedCommunityByAction(Context context, String query, int action, int offset, int limit)
+        throws SearchServiceException, SQLException;
+
+    /**
+     * Counts communities for which the current user has the rights specified by the {@code action},
+     * AND which match the query.
+     * CRIS note: see {@link #findAuthorizedCommunityByAction}; WRITE/ADD are served through the
+     * {@code admin} filter.
+     *
+     * @param context   context with the current user
+     * @param query     the query for which to filter the results more
+     * @param action    the action to check for (e.g. {@code Constants.WRITE} / {@code Constants.ADD})
+     * @return          the number of matching communities
+     * @throws SearchServiceException
+     * @throws SQLException
+     */
+    long countAuthorizedCommunityByAction(Context context, String query, int action)
+        throws SearchServiceException, SQLException;
+
+    /**
      * Finds collections for which the current user is admin, AND which match the query.
      *
      * @param context   context with the current user
@@ -615,6 +651,42 @@ public interface AuthorizeService {
      * @throws SQLException
      */
     long countAdminAuthorizedCollection(Context context, String query)
+        throws SearchServiceException, SQLException;
+
+    /**
+     * Finds collections for which the current user has the rights specified by the {@code action}.
+     * CRIS note: the permission inheritance is already resolved at index-time on the Solr
+     * {@code admin} field, and no {@code edit}/{@code submit} field is indexed at container level.
+     * Therefore, for containers (community/collection) the actions WRITE/ADD are served through the
+     * same {@code admin} filter used by {@link #findAdminAuthorizedCollection}. The {@code action}
+     * parameter is kept for REST API fidelity with upstream DSpace.
+     *
+     * @param context   context with the current user
+     * @param query     the optional extra query for which to filter the results more
+     * @param action    the action to check for (e.g. {@code Constants.WRITE})
+     * @param offset    used for pagination of the results
+     * @param limit     used for pagination of the results
+     * @return          the matching collections
+     * @throws SearchServiceException
+     * @throws SQLException
+     */
+    List<Collection> findAuthorizedCollectionByAction(Context context, String query, int action, int offset, int limit)
+        throws SearchServiceException, SQLException;
+
+    /**
+     * Counts collections for which the current user has the rights specified by the {@code action},
+     * AND which match the query.
+     * CRIS note: see {@link #findAuthorizedCollectionByAction}; WRITE/ADD are served through the
+     * {@code admin} filter.
+     *
+     * @param context   context with the current user
+     * @param query     the query for which to filter the results more
+     * @param action    the action to check for (e.g. {@code Constants.WRITE})
+     * @return          the number of matching collections
+     * @throws SearchServiceException
+     * @throws SQLException
+     */
+    long countAuthorizedCollectionByAction(Context context, String query, int action)
         throws SearchServiceException, SQLException;
 
     /**
