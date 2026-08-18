@@ -16,6 +16,7 @@ import jakarta.inject.Singleton;
 import org.apache.http.HeaderElement;
 import org.apache.http.HeaderElementIterator;
 import org.apache.http.HttpResponse;
+import org.apache.http.client.ServiceUnavailableRetryStrategy;
 import org.apache.http.conn.ConnectionKeepAliveStrategy;
 import org.apache.http.conn.HttpClientConnectionManager;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -116,6 +117,22 @@ public class HttpConnectionPoolService {
                                   .setKeepAliveStrategy(keepAliveStrategy)
                                   .setConnectionManager(connManager)
                                   .build();
+    }
+
+    /**
+     * Create an HTTP client which uses a pooled connection and a passed retry strategy for service unavailable
+     * responses (503)
+     *
+     * @param retryStrategy the retry strategy to use with service unavailable responses
+     *
+     * @return the client.
+     */
+    public CloseableHttpClient getClient(ServiceUnavailableRetryStrategy retryStrategy) {
+        return DSpaceHttpClientFactory.getInstance().builder(true).create()
+                .setKeepAliveStrategy(keepAliveStrategy)
+                .setServiceUnavailableRetryStrategy(retryStrategy)
+                .setConnectionManager(connManager)
+                .build();
     }
 
     /**
