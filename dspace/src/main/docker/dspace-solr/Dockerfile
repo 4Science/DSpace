@@ -12,6 +12,11 @@
 
 ARG SOLR_VERSION=9.10
 
+# NOTE: "solrconfigs" is a placeholder stage. It MUST be populated at runtime.
+# usage: docker build --build-context solrconfigs=[path-to-dspace/solr]
+#    or: via "additional_contexts" in docker-compose
+FROM scratch AS solrconfigs
+
 # NOTE: Cannot use the "-slim" image because it doesn't include the extra modules needed for DSpace (e.g. icu4j)
 FROM docker.io/solr:${SOLR_VERSION}
 
@@ -36,6 +41,13 @@ RUN mkdir -p $AUDIT_CONFIGSET_PATH $AUTHORITY_CONFIGSET_PATH $DEDUP_CONFIGSET_PA
     $OCR_LIB_PATH $JTS_CORE_LIB_PATH
 
 COPY --chown=solr:solr ./dspace/solr/ocr/lib/* /opt/solr/lib
+# Copy configurations from the external 'solrconfigs' build context
+COPY --from=solrconfigs authority/conf/* $AUTHORITY_CONFIGSET_PATH/
+COPY --from=solrconfigs oai/conf/* $OAI_CONFIGSET_PATH/
+COPY --from=solrconfigs search/conf/* $SEARCH_CONFIGSET_PATH/
+COPY --from=solrconfigs statistics/conf/* $STATISTICS_CONFIGSET_PATH/
+COPY --from=solrconfigs qaevent/conf/* $QAEVENT_CONFIGSET_PATH/
+COPY --from=solrconfigs suggestion/conf/* $SUGGESTION_CONFIGSET_PATH/
 
 COPY --chown=solr:solr ./dspace/solr/audit/conf/* $AUDIT_CONFIGSET_PATH/
 COPY --chown=solr:solr ./dspace/solr/authority/conf/* $AUTHORITY_CONFIGSET_PATH/

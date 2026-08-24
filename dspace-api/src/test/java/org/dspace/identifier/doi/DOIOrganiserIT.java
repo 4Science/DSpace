@@ -268,7 +268,7 @@ public class DOIOrganiserIT extends AbstractIntegrationTestWithDatabase {
                        is(DOIIdentifierProvider.IS_REGISTERED));
 
             assertTrue("Expected error output for the invalid DOI", error.contains(
-                "Error registering DOI identifier"));
+                "invalid-doi registration failed, skipping"));
         } finally {
             System.setOut(originalOut);
             System.setErr(originalErr);
@@ -454,7 +454,7 @@ public class DOIOrganiserIT extends AbstractIntegrationTestWithDatabase {
             String error = errContent.toString(StandardCharsets.UTF_8);
 
             assertEquals("This identifier: doi:item1 is successfully registered.\n", output);
-            assertTrue(error.isEmpty());
+            assertTrue("Expected no error output when limit is set to 1", error.isEmpty());
 
         } finally {
             System.setOut(originalOut);

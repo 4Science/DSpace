@@ -7,6 +7,7 @@
 ## See org.dspace.core.Email for information on the format of this file.
 ##
 #set($subject = 'DSpace - The batch import was not completed.')
+#if($global.put('X-SES-TENANT', $config.get('aws.ses.tenant')))#end
 The batch import you initiated from the DSpace UI was not completed, due to the following reason:
  ${params[0]}
 

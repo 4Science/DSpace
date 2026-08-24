@@ -2318,6 +2318,42 @@ it, please enter the types and the actual numbers or codes.</hint>
       <row>
         <field>
           <dc-schema>crisequipment</dc-schema>
+          <dc-element>manifactured</dc-element>
+          <dc-qualifier>date</dc-qualifier>
+          <label>Creation Date</label>
+          <input-type>date</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint />
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>crisequipment</dc-schema>
+          <dc-element>activation</dc-element>
+          <dc-qualifier>date</dc-qualifier>
+          <label>Activation Date</label>
+          <input-type>date</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint />
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>crisequipment</dc-schema>
+          <dc-element>decommission</dc-element>
+          <dc-qualifier>date</dc-qualifier>
+          <label>Decommission Date</label>
+          <input-type>date</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint />
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>crisequipment</dc-schema>
           <dc-element>ownerou</dc-element>
           <label>Owner (Organisations)</label>
           <input-type>onebox</input-type>
@@ -2343,6 +2379,30 @@ it, please enter the types and the actual numbers or codes.</hint>
           <dc-element>description</dc-element>
           <label>Equipment Description</label>
           <input-type>textarea</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint />
+        </field>
+     </row>
+     <row>
+        <field>
+          <dc-schema>dc</dc-schema>
+          <dc-element>identifier</dc-element>
+          <dc-qualifier>doi</dc-qualifier>
+          <label>DOI</label>
+          <input-type>onebox</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint />
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>oairecerif</dc-schema>
+          <dc-element>identifier</dc-element>
+          <dc-qualifier>url</dc-qualifier>
+          <label>URL</label>
+          <input-type>onebox</input-type>
           <repeatable>false</repeatable>
           <required />
           <hint />

@@ -57,7 +57,6 @@ public class AuthorizeServicePermissionEvaluatorPlugin extends RestObjectPermiss
     @Autowired
     private BitstreamCrisSecurityService bitstreamCrisSecurityService;
 
-
     @Override
     public boolean hasDSpacePermission(Authentication authentication, Serializable targetId, String targetType,
                                        DSpaceRestPermission permission) {
@@ -90,6 +89,10 @@ public class AuthorizeServicePermissionEvaluatorPlugin extends RestObjectPermiss
                     //If the dso is null then we give permission so we can throw another status code instead
                     if (dSpaceObject == null) {
                         return true;
+                    }
+
+                    if (dSpaceObject instanceof Bitstream && ((Bitstream) dSpaceObject).isDeleted()) {
+                        return true; // Let downstream REST layer handle with 404
                     }
 
 

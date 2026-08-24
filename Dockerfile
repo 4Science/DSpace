@@ -17,6 +17,7 @@ ARG DOCKER_REGISTRY=docker.io
 FROM ${DOCKER_REGISTRY}/4science/dspace-cris-dependencies:${DSPACE_VERSION} AS build
 ARG TARGET_DIR=dspace-installer
 WORKDIR /app
+USER root
 # The dspace-installer directory will be written to /install
 RUN mkdir -p /install /install/config /install/bin /install/solr /install/var \
     && chown -Rv dspace: /install \
@@ -38,10 +39,16 @@ RUN mv /app/dspace/modules/server-boot/target/server-boot-*.jar /install/server-
 # Create a new tomcat image that does not retain the thze build directory contents
 FROM docker.io/eclipse-temurin:${JDK_VERSION}-jre AS install
 # Expose Tomcat port (8080) and Handle Server HTTP port (8000)
-EXPOSE 8080 8000 5005
-# NOTE: DSPACE_INSTALL must align with the "dspace.dir" default configuration.
-ENV DSPACE_INSTALL=/dspace
-WORKDIR $DSPACE_INSTALL
+EXPOSE 8080 8000
+# NOTE: dspace__P__dir must align with the "dspace.dir" default configuration.
+ENV dspace__P__dir=/dspace
+WORKDIR $dspace__P__dir
+
+# Need host command for "[dspace]/bin/make-handle-config"
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends host \
+    && apt-get purge -y --auto-remove \
+    && rm -rf /var/lib/apt/lists/*
 
 RUN useradd -m -d /home/dspace -s /bin/bash dspace
 
@@ -50,23 +57,17 @@ COPY --from=build --chown=dspace /install/server-boot/spring-boot-loader/ /app/s
 COPY --from=build --chown=dspace /install/server-boot/snapshot-dependencies/ /app/server-boot/
 COPY --from=build --chown=dspace /install/server-boot/application/ /app/server-boot/
 
-COPY --chown=dspace dspace/config/ $DSPACE_INSTALL/config/
-COPY --chown=dspace dspace/bin/ $DSPACE_INSTALL/bin/
-RUN install -d -m 0755 -o dspace -g dspace $DSPACE_INSTALL/assetstore/ $DSPACE_INSTALL/upload/ \
-    $DSPACE_INSTALL/handle-server/ $DSPACE_INSTALL/log/ $DSPACE_INSTALL/var/ \
-    && ln -s /app/server-boot/BOOT-INF/lib $DSPACE_INSTALL/lib \
-    && chown -h dspace:dspace $DSPACE_INSTALL/lib \
-    && chmod +x $DSPACE_INSTALL/bin/*
+COPY --chown=dspace dspace/config/ $dspace__P__dir/config/
+COPY --chown=dspace dspace/bin/ $dspace__P__dir/bin/
+RUN install -d -m 0755 -o dspace -g dspace $dspace__P__dir/assetstore/ $dspace__P__dir/upload/ \
+    $dspace__P__dir/handle-server/ $dspace__P__dir/log/ $dspace__P__dir/var/ $dspace__P__dir/rdf-store/ $dspace__P__dir/temp/ \
+    && ln -s /app/server-boot/BOOT-INF/lib $dspace__P__dir/lib \
+    && chown -h dspace:dspace $dspace__P__dir/lib \
+    && chmod +x $dspace__P__dir/bin/*
 
 WORKDIR /app/server-boot
-# Need host command for "[dspace]/bin/make-handle-config"
-RUN apt-get update \
-    && apt-get install -y --no-install-recommends host \
-    && apt-get purge -y --auto-remove \
-    && rm -rf /var/lib/apt/lists/*
 
 USER dspace
-ENV dspace.dir="$DSPACE_INSTALL"
-ENV JAVA_OPTS="-Xmx2000m -Ddspace.dir=$DSPACE_INSTALL"
-ENV JAVA_TOOL_OPTIONS="-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005"
-ENTRYPOINT [ "java", "-XX:+UseParallelGC", "-XX:MaxRAMPercentage=75", "org.springframework.boot.loader.launch.JarLauncher", "--dspace.dir=/dspace", "--logging.config=/dspace/config/log4j2-container.xml" ]
+ENV JAVA_OPTS="-Xmx2000m -Ddspace.dir=$dspace__P__dir -Djava.io.tmpdir=/tmp"
+ENV LOGGING_CONFIG="$dspace__P__dir/config/log4j2-container.xml"
+ENTRYPOINT [ "java", "-XX:+UseParallelGC", "-XX:MaxRAMPercentage=75", "org.springframework.boot.loader.launch.JarLauncher"]

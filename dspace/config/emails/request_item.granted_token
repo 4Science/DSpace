@@ -12,6 +12,7 @@
 ##  {7} expiration date of the granted access (timestamp, formatted in requestitem.cfg)
 
 #set($subject = 'Request for Copy of Restricted Document is Granted')
+#if($global.put('X-SES-TENANT', $config.get('aws.ses.tenant')))#end
 Dear ${params[0]}:
 
 Your request for a copy of the file(s) from the below document has been approved.  The following link will grant access to the files you requested.

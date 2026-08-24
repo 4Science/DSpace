@@ -50,5 +50,7 @@
     </bean>
     
     <!-- Currently there is only one implementation of RDFStorage -->
-    <bean id="org.dspace.rdf.storage.RDFStorage" class="org.dspace.rdf.storage.RDFStorageImpl" scope="singleton"/>
+    <!-- <bean id="org.dspace.rdf.storage.RDFStorage" class="org.dspace.rdf.storage.RDFStorageImpl" scope="singleton"/> -->
+    <bean id="org.dspace.rdf.storage.RDFStorage" class="org.dspace.rdf.storage.RDFFileStorageImpl"
+        destroy-method="destroy" scope="singleton" />
 </beans>
