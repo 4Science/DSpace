@@ -158,4 +158,61 @@
     </dc-type>
 
 
+    <dc-type>
+        <schema>dspace</schema>
+        <element>openalex</element>
+        <qualifier>lastimport</qualifier>
+        <scope_note>Stores the timestamp related to the last import from OpenAlex</scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>dspace</schema>
+        <element>openaire</element>
+        <qualifier>lastimport</qualifier>
+        <scope_note>Stores the timestamp related to the last import from OpenAIRE Graph</scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>dspace</schema>
+        <element>scopus</element>
+        <qualifier>lastimport</qualifier>
+        <scope_note>Stores the timestamp related to the last import from Scopus</scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>dspace</schema>
+        <element>pubmed</element>
+        <qualifier>lastimport</qualifier>
+        <scope_note>Stores the timestamp related to the last import from PubMed</scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>dspace</schema>
+        <element>pubmedeu</element>
+        <qualifier>lastimport</qualifier>
+        <scope_note>Stores the timestamp related to the last import from PubMedEU</scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>dspace</schema>
+        <element>ads</element>
+        <qualifier>lastimport</qualifier>
+        <scope_note>Stores the timestamp related to the last import from Ads</scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>dspace</schema>
+        <element>accessibility</element>
+        <qualifier>settings</qualifier>
+        <scope_note>Metadata field storing the user-configured accessibility settings values for the EPerson.</scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>dspace</schema>
+        <element>externalupload</element>
+        <qualifier>status</qualifier>
+        <scope_note>Stores the processing status of an async external file upload operation. Format: "FAILED: &lt;path&gt; — &lt;reason&gt;". Set on async failure; cleared on retry success. Used by ExternalUploadStep to expose pending/failed state to the submission UI.</scope_note>
+    </dc-type>
+
+
 </dspace-dc-types>

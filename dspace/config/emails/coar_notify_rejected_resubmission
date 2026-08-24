@@ -10,6 +10,7 @@
 ##
 ##
 #set($subject = "DSpace: The Service ${params[0]} indicates that revisions are needed following review of the Item ""${params[1]}""")
+#if($global.put('X-SES-TENANT', $config.get('aws.ses.tenant')))#end
 
 A tentative rejection notification has been received by the service: ${params[0]}
 for the Item: ${params[1]}. Revisions are needed. To further proceed, please submit a revised version when ready.

@@ -80,7 +80,6 @@
         <value>dc.contributor.author</value>
         <value>dc.contributor.editor</value>
     </util:list>
-
     <alias name="solrServiceResourceIndexPlugin" alias="org.dspace.discovery.SolrServiceResourceRestrictionPlugin"/>
 
     <!-- Additional indexing plugin make filtering by has content in original bundle (like pdf's, images) posible via SOLR -->
@@ -1207,6 +1206,7 @@
                 <ref bean="searchFilterIssued" />
                 <ref bean="searchFilterSubmitter" />
                 <ref bean="searchFilterSupervision" />
+                <ref bean="searchFilterEntityType" />
             </list>
         </property>
         <!--The search filters which can be used on the discovery search page -->
@@ -1217,6 +1217,7 @@
                 <ref bean="searchFilterIssued" />
                 <ref bean="searchFilterSubmitter" />
                 <ref bean="searchFilterSupervision" />
+                <ref bean="searchFilterEntityType" />
             </list>
         </property>
         <!--The sort filters for the discovery search-->
@@ -1890,7 +1891,7 @@
         <!-- When true a "did you mean" example will be displayed, value can be true or false -->
         <property name="spellCheckEnabled" value="true"/>
     </bean>
-	
+
     <bean id="projectRelationships" class="org.dspace.discovery.configuration.DiscoveryConfiguration" scope="prototype">
         <property name="id" value="project"/>
         <property name="indexAlways" value="true"/>

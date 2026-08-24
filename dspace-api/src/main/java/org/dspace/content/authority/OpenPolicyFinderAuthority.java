@@ -21,7 +21,6 @@ import org.apache.commons.validator.routines.ISSNValidator;
 import org.dspace.app.openpolicyfinder.OpenPolicyFinderService;
 import org.dspace.app.openpolicyfinder.v2.OpenPolicyFinderJournal;
 import org.dspace.app.openpolicyfinder.v2.OpenPolicyFinderResponse;
-import org.dspace.core.NameAwarePlugin;
 import org.dspace.services.ConfigurationService;
 import org.dspace.services.factory.DSpaceServicesFactory;
 import org.dspace.utils.DSpace;
@@ -40,12 +39,6 @@ public class OpenPolicyFinderAuthority extends ItemAuthority {
     private static final String  TITLE_FILED = "title";
     private static final String  PREDICATE_EQUALS = "equals";
     private static final String  PREDICATE_CONTAINS_WORD = "contains word";
-
-    /**
-     * the name assigned to the specific instance by the PluginService, @see
-     * {@link NameAwarePlugin}
-     **/
-    private String authorityName;
 
     private ConfigurationService configurationService = DSpaceServicesFactory.getInstance().getConfigurationService();
 

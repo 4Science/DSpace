@@ -5,6 +5,7 @@
 ##             {2} Collections updates block
 ##             {3} Entity updates block
 #set($subject = "${config.get('dspace.name')}: Statistics of updates on subscribed items")
+#if($global.put('X-SES-TENANT', $config.get('aws.ses.tenant')))#end
 
 This email is sent from ${config.get('dspace.name')} based on the chosen subscription preferences.
 You can manage your subscription preferences from ${params[0]}

@@ -25,6 +25,7 @@ import org.dspace.content.factory.ContentServiceFactory;
 import org.dspace.content.service.CollectionService;
 import org.dspace.content.service.CommunityService;
 import org.dspace.content.service.ItemService;
+import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.deletion.process.strategies.DSpaceObjectDeletionStrategy;
 import org.dspace.eperson.EPerson;
@@ -45,6 +46,8 @@ import org.dspace.utils.DSpace;
 public class DSpaceObjectDeletionProcess
         extends DSpaceRunnable<DSpaceObjectDeletionProcessScriptConfiguration<DSpaceObjectDeletionProcess>> {
 
+    public static final String OBJECT_DELETION_SCRIPT = "object-deletion";
+
     private ItemService itemService;
     private HandleService handleService;
     private CommunityService communityService;
@@ -52,7 +55,7 @@ public class DSpaceObjectDeletionProcess
     private CollectionService collectionService;
 
     private String id;
-    private Context context;
+    protected Context context;
     private String[] copyVirtualMetadata;
     private List<DSpaceObjectDeletionStrategy> deletionStrategies = new ArrayList<>();
 
@@ -74,43 +77,92 @@ public class DSpaceObjectDeletionProcess
      */
     private void parseCommandLineOptions() {
         this.id = commandLine.getOptionValue('i');
-        this.copyVirtualMetadata = commandLine.hasOption('c') ? new String[]{commandLine.getOptionValue('c')}
-                                                              : new String[0];
+        this.copyVirtualMetadata = commandLine.hasOption('c') ? parseCopyVirtualMetadataOption() : new String[0];
+    }
+
+    private String[] parseCopyVirtualMetadataOption() {
+        String value = commandLine.getOptionValue('c');
+        if (value.contains(",")) {
+            return value.split(",");
+        }
+        return new String[] { value };
     }
 
     @Override
     public void internalRun() throws Exception {
         assignCurrentUserInContext();
-        Optional<DSpaceObject> dSpaceObjectOptional = resolveDSpaceObject(this.id);
+        try {
+            Optional<DSpaceObject> dSpaceObjectOptional = resolveDSpaceObject(this.id);
 
-        if (dSpaceObjectOptional.isEmpty()) {
-            var error = String.format("DSpaceObject for provided identifier:%s doesn't exist!", this.id);
-            throw new IllegalArgumentException(error);
+            if (dSpaceObjectOptional.isEmpty()) {
+                var error = String.format("DSpaceObject for provided identifier:%s doesn't exist!", this.id);
+                throw new IllegalArgumentException(error);
+            }
+
+            DSpaceObject dso = dSpaceObjectOptional.get();
+
+            if (!authorizeService.isAdmin(context, dso)) {
+                throw new AuthorizeException("Current user is not eligible to execute script: " +
+                                                 "'" + OBJECT_DELETION_SCRIPT + "'");
+            }
+
+            var info = "Performing deletion of DSpaceObject (and all child objects) for type=%s and uuid=%s";
+            handler.logInfo(String.format(info, Constants.typeText[dso.getType()], dso.getID().toString()));
+            getStrategy(dso).delete(this.context, dso, this.copyVirtualMetadata);
+
+            handleCompletion();
+            handler.logInfo("Deletion completed!");
+        } catch (Exception e) {
+            handler.handleException("Error during deletion process: " + e.getMessage(), e);
+        } finally {
+            if (context != null && context.isValid()) {
+                context.abort();
+            }
         }
+    }
 
-        DSpaceObject dso = dSpaceObjectOptional.get();
-
-        if (!authorizeService.isAdmin(context, dso)) {
-            throw new AuthorizeException("Current user is not eligible to execute script 'dspace-object-deletion'");
+    private void handleCompletion() throws SQLException {
+        if (context != null) {
+            context.complete();
         }
-
-        handler.logInfo("Performing deletion of DSpaceObject id:" + dso.getID());
-        getStrategy(dso).delete(this.context, dso, this.copyVirtualMetadata);
-        handler.logInfo("Deletion completed!");
     }
 
     private DSpaceObjectDeletionStrategy getStrategy(DSpaceObject dso) {
+        var error = "No strategy for type:" + dso.getType();
         return deletionStrategies.stream()
-                              .filter(s -> s.supports(dso))
-                              .findFirst()
-                              .orElseThrow(() -> new IllegalArgumentException("No strategy for type:" + dso.getType()));
+                                 .filter(s -> s.supports(dso))
+                                 .findFirst()
+                                 .orElseThrow(() -> new IllegalArgumentException(error));
     }
 
-    private void assignCurrentUserInContext() throws SQLException {
+    /**
+     * Assigns the current user to the context for script execution.
+     *
+     * This method creates a new DSpace context and sets the current user based on the
+     * EPerson identifier obtained from the script handler. This method is protected to
+     * allow CLI extensions (like {@link DSpaceObjectDeletionProcessCli}) to override
+     * the user assignment logic and use alternative methods such as email-based lookup.
+     *
+     * Default behavior:
+     * <ul>
+     *   <li>Creates a new Context instance</li>
+     *   <li>Retrieves the EPerson UUID from the script handler via {@link #getEpersonIdentifier()}</li>
+     *   <li>If UUID is present, looks up the EPerson and sets them as current user</li>
+     *   <li>If UUID is null, context remains without a current user (anonymous)</li>
+     * </ul>
+     *
+     * @throws SQLException if a database error occurs during EPerson lookup
+     * @throws ParseException if command line parsing fails (used by CLI extensions)
+     */
+    protected void assignCurrentUserInContext() throws SQLException, ParseException {
         this.context = new Context();
         UUID uuid = getEpersonIdentifier();
         if (uuid != null) {
             EPerson ePerson = EPersonServiceFactory.getInstance().getEPersonService().find(context, uuid);
+            if (ePerson == null) {
+                handler.logError("EPerson not found for UUID: " + uuid);
+                throw new IllegalArgumentException("Unable to find a user with UUID: " + uuid);
+            }
             context.setCurrentUser(ePerson);
         }
     }
@@ -151,7 +203,7 @@ public class DSpaceObjectDeletionProcess
     @Override
     public DSpaceObjectDeletionProcessScriptConfiguration<DSpaceObjectDeletionProcess> getScriptConfiguration() {
         ServiceManager sm = new DSpace().getServiceManager();
-        return sm.getServiceByName("dspace-object-deletion", DSpaceObjectDeletionProcessScriptConfiguration.class);
+        return sm.getServiceByName(OBJECT_DELETION_SCRIPT, DSpaceObjectDeletionProcessScriptConfiguration.class);
     }
 
 }

@@ -67,7 +67,7 @@ public abstract class JWTTokenHandler {
     private List<JWTClaimProvider> jwtClaimProviders;
 
     @Autowired
-    private ConfigurationService configurationService;
+    protected ConfigurationService configurationService;
 
     @Autowired
     private EPersonClaimProvider ePersonClaimProvider;

@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 
@@ -52,6 +53,7 @@ import org.dspace.discovery.indexobject.IndexableItem;
 import org.dspace.eperson.EPerson;
 import org.dspace.eperson.Group;
 import org.dspace.eperson.service.GroupService;
+import org.dspace.services.ConfigurationService;
 import org.dspace.workflow.WorkflowItemService;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -90,6 +92,8 @@ public class AuthorizeServiceImpl implements AuthorizeService {
     private SearchService searchService;
     @Autowired(required = true)
     private List<RelationshipAuthorizer> relationshipAuthorizers;
+    @Autowired(required = true)
+    private ConfigurationService configurationService;
 
 
     protected AuthorizeServiceImpl() {
@@ -531,16 +535,25 @@ public class AuthorizeServiceImpl implements AuthorizeService {
     }
 
     @Override
+    public void inheritPolicies(Context c, DSpaceObject src, DSpaceObject dest)
+        throws SQLException, AuthorizeException {
+        inheritPolicies(c, src, dest, false);
+    }
+
+    @Override
     public void inheritPolicies(Context c, DSpaceObject src,
-                                DSpaceObject dest) throws SQLException, AuthorizeException {
+                                DSpaceObject dest, boolean includeCustom) throws SQLException, AuthorizeException {
         // find all policies for the source object
         List<ResourcePolicy> policies = getPolicies(c, src);
 
-        //Only inherit non-ADMIN policies (since ADMIN policies are automatically inherited)
-        //and non-custom policies as these are manually applied when appropriate
+        // Only inherit non-ADMIN policies (since ADMIN policies are automatically inherited)
+        // and non-custom policies (usually applied manually?) UNLESS specified otherwise with includCustom
+        // (for example, item.addBundle() will inherit custom policies to enforce access conditions)
         List<ResourcePolicy> nonAdminPolicies = new ArrayList<>();
         for (ResourcePolicy rp : policies) {
-            if (rp.getAction() != Constants.ADMIN && !StringUtils.equals(rp.getRpType(), ResourcePolicy.TYPE_CUSTOM)) {
+            if (rp.getAction() != Constants.ADMIN && (!StringUtils.equals(rp.getRpType(), ResourcePolicy.TYPE_CUSTOM)
+                        || (includeCustom && StringUtils.equals(rp.getRpType(), ResourcePolicy.TYPE_CUSTOM)
+                            && isNotAlreadyACustomRPOfThisTypeOnDSO(c, dest)))) {
                 nonAdminPolicies.add(rp);
             }
         }
@@ -756,14 +769,14 @@ public class AuthorizeServiceImpl implements AuthorizeService {
 
     /**
      * Checks that the context's current user is a community admin in the site by querying the solr database.
+     * This query doesn't use authorization inheritance because direct community admin is enough to perform this check.
      *
      * @param context   context with the current user
      * @return          true if the current user is a community admin in the site
      *                  false when this is not the case, or an exception occurred
-     * @throws java.sql.SQLException passed through.
      */
     @Override
-    public boolean isCommunityAdmin(Context context) throws SQLException {
+    public boolean isCommunityAdmin(Context context) {
         return performCheck(context, RESOURCE_TYPE_FIELD + ":" + IndexableCommunity.TYPE);
     }
 
@@ -773,10 +786,9 @@ public class AuthorizeServiceImpl implements AuthorizeService {
      * @param context   context with the current user
      * @return          true if the current user is a collection admin in the site
      *                  false when this is not the case, or an exception occurred
-     * @throws java.sql.SQLException passed through.
      */
     @Override
-    public boolean isCollectionAdmin(Context context) throws SQLException {
+    public boolean isCollectionAdmin(Context context) {
         return performCheck(context, RESOURCE_TYPE_FIELD + ":" + IndexableCollection.TYPE);
     }
 
@@ -786,23 +798,23 @@ public class AuthorizeServiceImpl implements AuthorizeService {
      * @param context   context with the current user
      * @return          true if the current user is an item admin in the site
      *                  false when this is not the case, or an exception occurred
-     * @throws java.sql.SQLException passed through.
      */
     @Override
-    public boolean isItemAdmin(Context context) throws SQLException {
+    public boolean isItemAdmin(Context context) {
         return performCheck(context, RESOURCE_TYPE_FIELD + ":" + IndexableItem.TYPE);
     }
 
     /**
      * Checks that the context's current user is a community or collection admin in the site.
+     * This query doesn't use authorization inheritance because direct community/collection admin is enough to
+     * perform this check.
      *
      * @param context   context with the current user
      * @return          true if the current user is a community or collection admin in the site
      *                  false when this is not the case, or an exception occurred
-     * @throws java.sql.SQLException passed through.
      */
     @Override
-    public boolean isComColAdmin(Context context) throws SQLException {
+    public boolean isComColAdmin(Context context) {
         return performCheck(context,
             "(" + RESOURCE_TYPE_FIELD + ":" + IndexableCommunity.TYPE + " OR " +
             RESOURCE_TYPE_FIELD + ":" + IndexableCollection.TYPE + ")");
@@ -820,7 +832,7 @@ public class AuthorizeServiceImpl implements AuthorizeService {
      */
     @Override
     public List<Community> findAdminAuthorizedCommunity(Context context, String query, int offset, int limit)
-        throws SearchServiceException, SQLException {
+        throws SearchServiceException {
         List<Community> communities = new ArrayList<>();
         query = formatCustomQuery(query);
         DiscoverResult discoverResult = getDiscoverResult(context, query + RESOURCE_TYPE_FIELD + ":" +
@@ -843,12 +855,37 @@ public class AuthorizeServiceImpl implements AuthorizeService {
      */
     @Override
     public long countAdminAuthorizedCommunity(Context context, String query)
-        throws SearchServiceException, SQLException {
+        throws SearchServiceException {
         query = formatCustomQuery(query);
         DiscoverResult discoverResult = getDiscoverResult(context, query + RESOURCE_TYPE_FIELD + ":" +
                                                               IndexableCommunity.TYPE,
             null, 0, null, null);
         return discoverResult.getTotalSearchResults();
+    }
+
+    /**
+     * In CRIS the permission inheritance is already resolved at index-time on the Solr
+     * {@code admin} field, and no {@code edit}/{@code submit} field is indexed at community level.
+     * "Being able to edit/add in a community" therefore coincides with "being its admin"
+     * (directly or by inheritance). For this reason the action (e.g. {@code Constants.WRITE} /
+     * {@code Constants.ADD}) is served through the same {@code admin} filter used by
+     * {@link #findAdminAuthorizedCommunity}.
+     *
+     * NOTE: this intentionally does NOT use {@code DiscoverQuery.addRequiredAuthorization} nor the
+     * upstream location-based query, in order to keep the CRIS indexing/search restriction plugins
+     * unchanged.
+     */
+    @Override
+    public List<Community> findAuthorizedCommunityByAction(Context context, String query,
+                                                           int action, int offset, int limit)
+        throws SearchServiceException, SQLException {
+        return findAdminAuthorizedCommunity(context, query, offset, limit);
+    }
+
+    @Override
+    public long countAuthorizedCommunityByAction(Context context, String query, int action)
+        throws SearchServiceException {
+        return countAdminAuthorizedCommunity(context, query);
     }
 
     /**
@@ -863,7 +900,7 @@ public class AuthorizeServiceImpl implements AuthorizeService {
      */
     @Override
     public List<Collection> findAdminAuthorizedCollection(Context context, String query, int offset, int limit)
-        throws SearchServiceException, SQLException {
+        throws SearchServiceException {
         List<Collection> collections = new ArrayList<>();
         if (context.getCurrentUser() == null) {
             return collections;
@@ -891,7 +928,7 @@ public class AuthorizeServiceImpl implements AuthorizeService {
      */
     @Override
     public long countAdminAuthorizedCollection(Context context, String query)
-        throws SearchServiceException, SQLException {
+        throws SearchServiceException {
         query = formatCustomQuery(query);
         DiscoverResult discoverResult = getDiscoverResult(context, query + RESOURCE_TYPE_FIELD + ":" +
                                                               IndexableCollection.TYPE,
@@ -899,17 +936,42 @@ public class AuthorizeServiceImpl implements AuthorizeService {
         return discoverResult.getTotalSearchResults();
     }
 
+    /**
+     * CRIS implementation of the upstream {@code findAuthorizedCollectionByAction}.
+     * <p>
+     * In CRIS the permission inheritance is already resolved at index-time on the Solr
+     * {@code admin} field, and no {@code edit}/{@code submit} field is indexed at collection level.
+     * "Being able to edit/add in a collection" therefore coincides with "being its admin"
+     * (directly or by inheritance). For this reason the action (e.g. {@code Constants.WRITE}) is
+     * served through the same {@code admin} filter used by {@link #findAdminAuthorizedCollection}.
+     * <p>
+     * NOTE: this intentionally does NOT use {@code DiscoverQuery.addRequiredAuthorization} nor the
+     * upstream location-based query, in order to keep the CRIS indexing/search restriction plugins
+     * unchanged.
+     */
     @Override
-    public boolean isAccountManager(Context context) {
-        try {
-            return (canCommunityAdminManageAccounts() && isCommunityAdmin(context)
-                || canCollectionAdminManageAccounts() && isCollectionAdmin(context));
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
+    public List<Collection> findAuthorizedCollectionByAction(Context context, String query, int action, int offset,
+                                                             int limit) throws SearchServiceException {
+        return findAdminAuthorizedCollection(context, query, offset, limit);
     }
 
-    private boolean performCheck(Context context, String query) throws SQLException {
+    /**
+     * CRIS implementation of the upstream {@code countAuthorizedCollectionByAction}.
+     * See {@link #findAuthorizedCollectionByAction} for the mapping rationale.
+     */
+    @Override
+    public long countAuthorizedCollectionByAction(Context context, String query, int action)
+        throws SearchServiceException {
+        return countAdminAuthorizedCollection(context, query);
+    }
+
+    @Override
+    public boolean isAccountManager(Context context) {
+        return (canCommunityAdminManageAccounts() && isCommunityAdmin(context)
+            || canCollectionAdminManageAccounts() && isCollectionAdmin(context));
+    }
+
+    private boolean performCheck(Context context, String query) {
         if (context.getCurrentUser() == null) {
             return false;
         }
@@ -928,14 +990,18 @@ public class AuthorizeServiceImpl implements AuthorizeService {
     }
 
     private DiscoverResult getDiscoverResult(Context context, String query, Integer offset, Integer limit,
-        String sortField, SORT_ORDER sortOrder) throws SearchServiceException, SQLException {
+        String sortField, SORT_ORDER sortOrder) throws SearchServiceException {
         DiscoverQuery discoverQuery = new DiscoverQuery();
-        if (!this.isAdmin(context)) {
-            StringBuilder stringBuilder = new StringBuilder();
-            stringBuilder.append("(" + "admin:e").append(context.getCurrentUser().getID()).
-                    append(getGroupToQuery(groupService.allMemberGroupsSet(context,
-                            context.getCurrentUser()))).append(")");
-            discoverQuery.addFilterQueries(stringBuilder.toString());
+        try {
+            if (!this.isAdmin(context)) {
+                StringBuilder stringBuilder = new StringBuilder();
+                stringBuilder.append("(" + "admin:e").append(context.getCurrentUser().getID()).
+                        append(getGroupToQuery(groupService.allMemberGroupsSet(context,
+                                context.getCurrentUser()))).append(")");
+                discoverQuery.addFilterQueries(stringBuilder.toString());
+            }
+        } catch (SQLException e) {
+            throw new SearchServiceException(e.getMessage(), e);
         }
         discoverQuery.setQuery(query);
         if (offset != null) {
@@ -951,7 +1017,6 @@ public class AuthorizeServiceImpl implements AuthorizeService {
         return searchService.search(context, discoverQuery);
     }
 
-
     private String getGroupToQuery(Set<Group> groups) {
         StringBuilder groupQuery = new StringBuilder();
         if (groups != null) {
@@ -960,7 +1025,6 @@ public class AuthorizeServiceImpl implements AuthorizeService {
                 groupQuery.append(group.getID());
             }
         }
-
         return groupQuery.toString();
     }
 
@@ -969,6 +1033,49 @@ public class AuthorizeServiceImpl implements AuthorizeService {
             return "";
         } else {
             return query + " AND ";
+        }
+    }
+
+    /**
+     * Add the default policies, which have not been already added to the given DSpace object
+     *
+     * @param context                   The relevant DSpace Context.
+     * @param dso                       The DSpace Object to add policies to
+     * @param defaultCollectionPolicies list of policies
+     * @throws SQLException       An exception that provides information on a database access error or other errors.
+     * @throws AuthorizeException Exception indicating the current user of the context does not have permission
+     *                            to perform a particular action.
+     */
+    @Override
+    public void addDefaultPoliciesNotInPlace(Context context, DSpaceObject dso,
+        List<ResourcePolicy> defaultCollectionPolicies) throws SQLException, AuthorizeException {
+        boolean appendMode = configurationService
+                .getBooleanProperty("core.authorization.installitem.inheritance-read.append-mode", false);
+        for (ResourcePolicy defaultPolicy : defaultCollectionPolicies) {
+            if (!isAnIdenticalPolicyAlreadyInPlace(context, dso, defaultPolicy.getGroup(), Constants.READ,
+                    defaultPolicy.getID()) &&
+                   (!appendMode && isNotAlreadyACustomRPOfThisTypeOnDSO(context, dso) ||
+                    appendMode && shouldBeAppended(context, dso, defaultPolicy))) {
+                ResourcePolicy newPolicy = resourcePolicyService.clone(context, defaultPolicy);
+                newPolicy.setdSpaceObject(dso);
+                newPolicy.setAction(Constants.READ);
+                newPolicy.setRpType(ResourcePolicy.TYPE_INHERITED);
+                resourcePolicyService.update(context, newPolicy);
+            }
+        }
+    }
+
+    /**
+     * Add a list of custom policies if there are already NO custom policies in place
+     *
+     */
+    @Override
+    public void addCustomPoliciesNotInPlace(Context context, DSpaceObject dso, List<ResourcePolicy> customPolicies)
+            throws SQLException, AuthorizeException {
+        boolean customPoliciesAlreadyInPlace =
+            findPoliciesByDSOAndType(context, dso, ResourcePolicy.TYPE_CUSTOM).size() > 0;
+        if (!customPoliciesAlreadyInPlace) {
+            addPolicies(context, customPolicies, dso);
         }
     }
 
@@ -982,5 +1089,58 @@ public class AuthorizeServiceImpl implements AuthorizeService {
     public boolean canHandleRelationship(Context context, Relationship relationship) {
         return canHandleRelationship(context, relationship.getRelationshipType(),
             relationship.getLeftItem(), relationship.getRightItem());
+    }
+
+    /**
+     * Check whether or not there is already an RP on the given dso, which has actionId={@link Constants.READ} and
+     * resourceTypeId={@link ResourcePolicy.TYPE_CUSTOM}
+     *
+     * @param context DSpace context
+     * @param dso     DSpace object to check for custom read RP
+     * @return True if there is no RP on the item with custom read RP, otherwise false
+     * @throws SQLException If something goes wrong retrieving the RP on the DSO
+     */
+    private boolean isNotAlreadyACustomRPOfThisTypeOnDSO(Context context, DSpaceObject dso) throws SQLException {
+        return isNotAlreadyACustomRPOfThisTypeOnDSO(context, dso, Constants.READ);
+    }
+
+    private boolean isNotAlreadyACustomRPOfThisTypeOnDSO(Context context, DSpaceObject dso, int action)
+            throws SQLException {
+        List<ResourcePolicy> rps = resourcePolicyService.find(context, dso, action);
+        for (ResourcePolicy rp : rps) {
+            if (rp.getRpType() != null && rp.getRpType().equals(ResourcePolicy.TYPE_CUSTOM)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Check if the provided default policy should be appended or not to the final
+     * item. If an item has at least one custom READ policy any anonymous READ
+     * policy with empty start/end date should be skipped
+     *
+     * @param context       DSpace context
+     * @param dso           DSpace object to check for custom read RP
+     * @param defaultPolicy The policy to check
+     * @return
+     * @throws SQLException If something goes wrong retrieving the RP on the DSO
+     */
+    private boolean shouldBeAppended(Context context, DSpaceObject dso, ResourcePolicy defaultPolicy)
+            throws SQLException {
+        boolean hasCustomPolicy = resourcePolicyService.find(context, dso, Constants.READ)
+                                                       .stream()
+                                                       .filter(rp -> (Objects.nonNull(rp.getRpType()) &&
+                                                            Objects.equals(rp.getRpType(), ResourcePolicy.TYPE_CUSTOM)))
+                                                       .findFirst()
+                                                       .isPresent();
+
+        boolean isAnonymousGroup = Objects.nonNull(defaultPolicy.getGroup())
+                && StringUtils.equals(defaultPolicy.getGroup().getName(), Group.ANONYMOUS);
+
+        boolean datesAreNull = Objects.isNull(defaultPolicy.getStartDate())
+                && Objects.isNull(defaultPolicy.getEndDate());
+
+        return !(hasCustomPolicy && isAnonymousGroup && datesAreNull);
     }
 }

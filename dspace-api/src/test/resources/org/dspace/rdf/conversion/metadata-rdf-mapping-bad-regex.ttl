@@ -1,0 +1,55 @@
+@prefix rdf:        <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:       <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl:        <http://www.w3.org/2002/07/owl#> .
+@prefix xsd:        <http://www.w3.org/2001/XMLSchema#> .
+@prefix dc:         <http://purl.org/dc/elements/1.1/> .
+@prefix dcterms:    <http://purl.org/dc/terms/> .
+@prefix bibo:       <http://purl.org/ontology/bibo/> .
+@prefix dm:         <http://digital-repositories.org/ontologies/dspace-metadata-mapping/0.2.0#> .
+@prefix :           <#> .
+
+:goodMapping
+  dm:metadataName "dc.test.good" ;
+  dm:condition "^valid/regex$" ;
+  dm:creates [
+    dm:subject dm:DSpaceObjectIRI ;
+    dm:predicate dcterms:title ;
+    dm:object dm:DSpaceValue ;
+  ] ;
+  .
+
+:badCondition
+  dm:metadataName "dc.test.badcondition" ;
+  dm:condition "[unclosed character class" ;
+  dm:creates [
+    dm:subject dm:DSpaceObjectIRI ;
+    dm:predicate dcterms:title ;
+    dm:object dm:DSpaceValue ;
+  ] ;
+  .
+
+:badMatcher
+  dm:metadataName "dc.test.badmatcher" ;
+  dm:creates [
+    dm:subject dm:DSpaceObjectIRI ;
+    dm:predicate dcterms:title ;
+    dm:object [
+      a dm:LiteralGenerator ;
+      dm:modifier [
+        dm:matcher "[unclosed" ;
+        dm:replacement "ok" ;
+      ] ;
+      dm:pattern "$DSpaceValue" ;
+    ] ;
+  ] ;
+  .
+
+:emptyRegex
+  dm:metadataName "dc.test.empty" ;
+  dm:condition "" ;
+  dm:creates [
+    dm:subject dm:DSpaceObjectIRI ;
+    dm:predicate dcterms:title ;
+    dm:object dm:DSpaceValue ;
+  ] ;
+  .
