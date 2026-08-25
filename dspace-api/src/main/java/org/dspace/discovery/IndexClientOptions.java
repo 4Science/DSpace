@@ -98,8 +98,6 @@ public enum IndexClientOptions {
                           "(such as Item, ClaimedTask, PoolTask, etc.), can be combined with -f and -s.");
         options.addOption("f", "force", false,
                           "if updating existing index, force each handle to be reindexed even if uptodate");
-        options.addOption("m", "nometric", false,
-                          "DISABLE the full rebuild of cris metric in solr, can be combined with all the parameter.");
         options.addOption("h", "help", false, "print this help message");
         return options;
     }
