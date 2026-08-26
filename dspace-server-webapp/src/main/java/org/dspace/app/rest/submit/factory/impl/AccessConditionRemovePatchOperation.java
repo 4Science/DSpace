@@ -16,7 +16,6 @@ import org.dspace.authorize.service.AuthorizeService;
 import org.dspace.authorize.service.ResourcePolicyService;
 import org.dspace.content.InProgressSubmission;
 import org.dspace.content.Item;
-import org.dspace.content.service.ItemService;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,8 +31,6 @@ public class AccessConditionRemovePatchOperation extends RemovePatchOperation<Ac
     private AuthorizeService authorizeService;
     @Autowired
     private ResourcePolicyService resourcePolicyService;
-    @Autowired
-    private ItemService itemService;
 
     @Override
     void remove(Context context, HttpServletRequest currentRequest, InProgressSubmission source, String path,
@@ -75,7 +72,7 @@ public class AccessConditionRemovePatchOperation extends RemovePatchOperation<Ac
             List<ResourcePolicy> defaultCollectionPolicies = authorizeService
                 .getPoliciesActionFilter(context, item.getOwningCollection(), Constants.DEFAULT_BITSTREAM_READ);
 
-            itemService.addDefaultPoliciesNotInPlace(context, item, defaultCollectionPolicies);
+            authorizeService.addDefaultPoliciesNotInPlace(context, item, defaultCollectionPolicies);
         }
     }
 

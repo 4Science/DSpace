@@ -79,6 +79,7 @@ public class ResourcePolicyGroupReplaceRestController {
 
         Group newGroup = (Group) dsoList.get(0);
         resourcePolicy.setGroup(newGroup);
+        resourcePolicyService.update(context, resourcePolicy);
 
         if (bitstreamService.isOriginalBitstream(resourcePolicy.getdSpaceObject())) {
             bitstreamService.updateThumbnailResourcePolicies(context, (Bitstream) resourcePolicy.getdSpaceObject());
