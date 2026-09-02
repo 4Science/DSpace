@@ -2240,7 +2240,9 @@ it, please enter the types and the actual numbers or codes.</hint>
         <field>
           <dc-schema>crisfund</dc-schema>
           <dc-element>investigators</dc-element>
-          <label>Investigator(s)</label>
+          <label>&lt;b&gt;At least one field must be filled: Investigator(s), Co-Investigator(s), Lead Organization(s), Lead Co-Organization(s) (or all if applicable)&lt;/b&gt;
+&lt;br&gt;&lt;br&gt;
+ Investigator(s)</label>
           <input-type>onebox</input-type>
           <repeatable>true</repeatable>
           <required />

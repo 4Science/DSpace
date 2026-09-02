@@ -90,11 +90,6 @@
         <property name="dspaceRunnableClass" value="org.dspace.metrics.StoreViewDownloadsCrisMetricsCli"/>
     </bean>
 
-    <bean id="update-metrics-in-solr" class="org.dspace.metrics.UpdateCrisMetricsInSolrDocCliScriptConfiguration">
-        <property name="description" value="Perform the metrics update in SOLR documents"/>
-        <property name="dspaceRunnableClass" value="org.dspace.metrics.UpdateCrisMetricsInSolrDocCli"/>
-    </bean>
-
     <bean id="import-publications" class="org.dspace.script2externalservices.CreateWorkspaceItemWithExternalSourceCliScriptConfiguration">
         <property name="description" value="Perform the creating of workspace item using external source"/>
         <property name="dspaceRunnableClass" value="org.dspace.script2externalservices.CreateWorkspaceItemWithExternalSourceCli"/>
