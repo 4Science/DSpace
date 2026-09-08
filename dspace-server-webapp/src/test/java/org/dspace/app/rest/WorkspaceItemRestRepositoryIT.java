@@ -11407,7 +11407,7 @@ public class WorkspaceItemRestRepositoryIT extends AbstractControllerIntegration
                                                 contains(
                                                     hasJsonPath("$.paths", contains(
                                                         hasJsonPath("$",
-                                                                    Matchers.is("/sections/funding/oairecerif.funder"))
+                                                                    Matchers.is("/sections/funding/oairecerif.funder/0"))
                                                     )))))
                             .andExpect(jsonPath("$.sections.funding['oairecerif.amount.currency'][0].value",
                                                 is("Euro")))
