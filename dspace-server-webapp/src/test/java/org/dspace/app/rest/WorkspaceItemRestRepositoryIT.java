@@ -10485,7 +10485,7 @@ ResourcePolicyBuilder.createResourcePolicy(context, null, adminGroup)
                 .andExpect(jsonPath("$.errors[?(@.message=='error.validation.required')]",
                         contains(
                                 hasJsonPath("$.paths", contains(
-                                        hasJsonPath("$", Matchers.is("/sections/funding/oairecerif.funder"))
+                                        hasJsonPath("$", Matchers.is("/sections/funding/oairecerif.funder/0"))
                                 )))))
                 .andExpect(jsonPath("$.sections.funding['oairecerif.amount.currency'][0].value",
                         is("Euro")))
