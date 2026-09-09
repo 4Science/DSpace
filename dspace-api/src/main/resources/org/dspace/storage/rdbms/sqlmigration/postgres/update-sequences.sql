@@ -29,6 +29,7 @@ SELECT setval('cwf_pooltask_seq', max(pooltask_id)) FROM cwf_pooltask;
 SELECT setval('cwf_workflowitem_seq', max(workflowitem_id)) FROM cwf_workflowitem;
 SELECT setval('cwf_workflowitemrole_seq', max(workflowitemrole_id)) FROM cwf_workflowitemrole;
 SELECT setval('doi_seq', max(doi_id)) FROM doi;
+SELECT setval('dynamic_layout_metric2box_id_seq', max(id)) FROM dynamic_layout_metric2box;
 SELECT setval('entity_type_id_seq', max(id)) FROM entity_type;
 SELECT setval('fileextension_seq', max(file_extension_id)) FROM fileextension;
 SELECT setval('handle_id_seq', max(handle_id)) FROM handle;
