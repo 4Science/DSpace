@@ -16,6 +16,7 @@ import java.util.stream.Collectors;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.collections.CollectionUtils;
+import org.dspace.app.metrics.CrisMetrics;
 import org.dspace.app.rest.Parameter;
 import org.dspace.app.rest.SearchRestMethod;
 import org.dspace.app.rest.converter.DynamicLayoutTabConverter;
@@ -24,6 +25,7 @@ import org.dspace.app.rest.exception.RepositoryMethodNotImplementedException;
 import org.dspace.app.rest.exception.UnprocessableEntityException;
 import org.dspace.app.rest.model.DynamicLayoutBoxRest;
 import org.dspace.app.rest.model.DynamicLayoutMetadataConfigurationRest;
+import org.dspace.app.rest.model.DynamicLayoutMetricsConfigurationRest;
 import org.dspace.app.rest.model.DynamicLayoutTabRest;
 import org.dspace.app.rest.model.patch.Patch;
 import org.dspace.app.rest.repository.patch.ResourcePatch;
@@ -36,6 +38,7 @@ import org.dspace.core.Context;
 import org.dspace.layout.DynamicLayoutBoxTypes;
 import org.dspace.layout.DynamicLayoutTab;
 import org.dspace.layout.service.DynamicLayoutTabService;
+import org.dspace.metrics.CrisItemMetricsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -62,6 +65,9 @@ public class DynamicLayoutTabRestRepository extends DSpaceRestRepository<Dynamic
 
     @Autowired
     private ResourcePatch<DynamicLayoutTab> resourcePatch;
+
+    @Autowired
+    private CrisItemMetricsService metricsService;
 
     @Autowired
     private ItemService itemService;
@@ -103,7 +109,7 @@ public class DynamicLayoutTabRestRepository extends DSpaceRestRepository<Dynamic
         Page<DynamicLayoutTabRest> restTabs = converter.toRestPage(tabList, pageable, utils.obtainProjection());
         restTabs = filterTabWithoutRows(pageable, restTabs);
         restTabs = filterFieldsWithAdvancedAttachmentRenderType(context, restTabs, itemUuid);
-        return utils.getPage(restTabs.toList(), restTabs.getPageable());
+        return filterBoxesWithMetricsType(restTabs, itemUuid);
     }
 
     /**
@@ -222,6 +228,37 @@ public class DynamicLayoutTabRestRepository extends DSpaceRestRepository<Dynamic
         List<DynamicLayoutTabRest> listOfTabs =
             restTabs.filter(tab -> CollectionUtils.isNotEmpty(tab.getRows())).toList();
         return utils.getPage(listOfTabs, pageable);
+    }
+
+    private Page<DynamicLayoutTabRest> filterBoxesWithMetricsType(Page<DynamicLayoutTabRest> restTabs,
+                                                                  String itemUuid) {
+        List<DynamicLayoutTabRest> listOfTabs = restTabs.toList();
+
+        // Get DynamicLayoutTabRest with boxType=METRICS
+        List<DynamicLayoutBoxRest> boxes = findBoxesByType(listOfTabs, DynamicLayoutBoxTypes.METRICS.name());
+
+        // Set new metrics for each box
+        boxes.forEach(box -> {
+            DynamicLayoutMetricsConfigurationRest boxConfiguration =
+                ((DynamicLayoutMetricsConfigurationRest) box.getConfiguration());
+
+            List<String> boxMetrics = boxConfiguration.getMetrics();
+            List<String> itemMetrics = metricsService.getMetrics(obtainContext(), UUID.fromString(itemUuid))
+                                                     .stream()
+                                                     .map(CrisMetrics::getMetricType)
+                                                     .collect(Collectors.toList());
+
+            // Inner join metrics of box and item and distinct the results
+            boxConfiguration.setMetrics(boxMetrics
+                                            .stream()
+                                            .filter(b -> itemMetrics
+                                                .stream()
+                                                .anyMatch(i -> i.equals(b)))
+                                            .distinct()
+                                            .collect(Collectors.toList()));
+        });
+
+        return utils.getPage(listOfTabs, restTabs.getPageable());
     }
 
     private Page<DynamicLayoutTabRest> filterFieldsWithAdvancedAttachmentRenderType(Context context,
