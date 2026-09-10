@@ -84,6 +84,7 @@ public class ResourcePolicyEPersonReplaceRestController {
             bitstreamService.updateThumbnailResourcePolicies(context, (Bitstream) resourcePolicy.getdSpaceObject());
         }
 
+        resourcePolicyService.update(context, resourcePolicy);
         context.commit();
         return ControllerUtils.toEmptyResponse(HttpStatus.NO_CONTENT);
     }

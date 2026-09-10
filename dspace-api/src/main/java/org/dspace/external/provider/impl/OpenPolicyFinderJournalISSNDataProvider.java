@@ -107,8 +107,7 @@ public class OpenPolicyFinderJournalISSNDataProvider extends AbstractExternalDat
             String issn = journal.getIssns().get(0);
             externalDataObject.setId(issn);
             externalDataObject.addMetadata(new MetadataValueDTO(
-                "dc", "identifier", "issn", null, issn));
-
+                "creativeworkseries", "issn", null, null, issn));
         }
 
         log.debug("New external data object. Title=" + externalDataObject.getValue() + ". ID="

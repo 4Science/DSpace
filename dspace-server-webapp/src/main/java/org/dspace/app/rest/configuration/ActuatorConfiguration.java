@@ -20,6 +20,7 @@ import org.dspace.app.rest.health.EPersonGroupHealthIndicator;
 import org.dspace.app.rest.health.GeoIpHealthIndicator;
 import org.dspace.app.rest.health.SiteHealthIndicator;
 import org.dspace.app.suggestion.SolrSuggestionStorageServiceImpl;
+import org.dspace.app.rest.health.SEOHealthIndicator;
 import org.dspace.authority.AuthoritySolrServiceImpl;
 import org.dspace.discovery.SolrSearchCore;
 import org.dspace.statistics.SolrStatisticsCore;
@@ -86,38 +87,6 @@ public class ActuatorConfiguration {
     public SolrHealthIndicator solrOaiCoreHealthIndicator(SolrServerResolver solrServerResolver)
         throws SolrServerException {
         return new SolrHealthIndicator(solrServerResolver.getServer());
-    }
-
-    @Bean
-    @ConditionalOnEnabledHealthIndicator("solrAudit")
-    @ConditionalOnProperty("solr.audit.server")
-    public SolrHealthIndicator solrAuditHealthIndicator(AuditService auditService)
-        throws MalformedURLException, SolrServerException, IOException {
-        return new SolrHealthIndicator(auditService.getSolr());
-    }
-
-    @Bean
-    @ConditionalOnEnabledHealthIndicator("solrDedup")
-    @ConditionalOnProperty("deduplication.search.server")
-    public SolrHealthIndicator solrDedupHealthIndicator(SolrDedupServiceImpl solrDedupService)
-            throws MalformedURLException, SolrServerException, IOException {
-        return new SolrHealthIndicator(solrDedupService.getSolr());
-    }
-
-    @Bean
-    @ConditionalOnEnabledHealthIndicator("solrNBEvent")
-    @ConditionalOnProperty("oaire-nbevents.solr.server")
-    public SolrHealthIndicator solrNBEventHealthIndicator(NBEventServiceImpl nbEventService)
-            throws MalformedURLException, SolrServerException, IOException {
-        return new SolrHealthIndicator(nbEventService.getSolr());
-    }
-
-    @Bean
-    @ConditionalOnEnabledHealthIndicator("solrSuggestion")
-    @ConditionalOnProperty("suggestion.solr.server")
-    public SolrHealthIndicator solrSuggestionHealthIndicator(SolrSuggestionStorageServiceImpl solrSuggestionStrgService)
-            throws MalformedURLException, SolrServerException, IOException {
-        return new SolrHealthIndicator(solrSuggestionStrgService.getSolr());
     }
 
     @Bean

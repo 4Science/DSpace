@@ -42,6 +42,12 @@ public class OpenPolicyFinderDataProviderTest extends AbstractDSpaceTest {
         new MetadataFieldRef("dc", "identifier", "opfPublisher");
     private static final MetadataFieldRef OTHER_FIELD = new MetadataFieldRef("dc", "identifier", "other");
 
+    private static final MetadataFieldRef TITLE_FIELD = new MetadataFieldRef("dc", "title", null);
+    private static final MetadataFieldRef ISSN_FIELD = new MetadataFieldRef("creativeworkseries", "issn", null);
+    private static final MetadataFieldRef SHERPA_PUBLISHER_FIELD =
+        new MetadataFieldRef("dc", "identifier", "sherpaPublisher");
+    private static final MetadataFieldRef OTHER_FIELD = new MetadataFieldRef("dc", "identifier", "other");
+
     @BeforeClass
     public static void setUpClass() {
     }
@@ -87,12 +93,9 @@ public class OpenPolicyFinderDataProviderTest extends AbstractDSpaceTest {
         String title = null;
         String identifier = null;
         for (MetadataValueDTO metadataValue : dataObject.getMetadata()) {
-            if (metadataValue.getSchema().equalsIgnoreCase("dc") &&
-            metadataValue.getElement().equalsIgnoreCase("title")) {
+            if (TITLE_FIELD.matches(metadataValue)) {
                 title = metadataValue.getValue();
-            } else if (metadataValue.getSchema().equalsIgnoreCase("dc")
-                && metadataValue.getElement().equalsIgnoreCase("identifier")
-                && metadataValue.getQualifier().equalsIgnoreCase("issn")) {
+            } else if (ISSN_FIELD.matches(metadataValue)) {
                 identifier = metadataValue.getValue();
             }
         }
@@ -136,12 +139,9 @@ public class OpenPolicyFinderDataProviderTest extends AbstractDSpaceTest {
         String title = null;
         String identifier = null;
         for (MetadataValueDTO metadataValue : dataObject.getMetadata()) {
-            if (metadataValue.getSchema().equalsIgnoreCase("dc") &&
-                metadataValue.getElement().equalsIgnoreCase("title")) {
+            if (TITLE_FIELD.matches(metadataValue)) {
                 title = metadataValue.getValue();
-            } else if (metadataValue.getSchema().equalsIgnoreCase("dc")
-                && metadataValue.getElement().equalsIgnoreCase("identifier")
-                && metadataValue.getQualifier().equalsIgnoreCase("issn")) {
+            } else if (ISSN_FIELD.matches(metadataValue)) {
                 identifier = metadataValue.getValue();
             }
         }
@@ -177,12 +177,9 @@ public class OpenPolicyFinderDataProviderTest extends AbstractDSpaceTest {
         String title = null;
         String identifier = null;
         for (MetadataValueDTO metadataValue : dataObject.getMetadata()) {
-            if (metadataValue.getSchema().equalsIgnoreCase("dc") &&
-                metadataValue.getElement().equalsIgnoreCase("title")) {
+            if (TITLE_FIELD.matches(metadataValue)) {
                 title = metadataValue.getValue();
-            } else if (metadataValue.getSchema().equalsIgnoreCase("dc")
-                && metadataValue.getElement().equalsIgnoreCase("identifier")
-                && metadataValue.getQualifier().equalsIgnoreCase("issn")) {
+            } else if (ISSN_FIELD.matches(metadataValue)) {
                 identifier = metadataValue.getValue();
             }
         }
@@ -227,12 +224,9 @@ public class OpenPolicyFinderDataProviderTest extends AbstractDSpaceTest {
         String title = null;
         String identifier = null;
         for (MetadataValueDTO metadataValue : dataObject.getMetadata()) {
-            if (metadataValue.getSchema().equalsIgnoreCase("dc") &&
-                metadataValue.getElement().equalsIgnoreCase("title")) {
+            if (TITLE_FIELD.matches(metadataValue)) {
                 title = metadataValue.getValue();
-            } else if (metadataValue.getSchema().equalsIgnoreCase("dc")
-                && metadataValue.getElement().equalsIgnoreCase("identifier")
-                && metadataValue.getQualifier().equalsIgnoreCase("issn")) {
+            } else if (ISSN_FIELD.matches(metadataValue)) {
                 identifier = metadataValue.getValue();
             }
         }
@@ -273,14 +267,11 @@ public class OpenPolicyFinderDataProviderTest extends AbstractDSpaceTest {
         String identifier = null;
         String url = null;
         for (MetadataValueDTO metadataValue : dataObject.getMetadata()) {
-            if (metadataValue.getSchema().equalsIgnoreCase("dc") &&
-                metadataValue.getElement().equalsIgnoreCase("title")) {
+            if (TITLE_FIELD.matches(metadataValue)) {
                 title = metadataValue.getValue();
             } else if (OPF_PUBLISHER_FIELD.matches(metadataValue)) {
                 identifier = metadataValue.getValue();
-            } else if (metadataValue.getSchema().equalsIgnoreCase("dc")
-                && metadataValue.getElement().equalsIgnoreCase("identifier")
-                && metadataValue.getQualifier().equalsIgnoreCase("other")) {
+            } else if (OTHER_FIELD.matches(metadataValue)) {
                 url = metadataValue.getValue();
             }
         }
@@ -331,14 +322,11 @@ public class OpenPolicyFinderDataProviderTest extends AbstractDSpaceTest {
         String identifier = null;
         String url = null;
         for (MetadataValueDTO metadataValue : dataObject.getMetadata()) {
-            if (metadataValue.getSchema().equalsIgnoreCase("dc") &&
-                metadataValue.getElement().equalsIgnoreCase("title")) {
+            if (TITLE_FIELD.matches(metadataValue)) {
                 title = metadataValue.getValue();
             } else if (OPF_PUBLISHER_FIELD.matches(metadataValue)) {
                 identifier = metadataValue.getValue();
-            } else if (metadataValue.getSchema().equalsIgnoreCase("dc")
-                && metadataValue.getElement().equalsIgnoreCase("identifier")
-                && metadataValue.getQualifier().equalsIgnoreCase("other")) {
+            } else if (OTHER_FIELD.matches(metadataValue)) {
                 url = metadataValue.getValue();
             }
         }

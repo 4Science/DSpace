@@ -92,8 +92,8 @@ public class DSpaceHttpClientFactory {
      */
     public CloseableHttpClient buildWithoutAutomaticRetries(int maxConnTotal) {
         HttpClientBuilder clientBuilder = HttpClientBuilder.create()
-                                                           .disableAutomaticRetries()
-                                                           .setMaxConnTotal(maxConnTotal);
+                .disableAutomaticRetries()
+                .setMaxConnTotal(maxConnTotal);
         return build(clientBuilder, true);
     }
 

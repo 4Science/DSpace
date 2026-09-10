@@ -68,6 +68,7 @@
         <property name="map">
             <map>
                 <entry key="upload" value-ref="uploadConfigurationDefault" />
+                <entry key="upload-no-required-metadata" value-ref="uploadConfigurationPublicationTestPatch" />
             </map>
         </property>
     </bean>
@@ -140,6 +141,18 @@
         <property name="bulkAccessConditionConfigurations">
             <list>
                 <ref bean="defaultBulkAccessConditionConfiguration"/>
+            </list>
+        </property>
+    </bean>
+
+    <bean id="uploadConfigurationPublicationTestPatch" class="org.dspace.submit.model.UploadConfiguration">
+        <property name="name" value="upload-no-required-metadata"/>
+        <property name="metadata" value="bitstream-metadata" />
+        <property name="options">
+            <list>
+                <ref bean="administrator"/>
+                <ref bean="openAccess"/>
+                <ref bean="embargoed" />
             </list>
         </property>
     </bean>
