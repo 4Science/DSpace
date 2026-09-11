@@ -169,43 +169,145 @@ public class OrcidV3AuthorDataProvider extends AbstractExternalDataProvider {
     }
 
     private void appendOtherNames(ExternalDataObject externalDataObject, Person person) {
-        person.getOtherNames().getOtherNames().forEach(otherName ->
-            externalDataObject.addMetadata(new MetadataValueDTO("crisrp", "name", "variant", null,
-                otherName.getContent())));
+        if (person == null) {
+            return;
+        }
+        var otherNames = person.getOtherNames();
+        if (otherNames == null) {
+            return;
+        }
+        var namesList = otherNames.getOtherNames();
+        if (namesList == null) {
+            return;
+        }
+
+        for (var otherName : namesList) {
+            if (otherName == null) {
+                continue;
+            }
+            var content = otherName.getContent();
+            if (content == null) {
+                continue;
+            }
+            externalDataObject.addMetadata(
+                new MetadataValueDTO("crisrp", "name", "variant", null, content)
+            );
+        }
     }
 
     private void appendResearcherUrls(ExternalDataObject externalDataObject, Person person) {
-        person.getResearcherUrls().getResearcherUrls().forEach(researcherUrl ->
-            externalDataObject.addMetadata(new MetadataValueDTO("oairecerif", "identifier", "url", null,
-                researcherUrl.getUrl().getValue())));
+        if (person == null) {
+            return;
+        }
+        var researcherUrls = person.getResearcherUrls();
+        if (researcherUrls == null) {
+            return;
+        }
+        var urlsList = researcherUrls.getResearcherUrls();
+        if (urlsList == null) {
+            return;
+        }
+
+        for (var researcherUrl : urlsList) {
+            if (researcherUrl == null) {
+                continue;
+            }
+            var url = researcherUrl.getUrl();
+            if (url == null) {
+                continue;
+            }
+            var value = url.getValue();
+            if (value == null) {
+                continue;
+            }
+            externalDataObject.addMetadata(
+                new MetadataValueDTO("oairecerif", "identifier", "url", null, value)
+            );
+        }
     }
 
     private void appendExternalIdentifiers(ExternalDataObject externalDataObject, Person person) {
-        if (getExternalIdentifiers() != null) {
-            person.getExternalIdentifiers()
-                  .getExternalIdentifiers()
-                  .forEach(externalIdentifier -> {
-                      String metadataField = externalIdentifiers.get(externalIdentifier.getType());
-                      if (StringUtils.isNotEmpty(metadataField)) {
-                          MetadataFieldName field = new MetadataFieldName(metadataField);
-                          externalDataObject.addMetadata(
-                              new MetadataValueDTO(field.schema, field.element, field.qualifier, null,
-                                  externalIdentifier.getValue()));
-                      }
-                  });
+        if (getExternalIdentifiers() == null) {
+            return;
+        }
+        if (person == null) {
+            return;
+        }
+        var externalIds = person.getExternalIdentifiers();
+        if (externalIds == null) {
+            return;
+        }
+        var idsList = externalIds.getExternalIdentifiers();
+        if (idsList == null) {
+            return;
+        }
+
+        for (var externalIdentifier : idsList) {
+            if (externalIdentifier == null) {
+                continue;
+            }
+            var type = externalIdentifier.getType();
+            if (type == null) {
+                continue;
+            }
+            String metadataField = externalIdentifiers.get(type);
+            if (StringUtils.isEmpty(metadataField)) {
+                continue;
+            }
+            var value = externalIdentifier.getValue();
+            if (value == null) {
+                continue;
+            }
+
+            MetadataFieldName field = new MetadataFieldName(metadataField);
+            externalDataObject.addMetadata(
+                new MetadataValueDTO(field.schema, field.element, field.qualifier, null, value)
+            );
         }
     }
 
     private void appendAffiliations(ExternalDataObject externalDataObject, Record record) {
-        record.getActivitiesSummary()
-              .getEmployments()
-              .getEmploymentGroups()
-              .stream()
-              .flatMap(affiliationGroup ->
-                  affiliationGroup.getActivities().stream())
-              .forEach(employmentSummary ->
-                  externalDataObject.addMetadata(new MetadataValueDTO("person", "affiliation", "name",
-                      null, employmentSummary.getOrganization().getName())));
+        if (record == null) {
+            return;
+        }
+        var activitiesSummary = record.getActivitiesSummary();
+        if (activitiesSummary == null) {
+            return;
+        }
+        var employments = activitiesSummary.getEmployments();
+        if (employments == null) {
+            return;
+        }
+        var employmentGroups = employments.getEmploymentGroups();
+        if (employmentGroups == null) {
+            return;
+        }
+
+        for (var affiliationGroup : employmentGroups) {
+            if (affiliationGroup == null) {
+                continue;
+            }
+            var activities = affiliationGroup.getActivities();
+            if (activities == null) {
+                continue;
+            }
+            for (var employmentSummary : activities) {
+                if (employmentSummary == null) {
+                    continue;
+                }
+                var org = employmentSummary.getOrganization();
+                if (org == null) {
+                    continue;
+                }
+                var name = org.getName();
+                if (name == null) {
+                    continue;
+                }
+                externalDataObject.addMetadata(
+                    new MetadataValueDTO("person", "affiliation", "name", null, name)
+                );
+            }
+        }
     }
 
     /**
@@ -223,10 +325,17 @@ public class OrcidV3AuthorDataProvider extends AbstractExternalDataProvider {
             return null;
         }
         initializeAccessToken();
-        try (InputStream bioDocument = orcidRestConnector.get(id, accessToken)) {
-            return converter.convertToRecord(bioDocument);
-        } catch (OrcidConnectionException | IOException e) {
-            log.error("Error retrieving ORCID bio for ID={}", id, e);
+        try {
+            InputStream bioDocument = orcidRestConnector.get(id, accessToken);
+            Record record = converter.convertToRecord(bioDocument);
+            try {
+                bioDocument.close();
+            } catch (IOException e) {
+                log.error(e.getMessage(), e);
+            }
+            return record;
+        } catch (OrcidConnectionException e) {
+            log.error("Error retrieving ORCID bio for ID=" + id, e);
             return null;
         }
     }
