@@ -16,7 +16,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.http.ProtocolVersion;
 import org.apache.http.StatusLine;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -48,8 +47,7 @@ public class AbstractLiveImportIntegrationTest extends AbstractControllerIntegra
     private void checkMetadataValue(List<MetadatumDTO> list, List<MetadatumDTO> list2) {
         assertEquals(list.size(), list2.size());
         for (int i = 0; i < list.size(); i++) {
-            assertTrue("'" + list.get(i).toString() + "' should be equal to '" + list2.get(i).toString() + "'",
-                       sameMetadatum(list.get(i), list2.get(i)));
+            sameMetadatum(list.get(i), list2.get(i));
         }
     }
 

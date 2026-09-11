@@ -88,6 +88,7 @@ public class SubscriptionEmailNotificationServiceImpl implements SubscriptionEma
     @SuppressWarnings({ "rawtypes" })
     private void performForContent(Context context, DSpaceRunnableHandler handler,
                                    String subscriptionType, String frequency) {
+        EPerson currentEperson = context.getCurrentUser();
         try {
             List<Subscription> subscriptions =
                 findAllSubscriptionsBySubscriptionTypeAndFrequency(context, subscriptionType, frequency);

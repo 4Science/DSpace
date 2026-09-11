@@ -270,6 +270,11 @@ public class DSBitStoreService extends BaseBitStoreService {
         return internalId.startsWith(REGISTERED_FLAG);
     }
 
+    @Override
+    public String path(Bitstream bitstream) throws IOException {
+        return getFile(bitstream).getAbsolutePath();
+    }
+
     public File getBaseDir() {
         return baseDir;
     }

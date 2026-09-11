@@ -1100,7 +1100,7 @@ public class CollectionServiceImpl extends DSpaceObjectServiceImpl<Collection> i
      */
     private DiscoverResult retrieveCollectionsWithSubmit(Context context, DiscoverQuery discoverQuery,
         String entityType, Community community, String q)
-        throws SearchServiceException {
+            throws SearchServiceException, SQLException {
 
         StringBuilder query = new StringBuilder();
         EPerson currentUser = context.getCurrentUser();

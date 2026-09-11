@@ -819,7 +819,7 @@ public class AuthorizeServiceImpl implements AuthorizeService {
      */
     @Override
     public List<Community> findAdminAuthorizedCommunity(Context context, String query, int offset, int limit)
-        throws SearchServiceException, SQLException {
+        throws SearchServiceException {
         List<Community> communities = new ArrayList<>();
         query = formatCustomQuery(query);
         DiscoverResult discoverResult = getDiscoverResult(context, query + "search.resourcetype:" +
@@ -842,7 +842,7 @@ public class AuthorizeServiceImpl implements AuthorizeService {
      */
     @Override
     public long countAdminAuthorizedCommunity(Context context, String query)
-        throws SearchServiceException, SQLException {
+        throws SearchServiceException {
         query = formatCustomQuery(query);
         DiscoverResult discoverResult = getDiscoverResult(context, query + "search.resourcetype:" +
                                                               IndexableCommunity.TYPE,
@@ -862,7 +862,7 @@ public class AuthorizeServiceImpl implements AuthorizeService {
      */
     @Override
     public List<Collection> findAdminAuthorizedCollection(Context context, String query, int offset, int limit)
-        throws SearchServiceException, SQLException {
+        throws SearchServiceException {
         List<Collection> collections = new ArrayList<>();
         if (context.getCurrentUser() == null) {
             return collections;
@@ -890,12 +890,37 @@ public class AuthorizeServiceImpl implements AuthorizeService {
      */
     @Override
     public long countAdminAuthorizedCollection(Context context, String query)
-        throws SearchServiceException, SQLException {
+        throws SearchServiceException {
         query = formatCustomQuery(query);
         DiscoverResult discoverResult = getDiscoverResult(context, query + "search.resourcetype:" +
                                                               IndexableCollection.TYPE,
             null, null, null, null);
         return discoverResult.getTotalSearchResults();
+    }
+
+    @Override
+    public long countAuthorizedCollectionByAction(Context context, String query, int action)
+        throws SearchServiceException {
+        return countAdminAuthorizedCollection(context, query);
+    }
+
+    @Override
+    public List<Collection> findAuthorizedCollectionByAction(Context context, String query, int action, int offset,
+                                                             int limit) throws SearchServiceException {
+        return findAdminAuthorizedCollection(context, query, offset, limit);
+    }
+
+    @Override
+    public List<Community> findAuthorizedCommunityByAction(Context context, String query,
+                                                           int action, int offset, int limit)
+        throws SearchServiceException, SQLException {
+        return findAdminAuthorizedCommunity(context, query, offset, limit);
+    }
+
+    @Override
+    public long countAuthorizedCommunityByAction(Context context, String query, int action)
+        throws SearchServiceException {
+        return countAdminAuthorizedCommunity(context, query);
     }
 
     @Override
@@ -927,14 +952,18 @@ public class AuthorizeServiceImpl implements AuthorizeService {
     }
 
     private DiscoverResult getDiscoverResult(Context context, String query, Integer offset, Integer limit,
-        String sortField, SORT_ORDER sortOrder) throws SearchServiceException, SQLException {
+        String sortField, SORT_ORDER sortOrder) throws SearchServiceException {
         DiscoverQuery discoverQuery = new DiscoverQuery();
-        if (!this.isAdmin(context)) {
-            StringBuilder stringBuilder = new StringBuilder();
-            stringBuilder.append("(" + "admin:e").append(context.getCurrentUser().getID()).
-                    append(getGroupToQuery(groupService.allMemberGroupsSet(context,
-                            context.getCurrentUser()))).append(")");
-            discoverQuery.addFilterQueries(stringBuilder.toString());
+        try {
+            if (!this.isAdmin(context)) {
+                StringBuilder stringBuilder = new StringBuilder();
+                stringBuilder.append("(" + "admin:e").append(context.getCurrentUser().getID()).
+                        append(getGroupToQuery(groupService.allMemberGroupsSet(context,
+                                context.getCurrentUser()))).append(")");
+                discoverQuery.addFilterQueries(stringBuilder.toString());
+            }
+        } catch (SQLException e) {
+            throw new SearchServiceException(e.getMessage(), e);
         }
         discoverQuery.setQuery(query);
         if (offset != null) {

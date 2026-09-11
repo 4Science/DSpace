@@ -18,8 +18,6 @@ import java.sql.SQLException;
 import java.util.Date;
 import java.util.UUID;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.content.Bitstream;
 import org.dspace.content.Collection;
@@ -44,7 +42,6 @@ import org.dspace.profile.OrcidSynchronizationMode;
  * @author Raf Ponsaerts (raf dot ponsaerts at atmire dot com)
  */
 public class ItemBuilder extends AbstractDSpaceObjectBuilder<Item> {
-    private static final Logger log = LogManager.getLogger(ItemBuilder.class);
 
     private boolean withdrawn = false;
     private boolean inArchive = false;
@@ -177,28 +174,12 @@ public class ItemBuilder extends AbstractDSpaceObjectBuilder<Item> {
         return addMetadataValue(item, "dc", "identifier", "doi", doi);
     }
 
-    public ItemBuilder withScopusIdentifier(String scopus) {
-        return addMetadataValue(item, "dc", "identifier", "scopus", scopus);
-    }
-
     public ItemBuilder withISSN(String issn) {
         return addMetadataValue(item, "dc", "identifier", "issn", issn);
     }
 
     public ItemBuilder withISBN(String isbn) {
         return addMetadataValue(item, "dc", "identifier", "isbn", isbn);
-    }
-
-    public ItemBuilder withRelationFunding(String funding) {
-        return addMetadataValue(item, "dc", "relation", "funding", funding);
-    }
-
-    public ItemBuilder withRelationFunding(String funding, String authority) {
-        return addMetadataValue(item, DC.getName(), "relation", "funding", null, funding, authority, 600);
-    }
-
-    public ItemBuilder withRelationGrantno(String grantno) {
-        return addMetadataValue(item, "dc", "relation", "grantno", grantno);
     }
 
     public ItemBuilder withPersonIdentifierFirstName(final String personIdentifierFirstName) {
@@ -298,10 +279,6 @@ public class ItemBuilder extends AbstractDSpaceObjectBuilder<Item> {
 
     public ItemBuilder withCrisPolicyGroup(String value, String authority) {
         return addMetadataValue(item, CRIS.getName(), "policy", "group", null, value, authority, CF_ACCEPTED);
-    }
-
-    public ItemBuilder withDoiIdentifier(String doi) {
-        return addMetadataValue(item, "dc", "identifier", "doi", doi);
     }
 
     public ItemBuilder withDoiIdentifierForLanguage(String doi, String language) {
@@ -584,10 +561,6 @@ public class ItemBuilder extends AbstractDSpaceObjectBuilder<Item> {
 
     public ItemBuilder withIssue(String issue) {
         return addMetadataValue(item, "oaire", "citation", "issue", issue);
-    }
-
-    public ItemBuilder withIsPartOf(String isPartOf) {
-        return addMetadataValue(item, "dc", "relation", "ispartof", isPartOf);
     }
 
     public ItemBuilder withCitationStartPage(String startPage) {

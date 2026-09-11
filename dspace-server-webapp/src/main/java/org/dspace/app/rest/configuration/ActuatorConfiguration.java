@@ -12,15 +12,10 @@ import java.net.MalformedURLException;
 import java.util.Arrays;
 
 import org.apache.solr.client.solrj.SolrServerException;
-import org.dspace.app.audit.AuditService;
-import org.dspace.app.deduplication.service.impl.SolrDedupServiceImpl;
-import org.dspace.app.nbevent.service.impl.NBEventServiceImpl;
 import org.dspace.app.rest.DiscoverableEndpointsService;
 import org.dspace.app.rest.health.EPersonGroupHealthIndicator;
 import org.dspace.app.rest.health.GeoIpHealthIndicator;
 import org.dspace.app.rest.health.SiteHealthIndicator;
-import org.dspace.app.suggestion.SolrSuggestionStorageServiceImpl;
-import org.dspace.app.rest.health.SEOHealthIndicator;
 import org.dspace.authority.AuthoritySolrServiceImpl;
 import org.dspace.discovery.SolrSearchCore;
 import org.dspace.statistics.SolrStatisticsCore;

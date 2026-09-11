@@ -1563,7 +1563,22 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
             q = searchService.formatAutoCompleteQuery(q, "dc.title_sort");
             discoverQuery.setQuery(q);
         }
-        discoverQuery.addRequiredAuthorization(Constants.WRITE);
+        try {
+            if (!authorizeService.isAdmin(context)) {
+                EPerson currentUser = context.getCurrentUser();
+                StringBuilder filterQuery = new StringBuilder("edit:(e");
+                if (currentUser != null) {
+                    filterQuery.append(currentUser.getID());
+                }
+                for (Group group : groupService.allMemberGroupsSet(context, currentUser)) {
+                    filterQuery.append(" OR g").append(group.getID());
+                }
+                filterQuery.append(")");
+                discoverQuery.addFilterQueries(filterQuery.toString());
+            }
+        } catch (SQLException e) {
+            throw new SearchServiceException(e.getMessage(), e);
+        }
         return searchService.search(context, discoverQuery);
     }
 

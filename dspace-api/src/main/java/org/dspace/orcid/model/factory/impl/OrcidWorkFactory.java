@@ -288,6 +288,14 @@ public class OrcidWorkFactory implements OrcidEntityFactory {
         return externalID;
     }
 
+    private ExternalID getExternalId(String type, String value, Relationship relationship) {
+        ExternalID externalID = new ExternalID();
+        externalID.setType(type);
+        externalID.setValue(value);
+        externalID.setRelationship(relationship);
+        return externalID;
+    }
+
     /**
      * Creates an instance of WorkType from the given item, taking the value from the
      * configured metadata field (orcid.mapping.work.type).
