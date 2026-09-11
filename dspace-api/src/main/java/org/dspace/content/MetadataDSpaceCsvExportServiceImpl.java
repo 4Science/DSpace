@@ -100,6 +100,7 @@ public class MetadataDSpaceCsvExportServiceImpl implements MetadataDSpaceCsvExpo
             context.uncacheEntity(item);
         }
 
+        context.setMode(originalMode);
         // Return the results
         return csv;
     }

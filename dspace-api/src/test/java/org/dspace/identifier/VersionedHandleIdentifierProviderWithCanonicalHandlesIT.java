@@ -59,6 +59,7 @@ public class VersionedHandleIdentifierProviderWithCanonicalHandlesIT extends Abs
                                           .withName("Parent Community")
                                           .build();
         collection = CollectionBuilder.createCollection(context, parentCommunity)
+                                      .withEntityType("Publication")
                                       .withName("Collection")
                                       .build();
 

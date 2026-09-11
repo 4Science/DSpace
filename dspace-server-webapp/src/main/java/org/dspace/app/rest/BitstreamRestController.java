@@ -234,6 +234,9 @@ public class BitstreamRestController {
         // NOTE: "+xml" in this list will match any MIME Type that ends in "+xml", as those are XML-based formats.
         List<String> bannedInlineFormats = List.of("text/html", "text/javascript", "text/xml", "application/xml",
                                              "+xml");
+        if (format.getMIMEType() == null) {
+            return false;
+        }
         for (String bannedInlineFormat : bannedInlineFormats) {
             // If our format MIME Type contains one of the banned inline formats, we refuse to display it inline
             if (format.getMIMEType().contains(bannedInlineFormat)) {

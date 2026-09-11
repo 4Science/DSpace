@@ -131,7 +131,7 @@ public class PubmedImportMetadataSourceServiceIT extends AbstractLiveImportInteg
                         "thinking. Therefore, it will be necessary to relate teaching methodologies with the skills " +
                         "developed.\n\nAn unlabeled section of an abstract.\n\nAn abstract section with no attributes" +
                         " at all, concerning.");
-        MetadatumDTO identifierOther = createMetadatumDTO("dc", "identifier", "other", "36708638");
+        MetadatumDTO identifierOther = createMetadatumDTO("dc", "identifier", "pmid", "36708638");
         MetadatumDTO author1 = createMetadatumDTO("dc", "contributor", "author", "Giuffrida, Silvia");
         MetadatumDTO author2 = createMetadatumDTO("dc", "contributor", "author", "Silano, Verdiana");
         MetadatumDTO author3 = createMetadatumDTO("dc", "contributor", "author", "Ramacciati, Nicola");

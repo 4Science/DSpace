@@ -211,7 +211,8 @@ public class OrcidEntityFactoryServiceIT extends AbstractIntegrationTestWithData
             .withIssueDate("2021-04-30")
             .withDescriptionAbstract("Publication description")
             .withLanguage("en_US")
-            .withType("Article")
+            .withType("Controlled Vocabulary for Resource Type Genres::text::periodical::journal"
+                          + "::contribution to journal::journal article")
             .withIsPartOf("Journal")
             .withISSN(issn)
             .withDoiIdentifier("doi-id")
@@ -259,9 +260,9 @@ public class OrcidEntityFactoryServiceIT extends AbstractIntegrationTestWithData
         context.turnOffAuthorisationSystem();
 
         Item publication = ItemBuilder.createItem(context, publications)
-            .withTitle("Test journal")
+            .withTitle("Test work")
             .withEditor("Editor")
-            .withType("Journal")
+            .withType("Controlled Vocabulary for Resource Type Genres::text::book::book part")
             .withISSN(issn)
             .build();
 
@@ -271,17 +272,17 @@ public class OrcidEntityFactoryServiceIT extends AbstractIntegrationTestWithData
         assertThat(activity, instanceOf(Work.class));
 
         Work work = (Work) activity;
-        assertThat(work.getWorkType(), is(WorkType.JOURNAL_ISSUE));
+        assertThat(work.getWorkType(), is(WorkType.BOOK_CHAPTER));
         assertThat(work.getWorkTitle(), notNullValue());
         assertThat(work.getWorkTitle().getTitle(), notNullValue());
-        assertThat(work.getWorkTitle().getTitle().getContent(), is("Test journal"));
+        assertThat(work.getWorkTitle().getTitle().getContent(), is("Test work"));
         assertThat(work.getUrl(), matches(urlEndsWith(publication.getHandle())));
 
         assertThat(work.getExternalIdentifiers(), notNullValue());
 
         List<ExternalID> externalIds = work.getExternalIdentifiers().getExternalIdentifier();
         assertThat(externalIds, hasSize(2));
-        // journal-issue should have SELF rel for ISSN
+        // book-chapter is not in the issn part-of map, so ISSN keeps the SELF rel
         assertThat(externalIds, has(selfExternalId("issn", issn)));
         assertThat(externalIds, has(selfExternalId("handle", publication.getHandle())));
     }
