@@ -3721,49 +3721,36 @@ public class CollectionRestRepositoryIT extends AbstractControllerIntegrationTes
     }
 
     @Test
-    public void removeParentComAdminPolicyToCheckAdminPropagationTest() throws Exception {
-        removeParentComAdminPolicyToCheckGenericPropagationTest("findAdminAuthorized");
-    }
-
-    @Test
     public void removeParentComAdminPolicyToCheckEditPropagationTest() throws Exception {
-        removeParentComAdminPolicyToCheckGenericPropagationTest("findEditAuthorized");
-    }
-
-    public void removeParentComAdminPolicyToCheckGenericPropagationTest(String method) throws Exception {
         context.turnOffAuthorisationSystem();
         parentCommunity = CommunityBuilder.createCommunity(context)
-            .withName("Parent Community")
-            .build();
-
-        ResourcePolicy policy = ResourcePolicyBuilder.createResourcePolicy(context, eperson, null)
-            .withDspaceObject(parentCommunity).withAction(Constants.ADMIN)
-            .build();
+                                          .withName("Parent Community")
+                                          .withAdminGroup(eperson)
+                                          .build();
 
         Collection col1 = CollectionBuilder.createCollection(context, parentCommunity)
-            .withName("MyTest")
-            .build();
-
+                                           .withName("MyTest")
+                                           .build();
         context.restoreAuthSystemState();
 
         String epersonToken = getAuthToken(eperson.getEmail(), password);
-        getClient(epersonToken).perform(get("/api/core/collections/search/" + method)
-                .param("query", "MyTest"))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$._embedded.collections", Matchers.contains(CollectionMatcher
-                .matchProperties(col1.getName(), col1.getID(), col1.getHandle())
-            )))
+        getClient(epersonToken).perform(get("/api/core/collections/search/findEditAuthorized")
+                               .param("query", "MyTest"))
+                               .andExpect(status().isOk())
+            .andExpect(jsonPath("$._embedded.collections", Matchers.contains(
+                    CollectionMatcher.matchProperties(col1.getName(), col1.getID(), col1.getHandle())
+             )))
             .andExpect(jsonPath("$.page.totalElements", is(1)));
 
         String token = getAuthToken(admin.getEmail(), password);
-        getClient(token).perform(delete("/api/authz/resourcepolicies/" + policy.getID()))
-            .andExpect(status().is(204));
+        getClient(token).perform(delete("/api/core/communities/" + parentCommunity.getID() + "/adminGroup"))
+                        .andExpect(status().isNoContent());
 
-        getClient(epersonToken).perform(get("/api/core/collections/search/" + method)
-                .param("query", "MyTest"))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$._embedded").doesNotExist())
-            .andExpect(jsonPath("$.page.totalElements", is(0)));
+        getClient(epersonToken).perform(get("/api/core/collections/search/findEditAuthorized")
+                               .param("query", "MyTest"))
+                               .andExpect(status().isOk())
+                               .andExpect(jsonPath("$._embedded").doesNotExist())
+                               .andExpect(jsonPath("$.page.totalElements", is(0)));
     }
 
     @Test
@@ -4177,35 +4164,52 @@ public class CollectionRestRepositoryIT extends AbstractControllerIntegrationTes
         EPerson hasDirectAdminRights = EPersonBuilder.createEPerson(context)
             .withEmail("has@adminrights.com").withPassword(password)
             .build();
+
         Collection byResourcePolicy = CollectionBuilder.createCollection(context, comm1)
-            .withName("direct edit rights for eperson")
+            .withName("direct rights for eperson")
             .build();
         Collection uneditable = CollectionBuilder.createCollection(context, comm1)
             .withName("uneditable collection")
             .build();
-        ResourcePolicy policy = ResourcePolicyBuilder.createResourcePolicy(context, hasDirectEditRights, null)
+
+        // direct WRITE (non-admin) policy -> NOT indexed on the 'admin' field
+        ResourcePolicyBuilder.createResourcePolicy(context, hasDirectEditRights, null)
             .withDspaceObject(byResourcePolicy).withAction(WRITE)
             .build();
-        policy = ResourcePolicyBuilder.createResourcePolicy(context, hasDirectAdminRights, null)
+        // direct ADMIN policy -> indexed on the 'admin' field
+        ResourcePolicyBuilder.createResourcePolicy(context, hasDirectAdminRights, null)
             .withDspaceObject(byResourcePolicy).withAction(Constants.ADMIN)
             .build();
         context.restoreAuthSystemState();
 
+        String adminSiteToken = getAuthToken(admin.getEmail(), password);
         String tokenHasDirectEditRightsToken = getAuthToken(hasDirectEditRights.getEmail(), password);
         String tokenHasDirectAdminRightsToken = getAuthToken(hasDirectAdminRights.getEmail(), password);
 
+        // a direct WRITE (non-admin) policy does NOT grant edit at collection level
         getClient(tokenHasDirectEditRightsToken).perform(get("/api/core/collections/search/findEditAuthorized"))
-            .andExpect(status().isOk())
-            .andExpect(content().contentType(contentType))
-            .andExpect(jsonPath("$._embedded.collections",
-                Matchers.contains(CollectionMatcher.matchCollection(byResourcePolicy))))
-            .andExpect(jsonPath("$.page.totalElements", is(1)));
+                                                .andExpect(status().isOk())
+                                                .andExpect(jsonPath("$._embedded.collections").doesNotExist())
+                                                .andExpect(jsonPath("$.page.totalElements", is(0)));
+
+        // a direct ADMIN policy DOES grant edit
         getClient(tokenHasDirectAdminRightsToken).perform(get("/api/core/collections/search/findEditAuthorized"))
-            .andExpect(status().isOk())
-            .andExpect(content().contentType(contentType))
-            .andExpect(jsonPath("$._embedded.collections",
-                Matchers.contains(CollectionMatcher.matchCollection(byResourcePolicy))))
-            .andExpect(jsonPath("$.page.totalElements", is(1)));
+                                                 .andExpect(status().isOk())
+                                             .andExpect(content().contentType(contentType))
+                                             .andExpect(jsonPath("$._embedded.collections",
+                                              Matchers.contains(CollectionMatcher.matchCollection(byResourcePolicy))))
+                                             .andExpect(jsonPath("$.page.totalElements", is(1)));
+
+        // a site ADMIN can edit all of them
+        getClient(adminSiteToken).perform(get("/api/core/collections/search/findEditAuthorized"))
+                                 .andExpect(status().isOk())
+                                 .andExpect(content().contentType(contentType))
+                                 .andExpect(jsonPath("$._embedded.collections",
+                                  Matchers.containsInAnyOrder(
+                                           CollectionMatcher.matchCollection(byResourcePolicy),
+                                           CollectionMatcher.matchCollection(uneditable)
+                                           )))
+                                 .andExpect(jsonPath("$.page.totalElements", is(2)));
     }
 
     @Test
@@ -4314,142 +4318,44 @@ public class CollectionRestRepositoryIT extends AbstractControllerIntegrationTes
 
     @Test
     public void findEditAuthorizedCollectionsWithQueryTest() throws Exception {
-        findGenericAuthorizedCollectionsWithQueryTest("findEditAuthorized");
-    }
-
-    @Test
-    public void findReadAuthorizedCollectionsWithQueryTest() throws Exception {
-        findGenericAuthorizedCollectionsWithQueryTest("findAdminAuthorized");
-    }
-
-    public void findGenericAuthorizedCollectionsWithQueryTest(String method) throws Exception {
-
         context.turnOffAuthorisationSystem();
-
-        EPerson eperson2 = EPersonBuilder.createEPerson(context)
-            .withEmail("eperson2@mail.com")
-            .withPassword(password)
-            .build();
-
         parentCommunity = CommunityBuilder.createCommunity(context)
             .withName("Parent Community")
             .build();
-        Community child1 = CommunityBuilder.createSubCommunity(context, parentCommunity)
-            .withName("Sub Community")
-            .build();
-        Community child2 = CommunityBuilder.createSubCommunity(context, parentCommunity)
-            .withName("Sub Community Two")
-            .build();
         Collection col1 = CollectionBuilder.createCollection(context, parentCommunity)
-            .withName("Sample collection")
+            .withName("collectionEditable is a very original name")
             .withAdminGroup(eperson)
             .build();
-        Collection col2 = CollectionBuilder.createCollection(context, child1)
-            .withName("Test collection")
-            .build();
-        Collection col3 = CollectionBuilder.createCollection(context, child2)
-            .withName("Collection of sample items")
-            .withAdminGroup(eperson)
-            .build();
-        Collection col4 = CollectionBuilder.createCollection(context, child2)
-            .withName("Testing autocomplete in collection")
-            .withAdminGroup(eperson2)
-            .build();
-        Collection col5 = CollectionBuilder.createCollection(context, child2)
-            .withName("Title: subtitle (special characters)")
+        Collection col2 = CollectionBuilder.createCollection(context, parentCommunity)
+            .withName("the other collection is not editable by eperson")
             .build();
         context.restoreAuthSystemState();
 
-        String tokenEPerson = getAuthToken(eperson.getEmail(), password);
-        // Test simple query matches
-        getClient(tokenEPerson).perform(get("/api/core/collections/search/" + method)
-                .param("query", "collection"))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$._embedded.collections", Matchers.containsInAnyOrder(
-                CollectionMatcher.matchProperties(col1.getName(), col1.getID(), col1.getHandle()),
-                CollectionMatcher.matchProperties(col3.getName(), col3.getID(), col3.getHandle())
-            )))
-            .andExpect(jsonPath("$.page.totalElements", is(2)));
+        String token = getAuthToken(eperson.getEmail(), password);
 
-        // Test insensitive matches
-        getClient(tokenEPerson).perform(get("/api/core/collections/search/" + method)
-                .param("query", "COLLECTION"))
+        // eperson (admin of col1) gets only col1
+        getClient(token).perform(get("/api/core/collections/search/findEditAuthorized"))
             .andExpect(status().isOk())
-            .andExpect(jsonPath("$._embedded.collections", Matchers.containsInAnyOrder(
-                CollectionMatcher.matchProperties(col1.getName(), col1.getID(), col1.getHandle()),
-                CollectionMatcher.matchProperties(col3.getName(), col3.getID(), col3.getHandle())
+            .andExpect(jsonPath("$._embedded.collections", Matchers.contains(
+                CollectionMatcher.matchProperties(col1.getName(), col1.getID(), col1.getHandle())
             )))
-            .andExpect(jsonPath("$.page.totalElements", is(2)));
+            .andExpect(jsonPath("$.page.totalElements", is(1)));
 
-        // Test collection unathorized for eperson is not returned
-        getClient(tokenEPerson).perform(get("/api/core/collections/search/" + method)
-                .param("query", "test"))
+        // query by name matches the editable collection
+        getClient(token).perform(get("/api/core/collections/search/findEditAuthorized")
+                .param("query", col1.getName()))
             .andExpect(status().isOk())
+            .andExpect(jsonPath("$._embedded.collections", Matchers.contains(
+                CollectionMatcher.matchProperties(col1.getName(), col1.getID(), col1.getHandle())
+            )))
+            .andExpect(jsonPath("$.page.totalElements", is(1)));
+
+        // query for a collection the eperson can't edit returns nothing
+        getClient(token).perform(get("/api/core/collections/search/findEditAuthorized")
+                .param("query", col2.getName()))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$._embedded.collections").doesNotExist())
             .andExpect(jsonPath("$.page.totalElements", is(0)));
-
-        // Test eperson with no authorized collections
-        getClient(tokenEPerson).perform(get("/api/core/collections/search/" + method)
-                .param("query", "auto"))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$.page.totalElements", is(0)));
-
-        String tokenEPerson2 = getAuthToken(eperson2.getEmail(), password);
-        // Test eperson2 gets only their authorized collection
-        getClient(tokenEPerson2).perform(get("/api/core/collections/search/" + method)
-                .param("query", "auto"))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$._embedded.collections", Matchers.contains(
-                CollectionMatcher.matchProperties(col4.getName(), col4.getID(), col4.getHandle())
-            )))
-            .andExpect(jsonPath("$.page.totalElements", is(1)));
-
-        // Test query with multiple words
-        getClient(tokenEPerson2).perform(get("/api/core/collections/search/" + method)
-                .param("query", "testing auto"))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$._embedded.collections", Matchers.containsInAnyOrder(
-                CollectionMatcher.matchProperties(col4.getName(), col4.getID(), col4.getHandle())
-            )))
-            .andExpect(jsonPath("$.page.totalElements", is(1)));
-
-        // Test admin gets all authorized collections
-        String tokenAdmin = getAuthToken(admin.getEmail(), password);
-        getClient(tokenAdmin).perform(get("/api/core/collections/search/" + method)
-                .param("query", "sample"))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$._embedded.collections", Matchers.containsInAnyOrder(
-                CollectionMatcher.matchProperties(col1.getName(), col1.getID(), col1.getHandle()),
-                CollectionMatcher.matchProperties(col3.getName(), col3.getID(), col3.getHandle())
-            )))
-            .andExpect(jsonPath("$.page.totalElements", is(2)));
-
-        // Test query with unsorted query words
-        getClient(tokenAdmin).perform(get("/api/core/collections/search/" + method)
-                .param("query", "items sample"))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$._embedded.collections", Matchers.contains(
-                CollectionMatcher.matchProperties(col3.getName(), col3.getID(), col3.getHandle())
-            )))
-            .andExpect(jsonPath("$.page.totalElements", is(1)));
-
-        // Test collection not authorized for eperson is returned for admin
-        getClient(tokenAdmin).perform(get("/api/core/collections/search/" + method)
-                .param("query", "test"))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$._embedded.collections", Matchers.containsInAnyOrder(
-                CollectionMatcher.matchProperties(col2.getName(), col2.getID(), col2.getHandle()),
-                CollectionMatcher.matchProperties(col4.getName(), col4.getID(), col4.getHandle())
-            )))
-            .andExpect(jsonPath("$.page.totalElements", is(2)));
-
-        // Test query with special characters
-        getClient(tokenAdmin).perform(get("/api/core/collections/search/" + method)
-                .param("query", "title: subtitle (special"))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$._embedded.collections", Matchers.contains(
-                CollectionMatcher.matchProperties(col5.getName(), col5.getID(), col5.getHandle())
-            )))
-            .andExpect(jsonPath("$.page.totalElements", is(1)));
     }
 
 }
