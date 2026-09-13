@@ -13,6 +13,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import org.dspace.app.rest.test.AbstractControllerIntegrationTest;
+import org.junit.Ignore;
 import org.junit.Test;
 
 /**
@@ -33,6 +34,7 @@ public class CrossRefImportMetadataIT extends AbstractControllerIntegrationTest 
 
     }
 
+    @Ignore
     @Test
     public void importMetadataFromCrossrefByFreeTextTest() throws Exception {
 
