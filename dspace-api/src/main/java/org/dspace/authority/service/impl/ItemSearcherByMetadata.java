@@ -57,6 +57,8 @@ import org.springframework.beans.factory.annotation.Autowired;
  * </p>
  *
  * @author Luca Giamminonni (luca.giamminonni at 4science.it)
+ * @author Adamo Fapohunda (adamo.fapohunda at 4science.com)
+ * @author Vincenzo Mecca (vins01-4science - vincenzo.mecca at 4science.com)
  *
  */
 public class ItemSearcherByMetadata implements ItemSearcher, ItemReferenceResolver {
@@ -191,10 +193,14 @@ public class ItemSearcherByMetadata implements ItemSearcher, ItemReferenceResolv
     private void updateReferences(Context context, Item itemWithReference, Item item, List<String> authorities)
         throws SQLException, AuthorizeException {
 
-        itemWithReference.getMetadata().stream()
+        List<MetadataValue> resolvedValues = itemWithReference.getMetadata().stream()
                          .filter(metadataValue -> authorities.contains(metadataValue.getAuthority()))
-                         .forEach(
-                             metadataValue -> choiceAuthorityService.setReferenceWithAuthority(metadataValue, item));
+                         .collect(Collectors.toList());
+
+        for (MetadataValue metadataValue : resolvedValues) {
+            // system / reference path: the setter stamps the authority and reconciles the relationship row
+            choiceAuthorityService.setReferenceWithAuthority(context, metadataValue, item);
+        }
 
         itemService.update(context, itemWithReference);
     }

@@ -31,6 +31,7 @@ import org.apache.logging.log4j.Logger;
 import org.dspace.app.audit.MetadataEvent;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.content.authority.Choices;
+import org.dspace.content.authority.service.AuthorityBackedRelationshipService;
 import org.dspace.content.authority.service.ChoiceAuthorityService;
 import org.dspace.content.authority.service.MetadataAuthorityService;
 import org.dspace.content.factory.ContentServiceFactory;
@@ -75,6 +76,8 @@ public abstract class DSpaceObjectServiceImpl<T extends DSpaceObject> implements
     protected MetadataAuthorityService metadataAuthorityService;
     @Autowired(required = true)
     protected RelationshipService relationshipService;
+    @Autowired(required = true)
+    protected AuthorityBackedRelationshipService authorityBackedRelationshipService;
 
     public DSpaceObjectServiceImpl() {
 
@@ -867,6 +870,13 @@ public abstract class DSpaceObjectServiceImpl<T extends DSpaceObject> implements
                 ) {
                     int mvPlace = getMetadataValuePlace(fieldToLastPlace, metadataValue);
                     metadataValue.setPlace(mvPlace);
+                }
+
+                // Keep the authority-backed relationship row in sync with the value's authority.
+                // A relationship row exists if and only if the authority names an existing item.
+                if (dso.getType() == Constants.ITEM) {
+                    authorityBackedRelationshipService
+                        .reconcileRelationshipForAuthority(context, dso, metadataValue);
                 }
             }
         }

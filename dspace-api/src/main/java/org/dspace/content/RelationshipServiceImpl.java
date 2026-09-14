@@ -39,6 +39,12 @@ import org.dspace.services.ConfigurationService;
 import org.dspace.versioning.utils.RelationshipVersioningUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
+/**
+ * Default implementation of {@link RelationshipService}.
+ *
+ * @author Adamo Fapohunda (adamo.fapohunda at 4science.com)
+ * @author Vincenzo Mecca (vins01-4science - vincenzo.mecca at 4science.com)
+ */
 public class RelationshipServiceImpl implements RelationshipService {
 
     private static final Logger log = LogManager.getLogger();
@@ -134,6 +140,26 @@ public class RelationshipServiceImpl implements RelationshipService {
 
         } else {
             throw new IllegalArgumentException("The relationship given was not valid");
+        }
+    }
+
+    /**
+     * Assert that the current user has WRITE permission on at least one of the two items involved in a
+     * type-less relationship. Used by the type-less delete path, which does not go through the
+     * type-driven permission checks.
+     *
+     * @param context The relevant DSpace context
+     * @param leftItem The left item of the relationship
+     * @param rightItem The right item of the relationship
+     * @throws SQLException       If something goes wrong
+     * @throws AuthorizeException If the user has WRITE permission on neither item
+     */
+    private void assertWriteOnEitherItem(Context context, Item leftItem, Item rightItem)
+        throws SQLException, AuthorizeException {
+        if (!authorizeService.authorizeActionBoolean(context, leftItem, Constants.WRITE) &&
+            !authorizeService.authorizeActionBoolean(context, rightItem, Constants.WRITE)) {
+            throw new AuthorizeException(
+                "You do not have write rights on this relationship's items");
         }
     }
 
@@ -629,8 +655,22 @@ public class RelationshipServiceImpl implements RelationshipService {
             relationshipDAO.findByItem(context, item, limit, offset, excludeTilted, excludeNonLatest);
 
         list.sort((o1, o2) -> {
-            int relationshipType = o1.getRelationshipType().getLeftwardType()
-                .compareTo(o2.getRelationshipType().getLeftwardType());
+            // Type-less (authority-backed) relationships have no leftward type to sort on.
+            // Order them consistently: type-less rows sort after typed rows, then by place.
+            String leftwardType1 = o1.getRelationshipType() != null
+                ? o1.getRelationshipType().getLeftwardType() : null;
+            String leftwardType2 = o2.getRelationshipType() != null
+                ? o2.getRelationshipType().getLeftwardType() : null;
+            int relationshipType;
+            if (leftwardType1 == null && leftwardType2 == null) {
+                relationshipType = 0;
+            } else if (leftwardType1 == null) {
+                relationshipType = 1;
+            } else if (leftwardType2 == null) {
+                relationshipType = -1;
+            } else {
+                relationshipType = leftwardType1.compareTo(leftwardType2);
+            }
             if (relationshipType != 0) {
                 return relationshipType;
             } else {
@@ -678,8 +718,29 @@ public class RelationshipServiceImpl implements RelationshipService {
 
     @Override
     public void delete(Context context, Relationship relationship) throws SQLException, AuthorizeException {
+        if (relationship.getRelationshipType() == null) {
+            // Type-less (authority-backed) relationship: there is no type to drive copy-to-item behaviour.
+            deleteTypeLessRelationship(context, relationship);
+            return;
+        }
         delete(context, relationship, relationship.getRelationshipType().isCopyToLeft(),
                relationship.getRelationshipType().isCopyToRight());
+    }
+
+    /**
+     * Delete a type-less (authority-backed) relationship. This skips all type-driven logic
+     * (copy-to-item virtual metadata, place shifting, cardinality checks), because a type-less row
+     * has no {@link RelationshipType} to dereference. It simply removes the row after a write check.
+     *
+     * @param context      The relevant DSpace context
+     * @param relationship The type-less relationship to delete
+     * @throws SQLException       If something goes wrong
+     * @throws AuthorizeException If the user is not authorized to write to either item
+     */
+    private void deleteTypeLessRelationship(Context context, Relationship relationship)
+        throws SQLException, AuthorizeException {
+        assertWriteOnEitherItem(context, relationship.getLeftItem(), relationship.getRightItem());
+        relationshipDAO.delete(context, relationship);
     }
 
     @Override
@@ -706,6 +767,12 @@ public class RelationshipServiceImpl implements RelationshipService {
                                                       "relationship_id=" + relationship.getID() + "&" +
                                                           "copyMetadataValuesToLeftItem=" + copyToLeftItem + "&" +
                                                           "copyMetadataValuesToRightItem=" + copyToRightItem));
+        if (relationship.getRelationshipType() == null) {
+            // Type-less (authority-backed) relationship: no type to drive copy-to-item / place logic.
+            // This is hit e.g. during full-item delete via ItemServiceImpl.rawDelete.
+            deleteTypeLessRelationship(context, relationship);
+            return;
+        }
         if (copyToItemPermissionCheck(context, relationship, copyToLeftItem, copyToRightItem)) {
             // To delete a relationship, a user must have WRITE permissions on one of the related Items
             deleteRelationshipAndCopyToItem(context, relationship, copyToLeftItem, copyToRightItem);

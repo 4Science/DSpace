@@ -271,5 +271,16 @@ public interface ItemDAO extends DSpaceObjectLegacySupportDAO<Item> {
      */
     Iterator<Item> findByIds(Context context, List<UUID> ids) throws SQLException;
 
+    /**
+     * Check whether an item with the given UUID exists, without loading the
+     * item entity. This is a scalar, index-only lookup on the item's unique
+     * UUID key, so it avoids the cost and side effects of hydrating an Item.
+     *
+     * @param context context
+     * @param uuid    the UUID of the item to look for
+     * @return true if a matching item row exists, false otherwise
+     * @throws SQLException if database error
+     */
+    boolean existsById(Context context, UUID uuid) throws SQLException;
 
 }

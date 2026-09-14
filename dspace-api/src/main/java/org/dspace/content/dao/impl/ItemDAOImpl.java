@@ -516,6 +516,17 @@ public class ItemDAOImpl extends AbstractHibernateDSODAO<Item> implements ItemDA
     }
 
     @Override
+    public boolean existsById(Context context, UUID uuid) throws SQLException {
+        if (uuid == null) {
+            return false;
+        }
+        Query query = createQuery(context, "SELECT count(i.id) FROM Item i WHERE i.id = :id");
+        query.setParameter("id", uuid);
+        query.setHint("org.hibernate.cacheable", Boolean.TRUE);
+        return count(query) > 0;
+    }
+
+    @Override
     public int countItems(Context context, boolean includeArchived, boolean includeWithdrawn,
                           boolean discoverable) throws SQLException {
         Query query = createQuery(context,

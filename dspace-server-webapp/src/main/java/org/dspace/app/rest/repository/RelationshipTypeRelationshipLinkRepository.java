@@ -45,9 +45,11 @@ public class RelationshipTypeRelationshipLinkRepository extends AbstractDSpaceRe
             if (relationship == null) {
                 throw new ResourceNotFoundException("No such relationship: " + relationshipId);
             }
-            int total = relationshipService.countByRelationshipType(context, relationship.getRelationshipType());
-            Pageable pageable = utils.getPageable(optionalPageable);
             RelationshipType relationshipType = relationship.getRelationshipType();
+            if (relationshipType == null) {
+                throw new ResourceNotFoundException(
+                    "No relationship type for relationship: " + relationshipId);
+            }
             return converter.toRest(relationshipType, projection);
         } catch (SQLException e) {
             throw new RuntimeException(e);

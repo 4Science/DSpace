@@ -7,10 +7,12 @@
  */
 package org.dspace.content.authority.service;
 
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Set;
 
 import org.dspace.app.util.SubmissionConfigReaderException;
+import org.dspace.authorize.AuthorizeException;
 import org.dspace.content.Collection;
 import org.dspace.content.Item;
 import org.dspace.content.MetadataValue;
@@ -19,6 +21,7 @@ import org.dspace.content.authority.ChoiceAuthority;
 import org.dspace.content.authority.Choices;
 import org.dspace.content.authority.DSpaceControlledVocabularyIndex;
 import org.dspace.core.Constants;
+import org.dspace.core.Context;
 
 /**
  * Broker for ChoiceAuthority plugins, and for other information configured
@@ -314,11 +317,19 @@ public interface ChoiceAuthorityService {
 
     /**
      * Links metadata to an Item by setting the authority key to the Item's UUID
-     * and the confidence to CF_ACCEPTED.
+     * and the confidence to CF_ACCEPTED. When the metadata value belongs to an
+     * Item, the authority-backed relationship row is reconciled as well, so that
+     * this is the single funnel for the system (reference) and user paths.
+     * @param context The DSpace context.
      * @param metadataValue The metadata to link.
      * @param item The target authority Item.
+     * @return {@code true} if the authority-backed relationship row was created or
+     *         changed, {@code false} if nothing changed (or the owner is not an Item)
+     * @throws SQLException if database error
+     * @throws AuthorizeException if the user is not allowed to write the relationship item
      */
-    void setReferenceWithAuthority(MetadataValue metadataValue, Item item);
+    boolean setReferenceWithAuthority(Context context, MetadataValue metadataValue, Item item)
+        throws SQLException, AuthorizeException;
 
     public DSpaceControlledVocabularyIndex getVocabularyIndex(String nameVocab);
 

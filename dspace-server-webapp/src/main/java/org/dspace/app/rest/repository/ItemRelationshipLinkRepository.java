@@ -8,8 +8,10 @@
 package org.dspace.app.rest.repository;
 
 import java.sql.SQLException;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import jakarta.annotation.Nullable;
 import jakarta.servlet.http.HttpServletRequest;
@@ -52,11 +54,19 @@ public class ItemRelationshipLinkRepository extends AbstractDSpaceRestRepository
             if (item == null) {
                 throw new ResourceNotFoundException("No such item: " + itemId);
             }
-            int total = relationshipService.countByItem(context, item, true, true);
             Pageable pageable = utils.getPageable(optionalPageable);
-            List<Relationship> relationships = relationshipService.findByItem(context, item,
-                    pageable.getPageSize(), Math.toIntExact(pageable.getOffset()), true, true);
-            return converter.toRestPage(relationships, pageable, total, projection);
+            // Type-less (authority-backed) relationships are the storage form of their metadata value.
+            // They have no RelationshipType, so they are not exposed as user-facing relationships.
+            List<Relationship> relationships = relationshipService
+                .findByItem(context, item, -1, -1, true, true).stream()
+                .filter(relationship -> relationship.getRelationshipType() != null)
+                .collect(Collectors.toList());
+            int total = relationships.size();
+            int fromIndex = Math.toIntExact(pageable.getOffset());
+            int toIndex = Math.min(fromIndex + pageable.getPageSize(), total);
+            List<Relationship> page = fromIndex >= total
+                ? Collections.emptyList() : relationships.subList(fromIndex, toIndex);
+            return converter.toRestPage(page, pageable, total, projection);
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }

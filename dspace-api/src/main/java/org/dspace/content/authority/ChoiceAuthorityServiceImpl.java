@@ -9,6 +9,7 @@ package org.dspace.content.authority;
 
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -30,12 +31,16 @@ import org.dspace.app.util.DCInputsReader;
 import org.dspace.app.util.DCInputsReaderException;
 import org.dspace.app.util.SubmissionConfig;
 import org.dspace.app.util.SubmissionConfigReaderException;
+import org.dspace.authorize.AuthorizeException;
 import org.dspace.content.Collection;
+import org.dspace.content.DSpaceObject;
 import org.dspace.content.Item;
 import org.dspace.content.MetadataValue;
+import org.dspace.content.authority.service.AuthorityBackedRelationshipService;
 import org.dspace.content.authority.service.ChoiceAuthorityService;
 import org.dspace.content.service.ItemService;
 import org.dspace.core.Constants;
+import org.dspace.core.Context;
 import org.dspace.core.Utils;
 import org.dspace.core.service.PluginService;
 import org.dspace.discovery.configuration.DiscoveryConfigurationService;
@@ -114,6 +119,8 @@ public final class ChoiceAuthorityServiceImpl implements ChoiceAuthorityService 
     protected AuthorityServiceUtils authorityServiceUtils;
     @Autowired(required = true)
     protected ItemService itemService;
+    @Autowired(required = true)
+    protected AuthorityBackedRelationshipService authorityBackedRelationshipService;
     @Autowired
     private DiscoveryConfigurationService searchConfigurationService;
 
@@ -741,7 +748,8 @@ public final class ChoiceAuthorityServiceImpl implements ChoiceAuthorityService 
      *
      */
     @Override
-    public void setReferenceWithAuthority(MetadataValue metadataValue, Item item) {
+    public boolean setReferenceWithAuthority(Context context, MetadataValue metadataValue, Item item)
+        throws SQLException, AuthorizeException {
 
         metadataValue.setAuthority(item.getID().toString());
         metadataValue.setConfidence(Choices.CF_ACCEPTED);
@@ -751,6 +759,14 @@ public final class ChoiceAuthorityServiceImpl implements ChoiceAuthorityService 
         if (isNotBlank(relatedItemTitle) && isValueOverwritingEnabledOnReferenceResolution()) {
             metadataValue.setValue(relatedItemTitle);
         }
+
+        DSpaceObject owner = metadataValue.getDSpaceObject();
+        if (owner instanceof Item) {
+            return authorityBackedRelationshipService
+                .markRelationshipForResolvedAuthority(context, (Item) owner, metadataValue, item);
+        }
+
+        return false;
 
     }
 
