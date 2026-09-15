@@ -19,13 +19,13 @@ import java.util.Objects;
 import java.util.Optional;
 import javax.xml.transform.Result;
 import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.sax.SAXResult;
 import javax.xml.transform.stream.StreamSource;
 
 import org.apache.fop.apps.FOUserAgent;
 import org.apache.fop.apps.Fop;
 import org.apache.fop.apps.FopFactory;
+import org.dspace.app.util.XMLUtils;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.content.DSpaceObject;
 import org.dspace.content.Item;
@@ -128,7 +128,7 @@ public class DocumentCrosswalk implements ItemExportCrosswalk {
     }
 
     private Transformer setupXSLTransformerFactory() throws Exception {
-        Transformer transformer = TransformerFactory.newInstance().newTransformer(getTemplateFile());
+        Transformer transformer = XMLUtils.getTransformerFactory().newTransformer(getTemplateFile());
         transformer.setParameter("imageDir", getImageDir());
         transformer.setParameter("dspaceDir", getDSpaceDir());
         transformer.setParameter("currentDate", getCurrentDate());

@@ -20,10 +20,10 @@ import java.util.Map;
 import java.util.Optional;
 import javax.xml.XMLConstants;
 import javax.xml.validation.Schema;
-import javax.xml.validation.SchemaFactory;
 import javax.xml.validation.Validator;
 
 import org.apache.commons.lang3.StringUtils;
+import org.dspace.app.util.XMLUtils;
 import org.dspace.harvest.model.OAIHarvesterValidationResult;
 import org.dspace.harvest.service.OAIHarvesterValidator;
 import org.dspace.services.ConfigurationService;
@@ -85,7 +85,7 @@ public class OAIHarvesterValidatorImpl implements OAIHarvesterValidator {
     private Schema getSchema(String xsdPath) throws SAXException {
         Schema schema = SCHEMA_CACHE.get(xsdPath);
         if (schema == null) {
-            SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
+            SchemaFactory factory = XMLUtils.getSchemaFactory(XMLConstants.W3C_XML_SCHEMA_NS_URI);
             schema = factory.newSchema(new File(xsdPath));
             SCHEMA_CACHE.put(xsdPath, schema);
         }
