@@ -553,6 +553,13 @@
             <groupId>org.apache.jena</groupId>
             <artifactId>apache-jena-libs</artifactId>
             <type>pom</type>
+            <exclusions>
+                <!-- Use version provided by Postgres or Solr -->
+                <exclusion>
+                    <groupId>org.checkerframework</groupId>
+                    <artifactId>checker-qual</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>commons-cli</groupId>
@@ -791,7 +798,7 @@
         <dependency>
             <groupId>dnsjava</groupId>
             <artifactId>dnsjava</artifactId>
-            <version>3.6.4</version>
+            <version>3.6.5</version>
         </dependency>
 
         <dependency>
@@ -834,16 +841,6 @@
             <groupId>org.flywaydb</groupId>
             <artifactId>flyway-database-postgresql</artifactId>
             <version>${flyway.version}</version>
-        </dependency>
-
-        <!-- FindBugs -->
-        <dependency>
-            <groupId>com.google.code.findbugs</groupId>
-            <artifactId>jsr305</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.google.code.findbugs</groupId>
-            <artifactId>annotations</artifactId>
         </dependency>
 
         <dependency>
@@ -889,6 +886,14 @@
               <exclusion>
                 <groupId>software.amazon.awssdk</groupId>
                 <artifactId>apache-client</artifactId>
+              </exclusion>
+              <!-- Exclude apache5-client (Apache HttpClient 5): added transitively by the AWS SDK
+                   from v2.46.x onward. DSpace uses the CRT based client (S3AsyncClient.crtBuilder()),
+                   so this client is unused, and it drags in conflicting httpcore5 versions that break
+                   dependency convergence. See https://github.com/DSpace/DSpace/issues/12690 -->
+              <exclusion>
+                <groupId>software.amazon.awssdk</groupId>
+                <artifactId>apache5-client</artifactId>
               </exclusion>
             </exclusions>
         </dependency>
@@ -976,7 +981,7 @@
         <dependency>
             <groupId>org.xmlunit</groupId>
             <artifactId>xmlunit-core</artifactId>
-            <version>2.11.0</version>
+            <version>2.13.0</version>
             <scope>test</scope>
         </dependency>
 
@@ -1109,30 +1114,6 @@
                 </exclusion>
             </exclusions>
         </dependency>
-
-        <dependency>
-            <groupId>com.adobe.testing</groupId>
-            <artifactId>s3mock-testcontainers</artifactId>
-            <version>4.12.4</version>
-            <scope>test</scope>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.testcontainers</groupId>
-                    <artifactId>testcontainers</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <!-- Override version of testcontainers that is used by s3mock-testcontainers dependency above.
-             TODO: This works around a bug with testcontainers 2.0.2. It may be possible to remove this testcontainers
-             dependency (and the exclusion above) after the next upgrade of s3mock-testcontainers. -->
-        <dependency>
-            <groupId>org.testcontainers</groupId>
-            <artifactId>testcontainers</artifactId>
-            <version>2.0.5</version>
-            <scope>test</scope>
-        </dependency>
-
-
 
         <dependency>
             <groupId>com.squareup.okhttp3</groupId>

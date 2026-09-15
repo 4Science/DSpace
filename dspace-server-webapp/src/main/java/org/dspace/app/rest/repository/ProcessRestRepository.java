@@ -163,13 +163,13 @@ public class ProcessRestRepository extends DSpaceRestRepository<ProcessRest, Int
     }
 
     @Override
-    @PreAuthorize("hasPermission(#id, 'PROCESS', 'DELETE')")
-    protected void delete(Context context, Integer id)
+    @PreAuthorize("hasPermission(#processId, 'PROCESS', 'DELETE')")
+    protected void delete(Context context, Integer processId)
         throws AuthorizeException, RepositoryMethodNotImplementedException {
         try {
-            processService.delete(context, processService.find(context, id));
+            processService.delete(context, processService.find(context, processId));
         } catch (SQLException | IOException e) {
-            log.error("Something went wrong trying to find Process with id: " + id, e);
+            log.error("Something went wrong trying to find Process with id: " + processId, e);
             throw new RuntimeException(e.getMessage(), e);
         }
     }

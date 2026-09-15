@@ -9,7 +9,6 @@ package org.dspace.layout.dao;
 
 import java.sql.SQLException;
 import java.util.List;
-import javax.annotation.Nullable;
 
 import org.dspace.core.Context;
 import org.dspace.core.GenericDAO;
@@ -36,7 +35,7 @@ public interface CrisLayoutMetadataGroupDAO extends GenericDAO<CrisMetadataGroup
      * @throws SQLException An exception that provides information on a database errors.
      */
     public List<CrisMetadataGroup> findByFieldId(Context context, Integer fieldId,
-                                                 @Nullable Integer limit, @Nullable Integer offset) throws SQLException;
+                                                 Integer limit, Integer offset) throws SQLException;
     /**
      * Returns the total number of nested  fields that are available for specific field
      * @param context The relevant DSpace Context
