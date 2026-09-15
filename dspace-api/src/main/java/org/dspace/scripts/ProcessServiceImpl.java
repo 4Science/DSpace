@@ -403,10 +403,16 @@ public class ProcessServiceImpl implements ProcessService {
             if (process == null) {
                 return false;
             }
-            // Only the process owner or an administrator may perform any action
             EPerson currentUser = context.getCurrentUser();
             EPerson processOwner = process.getEPerson();
-            boolean isOwner = currentUser != null && processOwner != null
+            // DSC-332: a process with no owner is the anonymous export flow (e.g. item-export /
+            // bulk-item-export started by a not-logged-in user). Its own handler must be able to
+            // update/append to it, so such a process stays actionable by everyone.
+            if (processOwner == null) {
+                return true;
+            }
+            // Otherwise only the process owner or an administrator may perform any action
+            boolean isOwner = currentUser != null
                 && currentUser.getID().equals(processOwner.getID());
             if (isOwner || authorizeService.isAdmin(context)) {
                 return true;

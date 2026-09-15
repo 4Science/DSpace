@@ -1124,18 +1124,20 @@ public class ProcessRestRepositoryIT extends AbstractControllerIntegrationTest {
                                          .withEmail("test1@email.com")
                                          .withPassword("qwerty01")
                                          .build();
-        context.restoreAuthSystemState();
-
         Process process = ProcessBuilder.createProcess(context, ePerson1, "mock-script", parameters).build();
         try (InputStream is = IOUtils.toInputStream("Test File For Process", CharEncoding.UTF_8)) {
             processService.appendLog(process.getID(), process.getName(), "testlog", ProcessLogLevel.INFO);
         }
+        context.restoreAuthSystemState();
 
         String token = getAuthToken(eperson.getEmail(), password);
 
         getClient(token).perform(get("/api/system/processes/" + process.getID() + "/output"))
                         .andExpect(status().isForbidden());
+
+        context.turnOffAuthorisationSystem();
         processService.delete(context, process);
+        context.restoreAuthSystemState();
     }
 
     @Test
@@ -1217,6 +1219,7 @@ public class ProcessRestRepositoryIT extends AbstractControllerIntegrationTest {
 
     @Test
     public void searchByOwnerWithStatusTest() throws Exception {
+        context.turnOffAuthorisationSystem();
         Process processScheduled = ProcessBuilder.createProcess(context, eperson, "mock-script-A", parameters)
                                                  .withProcessStatus(SCHEDULED)
                                                  .build();
@@ -1232,6 +1235,7 @@ public class ProcessRestRepositoryIT extends AbstractControllerIntegrationTest {
         Process processRunning = ProcessBuilder.createProcess(context, eperson, "mock-script-C", parameters)
                                                .withProcessStatus(RUNNING)
                                                .build();
+        context.restoreAuthSystemState();
 
         // search process launched by eperson
         String token = getAuthToken(eperson.getEmail(), password);

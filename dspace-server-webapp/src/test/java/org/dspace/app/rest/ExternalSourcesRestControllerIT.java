@@ -63,7 +63,7 @@ public class ExternalSourcesRestControllerIT extends AbstractControllerIntegrati
 
     @Test
     public void findAllExternalSources() throws Exception {
-        getClient().perform(get("/api/integration/externalsources").param("size", "25"))
+        getClient(token).perform(get("/api/integration/externalsources").param("size", "25"))
                    .andExpect(status().isOk())
                    .andExpect(jsonPath("$._embedded.externalsources", Matchers.hasItems(
                         ExternalSourceMatcher.matchExternalSource("openaireFunding", "openaireFunding", false),
@@ -94,25 +94,6 @@ public class ExternalSourcesRestControllerIT extends AbstractControllerIntegrati
                         ExternalSourceMatcher.matchExternalSource("openalexFunder", "openalexFunder", false)
                    )))
                    .andExpect(jsonPath("$.page.totalElements", Matchers.is(24)));
-        getClient(token).perform(get("/api/integration/externalsources"))
-                            .andExpect(status().isOk())
-                            .andExpect(jsonPath("$._embedded.externalsources", Matchers.hasItems(
-                                ExternalSourceMatcher.matchExternalSource("mock", "mock", false),
-                                ExternalSourceMatcher.matchExternalSource("orcid", "orcid", false),
-                                ExternalSourceMatcher.matchExternalSource("suggestion", "suggestion", false),
-                                ExternalSourceMatcher.matchExternalSource("scopus", "scopus", false),
-                                ExternalSourceMatcher.matchExternalSource(
-                                    "opfJournalIssn", "opfJournalIssn", false),
-                                ExternalSourceMatcher.matchExternalSource(
-                                    "opfJournal", "opfJournal", false),
-                                ExternalSourceMatcher.matchExternalSource(
-                                    "opfPublisher", "opfPublisher", false),
-                                ExternalSourceMatcher.matchExternalSource(
-                                        "pubmed", "pubmed", false),
-                                ExternalSourceMatcher.matchExternalSource(
-                                        "openaireFunding", "openaireFunding", false)
-                            )))
-                            .andExpect(jsonPath("$.page.totalElements", Matchers.is(11)));
     }
 
     @Test
@@ -138,7 +119,7 @@ public class ExternalSourcesRestControllerIT extends AbstractControllerIntegrati
 
     @Test
     public void findOneExternalSourcesNotExistingSources() throws Exception {
-        getClient(token).perform(get("/api/integration/externalsources/mock2"))
+        getClient(token).perform(get("/api/integration/externalsources/mock5"))
                    .andExpect(status().isNotFound());
     }
 
@@ -255,7 +236,8 @@ public class ExternalSourcesRestControllerIT extends AbstractControllerIntegrati
         context.restoreAuthSystemState();
 
         String exteranlSourceId = UUIDUtils.toString(itemUUID) + ":0";
-        getClient().perform(get("/api/integration/externalsources/authorAuthority/entryValues/" + exteranlSourceId))
+        getClient(token)
+            .perform(get("/api/integration/externalsources/authorAuthority/entryValues/" + exteranlSourceId))
                    .andExpect(status().isOk())
                    .andExpect(jsonPath("$", Matchers.is(
                            ExternalSourceEntryMatcher.matchItemWithGivenMetadata("dc.title",
@@ -265,7 +247,8 @@ public class ExternalSourcesRestControllerIT extends AbstractControllerIntegrati
                                    "Affiliation one", "0"))));
 
         exteranlSourceId = UUIDUtils.toString(itemUUID) + ":1";
-        getClient().perform(get("/api/integration/externalsources/authorAuthority/entryValues/" + exteranlSourceId))
+        getClient(token)
+            .perform(get("/api/integration/externalsources/authorAuthority/entryValues/" + exteranlSourceId))
                    .andExpect(status().isOk())
                    .andExpect(jsonPath("$", Matchers.is(
                            ExternalSourceEntryMatcher.matchItemWithGivenMetadata("dc.title",
@@ -275,7 +258,8 @@ public class ExternalSourcesRestControllerIT extends AbstractControllerIntegrati
                                    "Affiliation two", "0"))));
 
         exteranlSourceId = UUIDUtils.toString(itemUUID) + ":2";
-        getClient().perform(get("/api/integration/externalsources/authorAuthority/entryValues/" + exteranlSourceId))
+        getClient(token)
+            .perform(get("/api/integration/externalsources/authorAuthority/entryValues/" + exteranlSourceId))
                    .andExpect(status().isBadRequest());
     }
 
@@ -307,7 +291,8 @@ public class ExternalSourcesRestControllerIT extends AbstractControllerIntegrati
         context.restoreAuthSystemState();
 
         String exteranlSourceId = UUIDUtils.toString(itemUUID) + ":0";
-        getClient().perform(get("/api/integration/externalsources/authorAuthority/entryValues/" + exteranlSourceId))
+        getClient(token)
+            .perform(get("/api/integration/externalsources/authorAuthority/entryValues/" + exteranlSourceId))
                    .andExpect(status().isOk())
                    .andExpect(jsonPath("$", Matchers.is(
                            ExternalSourceEntryMatcher.matchItemWithGivenMetadata("dc.title",
@@ -317,7 +302,8 @@ public class ExternalSourcesRestControllerIT extends AbstractControllerIntegrati
                                    "Affiliation one", "0"))));
 
         exteranlSourceId = UUIDUtils.toString(itemUUID) + ":1";
-        getClient().perform(get("/api/integration/externalsources/authorAuthority/entryValues/" + exteranlSourceId))
+        getClient(token)
+            .perform(get("/api/integration/externalsources/authorAuthority/entryValues/" + exteranlSourceId))
                    .andExpect(status().isOk())
                    .andExpect(jsonPath("$", Matchers.is(
                            ExternalSourceEntryMatcher.matchItemWithGivenMetadata("dc.title",
@@ -326,7 +312,8 @@ public class ExternalSourcesRestControllerIT extends AbstractControllerIntegrati
                            ExternalSourceEntryMatcher.matchMetadataDoesNotExist("person.affiliation.name"))));
 
         exteranlSourceId = UUIDUtils.toString(itemUUID) + ":2";
-        getClient().perform(get("/api/integration/externalsources/authorAuthority/entryValues/" + exteranlSourceId))
+        getClient(token)
+            .perform(get("/api/integration/externalsources/authorAuthority/entryValues/" + exteranlSourceId))
                    .andExpect(status().isBadRequest());
     }
 
@@ -357,7 +344,8 @@ public class ExternalSourcesRestControllerIT extends AbstractControllerIntegrati
         context.restoreAuthSystemState();
 
         String exteranlSourceId = UUIDUtils.toString(itemUUID) + ":0";
-        getClient().perform(get("/api/integration/externalsources/authorAuthority/entryValues/" + exteranlSourceId))
+        getClient(token)
+            .perform(get("/api/integration/externalsources/authorAuthority/entryValues/" + exteranlSourceId))
                    .andExpect(status().isOk())
                    .andExpect(jsonPath("$", Matchers.is(
                            ExternalSourceEntryMatcher.matchItemWithGivenMetadata("dc.title",
@@ -367,7 +355,8 @@ public class ExternalSourcesRestControllerIT extends AbstractControllerIntegrati
                                    "Affiliation one", "0"))));
 
         exteranlSourceId = UUIDUtils.toString(itemUUID) + ":1";
-        getClient().perform(get("/api/integration/externalsources/authorAuthority/entryValues/" + exteranlSourceId))
+        getClient(token)
+            .perform(get("/api/integration/externalsources/authorAuthority/entryValues/" + exteranlSourceId))
                    .andExpect(status().isOk())
                    .andExpect(jsonPath("$", Matchers.is(
                            ExternalSourceEntryMatcher.matchItemWithGivenMetadata("dc.title",
@@ -376,7 +365,8 @@ public class ExternalSourcesRestControllerIT extends AbstractControllerIntegrati
                            ExternalSourceEntryMatcher.matchMetadataDoesNotExist("person.affiliation.name"))));
 
         exteranlSourceId = UUIDUtils.toString(itemUUID) + ":2";
-        getClient().perform(get("/api/integration/externalsources/authorAuthority/entryValues/" + exteranlSourceId))
+        getClient(token)
+            .perform(get("/api/integration/externalsources/authorAuthority/entryValues/" + exteranlSourceId))
                    .andExpect(status().isBadRequest());
     }
 
@@ -604,7 +594,7 @@ public class ExternalSourcesRestControllerIT extends AbstractControllerIntegrati
 
         context.restoreAuthSystemState();
 
-        getClient().perform(get("/api/integration/externalsources/mock/entries")
+        getClient(token).perform(get("/api/integration/externalsources/mock/entries")
                        .param("query", "one").param("size", "1"))
                    .andExpect(status().isOk())
                    .andExpect(jsonPath("$._embedded.externalSourceEntries", Matchers.hasItem(
@@ -616,7 +606,7 @@ public class ExternalSourcesRestControllerIT extends AbstractControllerIntegrati
                    )))
                    .andExpect(jsonPath("$.page", PageMatcher.pageEntryWithTotalPagesAndElements(0, 1, 2, 2)));
 
-        getClient().perform(get("/api/integration/externalsources/mock/entries")
+        getClient(token).perform(get("/api/integration/externalsources/mock/entries")
                        .param("query", "one").param("size", "1").param("page", "1"))
                    .andExpect(status().isOk())
                    .andExpect(jsonPath("$._embedded.externalSourceEntries", Matchers.hasItem(

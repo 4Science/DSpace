@@ -62,6 +62,12 @@ public class ProcessRestPermissionEvaluatorPlugin extends RestObjectPermissionEv
             if (process == null) {
                 return false;
             }
+            // DSC-332: a process created by an anonymous user (no associated eperson) is the anonymous
+            // export flow. It must stay accessible to everyone so the produced file/output can be
+            // downloaded without authentication.
+            if (process.getEPerson() == null) {
+                return true;
+            }
             // Only the process owner or an administrator may perform any action
             return processService.authorizeActionBoolean(context, process);
         } catch (SQLException e) {

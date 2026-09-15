@@ -39,7 +39,7 @@ public class OpenPolicyFinderDataProviderTest extends AbstractDSpaceTest {
     ExternalDataProvider opfJournalIssnProvider;
 
     private static final MetadataFieldRef TITLE_FIELD = new MetadataFieldRef("dc", "title", null);
-    private static final MetadataFieldRef ISSN_FIELD = new MetadataFieldRef("creativeworkseries", "issn", null);
+    private static final MetadataFieldRef ISSN_FIELD = new MetadataFieldRef("dc", "identifier", "issn");
     private static final MetadataFieldRef OPF_PUBLISHER_FIELD =
         new MetadataFieldRef("dc", "identifier", "opfPublisher");
     private static final MetadataFieldRef OTHER_FIELD = new MetadataFieldRef("dc", "identifier", "other");

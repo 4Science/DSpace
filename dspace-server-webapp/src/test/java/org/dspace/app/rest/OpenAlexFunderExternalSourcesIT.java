@@ -67,7 +67,8 @@ public class OpenAlexFunderExternalSourcesIT extends AbstractControllerIntegrati
 
     @Test
     public void findOneOpenalexImportFunderExternalExternalSourceTest() throws Exception {
-        getClient().perform(get("/api/integration/externalsources?size=25")).andExpect(status().isOk())
+        getClient(getAuthToken(eperson.getEmail(), password))
+            .perform(get("/api/integration/externalsources?size=25")).andExpect(status().isOk())
                    .andExpect(jsonPath("$._embedded.externalsources", Matchers.hasItem(
                        ExternalSourceMatcher.matchExternalSource("openalexFunder",
                                                                  "openalexFunder", false))));
@@ -81,7 +82,9 @@ public class OpenAlexFunderExternalSourcesIT extends AbstractControllerIntegrati
             when(liveImportClient.executeHttpGetRequest(anyInt(), anyString(), anyMap()))
                 .thenReturn(jsonResponse);
 
-            getClient().perform(get("/api/integration/externalsources/openalexFunder/entries")
+            getClient(getAuthToken(eperson.getEmail(), password))
+
+                .perform(get("/api/integration/externalsources/openalexFunder/entries")
                                     .param("query", "empty"))
                        .andExpect(status().isOk()).andExpect(jsonPath("$.page.number", is(0)));
             verify(liveImportClient, times(2)).executeHttpGetRequest(anyInt(), anyString(), anyMap());
@@ -96,7 +99,9 @@ public class OpenAlexFunderExternalSourcesIT extends AbstractControllerIntegrati
             when(liveImportClient.executeHttpGetRequest(anyInt(), anyString(), anyMap()))
                 .thenReturn(jsonResponse);
 
-            getClient().perform(get("/api/integration/externalsources/openalexFunder/entries")
+            getClient(getAuthToken(eperson.getEmail(), password))
+
+                .perform(get("/api/integration/externalsources/openalexFunder/entries")
                                     .param("query", "National"))
                        .andExpect(status().isOk())
                        .andExpect(jsonPath("$._embedded.externalSourceEntries[0].id").value("F4320321001"))
@@ -178,7 +183,9 @@ public class OpenAlexFunderExternalSourcesIT extends AbstractControllerIntegrati
             when(liveImportClient.executeHttpGetRequest(anyInt(), anyString(), anyMap()))
                 .thenReturn(jsonResponse);
 
-            getClient().perform(get("/api/integration/externalsources/openalexFunder/entries")
+            getClient(getAuthToken(eperson.getEmail(), password))
+
+                .perform(get("/api/integration/externalsources/openalexFunder/entries")
                                     .param("query", "National"))
                        .andExpect(status().isOk())
                        .andExpect(jsonPath("$._embedded.externalSourceEntries", hasSize(2)))
