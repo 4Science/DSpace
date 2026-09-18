@@ -6,18 +6,16 @@
  * http://www.dspace.org/license/
  */
 package org.dspace.app.rest.security;
+
 import java.io.Serializable;
 import java.sql.SQLException;
-import java.util.Objects;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.dspace.app.rest.model.ProcessRest;
 import org.dspace.app.rest.utils.ContextUtil;
-import org.dspace.authorize.service.AuthorizeService;
 import org.dspace.core.Context;
-import org.dspace.eperson.EPerson;
 import org.dspace.scripts.Process;
 import org.dspace.scripts.service.ProcessService;
 import org.dspace.services.RequestService;
@@ -42,9 +40,6 @@ public class ProcessRestPermissionEvaluatorPlugin extends RestObjectPermissionEv
     @Autowired
     private ProcessService processService;
 
-    @Autowired
-    private AuthorizeService authorizeService;
-
     @Override
     public boolean hasDSpacePermission(Authentication authentication, Serializable targetId, String targetType,
                                        DSpaceRestPermission restPermission) {
@@ -55,21 +50,30 @@ public class ProcessRestPermissionEvaluatorPlugin extends RestObjectPermissionEv
 
         Request request = requestService.getCurrentRequest();
         Context context = ContextUtil.obtainContext(request.getHttpServletRequest());
+        if (context == null) {
+            return false;
+        }
 
         try {
             int processId = Integer.parseInt(targetId.toString());
             Process process = processService.find(context, processId);
-            EPerson currentUser =  context.getCurrentUser();
-
-            if (Objects.isNull(process) || Objects.isNull(process.getEPerson())) {
+            // This previously returned true, to allow a 404 to be thrown later. However, this assists enumeration
+            // of sequential process IDs. It is better to simply return 'unauthorized' here.
+            if (process == null) {
+                return false;
+            }
+            // DSC-332: a process created by an anonymous user (no associated eperson) is the anonymous
+            // export flow. It must stay accessible to everyone so the produced file/output can be
+            // downloaded without authentication.
+            // This excludes ADMIN and DELETE permissions, as they are not needed by anon export flow
+            if (process.getEPerson() == null
+                    && restPermission != DSpaceRestPermission.ADMIN
+                    && restPermission != DSpaceRestPermission.DELETE) {
                 return true;
             }
-
-            if (!(Objects.isNull(currentUser) || (!context.getCurrentUser().equals(process.getEPerson())
-                    && !authorizeService.isAdmin(context)))) {
-                return true;
-            }
-
+            // Only the process owner or an administrator may perform any action
+            // (regardless of action type)
+            return processService.authorizeActionBoolean(context, process);
         } catch (SQLException e) {
             log.error(e::getMessage, e);
         }

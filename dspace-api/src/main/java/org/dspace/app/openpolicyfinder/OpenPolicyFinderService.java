@@ -31,8 +31,6 @@ import org.dspace.app.openpolicyfinder.v2.OpenPolicyFinderFormat;
 import org.dspace.app.openpolicyfinder.v2.OpenPolicyFinderPublisherResponse;
 import org.dspace.app.openpolicyfinder.v2.OpenPolicyFinderResponse;
 import org.dspace.app.openpolicyfinder.v2.OpenPolicyFinderUtils;
-import org.dspace.external.provider.impl.OpenPolicyFinderJournalDataProvider;
-import org.dspace.external.provider.impl.OpenPolicyFinderPublisherDataProvider;
 import org.dspace.services.ConfigurationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
@@ -43,8 +41,8 @@ import org.springframework.cache.annotation.Cacheable;
  * Note, this service is ported from DSpace 6 for the ability to search policies by ISSN
  * There are also new DataProvider implementations provided for use as 'external sources'
  * of journal and publisher data
- * @see OpenPolicyFinderJournalDataProvider
- * @see OpenPolicyFinderPublisherDataProvider
+ * @see org.dspace.external.provider.impl.OpenPolicyFinderJournalDataProvider
+ * @see org.dspace.external.provider.impl.OpenPolicyFinderPublisherDataProvider
  * @author Kim Shepherd
  */
 public class OpenPolicyFinderService {
@@ -111,7 +109,7 @@ public class OpenPolicyFinderService {
      * Perform an API request to the Open Policy Finder API - this could be a search or a get for any entity type
      * but the return object here must be a OpenPolicyFinderPublisherResponse
      * not the journal-centric OpenPolicyFinderResponse
-     * For more information about the type, field and predicate arguments, see the  API documentation
+     * For more information about the type, field and predicate arguments, see the API documentation
      * @param type          entity type eg "publisher"
      * @param field         field eg "issn" or "title"
      * @param predicate     predicate eg "equals" or "contains-word"
@@ -147,6 +145,7 @@ public class OpenPolicyFinderService {
                 if (numberOfTries > 1) {
                     Thread.sleep(sleepBetweenTimeouts);
                 }
+
                 // Construct a default HTTP method (first result)
                 method = constructHttpGet(type, field, predicate, value, start, limit);
 
@@ -161,6 +160,8 @@ public class OpenPolicyFinderService {
                                                                             + statusCode);
                         String errorBody = IOUtils.toString(response.getEntity().getContent(), StandardCharsets.UTF_8);
                         log.error("Error from Open Policy Finder HTTP request: " + errorBody);
+                        // The error body has consumed the response stream; skip the JSON parsing block
+                        // below (which would otherwise throw "Attempted read from closed stream").
                         continue;
                     }
 
@@ -219,7 +220,7 @@ public class OpenPolicyFinderService {
 
     /**
      * Perform an API request to the Open Policy Finder API - this could be a search or a get for any entity type
-     * For more information about the type, field and predicate arguments, see the  API documentation
+     * For more information about the type, field and predicate arguments, see the API documentation
      * @param type          entity type eg "publication" or "publisher"
      * @param field         field eg "issn" or "title"
      * @param predicate     predicate eg "equals" or "contains-word"
@@ -272,6 +273,8 @@ public class OpenPolicyFinderService {
                                                                    + statusCode);
                         String errorBody = IOUtils.toString(response.getEntity().getContent(), StandardCharsets.UTF_8);
                         log.error("Error from Open Policy Finder HTTP request: " + errorBody);
+                        // The error body has consumed the response stream; skip the JSON parsing block
+                        // below (which would otherwise throw "Attempted read from closed stream").
                         continue;
                     }
 
@@ -452,12 +455,13 @@ public class OpenPolicyFinderService {
             method.addHeader("x-api-key", apiKey);
         }
 
-        // Set connection parameters
+        // Set connection parameters (uses the configured timeout from the openpolicyfinder.timeout property)
         method.setConfig(RequestConfig.custom()
             .setConnectionRequestTimeout(this.timeout)
             .setConnectTimeout(this.timeout)
             .setSocketTimeout(this.timeout)
             .build());
+
         return method;
     }
 

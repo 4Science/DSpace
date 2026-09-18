@@ -65,7 +65,8 @@ public class CrossRefImportMetadataIT extends AbstractControllerIntegrationTest 
             when(liveImportClient.executeHttpGetRequest(anyInt(), anyString(), anyMap()))
                 .thenReturn(jsonResponse);
 
-            getClient().perform(get("/api/integration/externalsources/crossref/entries")
+            String token = getAuthToken(eperson.getEmail(), password);
+            getClient(token).perform(get("/api/integration/externalsources/crossref/entries")
                        .param("query", "10.1111/jfbc.13557"))
                        .andExpect(status().isOk())
                        .andExpect(jsonPath("$._embedded.externalSourceEntries[0].id",
@@ -84,7 +85,8 @@ public class CrossRefImportMetadataIT extends AbstractControllerIntegrationTest 
             when(liveImportClient.executeHttpGetRequest(anyInt(), anyString(), anyMap()))
                 .thenReturn(jsonResponse);
 
-            getClient().perform(get("/api/integration/externalsources/crossref/entries")
+            String token = getAuthToken(eperson.getEmail(), password);
+            getClient(token).perform(get("/api/integration/externalsources/crossref/entries")
                        .param("query", "1.11/jfbc.1"))
                        .andExpect(status().isOk())
                        .andExpect(jsonPath("$.page.totalElements", greaterThan(1)));

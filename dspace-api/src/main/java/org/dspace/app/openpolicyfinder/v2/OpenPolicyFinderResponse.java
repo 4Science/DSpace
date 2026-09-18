@@ -81,7 +81,7 @@ public class OpenPolicyFinderResponse implements Serializable {
     public OpenPolicyFinderResponse() {}
 
     /**
-     * Parse the Open Policy Finder API JSON and construct publisher policy data for display
+     * Parse the Open Policy Finder API JSON and construct Romeo policy data for display
      * This method does not return a value, but rather populates the metadata and journals objects
      * with data parsed from the JSON.
      * @param jsonData - the JSON input stream from the API result response body
@@ -270,8 +270,7 @@ public class OpenPolicyFinderResponse implements Serializable {
                 journal.setTitles(titleList);
                 if (titleList.size() > 0) {
                     // Faking this a bit based on what I'd seen - not in the API v2 data
-                    journal.setPublisherDisplay(publisherName + ": "
-                        + titleList.get(0));
+                    journal.setPublisherDisplay(publisherName + ": " + titleList.get(0));
                     journal.setZetoPub(publisherName + ": "
                         + titleList.get(0));
                     log.debug("Found journal title: " + titleList.get(0));
