@@ -47,7 +47,7 @@ public class SubmissionDefinitionsControllerIT extends AbstractControllerIntegra
     // The total number of expected submission definitions is referred to in multiple tests and assertions as
     // is the last page (totalDefinitions - 1)
     // This integer should be maintained along with any changes to item-submissions.xml
-    private static final int totalDefinitions = 28;
+    private static final int totalDefinitions = 29;
 
     @Test
     public void findAll() throws Exception {
@@ -61,10 +61,10 @@ public class SubmissionDefinitionsControllerIT extends AbstractControllerIntegra
 
 
         getClient(token).perform(get("/api/config/submissiondefinitions"))
-                   //The status has to be 200 OK
-                   .andExpect(status().isOk())
-                   //We expect the content type to be "application/hal+json;charset=UTF-8"
-                   .andExpect(content().contentType(contentType))
+                        //The status has to be 200 OK
+                        .andExpect(status().isOk())
+                        //We expect the content type to be "application/hal+json;charset=UTF-8"
+                        .andExpect(content().contentType(contentType))
 
                    //By default we expect at least 1 submission definition so this to be reflected in the page object
                    .andExpect(jsonPath("$.page.size", is(20)))
@@ -245,7 +245,7 @@ public class SubmissionDefinitionsControllerIT extends AbstractControllerIntegra
                 // We expect the content type to be "application/hal+json;charset=UTF-8"
                 .andExpect(content().contentType(contentType))
                 // Match only that a section exists with a submission configuration behind
-                .andExpect(jsonPath("$._embedded.submissionsections", hasSize(6)))
+                .andExpect(jsonPath("$._embedded.submissionsections", hasSize(7)))
                 .andExpect(jsonPath("$._embedded.submissionsections",
                         Matchers.not(Matchers.hasItem(
                                             hasJsonPath("$.id", is("extractionstep"))

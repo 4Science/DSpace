@@ -23,6 +23,7 @@
         <name-map collection-handle="123456789/patent-test" submission-name="patent"/>
         <name-map collection-handle="123456789/traditional-cris" submission-name="traditional-cris"/>
         <name-map collection-handle="123456789/extraction-test" submission-name="extractiontestprocess"/>
+        <name-map collection-handle="123456789/grobid-extraction" submission-name="grobidextractiontestprocess"/>
         <name-map collection-handle="123456789/qualdrop-test" submission-name="qualdroptest"/>
         <name-map collection-handle="123456789/typebind-test" submission-name="typebindtest"/>
         <name-map collection-handle="123456789/accessCondition-not-discoverable" submission-name="accessConditionNotDiscoverable"/>
