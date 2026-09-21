@@ -23,11 +23,8 @@ import org.apache.commons.cli.ParseException;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.dspace.content.factory.ContentServiceFactory;
-import org.dspace.content.service.CollectionService;
-import org.dspace.content.service.CommunityService;
-import org.dspace.content.service.ItemService;
 import org.dspace.core.Context;
 import org.dspace.core.LogHelper;
 import org.dspace.discovery.DiscoverQuery;
@@ -46,17 +43,11 @@ import org.dspace.services.factory.DSpaceServicesFactory;
  * @author Stuart Lewis
  */
 public class GenerateSitemaps {
-    /**
-     * Logger
-     */
-    private static final Logger log = org.apache.logging.log4j.LogManager.getLogger(GenerateSitemaps.class);
 
-    private static final CommunityService communityService = ContentServiceFactory.getInstance().getCommunityService();
-    private static final CollectionService collectionService =
-        ContentServiceFactory.getInstance().getCollectionService();
-    private static final ItemService itemService = ContentServiceFactory.getInstance().getItemService();
-    private static final ConfigurationService configurationService =
-        DSpaceServicesFactory.getInstance().getConfigurationService();
+    private static final Logger log = LogManager.getLogger(GenerateSitemaps.class);
+
+    private static final ConfigurationService configurationService = DSpaceServicesFactory.getInstance()
+                                                                                          .getConfigurationService();
     private static final SearchService searchService = SearchUtils.getSearchService();
     private static final int PAGE_SIZE = 100;
 
@@ -66,6 +57,19 @@ public class GenerateSitemaps {
     private GenerateSitemaps() { }
 
     public static void main(String[] args) throws Exception {
+        runGenerateSitemaps(args);
+        // Note: Do NOT call System.exit() on success - let the JVM exit naturally.
+        // This allows launcher.xml scripts to be called via reflection in tests.
+    }
+
+    /**
+     * Run the generate-sitemaps logic.
+     * This method is called by main() for CLI usage and directly by tests.
+     *
+     * @param args the command line arguments
+     * @throws Exception if an error occurs during sitemap generation
+     */
+    public static void runGenerateSitemaps(String[] args) throws Exception {
         final String usage = GenerateSitemaps.class.getCanonicalName();
 
         CommandLineParser parser = new DefaultParser();
@@ -82,23 +86,22 @@ public class GenerateSitemaps {
             .addOption("d", "delete", false,
                 "delete sitemaps dir and its contents");
 
-        CommandLine line = null;
-
+        CommandLine line;
         try {
             line = parser.parse(options, args);
         } catch (ParseException pe) {
             hf.printHelp(usage, options);
-            System.exit(1);
+            return;
         }
 
         if (line.hasOption('h')) {
             hf.printHelp(usage, options);
-            System.exit(0);
+            return;
         }
 
         if (line.getArgs().length != 0) {
             hf.printHelp(usage, options);
-            System.exit(1);
+            return;
         }
 
         /*
@@ -107,10 +110,9 @@ public class GenerateSitemaps {
         if (line.getArgs().length != 0 || line.hasOption('d') || line.hasOption('b')
             && line.hasOption('s') && !line.hasOption('g')
             && !line.hasOption('m') && !line.hasOption('y')) {
-            System.err
-                .println("Nothing to do (no sitemap to generate)");
+            System.err.println("Nothing to do (no sitemap to generate)");
             hf.printHelp(usage, options);
-            System.exit(1);
+            return;
         }
 
         // Note the negation (CLI options indicate NOT to generate a sitemap)
@@ -121,8 +123,6 @@ public class GenerateSitemaps {
         if (line.hasOption('d')) {
             deleteSitemaps();
         }
-
-        System.exit(0);
     }
 
     /**

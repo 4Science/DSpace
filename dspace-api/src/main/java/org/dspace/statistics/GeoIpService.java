@@ -10,7 +10,10 @@ package org.dspace.statistics;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
+import com.maxmind.db.Reader;
 import com.maxmind.geoip2.DatabaseReader;
 import org.apache.commons.lang3.StringUtils;
 import org.dspace.services.ConfigurationService;
@@ -35,14 +38,14 @@ public class GeoIpService {
      * @throws IllegalStateException if the db file is not configured correctly
      */
     public DatabaseReader getDatabaseReader() throws IllegalStateException {
-        String dbPath = configurationService.getProperty("usage-statistics.dbfile");
-        if (StringUtils.isBlank(dbPath)) {
-            throw new IllegalStateException("The required 'dbfile' configuration is missing in usage-statistics.cfg!");
-        }
 
+        checkDatabase();
+
+        String dbPath = getDBPath();
         try {
-            File dbFile = new File(dbPath);
-            return new DatabaseReader.Builder(dbFile).build();
+            return new DatabaseReader.Builder(new File(dbPath))
+                                     .fileMode(Reader.FileMode.MEMORY_MAPPED)
+                                     .build();
         } catch (FileNotFoundException fe) {
             throw new IllegalStateException(
                 "The GeoLite Database file is missing (" + dbPath + ")! Solr Statistics cannot generate location " +
@@ -53,5 +56,20 @@ public class GeoIpService {
                 "Unable to load GeoLite Database file (" + dbPath + ")! You may need to reinstall it. See the " +
                     "DSpace installation instructions for more details.", e);
         }
+    }
+
+    public void checkDatabase() {
+        String dbPath = getDBPath();
+        if (StringUtils.isBlank(dbPath)) {
+            throw new IllegalStateException("The required 'dbfile' configuration is missing in usage-statistics.cfg!");
+        }
+
+        if (!Files.exists(Path.of(dbPath))) {
+            throw new IllegalStateException("The required 'dbfile' doesn't exist!");
+        }
+    }
+
+    private String getDBPath() {
+        return configurationService.getProperty("usage-statistics.dbfile");
     }
 }

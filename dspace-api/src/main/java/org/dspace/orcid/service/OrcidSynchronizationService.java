@@ -115,12 +115,13 @@ public interface OrcidSynchronizationService {
      * Check if the given researcher profile item is configured to synchronize the
      * given item with ORCID.
      *
+     * @param  context the relevant DSpace Context.
      * @param  profile the researcher profile item
      * @param  item    the entity type to check
      * @return         true if the given entity type can be synchronize with ORCID,
      *                 false otherwise
      */
-    public boolean isSynchronizationAllowed(Item profile, Item item);
+    boolean isSynchronizationAllowed(Context context, Item profile, Item item);
 
     /**
      * Returns the ORCID synchronization mode configured for the given profile item.

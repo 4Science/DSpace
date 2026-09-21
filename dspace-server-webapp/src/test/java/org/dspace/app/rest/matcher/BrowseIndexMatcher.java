@@ -148,7 +148,7 @@ public class BrowseIndexMatcher {
 
     public static Matcher<? super Object> subjectBrowseIndex(final String order) {
         return allOf(
-            hasJsonPath("$.metadata", contains("dc.subject.*")),
+            hasJsonPath("$.metadata", contains("dc.subject.*", "datacite.subject.fos")),
             hasJsonPath("$.browseType", equalToIgnoringCase(BROWSE_TYPE_VALUE_LIST)),
             hasJsonPath("$.type", equalToIgnoringCase("browse")),
             hasJsonPath("$.uniqueType", equalToIgnoringCase("discover.browse")),

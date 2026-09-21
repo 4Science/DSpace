@@ -49,12 +49,9 @@ import org.dspace.scripts.service.ProcessService;
 import org.dspace.services.ConfigurationService;
 import org.hamcrest.Matchers;
 import org.junit.After;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
-import org.springframework.context.ApplicationContext;
 
 public class ProcessRestRepositoryIT extends AbstractControllerIntegrationTest {
 
@@ -63,7 +60,7 @@ public class ProcessRestRepositoryIT extends AbstractControllerIntegrationTest {
     @Autowired
     private ProcessService processService;
     @Autowired
-    private ApplicationContext applicationContext;
+    private ProcessRestRepository processRestRepository;
     @Autowired
     private ConfigurationService configurationService;
 
@@ -1106,10 +1103,8 @@ public class ProcessRestRepositoryIT extends AbstractControllerIntegrationTest {
         configurationService.setProperty("orchestrator.ignore-script", ignoredScripts);
         eventService.reloadConfiguration();
 
-        // Simulating restart tomcat, so recreate bean
-        AutowireCapableBeanFactory factory = applicationContext.getAutowireCapableBeanFactory();
-        ProcessRestRepository newBean = factory.createBean(ProcessRestRepository.class);
-        Assert.assertNotNull(newBean);
+        // manually invoke init!
+        processRestRepository.init();
 
         getClient(token).perform(get("/api/system/processes/"))
                         .andExpect(status().isOk())

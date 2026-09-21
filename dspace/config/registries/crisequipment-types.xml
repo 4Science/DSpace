@@ -53,6 +53,13 @@
 
     <dc-type>
         <schema>crisequipment</schema>
+        <element>decommission</element>
+        <qualifier>date</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>crisequipment</schema>
         <element>manifactured</element>
         <qualifier>date</qualifier>
         <scope_note></scope_note>

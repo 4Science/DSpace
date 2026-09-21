@@ -85,6 +85,32 @@
                     <fileSet>
                         <directory>solr</directory>
                         <outputDirectory>solr</outputDirectory>
+                        <excludes>
+                            <exclude>**/Dockerfile*</exclude>
+                        </excludes>
+                    </fileSet>
+
+                    <!-- Copy OCR lib jar to top-level solr/lib/ for solrconfig.xml ${solr.install.dir}/lib/ resolution in SolrCloud -->
+                    <fileSet>
+                        <directory>src/test/solr/ocr/lib</directory>
+                        <outputDirectory>solr/lib</outputDirectory>
+                    </fileSet>
+
+                    <!-- Copy conf directories into solr/configsets/<core_name>/conf -->
+                    <fileSet>
+                        <directory>solr</directory>
+                        <outputDirectory>solr/configsets</outputDirectory>
+                        <includes>
+                            <include>audit/conf/**</include>
+                            <include>authority/conf/**</include>
+                            <include>dedup/conf/**</include>
+                            <include>oai/conf/**</include>
+                            <include>ocr/conf/**</include>
+                            <include>qaevent/conf/**</include>
+                            <include>search/conf/**</include>
+                            <include>statistics/conf/**</include>
+                            <include>suggestion/conf/**</include>
+                        </includes>
                     </fileSet>
                 </fileSets>
             </sources>

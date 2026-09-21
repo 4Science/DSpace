@@ -230,30 +230,37 @@ public class JPEGFilter extends MediaFilter implements SelfRegisterInputFormats 
     ) throws Exception {
 
         File tempFile = File.createTempFile("temp", ".tmp");
-        tempFile.deleteOnExit();
 
         // Write to temp file
         try (FileOutputStream fos = new FileOutputStream(tempFile)) {
-            byte[] buffer = new byte[4096];
+            byte[] buffer = new byte[8192];
             int len;
             while ((len = source.read(buffer)) != -1) {
                 fos.write(buffer, 0, len);
             }
         }
 
-        int rotation = 0;
-        try (FileInputStream fis = new FileInputStream(tempFile)) {
-            rotation = getImageRotationUsingImageReader(fis);
-        }
+        try {
+            int rotation;
+            try (FileInputStream fis = new FileInputStream(tempFile)) {
+                rotation = getImageRotationUsingImageReader(fis);
+            }
 
-        try (FileInputStream fis = new FileInputStream(tempFile)) {
-            // read in bitstream's image
-            BufferedImage buf = ImageIO.read(fis);
+            try (FileInputStream fis = new FileInputStream(tempFile)) {
+                BufferedImage buf = ImageIO.read(fis);
+                if (buf == null) {
+                    throw new IOException("No image reader found for bitstream");
+                }
 
-            return getThumbDim(
-                currentItem, buf, verbose, xmax, ymax, blurring, hqscaling, brandHeight, brandFontPoint, rotation,
-                brandFont
-            );
+                return getThumbDim(
+                    currentItem, buf, verbose, xmax, ymax, blurring, hqscaling, brandHeight, brandFontPoint, rotation,
+                    brandFont
+                );
+            }
+        } finally {
+            if (tempFile != null && tempFile.exists()) {
+                tempFile.delete();
+            }
         }
     }
 
@@ -327,29 +334,30 @@ public class JPEGFilter extends MediaFilter implements SelfRegisterInputFormats 
 
         // now render the image into the thumbnail buffer
         Graphics2D g2d = thumbnail.createGraphics();
-        g2d.drawImage(correctedImage, 0, 0, xsize, ysize, null);
+        try {
+            g2d.drawImage(correctedImage, 0, 0, xsize, ysize, null);
 
-        if (brandHeight != 0) {
-            ConfigurationService configurationService
-                    = DSpaceServicesFactory.getInstance().getConfigurationService();
-            Brand brand = new Brand(xsize, brandHeight, new Font(brandFont, Font.PLAIN, brandFontPoint), 5);
-            BufferedImage brandImage = brand.create(configurationService.getProperty("webui.preview.brand"),
-                                                    configurationService.getProperty("webui.preview.brand.abbrev"),
-                                                    currentItem == null ? "" : "hdl:" + currentItem.getHandle());
+            if (brandHeight != 0) {
+                ConfigurationService configurationService
+                        = DSpaceServicesFactory.getInstance().getConfigurationService();
+                Brand brand = new Brand(xsize, brandHeight, new Font(brandFont, Font.PLAIN, brandFontPoint), 5);
+                BufferedImage brandImage = brand.create(configurationService.getProperty("webui.preview.brand"),
+                                                        configurationService.getProperty("webui.preview.brand.abbrev"),
+                                                        currentItem == null ? "" : "hdl:" + currentItem.getHandle());
 
-            g2d.drawImage(brandImage, 0, ysize, xsize, 20, null);
+                g2d.drawImage(brandImage, 0, ysize, xsize, 20, null);
+            }
+
+            ByteArrayInputStream bais;
+            try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
+                ImageIO.write(thumbnail, "jpeg", baos);
+                bais = new ByteArrayInputStream(baos.toByteArray());
+            }
+
+            return bais;
+        } finally {
+            g2d.dispose();
         }
-
-
-        ByteArrayInputStream bais;
-        // now create an input stream for the thumbnail buffer and return it
-        try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
-            ImageIO.write(thumbnail, "jpeg", baos);
-            // now get the array
-            bais = new ByteArrayInputStream(baos.toByteArray());
-        }
-
-        return bais; // hope this gets written out before its garbage collected!
     }
 
 

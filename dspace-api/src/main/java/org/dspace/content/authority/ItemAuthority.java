@@ -58,7 +58,7 @@ public class ItemAuthority implements ChoiceAuthority, LinkableEntityAuthority {
     final static String CHOICES_EXTERNALSOURCE_PREFIX = "choises.externalsource.";
 
     /** the name assigned to the specific instance by the PluginService, @see {@link NameAwarePlugin} **/
-    private String authorityName;
+    protected String authorityName;
 
     protected DSpace dspace = new DSpace();
 
@@ -78,7 +78,7 @@ public class ItemAuthority implements ChoiceAuthority, LinkableEntityAuthority {
     private ExternalDataService externalDataService = ExternalServiceFactory.getInstance().getExternalDataService();
 
     // map of field key to presentation type
-    protected Map<String, String> externalSource = new HashMap<String, String>();
+    protected Map<String, String> externalSource = new HashMap<>();
 
     public static final String DEFAULT = "local";
 
@@ -274,7 +274,6 @@ public class ItemAuthority implements ChoiceAuthority, LinkableEntityAuthority {
                 } else {
                     log.warn("Skipping invalid external source authority configuration property: " + sourceIdentifier +
                             " does not exist");
-                    continue;
                 }
             }
         }
@@ -288,7 +287,7 @@ public class ItemAuthority implements ChoiceAuthority, LinkableEntityAuthority {
         SolrClient solr = searchService.getSolrSearchCore().getSolr();
         if (Objects.isNull(solr)) {
             log.error("unable to find solr instance");
-            return new HashMap<String, String>();
+            return new HashMap<>();
         }
 
 
@@ -305,7 +304,7 @@ public class ItemAuthority implements ChoiceAuthority, LinkableEntityAuthority {
             List<Choice> choiceList = getChoiceListFromQueryResults(queryResponse.getResults(), key, false);
             if (choiceList.isEmpty()) {
                 log.warn("No documents found for key=" + key);
-                return new HashMap<String, String>();
+                return new HashMap<>();
             }
 
             return choiceList.iterator().next().extras;
@@ -314,7 +313,7 @@ public class ItemAuthority implements ChoiceAuthority, LinkableEntityAuthority {
             log.error(e.getMessage(), e);
         }
 
-        return new HashMap<String, String>();
+        return new HashMap<>();
     }
 
     protected int calculateConfidence(Choice[] choices) {

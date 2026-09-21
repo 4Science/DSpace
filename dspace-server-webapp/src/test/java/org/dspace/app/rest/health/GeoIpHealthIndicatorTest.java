@@ -10,11 +10,11 @@ package org.dspace.app.rest.health;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.anEmptyMap;
 import static org.hamcrest.Matchers.is;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doThrow;
 
 import java.util.Map;
 
-import com.maxmind.geoip2.DatabaseReader;
 import org.dspace.app.rest.configuration.ActuatorConfiguration;
 import org.dspace.statistics.GeoIpService;
 import org.junit.Test;
@@ -40,12 +40,9 @@ public class GeoIpHealthIndicatorTest {
     @InjectMocks
     private GeoIpHealthIndicator geoIpHealthIndicator;
 
-    @Mock
-    private DatabaseReader databaseReader;
-
     @Test
     public void testWithGeoIpConfiguredCorrectly() {
-        when(geoIpService.getDatabaseReader()).thenReturn(databaseReader);
+        doNothing().when(geoIpService).checkDatabase();
 
         Health health = geoIpHealthIndicator.health();
 
@@ -55,7 +52,7 @@ public class GeoIpHealthIndicatorTest {
 
     @Test
     public void testWithGeoIpWrongConfiguration() {
-        when(geoIpService.getDatabaseReader()).thenThrow(new IllegalStateException("Missing db file"));
+        doThrow(new IllegalStateException("Missing db file")).when(geoIpService).checkDatabase();
 
         Health health = geoIpHealthIndicator.health();
 
@@ -65,7 +62,7 @@ public class GeoIpHealthIndicatorTest {
 
     @Test
     public void testWithUnexpectedError() {
-        when(geoIpService.getDatabaseReader()).thenThrow(new RuntimeException("Generic error"));
+        doThrow(new RuntimeException("Generic error")).when(geoIpService).checkDatabase();
 
         Health health = geoIpHealthIndicator.health();
 

@@ -9,7 +9,6 @@
 package org.dspace.discovery;
 
 import java.sql.SQLException;
-import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -18,9 +17,11 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.common.SolrInputDocument;
+import org.dspace.content.Collection;
 import org.dspace.content.Item;
 import org.dspace.content.MetadataValue;
 import org.dspace.content.WorkspaceItem;
+import org.dspace.content.service.CollectionService;
 import org.dspace.content.service.ItemService;
 import org.dspace.core.Context;
 import org.dspace.discovery.indexobject.IndexableWorkspaceItem;
@@ -47,6 +48,9 @@ public class SharedWorkspaceSolrIndexPlugin implements SolrServiceIndexPlugin, S
 
     @Autowired
     private ItemService itemService;
+
+    @Autowired
+    private CollectionService collectionService;
 
     @Autowired
     private EPersonService ePersonService;
@@ -80,6 +84,7 @@ public class SharedWorkspaceSolrIndexPlugin implements SolrServiceIndexPlugin, S
             addRead(document, Optional.ofNullable(workspaceItem.getSubmitter()));
             addReadToAdditionalEpersons(context, document, item);
             addReadToCollectionAdmin(document, workspaceItem);
+            addReadToCollectionSubmitters(context, document, workspaceItem);
         } catch (SQLException e) {
             log.error("Error while assigning reading privileges: {}", e.getMessage(),
                       e);
@@ -89,6 +94,17 @@ public class SharedWorkspaceSolrIndexPlugin implements SolrServiceIndexPlugin, S
     private void addReadToCollectionAdmin(SolrInputDocument document, WorkspaceItem workspaceItem) {
         Optional.ofNullable(workspaceItem.getCollection().getAdministrators())
                 .ifPresent(group -> document.addField("read", "g" + group.getID().toString()));
+    }
+
+    private void addReadToCollectionSubmitters(Context context,
+                                               SolrInputDocument document,
+                                               WorkspaceItem workspaceItem) {
+        Collection collection = workspaceItem.getCollection();
+        if (collectionService.isSharedWorkspace(context,
+                                                collection)) {
+            Optional.ofNullable(collection.getSubmitters())
+                    .ifPresent(group -> document.addField("read", "g" + group.getID().toString()));
+        }
     }
 
     private void addReadToAdditionalEpersons(Context context, SolrInputDocument document, Item item)
@@ -112,7 +128,7 @@ public class SharedWorkspaceSolrIndexPlugin implements SolrServiceIndexPlugin, S
 
         return additionalReadMetadata.stream()
                                      .map(mds -> itemService.getMetadataByMetadataString(item, mds))
-                                     .flatMap(Collection::stream)
+                                     .flatMap(java.util.Collection::stream)
                                      .collect(Collectors.toList());
     }
 

@@ -85,7 +85,7 @@ public class CrisLayoutSectionRestRepositoryIT extends AbstractControllerIntegra
 
 
             .andExpect(jsonPath("$._embedded.sections",
-                hasItem(withIdAndSearchComponent("site", 0, 0, "col-md-12", "site"))))
+                hasItem(withIdAndSearchComponent("site", 0, 0, "col-md-12", null))))
 
             .andExpect(jsonPath("$._embedded.sections",
                 hasItem(withIdAndCountersComponent("site", 1, 0, "col-md-12 py-4", Arrays.asList("researchoutputs",

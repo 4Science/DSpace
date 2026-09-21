@@ -38,6 +38,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.io.InputStream;
 import java.text.ParseException;
 import java.util.Base64;
+import java.util.Date;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -1886,6 +1887,48 @@ public class AuthenticationRestControllerIT extends AbstractControllerIntegratio
         } catch (ParseException e) {
             return false;
         }
+    }
+
+    private Date getTokenExpiration(String token) throws ParseException {
+        SignedJWT signedJWT = SignedJWT.parse(token);
+        return signedJWT.getJWTClaimsSet().getExpirationTime();
+    }
+
+    @Test
+    public void testMachineTokenExpirationUsesCorrectPeriod() throws Exception {
+        configurationService.setProperty("jwt.login.machine-token.expiration", "7200000");
+        configurationService.setProperty("jwt.login.token.expiration", "1800000");
+
+        context.turnOffAuthorisationSystem();
+        EPerson user = EPersonBuilder.createEPerson(context)
+            .withCanLogin(true)
+            .withPassword(password)
+            .withEmail("machine-token-exp-test@test.com")
+            .build();
+        context.restoreAuthSystemState();
+
+        String loginToken = getAuthToken(user.getEmail(), password);
+
+        AtomicReference<String> machineToken = new AtomicReference<>();
+        getClient(loginToken).perform(post("/api/authn/machinetokens"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.token", notNullValue()))
+            .andExpect(jsonPath("$.type", is("machinetoken")))
+            .andDo(result -> machineToken.set(
+                read(result.getResponse().getContentAsString(), "$.token")));
+
+        Date loginExpiration = getTokenExpiration(loginToken);
+        Date machineExpiration = getTokenExpiration(machineToken.get());
+
+        assertTrue("Machine token should expire after login token",
+            machineExpiration.after(loginExpiration));
+
+        long diffMillis = machineExpiration.getTime() - loginExpiration.getTime();
+        assertTrue("Difference should be ~1.5 hours (5400000ms), was: " + diffMillis,
+            Math.abs(diffMillis - 5400000) < 60000);
+
+        getClient(loginToken).perform(post("/api/authn/logout"))
+            .andExpect(status().isNoContent());
     }
 
     @Test

@@ -152,7 +152,7 @@ public class BulkItemExport extends DSpaceRunnable<BulkItemExportScriptConfigura
     @Override
     public void internalRun() throws Exception {
         context = new Context(Context.Mode.READ_ONLY);
-        assignCurrentUserInContext();
+        assignCurrentUserInContext(context);
         assignSpecialGroupsInContext();
         assignHandlerLocaleInContext();
 
@@ -343,7 +343,7 @@ public class BulkItemExport extends DSpaceRunnable<BulkItemExportScriptConfigura
 
     }
 
-    private void assignCurrentUserInContext() throws SQLException {
+    protected void assignCurrentUserInContext(Context context) throws SQLException, ParseException {
         UUID uuid = getEpersonIdentifier();
         if (uuid != null) {
             EPerson ePerson = EPersonServiceFactory.getInstance().getEPersonService().find(context, uuid);

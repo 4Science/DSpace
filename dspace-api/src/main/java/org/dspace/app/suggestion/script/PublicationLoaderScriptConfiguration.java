@@ -90,6 +90,12 @@ public class PublicationLoaderScriptConfiguration<T extends PublicationLoaderRun
             options.getOption("l").setType(String.class);
             options.getOption("l").setRequired(true);
 
+            options.addOption("q", "query", true, "The query to run using the loader");
+            options.getOption("q").setType(String.class);
+
+            options.addOption("a", "additionalquery", true, "The query to refine the default generated one");
+            options.getOption("a").setType(String.class);
+
             options.addOption("f", "solrfilter", true, "The additional SOLR filter to better refine results");
             options.getOption("f").setType(String.class);
 

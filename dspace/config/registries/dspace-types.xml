@@ -166,6 +166,34 @@
 
     <dc-type>
         <schema>dspace</schema>
+        <element>scopus</element>
+        <qualifier>lastimport</qualifier>
+        <scope_note>Stores the timestamp related to the last import from Scopus</scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>dspace</schema>
+        <element>pubmed</element>
+        <qualifier>lastimport</qualifier>
+        <scope_note>Stores the timestamp related to the last import from PubMed</scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>dspace</schema>
+        <element>pubmedeu</element>
+        <qualifier>lastimport</qualifier>
+        <scope_note>Stores the timestamp related to the last import from PubMedEU</scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>dspace</schema>
+        <element>ads</element>
+        <qualifier>lastimport</qualifier>
+        <scope_note>Stores the timestamp related to the last import from Ads</scope_note>
+    </dc-type>
+
+    <dc-type>
+        <schema>dspace</schema>
         <element>accessibility</element>
         <qualifier>settings</qualifier>
         <scope_note>Metadata field storing the user-configured accessibility settings values for the EPerson.</scope_note>

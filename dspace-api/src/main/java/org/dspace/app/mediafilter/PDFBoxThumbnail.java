@@ -73,7 +73,7 @@ public class PDFBoxThumbnail extends MediaFilter {
         BufferedImage buf;
 
         // Render the page image.
-        try ( PDDocument doc = Loader.loadPDF(new RandomAccessReadBuffer(source)); ) {
+        try ( PDDocument doc = Loader.loadPDF(new RandomAccessReadBuffer(source)) ) {
             PDFRenderer renderer = new PDFRenderer(doc);
             buf = renderer.renderImage(0);
         } catch (InvalidPasswordException ex) {

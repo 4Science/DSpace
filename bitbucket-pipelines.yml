@@ -1,10 +1,11 @@
-image: maven:3.9.11-eclipse-temurin-17
+image:
+  name: public.ecr.aws/docker/library/maven:3.9.11-eclipse-temurin-21
 
 definitions:
   caches:
-    gradle-java17: ~/.gradle/caches
-    gradlewrapper-java17: ~/.gradle/wrapper
-    maven-java17: ~/.m2/repository
+    gradle-java21: ~/.gradle/caches
+    gradlewrapper-java21: ~/.gradle/wrapper
+    maven-java21: ~/.m2/repository
   mvnVars:
     &setEnv export MAVEN_ARGS="-Dorg.slf4j.simpleLogger.showDateTime=true -Dorg.slf4j.simpleLogger.dateTimeFormat=HH:mm:ss,SSS"
   steps:
@@ -18,9 +19,9 @@ definitions:
         clone:
           depth: 2
         caches:
-          - gradle-java17
-          - gradlewrapper-java17
-          - maven-java17
+          - gradle-java21
+          - gradlewrapper-java21
+          - maven-java21
         script:
           - *setEnv
           - mvn install -ntp -T 1C -B -P-assembly,pipeline -Drun.jvmArguments="-XX:MaxRAMPercentage=50.0 -XX:+UseStringDeduplication -XX:+UseCompressedOops -XX:+UnlockExperimentalVMOptions -XX:+UseContainerSupport" $MAVEN_ARGS
@@ -40,9 +41,9 @@ definitions:
         name: unit-test-code-checks
         size: 2x
         caches:
-          - gradle-java17
-          - gradlewrapper-java17
-          - maven-java17
+          - gradle-java21
+          - gradlewrapper-java21
+          - maven-java21
         script:
           - *setEnv
           - cp -rf target/local-repo/** ~/.m2/repository/
@@ -69,9 +70,10 @@ definitions:
         services:
           - docker
         caches:
-          - gradle-java17
-          - gradlewrapper-java17
-          - maven-java17
+          - gradle-java21
+          - docker
+          - gradlewrapper-java21
+          - maven-java21
         script:
           - *setEnv
           - cp -rf target/local-repo/** ~/.m2/repository/
@@ -92,9 +94,10 @@ definitions:
         services:
           - docker
         caches:
-          - gradle-java17
-          - gradlewrapper-java17
-          - maven-java17
+          - gradle-java21
+          - docker
+          - gradlewrapper-java21
+          - maven-java21
         script:
           - *setEnv
           - #- ./dspace-api/src/test/data/dspaceFolder/bin/install_grobid.sh
@@ -114,9 +117,9 @@ definitions:
         name: integration-tests-slow
         size: 1x
         caches:
-          - gradle-java17
-          - gradlewrapper-java17
-          - maven-java17
+          - gradle-java21
+          - gradlewrapper-java21
+          - maven-java21
         script:
           - *setEnv
           - cp -rf target/local-repo/** ~/.m2/repository/
@@ -137,12 +140,14 @@ definitions:
         image: atlassian/default-image:4  # Default Bitbucket image with Docker support
         services:
           - docker
+        caches:
+          - docker
         script:
           - apt-get update && apt-get install -y python3-pip
           - pip3 install awscli
           - export HASH_COMMIT=${BITBUCKET_COMMIT:0:8}
           - export BRANCH_NAME=$(echo "$BITBUCKET_BRANCH" | tr '[:upper:]' '[:lower:]' | sed 's|/|--|g')
-          - docker build -f Dockerfile.build -t dspace-cris:${BRANCH_NAME}-${HASH_COMMIT} -t dspace-cris:${BRANCH_NAME}-latest .
+          - docker build --build-arg DOCKER_REGISTRY="public.ecr.aws/docker/library" -f Dockerfile.build -t dspace-cris:${BRANCH_NAME}-${HASH_COMMIT} -t dspace-cris:${BRANCH_NAME}-latest .
           - pipe: atlassian/aws-ecr-push-image:2.5.0
             variables:
               AWS_ACCESS_KEY_ID: $AWS_ACCESS_KEY_ID
@@ -161,10 +166,12 @@ definitions:
         image: atlassian/default-image:4  # Default Bitbucket image with Docker support
         services:
           - docker
+        caches:
+          - docker
         script:
           - export HASH_COMMIT=${BITBUCKET_COMMIT:0:8}
           - export BRANCH_NAME=$(echo "$BITBUCKET_BRANCH" | tr '[:upper:]' '[:lower:]' | sed 's|/|--|g')
-          - docker build -f ./dspace/src/main/docker/dspace-solr/Dockerfile -t solr8:${BRANCH_NAME}-${HASH_COMMIT} -t solr8:${BRANCH_NAME}-latest .
+          - docker build --build-arg DOCKER_REGISTRY="public.ecr.aws/docker/library" -f ./dspace/src/main/docker/dspace-solr/Dockerfile -t solr8:${BRANCH_NAME}-${HASH_COMMIT} -t solr8:${BRANCH_NAME}-latest .
           - pipe: atlassian/aws-ecr-push-image:2.5.0
             variables:
               AWS_ACCESS_KEY_ID: $AWS_ACCESS_KEY_ID
@@ -183,10 +190,12 @@ definitions:
         image: atlassian/default-image:4  # Default Bitbucket image with Docker support
         services:
           - docker
+        caches:
+          - docker
         script:
           - export HASH_COMMIT=${BITBUCKET_COMMIT:0:8}
           - export BRANCH_NAME=$(echo "$BITBUCKET_BRANCH" | tr '[:upper:]' '[:lower:]' | sed 's|/|--|g')
-          - docker build -f ./dspace/src/main/docker/dspace-solr/Dockerfile9 -t solr9:${BRANCH_NAME}-${HASH_COMMIT} -t solr9:${BRANCH_NAME}-latest .
+          - docker build --build-arg DOCKER_REGISTRY="public.ecr.aws/docker/library" -f ./dspace/src/main/docker/dspace-solr/Dockerfile9 -t solr9:${BRANCH_NAME}-${HASH_COMMIT} -t solr9:${BRANCH_NAME}-latest .
           - pipe: atlassian/aws-ecr-push-image:2.5.0
             variables:
               AWS_ACCESS_KEY_ID: $AWS_ACCESS_KEY_ID
@@ -202,11 +211,11 @@ definitions:
           - export HASH_COMMIT=${BITBUCKET_COMMIT:0:8}
           - export BRANCH_NAME=$(echo "$BITBUCKET_BRANCH" | tr '[:upper:]' '[:lower:]' | sed 's|/|--|g')
           - export BRANCH_FILE=$(echo "$BITBUCKET_BRANCH" | awk -F'/' '{if(NF==1)val=$1;else if(NF==2)val=$2;else if(NF==3)val=$2;else val=$3;gsub(/_/, "-", val);print tolower(val)}')
-          - git clone https://x-token-auth:${DSPACE_VALUES_ACCESS_TOKEN}@${DSPACE_VALUES_REPO}
+          - git clone https://${BB_USER}:${BB_USER_TOKEN}@${DSPACE_VALUES_REPO}
           - cd dspace-values
           - '[ -f "dev/${BRANCH_FILE}" ] && sed -i "/^rest:/,/^[^ ]/s/\(tag: \).*/\1${BRANCH_NAME}-${HASH_COMMIT}/" "dev/${BRANCH_FILE}" && sed -i "s/^\([[:space:]]*replicaCount:\) 0/\1 1/" "dev/${BRANCH_FILE}"'
-          - git config --global user.email "${BB_USER}"
-          - git config --global user.name "${BB_EMAIL}"
+          - git config --global user.email "${BB_EMAIL}"
+          - git config --global user.name "${BB_USER}"
           - git commit -am "Update TAG with ${BRANCH_NAME}-${HASH_COMMIT}" || echo "No changes to commit"
           - git push
 
@@ -217,11 +226,11 @@ definitions:
           - export HASH_COMMIT=${BITBUCKET_COMMIT:0:8}
           - export BRANCH_NAME=$(echo "$BITBUCKET_BRANCH" | tr '[:upper:]' '[:lower:]' | sed 's|/|--|g')
           - export BRANCH_FILE=$(echo "$BITBUCKET_BRANCH" | awk -F'/' '{if(NF==1)val=$1;else if(NF==2)val=$2;else if(NF==3)val=$2;else val=$3;gsub(/_/, "-", val);print tolower(val)}')
-          - git clone https://x-token-auth:${DSPACE_VALUES_ACCESS_TOKEN}@${DSPACE_VALUES_REPO}
+          - git clone https://${BB_USER}:${BB_USER_TOKEN}@${DSPACE_VALUES_REPO}
           - cd dspace-values
           - '[ -f "staging/${BRANCH_FILE}" ] && sed -i "/^rest:/,/^[^ ]/s/\(tag: \).*/\1${BRANCH_NAME}-${HASH_COMMIT}/" "staging/${BRANCH_FILE}" && sed -i "s/^\([[:space:]]*replicaCount:\) 0/\1 1/" "staging/${BRANCH_FILE}"'
-          - git config --global user.email "${BB_USER}"
-          - git config --global user.name "${BB_EMAIL}"
+          - git config --global user.email "${BB_EMAIL}"
+          - git config --global user.name "${BB_USER}"
           - git commit -am "Update TAG with ${BRANCH_NAME}-${HASH_COMMIT}" || echo "No changes to commit"
           - git push
 
@@ -232,11 +241,11 @@ definitions:
           - export HASH_COMMIT=${BITBUCKET_COMMIT:0:8}
           - export BRANCH_NAME=$(echo "$BITBUCKET_BRANCH" | tr '[:upper:]' '[:lower:]' | sed 's|/|--|g')
           - export BRANCH_FILE=$(echo "$BITBUCKET_BRANCH" | awk -F'/' '{if(NF==1)val=$1;else if(NF==2)val=$2;else if(NF==3)val=$2;else val=$3;gsub(/_/, "-", val);print tolower(val)}')
-          - git clone https://x-token-auth:${DSPACE_VALUES_ACCESS_TOKEN}@${DSPACE_VALUES_REPO}
+          - git clone https://${BB_USER}:${BB_USER_TOKEN}@${DSPACE_VALUES_REPO}
           - cd dspace-values
-          - '[ -f "test/${BRANCH_FILE}" ] && sed -i "/^rest:/,/^[^ ]/s/\(tag: \).*/\1${BRANCH_NAME}-${HASH_COMMIT}/" "staging/${BRANCH_FILE}" && sed -i "s/^\([[:space:]]*replicaCount:\) 0/\1 1/" "test/${BRANCH_FILE}"'
-          - git config --global user.email "${BB_USER}"
-          - git config --global user.name "${BB_EMAIL}"
+          - '[ -f */test/"${BRANCH_FILE}" ] && sed -i "/^rest:/,/^[^ ]/s/\(tag: \).*/\1${BRANCH_NAME}-${HASH_COMMIT}/" */test/"${BRANCH_FILE}" && sed -i "s/^\([[:space:]]*replicaCount:\) 0/\1 1/" */test/"${BRANCH_FILE}"'
+          - git config --global user.email "${BB_EMAIL}"
+          - git config --global user.name "${BB_USER}"
           - git commit -am "Update TAG with ${BRANCH_NAME}-${HASH_COMMIT}" || echo "No changes to commit"
           - git push
 
@@ -247,11 +256,11 @@ definitions:
           - export HASH_COMMIT=${BITBUCKET_COMMIT:0:8}
           - export BRANCH_NAME=$(echo "$BITBUCKET_BRANCH" | tr '[:upper:]' '[:lower:]' | sed 's|/|--|g')
           - export BRANCH_FILE=$(echo "$BITBUCKET_BRANCH" | awk -F'/' '{if(NF==1)val=$1;else if(NF==2)val=$2;else if(NF==3)val=$2;else val=$3;gsub(/_/, "-", val);print tolower(val)}')
-          - git clone https://x-token-auth:${DSPACE_VALUES_ACCESS_TOKEN}@${DSPACE_VALUES_REPO}
+          - git clone https://${BB_USER}:${BB_USER_TOKEN}@${DSPACE_VALUES_REPO}
           - cd dspace-values
           - '[ -f "dev/${BRANCH_FILE}" ] && sed -i "s/^\([[:space:]]*replicaCount:\) 0/\1 1/" "dev/${BRANCH_FILE}"'
-          - git config --global user.email "${BB_USER}"
-          - git config --global user.name "${BB_EMAIL}"
+          - git config --global user.email "${BB_EMAIL}"
+          - git config --global user.name "${BB_USER}"
           - git commit -am "Enable dev environment for ${BRANCH_NAME}" || echo "No changes to commit"
           - git push
 
@@ -262,11 +271,11 @@ definitions:
           - export HASH_COMMIT=${BITBUCKET_COMMIT:0:8}
           - export BRANCH_NAME=$(echo "$BITBUCKET_BRANCH" | tr '[:upper:]' '[:lower:]' | sed 's|/|--|g')
           - export BRANCH_FILE=$(echo "$BITBUCKET_BRANCH" | awk -F'/' '{if(NF==1)val=$1;else if(NF==2)val=$2;else if(NF==3)val=$2;else val=$3;gsub(/_/, "-", val);print tolower(val)}')
-          - git clone https://x-token-auth:${DSPACE_VALUES_ACCESS_TOKEN}@${DSPACE_VALUES_REPO}
+          - git clone https://${BB_USER}:${BB_USER_TOKEN}@${DSPACE_VALUES_REPO}
           - cd dspace-values
           - '[ -f "staging/${BRANCH_FILE}" ] && sed -i "s/^\([[:space:]]*replicaCount:\) 0/\1 1/" "staging/${BRANCH_FILE}"'
-          - git config --global user.email "${BB_USER}"
-          - git config --global user.name "${BB_EMAIL}"
+          - git config --global user.email "${BB_EMAIL}"
+          - git config --global user.name "${BB_USER}"
           - git commit -am "Enable staging environment for ${BRANCH_NAME}" || echo "No changes to commit"
           - git push
 
@@ -277,11 +286,11 @@ definitions:
           - export HASH_COMMIT=${BITBUCKET_COMMIT:0:8}
           - export BRANCH_NAME=$(echo "$BITBUCKET_BRANCH" | tr '[:upper:]' '[:lower:]' | sed 's|/|--|g')
           - export BRANCH_FILE=$(echo "$BITBUCKET_BRANCH" | awk -F'/' '{if(NF==1)val=$1;else if(NF==2)val=$2;else if(NF==3)val=$2;else val=$3;gsub(/_/, "-", val);print tolower(val)}')
-          - git clone https://x-token-auth:${DSPACE_VALUES_ACCESS_TOKEN}@${DSPACE_VALUES_REPO}
+          - git clone https://${BB_USER}:${BB_USER_TOKEN}@${DSPACE_VALUES_REPO}
           - cd dspace-values
-          - '[ -f "test/${BRANCH_FILE}" ] && sed -i "s/^\([[:space:]]*replicaCount:\) 0/\1 1/" "test/${BRANCH_FILE}"'
-          - git config --global user.email "${BB_USER}"
-          - git config --global user.name "${BB_EMAIL}"
+          - '[ -f */test/"${BRANCH_FILE}" ] && sed -i "s/^\([[:space:]]*replicaCount:\) 0/\1 1/" */test/"${BRANCH_FILE}"'
+          - git config --global user.email "${BB_EMAIL}"
+          - git config --global user.name "${BB_USER}"
           - git commit -am "Enable test environment for ${BRANCH_NAME}" || echo "No changes to commit"
           - git push
 
@@ -304,6 +313,28 @@ definitions:
           - step: *integration-tests-slow
           - step: *integration-tests-dspace-api
 
+    - parallel: &parallel-build-and-push
+          - step: *build-and-push
+          - step: *build-and-push-solr9
+
+    - step: &merge-prod-into-test
+        name: Merge prod into test
+        image: atlassian/default-image:4
+        script:
+          - export PROD_BRANCH="$BITBUCKET_BRANCH"
+          - export TEST_BRANCH="test/${PROD_BRANCH#prod/}"
+          - git fetch origin $TEST_BRANCH || true
+          - if git ls-remote --exit-code --heads origin $TEST_BRANCH; then
+              git remote set-branches --add origin $TEST_BRANCH;
+              git fetch origin $TEST_BRANCH;
+              git checkout -b $TEST_BRANCH origin/$TEST_BRANCH;
+              git merge --no-ff origin/$PROD_BRANCH -m "Merge $PROD_BRANCH into $TEST_BRANCH";
+              git push https://${DSPACE_REPO_USER}:${DSPACE_REPO_TOKEN}@${DSPACE_REPO} $TEST_BRANCH;
+            else
+              echo "Branch $TEST_BRANCH does not exist, no merge performed.";
+            fi
+
+
 pipelines:
   branches:
     'main-cris':
@@ -314,24 +345,23 @@ pipelines:
       - step: *check-branch-name-allowed
       - step: *install
       - parallel: *parallel-test-steps
-      - step: *build-and-push
+      - parallel: *parallel-build-and-push
       - step: *deploy-on-dev
       - step: *deploy-on-staging
     'prod/**':
       - step: *check-branch-name-allowed
       - step: *install
       - parallel: *parallel-test-steps
-      - step: *build-and-push
+      - parallel: *parallel-build-and-push
       - step: *deploy-on-dev
       - step: *deploy-on-staging
-      - step: *build-and-push-solr9
+      - step: *merge-prod-into-test
     'test/**':
       - step: *check-branch-name-allowed
       - step: *install
       - parallel: *parallel-test-steps
-      - step: *build-and-push
+      - parallel: *parallel-build-and-push
       - step: *deploy-on-test
-      - step: *build-and-push-solr9
 
   pull-requests:
     '**':
@@ -354,17 +384,22 @@ pipelines:
       - step: *unit-test-code-checks
     deploy-on-dev:
       - step: *install
-      - step: *build-and-push
+      - parallel: *parallel-build-and-push
       - step: *deploy-on-dev
     deploy-on-staging:
       - step: *check-branch-name-allowed
       - step: *install
-      - step: *build-and-push
+      - parallel: *parallel-build-and-push
       - step: *deploy-on-staging
-    e2e-test:
+    deploy-on-test:
+      - step: *check-branch-name-allowed
       - step: *install
-      - step: *build-and-push
-      - step: *build-and-push-solr9
+      - parallel: *parallel-build-and-push
+      - step: *deploy-on-test
+    build-images:
+      - step: *check-branch-name-allowed
+      - step: *install
+      - parallel: *parallel-build-and-push
     turn-on-dev:
       - step: *turn-on-dev
     turn-on-staging:

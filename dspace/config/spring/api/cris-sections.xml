@@ -127,7 +127,6 @@
           <list>
             <list>
                 <bean class="org.dspace.layout.CrisLayoutSearchComponent">
-                    <property name="discoveryConfigurationName" value="site" />
                     <property name="style" value="col-md-12"/>
                     <property name="searchType" value="basic"/>
                     <property name="displayTitle" value="false"/>

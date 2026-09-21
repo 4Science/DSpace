@@ -2854,7 +2854,7 @@ public class WorkflowItemRestRepositoryIT extends AbstractControllerIntegrationT
                         contains(
                                 hasJsonPath("$.paths", containsInAnyOrder(
                                         hasJsonPath("$", Matchers.is("/sections/funding/dc.title")),
-                                        hasJsonPath("$", Matchers.is("/sections/funding/oairecerif.funder"))
+                                        hasJsonPath("$", Matchers.is("/sections/funding/oairecerif.funder/0"))
                                 )))))
                 .andExpect(jsonPath("$.sections.funding['oairecerif.amount.currency'][0].value",
                         is("Euro")))

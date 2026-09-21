@@ -38,6 +38,7 @@ import org.dspace.content.Bitstream;
 import org.dspace.content.Community;
 import org.dspace.content.service.BitstreamService;
 import org.dspace.content.service.CommunityService;
+import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.discovery.DiscoverQuery;
 import org.dspace.discovery.DiscoverResult;
@@ -229,6 +230,59 @@ public class CommunityRestRepository extends DSpaceObjectRestRepository<Communit
                 Math.toIntExact(pageable.getPageSize()));
             long tot = authorizeService.countAdminAuthorizedCommunity(context, query);
             return converter.toRestPage(communities, pageable, tot , utils.obtainProjection());
+        } catch (SearchServiceException | SQLException e) {
+            throw new RuntimeException(e.getMessage(), e);
+        }
+    }
+
+    /**
+     * Returns Communities for which the current user has 'edit' privileges.
+     *
+     * NONE: edit rights on a Community coincide with admin rights (direct or inherited),
+     * which are resolved at index-time on the Solr {@code admin} field.
+     *
+     * @param pageable              The pagination information
+     * @param query                 The query used in the lookup
+     * @return Page of Communities (REST representation) for which the current user has editing rights
+     */
+    @PreAuthorize("hasAuthority('AUTHENTICATED')")
+    @SearchRestMethod(name = "findEditAuthorized")
+    public Page<CommunityRest> findEditAuthorized (Pageable pageable, @Parameter(value = "query") String query) {
+        return findAuthorized(pageable, Constants.WRITE, query);
+    }
+
+    /**
+     * Returns Communities for which the current user has 'add' privileges.
+     *
+     * NOTE: add rights on a Community coincide with admin rights (direct or inherited),
+     * which are resolved at index-time on the Solr {@code admin} field.
+     *
+     * @param pageable              The pagination information
+     * @param query                 The query used in the lookup
+     * @return Page of Communities (REST representation) for which the current user has add rights
+     */
+    @PreAuthorize("hasAuthority('AUTHENTICATED')")
+    @SearchRestMethod(name = "findAddAuthorized")
+    public Page<CommunityRest> findAddAuthorized (Pageable pageable, @Parameter(value = "query") String query) {
+        return findAuthorized(pageable, Constants.ADD, query);
+    }
+
+    /**
+     * Returns Communities for which the current user has the privileges specified by {@code action}.
+     *
+     * @param pageable  The pagination information
+     * @param action    The action to check for (e.g. {@link Constants#WRITE} / {@link Constants#ADD})
+     * @param query     The query used in the lookup
+     * @return Page of Communities (REST representation) for which the current user is authorized
+     */
+    private Page<CommunityRest> findAuthorized(Pageable pageable, int action, String query) {
+        try {
+            Context context = obtainContext();
+            List<Community> communities = authorizeService.findAuthorizedCommunityByAction(context, query, action,
+                                                                               Math.toIntExact(pageable.getOffset()),
+                                                                               Math.toIntExact(pageable.getPageSize()));
+            long tot = authorizeService.countAuthorizedCommunityByAction(context, query, action);
+            return converter.toRestPage(communities, pageable, tot, utils.obtainProjection());
         } catch (SearchServiceException | SQLException e) {
             throw new RuntimeException(e.getMessage(), e);
         }

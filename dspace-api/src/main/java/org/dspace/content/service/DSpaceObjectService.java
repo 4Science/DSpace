@@ -524,6 +524,9 @@ public interface DSpaceObjectService<T extends DSpaceObject> {
 
     void update(Context context, T dso) throws SQLException, AuthorizeException;
 
+    default void update(Context context, T dso, boolean updateLastModified) throws SQLException, AuthorizeException {
+        update(context, dso);
+    }
 
     void delete(Context context, T dso) throws SQLException, AuthorizeException, IOException;
 

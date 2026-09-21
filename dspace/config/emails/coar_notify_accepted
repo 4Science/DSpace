@@ -9,6 +9,7 @@
 ##
 ##
 #set($subject = "DSpace: The Service ${params[0]} has accepted to review the Item ""${params[1]}""")
+#if($global.put('X-SES-TENANT', $config.get('aws.ses.tenant')))#end
 
 An acceptance notification has been received by the service: ${params[0]}
 for the Item: ${params[1]}

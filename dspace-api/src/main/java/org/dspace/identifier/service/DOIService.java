@@ -142,15 +142,16 @@ public interface DOIService {
     public List<DOI> getDOIsByStatus(Context context, List<Integer> statuses) throws SQLException;
 
     /**
-     * Find all DOIs that have one of a given set of statuses.
-     * @param  context      current DSpace session.
-     * @param  statuses     desired statuses.
-     * @param  offset       offset value
-     * @param  limit        limited number of items
-     * @return              all DOIs having any of the given statuses.
+     * Find DOIs that have one of a given set of statuses, with pagination support.
+     *
+     * @param context  current DSpace session.
+     * @param statuses desired statuses.
+     * @param limit    maximum number of results to return (-1 for unlimited).
+     * @param offset   number of results to skip (-1 for none).
+     * @return matching DOIs ordered by ID.
      * @throws SQLException passed through.
      */
-    public List<DOI> getDOIsByStatus(Context context, List<Integer> statuses, int offset, int limit)
+    public List<DOI> getDOIsByStatus(Context context, List<Integer> statuses, int limit, int offset)
         throws SQLException;
 
     /**

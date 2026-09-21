@@ -20,6 +20,9 @@
 				<entry key="publication-chicago" value-ref="cslItemDataCrosswalkChicago"/>
 				<entry key="publication-datacite-xml" value-ref="referCrosswalkPublicationDataciteXml"/>
 
+				<entry key="journal-csv" value-ref="csvCrosswalkJournal"/>
+				<entry key="journal-xls" value-ref="xlsCrosswalkJournal"/>
+
 				<entry key="person-xml" value-ref="referCrosswalkPersonXml"/>
 				<entry key="person-cerif-xml" value-ref="referCrosswalkPersonCerifXml"/>
 				<entry key="person-json" value-ref="referCrosswalkPersonJson"/>
@@ -89,7 +92,7 @@
 	</bean>
 	
 	<bean class="org.dspace.content.integration.crosswalks.CSLItemDataCrosswalk" id="cslItemDataCrosswalkChicago">
-		<property name="style" value="chicago-library-list"/>
+		<property name="style" value="crosswalks/csl/chicago.csl"/>
 		<property name="mimeType" value="text/plain"/>
 		<property name="format" value="text"/>
 		<property name="fileName" value="publications.txt"/>
@@ -422,6 +425,21 @@
 		<property name="fileName" value="publications.xls"/>
 		<property name="sheetName" value="Publications"/>
 		<property name="entityType" value="Publication"/>
+		<property name="crosswalkMode" value="#{T(org.dspace.content.crosswalk.CrosswalkMode).MULTIPLE}"/>
+	</bean>
+
+	<bean class="org.dspace.content.integration.crosswalks.CsvCrosswalk" id="csvCrosswalkJournal">
+		<property name="templateFileName" value="crosswalks/template/journal-table.template"/>
+		<property name="fileName" value="journals.csv"/>
+		<property name="entityType" value="Journal"/>
+		<property name="crosswalkMode" value="#{T(org.dspace.content.crosswalk.CrosswalkMode).MULTIPLE}"/>
+	</bean>
+
+	<bean class="org.dspace.content.integration.crosswalks.XlsCrosswalk" id="xlsCrosswalkJournal">
+		<property name="templateFileName" value="crosswalks/template/journal-table.template"/>
+		<property name="fileName" value="journals.xls"/>
+		<property name="sheetName" value="Journals"/>
+		<property name="entityType" value="Journal"/>
 		<property name="crosswalkMode" value="#{T(org.dspace.content.crosswalk.CrosswalkMode).MULTIPLE}"/>
 	</bean>
 

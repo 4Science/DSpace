@@ -13,6 +13,7 @@ import static org.dspace.app.rest.utils.HttpHeadersInitializer.CONTENT_DISPOSITI
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
@@ -30,6 +31,7 @@ import org.dspace.app.rest.utils.RestDiscoverQueryBuilder;
 import org.dspace.app.rest.utils.ScopeResolver;
 import org.dspace.app.util.factory.UtilServiceFactory;
 import org.dspace.app.util.service.OpenSearchService;
+import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.core.LogHelper;
 import org.dspace.core.Utils;
@@ -200,7 +202,17 @@ public class OpenSearchController {
                 }
 
                 if (dsoObject != null) {
-                    container = scopeResolver.resolveScope(context, dsoObject);
+                    Optional<IndexableObject> resolved =
+                        scopeResolver.resolveScope(context, dsoObject, Constants.COMMUNITY)
+                                     .or(() -> scopeResolver.resolveScope(context, dsoObject, Constants.COLLECTION));
+                    if (resolved.isEmpty()) {
+                        log.warn(
+                            "The given scope string {} is not a collection or community UUID.",
+                            StringUtils.trimToEmpty(dsoObject)
+                        );
+                        resolved = scopeResolver.resolveScope(context, dsoObject, Constants.ITEM);
+                    }
+                    container = resolved.orElse(null);
                     discoveryConfiguration = searchConfigurationService
                             .getDiscoveryConfigurationByNameOrIndexableObject(context, "site", container);
                     queryArgs.setDiscoveryConfigurationName(discoveryConfiguration.getId());

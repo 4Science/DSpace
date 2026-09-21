@@ -5,6 +5,7 @@
 ## See org.dspace.core.Email for information on the format of this file.
 ##
 #set($subject = "${config.get('dspace.name')} Account Registration")
+#if($global.put('X-SES-TENANT', $config.get('aws.ses.tenant')))#end
 #set($phone = ${config.get('mail.message.helpdesk.telephone')})
 To confirm your email and create the needed account, please click the link
 below:
