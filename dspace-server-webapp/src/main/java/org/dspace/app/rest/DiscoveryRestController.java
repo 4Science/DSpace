@@ -90,7 +90,7 @@ public class DiscoveryRestController implements InitializingBean {
     @RequestMapping(method = RequestMethod.GET, value = "/search")
     public SearchConfigurationResource getSearchConfiguration(
         @RequestParam(name = "scope", required = false) String dsoScope,
-        @RequestParam(name = "configuration", required = false) String configuration) throws Exception {
+        @RequestParam(name = "configuration", required = false) String configuration) {
         if (log.isTraceEnabled()) {
             log.trace("Retrieving search configuration for scope " + StringUtils.trimToEmpty(dsoScope)
                           + " and configuration name " + StringUtils.trimToEmpty(configuration));
@@ -118,7 +118,7 @@ public class DiscoveryRestController implements InitializingBean {
                     + ", configuration name: " + StringUtils.trimToEmpty(configuration)
                     + ", dsoTypes: " + String.join(", ", dsoTypes)
                     + ", query: " + StringUtils.trimToEmpty(query)
-                    + ", filters: " + Objects.toString(searchFilters));
+                    + ", filters: " + searchFilters);
         }
 
         try {
@@ -156,8 +156,8 @@ public class DiscoveryRestController implements InitializingBean {
                     + ", configuration name: " + StringUtils.trimToEmpty(configuration)
                     + ", dsoTypes: " + String.join(", ", dsoTypes)
                     + ", query: " + StringUtils.trimToEmpty(query)
-                    + ", filters: " + Objects.toString(searchFilters)
-                    + ", page: " + Objects.toString(page));
+                    + ", filters: " + searchFilters
+                    + ", page: " + page);
         }
 
         //Get the Search results in JSON format

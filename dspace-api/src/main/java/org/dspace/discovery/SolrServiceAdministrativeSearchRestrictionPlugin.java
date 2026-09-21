@@ -13,6 +13,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.dspace.authorize.service.AuthorizeService;
@@ -28,8 +29,8 @@ import org.springframework.beans.factory.annotation.Autowired;
  */
 public class SolrServiceAdministrativeSearchRestrictionPlugin implements SolrServiceSearchPlugin {
 
-    private static final Logger log =
-        org.apache.logging.log4j.LogManager.getLogger(SolrServiceAdministrativeSearchRestrictionPlugin.class);
+    private static final Logger log = LogManager.getLogger(SolrServiceAdministrativeSearchRestrictionPlugin.class);
+
     public static final String SEARCH_CONFIGURATION_PREFIX = "administrative";
 
     @Autowired

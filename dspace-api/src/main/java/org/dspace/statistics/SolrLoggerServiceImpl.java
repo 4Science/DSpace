@@ -31,6 +31,7 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.EnumSet;
@@ -130,8 +131,6 @@ public class SolrLoggerServiceImpl implements SolrLoggerService, InitializingBea
 
     public static final String DATE_FORMAT_DCDATE = "yyyy-MM-dd'T'HH:mm:ss'Z'";
 
-    protected DatabaseReader locationService;
-
     protected boolean useProxies;
 
     private static final List<String> statisticYearCores = new ArrayList<>();
@@ -203,14 +202,6 @@ public class SolrLoggerServiceImpl implements SolrLoggerService, InitializingBea
 
         // Read in the file so we don't have to do it all the time
         //spiderIps = SpiderDetector.getSpiderIpAddresses();
-
-        DatabaseReader service = null;
-        try {
-            service = geoIpService.getDatabaseReader();
-        } catch (IllegalStateException ex) {
-            log.error(ex);
-        }
-        locationService = service;
     }
 
     @Override
@@ -241,6 +232,10 @@ public class SolrLoggerServiceImpl implements SolrLoggerService, InitializingBea
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);
+        }
+
+        if (dspaceObject instanceof Bitstream && !isBitstreamLoggable((Bitstream) dspaceObject)) {
+            return;
         }
 
         if (solr == null) {
@@ -290,6 +285,10 @@ public class SolrLoggerServiceImpl implements SolrLoggerService, InitializingBea
     @Override
     public void postView(DSpaceObject dspaceObject,
                          String ip, String userAgent, String xforwardedfor, EPerson currentUser, String referrer) {
+        if (dspaceObject instanceof Bitstream && !isBitstreamLoggable((Bitstream) dspaceObject)) {
+            return;
+        }
+
         if (solr == null) {
             return;
         }
@@ -329,11 +328,15 @@ public class SolrLoggerServiceImpl implements SolrLoggerService, InitializingBea
     @Override
     public void postLogin(DSpaceObject dspaceObject, HttpServletRequest request, EPerson currentUser) {
 
-        if (solr == null || locationService == null) {
+        if (solr == null) {
             return;
         }
 
-        try {
+        try (DatabaseReader locationService = getDatabaseReader()) {
+
+            if (locationService == null) {
+                return;
+            }
 
             SolrInputDocument document = getCommonSolrDoc(dspaceObject, request, currentUser, null, new Date());
 
@@ -436,27 +439,32 @@ public class SolrLoggerServiceImpl implements SolrLoggerService, InitializingBea
             doc1.addField("isBot", isSpiderBot);
             // Save the location information if valid, save the event without
             // location information if not valid
-            if (locationService != null && ipAddress != null) {
-                try {
-                    CityResponse location = locationService.city(ipAddress);
-                    String countryCode = location.getCountry().getIsoCode();
-                    double latitude = location.getLocation().getLatitude();
-                    double longitude = location.getLocation().getLongitude();
-                    if (!(
+            if (ipAddress != null) {
+
+                try (DatabaseReader locationService = getDatabaseReader()) {
+
+                    if (locationService != null) {
+
+                        CityResponse location = locationService.city(ipAddress);
+                        String countryCode = location.getCountry().getIsoCode();
+                        double latitude = location.getLocation().getLatitude();
+                        double longitude = location.getLocation().getLongitude();
+                        if (!(
                             "--".equals(countryCode)
-                            && latitude == -180
-                            && longitude == -180)
-                    ) {
-                        try {
-                            doc1.addField("continent", LocationUtils
-                                .getContinentCode(countryCode));
-                        } catch (Exception e) {
-                            log.warn("Failed to load country/continent table: {}", countryCode);
+                                && latitude == -180
+                                && longitude == -180)
+                        ) {
+                            try {
+                                doc1.addField("continent", LocationUtils
+                                    .getContinentCode(countryCode));
+                            } catch (Exception e) {
+                                log.warn("Failed to load country/continent table: {}", countryCode);
+                            }
+                            doc1.addField("countryCode", countryCode);
+                            doc1.addField("city", location.getCity().getName());
+                            doc1.addField("latitude", latitude);
+                            doc1.addField("longitude", longitude);
                         }
-                        doc1.addField("countryCode", countryCode);
-                        doc1.addField("city", location.getCity().getName());
-                        doc1.addField("latitude", latitude);
-                        doc1.addField("longitude", longitude);
                     }
                 } catch (IOException e) {
                     log.warn("GeoIP lookup failed.", e);
@@ -528,34 +536,34 @@ public class SolrLoggerServiceImpl implements SolrLoggerService, InitializingBea
         doc1.addField("isBot", isSpiderBot);
         // Save the location information if valid, save the event without
         // location information if not valid
-        if (locationService != null) {
-            try {
+        try (DatabaseReader locationService = getDatabaseReader()) {
+            if (locationService != null) {
                 CityResponse location = locationService.city(ipAddress);
                 String countryCode = location.getCountry().getIsoCode();
                 double latitude = location.getLocation().getLatitude();
                 double longitude = location.getLocation().getLongitude();
                 if (!(
-                        "--".equals(countryCode)
-                                && latitude == -180
-                                && longitude == -180)
+                    "--".equals(countryCode)
+                        && latitude == -180
+                        && longitude == -180)
                 ) {
                     try {
                         doc1.addField("continent", LocationUtils
-                                .getContinentCode(countryCode));
+                            .getContinentCode(countryCode));
                     } catch (Exception e) {
                         System.out
-                                .println("COUNTRY ERROR: " + countryCode);
+                            .println("COUNTRY ERROR: " + countryCode);
                     }
                     doc1.addField("countryCode", countryCode);
                     doc1.addField("city", location.getCity().getName());
                     doc1.addField("latitude", latitude);
                     doc1.addField("longitude", longitude);
                 }
-            } catch (IOException e) {
-                log.warn("GeoIP lookup failed.", e);
-            } catch (GeoIp2Exception e) {
-                log.info("Unable to get location of request: {}", e.getMessage());
             }
+        } catch (IOException e) {
+            log.warn("GeoIP lookup failed.", e);
+        } catch (GeoIp2Exception e) {
+            log.info("Unable to get location of request: {}", e.getMessage());
         }
 
         if (dspaceObject != null) {
@@ -572,6 +580,9 @@ public class SolrLoggerServiceImpl implements SolrLoggerService, InitializingBea
         return doc1;
     }
 
+    protected DatabaseReader getDatabaseReader() {
+        return geoIpService.getDatabaseReader();
+    }
 
     @Override
     public void postSearch(DSpaceObject resultObject, HttpServletRequest request, EPerson currentUser,
@@ -1769,4 +1780,34 @@ public class SolrLoggerServiceImpl implements SolrLoggerService, InitializingBea
         throw new UnknownHostException("unknown ip format");
     }
 
+    /**
+     * Checks if a given Bitstream's bundles are configured to be logged in Solr statistics.
+     *
+     * @param bitstream The bitstream to check.
+     * @return {@code true} if the bitstream event should be logged, {@code false} otherwise.
+     */
+    private boolean isBitstreamLoggable(Bitstream bitstream) {
+        String[] allowedBundles = configurationService
+            .getArrayProperty("solr-statistics.query.filter.bundles");
+        if (allowedBundles == null || allowedBundles.length == 0) {
+            return true;
+        }
+        List<String> allowedBundlesList = Arrays.asList(allowedBundles);
+        try {
+            List<Bundle> actualBundles = bitstream.getBundles();
+            if (actualBundles.isEmpty()) {
+                return true;
+            }
+            for (Bundle bundle : actualBundles) {
+                if (allowedBundlesList.contains(bundle.getName())) {
+                    return true;
+                }
+            }
+        } catch (SQLException e) {
+            log.error("Error checking bitstream bundles for logging statistics for bitstream {}",
+                bitstream.getID(), e);
+            return true;
+        }
+        return false;
+    }
 }

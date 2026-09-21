@@ -82,7 +82,7 @@ public class ExternalSourceRestRepository extends DSpaceRestRepository<ExternalS
     }
 
     @Override
-    @PreAuthorize("permitAll()")
+    @PreAuthorize("hasAuthority('AUTHENTICATED')")
     public ExternalSourceRest findOne(Context context, String externalSourceName) {
         ExternalDataProvider externalDataProvider = externalDataService.getExternalDataProvider(externalSourceName);
         if (externalDataProvider == null) {
@@ -93,18 +93,29 @@ public class ExternalSourceRestRepository extends DSpaceRestRepository<ExternalS
     }
 
     @Override
-    @PreAuthorize("permitAll()")
+    @PreAuthorize("hasAuthority('AUTHENTICATED')")
     public Page<ExternalSourceRest> findAll(Context context, Pageable pageable) {
         List<ExternalDataProvider> externalSources = externalDataService.getExternalDataProviders();
         return converter.toRestPage(externalSources, pageable, utils.obtainProjection());
     }
 
-    @PreAuthorize("permitAll()")
+    /**
+     * Retrieves all ExternalDataProviders that supports the provided EntityType.
+     * 
+     * @param context       The relevant DSpace context
+     * @param pageable      The pagination information
+     * @param entityType    Entity type label
+     * @return
+     */
+    @PreAuthorize("hasAuthority('AUTHENTICATED')")
     @SearchRestMethod(name = "findByEntityType")
     public Page<ExternalSourceRest> findByEntityType(Context context, Pageable pageable,
-            @Parameter(required = true, value = "entityType") String entityType) {
-        List<ExternalDataProvider> externalSources = externalDataService.getExternalDataProviders().stream()
-                .filter(ep -> ep.supportsEntityType(entityType)).collect(Collectors.toList());
+          @Parameter(required = true, value = "entityType") String entityType) {
+        List<ExternalDataProvider> externalSources = externalDataService.getExternalDataProviders()
+                                                                        .stream()
+                                                                        .filter(ep -> ep.supportsEntityType(entityType))
+                                                                        .collect(Collectors.toList());
+
         return converter.toRestPage(externalSources, pageable, utils.obtainProjection());
     }
 

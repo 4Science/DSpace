@@ -61,6 +61,13 @@ public class ConfigurationRestRepositoryIT extends AbstractControllerIntegration
     }
 
     @Test
+    public void getNonAdminRestrictedPropertyNotRetrieved() throws Exception {
+        String tokenAdmin = getAuthToken(admin.getEmail(), password);
+        getClient(tokenAdmin).perform(get("/api/config/properties/db.url"))
+                             .andExpect(status().isNotFound());
+    }
+
+    @Test
     public void getAll() throws Exception {
         getClient().perform(get("/api/config/properties/"))
             .andExpect(status().isMethodNotAllowed());

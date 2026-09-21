@@ -7,6 +7,7 @@
 ## See org.dspace.core.Email for information on the format of this file.
 ##
 #set($subject = 'DSpace - Batch import successfully completed')
+#if($global.put('X-SES-TENANT', $config.get('aws.ses.tenant')))#end
 The batch item import you initiated from the DSpace UI has completed successfully.
 
 You may find the mapfile for the import in the following path: ${params[0]}

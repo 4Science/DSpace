@@ -35,15 +35,13 @@ public class DSpaceRequestContextFilter implements Filter {
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
         throws IOException, ServletException {
-        Context context = null;
         try {
             // First, process any other servlet filters, along with the controller & view
             chain.doFilter(request, response);
-
+        } finally {
             // *After* view was processed, check for an open Context object in the ServletRequest
             // (This Context object may have been opened by a @Controller via ContextUtil.obtainContext())
-            context = (Context) request.getAttribute(ContextUtil.DSPACE_CONTEXT);
-        } finally {
+            Context context = (Context) request.getAttribute(ContextUtil.DSPACE_CONTEXT);
             // Abort the context if it's still valid, thus closing any open
             // database connections
             if ((context != null) && context.isValid()) {

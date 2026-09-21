@@ -2763,4 +2763,485 @@ public class CommunityRestRepositoryIT extends AbstractControllerIntegrationTest
                                .andExpect(jsonPath("$.page.totalElements", is(1)));
     }
 
+    @Test
+    public void findEditAuthorizedUnauthorizedTest() throws Exception {
+        getClient().perform(get("/api/core/communities/search/findEditAuthorized"))
+                   .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    public void findAddAuthorizedUnauthorizedTest() throws Exception {
+        getClient().perform(get("/api/core/communities/search/findAddAuthorized"))
+                   .andExpect(status().isUnauthorized());
+    }
+
+    /**
+     * CRIS semantics: edit rights on a Community coincide with ADMIN rights (direct or inherited),
+     * resolved at index-time on the Solr {@code admin} field. A <em>direct WRITE</em> policy that is
+     * NOT admin does not grant Community edit in CRIS (no {@code edit} field is indexed for
+     * communities). This test documents the divergence from upstream DSpace.
+     */
+    @Test
+    public void findEditAuthorizedResourcePolicyTest() throws Exception {
+        context.turnOffAuthorisationSystem();
+        EPerson hasDirectEditRights = EPersonBuilder.createEPerson(context)
+            .withEmail("has@editrights.com").withPassword(password)
+            .build();
+        EPerson hasDirectAdminRights = EPersonBuilder.createEPerson(context)
+            .withEmail("has@adminrights.com").withPassword(password)
+            .build();
+        Community byResourcePolicy = CommunityBuilder.createCommunity(context)
+            .withName("direct rights for eperson").build();
+        Community uneditable = CommunityBuilder.createCommunity(context)
+            .withName("uneditable community")
+            .build();
+        // direct WRITE (non-admin) policy -> NOT indexed on the 'admin' field in CRIS
+        ResourcePolicyBuilder.createResourcePolicy(context, hasDirectEditRights, null)
+            .withDspaceObject(byResourcePolicy).withAction(Constants.WRITE)
+            .build();
+        // direct ADMIN policy -> indexed on the 'admin' field in CRIS
+        ResourcePolicyBuilder.createResourcePolicy(context, hasDirectAdminRights, null)
+            .withDspaceObject(byResourcePolicy).withAction(Constants.ADMIN)
+            .build();
+        context.restoreAuthSystemState();
+
+        String adminSiteToken = getAuthToken(admin.getEmail(), password);
+        String tokenHasDirectEditRightsToken = getAuthToken(hasDirectEditRights.getEmail(), password);
+        String tokenHasDirectAdminRightsToken = getAuthToken(hasDirectAdminRights.getEmail(), password);
+
+        // a direct WRITE (non-admin) policy does NOT grant edit at community level
+        getClient(tokenHasDirectEditRightsToken).perform(get("/api/core/communities/search/findEditAuthorized"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$._embedded.communities").doesNotExist())
+            .andExpect(jsonPath("$.page.totalElements", is(0)));
+
+        // a direct ADMIN policy DOES grant edit
+        getClient(tokenHasDirectAdminRightsToken).perform(get("/api/core/communities/search/findEditAuthorized"))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(contentType))
+            .andExpect(jsonPath("$._embedded.communities",
+                Matchers.contains(CommunityMatcher.matchCommunity(byResourcePolicy))))
+            .andExpect(jsonPath("$.page.totalElements", is(1)));
+
+        // a site ADMIN DOES grant edit to all communities
+        getClient(adminSiteToken).perform(get("/api/core/communities/search/findEditAuthorized"))
+                                 .andExpect(status().isOk())
+                                 .andExpect(content().contentType(contentType))
+                                 .andExpect(jsonPath("$._embedded.communities", Matchers.containsInAnyOrder(
+                                            CommunityMatcher.matchCommunity(byResourcePolicy),
+                                            CommunityMatcher.matchCommunity(uneditable)
+                                  )))
+                                 .andExpect(jsonPath("$.page.totalElements", is(2)));
+    }
+
+    /**
+     * CRIS semantics: add rights on a Community coincide with ADMIN rights (direct or inherited),
+     * resolved at index-time on the Solr {@code admin} field. A <em>direct ADD</em> policy that is
+     * NOT admin does not grant Community add in CRIS (no {@code submit} field is indexed for
+     * communities). This test documents the divergence from DSpace.
+     */
+    @Test
+    public void findAddAuthorizedResourcePolicyTest() throws Exception {
+        context.turnOffAuthorisationSystem();
+        CommunityBuilder.createCommunity(context).withName("Community 1").build();
+
+        EPerson hasDirectAddRights = EPersonBuilder.createEPerson(context)
+            .withEmail("has@addrights.com").withPassword(password)
+            .build();
+        EPerson hasDirectAdminRights = EPersonBuilder.createEPerson(context)
+            .withEmail("has@adminrights.com").withPassword(password)
+            .build();
+        Community byResourcePolicy = CommunityBuilder.createCommunity(context)
+            .withName("direct rights for eperson").build();
+        CommunityBuilder.createCommunity(context)
+            .withName("no add community")
+            .build();
+        // direct ADD (non-admin) policy -> NOT indexed on the 'admin' field in CRIS
+        ResourcePolicyBuilder.createResourcePolicy(context, hasDirectAddRights, null)
+            .withDspaceObject(byResourcePolicy).withAction(Constants.ADD)
+            .build();
+        // direct ADMIN policy -> indexed on the 'admin' field in CRIS
+        ResourcePolicyBuilder.createResourcePolicy(context, hasDirectAdminRights, null)
+            .withDspaceObject(byResourcePolicy).withAction(Constants.ADMIN)
+            .build();
+        context.restoreAuthSystemState();
+
+        String tokenHasDirectAddRightsToken = getAuthToken(hasDirectAddRights.getEmail(), password);
+        String tokenHasDirectAdminRightsToken = getAuthToken(hasDirectAdminRights.getEmail(), password);
+
+        // a direct ADD (non-admin) policy does NOT grant add at community level
+        getClient(tokenHasDirectAddRightsToken).perform(get("/api/core/communities/search/findAddAuthorized"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$._embedded.communities").doesNotExist())
+            .andExpect(jsonPath("$.page.totalElements", is(0)));
+
+        // a direct ADMIN policy DOES grant add
+        getClient(tokenHasDirectAdminRightsToken).perform(get("/api/core/communities/search/findAddAuthorized"))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(contentType))
+            .andExpect(jsonPath("$._embedded.communities",
+                Matchers.contains(CommunityMatcher.matchCommunity(byResourcePolicy))))
+            .andExpect(jsonPath("$.page.totalElements", is(1)));
+    }
+
+    @Test
+    public void findEditAuthorizedAdminPropagationTest() throws Exception {
+        findGenericAuthorizedAdminPropagationTest("findEditAuthorized");
+    }
+
+    @Test
+    public void findAddAuthorizedAdminPropagationTest() throws Exception {
+        findGenericAuthorizedAdminPropagationTest("findAddAuthorized");
+    }
+
+    private void findGenericAuthorizedAdminPropagationTest(String method) throws Exception {
+        context.turnOffAuthorisationSystem();
+
+        /*
+        DSO structure:
+        root
+        └── subcomm1
+            └── subcomm1subcomm2
+         */
+        EPerson rootAdmin = EPersonBuilder.createEPerson(context)
+            .withEmail("root@admin.com").withPassword(password).build();
+        EPerson subcomm1Admin = EPersonBuilder.createEPerson(context)
+            .withEmail("subcomm1@admin.com").withPassword(password).build();
+        EPerson subcomm2Admin = EPersonBuilder.createEPerson(context)
+            .withEmail("subcomm2@admin.com").withPassword(password).build();
+
+        Community root = CommunityBuilder.createCommunity(context)
+            .withAdminGroup(rootAdmin)
+            .withName("root")
+            .build();
+        Community subcomm1 = CommunityBuilder.createSubCommunity(context, root)
+            .withAdminGroup(subcomm1Admin)
+            .withName("subcomm1")
+            .build();
+        Community subcomm1subcomm2 = CommunityBuilder.createSubCommunity(context, subcomm1)
+            .withAdminGroup(subcomm2Admin)
+            .withName("subcomm1subcomm2")
+            .build();
+        context.restoreAuthSystemState();
+
+        String siteAdminToken = getAuthToken(admin.getEmail(), password);
+        String rootAdminToken = getAuthToken(rootAdmin.getEmail(), password);
+        String subcomm1AdminToken = getAuthToken(subcomm1Admin.getEmail(), password);
+        String subcomm2AdminToken = getAuthToken(subcomm2Admin.getEmail(), password);
+
+        getClient(siteAdminToken).perform(get("/api/core/communities/search/" + method))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(contentType))
+            .andExpect(jsonPath("$._embedded.communities",
+                Matchers.containsInAnyOrder(
+                    CommunityMatcher.matchCommunity(root),
+                    CommunityMatcher.matchCommunity(subcomm1),
+                    CommunityMatcher.matchCommunity(subcomm1subcomm2)
+                )))
+            .andExpect(jsonPath("$.page.totalElements", is(3)));
+
+        getClient(rootAdminToken).perform(get("/api/core/communities/search/" + method))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(contentType))
+            .andExpect(jsonPath("$._embedded.communities",
+                Matchers.containsInAnyOrder(
+                    CommunityMatcher.matchCommunity(root),
+                    CommunityMatcher.matchCommunity(subcomm1),
+                    CommunityMatcher.matchCommunity(subcomm1subcomm2)
+                )))
+            .andExpect(jsonPath("$.page.totalElements", is(3)));
+
+        getClient(subcomm1AdminToken).perform(get("/api/core/communities/search/" + method))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(contentType))
+            .andExpect(jsonPath("$._embedded.communities",
+                Matchers.containsInAnyOrder(
+                    CommunityMatcher.matchCommunity(subcomm1),
+                    CommunityMatcher.matchCommunity(subcomm1subcomm2)
+                )))
+            .andExpect(jsonPath("$.page.totalElements", is(2)));
+
+        getClient(subcomm2AdminToken).perform(get("/api/core/communities/search/" + method))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(contentType))
+            .andExpect(jsonPath("$._embedded.communities",
+                Matchers.containsInAnyOrder(
+                    CommunityMatcher.matchCommunity(subcomm1subcomm2)
+                )))
+            .andExpect(jsonPath("$.page.totalElements", is(1)));
+    }
+
+    @Test
+    public void addParentComAdminGroupToCheckEditPropagationTest() throws Exception {
+        addParentComAdminGroupToCheckGenericPropagationTest("findEditAuthorized");
+    }
+
+    @Test
+    public void addParentComAdminGroupToCheckAddPropagationTest() throws Exception {
+        addParentComAdminGroupToCheckGenericPropagationTest("findAddAuthorized");
+    }
+
+    /**
+     * CRIS adaptation: a dynamic admin grant (adding an {@code adminGroup} via REST) re-indexes the
+     * community it is applied to. Unlike child collections, a pre-existing child <em>sub-community</em>
+     * is not re-indexed by a change on its parent in the CRIS index-time model, so we apply the admin
+     * group to the queried sub-community itself (same supported behavior as
+     * {@code addComAdminGroupToCheckReindexingTest}). Hierarchical inheritance created at build-time is
+     * covered by {@code find*AuthorizedAdminPropagationTest}.
+     */
+    private void addParentComAdminGroupToCheckGenericPropagationTest(String method) throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+        context.turnOffAuthorisationSystem();
+
+        Community rootCommunity = CommunityBuilder.createCommunity(context)
+            .withName("Root Community")
+            .build();
+
+        Community subCommunity = CommunityBuilder.createSubCommunity(context, rootCommunity)
+            .withName("MyTestCom")
+            .build();
+
+        context.restoreAuthSystemState();
+
+        String epersonToken = getAuthToken(eperson.getEmail(), password);
+        getClient(epersonToken).perform(get("/api/core/communities/search/" + method)
+                               .param("query", "MyTestCom"))
+                               .andExpect(status().isOk())
+                               .andExpect(jsonPath("$._embedded").doesNotExist())
+                               .andExpect(jsonPath("$.page.totalElements", is(0)));
+
+        AtomicReference<UUID> idRef = new AtomicReference<>();
+
+        String token = getAuthToken(admin.getEmail(), password);
+        getClient(token).perform(post("/api/core/communities/" + subCommunity.getID() + "/adminGroup")
+                        .content(mapper.writeValueAsBytes(new GroupRest()))
+                        .contentType(contentType))
+                        .andExpect(status().isCreated())
+                        .andDo(result -> idRef.set(
+                               UUID.fromString(read(result.getResponse().getContentAsString(), "$.id"))));
+
+        String adminToken = getAuthToken(admin.getEmail(), password);
+        getClient(adminToken).perform(post("/api/eperson/groups/" + idRef.get() + "/epersons")
+                             .contentType(parseMediaType(TEXT_URI_LIST_VALUE))
+                             .content(REST_SERVER_URL + "eperson/groups/" + eperson.getID()));
+
+        getClient(epersonToken).perform(get("/api/core/communities/search/" + method)
+                               .param("query", "MyTestCom"))
+                               .andExpect(status().isOk())
+            .andExpect(jsonPath("$._embedded.communities", Matchers.contains(
+                CommunityMatcher.matchProperties(subCommunity.getName(), subCommunity.getID(), subCommunity.getHandle())
+             )))
+            .andExpect(jsonPath("$.page.totalElements", is(1)));
+    }
+
+    @Test
+    public void removeParentComAdminPolicyToCheckEditPropagationTest() throws Exception {
+        removeParentComAdminPolicyToCheckGenericPropagationTest("findEditAuthorized");
+    }
+
+    @Test
+    public void removeParentComAdminPolicyToCheckAddPropagationTest() throws Exception {
+        removeParentComAdminPolicyToCheckGenericPropagationTest("findAddAuthorized");
+    }
+
+    /**
+     * CRIS adaptation: permission inheritance is resolved at index-time on the {@code admin} field,
+     * so a child community only stops matching once it is re-indexed. Deleting a raw resource policy
+     * via {@code /api/authz/resourcepolicies/{id}} does NOT cascade a re-index to child communities in
+     * the CRIS model (unlike  DSpace, which resolves inheritance at query-time). We therefore
+     * exercise the removal through the community {@code adminGroup} endpoint, which triggers a subtree
+     * re-index (the same mechanism validated by {@code addParentComAdminGroupToCheck*PropagationTest}).
+     */
+    private void removeParentComAdminPolicyToCheckGenericPropagationTest(String method) throws Exception {
+        context.turnOffAuthorisationSystem();
+        Community rootCommunity = CommunityBuilder.createCommunity(context)
+            .withName("Root Community")
+            .withAdminGroup(eperson)
+            .build();
+
+        Community subCommunity = CommunityBuilder.createSubCommunity(context, rootCommunity)
+            .withName("MyTestCom")
+            .build();
+        context.restoreAuthSystemState();
+
+        String epersonToken = getAuthToken(eperson.getEmail(), password);
+        getClient(epersonToken).perform(get("/api/core/communities/search/" + method)
+                               .param("query", "MyTestCom"))
+                               .andExpect(status().isOk())
+            .andExpect(jsonPath("$._embedded.communities", Matchers.contains(
+                CommunityMatcher.matchProperties(subCommunity.getName(), subCommunity.getID(), subCommunity.getHandle())
+             )))
+            .andExpect(jsonPath("$.page.totalElements", is(1)));
+
+        String token = getAuthToken(admin.getEmail(), password);
+        getClient(token).perform(delete("/api/core/communities/" + rootCommunity.getID() + "/adminGroup"))
+                        .andExpect(status().isNoContent());
+
+        getClient(epersonToken).perform(get("/api/core/communities/search/" + method)
+                               .param("query", "MyTestCom"))
+                               .andExpect(status().isOk())
+                               .andExpect(jsonPath("$._embedded").doesNotExist())
+                               .andExpect(jsonPath("$.page.totalElements", is(0)));
+    }
+
+    @Test
+    public void findEditAuthorizedCommunitiesWithQueryTest() throws Exception {
+        findGenericAuthorizedCommunitiesWithQueryTest("findEditAuthorized");
+    }
+
+    @Test
+    public void findAddAuthorizedCommunitiesWithQueryTest() throws Exception {
+        findGenericAuthorizedCommunitiesWithQueryTest("findAddAuthorized");
+    }
+
+    private void findGenericAuthorizedCommunitiesWithQueryTest(String method) throws Exception {
+        context.turnOffAuthorisationSystem();
+        parentCommunity = CommunityBuilder.createCommunity(context)
+            .withName("Parent Community")
+            .build();
+        Community com1 = CommunityBuilder.createSubCommunity(context, parentCommunity)
+            .withName("communityEditable is a very original name")
+            .withAdminGroup(eperson)
+            .build();
+        Community com2 = CommunityBuilder.createSubCommunity(context, parentCommunity)
+            .withName("the other community is not editable by eperson")
+            .build();
+        context.restoreAuthSystemState();
+
+        String token = getAuthToken(eperson.getEmail(), password);
+
+        // eperson (admin of com1) gets only com1
+        getClient(token).perform(get("/api/core/communities/search/" + method))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$._embedded.communities", Matchers.contains(
+                CommunityMatcher.matchProperties(com1.getName(), com1.getID(), com1.getHandle())
+            )))
+            .andExpect(jsonPath("$.page.totalElements", is(1)));
+
+        // query by name matches the authorized community
+        getClient(token).perform(get("/api/core/communities/search/" + method)
+                .param("query", com1.getName()))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$._embedded.communities", Matchers.contains(
+                CommunityMatcher.matchProperties(com1.getName(), com1.getID(), com1.getHandle())
+            )))
+            .andExpect(jsonPath("$.page.totalElements", is(1)));
+
+        // query for a community the eperson can't edit/add returns nothing
+        getClient(token).perform(get("/api/core/communities/search/" + method)
+                .param("query", com2.getName()))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$._embedded.communities").doesNotExist())
+            .andExpect(jsonPath("$.page.totalElements", is(0)));
+    }
+
+    @Test
+    public void findEditAuthorizedSubGroupOfAdminGroupTest() throws Exception {
+        findGenericAuthorizedSubGroupOfAdminGroupTest("findEditAuthorized");
+    }
+
+    @Test
+    public void findAddAuthorizedSubGroupOfAdminGroupTest() throws Exception {
+        findGenericAuthorizedSubGroupOfAdminGroupTest("findAddAuthorized");
+    }
+
+    /**
+     * edit/add == admin, and admin is granted transitively through group membership
+     * ({@code allMemberGroupsSet}). An ePerson that belongs to a <em>sub-group</em> of the community
+     * admin group must therefore be returned by findEdit/AddAuthorized.
+     */
+    private void findGenericAuthorizedSubGroupOfAdminGroupTest(String method) throws Exception {
+        context.turnOffAuthorisationSystem();
+        Community com1 = CommunityBuilder.createCommunity(context)
+                                         .withName("MyTestCom")
+                                         .withAdminGroup(admin)
+                                         .build();
+        // eperson is NOT a direct member of the admin group, only of a sub-group of it
+        GroupBuilder.createGroup(context)
+                    .withName("communityAdminSubGroup")
+                    .withParent(groupService.findByName(context, "COMMUNITY_" + com1.getID() + "_ADMIN"))
+                    .addMember(eperson)
+                    .build();
+        context.restoreAuthSystemState();
+
+        String token = getAuthToken(eperson.getEmail(), password);
+        getClient(token).perform(get("/api/core/communities/search/" + method)
+                        .param("query", "MyTestCom"))
+                        .andExpect(status().isOk())
+                        .andExpect(jsonPath("$._embedded.communities", Matchers.contains(
+                            CommunityMatcher.matchProperties(com1.getName(), com1.getID(), com1.getHandle())
+                         )))
+                        .andExpect(jsonPath("$.page.totalElements", is(1)));
+    }
+
+    @Test
+    public void findEditAuthorizedWriteToGroupNotAuthorizedTest() throws Exception {
+        findGenericAuthorizedActionToGroupNotAuthorizedTest("findEditAuthorized", Constants.WRITE);
+    }
+
+    @Test
+    public void findAddAuthorizedAddToGroupNotAuthorizedTest() throws Exception {
+        findGenericAuthorizedActionToGroupNotAuthorizedTest("findAddAuthorized", Constants.ADD);
+    }
+
+    /**
+     * CRIS divergence: a direct WRITE/ADD policy does NOT grant Community edit/add, regardless of
+     * whether it targets an ePerson or a group the user belongs to (only the {@code admin} field is queried).
+     */
+    private void findGenericAuthorizedActionToGroupNotAuthorizedTest(String method, int action)
+        throws Exception {
+        context.turnOffAuthorisationSystem();
+        Community com1 = CommunityBuilder.createCommunity(context)
+                                         .withName("MyTestCom")
+                                         .build();
+        Group actionGroup = GroupBuilder.createGroup(context)
+                                        .withName("actionGroup")
+                                        .addMember(eperson)
+                                        .build();
+        ResourcePolicyBuilder.createResourcePolicy(context, null, actionGroup)
+                             .withDspaceObject(com1)
+                             .withAction(action)
+                             .build();
+        context.restoreAuthSystemState();
+
+        String token = getAuthToken(eperson.getEmail(), password);
+        getClient(token).perform(get("/api/core/communities/search/" + method)
+                        .param("query", "MyTestCom"))
+                        .andExpect(status().isOk())
+                        .andExpect(jsonPath("$._embedded.communities").doesNotExist())
+                        .andExpect(jsonPath("$.page.totalElements", is(0)));
+    }
+
+    @Test
+    public void findEditAuthorizedReadOnlyNotAuthorizedTest() throws Exception {
+        findGenericAuthorizedReadOnlyNotAuthorizedTest("findEditAuthorized");
+    }
+
+    @Test
+    public void findAddAuthorizedReadOnlyNotAuthorizedTest() throws Exception {
+        findGenericAuthorizedReadOnlyNotAuthorizedTest("findAddAuthorized");
+    }
+
+    /**
+     * CRIS boundary: a plain READ policy does NOT grant edit/add; findEdit/AddAuthorized only matches
+     * the {@code admin} field (read != edit/add).
+     */
+    private void findGenericAuthorizedReadOnlyNotAuthorizedTest(String method) throws Exception {
+        context.turnOffAuthorisationSystem();
+        Community com1 = CommunityBuilder.createCommunity(context)
+                                         .withName("MyTestCom")
+                                         .build();
+        ResourcePolicyBuilder.createResourcePolicy(context, eperson, null)
+                             .withDspaceObject(com1).withAction(Constants.READ)
+                             .build();
+        context.restoreAuthSystemState();
+
+        String token = getAuthToken(eperson.getEmail(), password);
+        getClient(token).perform(get("/api/core/communities/search/" + method)
+                        .param("query", "MyTestCom"))
+                        .andExpect(status().isOk())
+                        .andExpect(jsonPath("$._embedded.communities").doesNotExist())
+                        .andExpect(jsonPath("$.page.totalElements", is(0)));
+    }
+
 }

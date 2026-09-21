@@ -20,6 +20,7 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.atteo.evo.inflector.English;
 import org.dspace.app.rest.Parameter;
 import org.dspace.app.rest.SearchRestMethod;
 import org.dspace.app.rest.authorization.Authorization;
@@ -195,13 +196,32 @@ public class AuthorizationRestRepository extends DSpaceRestRepository<Authorizat
         }
 
         List<Authorization> authorizations =
-                findAuthorizationsByUUIDList(context, type, uuidList, user, featureNames);
+                findAuthorizationsByUUIDList(context, pluralizeType(type), uuidList, user, featureNames);
 
         if (ObjectUtils.notEqual(currUser, user)) {
             // restore the real current user
             context.restoreContextUser();
         }
         return converter.toRestPage(authorizations, pageable, utils.obtainProjection());
+    }
+
+    private String pluralizeType(String type) {
+        int index = type.lastIndexOf('.');
+        String prefix = index < 0 ? "" : type.substring(0, index + 1);
+        String segment = index < 0 ? type : type.substring(index + 1);
+        return prefix + smartPlural(segment);
+    }
+
+    private String smartPlural(String segment) {
+        return isAlreadyPlural(segment) ? segment : English.plural(segment);
+    }
+
+    private boolean isAlreadyPlural(String segment) {
+        if (!segment.endsWith("s") || segment.length() < 2) {
+            return false;
+        }
+        String candidateSingular = segment.substring(0, segment.length() - 1);
+        return English.plural(candidateSingular).equals(segment);
     }
 
     private List<Authorization> findAuthorizationsByUUIDList(

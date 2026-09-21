@@ -5,6 +5,7 @@
 ##             {2} reason
 ##
 #set($subject = "Notification about ${params[0]} Request")
+#if($global.put('X-SES-TENANT', $config.get('aws.ses.tenant')))#end
 
 Item Details:
 

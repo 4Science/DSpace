@@ -17,6 +17,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.Spliterators;
 import java.util.UUID;
 import java.util.regex.Pattern;
@@ -28,6 +29,8 @@ import jakarta.annotation.Nullable;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.Logger;
+import org.dspace.app.requestitem.RequestItem;
+import org.dspace.app.requestitem.service.RequestItemService;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.authorize.service.AuthorizeService;
 import org.dspace.content.dao.BitstreamDAO;
@@ -74,6 +77,8 @@ public class BitstreamServiceImpl extends DSpaceObjectServiceImpl<Bitstream> imp
     protected BundleService bundleService;
     @Autowired(required = true)
     protected BitstreamStorageService bitstreamStorageService;
+    @Autowired(required = true)
+    protected RequestItemService requestItemService;
 
     @Autowired
     private ConfigurationService configurationService;
@@ -301,6 +306,13 @@ public class BitstreamServiceImpl extends DSpaceObjectServiceImpl<Bitstream> imp
         //Remove all bundles from the bitstream object, clearing the connection in 2 ways
         bundles.clear();
 
+        // Remove any RequestItem entities associated with this bitstream ensuring there are no requests referencing
+        // a deleted bitstream
+        Iterator<RequestItem> requestItems = requestItemService.findByBitstreamId(context, bitstream.getID());
+        while (requestItems.hasNext()) {
+            requestItemService.delete(context, requestItems.next());
+        }
+
         // Remove policies only after the bitstream has been updated (otherwise the current user has not WRITE rights)
         authorizeService.removeAllPolicies(context, bitstream);
     }
@@ -362,6 +374,28 @@ public class BitstreamServiceImpl extends DSpaceObjectServiceImpl<Bitstream> imp
             throw new IllegalStateException("Bitstream " + bitstream.getID().toString()
                     + " must be deleted before it can be removed from the database.");
         }
+
+        // Defensively remove any remaining bundle2bitstream references.
+        // Normally delete() already cleans these up, but orphaned rows from
+        // historical bugs can cause FK constraint violations on hard-delete.
+        final List<Bundle> bundles = bitstream.getBundles();
+        for (Bundle bundle : bundles) {
+            if (bitstream.equals(bundle.getPrimaryBitstream())) {
+                bundle.unsetPrimaryBitstreamID();
+            }
+            bundle.removeBitstream(bitstream);
+        }
+        bundles.clear();
+
+        // Remove any orphaned request items referencing this bitstream
+        Iterator<RequestItem> requestItems = requestItemService.findByBitstreamId(context, bitstream.getID());
+        while (requestItems.hasNext()) {
+            requestItemService.delete(context, requestItems.next());
+        }
+
+        // Remove any remaining authorization policies
+        authorizeService.removeAllPolicies(context, bitstream);
+
         bitstreamDAO.delete(context, bitstream);
     }
 
@@ -540,6 +574,16 @@ public class BitstreamServiceImpl extends DSpaceObjectServiceImpl<Bitstream> imp
     }
 
     @Override
+    public boolean isInBundle(Bitstream bitstream, java.util.Collection<String> bundleNames) throws SQLException {
+        Set<String> bundles =
+            bitstream.getBundles()
+                     .stream()
+                     .map(Bundle::getName)
+                     .collect(Collectors.toSet());
+        return bundleNames.stream().anyMatch(bundles::contains);
+    }
+
+    @Override
     public List<Bitstream> findShowableByItem(Context context, UUID itemId, String bundleName,
             Map<String, String> filterMetadata) throws SQLException {
 
@@ -555,8 +599,7 @@ public class BitstreamServiceImpl extends DSpaceObjectServiceImpl<Bitstream> imp
 
         try {
 
-            return streamOf(getItemBitstreams(context, item))
-                .filter(bitstream -> isContainedInBundleNamed(bitstream, bundleName))
+            return streamOf(bitstreamDAO.findByItemAndBundle(context, item.getID(), bundleName))
                 .filter(bitstream -> hasAllMetadataValues(bitstream, filterMetadata))
                 .collect(Collectors.toList());
 
@@ -568,21 +611,6 @@ public class BitstreamServiceImpl extends DSpaceObjectServiceImpl<Bitstream> imp
 
     public boolean exists(Context context, UUID id) throws SQLException {
         return this.bitstreamDAO.exists(context, Bitstream.class, id);
-    }
-
-    private boolean isContainedInBundleNamed(Bitstream bitstream, String name) {
-
-        if (StringUtils.isEmpty(name)) {
-            return true;
-        }
-
-        try {
-            return bitstream.getBundles().stream()
-                .anyMatch(bundle -> name.equals(bundle.getName()));
-        } catch (SQLException e) {
-            throw new SQLRuntimeException(e);
-        }
-
     }
 
     private boolean hasAllMetadataValues(Bitstream bitstream, Map<String, String> filterMetadata) {

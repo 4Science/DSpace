@@ -13,8 +13,9 @@ import java.util.UUID;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotEmpty;
 import org.dspace.app.rest.RestResourceController;
-
 
 /**
  * This class acts as the REST representation of the RegistrationData model class.
@@ -28,6 +29,8 @@ public class RegistrationRest extends RestAddressableModel {
     public static final String CATEGORY = EPERSON;
 
     private Integer id;
+    @Email
+    @NotEmpty
     private String email;
     private UUID user;
     private String registrationType;

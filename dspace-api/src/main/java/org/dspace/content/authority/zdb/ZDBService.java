@@ -62,12 +62,12 @@ public class ZDBService {
                 throw new RuntimeException("WS call failed: " + statusCode);
             }
 
-            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-            factory.setValidating(false);
-            factory.setIgnoringComments(true);
-            factory.setIgnoringElementContentWhitespace(true);
             DocumentBuilder builder;
             try {
+                DocumentBuilderFactory factory = XMLUtils.getDocumentBuilderFactory();
+                factory.setValidating(false);
+                factory.setIgnoringComments(true);
+                factory.setIgnoringElementContentWhitespace(true);
                 builder = factory.newDocumentBuilder();
 
                 Document inDoc = builder.parse(response.getEntity().getContent());

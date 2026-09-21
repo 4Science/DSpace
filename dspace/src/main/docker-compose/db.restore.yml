@@ -15,7 +15,7 @@ services:
     image: 4science/dspace-cris-postgres-pgcrypto:${DSPACE_VER:-dspace-cris-2024_02_x}-loadsql
     environment:
       # Location where the dump SQL file will be available on the running container
-      - LOCALSQL=/tmp/pgdump.sql
+      - LOCALSQL=${LOCALSQL:-/tmp/pgdump.sql}
     volumes:
       # Volume which shares a local SQL file at "./pgdump.sql" to the running container
       # IF YOUR LOCAL FILE HAS A DIFFERENT NAME (or is in a different location), then change the "./pgdump.sql"

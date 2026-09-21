@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 
+import org.dspace.app.util.XMLUtils;
 import org.dspace.harvest.model.OAIHarvesterValidationResult;
 import org.dspace.services.ConfigurationService;
 import org.jdom2.Element;
@@ -49,7 +50,7 @@ public class OAIHarvesterValidatorTest {
     @InjectMocks
     private OAIHarvesterValidatorImpl validator;
 
-    private SAXBuilder builder = new SAXBuilder();
+    private SAXBuilder builder = XMLUtils.getSAXBuilder();
 
     @Test
     public void testPersonValidationWithoutErrors() {

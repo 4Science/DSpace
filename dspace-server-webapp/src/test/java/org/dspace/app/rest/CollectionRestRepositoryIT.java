@@ -1680,6 +1680,7 @@ public class CollectionRestRepositoryIT extends AbstractControllerIntegrationTes
         authorizeService.removePoliciesActionFilter(context, eperson, Constants.WRITE);
     }
 
+    @Test
     public void patchCollectionMetadataAuthorized() throws Exception {
         runPatchMetadataTests(admin, 200);
     }
@@ -4055,6 +4056,451 @@ public class CollectionRestRepositoryIT extends AbstractControllerIntegrationTes
 
         configurationService.setProperty(
             "org.dspace.app.rest.authorization.AlwaysThrowExceptionFeature.turnoff", "true");
+    }
+
+    @Test
+    public void findEditAuthorizedUnauthorizedTest() throws Exception {
+        getClient().perform(get("/api/core/collections/search/findEditAuthorized"))
+                   .andExpect(status().isUnauthorized());
+    }
+
+    /**
+     * CRIS semantics: edit rights on a Collection coincide with ADMIN rights (direct or inherited),
+     * resolved at index-time on the Solr {@code admin} field. A <em>direct WRITE</em> policy that is
+     * NOT admin does not grant container-edit in CRIS (no {@code edit}/{@code write} field is indexed
+     * for collections, see {@code SolrServiceResourceRestrictionPlugin}). This test documents that
+     * divergence from DSpace (where a direct WRITE policy would grant edit).
+     */
+    @Test
+    public void findEditAuthorizedResourcePolicyTest() throws Exception {
+        context.turnOffAuthorisationSystem();
+        Community comm1 = CommunityBuilder.createCommunity(context).withName("Community 1").build();
+
+        EPerson hasDirectEditRights = EPersonBuilder.createEPerson(context)
+            .withEmail("has@editrights.com").withPassword(password)
+            .build();
+        EPerson hasDirectAdminRights = EPersonBuilder.createEPerson(context)
+            .withEmail("has@adminrights.com").withPassword(password)
+            .build();
+
+        Collection byResourcePolicy = CollectionBuilder.createCollection(context, comm1)
+            .withName("direct rights for eperson")
+            .build();
+        Collection uneditable = CollectionBuilder.createCollection(context, comm1)
+            .withName("uneditable collection")
+            .build();
+
+        // direct WRITE (non-admin) policy -> NOT indexed on the 'admin' field
+        ResourcePolicyBuilder.createResourcePolicy(context, hasDirectEditRights, null)
+            .withDspaceObject(byResourcePolicy).withAction(WRITE)
+            .build();
+        // direct ADMIN policy -> indexed on the 'admin' field
+        ResourcePolicyBuilder.createResourcePolicy(context, hasDirectAdminRights, null)
+            .withDspaceObject(byResourcePolicy).withAction(Constants.ADMIN)
+            .build();
+        context.restoreAuthSystemState();
+
+        String adminSiteToken = getAuthToken(admin.getEmail(), password);
+        String tokenHasDirectEditRightsToken = getAuthToken(hasDirectEditRights.getEmail(), password);
+        String tokenHasDirectAdminRightsToken = getAuthToken(hasDirectAdminRights.getEmail(), password);
+
+        // a direct WRITE (non-admin) policy does NOT grant edit at collection level
+        getClient(tokenHasDirectEditRightsToken).perform(get("/api/core/collections/search/findEditAuthorized"))
+                                                .andExpect(status().isOk())
+                                                .andExpect(jsonPath("$._embedded.collections").doesNotExist())
+                                                .andExpect(jsonPath("$.page.totalElements", is(0)));
+
+        // a direct ADMIN policy DOES grant edit
+        getClient(tokenHasDirectAdminRightsToken).perform(get("/api/core/collections/search/findEditAuthorized"))
+                                                 .andExpect(status().isOk())
+                                             .andExpect(content().contentType(contentType))
+                                             .andExpect(jsonPath("$._embedded.collections",
+                                              Matchers.contains(CollectionMatcher.matchCollection(byResourcePolicy))))
+                                             .andExpect(jsonPath("$.page.totalElements", is(1)));
+
+        // a site ADMIN can edit all of them
+        getClient(adminSiteToken).perform(get("/api/core/collections/search/findEditAuthorized"))
+                                 .andExpect(status().isOk())
+                                 .andExpect(content().contentType(contentType))
+                                 .andExpect(jsonPath("$._embedded.collections",
+                                  Matchers.containsInAnyOrder(
+                                           CollectionMatcher.matchCollection(byResourcePolicy),
+                                           CollectionMatcher.matchCollection(uneditable)
+                                           )))
+                                 .andExpect(jsonPath("$.page.totalElements", is(2)));
+    }
+
+    @Test
+    public void findEditAuthorizedAdminPropagationTest() throws Exception {
+        context.turnOffAuthorisationSystem();
+
+        /*
+        DSO structure:
+        root (rootAdmin)
+        ├── subcomm1 (subcomm1Admin)
+            ├── subcomm1collA (collection) (subcomm1collA_Admin)
+            └── subcomm1subcom3 (community)
+                ├── subcomm2subcomm3collB (collection) (subcomm1collB_Admin)
+        └── subcomm2 (subcomm2Admin)
+            └── subcomm2coll (subcomm2collAdmin)
+         */
+        EPerson rootAdmin = EPersonBuilder.createEPerson(context)
+            .withEmail("root@admin.com").withPassword(password).build();
+        EPerson subcomm1Admin = EPersonBuilder.createEPerson(context)
+            .withEmail("subcomm1@admin.com").withPassword(password).build();
+        EPerson subcomm2Admin = EPersonBuilder.createEPerson(context)
+            .withEmail("subcomm2@admin.com").withPassword(password).build();
+        EPerson subcomm1collA_Admin = EPersonBuilder.createEPerson(context)
+            .withEmail("subcomm1collA@admin.com").withPassword(password).build();
+        EPerson subcomm1collB_Admin = EPersonBuilder.createEPerson(context)
+            .withEmail("subcomm1collB@admin.com").withPassword(password).build();
+        EPerson subcomm2collAdmin = EPersonBuilder.createEPerson(context)
+            .withEmail("subcomm2coll@admin.com").withPassword(password).build();
+
+        Community root = CommunityBuilder.createCommunity(context)
+            .withAdminGroup(rootAdmin)
+            .withName("root")
+            .build();
+        Community subcomm1 = CommunityBuilder.createSubCommunity(context, root)
+            .withAdminGroup(subcomm1Admin)
+            .withName("subcomm1")
+            .build();
+        Community subcomm1subcom3 = CommunityBuilder.createSubCommunity(context, subcomm1)
+            .withName("subcomm1subcom3")
+            .build();
+        Community subcomm2 = CommunityBuilder.createSubCommunity(context, root)
+            .withAdminGroup(subcomm2Admin)
+            .withName("subcomm2")
+            .build();
+
+        Collection subcomm1collA = CollectionBuilder.createCollection(context, subcomm1)
+            .withAdminGroup(subcomm1collA_Admin)
+            .withName("subcomm1collA")
+            .build();
+        Collection subcomm2subcomm3collB = CollectionBuilder.createCollection(context, subcomm1subcom3)
+            .withAdminGroup(subcomm1collB_Admin)
+            .withName("subcomm2subcomm3collB")
+            .build();
+        Collection subcomm2coll = CollectionBuilder.createCollection(context, subcomm2)
+            .withAdminGroup(subcomm2collAdmin)
+            .withName("subcomm2coll")
+            .build();
+        context.restoreAuthSystemState();
+
+        String siteAdminToken = getAuthToken(admin.getEmail(), password);
+        String rootAdminToken = getAuthToken(rootAdmin.getEmail(), password);
+        String subcomm1AdminToken = getAuthToken(subcomm1Admin.getEmail(), password);
+        String subcomm2AdminToken = getAuthToken(subcomm2Admin.getEmail(), password);
+
+        getClient(siteAdminToken).perform(get("/api/core/collections/search/findEditAuthorized"))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(contentType))
+            .andExpect(jsonPath("$._embedded.collections",
+                Matchers.containsInAnyOrder(
+                    CollectionMatcher.matchCollection(subcomm1collA),
+                    CollectionMatcher.matchCollection(subcomm2subcomm3collB),
+                    CollectionMatcher.matchCollection(subcomm2coll)
+                )))
+            .andExpect(jsonPath("$.page.totalElements", is(3)));
+
+        getClient(rootAdminToken).perform(get("/api/core/collections/search/findEditAuthorized"))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(contentType))
+            .andExpect(jsonPath("$._embedded.collections",
+                Matchers.containsInAnyOrder(
+                    CollectionMatcher.matchCollection(subcomm1collA),
+                    CollectionMatcher.matchCollection(subcomm2subcomm3collB),
+                    CollectionMatcher.matchCollection(subcomm2coll)
+                )))
+            .andExpect(jsonPath("$.page.totalElements", is(3)));
+
+        getClient(subcomm1AdminToken).perform(get("/api/core/collections/search/findEditAuthorized"))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(contentType))
+            .andExpect(jsonPath("$._embedded.collections",
+                Matchers.containsInAnyOrder(
+                    CollectionMatcher.matchCollection(subcomm1collA),
+                    CollectionMatcher.matchCollection(subcomm2subcomm3collB)
+                )))
+            .andExpect(jsonPath("$.page.totalElements", is(2)));
+
+        getClient(subcomm2AdminToken).perform(get("/api/core/collections/search/findEditAuthorized"))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(contentType))
+            .andExpect(jsonPath("$._embedded.collections",
+                Matchers.containsInAnyOrder(
+                    CollectionMatcher.matchCollection(subcomm2coll)
+                )))
+            .andExpect(jsonPath("$.page.totalElements", is(1)));
+    }
+
+    @Test
+    public void addParentComAdminGroupToCheckEditPropagationTest() throws Exception {
+        context.turnOffAuthorisationSystem();
+        parentCommunity = CommunityBuilder.createCommunity(context)
+            .withName("Parent Community")
+            .build();
+
+        Collection col1 = CollectionBuilder.createCollection(context, parentCommunity)
+                                           .withName("MyTest")
+                                           .build();
+
+        Collection col2 = CollectionBuilder.createCollection(context, parentCommunity)
+                                           .withName("Publications")
+                                           .build();
+
+        context.restoreAuthSystemState();
+
+        String epersonToken = getAuthToken(eperson.getEmail(), password);
+        getClient(epersonToken).perform(get("/api/core/collections/search/findEditAuthorized")
+                .param("query", "MyTest"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$._embedded").doesNotExist())
+            .andExpect(jsonPath("$.page.totalElements", is(0)));
+
+        AtomicReference<UUID> idRef = new AtomicReference<>();
+        ObjectMapper mapper = new ObjectMapper();
+        GroupRest groupRest = new GroupRest();
+
+        String token = getAuthToken(admin.getEmail(), password);
+        getClient(token).perform(post("/api/core/communities/" + parentCommunity.getID() + "/adminGroup")
+                        .content(mapper.writeValueAsBytes(groupRest))
+                        .contentType(contentType))
+            .andExpect(status().isCreated())
+            .andDo(result -> idRef.set(
+                UUID.fromString(read(result.getResponse().getContentAsString(), "$.id")))
+            );
+
+        String adminToken = getAuthToken(admin.getEmail(), password);
+        getClient(adminToken).perform(post("/api/eperson/groups/" + idRef.get() + "/epersons")
+                             .contentType(parseMediaType(TEXT_URI_LIST_VALUE))
+                             .content(REST_SERVER_URL + "eperson/groups/" + eperson.getID()));
+
+        getClient(epersonToken).perform(get("/api/core/collections/search/findEditAuthorized")
+                               .param("query", "MyTest"))
+                               .andExpect(status().isOk())
+                               .andExpect(jsonPath("$._embedded.collections", Matchers.contains(
+                                   CollectionMatcher.matchProperties(col1.getName(), col1.getID(), col1.getHandle())
+                                )))
+                               .andExpect(jsonPath("$.page.totalElements", is(1)));
+
+        getClient(epersonToken).perform(get("/api/core/collections/search/findEditAuthorized")
+                               .param("query", "Publications"))
+                               .andExpect(status().isOk())
+                               .andExpect(jsonPath("$._embedded.collections", Matchers.contains(
+                                   CollectionMatcher.matchProperties(col2.getName(), col2.getID(), col2.getHandle())
+                                )))
+                               .andExpect(jsonPath("$.page.totalElements", is(1)));
+    }
+
+    /**
+     * CRIS adaptation: permission inheritance is resolved at index-time on the {@code admin} field,
+     * so a child collection only stops matching once it is re-indexed. Deleting a raw resource policy
+     * via {@code /api/authz/resourcepolicies/{id}} does NOT cascade a re-index to child collections in
+     * the CRIS model (unlike upstream DSpace, which resolves inheritance at query-time). We therefore
+     * exercise the removal through the community {@code adminGroup} endpoint, which triggers a subtree
+     * re-index (the same mechanism validated by {@code addParentComAdminGroupToCheck*PropagationTest}
+     * and {@code removeColAdminGroupToCheckReindexingTest}).
+     */
+    @Test
+    public void removeParentComAdminPolicyToCheckEditPropagationTest() throws Exception {
+        context.turnOffAuthorisationSystem();
+        parentCommunity = CommunityBuilder.createCommunity(context)
+                                          .withName("Parent Community")
+                                          .withAdminGroup(eperson)
+                                          .build();
+
+        Collection col1 = CollectionBuilder.createCollection(context, parentCommunity)
+                                           .withName("MyTest")
+                                           .build();
+        context.restoreAuthSystemState();
+
+        String epersonToken = getAuthToken(eperson.getEmail(), password);
+        getClient(epersonToken).perform(get("/api/core/collections/search/findEditAuthorized")
+                               .param("query", "MyTest"))
+                               .andExpect(status().isOk())
+            .andExpect(jsonPath("$._embedded.collections", Matchers.contains(
+                    CollectionMatcher.matchProperties(col1.getName(), col1.getID(), col1.getHandle())
+             )))
+            .andExpect(jsonPath("$.page.totalElements", is(1)));
+
+        String token = getAuthToken(admin.getEmail(), password);
+        getClient(token).perform(delete("/api/core/communities/" + parentCommunity.getID() + "/adminGroup"))
+                        .andExpect(status().isNoContent());
+
+        getClient(epersonToken).perform(get("/api/core/collections/search/findEditAuthorized")
+                               .param("query", "MyTest"))
+                               .andExpect(status().isOk())
+                               .andExpect(jsonPath("$._embedded").doesNotExist())
+                               .andExpect(jsonPath("$.page.totalElements", is(0)));
+    }
+
+    @Test
+    public void findEditAuthorizedCollectionsWithQueryTest() throws Exception {
+        context.turnOffAuthorisationSystem();
+        parentCommunity = CommunityBuilder.createCommunity(context)
+            .withName("Parent Community")
+            .build();
+        Collection col1 = CollectionBuilder.createCollection(context, parentCommunity)
+            .withName("collectionEditable is a very original name")
+            .withAdminGroup(eperson)
+            .build();
+        Collection col2 = CollectionBuilder.createCollection(context, parentCommunity)
+            .withName("the other collection is not editable by eperson")
+            .build();
+        context.restoreAuthSystemState();
+
+        String token = getAuthToken(eperson.getEmail(), password);
+
+        // eperson (admin of col1) gets only col1
+        getClient(token).perform(get("/api/core/collections/search/findEditAuthorized"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$._embedded.collections", Matchers.contains(
+                CollectionMatcher.matchProperties(col1.getName(), col1.getID(), col1.getHandle())
+            )))
+            .andExpect(jsonPath("$.page.totalElements", is(1)));
+
+        // query by name matches the editable collection
+        getClient(token).perform(get("/api/core/collections/search/findEditAuthorized")
+                .param("query", col1.getName()))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$._embedded.collections", Matchers.contains(
+                CollectionMatcher.matchProperties(col1.getName(), col1.getID(), col1.getHandle())
+            )))
+            .andExpect(jsonPath("$.page.totalElements", is(1)));
+
+        // query for a collection the eperson can't edit returns nothing
+        getClient(token).perform(get("/api/core/collections/search/findEditAuthorized")
+                .param("query", col2.getName()))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$._embedded.collections").doesNotExist())
+            .andExpect(jsonPath("$.page.totalElements", is(0)));
+    }
+
+    /**
+     * An ePerson that belongs to a <em>sub-group</em> of the collection
+     * admin group must therefore be returned by findEditAuthorized.
+     */
+    @Test
+    public void findEditAuthorizedSubGroupOfAdminGroupTest() throws Exception {
+        context.turnOffAuthorisationSystem();
+        parentCommunity = CommunityBuilder.createCommunity(context)
+                                          .withName("Parent Community")
+                                          .build();
+        Collection col1 = CollectionBuilder.createCollection(context, parentCommunity)
+                                           .withName("MyTest")
+                                           .withAdminGroup(admin)
+                                           .build();
+
+        // eperson is NOT a direct member of the admin group, only of a sub-group of it
+        GroupBuilder.createGroup(context)
+                    .withName("collectionAdminSubGroup")
+                    .withParent(groupService.findByName(context, "COLLECTION_" + col1.getID() + "_ADMIN"))
+                    .addMember(eperson)
+                    .build();
+        context.restoreAuthSystemState();
+
+        String token = getAuthToken(eperson.getEmail(), password);
+        getClient(token).perform(get("/api/core/collections/search/findEditAuthorized")
+                        .param("query", "MyTest"))
+                        .andExpect(status().isOk())
+                        .andExpect(jsonPath("$._embedded.collections", Matchers.contains(
+                            CollectionMatcher.matchProperties(col1.getName(), col1.getID(), col1.getHandle())
+                         )))
+                        .andExpect(jsonPath("$.page.totalElements", is(1)));
+    }
+
+    /**
+     * CRIS divergence: a direct WRITE policy does NOT grant Collection edit,
+     * regardless of whether it targets an ePerson or a group the user
+     * belongs to (only the {@code admin} field is queried).
+     */
+    @Test
+    public void findEditAuthorizedWriteToGroupNotAuthorizedTest() throws Exception {
+        context.turnOffAuthorisationSystem();
+        parentCommunity = CommunityBuilder.createCommunity(context)
+                                          .withName("Parent Community")
+                                          .build();
+        Collection col1 = CollectionBuilder.createCollection(context, parentCommunity)
+                                           .withName("MyTest")
+                                           .build();
+        Group writeGroup = GroupBuilder.createGroup(context)
+                                       .withName("writeGroup")
+                                       .addMember(eperson)
+                                       .build();
+        ResourcePolicyBuilder.createResourcePolicy(context, null, writeGroup)
+                             .withDspaceObject(col1)
+                             .withAction(WRITE)
+                             .build();
+        context.restoreAuthSystemState();
+
+        String token = getAuthToken(eperson.getEmail(), password);
+        getClient(token).perform(get("/api/core/collections/search/findEditAuthorized")
+                        .param("query", "MyTest"))
+                        .andExpect(status().isOk())
+                        .andExpect(jsonPath("$._embedded.collections").doesNotExist())
+                        .andExpect(jsonPath("$.page.totalElements", is(0)));
+    }
+
+    /**
+     * CRIS boundary: a submitter (ADD rights, indexed in the {@code submit} field on collections) is
+     * NOT returned by findEditAuthorized, which only considers the {@code admin} field (submit != edit).
+     */
+    @Test
+    public void findEditAuthorizedSubmitterNotAuthorizedTest() throws Exception {
+        context.turnOffAuthorisationSystem();
+        parentCommunity = CommunityBuilder.createCommunity(context)
+            .withName("Parent Community")
+            .build();
+        Collection col1 = CollectionBuilder.createCollection(context, parentCommunity)
+            .withName("MyTest")
+            .withSubmitterGroup(eperson)
+            .build();
+        context.restoreAuthSystemState();
+
+        String token = getAuthToken(eperson.getEmail(), password);
+        // submitter is NOT authorized to edit
+        getClient(token).perform(get("/api/core/collections/search/findEditAuthorized")
+                        .param("query", "MyTest"))
+                        .andExpect(status().isOk())
+                        .andExpect(jsonPath("$._embedded.collections").doesNotExist())
+                        .andExpect(jsonPath("$.page.totalElements", is(0)));
+
+        // sanity check: the same user IS authorized to submit (submit field is indexed for collections)
+        getClient(token).perform(get("/api/core/collections/search/findSubmitAuthorized")
+                        .param("query", "MyTest"))
+                        .andExpect(status().isOk())
+            .andExpect(jsonPath("$._embedded.collections", Matchers.contains(
+                CollectionMatcher.matchProperties(col1.getName(), col1.getID(), col1.getHandle())
+             )))
+            .andExpect(jsonPath("$.page.totalElements", is(1)));
+    }
+
+    /**
+     * CRIS boundary: a plain READ policy does NOT grant edit; findEditAuthorized only matches the
+     * {@code admin} field (read != edit).
+     */
+    @Test
+    public void findEditAuthorizedReadOnlyNotAuthorizedTest() throws Exception {
+        context.turnOffAuthorisationSystem();
+        parentCommunity = CommunityBuilder.createCommunity(context)
+                                          .withName("Parent Community")
+                                          .build();
+        Collection col1 = CollectionBuilder.createCollection(context, parentCommunity)
+                                           .withName("MyTest")
+                                           .build();
+        ResourcePolicyBuilder.createResourcePolicy(context, eperson, null)
+                             .withDspaceObject(col1)
+                             .withAction(Constants.READ)
+                             .build();
+        context.restoreAuthSystemState();
+
+        String token = getAuthToken(eperson.getEmail(), password);
+        getClient(token).perform(get("/api/core/collections/search/findEditAuthorized")
+                        .param("query", "MyTest"))
+                        .andExpect(status().isOk())
+                        .andExpect(jsonPath("$._embedded.collections").doesNotExist())
+                        .andExpect(jsonPath("$.page.totalElements", is(0)));
     }
 
 }

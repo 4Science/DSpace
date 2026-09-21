@@ -7,6 +7,7 @@
 ## {4}  link to 'my DSpace' page
 ##
 #set($subject = "${config.get('dspace.name')}: You have a new task")
+#if($global.put('X-SES-TENANT', $config.get('aws.ses.tenant')))#end
 
 A new item has been submitted:
 
