@@ -73,7 +73,7 @@
         <jackson-annotations.version>2.21</jackson-annotations.version>
 
         <!--=== ADDON DEPENDENCIES ===-->
-        <addons.version>[cris-2024.02.05-SNAPSHOT,cris-2024.02.05.9999-SNAPSHOT)</addons.version>
+        <addons.version>[cris-2024.02.05,cris-2024.02.05.9999)</addons.version>
         <addon-iiif.version>${addons.version}</addon-iiif.version>
         <addon-ocr.version>${addons.version}</addon-ocr.version>
         <addon-docviewer.version>${addons.version}</addon-docviewer.version>
