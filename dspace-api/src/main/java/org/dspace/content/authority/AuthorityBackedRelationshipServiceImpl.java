@@ -61,11 +61,23 @@ public class AuthorityBackedRelationshipServiceImpl implements AuthorityBackedRe
         UUID ownerItem = owner.getID();
         UUID currentLeft = metadataValue.getLeftItem();
         UUID currentRight = metadataValue.getRightItem();
-        String authority = metadataValue.getAuthority();
+        // Read the RAW authority column, not the derived getter: for an already-elided internal
+        // reference the column is null while the getter would reconstitute the UUID from right_id.
+        // Reconcile must see the physical null so it can recognise "already in sync" below.
+        String authority = metadataValue.getRawAuthority();
+
+        // KEEP branch: a resolved internal reference whose authority column has been elided
+        // (raw null) but whose endpoints are still stamped for this owner is already in sync.
+        // This must be evaluated BEFORE the fast path and the clear branch, otherwise a raw-null
+        // authority would be misread as "authority names nothing" and wipe the endpoints.
+        if (authority == null && currentRight != null && ownerItem.equals(currentLeft)) {
+            return false;
+        }
 
         // Fast path: the value already points at the item named by its (trimmed) authority.
         // The side foreign key guarantees that a stamped right side still exists, so this
-        // common case needs no database access at all.
+        // common case needs no database access at all. Only runs while the raw authority is
+        // still present (a null authority is handled by the KEEP branch above or the clear below).
         if (currentRight != null && ownerItem.equals(currentLeft)
             && currentRight.toString().equals(authority == null ? null : authority.trim())) {
             return false;
@@ -97,6 +109,10 @@ public class AuthorityBackedRelationshipServiceImpl implements AuthorityBackedRe
 
         metadataValue.setLeftItem(ownerItem);
         metadataValue.setRightItem(targetItem);
+        // Single-store invariant: once the row is stamped the target UUID lives in right_id, so
+        // elide the redundant copy from the authority column. Endpoints are set first (above), so
+        // getAuthority() can always reconstitute the UUID from right_id afterwards.
+        metadataValue.elideAuthorityColumn();
 
         log.debug("Stamped metadata value {} (item {}) as authority-backed towards item {}",
             metadataValue.getID(), ownerItem, targetItem);
@@ -133,6 +149,10 @@ public class AuthorityBackedRelationshipServiceImpl implements AuthorityBackedRe
 
         ownerMetadataValue.setLeftItem(ownerItemId);
         ownerMetadataValue.setRightItem(relatedItemId);
+        // Single-store invariant: the target UUID now lives in right_id, so elide the redundant
+        // copy from the authority column. Endpoints are set first, so getAuthority() can always
+        // reconstitute the UUID from right_id afterwards.
+        ownerMetadataValue.elideAuthorityColumn();
 
         log.debug("Stamped metadata value {} (item {}) as authority-backed towards item {}",
             ownerMetadataValue.getID(), ownerItemId, relatedItemId);
