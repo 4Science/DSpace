@@ -872,6 +872,16 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
             + item.getID()));
         //remove subscription related with it
         subscribeService.deleteByDspaceObject(context, item);
+
+        // Remove authority references BEFORE removing this item's relationships.
+        // The cleanup resolves the referenced entity UUID through MetadataValue.getAuthority(), which for an
+        // authority-backed (elided) internal reference is reconstituted from the owning value's relationship
+        // endpoint. If the relationships were force-deleted first, that endpoint would be gone and cleanup
+        // would silently fail to match. See AuthorityBackedRelationshipServiceImpl .
+        if (configurationService.getBooleanProperty("item-deletion.authority-cleanup.enabled", false)) {
+            removeAuthorityReferences(context, item);
+        }
+
         // Remove relationships
         for (Relationship relationship : relationshipService.findByItem(context, item, -1, -1, false, false)) {
             relationshipService.forceDelete(context, relationship, false, false);
@@ -921,11 +931,6 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
         //Only clear collections after we have removed everything else from the item
         item.clearCollections();
         item.setOwningCollection(null);
-
-        // remove authority references
-        if (configurationService.getBooleanProperty("item-deletion.authority-cleanup.enabled", false)) {
-            removeAuthorityReferences(context, item);
-        }
 
         // Finally remove item row
         itemDAO.delete(context, item);
@@ -988,6 +993,13 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
 
         while (itemsToFixAuthority.hasNext()) {
             Item itemToProcess = itemsToFixAuthority.next();
+
+            // The item being deleted can never be a *referencing* item, but it may still surface in
+            // the discovery results (e.g. it carries the authority field itself). Skip it: processing
+            // it would uncache the entity that rawDelete still needs to delete afterwards.
+            if (itemToProcess != null && itemToProcess.getID().equals(deletedItem.getID())) {
+                continue;
+            }
 
             for (String controlledField : controlledFields) {
                 List<MetadataValue> metadataValuesWithAuthorityToUpdate = getMetadataWithAuthority(itemToProcess,
