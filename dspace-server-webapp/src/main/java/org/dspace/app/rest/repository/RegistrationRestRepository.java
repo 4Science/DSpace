@@ -31,7 +31,6 @@ import org.dspace.app.rest.exception.UnprocessableEntityException;
 import org.dspace.app.rest.model.RegistrationRest;
 import org.dspace.app.rest.model.patch.Patch;
 import org.dspace.app.rest.repository.patch.ResourcePatch;
-import org.dspace.app.rest.repository.patch.operation.RegistrationEmailPatchOperation;
 import org.dspace.app.rest.utils.Utils;
 import org.dspace.app.util.AuthorizeUtil;
 import org.dspace.authenticate.service.AuthenticationService;

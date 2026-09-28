@@ -144,14 +144,15 @@ public class ItemImportCLI extends ItemImport {
                         // zipfilename is user controlled (via -z or -u param). So, we must validate the expected
                         // file path using SecureFileAccess to protect against path traversal attacks.
                         String tempWorkDir = itemImportService.getTempWorkDir();
-                                String zipName = zipfilename + "-" + context.getCurrentUser().getID();
+                        String zipName = zipfilename + "-" + context.getCurrentUser().getID();
                         String fileAbsolutePath = SecureFileAccess.calculateAbsolutePathUsingBaseDir(zipName,
                                                                                                      tempWorkDir);
                         Path validatedZipPath = SecureFileAccess
                             .validatePathForWrite(fileAbsolutePath, List.of(tempWorkDir),
                                                   "ItemImportCLI remote zip validation");
 
-                        workFile = validatedZipPath.toFile();FileUtils.copyInputStreamToFile(optionalFileStream.get(), workFile);
+                        workFile = validatedZipPath.toFile();
+                        FileUtils.copyInputStreamToFile(optionalFileStream.get(), workFile);
                         workDir = new File(tempWorkDir + File.separator + TEMP_DIR
                                 + File.separator + context.getCurrentUser().getID());
                         sourcedir = itemImportService.unzip(workFile, workDir.getAbsolutePath());
