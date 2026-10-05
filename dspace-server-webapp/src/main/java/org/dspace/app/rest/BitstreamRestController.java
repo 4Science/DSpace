@@ -169,7 +169,8 @@ public class BitstreamRestController {
         // Get bitstream metadata
         Long lastModified = bitstreamService.getLastModified(bit);
         BitstreamFormat format = bit.getFormat(context);
-        String mimetype = format.getMIMEType();
+        String mimetype = (format != null && format.getMIMEType() != null)
+            ? format.getMIMEType() : "application/octet-stream";
         String name = getBitstreamName(bit, format);
 
         if (StringUtils.isBlank(request.getHeader("Range"))) {

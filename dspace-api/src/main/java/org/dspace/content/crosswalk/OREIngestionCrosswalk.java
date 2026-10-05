@@ -11,8 +11,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URISyntaxException;
 import java.sql.SQLException;
 import java.text.NumberFormat;
@@ -203,19 +201,15 @@ public class OREIngestionCrosswalk
                 if (!validResourceUri(processedURL)) {
                     throw new FileNotFoundException("Invalid resource URI: " + processedURL);
                 }
-                if (validResourceUri(entryId, processedURL)) {
-                        // Generate a request for the aggregated resource
-                        HttpGet httpGet = new HttpGet(processedURL);
-                        HttpResponse response = httpClient.execute(httpGet);
-                    } else {
-                        throw new FileNotFoundException("Failed to validate " + processedURL);
-                    }
+                // Generate a request for the aggregated resource
+                HttpGet httpGet = new HttpGet(processedURL);
+                HttpResponse response = httpClient.execute(httpGet);
                 if (response == null || response.getEntity() == null) {
                     throw new FileNotFoundException(processedURL + " returned a null response or body");
                 }
                 if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
                     throw new FileNotFoundException(processedURL
-                            + " returned a " + response.getStatusLine() + " response");
+                                                        + " returned a " + response.getStatusLine() + " response");
                 }
                 if (response.getEntity() == null || response.getEntity().getContent() == null) {
                     throw new FileNotFoundException(processedURL + " returned an empty body");
