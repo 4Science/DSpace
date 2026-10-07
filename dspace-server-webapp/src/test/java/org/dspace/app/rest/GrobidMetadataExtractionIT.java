@@ -28,6 +28,7 @@ import org.dspace.app.rest.test.AbstractControllerIntegrationTest;
 import org.dspace.app.util.XMLUtils;
 import org.dspace.builder.CollectionBuilder;
 import org.dspace.builder.CommunityBuilder;
+import org.dspace.content.Collection;
 import org.dspace.content.Community;
 import org.dspace.submit.extraction.grobid.GrobidImportMetadataSourceServiceImpl;
 import org.dspace.submit.extraction.grobid.client.ConsolidateHeaderEnum;
@@ -55,6 +56,7 @@ public class GrobidMetadataExtractionIT extends AbstractControllerIntegrationTes
 
     private GrobidClient grobidClient;
     private GrobidClient grobidClientMock;
+    private Collection collection;
 
     private static <T> @NonNull ResultMatcher grobidMetadataMatcherList(
         String metadata, Matcher<Iterable<? extends T>> matcher
@@ -120,7 +122,7 @@ public class GrobidMetadataExtractionIT extends AbstractControllerIntegrationTes
                             .withName("Sub Community")
                             .build();
 
-        CollectionBuilder.createCollection(context, child1, "123456789/grobid-extraction")
+        collection = CollectionBuilder.createCollection(context, child1, "123456789/grobid-extraction")
                          .withName("Collection 1")
                          .withSubmitterGroup(eperson)
                          .build();
@@ -151,7 +153,8 @@ public class GrobidMetadataExtractionIT extends AbstractControllerIntegrationTes
                 new MockMultipartFile("file", "/local/path/simple-article.pdf", "application/pdf", pdf);
 
             // bulk create a workspaceitem
-            getClient(authToken).perform(multipart("/api/submission/workspaceitems").file(pdfFile))
+            getClient(authToken).perform(multipart("/api/submission/workspaceitems")
+                                .file(pdfFile).param("owningCollection", collection.getID().toString()))
                                 .andExpect(status().isOk())
                                 // testing grobid extraction
                                 .andExpect(
@@ -187,7 +190,8 @@ public class GrobidMetadataExtractionIT extends AbstractControllerIntegrationTes
                 new MockMultipartFile("file", "/local/path/full-example.pdf", "application/pdf", pdf);
 
             // bulk create a workspaceitem
-            getClient(authToken).perform(multipart("/api/submission/workspaceitems").file(pdfFile))
+            getClient(authToken).perform(multipart("/api/submission/workspaceitems")
+                                .file(pdfFile).param("owningCollection", collection.getID().toString()))
                                 .andExpect(status().isOk())
                                 // testing grobid extraction
                                 .andExpect(
@@ -264,7 +268,8 @@ public class GrobidMetadataExtractionIT extends AbstractControllerIntegrationTes
                     new MockMultipartFile("file", "/local/path/blank-article.pdf", "application/pdf", pdf);
 
             // create a workspaceitem from pdf upload
-            getClient(authToken).perform(multipart("/api/submission/workspaceitems").file(pdfFile))
+            getClient(authToken).perform(multipart("/api/submission/workspaceitems")
+                                .file(pdfFile).param("owningCollection", collection.getID().toString()))
                     .andExpect(status().isOk())
                     // testing grobid extraction
                     .andExpect(jsonPath("$._embedded.workspaceitems[0].sections.grobidmetadata").isEmpty());
@@ -284,7 +289,8 @@ public class GrobidMetadataExtractionIT extends AbstractControllerIntegrationTes
                     new MockMultipartFile("file", "/local/path/blank-article.pdf", "application/pdf", pdf);
 
             // create a workspaceitem from pdf upload
-            getClient(authToken).perform(multipart("/api/submission/workspaceitems").file(pdfFile))
+            getClient(authToken).perform(multipart("/api/submission/workspaceitems")
+                                .file(pdfFile).param("owningCollection", collection.getID().toString()))
                     .andExpect(status().isOk())
                     // testing grobid extraction
                     .andExpect(jsonPath("$._embedded.workspaceitems[0].sections.grobidmetadata").isEmpty());
