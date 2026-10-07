@@ -23,6 +23,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
+import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.mime.HttpMultipartMode;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
@@ -141,26 +142,27 @@ public class GrobidClientImpl implements GrobidClient {
             HttpEntity entity = builder.build();
             method.setEntity(entity);
 
-            HttpResponse response = client.execute(method);
+            try (CloseableHttpResponse response = client.execute(method)) {
+                if (hasNoContent(response)) {
+                    LOG.warn("Cannot extract metadata from the document: GROBID returned NO CONTENT");
+                    return Optional.empty();
+                }
 
-            if (hasNoContent(response)) {
-                LOG.warn("Cannot extract metadata from the document: GROBID returned NO CONTENT");
-                return Optional.empty();
+                if (isNotSuccessful(response)) {
+                    throw new GrobidClientException(formatErrorMessage(response));
+                }
+
+                try (InputStream content = response.getEntity().getContent()) {
+                    DocumentBuilder documentBuilder = XMLUtils.getDocumentBuilder();
+                    Document document = documentBuilder.parse(content);
+                    // Normalize document
+                    document.normalizeDocument();
+                    return Optional.of(document);
+                } catch (SAXException | ParserConfigurationException e) {
+                    throw new GrobidClientException(e);
+                }
             }
 
-            if (isNotSuccessful(response)) {
-                throw new GrobidClientException(formatErrorMessage(response));
-            }
-
-            try (InputStream content = response.getEntity().getContent()) {
-                DocumentBuilder documentBuilder = XMLUtils.getDocumentBuilder();
-                Document document = documentBuilder.parse(content);
-                // Normalize document
-                document.normalizeDocument();
-                return Optional.of(document);
-            } catch (SAXException | ParserConfigurationException e) {
-                throw new GrobidClientException(e);
-            }
         } catch (IOException | UnsupportedOperationException e) {
             throw new GrobidClientException(e);
         }
