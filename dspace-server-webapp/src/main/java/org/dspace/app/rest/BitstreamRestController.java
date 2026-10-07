@@ -24,7 +24,6 @@ import jakarta.ws.rs.core.Response;
 import org.apache.catalina.connector.ClientAbortException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.Logger;
-import org.dspace.app.requestitem.RequestItem;
 import org.dspace.app.requestitem.service.RequestItemService;
 import org.dspace.app.rest.converter.ConverterService;
 import org.dspace.app.rest.exception.DSpaceBadRequestException;
@@ -136,23 +135,17 @@ public class BitstreamRestController {
         Context context = ContextUtil.obtainContext(request);
         // Find bitstream
         Bitstream bit = bitstreamService.find(context, uuid);
-        if (bit == null || bit.isDeleted()) {
-            response.sendError(HttpServletResponse.SC_NOT_FOUND);
-            return null;
-        }
-        // If an access token is found, immediately authenticate it if request a copy is enabled
-        // Though, if we do further "has to be loggd in requester" checks we'll have to check here anyway
-        // Even if eperson is not null and has access, we will treat this token as the primary means of
-        // authorizing bitstream download access
-        boolean authorizedByAccessToken = false;
-        // There may be a way of checking enabled in preauth
+
+        // If an access token is supplied, authorize it *before* revealing whether the bitstream exists.
+        // This must happen prior to the existence check below so that an invalid token always yields the same
+        // response (401) regardless of whether the UUID is real. Otherwise the status code becomes an existence
+        // oracle, letting an unauthorized caller distinguish an existing restricted bitstream from a nonexistent one.
+        // An AuthorizeException will be thrown if the token is invalid, expired, for the wrong bitstream, does not
+        // match, or if the bitstream is null (see RequestItemService). Even if eperson is not null and has access,
+        // we treat this token as the primary means of authorizing bitstream download access.
         if (StringUtils.isNotBlank(accessToken) && requestACopyEnabled()) {
-            RequestItem requestItem = requestItemService.findByAccessToken(context, accessToken);
-            // Try authorize by token. An AuthorizeException will be thrown if the token is invalid, expired,
-            // for the wrong bitstream, or does not match (see RequestItemService)
-            requestItemService.authorizeAccessByAccessToken(context, requestItem, bit, accessToken);
-            authorizedByAccessToken = true;
-            log.debug("Authorize access by token={} bitstream={}", accessToken, bit.getID());
+            requestItemService.authorizeAccessByAccessToken(context, bit, accessToken);
+            log.debug("Authorize access by token={} bitstream={}", accessToken, uuid);
         }
         // If an authorization error was encountered it will be rethrown by this method even if the eperson
         // could technically READ the bitstream normally. This is for consistency and clarify of usage - if we
