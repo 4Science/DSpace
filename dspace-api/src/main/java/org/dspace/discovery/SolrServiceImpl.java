@@ -453,10 +453,8 @@ public class SolrServiceImpl implements SearchService, IndexingService {
                         log.debug("Keeping: " + o.getUniqueIndexID());
                     }
                 }
+                start += batch;
             }
-
-            start += batch;
-
         } catch (IOException | SQLException | SolrServerException e) {
             log.error("Error cleaning discovery index: " + e.getMessage(), e);
         } finally {
