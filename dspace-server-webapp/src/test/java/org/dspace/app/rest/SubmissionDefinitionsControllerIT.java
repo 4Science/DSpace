@@ -47,7 +47,7 @@ public class SubmissionDefinitionsControllerIT extends AbstractControllerIntegra
     // The total number of expected submission definitions is referred to in multiple tests and assertions as
     // is the last page (totalDefinitions - 1)
     // This integer should be maintained along with any changes to item-submissions.xml
-    private static final int totalDefinitions = 22;
+    private static final int totalDefinitions = 23;
 
     @Test
     public void findAll() throws Exception {
@@ -202,8 +202,7 @@ public class SubmissionDefinitionsControllerIT extends AbstractControllerIntegra
         //Match only that a section exists with a submission configuration behind
         getClient(token).perform(get("/api/config/submissiondefinitions/traditional/collections")
                    .param("projection", "full"))
-                   .andExpect(status().isOk())
-                   .andExpect(jsonPath("$.page.totalElements", is(0)));
+                   .andExpect(status().isNoContent());
     }
 
     @Test

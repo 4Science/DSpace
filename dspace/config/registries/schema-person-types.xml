@@ -160,4 +160,13 @@
         <qualifier>linkedin-id</qualifier>
     </dc-type>
 
+    <!-- NOTE: This field is currently only used by virtual-metadata.xml to respresent the relationship
+         between an OrgUnit and a Person -->
+    <dc-type>
+        <schema>person</schema>
+        <element>contributor</element>
+        <qualifier>other</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+
 </dspace-dc-types>

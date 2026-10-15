@@ -22,8 +22,8 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
 import org.apache.logging.log4j.Logger;
+import org.dspace.app.client.DSpaceHttpClientFactory;
 import org.dspace.app.nbevent.service.NBEventService;
 import org.dspace.app.nbevent.service.dto.MessageDto;
 import org.dspace.content.Item;
@@ -101,7 +101,7 @@ public class NBEventActionServiceImpl implements NBEventActionService {
                     node.put("eventId", eventId);
                     node.put("status", status);
                     StringEntity requestEntity = new StringEntity(node.toString(), ContentType.APPLICATION_JSON);
-                    CloseableHttpClient httpclient = HttpClients.createDefault();
+                    CloseableHttpClient httpclient = DSpaceHttpClientFactory.getInstance().build();
                     HttpPost postMethod = new HttpPost(ackwnoledgeCallback);
                     postMethod.setEntity(requestEntity);
                     try {
