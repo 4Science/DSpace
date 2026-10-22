@@ -113,13 +113,34 @@ public class OpenPolicyFinderAuthority extends ItemAuthority {
         String authority = composeAuthorityValue(journal);
         Map<String, String> extras = getOpenPolicyFinderExtra(journal);
         String title = journal.getTitles().get(0);
-        return new Choice(authority, title, title, extras, getSource());
+        // label is what the form shows in the field, value is what is stored: keep them aligned
+        String text = getChoiceText(journal, title);
+        return new Choice(authority, text, text, extras, getSource());
+    }
+
+    /**
+     * By default the text of the choice is the journal title. When the authority is configured with
+     * cris.[authorityName].value-field = issn (e.g. for dc.identifier.issn), the first ISSN of the journal
+     * is used instead, whichever ISSN was used in the search.
+     */
+    private String getChoiceText(OpenPolicyFinderJournal journal, String title) {
+        String valueField = configurationService.getProperty("cris." + this.authorityName + ".value-field", "title");
+        if (ISSN_FIELD.equalsIgnoreCase(valueField) && CollectionUtils.isNotEmpty(journal.getIssns())) {
+            return journal.getIssns().get(0);
+        }
+        return title;
     }
 
     private Map<String, String> getOpenPolicyFinderExtra(OpenPolicyFinderJournal journal) {
         Map<String, String> extras = new HashMap<>();
         if (CollectionUtils.isNotEmpty(generators)) {
+            boolean titleExtraEnabled = isTitleExtraEnabled();
             for (OpenPolicyFinderExtraMetadataGenerator generator : generators) {
+                // the title extra would overwrite the title of the item in forms where the journal is only
+                // a reference (e.g. dc.relation.journal), so it is applied only if explicitly enabled
+                if (generator instanceof OpenPolicyFinderExtraTitleMetadataGenerator && !titleExtraEnabled) {
+                    continue;
+                }
                 extras.putAll(generator.build(journal));
             }
         }
@@ -169,6 +190,10 @@ public class OpenPolicyFinderAuthority extends ItemAuthority {
 
         // default strategy
         return "Journal";
+    }
+
+    private boolean isTitleExtraEnabled() {
+        return configurationService.getBooleanProperty("cris." + this.authorityName + ".extra-title-enabled", false);
     }
 
     private boolean isLocalItemChoicesEnabled() {
