@@ -124,11 +124,15 @@ public class OpenPolicyFinderAuthority extends ItemAuthority {
      * is used instead, whichever ISSN was used in the search.
      */
     private String getChoiceText(OpenPolicyFinderJournal journal, String title) {
-        String valueField = configurationService.getProperty("cris." + this.authorityName + ".value-field", "title");
-        if (ISSN_FIELD.equalsIgnoreCase(valueField) && CollectionUtils.isNotEmpty(journal.getIssns())) {
+        if (isIssnValueField() && CollectionUtils.isNotEmpty(journal.getIssns())) {
             return journal.getIssns().get(0);
         }
         return title;
+    }
+
+    private boolean isIssnValueField() {
+        String valueField = configurationService.getProperty("cris." + this.authorityName + ".value-field", "title");
+        return ISSN_FIELD.equalsIgnoreCase(valueField);
     }
 
     private Map<String, String> getOpenPolicyFinderExtra(OpenPolicyFinderJournal journal) {
@@ -170,6 +174,10 @@ public class OpenPolicyFinderAuthority extends ItemAuthority {
 
     @Override
     public String[] getLinkedEntityTypes() {
+        if (isIssnValueField()) {
+            // the choice is the ISSN identifier of the journal, not a reference to a Journal item
+            return new String[0];
+        }
         return configurationService.getArrayProperty("cris." + this.authorityName + ".entityType",
             new String[] {"Journal"});
     }
