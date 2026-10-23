@@ -71,6 +71,7 @@ import org.dspace.content.MetadataSchemaEnum;
 import org.dspace.content.WorkspaceItem;
 import org.dspace.content.service.BitstreamFormatService;
 import org.dspace.content.service.BitstreamService;
+import org.dspace.content.service.BundleService;
 import org.dspace.content.service.CollectionService;
 import org.dspace.content.service.CommunityService;
 import org.dspace.content.service.ItemService;
@@ -109,6 +110,9 @@ public class BitstreamRestRepositoryIT extends AbstractControllerIntegrationTest
 
     @Autowired
     CommunityService communityService;
+
+    @Autowired
+    private BundleService bundleService;
 
     @Test
     public void findAllTest() throws Exception {
@@ -3087,6 +3091,102 @@ public class BitstreamRestRepositoryIT extends AbstractControllerIntegrationTest
                                 )
                             )
                         );
+    }
+
+    @Test
+    public void findShowableByItemReturnsBitstreamsInBundleOrder() throws Exception {
+        context.turnOffAuthorisationSystem();
+        parentCommunity = CommunityBuilder.createCommunity(context).withName("Parent Community").build();
+        Collection col1 = CollectionBuilder.createCollection(context, parentCommunity).withName("Collection 1").build();
+        Item item = ItemBuilder.createItem(context, col1).withTitle("Ordered bitstreams").build();
+
+        Bitstream first = createBitstreamInOriginalBundle(item, "first.txt");
+        Bitstream second = createBitstreamInOriginalBundle(item, "second.txt");
+        Bitstream third = createBitstreamInOriginalBundle(item, "third.txt");
+
+        context.commit();
+        context.restoreAuthSystemState();
+
+        String token = getAuthToken(admin.getEmail(), password);
+        getClient(token).perform(get("/api/core/bitstreams/search/showableByItem")
+                        .param("uuid", item.getID().toString())
+                        .param("name", Constants.CONTENT_BUNDLE_NAME))
+                        .andExpect(status().isOk())
+                        .andExpect(jsonPath("$._embedded.bitstreams", hasSize(3)))
+                        .andExpect(jsonPath("$._embedded.bitstreams[0].uuid", is(first.getID().toString())))
+                        .andExpect(jsonPath("$._embedded.bitstreams[1].uuid", is(second.getID().toString())))
+                        .andExpect(jsonPath("$._embedded.bitstreams[2].uuid", is(third.getID().toString())));
+    }
+
+    @Test
+    public void findByItemIdReturnsBitstreamsInBundleOrder() throws Exception {
+        context.turnOffAuthorisationSystem();
+        parentCommunity = CommunityBuilder.createCommunity(context).withName("Parent Community").build();
+        Collection col1 = CollectionBuilder.createCollection(context, parentCommunity).withName("Collection 1").build();
+        Item item = ItemBuilder.createItem(context, col1).withTitle("Ordered bitstreams by item id").build();
+
+        Bitstream first = createBitstreamInOriginalBundle(item, "first.txt");
+        Bitstream second = createBitstreamInOriginalBundle(item, "second.txt");
+        Bitstream third = createBitstreamInOriginalBundle(item, "third.txt");
+
+        // Reorder the bundle so the stored bitstream_order differs from the upload order:
+        // the query must honour the bundle order (ORDER BY index(b)), not the insertion order.
+        Bundle bundle = item.getBundles(Constants.CONTENT_BUNDLE_NAME).get(0);
+        bundleService.setOrder(context, bundle,
+                new UUID[] { third.getID(), first.getID(), second.getID() });
+        bundleService.update(context, bundle);
+
+        context.commit();
+        context.restoreAuthSystemState();
+
+        String token = getAuthToken(admin.getEmail(), password);
+        getClient(token).perform(get("/api/core/bitstreams/search/byItemId")
+                        .param("uuid", item.getID().toString())
+                        .param("name", Constants.CONTENT_BUNDLE_NAME))
+                        .andExpect(status().isOk())
+                        .andExpect(jsonPath("$._embedded.bitstreams", hasSize(3)))
+                        .andExpect(jsonPath("$._embedded.bitstreams[0].uuid", is(third.getID().toString())))
+                        .andExpect(jsonPath("$._embedded.bitstreams[1].uuid", is(first.getID().toString())))
+                        .andExpect(jsonPath("$._embedded.bitstreams[2].uuid", is(second.getID().toString())));
+    }
+
+    @Test
+    public void findShowableByItemWithBundleNameFilterStillWorks() throws Exception {
+        context.turnOffAuthorisationSystem();
+        parentCommunity = CommunityBuilder.createCommunity(context).withName("Parent Community").build();
+        Collection col1 = CollectionBuilder.createCollection(context, parentCommunity).withName("Collection 1").build();
+        Item item = ItemBuilder.createItem(context, col1).withTitle("Item with two bundles").build();
+
+        Bitstream original = createBitstreamInOriginalBundle(item, "original.txt");
+
+        Bundle otherBundle = BundleBuilder.createBundle(context, item).withName("OTHER").build();
+        Bitstream other = BitstreamBuilder.createBitstream(context, otherBundle, toInputStream("other", UTF_8))
+                                          .withName("other.txt")
+                                          .build();
+
+        context.commit();
+        context.restoreAuthSystemState();
+
+        String token = getAuthToken(admin.getEmail(), password);
+        getClient(token).perform(get("/api/core/bitstreams/search/showableByItem")
+                        .param("uuid", item.getID().toString())
+                        .param("name", Constants.CONTENT_BUNDLE_NAME))
+                        .andExpect(status().isOk())
+                        .andExpect(jsonPath("$._embedded.bitstreams", hasSize(1)))
+                        .andExpect(jsonPath("$._embedded.bitstreams[0].uuid", is(original.getID().toString())));
+
+        getClient(token).perform(get("/api/core/bitstreams/search/showableByItem")
+                        .param("uuid", item.getID().toString())
+                        .param("name", "OTHER"))
+                        .andExpect(status().isOk())
+                        .andExpect(jsonPath("$._embedded.bitstreams", hasSize(1)))
+                        .andExpect(jsonPath("$._embedded.bitstreams[0].uuid", is(other.getID().toString())));
+    }
+
+    private Bitstream createBitstreamInOriginalBundle(Item item, String name) throws Exception {
+        return BitstreamBuilder.createBitstream(context, item, toInputStream(name, UTF_8))
+                               .withName(name)
+                               .build();
     }
 
     @Test
