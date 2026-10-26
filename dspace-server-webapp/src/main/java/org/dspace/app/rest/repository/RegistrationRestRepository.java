@@ -301,6 +301,39 @@ public class RegistrationRestRepository extends DSpaceRestRepository<Registratio
         return converter.toRest(registrationData, utils.obtainProjection());
     }
 
+    /**
+     * Validate that this registration token allows PATCHing the registration data.
+     * PATCH is only allowed if the token is valid, corresponds to the registration ID, and
+     * the registration is related to an external login (e.g. ORCID).
+     * @param context DSpace Context
+     * @param id Registration ID
+     * @param token Registration token
+     */
+    private void validateTokenForPatch(Context context, Integer id, String token) {
+        try {
+            RegistrationData registrationData =
+                registrationDataService.findByToken(context, token);
+            if (registrationData == null || !registrationDataService.isValid(registrationData) ||
+                !id.equals(registrationData.getID())) {
+                throw new AccessDeniedException("The token is invalid");
+            }
+            // PATCH can only be used for external-login and review-account type registrations.
+            if (!RegistrationTypeEnum.ORCID.equals(registrationData.getRegistrationType()) &&
+                !RegistrationTypeEnum.VALIDATION_ORCID.equals(registrationData.getRegistrationType())) {
+                throw new AccessDeniedException("The registration data cannot be updated");
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * This method can be used to update a {@link RegistrationData} with a given {@code id} that has a valid
+     * {@code token} with the actions described in the {@link Patch} object.
+     * This method is used to patch the email value, and will generate a completely new {@code token} that will be
+     * sent with an email {@link org.dspace.app.rest.repository.patch.operation.RegistrationEmailPatchOperation}.
+     *
+     */
     @Override
     public RegistrationRest patch(
         HttpServletRequest request, String apiCategory, String model, Integer id, Patch patch
@@ -317,7 +350,7 @@ public class RegistrationRestRepository extends DSpaceRestRepository<Registratio
         }
         Context context = obtainContext();
 
-        validateToken(context, token);
+        validateTokenForPatch(context, id, token);
 
         try {
             resourcePatch.patch(context, registrationDataService.find(context, id), patch.getOperations());
@@ -326,18 +359,6 @@ public class RegistrationRestRepository extends DSpaceRestRepository<Registratio
             throw new RuntimeException(e.getMessage(), e);
         }
         return null;
-    }
-
-    private void validateToken(Context context, String token) {
-        try {
-            RegistrationData registrationData =
-                registrationDataService.findByToken(context, token);
-            if (registrationData == null || !registrationDataService.isValid(registrationData)) {
-                throw new AccessDeniedException("The token is invalid");
-            }
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
     }
 
     public void setCaptchaService(CaptchaService captchaService) {

@@ -17,6 +17,7 @@ ENV DATA_FOLDER=/data \
     IMPORTS_DIR=/dspace/imports \
     VAR_DIR=/dspace/var \
     OAI_DIR=/dspace/var/oai \
+    RDFSTORE_DIR=/dspace/rdf-store \
     TEMP_DIR=/dspace/temp
 
 RUN curl -L -o /tmp/certificate.crt https://www.tbs-x509.com/Comodo_AAA_Certificate_Services.crt && \
@@ -37,7 +38,7 @@ RUN if [ "$(getent group $BASE_GROUP_GID)" ]; then \
 COPY --chown=dspace ./dspace/modules/server-boot/target/server-boot-*.jar /home/dspace/server-boot.jar
 RUN java -Djarmode=tools -jar /home/dspace/server-boot.jar extract --destination $DSPACE_INSTALL --libraries lib
 
-RUN install -g dspace -o dspace -d $DATA_FOLDER $ASSETSTORE $DSPACE_INSTALL $HANDLE_DIR $TRIPLESTORE_DIR $DOWNLOAD_DIR $IMPORTS_DIR $UPLOAD_DIR $EXPORTS_DIR $EXPORTS_DOWNLOAD_DIR $VAR_DIR $OAI_DIR $TEMP_DIR
+RUN install -g dspace -o dspace -d $DATA_FOLDER $ASSETSTORE $DSPACE_INSTALL $HANDLE_DIR $TRIPLESTORE_DIR $DOWNLOAD_DIR $IMPORTS_DIR $UPLOAD_DIR $EXPORTS_DIR $EXPORTS_DOWNLOAD_DIR $VAR_DIR $OAI_DIR $TEMP_DIR $RDFSTORE_DIR
 
 COPY --chown=dspace ./dspace/config/ $DSPACE_INSTALL/config/
 COPY --chown=dspace ./dspace/etc/conftool $DSPACE_INSTALL/config/conftool
