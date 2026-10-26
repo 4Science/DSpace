@@ -95,6 +95,9 @@ public class ItemImportCLIIT extends AbstractIntegrationTestWithDatabase {
             Files.createDirectory(Path.of(file.getAbsolutePath()));
         }
         workDir = Path.of(file.getAbsolutePath());
+
+        configurationService.setProperty("org.dspace.app.itemexport.allowed.dir",
+                new String[] { tempDir.toString(), workDir.toString() });
     }
 
     @After
