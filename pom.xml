@@ -24,33 +24,34 @@
         <spring-security.version>5.7.11</spring-security.version> <!-- sync with version used by spring-boot-->
         <hibernate.version>5.6.15.Final</hibernate.version>
         <hibernate-validator.version>6.2.5.Final</hibernate-validator.version>
-        <postgresql.driver.version>42.7.5</postgresql.driver.version>
+        <postgresql.driver.version>42.7.11</postgresql.driver.version>
         <solr.client.version>8.11.4</solr.client.version>
         <fop.version>2.8</fop.version>
 
-        <ehcache.version>3.10.8</ehcache.version>
+        <ehcache.version>3.11.1</ehcache.version>
         <errorprone.version>2.31.0</errorprone.version>
-        <!-- NOTE: when updating jackson.version, also sync jackson-databind.version below -->
-        <jackson.version>2.18.2</jackson.version>
-        <jackson-databind.version>2.18.2</jackson-databind.version>
+        <!-- NOTE: when updating jackson.version, also sync jackson-annotations.version below -->
+        <jackson.version>2.21.2</jackson.version>
+        <jackson-annotations.version>2.21</jackson-annotations.version>
         <javax-annotation.version>1.3.2</javax-annotation.version>
         <jaxb-api.version>2.3.1</jaxb-api.version>
         <jaxb-runtime.version>2.3.9</jaxb-runtime.version>
         <jcache-version>1.1.1</jcache-version>
         <!-- NOTE: Jetty needed for Solr, Handle Server & tests -->
-        <jetty.version>9.4.57.v20241219</jetty.version>
-        <log4j.version>2.24.3</log4j.version>
-        <pdfbox-version>3.0.5</pdfbox-version>
+        <jetty.version>9.4.58.v20250814</jetty.version>
+        <log4j.version>2.25.4</log4j.version>
+        <pdfbox-version>3.0.7</pdfbox-version>
         <rome.version>1.19.0</rome.version>
         <slf4j.version>1.7.36</slf4j.version>
-        <tika.version>3.2.3</tika.version>
+        <tika.version>3.3.0</tika.version>
         <picocli.version>4.7.6</picocli.version>
         <!-- Sync with whatever version Tika uses -->
-        <bouncycastle.version>1.80</bouncycastle.version>
-
+        <!-- WARNING: BouncyCastle is also required by the maven-gpg-plugin to sign code during release. Do not update
+             unless the new BouncyCastle version is compatible both with tika-parsers and maven-gpg-plugin. -->
+        <bouncycastle.version>1.81</bouncycastle.version>
         <!--=== SERVER WEBAPP DEPENDENCIES ===-->
         <!-- Library for reading JSON documents: https://github.com/json-path/JsonPath (used by Server webapp) -->
-        <json-path.version>2.9.0</json-path.version>
+        <json-path.version>2.10.0</json-path.version>
         <!-- Library for managing JSON Web Tokens (JWT): https://bitbucket.org/connect2id/nimbus-jose-jwt/wiki/Home
              (used by Server webapp) -->
         <nimbus-jose-jwt.version>7.9</nimbus-jose-jwt.version>
@@ -60,11 +61,11 @@
              https://jena.apache.org/documentation/migrate_jena2_jena3.html -->
         <jena.version>2.13.0</jena.version>
         <!-- Used by (now obsolete) 'dspace-rest' WAR -->
-        <jersey.version>2.46</jersey.version>
+        <jersey.version>2.48</jersey.version>
 
         <testcontainers.version>2.0.1</testcontainers.version>
-        <software.amazon.awssdk.version>2.32.31</software.amazon.awssdk.version>
-        <software.amazon.awssdk.crt.version>0.38.12</software.amazon.awssdk.crt.version>
+        <software.amazon.awssdk.version>2.42.40</software.amazon.awssdk.version>
+        <software.amazon.awssdk.crt.version>0.45.1</software.amazon.awssdk.crt.version>
 
         <!--=== ADDON DEPENDENCIES ===-->
         <addons.version>[cris-2023.02.08-SNAPSHOT,cris-2023.02.08.9999-SNAPSHOT)</addons.version>
@@ -107,7 +108,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-enforcer-plugin</artifactId>
-                    <version>3.5.0</version>
+                    <version>3.6.2</version>
                     <executions>
                         <execution>
                             <id>enforce-java</id>
@@ -158,7 +159,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-compiler-plugin</artifactId>
-                    <version>3.13.0</version>
+                    <version>3.15.0</version>
                     <configuration>
                         <release>11</release>
                         <!-- Turn on http://errorprone.info (requires fork=true & below compilerArgs)-->
@@ -192,7 +193,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-jar-plugin</artifactId>
-                    <version>3.4.2</version>
+                    <version>3.5.0</version>
                     <configuration>
                         <archive>
                             <manifest>
@@ -206,7 +207,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-war-plugin</artifactId>
-                    <version>3.4.0</version>
+                    <version>3.5.1</version>
                     <configuration>
                         <failOnMissingWebXml>false</failOnMissingWebXml>
                         <!-- Filter the web.xml (needed for IDE compatibility/debugging) -->
@@ -313,7 +314,7 @@
                 <plugin>
                     <groupId>com.github.spotbugs</groupId>
                     <artifactId>spotbugs-maven-plugin</artifactId>
-                    <version>4.8.6.6</version>
+                    <version>4.9.8.3</version>
                     <configuration>
                         <effort>Max</effort>
                         <threshold>Low</threshold>
@@ -323,7 +324,7 @@
                         <dependency>
                             <groupId>com.github.spotbugs</groupId>
                             <artifactId>spotbugs</artifactId>
-                            <version>4.9.0</version>
+                            <version>4.9.8</version>
                         </dependency>
                     </dependencies>
                     <executions>
@@ -339,7 +340,7 @@
                 <!-- This additional configuration also cleans sub-modules -->
                 <plugin>
                     <artifactId>maven-clean-plugin</artifactId>
-                    <version>3.4.0</version>
+                    <version>3.5.0</version>
                     <configuration>
                         <filesets>
                             <fileset>
@@ -353,17 +354,17 @@
                 </plugin>
                 <plugin>
                     <artifactId>maven-assembly-plugin</artifactId>
-                    <version>3.7.1</version>
+                    <version>3.8.0</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-dependency-plugin</artifactId>
-                    <version>3.8.1</version>
+                    <version>3.10.0</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-resources-plugin</artifactId>
-                    <version>3.3.1</version>
+                    <version>3.5.0</version>
                 </plugin>
                 <!-- Used to validate License Headers (see build process) -->
                 <plugin>
@@ -373,15 +374,15 @@
                 </plugin>
                 <!-- Used to generate a new release via Sonatype (see release profile). -->
                 <plugin>
-                    <groupId>org.sonatype.plugins</groupId>
-                    <artifactId>nexus-staging-maven-plugin</artifactId>
-                    <version>1.7.0</version>
+                    <groupId>org.sonatype.central</groupId>
+                    <artifactId>central-publishing-maven-plugin</artifactId>
+                    <version>0.10.0</version>
                 </plugin>
                 <!-- Used to generate JavaDocs for new releases (see release profile). -->
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-javadoc-plugin</artifactId>
-                    <version>3.11.2</version>
+                    <version>3.12.0</version>
                     <configuration>
                         <!-- Never fail a build based on Javadoc errors -->
                         <failOnError>false</failOnError>
@@ -391,7 +392,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-source-plugin</artifactId>
-                    <version>3.3.1</version>
+                    <version>3.4.0</version>
                 </plugin>
                 <!-- Used for custom Groovy code that fills out the 'agnostic.build.dir' needed to
                      set 'dspace.dir' for our testing environment -->
@@ -410,7 +411,7 @@
                 <plugin>
                     <groupId>org.jacoco</groupId>
                     <artifactId>jacoco-maven-plugin</artifactId>
-                    <version>0.8.12</version>
+                    <version>0.8.14</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
@@ -495,7 +496,7 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>xml-maven-plugin</artifactId>
-                <version>1.1.0</version>
+                <version>1.2.1</version>
                 <executions>
                     <execution>
                         <id>validate-ALL-xml-and-xsl</id>
@@ -597,10 +598,10 @@
             </build>
         </profile>
 
-        <!-- Allow for passing extra memory to Unit/Integration tests.
-             By default this gives unit tests 1GB of memory max (when tests are enabled),
-             unless tweaked on commandline (e.g. "-Dtest.argLine=-Xmx512m"). Since
-             m-surefire-p and m-failsafe-p both fork a new JVM for testing, they ignores MAVEN_OPTS. -->
+        <!-- Profile which sets our default system properties for all Unit/Integration tests.
+             By default, this sets UTF-8 encoding for all tests and gives tests 1GB of memory max.
+             Both m-surefire-p and m-failsafe-p are unable to use MAVEN_OPTS because they fork a new JVM for testing.
+             These default settings may be overridden via the commandline (e.g. "-Dtest.argLine=-Xmx512m"). -->
         <profile>
             <id>test-argLine</id>
             <activation>
@@ -609,7 +610,7 @@
                 </property>
             </activation>
             <properties>
-                <test.argLine>-Xmx1024m</test.argLine>
+                <test.argLine>-Xmx1024m -Dfile.encoding=UTF-8</test.argLine>
             </properties>
         </profile>
 
@@ -762,7 +763,7 @@
                     <plugin>
                         <groupId>org.codehaus.mojo</groupId>
                         <artifactId>license-maven-plugin</artifactId>
-                        <version>2.5.0</version>
+                        <version>2.7.1</version>
                         <!-- This plugin only needs to be run on the Parent POM
                              as it aggregates results from all child POMs. -->
                         <inherited>false</inherited>
@@ -788,7 +789,7 @@
                                         <licenseMerge>Apache Software License, Version 2.0|The SAX License|The W3C License</licenseMerge>
                                         <!-- JDOM uses this license, but it's essentially just Apache -->
                                         <licenseMerge>Apache Software License, Version 2.0|Similar to Apache License but with the acknowledgment clause removed</licenseMerge>
-                                        <licenseMerge>BSD License|The BSD License|BSD licence|BSD license|BSD|BSD-style license|New BSD License|New BSD license|Revised BSD License|BSD 2-Clause license|3-Clause BSD License|BSD 2-Clause|BSD 3-clause New License|BSD Licence 3|BSD-2-Clause|BSD-3-Clause|Modified BSD|The New BSD License|The BSD 3-Clause License (BSD3)|BSD License 3|BSD License 2.0|The (New) BSD License</licenseMerge>
+                                        <licenseMerge>BSD License|The BSD License|BSD licence|BSD license|BSD|BSD-style license|New BSD License|New BSD license|Revised BSD License|BSD 2-Clause license|3-Clause BSD License|BSD 2-Clause|BSD 3-clause New License|BSD Licence 3|BSD-2-Clause|BSD-3-Clause|Modified BSD|The New BSD License|The BSD 3-Clause License (BSD3)|BSD License 3|BSD License 2.0|The (New) BSD License|0BSD</licenseMerge>
                                         <!-- DSpace uses a BSD License -->
                                         <licenseMerge>BSD License|DSpace BSD License|DSpace Sourcecode License</licenseMerge>
                                         <!-- Coverity uses modified BSD: https://github.com/coverity/coverity-security-library -->
@@ -809,7 +810,7 @@
                                         <!-- JBoss Transaction API claims this license, but it is dual licensed with CDDL being one: https://github.com/jboss/jboss-transaction-api_spec -->
                                         <licenseMerge>Common Development and Distribution License (CDDL)|GNU General Public License, Version 2 with the Classpath Exception</licenseMerge>
                                         <licenseMerge>Eclipse Distribution License, Version 1.0|Eclipse Distribution License (EDL), Version 1.0|Eclipse Distribution License - v 1.0|Eclipse Distribution License v. 1.0|EDL 1.0</licenseMerge>
-                                        <licenseMerge>Eclipse Public License|Eclipse Public License - Version 1.0|Eclipse Public License - v 1.0|EPL 1.0 license|Eclipse Public License (EPL), Version 1.0|Eclipse Public License 1.0|Eclipse Public License v1.0|Eclipse Public License, Version 1.0|EPL 1.0|EPL 2.0|Eclipse Public License - v 2.0|EPL-2.0|Eclipse Public License 2.0|Eclipse Public License v. 2.0|Eclipse Public License, Version 2.0</licenseMerge>
+                                        <licenseMerge>Eclipse Public License|Eclipse Public License - Version 1.0|Eclipse Public License - v 1.0|EPL 1.0 license|Eclipse Public License (EPL), Version 1.0|Eclipse Public License 1.0|Eclipse Public License v1.0|Eclipse Public License, Version 1.0|EPL 1.0|EPL 2.0|Eclipse Public License - v 2.0|EPL-2.0|Eclipse Public License 2.0|Eclipse Public License v. 2.0|Eclipse Public License, Version 2.0|Eclipse Public License v2.0</licenseMerge>
                                         <!-- JUnit claims this license but is actually Eclipse Public License: http://junit.org/license.html -->
                                         <licenseMerge>Eclipse Public License|Common Public License Version 1.0</licenseMerge>
                                         <!-- Jersey is dual licensed as EPL but lists its main license as GPL: https://github.com/eclipse-ee4j/jersey#licensing-and-governance -->
@@ -1196,7 +1197,7 @@
 
         <!--
          The 'release' profile is used by the 'maven-release-plugin' (see above)
-         to actually perform a DSpace software release to Maven central.
+         to actually perform a DSpace software release to Maven Central.
          This profile contains settings which are ONLY enabled when performing
          a DSpace release. See also https://wiki.duraspace.org/display/DSPACE/Release+Procedure
          NOTE: You MUST trigger this profile by running "-Drelease"
@@ -1213,11 +1214,21 @@
             </activation>
             <build>
                 <plugins>
-                    <!-- Configure Nexus plugin for new releases via Sonatype.
-                         See: http://central.sonatype.org/pages/apache-maven.html -->
+                    <!--
+                      Configure Central Publishing Plugin for new releases via Sonatype.
+                      See: https://central.sonatype.org/publish/publish-portal-maven/
+                      A few notes on how this plugin works:
+                      1. In your settings.xml, your user/password tokens MUST be specified for a <server> tag
+                         with <id>central</id>. Otherwise, you will see a 401 Unauthorized error.
+                      2. The <distributionManagement> POM section is no longer needed. This plugin defaults to
+                         uploading releases to Central Portal (https://central.sonatype.com/publishing)
+                         and -SNAPSHOT releases to https://central.sonatype.com/repository/maven-snapshots/
+                      3. Sonatype has publishing *requirements* which must be met. Our POM is already configured to
+                         meet those requirements: https://central.sonatype.org/publish/requirements/
+                    -->
                     <plugin>
-                        <groupId>org.sonatype.plugins</groupId>
-                        <artifactId>nexus-staging-maven-plugin</artifactId>
+                        <groupId>org.sonatype.central</groupId>
+                        <artifactId>central-publishing-maven-plugin</artifactId>
                         <extensions>true</extensions>
                         <configuration>
                             <!-- In your settings.xml, your username/password
@@ -1227,12 +1238,12 @@
                             <!-- Require manual verification / release to Maven Central -->
                             <autoReleaseAfterClose>false</autoReleaseAfterClose>
                             <!-- Disable autoclose of repository after upload, as this sometimes times out -->
- -                          <skipStagingRepositoryClose>true</skipStagingRepositoryClose>
-			    <!-- Increase Staging timeout to 10mins -->
+                            <skipStagingRepositoryClose>true</skipStagingRepositoryClose>
+                            <!-- Increase Staging timeout to 10mins -->
                             <stagingProgressTimeoutMinutes>10</stagingProgressTimeoutMinutes>
                         </configuration>
                     </plugin>
-                    <!-- For new releases, generate Source JAR files -->
+                    <!-- Per Sonatype publishing requirements, generate Source JAR files -->
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-source-plugin</artifactId>
@@ -1245,7 +1256,7 @@
                             </execution>
                         </executions>
                     </plugin>
-                    <!-- For new releases, generate JavaDocs for each module -->
+                    <!-- Per Sonatype publishing requirements, generate JavaDocs for each module -->
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-javadoc-plugin</artifactId>
@@ -1258,8 +1269,8 @@
                             </execution>
                         </executions>
                     </plugin>
-                    <!-- Sign any new releases via GPG.
-                         NOTE: you may optionall specify the "gpg.passphrase" in your settings.xml -->
+                    <!-- Per Sonatype publishing requirements, sign any new releases via GPG.
+                         NOTE: you may optionally specify the "gpg.passphrase" in your settings.xml -->
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-gpg-plugin</artifactId>
@@ -1348,6 +1359,19 @@
                 <artifactId>dspace-server-webapp</artifactId>
                 <version>cris-2023.02.08-SNAPSHOT</version>
             </dependency>
+            <dependency>
+                <groupId>org.dspace</groupId>
+                <artifactId>dspace-server-webapp</artifactId>
+                <version>cris-2023.02.08-SNAPSHOT</version>
+                <type>jar</type>
+                <classifier>classes</classifier>
+            </dependency>
+            <dependency>
+                <groupId>org.dspace</groupId>
+                <artifactId>dspace-server-webapp</artifactId>
+                <version>cris-2023.02.08-SNAPSHOT</version>
+                <type>war</type>
+            </dependency>
             <!-- DSpace API Localization Packages -->
             <dependency>
                 <groupId>org.dspace</groupId>
@@ -1394,11 +1418,21 @@
                 <version>${hibernate-validator.version}</version>
             </dependency>
 
-            <!-- Hibernate introduces multiple versions of jboss-logging. So, specify version we want -->
+            <!-- Different Hibernate components introduce different (conflicting)
+                 versions of jboss-logging. We specify it here to avoid dependency
+                 convergence issues, and the version here is pinned to the version
+                 used by the hibernate-orm parent.
+
+                 See: https://github.com/hibernate/hibernate-orm/blob/5.6/gradle/libraries.gradle#L93
+
+                 Dependabot is configured to ignore updates for jboss-logging.
+
+                 See: https://github.com/DSpace/DSpace/blob/main/.github/dependabot.yml
+            -->
             <dependency>
                 <groupId>org.jboss.logging</groupId>
                 <artifactId>jboss-logging</artifactId>
-                <version>3.6.1.Final</version>
+                <version>3.4.3.Final</version>
             </dependency>
 
             <!-- Rome is used for RSS / ATOM syndication feeds -->
@@ -1572,11 +1606,17 @@
                 <artifactId>bcutil-jdk18on</artifactId>
                 <version>${bouncycastle.version}</version>
             </dependency>
+            <!-- Tika brings in multiple versions of this. Select the latest version. Always sync with Tika version -->
+            <dependency>
+                <groupId>com.healthmarketscience.jackcess</groupId>
+                <artifactId>jackcess</artifactId>
+                <version>4.0.10</version>
+            </dependency>
             <!-- Tika and axiom-api (in dspace-swordv2) disagree on versions -->
             <dependency>
                 <groupId>org.apache.james</groupId>
                 <artifactId>apache-mime4j-core</artifactId>
-                <version>0.8.12</version>
+                <version>0.8.14</version>
             </dependency>
             <!-- Tika and solr-core disagree on versions of ASM -->
             <dependency>
@@ -1610,7 +1650,7 @@
             <dependency>
                 <groupId>org.apache.ant</groupId>
                 <artifactId>ant</artifactId>
-                <version>1.10.15</version>
+                <version>1.10.17</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.jena</groupId>
@@ -1632,7 +1672,7 @@
             <dependency>
                 <groupId>net.handle</groupId>
                 <artifactId>handle</artifactId>
-                <version>9.3.1</version>
+                <version>9.3.2</version>
 		<exclusions>
                     <!-- A later version is brought in by google-oauth-client -->
                     <exclusion>
@@ -1720,79 +1760,74 @@
             <dependency>
                 <groupId>commons-beanutils</groupId>
                 <artifactId>commons-beanutils</artifactId>
-                <version>1.10.0</version>
+                <version>1.11.0</version>
             </dependency>
             <dependency>
                 <groupId>commons-cli</groupId>
                 <artifactId>commons-cli</artifactId>
-                <version>1.9.0</version>
+                <version>1.11.0</version>
             </dependency>
             <dependency>
                 <groupId>commons-codec</groupId>
                 <artifactId>commons-codec</artifactId>
-                <version>1.17.2</version>
+                <version>1.22.0</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-collections4</artifactId>
-                <version>4.4</version>
+                <version>4.5.0</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-configuration2</artifactId>
-                <version>2.11.0</version>
+                <version>2.15.0</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-dbcp2</artifactId>
-                <version>2.13.0</version>
-            </dependency>
-            <dependency>
-                <groupId>commons-fileupload</groupId>
-                <artifactId>commons-fileupload</artifactId>
-                <version>1.5</version>
+                <version>2.14.0</version>
             </dependency>
             <dependency>
                 <groupId>commons-io</groupId>
                 <artifactId>commons-io</artifactId>
-                <version>2.18.0</version>
+                <version>2.22.0</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-lang3</artifactId>
-                <version>3.17.0</version>
+                <version>3.20.0</version>
             </dependency>
             <!-- NOTE: We don't use commons-logging or commons-compress directly,
                  but many dependencies rely on them. Only here specified to avoid dependency convergence issues. -->
             <dependency>
                 <groupId>commons-logging</groupId>
                 <artifactId>commons-logging</artifactId>
-                <version>1.3.4</version>
+                <version>1.3.6</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-compress</artifactId>
-                <version>1.27.1</version>
+                <version>1.28.0</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-pool2</artifactId>
-                <version>2.12.0</version>
+                <version>2.13.1</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-text</artifactId>
-                <version>1.13.0</version>
+                <version>1.15.0</version>
             </dependency>
             <dependency>
                 <groupId>commons-validator</groupId>
                 <artifactId>commons-validator</artifactId>
-                <version>1.9.0</version>
+                <version>1.10.1</version>
             </dependency>
             <dependency>
                 <groupId>joda-time</groupId>
                 <artifactId>joda-time</artifactId>
-                <version>2.13.0</version>
+                <version>2.14.1</version>
             </dependency>
             <dependency>
                 <groupId>com.sun.mail</groupId>
@@ -1804,18 +1839,12 @@
                 <artifactId>javax.servlet-api</artifactId>
                 <version>3.1.0</version>
             </dependency>
-            <!-- Only necessary because javax.el.MethodNotFoundException is used in several classes -->
-            <dependency>
-                <groupId>javax.el</groupId>
-                <artifactId>javax.el-api</artifactId>
-                <version>3.0.0</version>
-            </dependency>
 
             <!-- Jaxen is needed by xoai and sword2-server, but they disagree on the versions -->
             <dependency>
                 <groupId>jaxen</groupId>
                 <artifactId>jaxen</artifactId>
-                <version>2.0.0</version>
+                <version>2.0.1</version>
             </dependency>
             <dependency>
                 <groupId>org.jdom</groupId>
@@ -1947,7 +1976,7 @@
             <dependency>
                 <groupId>com.h2database</groupId>
                 <artifactId>h2</artifactId>
-                <version>2.3.232</version>
+                <version>2.4.240</version>
                 <scope>test</scope>
             </dependency>
             <!-- Google Analytics -->
@@ -1964,7 +1993,7 @@
             <dependency>
                 <groupId>com.google.http-client</groupId>
                 <artifactId>google-http-client</artifactId>
-                <version>1.45.3</version>
+                <version>1.47.1</version>
                 <exclusions>
                     <exclusion>
                         <groupId>com.google.errorprone</groupId>
@@ -1981,12 +2010,12 @@
             <dependency>
                 <groupId>io.grpc</groupId>
                 <artifactId>grpc-context</artifactId>
-                <version>1.69.0</version>
+                <version>1.80.0</version>
             </dependency>
             <dependency>
                 <groupId>com.google.http-client</groupId>
                 <artifactId>google-http-client-jackson2</artifactId>
-                <version>1.45.3</version>
+                <version>1.47.1</version>
                 <exclusions>
                     <exclusion>
                         <artifactId>jackson-core</artifactId>
@@ -2001,16 +2030,21 @@
             <dependency>
                 <groupId>com.google.oauth-client</groupId>
                 <artifactId>google-oauth-client</artifactId>
-                <version>1.37.0</version>
+                <version>1.39.0</version>
             </dependency>
             <!-- This dependency is only here for dependency convergence. google-api-client & google-oauth-client
              pulls in two different versions of this, and we want the latest version. -->
             <dependency>
                 <groupId>com.google.http-client</groupId>
                 <artifactId>google-http-client-gson</artifactId>
-                <version>1.43.3</version>
+                <version>1.47.1</version>
             </dependency>
-
+            <dependency>
+                <groupId>com.squareup.okhttp3</groupId>
+                <artifactId>mockwebserver</artifactId>
+                <version>4.12.0</version>
+                <scope>test</scope>
+            </dependency>
             <!-- Findbugs annotations -->
             <dependency>
                 <groupId>com.google.code.findbugs</groupId>
@@ -2029,12 +2063,12 @@
             <dependency>
                 <groupId>com.fasterxml</groupId>
                 <artifactId>classmate</artifactId>
-                <version>1.7.0</version>
+                <version>1.7.3</version>
             </dependency>
             <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>
                 <artifactId>jackson-annotations</artifactId>
-                <version>${jackson.version}</version>
+                <version>${jackson-annotations.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>
@@ -2044,14 +2078,14 @@
             <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>
                 <artifactId>jackson-databind</artifactId>
-                <version>${jackson-databind.version}</version>
+                <version>${jackson.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.google.guava</groupId>
                 <artifactId>guava</artifactId>
-                <version>32.1.3-jre</version>
+                <version>33.6.0-jre</version>
                 <exclusions>
-                    <!-- Use version provided by Solr / Postgres -->
+                    <!-- Use version provided by solr-core -->
                     <exclusion>
                         <groupId>org.checkerframework</groupId>
                         <artifactId>checker-qual</artifactId>
@@ -2061,7 +2095,7 @@
             <dependency>
                 <groupId>xom</groupId>
                 <artifactId>xom</artifactId>
-                <version>1.3.9</version>
+                <version>1.4.0</version>
             </dependency>
 
             <!-- json-path is needed by Spring HATEOAS -->
@@ -2252,14 +2286,16 @@
     <repositories>
         <!-- Check Maven Central first (before other repos below) -->
         <repository>
-            <id>maven-central</id>
+            <id>central</id>
             <url>https://repo.maven.apache.org/maven2</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
         </repository>
-        <!-- Enable access to artifacts in Sonatype's snapshot repo for Snapshots ONLY -->
+        <!-- Enable access to artifacts in Sonatype's Central Portal snapshot repo for Snapshots ONLY -->
         <repository>
-            <id>maven-snapshots</id>
-            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-            <layout>default</layout>
+            <id>central-portal-snapshots</id>
+            <url>https://central.sonatype.com/repository/maven-snapshots/</url>
             <releases>
                 <enabled>false</enabled>
             </releases>
@@ -2271,6 +2307,9 @@
         <repository>
             <id>handle.net</id>
             <url>https://handle.net/maven</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
         </repository>
         <repository>
             <id>4science-repo-nexus</id>

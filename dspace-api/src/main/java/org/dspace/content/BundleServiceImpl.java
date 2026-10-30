@@ -588,4 +588,8 @@ public class BundleServiceImpl extends DSpaceObjectServiceImpl<Bundle> implement
     public boolean exists(Context context, UUID id) throws SQLException {
         return this.bundleDAO.exists(context, Bundle.class, id);
     }
+
+    public int countBitstreams(Context context, Bundle bundle) throws SQLException {
+        return bundleDAO.countBitstreams(context, bundle);
+    }
 }

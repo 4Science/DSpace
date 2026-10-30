@@ -92,15 +92,14 @@ public class ActuatorConfiguration {
     @ConditionalOnEnabledHealthIndicator("solrAudit")
     @ConditionalOnProperty("solr.audit.server")
     public SolrHealthIndicator solrAuditHealthIndicator(AuditService auditService)
-        throws MalformedURLException, SolrServerException, IOException {
+        throws SolrServerException, IOException {
         return new SolrHealthIndicator(auditService.getSolr());
     }
 
     @Bean
     @ConditionalOnEnabledHealthIndicator("solrDedup")
     @ConditionalOnProperty("deduplication.search.server")
-    public SolrHealthIndicator solrDedupHealthIndicator(SolrDedupServiceImpl solrDedupService)
-            throws MalformedURLException, SolrServerException, IOException {
+    public SolrHealthIndicator solrDedupHealthIndicator(SolrDedupServiceImpl solrDedupService) {
         return new SolrHealthIndicator(solrDedupService.getSolr());
     }
 
@@ -115,8 +114,8 @@ public class ActuatorConfiguration {
     @Bean
     @ConditionalOnEnabledHealthIndicator("solrSuggestion")
     @ConditionalOnProperty("suggestion.solr.server")
-    public SolrHealthIndicator solrSuggestionHealthIndicator(SolrSuggestionStorageServiceImpl solrSuggestionStrgService)
-            throws MalformedURLException, SolrServerException, IOException {
+    public SolrHealthIndicator solrSuggestionHealthIndicator(
+            SolrSuggestionStorageServiceImpl solrSuggestionStrgService) {
         return new SolrHealthIndicator(solrSuggestionStrgService.getSolr());
     }
 

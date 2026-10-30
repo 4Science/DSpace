@@ -203,7 +203,7 @@ public class LDAPAuthentication implements AuthenticationMethod {
      * <p>Meaning:
      * <br>SUCCESS         - authenticated OK.
      * <br>BAD_CREDENTIALS - user exists, but credentials (e.g. passwd) don't match
-     * <br>CERT_REQUIRED   - not allowed to login this way without X.509 cert.
+     * <br>CERT_REQUIRED   - not allowed to login this way without a cert.
      * <br>NO_SUCH_USER    - user not found using this method.
      * <br>BAD_ARGS        - user/pw not appropriate for this method
      */
@@ -322,7 +322,7 @@ public class LDAPAuthentication implements AuthenticationMethod {
                             log.info(LogHelper.getHeader(context,
                                                           "type=ldap-login", "type=ldap_but_already_email"));
                             context.turnOffAuthorisationSystem();
-                            setEpersonAttributes(context, eperson, ldap, Optional.of(netid));
+                            setEpersonAttributes(context, eperson, ldap, Optional.of(netid), email);
                             ePersonService.update(context, eperson);
                             context.dispatchEvents();
                             context.restoreAuthSystemState();
@@ -339,7 +339,7 @@ public class LDAPAuthentication implements AuthenticationMethod {
                                 try {
                                     context.turnOffAuthorisationSystem();
                                     eperson = ePersonService.create(context);
-                                    setEpersonAttributes(context, eperson, ldap, Optional.of(netid));
+                                    setEpersonAttributes(context, eperson, ldap, Optional.of(netid), email);
                                     eperson.setCanLogIn(true);
                                     authenticationService.initEPerson(context, request, eperson);
                                     ePersonService.update(context, eperson);
@@ -381,11 +381,24 @@ public class LDAPAuthentication implements AuthenticationMethod {
      * Update eperson's attributes
      */
     private void setEpersonAttributes(Context context, EPerson eperson, SpeakerToLDAP ldap, Optional<String> netid)
-        throws SQLException {
+            throws SQLException {
+        setEpersonAttributes(context, eperson, ldap, netid, null);
+    }
 
+    /**
+     * Update eperson's attributes
+     */
+    private void setEpersonAttributes(Context context, EPerson eperson, SpeakerToLDAP ldap, Optional<String> netid,
+                                      String email)
+            throws SQLException {
+
+        // Set email address: first try LDAP email, then fallback to provided email parameter
         if (StringUtils.isNotEmpty(ldap.ldapEmail)) {
             eperson.setEmail(ldap.ldapEmail);
+        } else if (StringUtils.isNotEmpty(email)) {
+            eperson.setEmail(email);
         }
+
         if (StringUtils.isNotEmpty(ldap.ldapGivenName)) {
             eperson.setFirstName(context, ldap.ldapGivenName);
         }

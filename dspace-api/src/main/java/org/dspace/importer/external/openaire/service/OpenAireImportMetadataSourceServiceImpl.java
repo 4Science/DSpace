@@ -15,7 +15,6 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.Callable;
-import javax.el.MethodNotFoundException;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Invocation;
@@ -136,12 +135,12 @@ public class OpenAireImportMetadataSourceServiceImpl extends AbstractImportMetad
 
     @Override
     public Collection<ImportRecord> findMatchingRecords(Query query) throws MetadataSourceException {
-        throw new MethodNotFoundException("This method is not implemented for OpenAIRE");
+        throw new UnsupportedOperationException("This method is not implemented for OpenAIRE");
     }
 
     @Override
     public Collection<ImportRecord> findMatchingRecords(Item item) throws MetadataSourceException {
-        throw new MethodNotFoundException("This method is not implemented for OpenAIRE");
+        throw new UnsupportedOperationException("This method is not implemented for OpenAIRE");
     }
 
     /**

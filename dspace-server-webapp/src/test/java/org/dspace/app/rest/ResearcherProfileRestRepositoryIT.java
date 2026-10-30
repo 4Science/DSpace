@@ -155,6 +155,7 @@ public class ResearcherProfileRestRepositoryIT extends AbstractControllerIntegra
 
         user = EPersonBuilder.createEPerson(context)
             .withEmail("user@example.com")
+            .withNameInMetadata("Example", "User")
             .withPassword(password)
             .build();
 
@@ -346,7 +347,7 @@ public class ResearcherProfileRestRepositoryIT extends AbstractControllerIntegra
     public void testCreateAndReturn() throws Exception {
 
         String id = user.getID().toString();
-        String name = user.getName();
+        String name = user.getFullName();
 
         String authToken = getAuthToken(user.getEmail(), password);
 
@@ -364,6 +365,8 @@ public class ResearcherProfileRestRepositoryIT extends AbstractControllerIntegra
         getClient(authToken).perform(get("/api/eperson/profiles/{id}/item", id))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.type", is("item")))
+            .andExpect(jsonPath("$.metadata", matchMetadata("person.givenName", user.getFirstName(), 0)))
+            .andExpect(jsonPath("$.metadata", matchMetadata("person.familyName", user.getLastName(), 0)))
             .andExpect(jsonPath("$.metadata", matchMetadata("dspace.object.owner", name, id.toString(), 0)))
             .andExpect(jsonPath("$.metadata", matchMetadata("cris.policy.group", administrators.getName(),
                                                             UUIDUtils.toString(administrators.getID()), 0)))
@@ -396,7 +399,7 @@ public class ResearcherProfileRestRepositoryIT extends AbstractControllerIntegra
     public void testCreateAndReturnWithAdmin() throws Exception {
 
         String id = user.getID().toString();
-        String name = user.getName();
+        String name = user.getFullName();
 
         configurationService.setProperty("researcher-profile.collection.uuid", null);
 
@@ -417,6 +420,8 @@ public class ResearcherProfileRestRepositoryIT extends AbstractControllerIntegra
         getClient(authToken).perform(get("/api/eperson/profiles/{id}/item", id))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.type", is("item")))
+            .andExpect(jsonPath("$.metadata", matchMetadata("person.givenName", user.getFirstName(), 0)))
+            .andExpect(jsonPath("$.metadata", matchMetadata("person.familyName", user.getLastName(), 0)))
             .andExpect(jsonPath("$.metadata", matchMetadata("dspace.object.owner", name, id.toString(), 0)))
             .andExpect(jsonPath("$.metadata", matchMetadata("cris.policy.group", administrators.getName(),
                                                             UUIDUtils.toString(administrators.getID()), 0)))
@@ -1660,6 +1665,7 @@ public class ResearcherProfileRestRepositoryIT extends AbstractControllerIntegra
         EPerson ePerson = EPersonBuilder.createEPerson(context)
             .withCanLogin(true)
             .withOrcid("0000-1111-2222-3333")
+            .withNetId("0000-1111-2222-3333")
             .withOrcidScope("/read")
             .withOrcidScope("/write")
             .withEmail("test@email.it")
@@ -1686,7 +1692,9 @@ public class ResearcherProfileRestRepositoryIT extends AbstractControllerIntegra
         assertThat(context.reloadEntity(secondQueueRecord), notNullValue());
 
         profile = context.reloadEntity(profile);
+        ePerson = context.reloadEntity(ePerson);
 
+        assertThat(ePerson.getNetid(), notNullValue());
         assertThat(getMetadataValues(profile, "person.identifier.orcid"), not(empty()));
         assertThat(getMetadataValues(profile, "dspace.orcid.scope"), not(empty()));
         assertThat(getMetadataValues(profile, "dspace.orcid.authenticated"), not(empty()));
@@ -1704,6 +1712,7 @@ public class ResearcherProfileRestRepositoryIT extends AbstractControllerIntegra
         EPerson ePerson = EPersonBuilder.createEPerson(context)
             .withCanLogin(true)
             .withOrcid("0000-1111-2222-3333")
+            .withNetId("0000-1111-2222-3333")
             .withOrcidScope("/read")
             .withOrcidScope("/write")
             .withEmail("test@email.it")
@@ -1730,7 +1739,9 @@ public class ResearcherProfileRestRepositoryIT extends AbstractControllerIntegra
         assertThat(context.reloadEntity(secondQueueRecord), notNullValue());
 
         profile = context.reloadEntity(profile);
+        ePerson = context.reloadEntity(ePerson);
 
+        assertThat(ePerson.getNetid(), notNullValue());
         assertThat(getMetadataValues(profile, "person.identifier.orcid"), not(empty()));
         assertThat(getMetadataValues(profile, "dspace.orcid.scope"), not(empty()));
         assertThat(getMetadataValues(profile, "dspace.orcid.authenticated"), not(empty()));
@@ -1748,6 +1759,7 @@ public class ResearcherProfileRestRepositoryIT extends AbstractControllerIntegra
         EPerson ePerson = EPersonBuilder.createEPerson(context)
             .withCanLogin(true)
             .withOrcid("0000-1111-2222-3333")
+            .withNetId("0000-1111-2222-3333")
             .withOrcidScope("/read")
             .withOrcidScope("/write")
             .withEmail("test@email.it")
@@ -1781,7 +1793,9 @@ public class ResearcherProfileRestRepositoryIT extends AbstractControllerIntegra
         assertThat(context.reloadEntity(secondQueueRecord), notNullValue());
 
         profile = context.reloadEntity(profile);
+        ePerson = context.reloadEntity(ePerson);
 
+        assertThat(ePerson.getNetid(), notNullValue());
         assertThat(getMetadataValues(profile, "person.identifier.orcid"), not(empty()));
         assertThat(getMetadataValues(profile, "dspace.orcid.scope"), not(empty()));
         assertThat(getMetadataValues(profile, "dspace.orcid.authenticated"), not(empty()));
@@ -1834,7 +1848,9 @@ public class ResearcherProfileRestRepositoryIT extends AbstractControllerIntegra
         assertThat(context.reloadEntity(secondQueueRecord), nullValue());
 
         profile = context.reloadEntity(profile);
+        eperson = context.reloadEntity(eperson);
 
+        assertThat(eperson.getNetid(), nullValue());
         assertThat(getMetadataValues(profile, "person.identifier.orcid"), empty());
         assertThat(getMetadataValues(profile, "dspace.orcid.scope"), empty());
         assertThat(getMetadataValues(profile, "dspace.orcid.authenticated"), empty());
@@ -1927,7 +1943,9 @@ public class ResearcherProfileRestRepositoryIT extends AbstractControllerIntegra
         assertThat(context.reloadEntity(secondQueueRecord), notNullValue());
 
         profile = context.reloadEntity(profile);
+        eperson = context.reloadEntity(eperson);
 
+        assertThat(eperson.getNetid(), nullValue());
         assertThat(getMetadataValues(profile, "person.identifier.orcid"), not(empty()));
         assertThat(getMetadataValues(profile, "dspace.orcid.scope"), not(empty()));
         assertThat(getMetadataValues(profile, "dspace.orcid.authenticated"), not(empty()));
@@ -1945,6 +1963,7 @@ public class ResearcherProfileRestRepositoryIT extends AbstractControllerIntegra
         EPerson ePerson = EPersonBuilder.createEPerson(context)
             .withCanLogin(true)
             .withOrcid("0000-1111-2222-3333")
+            .withNetId("0000-1111-2222-3333")
             .withOrcidScope("/read")
             .withOrcidScope("/write")
             .withEmail("test@email.it")
@@ -1971,7 +1990,9 @@ public class ResearcherProfileRestRepositoryIT extends AbstractControllerIntegra
         assertThat(context.reloadEntity(secondQueueRecord), notNullValue());
 
         profile = context.reloadEntity(profile);
+        ePerson = context.reloadEntity(ePerson);
 
+        assertThat(ePerson.getNetid(), notNullValue());
         assertThat(getMetadataValues(profile, "person.identifier.orcid"), not(empty()));
         assertThat(getMetadataValues(profile, "dspace.orcid.scope"), not(empty()));
         assertThat(getMetadataValues(profile, "dspace.orcid.authenticated"), not(empty()));
@@ -1989,6 +2010,7 @@ public class ResearcherProfileRestRepositoryIT extends AbstractControllerIntegra
         EPerson ePerson = EPersonBuilder.createEPerson(context)
             .withCanLogin(true)
             .withOrcid("0000-1111-2222-3333")
+            .withNetId("0000-1111-2222-3333")
             .withOrcidScope("/read")
             .withOrcidScope("/write")
             .withEmail("test@email.it")
@@ -2015,7 +2037,9 @@ public class ResearcherProfileRestRepositoryIT extends AbstractControllerIntegra
         assertThat(context.reloadEntity(secondQueueRecord), notNullValue());
 
         profile = context.reloadEntity(profile);
+        ePerson = context.reloadEntity(ePerson);
 
+        assertThat(ePerson.getNetid(), notNullValue());
         assertThat(getMetadataValues(profile, "person.identifier.orcid"), not(empty()));
         assertThat(getMetadataValues(profile, "dspace.orcid.scope"), not(empty()));
         assertThat(getMetadataValues(profile, "dspace.orcid.authenticated"), not(empty()));
@@ -2069,7 +2093,9 @@ public class ResearcherProfileRestRepositoryIT extends AbstractControllerIntegra
         assertThat(context.reloadEntity(secondQueueRecord), nullValue());
 
         profile = context.reloadEntity(profile);
+        eperson = context.reloadEntity(eperson);
 
+        assertThat(eperson.getNetid(), nullValue());
         assertThat(getMetadataValues(profile, "person.identifier.orcid"), empty());
         assertThat(getMetadataValues(profile, "dspace.orcid.scope"), empty());
         assertThat(getMetadataValues(profile, "dspace.orcid.authenticated"), empty());
@@ -2087,6 +2113,7 @@ public class ResearcherProfileRestRepositoryIT extends AbstractControllerIntegra
         EPerson ePerson = EPersonBuilder.createEPerson(context)
             .withCanLogin(true)
             .withOrcid("0000-1111-2222-3333")
+            .withNetId("0000-1111-2222-3333")
             .withOrcidScope("/read")
             .withOrcidScope("/write")
             .withEmail("test@email.it")
@@ -2113,7 +2140,9 @@ public class ResearcherProfileRestRepositoryIT extends AbstractControllerIntegra
         assertThat(context.reloadEntity(secondQueueRecord), notNullValue());
 
         profile = context.reloadEntity(profile);
+        ePerson = context.reloadEntity(ePerson);
 
+        assertThat(ePerson.getNetid(), notNullValue());
         assertThat(getMetadataValues(profile, "person.identifier.orcid"), not(empty()));
         assertThat(getMetadataValues(profile, "dspace.orcid.scope"), not(empty()));
         assertThat(getMetadataValues(profile, "dspace.orcid.authenticated"), not(empty()));
@@ -2171,7 +2200,9 @@ public class ResearcherProfileRestRepositoryIT extends AbstractControllerIntegra
         assertThat(context.reloadEntity(secondQueueRecord), nullValue());
 
         profile = context.reloadEntity(profile);
+        eperson = context.reloadEntity(eperson);
 
+        assertThat(eperson.getNetid(), nullValue());
         assertThat(getMetadataValues(profile, "person.identifier.orcid"), empty());
         assertThat(getMetadataValues(profile, "dspace.orcid.scope"), empty());
         assertThat(getMetadataValues(profile, "dspace.orcid.authenticated"), empty());
@@ -2226,7 +2257,9 @@ public class ResearcherProfileRestRepositoryIT extends AbstractControllerIntegra
         assertThat(context.reloadEntity(secondQueueRecord), nullValue());
 
         profile = context.reloadEntity(profile);
+        eperson = context.reloadEntity(eperson);
 
+        assertThat(eperson.getNetid(), nullValue());
         assertThat(getMetadataValues(profile, "person.identifier.orcid"), empty());
         assertThat(getMetadataValues(profile, "dspace.orcid.scope"), empty());
         assertThat(getMetadataValues(profile, "dspace.orcid.authenticated"), empty());
@@ -2244,6 +2277,7 @@ public class ResearcherProfileRestRepositoryIT extends AbstractControllerIntegra
         EPerson ePerson = EPersonBuilder.createEPerson(context)
             .withCanLogin(true)
             .withOrcid("0000-1111-2222-3333")
+            .withNetId("0000-1111-2222-3333")
             .withOrcidScope("/read")
             .withOrcidScope("/write")
             .withEmail("test@email.it")
@@ -2270,7 +2304,9 @@ public class ResearcherProfileRestRepositoryIT extends AbstractControllerIntegra
         assertThat(context.reloadEntity(secondQueueRecord), notNullValue());
 
         profile = context.reloadEntity(profile);
+        ePerson = context.reloadEntity(ePerson);
 
+        assertThat(ePerson.getNetid(), notNullValue());
         assertThat(getMetadataValues(profile, "person.identifier.orcid"), not(empty()));
         assertThat(getMetadataValues(profile, "dspace.orcid.scope"), not(empty()));
         assertThat(getMetadataValues(profile, "dspace.orcid.authenticated"), not(empty()));
@@ -2333,7 +2369,9 @@ public class ResearcherProfileRestRepositoryIT extends AbstractControllerIntegra
             assertThat(context.reloadEntity(secondQueueRecord), nullValue());
 
             profile = context.reloadEntity(profile);
+            eperson = context.reloadEntity(eperson);
 
+            assertThat(eperson.getNetid(), nullValue());
             assertThat(getMetadataValues(profile, "person.identifier.orcid"), empty());
             assertThat(getMetadataValues(profile, "dspace.orcid.scope"), empty());
             assertThat(getMetadataValues(profile, "dspace.orcid.webhook"), empty());
