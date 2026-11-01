@@ -13,6 +13,7 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -76,6 +77,7 @@ public class ImportFileUtilTest extends AbstractDSpaceTest {
         InputStream mockStream = mock(InputStream.class);
 
         doReturn(url).when(importFileUtil).getUrl(path);
+        when(url.getProtocol()).thenReturn("http");
         when(url.getHost()).thenReturn(allowedHost);
         doReturn(mockStream).when(importFileUtil).openStream(url);
 
@@ -88,16 +90,60 @@ public class ImportFileUtilTest extends AbstractDSpaceTest {
     }
 
     @Test
-    public void getInputStream_shouldReturnStream_whenNoIpRestrictionConfigured() throws Exception {
-        // Given
+    public void getInputStream_shouldReturnEmpty_whenNoIpRestrictionConfigured() throws Exception {
+        // Given an empty allowlist, remote retrieval must fail closed (SSRF fix, DSAP-2026-004).
         when(configurationService.getArrayProperty("allowed.ips.import"))
             .thenReturn(new String[] {});
 
         String path = "http://example.com/file.txt";
         URL url = mock(URL.class);
+
+        doReturn(url).when(importFileUtil).getUrl(path);
+        when(url.getProtocol()).thenReturn("http");
+        when(url.getHost()).thenReturn("example.com");
+
+        // When
+        Optional<InputStream> result = importFileUtil.getInputStream(path);
+
+        // Then: nothing is fetched and no stream is opened.
+        assertFalse(result.isPresent());
+        verify(importFileUtil, never()).openStream(url);
+    }
+
+    @Test
+    public void getInputStream_shouldReturnEmpty_whenAllowlistIsNull() throws Exception {
+        // Given a null allowlist (property absent), remote retrieval must fail closed.
+        when(configurationService.getArrayProperty("allowed.ips.import"))
+            .thenReturn(null);
+
+        String path = "http://example.com/file.txt";
+        URL url = mock(URL.class);
+
+        doReturn(url).when(importFileUtil).getUrl(path);
+        when(url.getProtocol()).thenReturn("http");
+        when(url.getHost()).thenReturn("example.com");
+
+        // When
+        Optional<InputStream> result = importFileUtil.getInputStream(path);
+
+        // Then
+        assertFalse(result.isPresent());
+        verify(importFileUtil, never()).openStream(url);
+    }
+
+    @Test
+    public void getInputStream_shouldReturnStream_whenWildcardConfigured() throws Exception {
+        // Given the explicit "allow all" escape hatch, any host is permitted.
+        when(configurationService.getArrayProperty("allowed.ips.import"))
+            .thenReturn(new String[] {"*"});
+
+        String path = "http://anything.example/file.txt";
+        URL url = mock(URL.class);
         InputStream mockStream = mock(InputStream.class);
 
         doReturn(url).when(importFileUtil).getUrl(path);
+        when(url.getProtocol()).thenReturn("http");
+        when(url.getHost()).thenReturn("anything.example");
         doReturn(mockStream).when(importFileUtil).openStream(url);
 
         // When
@@ -109,6 +155,49 @@ public class ImportFileUtilTest extends AbstractDSpaceTest {
     }
 
     @Test
+    public void getInputStream_shouldNotThrow_whenAllowlistContainsNullElement() throws Exception {
+        // Given a null element in the configured array, the set must still build (no NPE)
+        // and an allowed host must still match.
+        String allowedHost = "example.com";
+        when(configurationService.getArrayProperty("allowed.ips.import"))
+            .thenReturn(new String[] {null, allowedHost});
+
+        String path = "http://example.com/file.txt";
+        URL url = mock(URL.class);
+        InputStream mockStream = mock(InputStream.class);
+
+        doReturn(url).when(importFileUtil).getUrl(path);
+        when(url.getProtocol()).thenReturn("http");
+        when(url.getHost()).thenReturn(allowedHost);
+        doReturn(mockStream).when(importFileUtil).openStream(url);
+
+        // When
+        Optional<InputStream> result = importFileUtil.getInputStream(path);
+
+        // Then
+        assertTrue(result.isPresent());
+        verify(importFileUtil).openStream(url);
+    }
+
+    @Test
+    public void getInputStream_shouldReturnEmpty_whenRemoteSchemeIsNotHttp() throws Exception {
+        // Given a non-http(s) URL reaching the remote path, retrieval must be refused
+        // before the allowlist is even consulted.
+        String path = "http://example.com/file.txt";
+        URL url = mock(URL.class);
+
+        doReturn(url).when(importFileUtil).getUrl(path);
+        when(url.getProtocol()).thenReturn("gopher");
+
+        // When
+        Optional<InputStream> result = importFileUtil.getInputStream(path);
+
+        // Then
+        assertFalse(result.isPresent());
+        verify(importFileUtil, never()).openStream(url);
+    }
+
+    @Test
     public void getInputStream_shouldReturnEmpty_whenRemoteHostIsNotAllowed() throws IOException {
         // Given
         when(configurationService.getArrayProperty("allowed.ips.import"))
@@ -117,6 +206,7 @@ public class ImportFileUtilTest extends AbstractDSpaceTest {
         String path = "http://example.com/file.txt";
         URL url = mock(URL.class);
         doReturn(url).when(importFileUtil).getUrl(path);
+        when(url.getProtocol()).thenReturn("http");
         when(url.getHost()).thenReturn("example.com");
 
         // When
@@ -124,6 +214,7 @@ public class ImportFileUtilTest extends AbstractDSpaceTest {
 
         // Then
         assertFalse(result.isPresent());
+        verify(importFileUtil, never()).openStream(url);
     }
 
 
@@ -156,12 +247,16 @@ public class ImportFileUtilTest extends AbstractDSpaceTest {
 
     @Test
     public void getInputStream_shouldReturnStream_whenFtpConnectionSucceeds() throws Exception {
-        // Given
+        // Given the FTP host is allowlisted
+        when(configurationService.getArrayProperty("allowed.ips.import"))
+            .thenReturn(new String[] {"example.com"});
+
         String ftpPath = "ftp://example.com/file.txt";
         URL mockUrl = mock(URL.class);
         InputStream mockInputStream = mock(InputStream.class);
 
         doReturn(mockUrl).when(importFileUtil).getUrl(ftpPath);
+        when(mockUrl.getHost()).thenReturn("example.com");
         when(mockUrl.openConnection()).thenReturn(urlConnection);
         when(urlConnection.getInputStream()).thenReturn(mockInputStream);
 
@@ -175,11 +270,15 @@ public class ImportFileUtilTest extends AbstractDSpaceTest {
 
     @Test
     public void getInputStream_shouldReturnEmpty_whenFtpStreamIsNull() throws Exception {
-        // Given
+        // Given the FTP host is allowlisted
+        when(configurationService.getArrayProperty("allowed.ips.import"))
+            .thenReturn(new String[] {"example.com"});
+
         String ftpPath = "ftp://example.com/file.txt";
         URL mockUrl = mock(URL.class);
 
         doReturn(mockUrl).when(importFileUtil).getUrl(ftpPath);
+        when(mockUrl.getHost()).thenReturn("example.com");
         when(mockUrl.openConnection()).thenReturn(urlConnection);
         when(urlConnection.getInputStream()).thenReturn(null);
 
@@ -189,6 +288,26 @@ public class ImportFileUtilTest extends AbstractDSpaceTest {
         // Then
         assertFalse(result.isPresent());
         verify(urlConnection).getInputStream();
+    }
+
+    @Test
+    public void getInputStream_shouldReturnEmpty_whenFtpHostNotAllowed() throws Exception {
+        // Given an empty allowlist, the FTP path must also fail closed (previously ungated).
+        when(configurationService.getArrayProperty("allowed.ips.import"))
+            .thenReturn(new String[] {});
+
+        String ftpPath = "ftp://example.com/file.txt";
+        URL mockUrl = mock(URL.class);
+
+        doReturn(mockUrl).when(importFileUtil).getUrl(ftpPath);
+        when(mockUrl.getHost()).thenReturn("example.com");
+
+        // When
+        Optional<InputStream> result = importFileUtil.getInputStream(ftpPath);
+
+        // Then: no connection is ever opened.
+        assertFalse(result.isPresent());
+        verify(mockUrl, never()).openConnection();
     }
 
 }
