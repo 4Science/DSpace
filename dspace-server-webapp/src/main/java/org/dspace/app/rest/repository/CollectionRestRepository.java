@@ -20,6 +20,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.ServletInputStream;
 import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.dspace.app.rest.Parameter;
 import org.dspace.app.rest.SearchRestMethod;
@@ -84,7 +85,7 @@ import org.springframework.web.multipart.MultipartFile;
 @Component(CollectionRest.CATEGORY + "." + CollectionRest.PLURAL_NAME)
 public class CollectionRestRepository extends DSpaceObjectRestRepository<Collection, CollectionRest> {
 
-    public static Logger log = org.apache.logging.log4j.LogManager.getLogger(CollectionRestRepository.class);
+    public static Logger log = LogManager.getLogger(CollectionRestRepository.class);
 
     @Autowired
     CommunityService communityService;
@@ -203,7 +204,7 @@ public class CollectionRestRepository extends DSpaceObjectRestRepository<Collect
             List<Collection> collections = cs.findCollectionsWithSubmit(q, context, null, null,
                                               Math.toIntExact(pageable.getOffset()),
                                               Math.toIntExact(pageable.getPageSize()));
-            int tot = cs.countCollectionsWithSubmit(q, context, null, null);
+            int tot = cs.countCollectionsWithSubmit(q, context,  null, null);
             return converter.toRestPage(collections, pageable, tot, utils.obtainProjection());
         } catch (SQLException e) {
             throw new RuntimeException(e.getMessage(), e);
@@ -313,14 +314,33 @@ public class CollectionRestRepository extends DSpaceObjectRestRepository<Collect
     @SearchRestMethod(name = "findAdminAuthorized")
     public Page<CollectionRest> findAdminAuthorized (
         Pageable pageable, @Parameter(value = "query") String query) {
+        return findAuthorized(pageable, Constants.ADMIN, query);
+    }
+
+    /**
+     * Returns Collections for which the current user has 'edit' privileges.
+     *
+     * @param pageable              The pagination information
+     * @param query                 The query used in the lookup
+     * @return
+     */
+    @PreAuthorize("hasAuthority('AUTHENTICATED')")
+    @SearchRestMethod(name = "findEditAuthorized")
+    public Page<CollectionRest> findEditAuthorized (
+        Pageable pageable, @Parameter(value = "query") String query) {
+        return findAuthorized(pageable, Constants.WRITE, query);
+    }
+
+    private Page<CollectionRest> findAuthorized(Pageable pageable, int action, String query) {
         try {
             Context context = obtainContext();
-            List<Collection> collections = authorizeService.findAdminAuthorizedCollection(context, query,
+            List<Collection> collections = authorizeService.findAuthorizedCollectionByAction(context, query,
+                action,
                 Math.toIntExact(pageable.getOffset()),
                 Math.toIntExact(pageable.getPageSize()));
-            long tot = authorizeService.countAdminAuthorizedCollection(context, query);
-            return converter.toRestPage(collections, pageable, tot , utils.obtainProjection());
-        } catch (SearchServiceException | SQLException e) {
+            long tot = authorizeService.countAuthorizedCollectionByAction(context, query, action);
+            return converter.toRestPage(collections, pageable, tot, utils.obtainProjection());
+        } catch (SearchServiceException e) {
             throw new RuntimeException(e.getMessage(), e);
         }
     }

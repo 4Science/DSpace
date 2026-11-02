@@ -58,9 +58,9 @@ public class RestDSpaceRunnableHandler implements DSpaceRunnableHandler {
 
     private ConfigurationService configurationService = DSpaceServicesFactory.getInstance().getConfigurationService();
     private BitstreamService bitstreamService = ContentServiceFactory.getInstance().getBitstreamService();
-    private ProcessService processService = ScriptServiceFactory.getInstance().getProcessService();
     private EPersonService ePersonService = EPersonServiceFactory.getInstance().getEPersonService();
     private GroupService groupService = EPersonServiceFactory.getInstance().getGroupService();
+    private ProcessService processService = ScriptServiceFactory.getInstance().getProcessService();
 
     private Integer processId;
     private String scriptName;
@@ -82,6 +82,7 @@ public class RestDSpaceRunnableHandler implements DSpaceRunnableHandler {
         context.setCurrentLocale(this.locale);
         try {
             this.ePersonId = Objects.nonNull(ePerson) ? ePerson.getID() : null;
+            setCurrentUser(context);
             Process process = processService.create(context, ePerson, scriptName, parameters,
                 new HashSet<>(specialGroups));
             this.processId = process.getID();
@@ -103,11 +104,12 @@ public class RestDSpaceRunnableHandler implements DSpaceRunnableHandler {
     public void start() {
         Context context = new Context();
         try {
+            setCurrentUser(context);
             Process process = processService.find(context, processId);
             processService.start(context, process);
             context.complete();
             logInfo("The script has started");
-        } catch (SQLException e) {
+        } catch (SQLException | AuthorizeException e) {
             log.error("RestDSpaceRunnableHandler with process: " + processId + " could not be started", e);
         } finally {
             if (context.isValid()) {
@@ -120,6 +122,7 @@ public class RestDSpaceRunnableHandler implements DSpaceRunnableHandler {
     public void handleCompletion() {
         Context context = new Context();
         try {
+            setCurrentUser(context);
             Process process = processService.find(context, processId);
             processService.complete(context, process);
             logInfo("The script has completed");
@@ -157,6 +160,7 @@ public class RestDSpaceRunnableHandler implements DSpaceRunnableHandler {
 
         Context context = new Context();
         try {
+            setCurrentUser(context);
             Process process = processService.find(context, processId);
             processService.fail(context, process);
 
@@ -307,12 +311,13 @@ public class RestDSpaceRunnableHandler implements DSpaceRunnableHandler {
                                                 .getServiceByName(taskExecutorBeanName, TaskExecutor.class);
         Context context = new Context();
         try {
+            setCurrentUser(context);
             Process process = processService.find(context, processId);
             process.setProcessStatus(ProcessStatus.SCHEDULED);
             processService.update(context, process);
             context.complete();
-        } catch (SQLException e) {
-            log.error("RestDSpaceRunnableHandler with process: " + processId + " ran into an SQLException", e);
+        } catch (SQLException | AuthorizeException e) {
+            log.error("RestDSpaceRunnableHandler with process: " + processId + " ran into an exception", e);
         } finally {
             if (context.isValid()) {
                 context.abort();
@@ -331,10 +336,7 @@ public class RestDSpaceRunnableHandler implements DSpaceRunnableHandler {
 
     private void addLogBitstreamToProcess(Context context) throws SQLException, IOException, AuthorizeException {
         try {
-            EPerson ePerson = ePersonService.find(context, ePersonId);
             Process process = processService.find(context, processId);
-
-            context.setCurrentUser(ePerson);
             processService.createLogBitstream(context, process);
         } catch (SQLException | IOException | AuthorizeException e) {
             log.error("RestDSpaceRunnableHandler with process: " + processId + " could not write log to process", e);
@@ -344,7 +346,8 @@ public class RestDSpaceRunnableHandler implements DSpaceRunnableHandler {
     @Override
     public List<UUID> getSpecialGroups() {
         Context context = new Context();
-        List<UUID> specialGroups = new ArrayList<UUID>();
+        setCurrentUser(context);
+        List<UUID> specialGroups = new ArrayList<>();
         try {
             Process process = processService.find(context, processId);
             for (Group group : process.getGroups()) {
@@ -360,6 +363,30 @@ public class RestDSpaceRunnableHandler implements DSpaceRunnableHandler {
         }
         return specialGroups;
     }
+
+    /**
+     * Set the current context user if ePerson UUID parameter is not null
+     * and can be found. Reloads from database to avoid detached entity
+     * issues in downstream usage (e.g. authorization checks with equals()
+     * checks on EPerson objects, after the initial context was closed)
+     *
+     * @param context The current DSpace context
+     */
+    private void setCurrentUser(Context context) {
+        if (ePersonId == null) {
+            return;
+        }
+        try {
+            EPerson ePerson = ePersonService.find(context, ePersonId);
+            if (ePerson != null) {
+                context.setCurrentUser(ePerson);
+                this.ePersonId = ePerson.getID();
+            }
+        } catch (SQLException e) {
+            log.error("Could not set the current user", e);
+        }
+    }
+
 
     @Override
     public Locale getLocale() {

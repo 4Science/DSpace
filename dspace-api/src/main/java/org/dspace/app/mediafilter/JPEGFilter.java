@@ -349,12 +349,14 @@ public class JPEGFilter extends MediaFilter implements SelfRegisterInputFormats 
             }
 
             ByteArrayInputStream bais;
+            // now create an input stream for the thumbnail buffer and return it
             try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
                 ImageIO.write(thumbnail, "jpeg", baos);
+                // now get the array
                 bais = new ByteArrayInputStream(baos.toByteArray());
             }
 
-            return bais;
+            return bais; // hope this gets written out before its garbage collected!
         } finally {
             g2d.dispose();
         }

@@ -37,7 +37,6 @@ import org.json.JSONTokener;
  * contributors and external ids configuration).
  *
  * @author Luca Giamminonni (luca.giamminonni at 4science.it)
- *
  */
 public final class OrcidFactoryUtils {
 

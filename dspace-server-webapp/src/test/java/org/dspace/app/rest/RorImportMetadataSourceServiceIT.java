@@ -73,7 +73,6 @@ public class RorImportMetadataSourceServiceIT extends AbstractLiveImportIntegrat
             assertThat(record.getSingleValue("organization.foundingDate"), is("2005"));
             assertThat(record.getSingleValue("organization.identifier.isni"), is("0000 0004 0446 4427"));
 
-
         } finally {
             liveImportClient.setHttpClient(originalHttpClient);
         }

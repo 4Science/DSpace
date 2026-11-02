@@ -16,11 +16,11 @@ import java.util.List;
 import javax.xml.transform.Source;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.stream.StreamSource;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
+import org.dspace.app.util.XMLUtils;
 import org.dspace.authority.service.AuthorityValueService;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.content.DSpaceObject;
@@ -127,7 +127,7 @@ public class CERIFIngestionCrosswalk implements IngestionCrosswalk {
             Source xml = new JDOMSource(element);
             JDOMResult out = new JDOMResult();
 
-            TransformerFactory.newInstance().newTransformer(xslt).transform(xml, out);
+            XMLUtils.getTransformerFactory().newTransformer(xslt).transform(xml, out);
 
             Document document = out.getDocument();
             if (document == null || !document.hasRootElement()) {
@@ -150,7 +150,7 @@ public class CERIFIngestionCrosswalk implements IngestionCrosswalk {
             Source xml = new JDOMSource(cerifRootElement);
             JDOMResult out = new JDOMResult();
 
-            Transformer transformer = TransformerFactory.newInstance().newTransformer(xslt);
+            Transformer transformer = XMLUtils.getTransformerFactory().newTransformer(xslt);
             transformer.setParameter("nestedMetadataPlaceholder", CrisConstants.PLACEHOLDER_PARENT_METADATA_VALUE);
             transformer.setParameter("converterSeparator", CONVERTER_SEPARATOR);
             if (idPrefix != null) {

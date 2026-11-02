@@ -14,6 +14,7 @@ import java.text.ParseException;
 import java.util.Iterator;
 import java.util.Optional;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 import java.util.regex.Pattern;
 
 import com.google.gson.GsonBuilder;
@@ -89,7 +90,7 @@ public class DSpaceListItemDataProvider extends ListItemDataProvider {
     private String citationLabel;
     private String collectionNumber;
     private String collectionTitle;
-    private String containerTitle;
+    private CascadeMetadataRule containerTitle;
     private String containerTitleShort;
     private String dimensions;
     private String DOI;
@@ -180,7 +181,8 @@ public class DSpaceListItemDataProvider extends ListItemDataProvider {
         consumeMetadataIfNotBlank(citationLabel, item, value -> itemBuilder.citationLabel(value));
         consumeMetadataIfNotBlank(collectionNumber, item, value -> itemBuilder.collectionNumber(value));
         consumeMetadataIfNotBlank(collectionTitle, item, value -> itemBuilder.collectionTitle(value));
-        consumeMetadataIfNotBlank(containerTitle, item, value -> itemBuilder.containerTitle(value));
+        consumeMetadataValueIfNotBlank(() -> containerTitle.getValue(item), item,
+            value -> itemBuilder.containerTitle(value.get()));
         consumeMetadataIfNotBlank(containerTitleShort, item, value -> itemBuilder.containerTitleShort(value));
         consumeMetadataIfNotBlank(dimensions, item, value -> itemBuilder.dimensions(value));
         consumeMetadataIfNotBlank(DOI, item, value -> itemBuilder.DOI(value));
@@ -332,6 +334,14 @@ public class DSpaceListItemDataProvider extends ListItemDataProvider {
             if (StringUtils.isNotBlank(metadataFirstValue)) {
                 consumer.accept(metadataFirstValue);
             }
+        }
+    }
+
+    private void consumeMetadataValueIfNotBlank(Supplier<String> valueSupplier, Item item,
+                                                Consumer<Supplier<String>> consumer) {
+        String value = valueSupplier.get();
+        if (StringUtils.isNotBlank(value)) {
+            consumer.accept(() -> value);
         }
     }
 
@@ -533,7 +543,7 @@ public class DSpaceListItemDataProvider extends ListItemDataProvider {
         return collectionTitle;
     }
 
-    public String getContainerTitle() {
+    public CascadeMetadataRule getContainerTitle() {
         return containerTitle;
     }
 
@@ -845,7 +855,7 @@ public class DSpaceListItemDataProvider extends ListItemDataProvider {
         this.collectionTitle = collectionTitle;
     }
 
-    public void setContainerTitle(String containerTitle) {
+    public void setContainerTitle(CascadeMetadataRule containerTitle) {
         this.containerTitle = containerTitle;
     }
 

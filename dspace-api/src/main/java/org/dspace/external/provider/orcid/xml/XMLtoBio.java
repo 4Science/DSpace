@@ -67,13 +67,11 @@ public class XMLtoBio extends Converter<List<Result>> {
     }
 
     public Record convertToRecord(InputStream xml) {
-        Record record = null;
         try {
-            record = (Record) unmarshall(xml, Record.class);
-            return record;
+            return (Record) unmarshall(xml, Record.class);
         } catch (SAXException | URISyntaxException e) {
             log.error(e);
         }
-        return record;
+        return null;
     }
 }

@@ -11,7 +11,7 @@
     <parent>
         <groupId>org.dspace</groupId>
         <artifactId>dspace-parent</artifactId>
-        <version>cris-2024.02.05-SNAPSHOT</version>
+        <version>cris-2024.02.06-SNAPSHOT</version>
         <relativePath>..</relativePath>
     </parent>
 
@@ -115,7 +115,7 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>buildnumber-maven-plugin</artifactId>
-                <version>3.2.1</version>
+                <version>3.3.0</version>
                 <configuration>
                     <revisionOnScmFailure>UNKNOWN_REVISION</revisionOnScmFailure>
                 </configuration>
@@ -404,6 +404,10 @@
         </dependency>
 
         <dependency>
+            <groupId>org.springframework.ldap</groupId>
+            <artifactId>spring-ldap-core</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-orm</artifactId>
             <exclusions>
@@ -469,6 +473,27 @@
                     <artifactId>jetty-servlets</artifactId>
                     <groupId>org.eclipse.jetty</groupId>
                 </exclusion>
+                <!-- Excluded because this library is incompatible with Jakarta EE. It causes errors in DSpace during
+                     startup & integration testing. Excluding doesn't seem to effect Handle Server startup. -->
+                <exclusion>
+                    <groupId>org.mortbay.jasper</groupId>
+                    <artifactId>apache-jsp</artifactId>
+                </exclusion>
+                <!-- Excluded BouncyCastle dependencies because we use a later version of BouncyCastle.
+                     Having two versions of BouncyCastle in the classpath can cause Handle Server to throw errors. -->
+                <exclusion>
+                    <groupId>org.bouncycastle</groupId>
+                    <artifactId>bcpkix-jdk15on</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.bouncycastle</groupId>
+                    <artifactId>bcprov-jdk15on</artifactId>
+                </exclusion>
+                <!-- Excluded because this library is incompatible with Jakarta EE. -->
+                <exclusion>
+                    <groupId>javax.annotation</groupId>
+                    <artifactId>javax.annotation-api</artifactId>
+                </exclusion>
             </exclusions>
         </dependency>
 
@@ -492,6 +517,13 @@
             <groupId>org.eclipse.jetty</groupId>
             <artifactId>jetty-annotations</artifactId>
             <scope>runtime</scope>
+            <exclusions>
+                <!-- Excluded because this library is incompatible with Jakarta EE. -->
+                <exclusion>
+                    <groupId>javax.annotation</groupId>
+                    <artifactId>javax.annotation-api</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.eclipse.jetty</groupId>
@@ -521,6 +553,13 @@
             <groupId>org.apache.jena</groupId>
             <artifactId>apache-jena-libs</artifactId>
             <type>pom</type>
+            <exclusions>
+                <!-- Use version provided by Postgres or Solr -->
+                <exclusion>
+                    <groupId>org.checkerframework</groupId>
+                    <artifactId>checker-qual</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>commons-cli</groupId>
@@ -576,12 +615,6 @@
         <dependency>
             <groupId>jaxen</groupId>
             <artifactId>jaxen</artifactId>
-            <exclusions>
-                <exclusion>
-                    <artifactId>xom</artifactId>
-                    <groupId>xom</groupId>
-                </exclusion>
-            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.jdom</groupId>
@@ -765,7 +798,7 @@
         <dependency>
             <groupId>dnsjava</groupId>
             <artifactId>dnsjava</artifactId>
-            <version>3.6.3</version>
+            <version>3.6.5</version>
         </dependency>
 
         <dependency>
@@ -808,16 +841,6 @@
             <groupId>org.flywaydb</groupId>
             <artifactId>flyway-database-postgresql</artifactId>
             <version>${flyway.version}</version>
-        </dependency>
-
-        <!-- FindBugs -->
-        <dependency>
-            <groupId>com.google.code.findbugs</groupId>
-            <artifactId>jsr305</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.google.code.findbugs</groupId>
-            <artifactId>annotations</artifactId>
         </dependency>
 
         <dependency>
@@ -863,6 +886,14 @@
               <exclusion>
                 <groupId>software.amazon.awssdk</groupId>
                 <artifactId>apache-client</artifactId>
+              </exclusion>
+              <!-- Exclude apache5-client (Apache HttpClient 5): added transitively by the AWS SDK
+                   from v2.46.x onward. DSpace uses the CRT based client (S3AsyncClient.crtBuilder()),
+                   so this client is unused, and it drags in conflicting httpcore5 versions that break
+                   dependency convergence. See https://github.com/DSpace/DSpace/issues/12690 -->
+              <exclusion>
+                <groupId>software.amazon.awssdk</groupId>
+                <artifactId>apache5-client</artifactId>
               </exclusion>
             </exclusions>
         </dependency>
@@ -937,7 +968,7 @@
         <dependency>
             <groupId>com.opencsv</groupId>
             <artifactId>opencsv</artifactId>
-            <version>5.11.1</version>
+            <version>5.12.0</version>
         </dependency>
 
         <!-- Email templating -->
@@ -950,14 +981,14 @@
         <dependency>
             <groupId>org.xmlunit</groupId>
             <artifactId>xmlunit-core</artifactId>
-            <version>2.10.2</version>
+            <version>2.13.0</version>
             <scope>test</scope>
         </dependency>
 
         <dependency>
             <groupId>org.apache.bcel</groupId>
             <artifactId>bcel</artifactId>
-            <version>6.10.0</version>
+            <version>6.12.0</version>
             <scope>test</scope>
         </dependency>
 
@@ -1083,8 +1114,6 @@
                 </exclusion>
             </exclusions>
         </dependency>
-
-
 
         <dependency>
             <groupId>com.squareup.okhttp3</groupId>

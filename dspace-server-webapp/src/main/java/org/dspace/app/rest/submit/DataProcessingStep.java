@@ -55,9 +55,8 @@ public interface DataProcessingStep extends RestProcessingStep {
      * @return the serializable object to include in the step generated section
      * @throws Exception
      */
-    public <T extends Serializable> T getData(SubmissionService submissionService, InProgressSubmission obj,
-                                              SubmissionStepConfig config) throws Exception;
-
+    <T extends Serializable> T getData(SubmissionService submissionService, InProgressSubmission obj,
+                                       SubmissionStepConfig config) throws Exception;
     /**
      * Method to react to a patch request against the step managed section data
      * 

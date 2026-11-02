@@ -44,11 +44,11 @@ public class VirtualFieldMetric implements VirtualField {
                 if (metric.getMetricCount() != null) {
                     return new String[] { metric.getMetricCount().toString() };
                 } else {
-                    return new String[] { };
+                    return new String[] { "0" };
                 }
             }
         }
-        return new String[] {};
+        return new String[] { "0" };
     }
 
 }

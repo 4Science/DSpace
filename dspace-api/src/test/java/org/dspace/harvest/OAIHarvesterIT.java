@@ -48,6 +48,7 @@ import java.util.UUID;
 
 import org.apache.commons.collections4.IteratorUtils;
 import org.dspace.AbstractIntegrationTestWithDatabase;
+import org.dspace.app.util.XMLUtils;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.builder.CollectionBuilder;
 import org.dspace.builder.HarvestedCollectionBuilder;
@@ -119,7 +120,7 @@ public class OAIHarvesterIT extends AbstractIntegrationTestWithDatabase {
 
     private PoolTaskService poolTaskService = XmlWorkflowServiceFactory.getInstance().getPoolTaskService();
 
-    private SAXBuilder builder = new SAXBuilder();
+    private SAXBuilder builder = XMLUtils.getSAXBuilder();
 
     private Community community;
 

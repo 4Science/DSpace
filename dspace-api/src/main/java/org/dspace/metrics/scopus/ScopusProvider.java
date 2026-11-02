@@ -97,7 +97,7 @@ public class ScopusProvider {
         Document parsedResponse = null;
         DocumentBuilder docBuilder = null;
         try {
-            DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory.newInstance();
+            DocumentBuilderFactory docBuilderFactory = XMLUtils.getDocumentBuilderFactory();
             docBuilder = docBuilderFactory.newDocumentBuilder();
             parsedResponse = docBuilder.parse(new InputSource(new StringReader(scopusResponse)));
         } catch (ParserConfigurationException | SAXException | IOException e) {
@@ -110,7 +110,7 @@ public class ScopusProvider {
         Document parsedResponse = null;
         DocumentBuilder docBuilder = null;
         try {
-            DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory.newInstance();
+            DocumentBuilderFactory docBuilderFactory = XMLUtils.getDocumentBuilderFactory();
             docBuilder = docBuilderFactory.newDocumentBuilder();
             parsedResponse = docBuilder.parse(new InputSource(new StringReader(scopusResponse)));
         } catch (ParserConfigurationException | SAXException | IOException e) {
@@ -124,7 +124,7 @@ public class ScopusProvider {
         DocumentBuilder docBuilder = null;
         String nextUrl = null;
         try {
-            DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory.newInstance();
+            DocumentBuilderFactory docBuilderFactory = XMLUtils.getDocumentBuilderFactory();
             docBuilder = docBuilderFactory.newDocumentBuilder();
             parsedResponse = docBuilder.parse(new InputSource(new StringReader(scopusResponse)));
             nextUrl = Optional.ofNullable(

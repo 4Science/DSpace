@@ -180,7 +180,8 @@ public class OrcidQueueConsumer implements Consumer {
                 continue;
             }
 
-            if (shouldNotBeSynchronized(relatedItem, entity) || isAlreadyQueued(context, relatedItem, entity)) {
+            if (shouldNotBeSynchronized(context, relatedItem, entity) ||
+                isAlreadyQueued(context, relatedItem, entity)) {
                 continue;
             }
 
@@ -316,8 +317,8 @@ public class OrcidQueueConsumer implements Consumer {
         return orcidTokenService.findByProfileItem(context, profileItemItem) == null;
     }
 
-    private boolean shouldNotBeSynchronized(Item profileItem, Item entity) {
-        return !orcidSynchronizationService.isSynchronizationAllowed(profileItem, entity);
+    private boolean shouldNotBeSynchronized(Context context, Item profileItem, Item entity) {
+        return !orcidSynchronizationService.isSynchronizationAllowed(context, profileItem, entity);
     }
 
     private boolean isNotProfileItem(Item profileItemItem) {

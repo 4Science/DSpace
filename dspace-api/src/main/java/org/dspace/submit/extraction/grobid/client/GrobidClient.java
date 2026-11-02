@@ -8,35 +8,39 @@
 package org.dspace.submit.extraction.grobid.client;
 
 import java.io.InputStream;
+import java.util.Optional;
 
-import org.dspace.submit.extraction.grobid.TEI;
+import org.w3c.dom.Document;
 
 /**
- * GROBID client.
+ * A GROBID client should return a valid {@link org.w3c.dom.Document} representing the TEI response header,
+ * in which extracted PDF metadata is contained.
  *
- * @author Luca Giamminonni (luca.giamminonni at 4science.it)
+ * The GROBID spec also supports several other formats, e.g. BibTeX, but this is currently unsupported.
+ *
+ * @author Kim Shepherd
  *
  */
 public interface GrobidClient {
 
     /**
-     * Extract the header of the input PDF document, normalize it and convert it
-     * into a TEI XML format.
+     * POST a PDF input stream to a GROBID service and validate and return the TEI header
+     * as a standard {@link org.w3c.dom.Document}
      *
      * @param  inputStream the PDF document
-     * @return             the document in TEI XML format
+     * @return the DOM document
      */
-    TEI processHeaderDocument(InputStream inputStream);
+    Optional<Document> retrieveHeaderDocument(InputStream inputStream) throws GrobidClientException;
 
     /**
-     * Extract the header of the input PDF document, normalize it and convert it
-     * into a TEI XML format.
+     * POST a PDF input stream to a GROBID service and validate and return the consolidated TEI header
+     * as a standard {@link org.w3c.dom.Document}
      *
      * @param  inputStream       the PDF document
      * @param  consolidateHeader the consolidate header parameter
-     * @return                   the document in TEI XML format
+     * @return the document in TEI XML format
      */
-    TEI processHeaderDocument(InputStream inputStream, ConsolidateHeaderEnum consolidateHeader);
-
+    Optional<Document> retrieveHeaderDocument(InputStream inputStream, ConsolidateHeaderEnum consolidateHeader)
+            throws GrobidClientException;
 
 }

@@ -74,6 +74,7 @@ import org.dspace.content.Collection;
 import org.dspace.content.Item;
 import org.dspace.eperson.EPerson;
 import org.dspace.eperson.Group;
+import org.dspace.orcid.model.OrcidTokenResponseDTO;
 import org.dspace.services.ConfigurationService;
 import org.hamcrest.Matchers;
 import org.junit.Before;
@@ -1971,6 +1972,18 @@ public class AuthenticationRestControllerIT extends AbstractControllerIntegratio
                                 matchGroupWithName("specialGroupPwd")
                         )
                 ));
+    }
+
+
+
+    private OrcidTokenResponseDTO buildOrcidTokenResponse(String orcid, String accessToken) {
+        OrcidTokenResponseDTO token = new OrcidTokenResponseDTO();
+        token.setAccessToken(accessToken);
+        token.setOrcid(orcid);
+        token.setTokenType("Bearer");
+        token.setName("Test User");
+        token.setScope(String.join(" ", new String[] { "FirstScope", "SecondScope" }));
+        return token;
     }
 
 }

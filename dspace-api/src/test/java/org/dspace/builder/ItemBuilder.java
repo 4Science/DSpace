@@ -166,6 +166,14 @@ public class ItemBuilder extends AbstractDSpaceObjectBuilder<Item> {
         return addMetadataValue(item, DC.getName(), "contributor", "editor", null, editorName, authority, 600);
     }
 
+    public ItemBuilder withISSN(String issn) {
+        return addMetadataValue(item, "dc", "identifier", "issn", issn);
+    }
+
+    public ItemBuilder withISBN(String isbn) {
+        return addMetadataValue(item, "dc", "identifier", "isbn", isbn);
+    }
+
     public ItemBuilder withEditorAffiliation(String affiliation) {
         return addMetadataValue(item, "oairecerif", "editor", "affiliation", affiliation);
     }

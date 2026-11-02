@@ -13,7 +13,7 @@ import org.ehcache.event.CacheEvent;
 import org.ehcache.event.CacheEventListener;
 
 /**
- * This is a EHCache listner responsible for logging Open Policy Finder cache events. It is
+ * This is a EHCache listener responsible for logging Open Policy Finder cache events. It is
  * bound to the Open Policy Finder cache via the dspace/config/ehcache.xml file. We need a
  * dedicated Logger for each cache as the CacheEvent doesn't include details
  * about where the event occur

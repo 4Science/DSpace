@@ -21,6 +21,7 @@ import java.sql.SQLException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
@@ -33,6 +34,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.TimeZone;
 import java.util.UUID;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import jakarta.mail.MessagingException;
@@ -124,6 +126,11 @@ public class SolrServiceImpl implements SearchService, IndexingService {
     // Suffix of the solr field used to index the facet/filter so that the facet search can search all word in a
     // facet by indexing "each word to end of value' partial value
     public static final String SOLR_FIELD_SUFFIX_FACET_PREFIXES = "_prefix";
+
+    /**
+     * The characters that "." in a regular expression never matches.
+     */
+    private static final Pattern LINE_TERMINATOR = Pattern.compile("[\\n\\r\\u0085\\u2028\\u2029]");
 
     @Autowired
     protected ContentServiceFactory contentServiceFactory;
@@ -456,10 +463,8 @@ public class SolrServiceImpl implements SearchService, IndexingService {
                         log.debug("Keeping: " + o.getUniqueIndexID());
                     }
                 }
+                start += batch;
             }
-
-            start += batch;
-
         } catch (IOException | SQLException | SolrServerException e) {
             log.error("Error cleaning discovery index: " + e.getMessage(), e);
         } finally {
@@ -998,8 +1003,20 @@ public class SolrServiceImpl implements SearchService, IndexingService {
             solrQuery.set("hl.maxAnalyzedChars", Integer.toString(
                 configurationService
                     .getIntProperty("discovery.solr.fulltext.charLimit", 100000)));
+            boolean escapeHTML = configurationService.getBooleanProperty("discovery.highlights.escape-html", true);
+            String[] renderHTMLForFields =
+                configurationService.getArrayProperty("discovery.highlights.html-allowed-fields");
             for (DiscoverHitHighlightingField highlightingField : discoveryQuery.getHitHighlightingFields()) {
                 solrQuery.addHighlightField(highlightingField.getField() + "_hl");
+                boolean allowHTMLInField = Arrays.stream(renderHTMLForFields)
+                    .anyMatch(field -> highlightingField.getField().matches(field));
+                if (!escapeHTML || allowHTMLInField) {
+                    solrQuery.add("f." + highlightingField.getField() + "_hl." + HighlightParams.METHOD, "original");
+                } else {
+                    solrQuery.add("f." + highlightingField.getField() + "_hl." + HighlightParams.METHOD, "unified");
+                    solrQuery.add("f." + highlightingField.getField() + "_hl." + HighlightParams.ENCODER, "html");
+                }
+
                 solrQuery.add("f." + highlightingField.getField() + "_hl." + HighlightParams.FRAGSIZE,
                               String.valueOf(highlightingField.getMaxChars()));
                 solrQuery.add("f." + highlightingField.getField() + "_hl." + HighlightParams.SNIPPETS,
@@ -1445,7 +1462,7 @@ public class SolrServiceImpl implements SearchService, IndexingService {
             filterQuery.append(":");
             if ("equals".equals(operator) || "notequals".equals(operator)) {
                 //DO NOT ESCAPE RANGE QUERIES !
-                if (!value.matches("\\[.*TO.*\\]")) {
+                if (!isRangeQuery(value)) {
                     value = ClientUtils.escapeQueryChars(value);
                     filterQuery.append(value);
                 } else {
@@ -1458,7 +1475,7 @@ public class SolrServiceImpl implements SearchService, IndexingService {
                 }
             } else {
                 //DO NOT ESCAPE RANGE QUERIES !
-                if (!value.matches("\\[.*TO.*\\]")) {
+                if (!isRangeQuery(value)) {
                     value = ClientUtils.escapeQueryChars(value);
                     filterQuery.append("\"").append(value).append("\"");
                 } else {
@@ -1471,6 +1488,22 @@ public class SolrServiceImpl implements SearchService, IndexingService {
 
         result.setFilterQuery(filterQuery.toString());
         return result;
+    }
+
+    /**
+     * Determine whether a filter value is a Solr range query, i.e. <code>[x TO y]</code>.
+     * <p>
+     * This replaces the regular expression <code>\[.*TO.*\]</code>, whose two unbounded
+     * wildcards around the literal <code>TO</code> allowed a crafted filter value to drive
+     * matching into quadratic time (CodeQL <code>java/polynomial-redos</code>). The three
+     * conditions below accept exactly the same values in linear time.
+     *
+     * @param value the filter value to inspect
+     * @return true if the value is shaped like a range query and must not be escaped
+     */
+    protected static boolean isRangeQuery(String value) {
+        return value.startsWith("[") && value.endsWith("]") && value.contains("TO")
+            && !LINE_TERMINATOR.matcher(value).find();
     }
 
     @Override
@@ -1828,6 +1861,12 @@ public class SolrServiceImpl implements SearchService, IndexingService {
     public QueryResponse retriveSolrDocByUniqueID(String uniqueID) {
         SolrClient solrClient =  solrSearchCore.getSolr();
         SolrQuery q = new SolrQuery(SearchUtils.RESOURCE_UNIQUE_ID + ":Item-" + uniqueID);
+        // Only the "metric.*" fields are consumed by the caller. Without an explicit field list Solr returns every
+        // stored field, including "fulltext" and its "fulltext_hl" copy, which for items with large extracted text
+        // means loading hundreds of MB into the heap just to read a few numeric values (and can exhaust it).
+        q.setFields("metric.*");
+        // The unique id matches at most one document, so there is no point in asking for the default 10 rows.
+        q.setRows(1);
         QueryResponse queryResponse = null;
         try {
             queryResponse = solrClient.query(q);
