@@ -2789,6 +2789,7 @@
         <property name="metadataFields">
             <list>
                 <value>dc.subject.*</value>
+                <value>datacite.subject.fos</value>
             </list>
         </property>
         <property name="facetLimit" value="5"/>

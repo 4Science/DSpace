@@ -210,9 +210,6 @@ db.schema = public
 # ORCID certificate authentication.
 # plugin.sequence.org.dspace.authenticate.AuthenticationMethod = org.dspace.authenticate.OrcidAuthentication
 
-# X.509 certificate authentication. See authentication-x509.cfg for default configuration.
-#plugin.sequence.org.dspace.authenticate.AuthenticationMethod = org.dspace.authenticate.X509Authentication
-
 # Authentication by Password (encrypted in DSpace's database). See authentication-password.cfg for default configuration.
 # Enabled by default in authentication.cfg
 #plugin.sequence.org.dspace.authenticate.AuthenticationMethod = org.dspace.authenticate.PasswordAuthentication
@@ -349,7 +346,7 @@ aws.sqs.command_queue_uri =
 aws.sqs.heartbeat_queue_uri =
 
 # List of scripts name that are required to be processed locally instead to be delegated to the orchestrator.
-orchestrator.ignore-script = process-cleaner, item-export, bulk-item-export, cris-layout-tool, export-cris-layout-tool, deduplication-merge-items, bulk-access-control, export-schema
+orchestrator.ignore-script = process-cleaner, item-export, bulk-item-export, cris-layout-tool, export-cris-layout-tool, deduplication-merge-items, bulk-access-control, export-schema, dspace-object-deletion
 
 
 ########################

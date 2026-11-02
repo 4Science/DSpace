@@ -54,11 +54,6 @@ public class CrisMetricsServiceImpl implements CrisMetricsService {
     }
 
     @Override
-    public List<CrisMetrics> findAllByDSO(Context context, DSpaceObject dSpaceObject) throws SQLException {
-        return crisMetricsDAO.findAllByDSO(context, dSpaceObject);
-    }
-
-    @Override
     public List<CrisMetrics> findAllLast(Context context, Integer limit, Integer offset) throws SQLException {
         return crisMetricsDAO.findAllLast(context, limit, offset);
     }
@@ -74,8 +69,13 @@ public class CrisMetricsServiceImpl implements CrisMetricsService {
     }
 
     public CrisMetrics create(Context context, DSpaceObject dSpaceObject) throws SQLException, AuthorizeException {
+        return create(context, dSpaceObject.getType(), dSpaceObject.getID());
+    }
+
+    public CrisMetrics create(Context context, int resourceType, UUID uuid) throws SQLException, AuthorizeException {
         CrisMetrics cm = new CrisMetrics();
-        cm.setResource(dSpaceObject);
+        cm.setResource(uuid);
+        cm.setResourceType(resourceType);
         cm.setAcquisitionDate(new Date());
         CrisMetrics metric = crisMetricsDAO.create(context, cm);
         log.info(LogHelper.getHeader(context, "create_cris_metrics", "cris_metrics_id=" + metric.getId()));
