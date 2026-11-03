@@ -109,11 +109,18 @@ public class OpenPolicyFinderAuthority extends ItemAuthority {
         return opfResponse.getJournals();
     }
 
+    /**
+     * Converts an OpenPolicyFinder journal into a {@link Choice}. Label and value are kept aligned, since the label
+     * is what the form shows in the field and the value is what is stored.
+     *
+     * @param journal the journal returned by OpenPolicyFinder
+     * @return the choice built from the journal
+     */
     private Choice convertToChoice(OpenPolicyFinderJournal journal) {
         String authority = composeAuthorityValue(journal);
         Map<String, String> extras = getOpenPolicyFinderExtra(journal);
-        String title = journal.getTitles().get(0);
-        // label is what the form shows in the field, value is what is stored: keep them aligned
+        List<String> titles = journal.getTitles();
+        String title = CollectionUtils.isEmpty(titles) ? StringUtils.EMPTY : titles.get(0);
         String text = getChoiceText(journal, title);
         return new Choice(authority, text, text, extras, getSource());
     }
@@ -135,13 +142,19 @@ public class OpenPolicyFinderAuthority extends ItemAuthority {
         return ISSN_FIELD.equalsIgnoreCase(valueField);
     }
 
+    /**
+     * Builds the extra metadata of a choice using the configured generators. The title extra would overwrite the
+     * title of the item in forms where the journal is only a reference (e.g. dc.relation.journal), so
+     * {@link OpenPolicyFinderExtraTitleMetadataGenerator} is applied only if explicitly enabled.
+     *
+     * @param journal the journal returned by OpenPolicyFinder
+     * @return the extra metadata of the choice
+     */
     private Map<String, String> getOpenPolicyFinderExtra(OpenPolicyFinderJournal journal) {
         Map<String, String> extras = new HashMap<>();
         if (CollectionUtils.isNotEmpty(generators)) {
             boolean titleExtraEnabled = isTitleExtraEnabled();
             for (OpenPolicyFinderExtraMetadataGenerator generator : generators) {
-                // the title extra would overwrite the title of the item in forms where the journal is only
-                // a reference (e.g. dc.relation.journal), so it is applied only if explicitly enabled
                 if (generator instanceof OpenPolicyFinderExtraTitleMetadataGenerator && !titleExtraEnabled) {
                     continue;
                 }
@@ -172,10 +185,15 @@ public class OpenPolicyFinderAuthority extends ItemAuthority {
         this.authorityName = name;
     }
 
+    /**
+     * Returns the entity types linked to this authority. When the value field is the ISSN, the choice is the ISSN
+     * identifier of the journal and not a reference to a Journal item, so no entity type is returned.
+     *
+     * @return the linked entity types
+     */
     @Override
     public String[] getLinkedEntityTypes() {
         if (isIssnValueField()) {
-            // the choice is the ISSN identifier of the journal, not a reference to a Journal item
             return new String[0];
         }
         return configurationService.getArrayProperty("cris." + this.authorityName + ".entityType",
