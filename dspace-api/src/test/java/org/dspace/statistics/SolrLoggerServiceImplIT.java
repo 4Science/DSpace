@@ -155,7 +155,10 @@ public class SolrLoggerServiceImplIT
         context.restoreAuthSystemState();
 
         // Set up some documents.
-        SolrClient client = clientFactory.getClient(cfg.getProperty("solr-statistics.server"));
+        SolrClient client = clientFactory.getClient("solr-statistics.server")
+                                         .orElseThrow(() -> new RuntimeException(
+                                             "Unable to get Solr client for statistics core, " +
+                                                 "solr-statistics.server may not be configured"));
         SolrInputDocument doc = new SolrInputDocument();
         doc.setField(F_STATISTICS_TYPE, SolrLoggerServiceImpl.StatisticsType.VIEW);
         doc.setField(F_TYPE, String.valueOf(Constants.COMMUNITY));
@@ -252,7 +255,10 @@ public class SolrLoggerServiceImplIT
         context.restoreAuthSystemState();
 
         // Set up some documents.
-        SolrClient client = clientFactory.getClient(cfg.getProperty("solr-statistics.server"));
+        SolrClient client = clientFactory.getClient("solr-statistics.server")
+                                         .orElseThrow(() -> new RuntimeException(
+                                             "Unable to get Solr client for statistics core, " +
+                                                 "solr-statistics.server may not be configured"));
         SolrInputDocument doc = new SolrInputDocument();
         doc.setField(F_STATISTICS_TYPE, SolrLoggerServiceImpl.StatisticsType.VIEW);
         doc.setField(F_TYPE, String.valueOf(Constants.COMMUNITY));

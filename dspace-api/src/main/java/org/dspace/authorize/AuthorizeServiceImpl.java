@@ -866,6 +866,31 @@ public class AuthorizeServiceImpl implements AuthorizeService {
     }
 
     /**
+     * In CRIS the permission inheritance is already resolved at index-time on the Solr
+     * {@code admin} field, and no {@code edit}/{@code submit} field is indexed at community level.
+     * "Being able to edit/add in a community" therefore coincides with "being its admin"
+     * (directly or by inheritance). For this reason the action (e.g. {@code Constants.WRITE} /
+     * {@code Constants.ADD}) is served through the same {@code admin} filter used by
+     * {@link #findAdminAuthorizedCommunity}.
+     *
+     * NOTE: this intentionally does NOT use {@code DiscoverQuery.addRequiredAuthorization} nor the
+     * upstream location-based query, in order to keep the CRIS indexing/search restriction plugins
+     * unchanged.
+     */
+    @Override
+    public List<Community> findAuthorizedCommunityByAction(Context context, String query,
+                                                           int action, int offset, int limit)
+        throws SearchServiceException, SQLException {
+        return findAdminAuthorizedCommunity(context, query, offset, limit);
+    }
+
+    @Override
+    public long countAuthorizedCommunityByAction(Context context, String query, int action)
+        throws SearchServiceException, SQLException {
+        return countAdminAuthorizedCommunity(context, query);
+    }
+
+    /**
      *  Finds collections for which the logged in user has ADMIN rights.
      *
      * @param context   the context whose user is checked against
@@ -911,6 +936,35 @@ public class AuthorizeServiceImpl implements AuthorizeService {
                                                               IndexableCollection.TYPE,
             null, 0, null, null);
         return discoverResult.getTotalSearchResults();
+    }
+
+    /**
+     * CRIS implementation of the upstream {@code findAuthorizedCollectionByAction}.
+     * <p>
+     * In CRIS the permission inheritance is already resolved at index-time on the Solr
+     * {@code admin} field, and no {@code edit}/{@code submit} field is indexed at collection level.
+     * "Being able to edit/add in a collection" therefore coincides with "being its admin"
+     * (directly or by inheritance). For this reason the action (e.g. {@code Constants.WRITE}) is
+     * served through the same {@code admin} filter used by {@link #findAdminAuthorizedCollection}.
+     * <p>
+     * NOTE: this intentionally does NOT use {@code DiscoverQuery.addRequiredAuthorization} nor the
+     * upstream location-based query, in order to keep the CRIS indexing/search restriction plugins
+     * unchanged.
+     */
+    @Override
+    public List<Collection> findAuthorizedCollectionByAction(Context context, String query, int action, int offset,
+                                                             int limit) throws SearchServiceException, SQLException {
+        return findAdminAuthorizedCollection(context, query, offset, limit);
+    }
+
+    /**
+     * CRIS implementation of the upstream {@code countAuthorizedCollectionByAction}.
+     * See {@link #findAuthorizedCollectionByAction} for the mapping rationale.
+     */
+    @Override
+    public long countAuthorizedCollectionByAction(Context context, String query, int action)
+        throws SearchServiceException, SQLException {
+        return countAdminAuthorizedCollection(context, query);
     }
 
     @Override

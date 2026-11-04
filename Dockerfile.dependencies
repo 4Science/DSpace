@@ -33,3 +33,6 @@ RUN --mount=type=cache,target=/root/.m2 mvn -f /app/dspace/pom.xml --fail-never 
 # This ensures when dspace:dspace is built, it will use the Maven local cache (~/.m2) for dependencies
 USER root
 RUN rm -rf /app/*
+
+# Switch to initial user to drop root privileges (DL3002)
+USER dspace

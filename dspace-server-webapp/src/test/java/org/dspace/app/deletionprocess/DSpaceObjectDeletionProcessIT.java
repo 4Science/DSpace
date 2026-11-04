@@ -8,458 +8,387 @@
 package org.dspace.app.deletionprocess;
 
 import static com.jayway.jsonpath.JsonPath.read;
-import static org.junit.Assert.assertTrue;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.dspace.builder.CollectionBuilder.createCollection;
+import static org.dspace.builder.CommunityBuilder.createCommunity;
+import static org.dspace.builder.ItemBuilder.createItem;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.nullValue;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import java.io.InputStream;
+import java.sql.SQLException;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
 
-import org.apache.commons.codec.CharEncoding;
-import org.apache.commons.io.IOUtils;
-import org.dspace.app.rest.test.AbstractControllerIntegrationTest;
-import org.dspace.app.scripts.handler.impl.TestDSpaceRunnableHandler;
-import org.dspace.builder.BitstreamBuilder;
-import org.dspace.builder.BundleBuilder;
-import org.dspace.builder.CollectionBuilder;
-import org.dspace.builder.CommunityBuilder;
-import org.dspace.builder.ItemBuilder;
-import org.dspace.content.Bitstream;
-import org.dspace.content.Bundle;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.dspace.app.rest.converter.DSpaceRunnableParameterConverter;
+import org.dspace.app.rest.model.ParameterValueRest;
+import org.dspace.app.rest.projection.Projection;
+import org.dspace.app.rest.test.AbstractEntityIntegrationTest;
+import org.dspace.builder.EPersonBuilder;
+import org.dspace.builder.ProcessBuilder;
 import org.dspace.content.Collection;
 import org.dspace.content.Community;
+import org.dspace.content.DSpaceObject;
 import org.dspace.content.Item;
-import org.dspace.deletion.process.DSpaceObjectDeletionProcess;
-import org.hamcrest.Matchers;
+import org.dspace.content.factory.ContentServiceFactory;
+import org.dspace.content.service.CollectionService;
+import org.dspace.content.service.CommunityService;
+import org.dspace.content.service.ItemService;
+import org.dspace.discovery.IndexingService;
+import org.dspace.eperson.EPerson;
+import org.dspace.scripts.DSpaceCommandLineParameter;
+import org.junit.Before;
 import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 
 /**
- * This class handles ITs for { @link DSpaceObjectDeletionProcess }.
+ * Integration tests for DSpaceObjectDeletionProcess run through the ScriptRestRepository.
+ * Tests deletion permissions for community admin, collection admin, and item admin.
  *
  * @author Mykhaylo Boychuk (mykhaylo.boychuk@4science.com)
  */
-public class DSpaceObjectDeletionProcessIT extends AbstractControllerIntegrationTest {
+public class DSpaceObjectDeletionProcessIT extends AbstractEntityIntegrationTest {
 
-    private Item item1;
-    private Item item2;
+    @Autowired
+    private DSpaceRunnableParameterConverter dSpaceRunnableParameterConverter;
+
+    @Autowired
+    private IndexingService indexingService;
+
+    private ItemService itemService = ContentServiceFactory.getInstance().getItemService();
+    private CollectionService collectionService = ContentServiceFactory.getInstance().getCollectionService();
+    private CommunityService communityService = ContentServiceFactory.getInstance().getCommunityService();
+
     private Community community;
-    private Bitstream bitstream1;
-    private Bitstream bitstream2;
-    private Bitstream bitstream3;
-    private Bitstream bitstream4;
-    private Bitstream bitstream5;
-    private Bitstream bitstream6;
     private Collection collection;
+    private Item item;
 
+    private EPerson comAdmin;
+    private EPerson colAdmin;
+    private EPerson itemAdmin;
+
+    @Before
     @Override
     public void setUp() throws Exception {
         super.setUp();
         context.turnOffAuthorisationSystem();
-        community = CommunityBuilder.createCommunity(context)
-                                    .withName("My community")
-                                    .build();
-        collection = CollectionBuilder.createCollection(context, community)
-                                      .withName("Publication collection")
-                                      .withEntityType("Publication")
-                                      .build();
 
-        item1 = ItemBuilder.createItem(context, collection)
-                           .withTitle("Publication item TEST 1")
-                           .withType("TEST")
-                           .build();
+        comAdmin = EPersonBuilder.createEPerson(context)
+                                 .withEmail("comAdmin@example.com")
+                                 .withPassword(password).build();
 
-        item2 = ItemBuilder.createItem(context, collection)
-                           .withTitle("Publication title test")
-                           .withAuthor("Misha, Boychuk")
-                           .withType("website_content")
-                           .build();
+        colAdmin = EPersonBuilder.createEPerson(context)
+                                 .withEmail("colAdmin@example.com")
+                                 .withPassword(password).build();
 
-        Bundle bundleOfItem1 = BundleBuilder.createBundle(context, item1)
-                                            .withName("ORIGINAL")
-                                            .build();
+        itemAdmin = EPersonBuilder.createEPerson(context)
+                                  .withEmail("itemAdmin@example.com")
+                                  .withPassword(password).build();
 
-        try (InputStream is = IOUtils.toInputStream("Dummy content 1", CharEncoding.UTF_8)) {
-            bitstream1 = BitstreamBuilder.createBitstream(context, bundleOfItem1, is)
-                                         .withName("bitstream 1")
-                                         .build();
-        }
-
-        try (InputStream is = IOUtils.toInputStream("Dummy content 2", CharEncoding.UTF_8)) {
-            bitstream2 = BitstreamBuilder.createBitstream(context, bundleOfItem1, is)
-                                         .withName("bitstream 2")
-                                         .build();
-        }
-
-        try (InputStream is = IOUtils.toInputStream("Dummy content 3", CharEncoding.UTF_8)) {
-            bitstream3 = BitstreamBuilder.createBitstream(context, bundleOfItem1, is)
-                                         .withName("bitstream 3")
-                                         .build();
-        }
-
-        try (InputStream is = IOUtils.toInputStream("Dummy content 4", CharEncoding.UTF_8)) {
-            bitstream4 = BitstreamBuilder.createBitstream(context, bundleOfItem1, is)
-                                         .withName("bitstream 4")
-                                         .build();
-        }
-
-        Bundle bundleOfItem2 = BundleBuilder.createBundle(context, item2)
-                                            .withName("ORIGINAL")
-                                            .build();
-
-        try (InputStream is = IOUtils.toInputStream("TEST 1", CharEncoding.UTF_8)) {
-            bitstream5 = BitstreamBuilder.createBitstream(context, bundleOfItem2, is)
-                                         .withName("test title 1 item2")
-                                         .build();
-        }
-
-        try (InputStream is = IOUtils.toInputStream("TEST 2", CharEncoding.UTF_8)) {
-            bitstream6 = BitstreamBuilder.createBitstream(context, bundleOfItem2, is)
-                                         .withName("test title 2 item2")
-                                         .build();
-        }
-
+        context.commit();
         context.restoreAuthSystemState();
+
+        // Commit to Solr so that isComColAdmin() and isItemAdmin() can find the objects
+        indexingService.commit();
     }
 
+    /**
+     * Test that repository admin can delete a community.
+     */
     @Test
-    public void asyncDetetionOfItemTest() throws Exception {
-        // verify that item with bitstreams exist
-        String tokenAdmin = getAuthToken(admin.getEmail(), password);
-        getClient(tokenAdmin).perform(get("/api/core/items/" + item1.getID()))
-                             .andExpect(status().isOk())
-                             .andExpect(jsonPath("$.id", Matchers.is(item1.getID().toString())))
-                             .andExpect(jsonPath("$.name", Matchers.is(item1.getName())));
+    public void testAdminCanDeleteCommunity() throws Exception {
+        context.turnOffAuthorisationSystem();
+        Community communityToDelete = createCommunity(context)
+            .withName("Community To Delete")
+            .build();
+        context.commit();
+        context.restoreAuthSystemState();
 
-        getClient(tokenAdmin).perform(get("/api/core/bitstreams/" + bitstream1.getID()))
-                             .andExpect(status().isOk())
-                             .andExpect(jsonPath("$.id", Matchers.is(bitstream1.getID().toString())))
-                             .andExpect(jsonPath("$.name", Matchers.is(bitstream1.getName())));
+        LinkedList<DSpaceCommandLineParameter> parameters = new LinkedList<>();
+        parameters.add(new DSpaceCommandLineParameter("-i", communityToDelete.getID().toString()));
 
-        getClient(tokenAdmin).perform(get("/api/core/bitstreams/" + bitstream2.getID()))
-                             .andExpect(status().isOk())
-                             .andExpect(jsonPath("$.id", Matchers.is(bitstream2.getID().toString())))
-                             .andExpect(jsonPath("$.name", Matchers.is(bitstream2.getName())));
-
-        getClient(tokenAdmin).perform(get("/api/core/bitstreams/" + bitstream3.getID()))
-                             .andExpect(status().isOk())
-                             .andExpect(jsonPath("$.id", Matchers.is(bitstream3.getID().toString())))
-                             .andExpect(jsonPath("$.name", Matchers.is(bitstream3.getName())));
-
-        getClient(tokenAdmin).perform(get("/api/core/bitstreams/" + bitstream4.getID()))
-                             .andExpect(status().isOk())
-                             .andExpect(jsonPath("$.id", Matchers.is(bitstream4.getID().toString())))
-                             .andExpect(jsonPath("$.name", Matchers.is(bitstream4.getName())));
-
-        String[] args = new String[]{"dspace-object-deletion", "-i", item1.getID().toString()};
-        TestDSpaceRunnableHandler handler = new TestDSpaceRunnableHandler();
-        DSpaceObjectDeletionProcess deletionProcess = new DSpaceObjectDeletionProcess();
-        deletionProcess.initialize(args, handler, admin);
-        deletionProcess.run();
-
-        // // verify that item with bitstreams was deleted
-        getClient(tokenAdmin).perform(get("/api/core/items/" + item1.getID()))
-                             .andExpect(status().isNotFound());
-
-        getClient(tokenAdmin).perform(get("/api/core/bitstreams/" + bitstream1.getID()))
-                             .andExpect(status().isNotFound());
-
-        getClient(tokenAdmin).perform(get("/api/core/bitstreams/" + bitstream2.getID()))
-                             .andExpect(status().isNotFound());
-
-        getClient(tokenAdmin).perform(get("/api/core/bitstreams/" + bitstream3.getID()))
-                             .andExpect(status().isNotFound());
-
-        getClient(tokenAdmin).perform(get("/api/core/bitstreams/" + bitstream4.getID()))
-                             .andExpect(status().isNotFound());
-
-        // check item2
-        getClient(tokenAdmin).perform(get("/api/core/items/" + item2.getID()))
-                             .andExpect(status().isOk())
-                             .andExpect(jsonPath("$.id", Matchers.is(item2.getID().toString())))
-                             .andExpect(jsonPath("$.name", Matchers.is(item2.getName())));
-
-        getClient(tokenAdmin).perform(get("/api/core/bitstreams/" + bitstream5.getID()))
-                             .andExpect(status().isOk())
-                             .andExpect(jsonPath("$.id", Matchers.is(bitstream5.getID().toString())))
-                             .andExpect(jsonPath("$.name", Matchers.is(bitstream5.getName())));
-
-        getClient(tokenAdmin).perform(get("/api/core/bitstreams/" + bitstream6.getID()))
-                             .andExpect(status().isOk())
-                             .andExpect(jsonPath("$.id", Matchers.is(bitstream6.getID().toString())))
-                             .andExpect(jsonPath("$.name", Matchers.is(bitstream6.getName())));
+        performDeletionScript(parameters, admin, HttpStatus.ACCEPTED, communityToDelete);
     }
 
+    /**
+     * Test that community admin can delete a community.
+     */
     @Test
-    public void asyncDetetionOfCollectionTest() throws Exception {
+    public void testCommunityAdminCanDeleteCommunity() throws Exception {
+        context.turnOffAuthorisationSystem();
+        Community communityToDelete = createCommunity(context)
+            .withName("Community To Delete")
+            .withAdminGroup(comAdmin)
+            .build();
+        context.commit();
+        context.restoreAuthSystemState();
+        indexingService.commit();
 
-        // verify that collection with items/bitstreams exists
-        String tokenAdmin = getAuthToken(admin.getEmail(), password);
-        getClient(tokenAdmin).perform(get("/api/core/collections/" + collection.getID()))
-                             .andExpect(status().isOk())
-                             .andExpect(jsonPath("$.id", Matchers.is(collection.getID().toString())))
-                             .andExpect(jsonPath("$.name", Matchers.is(collection.getName())));
+        LinkedList<DSpaceCommandLineParameter> parameters = new LinkedList<>();
+        parameters.add(new DSpaceCommandLineParameter("-i", communityToDelete.getID().toString()));
 
-        // check item1
-        getClient(tokenAdmin).perform(get("/api/core/items/" + item1.getID()))
-                             .andExpect(status().isOk())
-                             .andExpect(jsonPath("$.id", Matchers.is(item1.getID().toString())))
-                             .andExpect(jsonPath("$.name", Matchers.is(item1.getName())));
-
-        getClient(tokenAdmin).perform(get("/api/core/bitstreams/" + bitstream1.getID()))
-                             .andExpect(status().isOk())
-                             .andExpect(jsonPath("$.id", Matchers.is(bitstream1.getID().toString())))
-                             .andExpect(jsonPath("$.name", Matchers.is(bitstream1.getName())));
-
-        getClient(tokenAdmin).perform(get("/api/core/bitstreams/" + bitstream2.getID()))
-                             .andExpect(status().isOk())
-                             .andExpect(jsonPath("$.id", Matchers.is(bitstream2.getID().toString())))
-                             .andExpect(jsonPath("$.name", Matchers.is(bitstream2.getName())));
-
-        getClient(tokenAdmin).perform(get("/api/core/bitstreams/" + bitstream3.getID()))
-                             .andExpect(status().isOk())
-                             .andExpect(jsonPath("$.id", Matchers.is(bitstream3.getID().toString())))
-                             .andExpect(jsonPath("$.name", Matchers.is(bitstream3.getName())));
-
-        getClient(tokenAdmin).perform(get("/api/core/bitstreams/" + bitstream4.getID()))
-                             .andExpect(status().isOk())
-                             .andExpect(jsonPath("$.id", Matchers.is(bitstream4.getID().toString())))
-                             .andExpect(jsonPath("$.name", Matchers.is(bitstream4.getName())));
-
-        getClient(tokenAdmin).perform(get("/api/core/collections/" + collection.getID()))
-                             .andExpect(status().isOk())
-                             .andExpect(jsonPath("$.id", Matchers.is(collection.getID().toString())))
-                             .andExpect(jsonPath("$.name", Matchers.is(collection.getName())));
-
-        // check item2
-        getClient(tokenAdmin).perform(get("/api/core/items/" + item2.getID()))
-                             .andExpect(status().isOk())
-                             .andExpect(jsonPath("$.id", Matchers.is(item2.getID().toString())))
-                             .andExpect(jsonPath("$.name", Matchers.is(item2.getName())));
-
-        getClient(tokenAdmin).perform(get("/api/core/bitstreams/" + bitstream5.getID()))
-                             .andExpect(status().isOk())
-                             .andExpect(jsonPath("$.id", Matchers.is(bitstream5.getID().toString())))
-                             .andExpect(jsonPath("$.name", Matchers.is(bitstream5.getName())));
-
-        getClient(tokenAdmin).perform(get("/api/core/bitstreams/" + bitstream6.getID()))
-                             .andExpect(status().isOk())
-                             .andExpect(jsonPath("$.id", Matchers.is(bitstream6.getID().toString())))
-                             .andExpect(jsonPath("$.name", Matchers.is(bitstream6.getName())));
-
-        String[] args = new String[]{"dspace-object-deletion", "-i", collection.getID().toString()};
-        TestDSpaceRunnableHandler handler = new TestDSpaceRunnableHandler();
-        DSpaceObjectDeletionProcess deletionProcess = new DSpaceObjectDeletionProcess();
-        deletionProcess.initialize(args, handler, admin);
-        deletionProcess.run();
-
-        // // verify that collection with items/bitstreams was deleted
-        getClient(tokenAdmin).perform(get("/api/core/collections/" + collection.getID()))
-                             .andExpect(status().isNotFound());
-
-        getClient(tokenAdmin).perform(get("/api/core/items/" + item1.getID()))
-                             .andExpect(status().isNotFound());
-
-        getClient(tokenAdmin).perform(get("/api/core/items/" + item2.getID()))
-                             .andExpect(status().isNotFound());
-
-        getClient(tokenAdmin).perform(get("/api/core/bitstreams/" + bitstream1.getID()))
-                             .andExpect(status().isNotFound());
-
-        getClient(tokenAdmin).perform(get("/api/core/bitstreams/" + bitstream2.getID()))
-                             .andExpect(status().isNotFound());
-
-        getClient(tokenAdmin).perform(get("/api/core/bitstreams/" + bitstream3.getID()))
-                             .andExpect(status().isNotFound());
-
-        getClient(tokenAdmin).perform(get("/api/core/bitstreams/" + bitstream4.getID()))
-                             .andExpect(status().isNotFound());
-
-        getClient(tokenAdmin).perform(get("/api/core/bitstreams/" + bitstream5.getID()))
-                             .andExpect(status().isNotFound());
-
-        getClient(tokenAdmin).perform(get("/api/core/bitstreams/" + bitstream6.getID()))
-                             .andExpect(status().isNotFound());
+        performDeletionScript(parameters, comAdmin, HttpStatus.ACCEPTED, communityToDelete);
     }
 
+    /**
+     * Test that collection admin can delete a collection.
+     */
     @Test
-    public void asyncDetetionOfCommunityTest() throws Exception {
+    public void testCollectionAdminCanDeleteCollection() throws Exception {
+        context.turnOffAuthorisationSystem();
+        Community tempCommunity = createCommunity(context)
+            .withName("Temp Community for Collection")
+            .build();
+        Collection collectionToDelete = createCollection(context, tempCommunity)
+            .withName("Collection To Delete")
+            .withAdminGroup(colAdmin)
+            .build();
+        context.commit();
+        context.restoreAuthSystemState();
+        indexingService.commit();
 
-        // verify that community with collections/items/bitstreams exists
-        String tokenAdmin = getAuthToken(admin.getEmail(), password);
-        getClient(tokenAdmin).perform(get("/api/core/communities/" + community.getID()))
-                             .andExpect(status().isOk())
-                             .andExpect(jsonPath("$.id", Matchers.is(community.getID().toString())))
-                             .andExpect(jsonPath("$.name", Matchers.is(community.getName())));
+        LinkedList<DSpaceCommandLineParameter> parameters = new LinkedList<>();
+        parameters.add(new DSpaceCommandLineParameter("-i", collectionToDelete.getID().toString()));
 
-        getClient(tokenAdmin).perform(get("/api/core/collections/" + collection.getID()))
-                             .andExpect(status().isOk())
-                             .andExpect(jsonPath("$.id", Matchers.is(collection.getID().toString())))
-                             .andExpect(jsonPath("$.name", Matchers.is(collection.getName())));
-
-        // check item1
-        getClient(tokenAdmin).perform(get("/api/core/items/" + item1.getID()))
-                             .andExpect(status().isOk())
-                             .andExpect(jsonPath("$.id", Matchers.is(item1.getID().toString())))
-                             .andExpect(jsonPath("$.name", Matchers.is(item1.getName())));
-
-        getClient(tokenAdmin).perform(get("/api/core/bitstreams/" + bitstream1.getID()))
-                             .andExpect(status().isOk())
-                             .andExpect(jsonPath("$.id", Matchers.is(bitstream1.getID().toString())))
-                             .andExpect(jsonPath("$.name", Matchers.is(bitstream1.getName())));
-
-        getClient(tokenAdmin).perform(get("/api/core/bitstreams/" + bitstream2.getID()))
-                             .andExpect(status().isOk())
-                             .andExpect(jsonPath("$.id", Matchers.is(bitstream2.getID().toString())))
-                             .andExpect(jsonPath("$.name", Matchers.is(bitstream2.getName())));
-
-        getClient(tokenAdmin).perform(get("/api/core/bitstreams/" + bitstream3.getID()))
-                             .andExpect(status().isOk())
-                             .andExpect(jsonPath("$.id", Matchers.is(bitstream3.getID().toString())))
-                             .andExpect(jsonPath("$.name", Matchers.is(bitstream3.getName())));
-
-        getClient(tokenAdmin).perform(get("/api/core/bitstreams/" + bitstream4.getID()))
-                             .andExpect(status().isOk())
-                             .andExpect(jsonPath("$.id", Matchers.is(bitstream4.getID().toString())))
-                             .andExpect(jsonPath("$.name", Matchers.is(bitstream4.getName())));
-
-        getClient(tokenAdmin).perform(get("/api/core/collections/" + collection.getID()))
-                             .andExpect(status().isOk())
-                             .andExpect(jsonPath("$.id", Matchers.is(collection.getID().toString())))
-                             .andExpect(jsonPath("$.name", Matchers.is(collection.getName())));
-
-        // check item2
-        getClient(tokenAdmin).perform(get("/api/core/items/" + item2.getID()))
-                             .andExpect(status().isOk())
-                             .andExpect(jsonPath("$.id", Matchers.is(item2.getID().toString())))
-                             .andExpect(jsonPath("$.name", Matchers.is(item2.getName())));
-
-        getClient(tokenAdmin).perform(get("/api/core/bitstreams/" + bitstream5.getID()))
-                             .andExpect(status().isOk())
-                             .andExpect(jsonPath("$.id", Matchers.is(bitstream5.getID().toString())))
-                             .andExpect(jsonPath("$.name", Matchers.is(bitstream5.getName())));
-
-        getClient(tokenAdmin).perform(get("/api/core/bitstreams/" + bitstream6.getID()))
-                             .andExpect(status().isOk())
-                             .andExpect(jsonPath("$.id", Matchers.is(bitstream6.getID().toString())))
-                             .andExpect(jsonPath("$.name", Matchers.is(bitstream6.getName())));
-
-        String[] args = new String[]{"dspace-object-deletion", "-i", community.getID().toString()};
-        TestDSpaceRunnableHandler handler = new TestDSpaceRunnableHandler();
-        DSpaceObjectDeletionProcess deletionProcess = new DSpaceObjectDeletionProcess();
-        deletionProcess.initialize(args, handler, admin);
-        deletionProcess.run();
-
-        // // verify that collection with items/bitstreams was deleted
-        getClient(tokenAdmin).perform(get("/api/core/communities/" + community.getID()))
-                             .andExpect(status().isNotFound());
-
-        getClient(tokenAdmin).perform(get("/api/core/collections/" + collection.getID()))
-                             .andExpect(status().isNotFound());
-
-        getClient(tokenAdmin).perform(get("/api/core/items/" + item1.getID()))
-                             .andExpect(status().isNotFound());
-
-        getClient(tokenAdmin).perform(get("/api/core/items/" + item2.getID()))
-                             .andExpect(status().isNotFound());
-
-        getClient(tokenAdmin).perform(get("/api/core/bitstreams/" + bitstream1.getID()))
-                             .andExpect(status().isNotFound());
-
-        getClient(tokenAdmin).perform(get("/api/core/bitstreams/" + bitstream2.getID()))
-                             .andExpect(status().isNotFound());
-
-        getClient(tokenAdmin).perform(get("/api/core/bitstreams/" + bitstream3.getID()))
-                             .andExpect(status().isNotFound());
-
-        getClient(tokenAdmin).perform(get("/api/core/bitstreams/" + bitstream4.getID()))
-                             .andExpect(status().isNotFound());
-
-        getClient(tokenAdmin).perform(get("/api/core/bitstreams/" + bitstream5.getID()))
-                             .andExpect(status().isNotFound());
-
-        getClient(tokenAdmin).perform(get("/api/core/bitstreams/" + bitstream6.getID()))
-                             .andExpect(status().isNotFound());
+        performDeletionScript(parameters, colAdmin, HttpStatus.ACCEPTED, collectionToDelete);
     }
 
+    /**
+     * Test that item admin can delete an item.
+     */
     @Test
-    public void asyncDetetionOfUnsupportedObjectTest() throws Exception {
+    public void testItemAdminCanDeleteItem() throws Exception {
+        context.turnOffAuthorisationSystem();
+        community = createCommunity(context)
+            .withName("Test Community")
+            .build();
 
-        String tokenAdmin = getAuthToken(admin.getEmail(), password);
-        getClient(tokenAdmin).perform(get("/api/core/bitstreams/" + bitstream1.getID()))
-                             .andExpect(status().isOk())
-                             .andExpect(jsonPath("$.id", Matchers.is(bitstream1.getID().toString())))
-                             .andExpect(jsonPath("$.name", Matchers.is(bitstream1.getName())));
+        collection = createCollection(context, community)
+            .withName("Test Collection")
+            .build();
 
-        String[] args = new String[]{ "dspace-object-deletion", "-i", bitstream1.getID().toString() };
-        TestDSpaceRunnableHandler handler = new TestDSpaceRunnableHandler();
-        DSpaceObjectDeletionProcess deletionProcess = new DSpaceObjectDeletionProcess();
-        deletionProcess.initialize(args, handler, admin);
-        deletionProcess.run();
+        Item itemToDelete = createItem(context, collection)
+            .withTitle("Item To Delete")
+            .withAdminUser(itemAdmin)
+            .build();
+        context.commit();
+        context.restoreAuthSystemState();
+        indexingService.commit();
 
-        var message = String.format("DSpaceObject for provided identifier:%s doesn't exist!", bitstream1.getID());
-        assertTrue(handler.getException().getMessage().contains(message));
+        LinkedList<DSpaceCommandLineParameter> parameters = new LinkedList<>();
+        parameters.add(new DSpaceCommandLineParameter("-i", itemToDelete.getID().toString()));
 
-        getClient(tokenAdmin).perform(get("/api/core/bitstreams/" + bitstream1.getID()))
-                             .andExpect(status().isOk())
-                             .andExpect(jsonPath("$.id", Matchers.is(bitstream1.getID().toString())))
-                             .andExpect(jsonPath("$.name", Matchers.is(bitstream1.getName())));
+        performDeletionScript(parameters, itemAdmin, HttpStatus.ACCEPTED, itemToDelete);
     }
 
+    /**
+     * Test that community admin cannot delete a collection they don't administer.
+     */
     @Test
-    public void asyncDetetionOfItemByHandleTest() throws Exception {
-        // verify that item with bitstreams exist
-        AtomicReference<String> idRef = new AtomicReference<>();
+    public void testCommunityAdminCannotDeleteCollection() throws Exception {
+        context.turnOffAuthorisationSystem();
+        Community otherCommunity = createCommunity(context)
+            .withName("Other Community")
+            .build();
+        Collection otherCollection = createCollection(context, otherCommunity)
+            .withName("Other Collection")
+            .build();
+        context.commit();
+        context.restoreAuthSystemState();
+        indexingService.commit();
 
-        String tokenAdmin = getAuthToken(admin.getEmail(), password);
-        getClient(tokenAdmin).perform(get("/api/core/items/" + item1.getID()))
-                             .andExpect(status().isOk())
-                             .andExpect(jsonPath("$.id", Matchers.is(item1.getID().toString())))
-                             .andExpect(jsonPath("$.name", Matchers.is(item1.getName())))
-                             .andDo(result -> idRef.set(read(result.getResponse().getContentAsString(),
-                            "$.handle")));
+        LinkedList<DSpaceCommandLineParameter> parameters = new LinkedList<>();
+        parameters.add(new DSpaceCommandLineParameter("-i", otherCollection.getID().toString()));
 
-        getClient(tokenAdmin).perform(get("/api/core/bitstreams/" + bitstream1.getID()))
-                             .andExpect(status().isOk())
-                             .andExpect(jsonPath("$.id", Matchers.is(bitstream1.getID().toString())))
-                             .andExpect(jsonPath("$.name", Matchers.is(bitstream1.getName())));
+        // Community admin can execute the script (they are a ComColAdmin)
+        // but the deletion should fail because they don't administer this specific collection
+        performDeletionScript(parameters, comAdmin, HttpStatus.FORBIDDEN, otherCollection);
+    }
 
-        getClient(tokenAdmin).perform(get("/api/core/bitstreams/" + bitstream2.getID()))
-                             .andExpect(status().isOk())
-                             .andExpect(jsonPath("$.id", Matchers.is(bitstream2.getID().toString())))
-                             .andExpect(jsonPath("$.name", Matchers.is(bitstream2.getName())));
+    /**
+     * Test that collection admin cannot delete an item they don't administer.
+     */
+    @Test
+    public void testCollectionAdminCannotDeleteItem() throws Exception {
+        context.turnOffAuthorisationSystem();
 
-        getClient(tokenAdmin).perform(get("/api/core/bitstreams/" + bitstream3.getID()))
-                             .andExpect(status().isOk())
-                             .andExpect(jsonPath("$.id", Matchers.is(bitstream3.getID().toString())))
-                             .andExpect(jsonPath("$.name", Matchers.is(bitstream3.getName())));
+        Community community = createCommunity(context)
+            .withName("Test Community")
+            .withAdminGroup(comAdmin)
+            .build();
 
-        getClient(tokenAdmin).perform(get("/api/core/bitstreams/" + bitstream4.getID()))
-                             .andExpect(status().isOk())
-                             .andExpect(jsonPath("$.id", Matchers.is(bitstream4.getID().toString())))
-                             .andExpect(jsonPath("$.name", Matchers.is(bitstream4.getName())));
+        Collection otherCollection = createCollection(context, community)
+            .withName("Other Collection")
+            .build();
+        Item otherItem = createItem(context, otherCollection)
+            .withTitle("Other Item")
+            .build();
+        context.commit();
+        context.restoreAuthSystemState();
+        indexingService.commit();
 
-        String[] args = new String[]{"dspace-object-deletion", "-i", idRef.get() };
-        TestDSpaceRunnableHandler handler = new TestDSpaceRunnableHandler();
-        DSpaceObjectDeletionProcess deletionProcess = new DSpaceObjectDeletionProcess();
-        deletionProcess.initialize(args, handler, admin);
-        deletionProcess.run();
+        LinkedList<DSpaceCommandLineParameter> parameters = new LinkedList<>();
+        parameters.add(new DSpaceCommandLineParameter("-i", otherItem.getID().toString()));
 
-        // verify that item with bitstreams was deleted
-        getClient(tokenAdmin).perform(get("/api/core/items/" + item1.getID()))
-                             .andExpect(status().isNotFound());
+        // Collection admin can execute the script (they are a ComColAdmin)
+        // but the deletion should fail because they don't administer this specific item
+        performDeletionScript(parameters, colAdmin, HttpStatus.FORBIDDEN, otherItem);
+    }
 
-        getClient(tokenAdmin).perform(get("/api/core/bitstreams/" + bitstream1.getID()))
-                             .andExpect(status().isNotFound());
+    /**
+     * Test that item admin cannot delete another item they don't administer.
+     */
+    @Test
+    public void testItemAdminCannotDeleteAnotherItem() throws Exception {
+        context.turnOffAuthorisationSystem();
+        community = createCommunity(context)
+            .withName("Test Community")
+            .build();
+        collection = createCollection(context, community)
+            .withName("Test Collection")
+            .build();
+        Item otherItem = createItem(context, collection)
+            .withTitle("Other Item")
+            .build();
+        context.restoreAuthSystemState();
+        indexingService.commit();
 
-        getClient(tokenAdmin).perform(get("/api/core/bitstreams/" + bitstream2.getID()))
-                             .andExpect(status().isNotFound());
+        LinkedList<DSpaceCommandLineParameter> parameters = new LinkedList<>();
+        parameters.add(new DSpaceCommandLineParameter("-i", otherItem.getID().toString()));
 
-        getClient(tokenAdmin).perform(get("/api/core/bitstreams/" + bitstream3.getID()))
-                             .andExpect(status().isNotFound());
+        // Item admin can execute the script (they are an ItemAdmin)
+        // but the deletion should fail because they don't administer this specific item
+        performDeletionScript(parameters, itemAdmin, HttpStatus.FORBIDDEN, otherItem);
+    }
 
-        getClient(tokenAdmin).perform(get("/api/core/bitstreams/" + bitstream4.getID()))
-                             .andExpect(status().isNotFound());
+    /**
+     * Test that regular eperson cannot delete any object.
+     */
+    @Test
+    public void testRegularEPersonCannotDelete() throws Exception {
+        context.turnOffAuthorisationSystem();
+        community = createCommunity(context)
+            .withName("Test Community")
+            .build();
+
+        collection = createCollection(context, community)
+            .withName("Test Collection")
+            .build();
+
+        item = createItem(context, collection)
+            .withTitle("Test Item")
+            .build();
+        context.restoreAuthSystemState();
+
+        LinkedList<DSpaceCommandLineParameter> parameters = new LinkedList<>();
+        parameters.add(new DSpaceCommandLineParameter("-i", item.getID().toString()));
+
+        performDeletionScript(parameters, eperson, HttpStatus.FORBIDDEN, item);
+    }
+
+    /**
+     * Test that anonymous user cannot delete any object.
+     */
+    @Test
+    public void testAnonymousCannotDelete() throws Exception {
+
+        context.turnOffAuthorisationSystem();
+        community = createCommunity(context)
+            .withName("Test Community")
+            .build();
+
+        collection = createCollection(context, community)
+            .withName("Test Collection")
+            .build();
+
+        item = createItem(context, collection)
+            .withTitle("Test Item")
+            .build();
+        context.restoreAuthSystemState();
+
+        LinkedList<DSpaceCommandLineParameter> parameters = new LinkedList<>();
+        parameters.add(new DSpaceCommandLineParameter("-i", item.getID().toString()));
+
+        List<ParameterValueRest> list = convertParameters(parameters);
+
+        getClient()
+            .perform(multipart("/api/system/scripts/object-deletion/processes")
+                         .param("properties", new ObjectMapper().writeValueAsString(list)))
+            .andExpect(status().isUnauthorized());
+
+        // Verify item still exists
+        assertThat("Item should still exist", itemService.find(context, item.getID()), notNullValue());
+    }
+
+    private void performDeletionScript(
+        LinkedList<DSpaceCommandLineParameter> parameters, EPerson user, HttpStatus expectedHttpStatus,
+        DSpaceObject objectToDelete) throws Exception {
+
+        List<ParameterValueRest> list = convertParameters(parameters);
+        AtomicReference<Integer> idRef = new AtomicReference<>();
+
+        try {
+            String token = getAuthToken(user.getEmail(), password);
+
+            getClient(token)
+                .perform(multipart("/api/system/scripts/object-deletion/processes")
+                             .param("properties", new ObjectMapper().writeValueAsString(list)))
+                .andExpect(status().is(expectedHttpStatus.value()))
+                .andDo(result -> {
+                    if (expectedHttpStatus == HttpStatus.ACCEPTED) {
+                        idRef.set(read(result.getResponse().getContentAsString(), "$.processId"));
+                    }
+                });
+
+            // Verify deletion status based on expected HTTP status
+            if (expectedHttpStatus == HttpStatus.ACCEPTED) {
+                // Object should be deleted
+                verifyObjectDeleted(objectToDelete);
+            } else {
+                // Object should still exist
+                verifyObjectExists(objectToDelete);
+            }
+        } finally {
+            if (idRef.get() != null) {
+                ProcessBuilder.deleteProcess(idRef.get());
+            }
+        }
+    }
+
+    private void verifyObjectDeleted(DSpaceObject object) throws SQLException {
+        if (object instanceof Item) {
+            assertThat("Item expected to be deleted", itemService.find(context, object.getID()), nullValue());
+        } else if (object instanceof Collection) {
+            assertThat("Collection expected to be deleted", collectionService.find(context, object.getID()),
+                       nullValue());
+        } else if (object instanceof Community) {
+            assertThat("Community expected to be deleted", communityService.find(context, object.getID()), nullValue());
+        }
+    }
+
+    private void verifyObjectExists(DSpaceObject object) throws SQLException {
+        if (object instanceof Item) {
+            assertThat("Item expected to still exist", itemService.find(context, object.getID()), notNullValue());
+        } else if (object instanceof Collection) {
+            assertThat("Collection expected to still exist", collectionService.find(context, object.getID()),
+                       notNullValue());
+        } else if (object instanceof Community) {
+            assertThat("Community expected to still exist", communityService.find(context, object.getID()),
+                       notNullValue());
+        }
+    }
+
+    private List<ParameterValueRest> convertParameters(LinkedList<DSpaceCommandLineParameter> parameters) {
+        return parameters.stream()
+                         .map(dSpaceCommandLineParameter ->
+                                  dSpaceRunnableParameterConverter.convert(dSpaceCommandLineParameter,
+                                                                           Projection.DEFAULT))
+                         .collect(Collectors.toList());
     }
 
 }

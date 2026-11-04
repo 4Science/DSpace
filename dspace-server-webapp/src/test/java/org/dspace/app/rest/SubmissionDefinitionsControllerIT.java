@@ -47,7 +47,7 @@ public class SubmissionDefinitionsControllerIT extends AbstractControllerIntegra
     // The total number of expected submission definitions is referred to in multiple tests and assertions as
     // is the last page (totalDefinitions - 1)
     // This integer should be maintained along with any changes to item-submissions.xml
-    private static final int totalDefinitions = 28;
+    private static final int totalDefinitions = 29;
 
     @Test
     public void findAll() throws Exception {
@@ -203,9 +203,8 @@ public class SubmissionDefinitionsControllerIT extends AbstractControllerIntegra
 
         //Match only that a section exists with a submission configuration behind
         getClient(token).perform(get("/api/config/submissiondefinitions/traditional/collections")
-                                     .param("projection", "full"))
-                        .andExpect(status().isOk())
-                        .andExpect(jsonPath("$.page.totalElements", is(0)));
+                   .param("projection", "full"))
+                   .andExpect(status().isNoContent());
     }
 
     @Test
@@ -241,18 +240,18 @@ public class SubmissionDefinitionsControllerIT extends AbstractControllerIntegra
         ;
         // the extract submission should NOT expose the backend only extract panel
         getClient(token).perform(get("/api/config/submissiondefinitions/extractiontestprocess/sections")
-                                     .param("projection", "full"))
-                        // The status has to be 200 OK
-                        .andExpect(status().isOk())
-                        // We expect the content type to be "application/hal+json;charset=UTF-8"
-                        .andExpect(content().contentType(contentType))
-                        // Match only that a section exists with a submission configuration behind
-                        .andExpect(jsonPath("$._embedded.submissionsections", hasSize(6)))
-                        .andExpect(jsonPath("$._embedded.submissionsections",
-                                            Matchers.not(Matchers.hasItem(
-                                                hasJsonPath("$.id", is("extractionstep"))
-                                            ))))
-        ;
+                .param("projection", "full"))
+                // The status has to be 200 OK
+                .andExpect(status().isOk())
+                // We expect the content type to be "application/hal+json;charset=UTF-8"
+                .andExpect(content().contentType(contentType))
+                // Match only that a section exists with a submission configuration behind
+                .andExpect(jsonPath("$._embedded.submissionsections", hasSize(7)))
+                .andExpect(jsonPath("$._embedded.submissionsections",
+                        Matchers.not(Matchers.hasItem(
+                                            hasJsonPath("$.id", is("extractionstep"))
+                                        ))))
+     ;
 
     }
 

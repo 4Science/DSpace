@@ -6,15 +6,15 @@
 -- http://www.dspace.org/license/
 --
 
--- replace the cris_metrics_resource_id_fkey to include ON DELETE CASCADE to automatically
--- remove metrics when their associated resource is deleted
-ALTER TABLE IF EXISTS cris_metrics DROP CONSTRAINT IF EXISTS cris_metrics_resource_id_fkey;
+-- 1. Safely recreate the foreign key constraint to include ON DELETE CASCADE
+ALTER TABLE cris_metrics DROP CONSTRAINT IF EXISTS cris_metrics_resource_id_fkey;
 ALTER TABLE cris_metrics ADD CONSTRAINT cris_metrics_resource_id_fkey FOREIGN KEY (resource_id) REFERENCES DSpaceObject(uuid) ON DELETE CASCADE;
 
--- add resourcetype column
-ALTER TABLE cris_metrics ADD COLUMN resource_type INT;
+-- 2. Add resource_type column safely using IF NOT EXISTS
+ALTER TABLE cris_metrics ADD COLUMN IF NOT EXISTS resource_type INT;
 
--- populate the resourcetype column
-UPDATE cris_metrics set resource_type = 4 where resource_id in (SELECT uuid FROM community);
-UPDATE cris_metrics set resource_type = 3 where resource_id in (SELECT uuid FROM collection);
-UPDATE cris_metrics set resource_type = 2 where resource_id in (SELECT uuid FROM item);
+-- 3. Populate the resourcetype column
+-- These UPDATE statements are natively idempotent; they will just re-apply the values if run again.
+UPDATE cris_metrics SET resource_type = 4 WHERE resource_id IN (SELECT uuid FROM community);
+UPDATE cris_metrics SET resource_type = 3 WHERE resource_id IN (SELECT uuid FROM collection);
+UPDATE cris_metrics SET resource_type = 2 WHERE resource_id IN (SELECT uuid FROM item);

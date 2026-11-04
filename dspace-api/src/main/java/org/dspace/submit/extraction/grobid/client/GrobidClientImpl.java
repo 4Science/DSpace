@@ -12,54 +12,125 @@ import static java.nio.charset.Charset.defaultCharset;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Objects;
 import java.util.Optional;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.ParserConfigurationException;
 
+import jakarta.annotation.PostConstruct;
+import jakarta.inject.Named;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
+import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.mime.HttpMultipartMode;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.impl.client.CloseableHttpClient;
-import org.dspace.app.client.DSpaceHttpClientFactory;
-import org.dspace.submit.extraction.grobid.TEI;
+import org.apache.http.impl.client.DefaultServiceUnavailableRetryStrategy;
+import org.dspace.app.util.XMLUtils;
+import org.dspace.service.impl.HttpConnectionPoolService;
+import org.dspace.services.ConfigurationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.w3c.dom.Document;
+import org.xml.sax.SAXException;
 
 /**
  * Implementation of {@link GrobidClient}.
  *
  * @author Luca Giamminonni (luca.giamminonni at 4science.it)
+ * @author Vincenzo Mecca (vins01-4science - vincenzo.mecca at 4science.com)
+ * @author Kim Shepherd
  *
  */
 public class GrobidClientImpl implements GrobidClient {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(GrobidClientImpl.class);
+    /**
+     * HTTP connection pool for GROBID HTTP requests (supports proxies, for config {@see grobid.cfg})
+     */
+    @Autowired
+    @Named("grobidHttpConnectionPoolService")
+    protected HttpConnectionPoolService httpConnectionPoolService;
 
-    private final String baseUrl;
 
-    public GrobidClientImpl(String baseUrl) {
-        this.baseUrl = baseUrl;
+    private static final Logger LOG = LoggerFactory.getLogger(GrobidClientImpl.class);
+    @Autowired
+    private ConfigurationService configurationService;
+
+    /**
+     * Default value of a "disabled" URL
+     */
+    public static final String DISABLED_BASE_URL = null;
+    /**
+     * Default number of retries
+     */
+    public static final int DEFAULT_MAX_RETRIES = 3;
+    /**
+     * Default retry interval in milliseconds
+     */
+    public static final int DEFAULT_RETRY_INTERVAL = 2000;
+
+    /**
+     * Base URL of GROBID service. Set in constructor {@see spring-dspace-addon-import-services.xml}
+     */
+    private String baseUrl = DISABLED_BASE_URL;
+
+    /**
+     * Max retries to use on a service unavailable (503) response
+     */
+    private int maxRetries = DEFAULT_MAX_RETRIES;
+
+    /**
+     * Retry interval in milliseconds
+     */
+    private int retryInterval = DEFAULT_RETRY_INTERVAL;
+
+    public GrobidClientImpl() {
     }
 
-    @Override
-    public TEI processHeaderDocument(InputStream inputStream) {
-        return processHeaderDocument(inputStream, null);
+    @PostConstruct
+    protected void init() {
+        this.baseUrl = configurationService.getProperty("grobid.service.url", DISABLED_BASE_URL);
+        if (this.baseUrl != null) {
+            this.baseUrl = baseUrl.replaceAll("/+$", "");
+        }
+        this.maxRetries = configurationService.getIntProperty(
+                "grobid.client.maxRetries", DEFAULT_MAX_RETRIES);
+        this.retryInterval = configurationService.getIntProperty(
+                "grobid.client.retryInterval", DEFAULT_RETRY_INTERVAL);
     }
 
+
     @Override
-    public TEI processHeaderDocument(InputStream inputStream, ConsolidateHeaderEnum consolidateHeader) {
-        try (CloseableHttpClient client = DSpaceHttpClientFactory.getInstance().build()) {
+    public Optional<Document> retrieveHeaderDocument(InputStream inputStream) throws GrobidClientException {
+        return retrieveHeaderDocument(inputStream, null);
+    }
 
-            if (StringUtils.isEmpty(baseUrl)) {
-                return null;
-            }
-
+    /**
+     * POST the input stream to configured GROBID service, parse the response as XML and return
+     * a normalised {@link org.w3c.dom.Document} wrapped in Optional, or Optional.EMPTY if no
+     * response content, or throw a GrobidClientException for any other error
+     * @param inputStream       the PDF document
+     * @param consolidateHeader the consolidate header parameter
+     * @return optional (non-null) DOM Document, or Optional.EMPTY
+     * @throws GrobidClientException on any HTTP error
+     */
+    @Override
+    public Optional<Document> retrieveHeaderDocument(InputStream inputStream, ConsolidateHeaderEnum consolidateHeader)
+            throws GrobidClientException {
+        if (Objects.equals(DISABLED_BASE_URL, baseUrl)) {
+            throw new GrobidClientException("Base URL not configured, GROBID client is disabled");
+        }
+        try  {
+            CloseableHttpClient client = httpConnectionPoolService
+                    .getClient(new DefaultServiceUnavailableRetryStrategy(maxRetries, retryInterval));
             HttpPost method = new HttpPost(baseUrl + "/api/processHeaderDocument");
+            method.addHeader("Accept", "application/xml");
+
+            // add multipart form data with application/xml header
             MultipartEntityBuilder builder = MultipartEntityBuilder.create()
                 .setMode(HttpMultipartMode.BROWSER_COMPATIBLE)
                 .addBinaryBody("input", inputStream);
@@ -71,43 +142,61 @@ public class GrobidClientImpl implements GrobidClient {
             HttpEntity entity = builder.build();
             method.setEntity(entity);
 
-            HttpResponse response = client.execute(method);
+            try (CloseableHttpResponse response = client.execute(method)) {
+                if (hasNoContent(response)) {
+                    LOG.warn("Cannot extract metadata from the document: GROBID returned NO CONTENT");
+                    return Optional.empty();
+                }
 
-            if (isNotSuccessfully(response)) {
-                throw new GrobidClientException(formatErrorMessage(response));
+                if (isNotSuccessful(response)) {
+                    throw new GrobidClientException(formatErrorMessage(response));
+                }
+
+                try (InputStream content = response.getEntity().getContent()) {
+                    DocumentBuilder documentBuilder = XMLUtils.getDocumentBuilder();
+                    Document document = documentBuilder.parse(content);
+                    // Normalize document
+                    document.normalizeDocument();
+                    return Optional.of(document);
+                } catch (SAXException | ParserConfigurationException e) {
+                    throw new GrobidClientException(e);
+                }
             }
 
-            return unmarshall(response.getEntity(), TEI.class);
-
-        } catch (IOException | UnsupportedOperationException | JAXBException e) {
+        } catch (IOException | UnsupportedOperationException e) {
             throw new GrobidClientException(e);
         }
     }
 
     private String formatErrorMessage(HttpResponse response) {
-        int statusCode = response.getStatusLine().getStatusCode();
-        String message = format("An error occurs calling GROBID web services - Response status %s", statusCode);
-        return getEntityContent(response)
-            .map(content -> message + " - " + content)
-            .orElse(message);
+        try {
+            int statusCode = response.getStatusLine().getStatusCode();
+            String message = format("An error occured calling GROBID web services. Response status: %s", statusCode);
+            return getEntityContentString(response)
+                .map(content -> message + " - " + content)
+                .orElse(message);
+        } catch (NullPointerException e) {
+            return "GROBID response object contained a null body or status";
+        }
     }
 
-    @SuppressWarnings("unchecked")
-    private <T> T unmarshall(HttpEntity entity, Class<T> clazz)
-        throws JAXBException, UnsupportedOperationException, IOException {
-        JAXBContext context = JAXBContext.newInstance(clazz);
-        return (T) context.createUnmarshaller().unmarshal(entity.getContent());
-    }
-
-    private boolean isNotSuccessfully(HttpResponse response) {
+    private boolean isNotSuccessful(HttpResponse response) {
         return response.getStatusLine().getStatusCode() != HttpStatus.SC_OK;
     }
 
-    private Optional<String> getEntityContent(HttpResponse response) {
+    private boolean hasNoContent(HttpResponse response) {
+        return response.getStatusLine().getStatusCode() == HttpStatus.SC_NO_CONTENT;
+    }
+
+    private Optional<String> getEntityContentString(HttpResponse response) {
         try {
+            HttpEntity entity = response.getEntity();
+            if (null == entity) {
+                return Optional.empty();
+            }
             return Optional.ofNullable(IOUtils.toString(response.getEntity().getContent(), defaultCharset()));
         } catch (UnsupportedOperationException | IOException e) {
-            LOGGER.error("An error occurs reading HTTP response entity content", e);
+            LOG.error("An error occurs reading HTTP response entity content", e);
             return Optional.empty();
         }
     }

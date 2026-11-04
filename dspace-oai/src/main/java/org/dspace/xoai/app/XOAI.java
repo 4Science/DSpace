@@ -194,9 +194,9 @@ public class XOAI {
                     .findInArchiveOrWithdrawnDiscoverableModifiedSince(context, last);
             Iterator<Item> nonDiscoverableChangedItems = itemService
                     .findInArchiveOrWithdrawnNonDiscoverableModifiedSince(context, last);
+            int total = this.index(discoverableChangedItems, true) + this.index(nonDiscoverableChangedItems, true);
             Iterator<Item> possiblyChangedItems = getItemsWithPossibleChangesBefore(last);
-            return this.index(discoverableChangedItems) + this.index(nonDiscoverableChangedItems)
-                    + this.index(possiblyChangedItems);
+            return total + this.index(possiblyChangedItems, false);
         } catch (SQLException ex) {
             throw new DSpaceSolrIndexerException(ex.getMessage(), ex);
         }
@@ -267,7 +267,7 @@ public class XOAI {
                     null);
             Iterator<Item> nonDiscoverableItems = itemService
                     .findInArchiveOrWithdrawnNonDiscoverableModifiedSince(context, null);
-            return this.index(discoverableItems) + this.index(nonDiscoverableItems);
+            return this.index(discoverableItems, true) + this.index(nonDiscoverableItems, true);
         } catch (SQLException ex) {
             throw new DSpaceSolrIndexerException(ex.getMessage(), ex);
         }
@@ -310,7 +310,7 @@ public class XOAI {
         }
     }
 
-    private int index(Iterator<Item> iterator) throws DSpaceSolrIndexerException {
+    private int index(Iterator<Item> iterator, boolean uncacheEntities) throws DSpaceSolrIndexerException {
         try {
             int i = 0;
             int batchSize = configurationService.getIntProperty("oai.import.batch.size", 1000);
@@ -339,10 +339,12 @@ public class XOAI {
                     server.add(list);
                     server.commit();
                     list.clear();
-                    try {
-                        context.uncacheEntities();
-                    } catch (SQLException ex) {
-                        log.error("Error uncaching entities", ex);
+                    if (uncacheEntities) {
+                        try {
+                            context.uncacheEntities();
+                        } catch (SQLException ex) {
+                            log.error("Error uncaching entities", ex);
+                        }
                     }
                 }
             }

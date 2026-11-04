@@ -10,11 +10,15 @@ package org.dspace.statistics;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Path;
+import java.util.Optional;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.solr.client.solrj.SolrClient;
+import org.dspace.services.ConfigurationService;
+import org.dspace.services.factory.DSpaceServicesFactory;
 import org.dspace.solr.MockSolrServer;
+import org.dspace.solr.SolrClientFactory;
 
 /**
  * Factory of EmbeddedSolrClient instances.
@@ -44,15 +48,20 @@ public class EmbeddedSolrClientFactory
 
     private MockSolrServer mockSolrServer;
 
+    private ConfigurationService configurationService = DSpaceServicesFactory.getInstance()
+                                                                                     .getConfigurationService();
+
     @Override
-    public SolrClient getClient(String coreUrl) {
+    public Optional<SolrClient> getClient(String urlProperty) {
+        String solrService = configurationService.getProperty(urlProperty);
+
         try {
-            coreName = Path.of(new URL(coreUrl).getPath())
+            coreName = Path.of(new URL(solrService).getPath())
                     .getFileName()
                     .toString();
         } catch (MalformedURLException ex) {
             log.warn("Unable to extract core name from URI '{}':  {}",
-                    coreUrl, ex.getMessage());
+                     solrService, ex.getMessage());
         }
 
         try {
@@ -62,7 +71,7 @@ public class EmbeddedSolrClientFactory
             log.warn("Failed to instantiate a MockSolrServer", ex);
             solrClient = null;
         }
-        return solrClient;
+        return Optional.of(solrClient);
     }
 
     /**

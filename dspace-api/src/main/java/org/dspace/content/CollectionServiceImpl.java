@@ -62,6 +62,7 @@ import org.dspace.eperson.EPerson;
 import org.dspace.eperson.Group;
 import org.dspace.eperson.service.GroupService;
 import org.dspace.eperson.service.SubscribeService;
+import org.dspace.event.DetailType;
 import org.dspace.event.Event;
 import org.dspace.harvest.HarvestedCollection;
 import org.dspace.harvest.service.HarvestedCollectionService;
@@ -199,7 +200,7 @@ public class CollectionServiceImpl extends DSpaceObjectServiceImpl<Collection> i
         }
 
         context.addEvent(new Event(Event.CREATE, Constants.COLLECTION,
-                newCollection.getID(), newCollection.getHandle(),
+                newCollection.getID(), newCollection.getHandle(), DetailType.HANDLE,
                 getIdentifiers(context, newCollection)));
 
         log.info(LogHelper.getHeader(context, "create_collection",
@@ -634,7 +635,8 @@ public class CollectionServiceImpl extends DSpaceObjectServiceImpl<Collection> i
         }
 
         context.addEvent(new Event(Event.MODIFY, Constants.COLLECTION,
-                                   collection.getID(), "remove_template_item", getIdentifiers(context, collection)));
+            collection.getID(), "remove_template_item", DetailType.ACTION,
+            getIdentifiers(context, collection)));
     }
 
     @Override
@@ -653,8 +655,8 @@ public class CollectionServiceImpl extends DSpaceObjectServiceImpl<Collection> i
         }
 
         context.addEvent(new Event(Event.ADD, Constants.COLLECTION, collection.getID(),
-                                   Constants.ITEM, item.getID(), item.getHandle(),
-                                   getIdentifiers(context, collection)));
+                Constants.ITEM, item.getID(), item.getHandle(), DetailType.HANDLE,
+                getIdentifiers(context, collection)));
     }
 
     @Override
@@ -674,8 +676,9 @@ public class CollectionServiceImpl extends DSpaceObjectServiceImpl<Collection> i
         }
 
         context.addEvent(new Event(Event.REMOVE, Constants.COLLECTION,
-                                   collection.getID(), Constants.ITEM, item.getID(), item.getHandle(),
-                                   getIdentifiers(context, collection)));
+            collection.getID(), Constants.ITEM, item.getID(),
+            item.getHandle(), DetailType.HANDLE,
+            getIdentifiers(context, collection)));
     }
 
     @Override
@@ -696,7 +699,8 @@ public class CollectionServiceImpl extends DSpaceObjectServiceImpl<Collection> i
         }
         if (collection.isMetadataModified()) {
             context.addEvent(new Event(Event.MODIFY_METADATA, Constants.COLLECTION, collection.getID(),
-                                         collection.getDetails(),getIdentifiers(context, collection)));
+                collection.getMetadataEventDetails(), DetailType.DSO_SUMMARY,
+                getIdentifiers(context, collection)));
             collection.clearModified();
         }
         collection.clearDetails();
@@ -753,7 +757,8 @@ public class CollectionServiceImpl extends DSpaceObjectServiceImpl<Collection> i
         }
 
         context.addEvent(new Event(Event.DELETE, Constants.COLLECTION,
-                                   collection.getID(), collection.getHandle(), getIdentifiers(context, collection)));
+            collection.getID(), collection.getHandle(), DetailType.HANDLE,
+            getIdentifiers(context, collection)));
 
         // remove subscriptions - hmm, should this be in Subscription.java?
         subscribeService.deleteByDspaceObject(context, collection);
@@ -1044,9 +1049,9 @@ public class CollectionServiceImpl extends DSpaceObjectServiceImpl<Collection> i
     }
 
     @Override
-    public List<Collection> findCollectionsWithSubmit(String q, Context context, Community community,
-                                                      String entityType, int offset,
-                                                      int limit) throws SQLException, SearchServiceException {
+    public List<Collection> findCollectionsWithSubmit(Context context, String q, Community community,
+                                                       String entityType, int offset,
+                                                       int limit) throws SQLException, SearchServiceException {
 
         List<Collection> collections = new ArrayList<>();
         DiscoverQuery discoverQuery = new DiscoverQuery();
@@ -1064,7 +1069,7 @@ public class CollectionServiceImpl extends DSpaceObjectServiceImpl<Collection> i
     }
 
     @Override
-    public int countCollectionsWithSubmit(String q, Context context, Community community, String entityType)
+    public int countCollectionsWithSubmit(Context context, String q, Community community, String entityType)
         throws SQLException, SearchServiceException {
 
         DiscoverQuery discoverQuery = new DiscoverQuery();
@@ -1101,7 +1106,7 @@ public class CollectionServiceImpl extends DSpaceObjectServiceImpl<Collection> i
      * @throws SearchServiceException    if search error
      */
     private DiscoverResult retrieveCollectionsWithSubmit(Context context, DiscoverQuery discoverQuery,
-        String entityType, Community community, String q)
+                                                         String entityType, Community community, String q)
         throws SQLException, SearchServiceException {
 
         StringBuilder query = new StringBuilder();
@@ -1141,7 +1146,7 @@ public class CollectionServiceImpl extends DSpaceObjectServiceImpl<Collection> i
             StringBuilder buildQuery = new StringBuilder();
             String escapedQuery = ClientUtils.escapeQueryChars(q);
             buildQuery.append("(").append(escapedQuery).append(" OR dc.title_sort:*")
-                .append(escapedQuery).append("*").append(")");
+                      .append(escapedQuery).append("*").append(")");
             discoverQuery.setQuery(buildQuery.toString());
         }
         discoverQuery.addFilterQueries(buildFilter.toString());
@@ -1157,7 +1162,7 @@ public class CollectionServiceImpl extends DSpaceObjectServiceImpl<Collection> i
     }
 
     private Collection retrieveWithSubmitCollectionByEntityType(Context context, List<Community> communities,
-        String entityType) {
+        String entityType) throws SQLException {
 
         for (Community community : communities) {
             Collection collection = retrieveCollectionWithSubmitByCommunityAndEntityType(context, community,
@@ -1180,12 +1185,12 @@ public class CollectionServiceImpl extends DSpaceObjectServiceImpl<Collection> i
 
     @Override
     public Collection retrieveCollectionWithSubmitByCommunityAndEntityType(Context context, Community community,
-        String entityType) {
+        String entityType) throws SQLException {
         context.turnOffAuthorisationSystem();
         List<Collection> collections;
         try {
-            collections = findCollectionsWithSubmit(null, context, community, entityType, 0, 1);
-        } catch (SQLException | SearchServiceException e) {
+            collections = findCollectionsWithSubmit(context, null, community, entityType, 0, 1);
+        } catch (SearchServiceException e) {
             throw new RuntimeException(e);
         }
         context.restoreAuthSystemState();
@@ -1236,7 +1241,7 @@ public class CollectionServiceImpl extends DSpaceObjectServiceImpl<Collection> i
         context.turnOffAuthorisationSystem();
         List<Collection> collections;
         try {
-            collections = findCollectionsWithSubmit(null, context, community, entityType, 0, 1);
+            collections = findCollectionsWithSubmit(context, null, community, entityType, 0, 1);
         } catch (SQLException | SearchServiceException e) {
             throw new RuntimeException(e);
         }
@@ -1285,9 +1290,8 @@ public class CollectionServiceImpl extends DSpaceObjectServiceImpl<Collection> i
 
     @Override
     public List<Collection> findCollectionsAdministeredByEntityType(String query, String entityType,
-                                                                    Context context, int offset, int limit)
+                                                                     Context context, int offset, int limit)
             throws SQLException, SearchServiceException {
-
         DiscoverQuery discoverQuery = new DiscoverQuery();
         discoverQuery.setDSpaceObjectFilter(IndexableCollection.TYPE);
         discoverQuery.setStart(offset);

@@ -706,8 +706,8 @@ public class ItemServiceIT extends AbstractIntegrationTestWithDatabase {
     @Test
     public void testFindItemsWithEditNoRights() throws Exception {
         context.setCurrentUser(eperson);
-        List<Item> result = itemService.findItemsWithEdit(context, 0, 10);
-        int count = itemService.countItemsWithEdit(context);
+        List<Item> result = itemService.findItemsWithEdit(context, "", 0, 10);
+        int count = itemService.countItemsWithEdit(context, "");
         assertThat(result.size(), equalTo(0));
         assertThat(count, equalTo(0));
     }
@@ -719,8 +719,8 @@ public class ItemServiceIT extends AbstractIntegrationTestWithDatabase {
             .withAction(Constants.WRITE)
             .build();
         context.setCurrentUser(eperson);
-        List<Item> result = itemService.findItemsWithEdit(context, 0, 10);
-        int count = itemService.countItemsWithEdit(context);
+        List<Item> result = itemService.findItemsWithEdit(context, "", 0, 10);
+        int count = itemService.countItemsWithEdit(context, "");
         assertThat(result.size(), equalTo(1));
         assertThat(count, equalTo(1));
     }
@@ -732,8 +732,8 @@ public class ItemServiceIT extends AbstractIntegrationTestWithDatabase {
             .withAction(Constants.ADMIN)
             .build();
         context.setCurrentUser(eperson);
-        List<Item> result = itemService.findItemsWithEdit(context, 0, 10);
-        int count = itemService.countItemsWithEdit(context);
+        List<Item> result = itemService.findItemsWithEdit(context, "", 0, 10);
+        int count = itemService.countItemsWithEdit(context, "");
         assertThat(result.size(), equalTo(1));
         assertThat(count, equalTo(1));
     }
@@ -751,8 +751,8 @@ public class ItemServiceIT extends AbstractIntegrationTestWithDatabase {
             .withAction(Constants.WRITE)
             .build();
         context.setCurrentUser(eperson);
-        List<Item> result = itemService.findItemsWithEdit(context, 0, 10);
-        int count = itemService.countItemsWithEdit(context);
+        List<Item> result = itemService.findItemsWithEdit(context, "", 0, 10);
+        int count = itemService.countItemsWithEdit(context, "");
         assertThat(result.size(), equalTo(1));
         assertThat(count, equalTo(1));
     }
@@ -770,8 +770,8 @@ public class ItemServiceIT extends AbstractIntegrationTestWithDatabase {
             .withAction(Constants.ADMIN)
             .build();
         context.setCurrentUser(eperson);
-        List<Item> result = itemService.findItemsWithEdit(context, 0, 10);
-        int count = itemService.countItemsWithEdit(context);
+        List<Item> result = itemService.findItemsWithEdit(context, "", 0, 10);
+        int count = itemService.countItemsWithEdit(context, "");
         assertThat(result.size(), equalTo(1));
         assertThat(count, equalTo(1));
     }

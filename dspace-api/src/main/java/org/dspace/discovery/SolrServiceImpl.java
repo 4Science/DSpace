@@ -453,10 +453,8 @@ public class SolrServiceImpl implements SearchService, IndexingService {
                         log.debug("Keeping: " + o.getUniqueIndexID());
                     }
                 }
+                start += batch;
             }
-
-            start += batch;
-
         } catch (IOException | SQLException | SolrServerException e) {
             log.error("Error cleaning discovery index: " + e.getMessage(), e);
         } finally {
@@ -1772,6 +1770,12 @@ public class SolrServiceImpl implements SearchService, IndexingService {
     public QueryResponse retriveSolrDocByUniqueID(String uniqueID) {
         SolrClient solrClient =  solrSearchCore.getSolr();
         SolrQuery q = new SolrQuery(SearchUtils.RESOURCE_UNIQUE_ID + ":Item-" + uniqueID);
+        // Only the "metric.*" fields are consumed by the caller. Without an explicit field list Solr returns every
+        // stored field, including "fulltext" and its "fulltext_hl" copy, which for items with large extracted text
+        // means loading hundreds of MB into the heap just to read a few numeric values (and can exhaust it).
+        q.setFields("metric.*");
+        // The unique id matches at most one document, so there is no point in asking for the default 10 rows.
+        q.setRows(1);
         QueryResponse queryResponse = null;
         try {
             queryResponse = solrClient.query(q);

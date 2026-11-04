@@ -201,6 +201,8 @@ public class SyndicationFeed {
                     podcastFeed = true;
                 }
                 objectURL = resolveURL(request, comm);
+            } else {
+                objectURL = resolveURL(request, ((IndexableItem) dso).getIndexedObject());
             }
 
             if (logo != null) {

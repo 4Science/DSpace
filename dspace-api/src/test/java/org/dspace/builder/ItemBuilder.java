@@ -17,6 +17,7 @@ import java.io.InputStream;
 import java.sql.SQLException;
 import java.time.Instant;
 import java.time.Period;
+import java.util.List;
 import java.util.UUID;
 
 import org.apache.logging.log4j.LogManager;
@@ -28,6 +29,7 @@ import org.dspace.content.DCDate;
 import org.dspace.content.Item;
 import org.dspace.content.LicenseUtils;
 import org.dspace.content.MetadataSchemaEnum;
+import org.dspace.content.MetadataValue;
 import org.dspace.content.WorkspaceItem;
 import org.dspace.content.service.DSpaceObjectService;
 import org.dspace.core.Context;
@@ -53,6 +55,8 @@ public class ItemBuilder extends AbstractDSpaceObjectBuilder<Item> {
     private WorkspaceItem workspaceItem;
     private Item item;
     private Group readerGroup = null;
+    private Instant lastModified;
+    private String dateAccessioned;
 
     protected ItemBuilder(Context context) {
         super(context);
@@ -963,6 +967,16 @@ public class ItemBuilder extends AbstractDSpaceObjectBuilder<Item> {
         return addMetadataValue(item, "datacite", "available", null, available);
     }
 
+    public ItemBuilder withLastModified(Instant lastModified) {
+        this.lastModified = lastModified;
+        return this;
+    }
+
+    public ItemBuilder withDateAccessioned(String dateAccessioned) {
+        this.dateAccessioned = dateAccessioned;
+        return this;
+    }
+
     @Override
     public Item build() {
         try {
@@ -978,6 +992,18 @@ public class ItemBuilder extends AbstractDSpaceObjectBuilder<Item> {
             }
             if (inArchive) {
                 item.setArchived(inArchive);
+            }
+
+            if (lastModified != null) {
+                item.setLastModified(lastModified);
+            }
+
+            if (dateAccessioned != null) {
+                List<MetadataValue> dateAccessionedValues = itemService.getMetadata(item, "dc",
+                    "date", "accessioned", Item.ANY);
+                itemService.removeMetadataValues(context, item, dateAccessionedValues);
+                itemService.addMetadata(context, item, "dc", "date", "accessioned", null,
+                    new DCDate(dateAccessioned).toString());
             }
             context.dispatchEvents();
             indexingService.commit();

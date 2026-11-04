@@ -18,6 +18,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.common.SolrInputDocument;
 import org.dspace.app.ldn.LDNMessageEntity;
 import org.dspace.app.ldn.NotifyServiceEntity;
@@ -94,15 +95,21 @@ public class LDNMessageEntityIndexFactoryImpl extends IndexFactoryImpl<Indexable
         if (ldnMessage.getObject() != null && ldnMessage.getObject().getID() != null) {
             Item item = itemService.findByIdOrLegacyId(context, ldnMessage.getObject().getID().toString());
             if (item != null) {
-                addFacetIndex(doc, "object", item.getID().toString(), itemService.getMetadata(item, "dc.title"));
-                addFacetIndex(doc, "relateditem", item.getID().toString(), itemService.getMetadata(item, "dc.title"));
+                String title = itemService.getMetadata(item, "dc.title");
+                if (StringUtils.isNotBlank(title)) {
+                    addFacetIndex(doc, "object", item.getID().toString(), title);
+                    addFacetIndex(doc, "relateditem", item.getID().toString(), title);
+                }
             }
         }
         if (ldnMessage.getContext() != null && ldnMessage.getContext().getID() != null) {
             Item item = itemService.findByIdOrLegacyId(context, ldnMessage.getContext().getID().toString());
             if (item != null) {
-                addFacetIndex(doc, "context", item.getID().toString(), itemService.getMetadata(item, "dc.title"));
-                addFacetIndex(doc, "relateditem", item.getID().toString(), itemService.getMetadata(item, "dc.title"));
+                String title = itemService.getMetadata(item, "dc.title");
+                if (StringUtils.isNotBlank(title)) {
+                    addFacetIndex(doc, "context", item.getID().toString(), title);
+                    addFacetIndex(doc, "relateditem", item.getID().toString(), title);
+                }
             }
         }
         NotifyServiceEntity origin = ldnMessage.getOrigin();

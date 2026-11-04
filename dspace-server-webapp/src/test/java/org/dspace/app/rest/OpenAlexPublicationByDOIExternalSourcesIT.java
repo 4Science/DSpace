@@ -38,13 +38,14 @@ import org.dspace.content.Community;
 import org.dspace.importer.external.liveimportclient.service.LiveImportClient;
 import org.dspace.importer.external.openalex.service.OpenAlexImportMetadataSourceServiceImpl;
 import org.hamcrest.Matchers;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.util.ReflectionTestUtils;
 
 /**
@@ -53,7 +54,7 @@ import org.springframework.test.util.ReflectionTestUtils;
 public class OpenAlexPublicationByDOIExternalSourcesIT extends AbstractControllerIntegrationTest {
 
 
-    @MockitoBean
+    @Mock
     private LiveImportClient liveImportClient;
 
     @Autowired
@@ -61,10 +62,19 @@ public class OpenAlexPublicationByDOIExternalSourcesIT extends AbstractControlle
     private OpenAlexImportMetadataSourceServiceImpl openAlexImportMetadataSourceService;
 
 
+    private Object originalLiveImportClient;
+
     @Before
     public void setUp() throws Exception {
         super.setUp();
+        originalLiveImportClient =
+            ReflectionTestUtils.getField(openAlexImportMetadataSourceService, "liveImportClient");
         ReflectionTestUtils.setField(openAlexImportMetadataSourceService, "liveImportClient", liveImportClient);
+    }
+
+    @After()
+    public void after() {
+        ReflectionTestUtils.setField(openAlexImportMetadataSourceService, "liveImportClient", originalLiveImportClient);
     }
 
     @Test

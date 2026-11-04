@@ -391,11 +391,11 @@ public interface CollectionService
      * NOTE: for better performance, this method retrieves its results from an
      *       index (cache) and does not query the database directly.
      *       This means that results may be stale or outdated until https://github.com/DSpace/DSpace/issues/2853 is resolved"
-     * 
+     *
+     * @param context          DSpace Context
      * @param q                limit the returned collection to those with metadata values matching the query terms.
      *                         The terms are used to make also a prefix query on SOLR so it can be used to implement
      *                         an autosuggest feature over the collection name
-     * @param context          DSpace Context
      * @param community        parent community
      * @param entityType       limit the returned collection to those related to given entity type
      * @param offset           the position of the first result to return
@@ -404,7 +404,7 @@ public interface CollectionService
      * @throws SQLException              if something goes wrong
      * @throws SearchServiceException    if search error
      */
-    public List<Collection> findCollectionsWithSubmit(String q, Context context, Community community,
+    public List<Collection> findCollectionsWithSubmit(Context context, String q, Community community,
             String entityType, int offset, int limit) throws SQLException, SearchServiceException;
 
     /**
@@ -418,7 +418,6 @@ public interface CollectionService
      */
     boolean isSharedWorkspace(Context context, Collection collection);
 
-
     /**
      * Retrieve the first collection in the community or its descending that support
      * the provided entityType
@@ -430,7 +429,7 @@ public interface CollectionService
      *                    that support the provided entityType
      */
     public Collection retrieveCollectionWithSubmitByCommunityAndEntityType(Context context, Community community,
-        String entityType);
+        String entityType) throws SQLException;
 
     /**
      * Retrieve the close collection to the item for which the current user has
@@ -453,7 +452,7 @@ public interface CollectionService
      *       and does not query the database directly.
      *       This means that results may be stale or outdated until
      *       https://github.com/DSpace/DSpace/issues/2853 is resolved."
-     * 
+     *
      * @param context          DSpace Context
      * @param community        parent community
      * @return                 total collections found
@@ -555,18 +554,18 @@ public interface CollectionService
      *       and does not query the database directly.
      *       This means that results may be stale or outdated until
      *       https://github.com/DSpace/DSpace/issues/2853 is resolved."
-     * 
+     *
+     * @param context          DSpace Context
      * @param q                limit the returned collection to those with metadata values matching the query terms.
      *                         The terms are used to make also a prefix query on SOLR so it can be used to implement
      *                         an autosuggest feature over the collection name
-     * @param context          DSpace Context
      * @param community        parent community
      * @param entityType       limit the returned collection to those related to given entity type
      * @return                 total collections found
      * @throws SQLException              if something goes wrong
      * @throws SearchServiceException    if search error
      */
-    public int countCollectionsWithSubmit(String q, Context context, Community community, String entityType)
+    public int countCollectionsWithSubmit(Context context, String q, Community community, String entityType)
         throws SQLException, SearchServiceException;
 
     /**
