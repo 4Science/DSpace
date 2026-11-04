@@ -16,6 +16,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import org.dspace.app.rest.test.AbstractControllerIntegrationTest;
@@ -293,6 +294,68 @@ public class OpenPolicyFinderAuthorityIT extends AbstractControllerIntegrationTe
             .andExpect(jsonPath("$.page.totalElements", Matchers.is(1)));
     }
 
+    @Test
+    public void testIssnAuthorityReturnsFirstIssnAsLabelAndValue() throws Exception {
+
+        configurationService.setProperty("cris.OpenPolicyFinderIssnAuthority.value-field", "issn");
+        configurationService.setProperty("cris.OpenPolicyFinderIssnAuthority.extra-title-enabled", true);
+
+        String token = getAuthToken(eperson.getEmail(), password);
+        getClient(token).perform(get("/api/submission/vocabularies/OpenPolicyFinderIssnAuthority/entries")
+            .param("filter", "test journal"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$._embedded.entries", containsInAnyOrder(
+                issnAuthorityEntry("The Lancet", "0140-6736", "Elsevier", true))))
+            .andExpect(jsonPath("$.page.totalElements", Matchers.is(1)));
+    }
+
+    @Test
+    public void testIssnAuthorityReturnsFirstIssnEvenIfAnotherIssnIsSearched() throws Exception {
+
+        configurationService.setProperty("cris.OpenPolicyFinderIssnAuthority.value-field", "issn");
+        configurationService.setProperty("cris.OpenPolicyFinderIssnAuthority.extra-title-enabled", true);
+
+        // 1474-547X is the second ISSN of The Lancet (see thelancet.json), but the stored value is always the first
+        String token = getAuthToken(eperson.getEmail(), password);
+        getClient(token).perform(get("/api/submission/vocabularies/OpenPolicyFinderIssnAuthority/entries")
+            .param("filter", "1474-547X"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$._embedded.entries", containsInAnyOrder(
+                issnAuthorityEntry("The Lancet", "0140-6736", "Elsevier", true))))
+            .andExpect(jsonPath("$.page.totalElements", Matchers.is(1)));
+    }
+
+    @Test
+    public void testIssnAuthorityWithTitleExtraDisabled() throws Exception {
+
+        configurationService.setProperty("cris.OpenPolicyFinderIssnAuthority.value-field", "issn");
+        configurationService.setProperty("cris.OpenPolicyFinderIssnAuthority.extra-title-enabled", false);
+
+        String token = getAuthToken(eperson.getEmail(), password);
+        getClient(token).perform(get("/api/submission/vocabularies/OpenPolicyFinderIssnAuthority/entries")
+            .param("filter", "test journal"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$._embedded.entries", containsInAnyOrder(
+                issnAuthorityEntry("The Lancet", "0140-6736", "Elsevier", false))))
+            .andExpect(jsonPath("$.page.totalElements", Matchers.is(1)));
+    }
+
+    @Test
+    public void testIssnAuthorityWithTitleValueField() throws Exception {
+
+        configurationService.setProperty("cris.OpenPolicyFinderIssnAuthority.value-field", "title");
+        configurationService.setProperty("cris.OpenPolicyFinderIssnAuthority.extra-title-enabled", false);
+
+        // without value-field = issn the authority behaves like OpenPolicyFinderAuthority (title as label and value)
+        String token = getAuthToken(eperson.getEmail(), password);
+        getClient(token).perform(get("/api/submission/vocabularies/OpenPolicyFinderIssnAuthority/entries")
+            .param("filter", "test journal"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$._embedded.entries", containsInAnyOrder(
+                openPolicyFinderAuthorityEntry("The Lancet", REFERENCE, "0140-6736", "Elsevier"))))
+            .andExpect(jsonPath("$.page.totalElements", Matchers.is(1)));
+    }
+
     private Item buildJournal(String title) {
         return ItemBuilder.createItem(context, collection)
                           .withTitle(title)
@@ -312,6 +375,25 @@ public class OpenPolicyFinderAuthorityIT extends AbstractControllerIntegrationTe
                                                       "data-dc_publisher", publisher,
                                                       "data-dc_relation_issn", issn);
         return matchItemAuthorityWithOtherInformations(authority, title, title, "vocabularyEntry", otherInformation);
+    }
+
+    /**
+     * Entry returned by OpenPolicyFinderIssnAuthority: the ISSN is used as display and value, the title is
+     * available as extra (dc_title) only if the extra-title-enabled configuration is true.
+     */
+    private Matcher<? super Object> issnAuthorityEntry(String title, String issn, String publisher,
+                                                       boolean withTitleExtra) {
+        Map<String, String> otherInformation = new HashMap<>();
+        otherInformation.put("dc_publisher", publisher);
+        otherInformation.put("data-dc_publisher", publisher);
+        otherInformation.put("dc_relation_issn", issn);
+        otherInformation.put("data-dc_relation_issn", issn);
+        if (withTitleExtra) {
+            otherInformation.put("dc_title", title);
+            otherInformation.put("data-dc_title", title);
+        }
+        return matchItemAuthorityWithOtherInformations(REFERENCE + "ISSN::" + issn, issn, issn, "vocabularyEntry",
+                                                       otherInformation);
     }
 
 }
