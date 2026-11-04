@@ -71,4 +71,8 @@
     	class="org.dspace.content.authority.OpenPolicyFinderExtraISSNmetadataGenerator">
     	<property name="relatedInputFormMetadata" value="dc_relation_issn"/>
      </bean>
+    <bean id="org.dspace.content.authority.OpenPolicyFinderExtraTitleMetadataGenerator"
+          class="org.dspace.content.authority.OpenPolicyFinderExtraTitleMetadataGenerator">
+        <property name="relatedInputFormMetadata" value="dc_title"/>
+    </bean>
 </beans>
