@@ -363,6 +363,22 @@ public class DiscoverQueryBuilderTest {
         ));
     }
 
+    @Test
+    public void testMultiLanguageFacetAuthorityFilterIsNotLanguagePrefixed() {
+        QueryBuilderSearchFilter searchFilter = new QueryBuilderSearchFilter("types", "authority", "Dataset");
+        DiscoverQuery discoverQuery = queryBuilder.buildFacetQuery(context, scope, discoveryConfiguration, "prefix",
+            query, Collections.singletonList(searchFilter), "item", pageSize, offset, "types");
+
+        assertThat(discoverQuery.getFilterQueries(), containsInAnyOrder("archived:true", "types:\"Dataset\""));
+        assertThat(discoverQuery.getQuery(), is(query));
+        assertThat(discoverQuery.getDSpaceObjectFilters(), contains(IndexableItem.TYPE));
+        assertThat(discoverQuery.getFacetMinCount(), is(1));
+        assertThat(discoverQuery.getFacetFields(), hasSize(1));
+        assertThat(discoverQuery.getFacetFields(), contains(
+            discoverFacetFieldMatcher(new DiscoverFacetField("it_types", TYPE_AUTHORITY, 11, COUNT, "prefix", 10))
+        ));
+    }
+
     @Test(expected = IllegalArgumentException.class)
     public void testInvalidSearchFacet() throws Exception {
         queryBuilder.buildFacetQuery(context, scope, discoveryConfiguration, null, query,
