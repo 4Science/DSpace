@@ -50,6 +50,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 public class DiscoverQueryBuilder implements InitializingBean {
 
     private static final Logger log = org.apache.logging.log4j.LogManager.getLogger(DiscoverQueryBuilder.class);
+    private static final String AUTHORITY_OPERATOR = "authority";
 
     @Autowired
     private SearchService searchService;
@@ -459,7 +460,8 @@ public class DiscoverQueryBuilder implements InitializingBean {
                 }
 
                 String field = filter.getIndexFieldName();
-                if (filter instanceof MultiLanguageDiscoverSearchFilterFacet) {
+                if (filter instanceof MultiLanguageDiscoverSearchFilterFacet &&
+                    !AUTHORITY_OPERATOR.equals(searchFilter.getOperator())) {
                     field = context.getCurrentLocale().getLanguage() + "_" + field;
                 }
 
