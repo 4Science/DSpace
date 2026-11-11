@@ -39,6 +39,11 @@ import org.dspace.content.Collection;
 import org.dspace.content.Community;
 import org.dspace.content.Item;
 import org.dspace.content.WorkspaceItem;
+import org.dspace.content.authority.factory.ContentAuthorityServiceFactory;
+import org.dspace.content.authority.service.ChoiceAuthorityService;
+import org.dspace.content.authority.service.MetadataAuthorityService;
+import org.dspace.core.factory.CoreServiceFactory;
+import org.dspace.core.service.PluginService;
 import org.dspace.eperson.EPerson;
 import org.dspace.services.ConfigurationService;
 import org.dspace.services.factory.DSpaceServicesFactory;
@@ -234,11 +239,34 @@ public class BulkItemExportIT extends AbstractIntegrationTestWithDatabase {
     }
 
     @Test
-    @Ignore("Requires CRIS authority configuration (authority.controlled.person.affiliation.name), "
-        + "which is outside DURACOM-540 scope")
     public void testBulkItemExportWithConfiguration() throws Exception {
 
         context.turnOffAuthorisationSystem();
+
+        ConfigurationService configurationService = DSpaceServicesFactory.getInstance().getConfigurationService();
+        PluginService pluginService = CoreServiceFactory.getInstance().getPluginService();
+        ChoiceAuthorityService choiceAuthorityService =
+            ContentAuthorityServiceFactory.getInstance().getChoiceAuthorityService();
+        MetadataAuthorityService metadataAuthorityService =
+            ContentAuthorityServiceFactory.getInstance().getMetadataAuthorityService();
+
+        configurationService.setProperty("plugin.named.org.dspace.content.authority.ChoiceAuthority",
+                                         new String[] {
+                                             "org.dspace.content.authority.ItemAuthority = OrgUnitAuthority",
+                                             "org.dspace.content.authority.ItemAuthority = AuthorAuthority"
+                                         });
+        configurationService.setProperty("cris.ItemAuthority.OrgUnitAuthority.entityType", "OrgUnit");
+        configurationService.setProperty("cris.ItemAuthority.AuthorAuthority.entityType", "Person");
+        configurationService.setProperty("choices.plugin.person.affiliation.name", "OrgUnitAuthority");
+        configurationService.setProperty("choices.presentation.person.affiliation.name", "suggest");
+        configurationService.setProperty("authority.controlled.person.affiliation.name", "true");
+        configurationService.setProperty("choices.plugin.oairecerif.person.affiliation", "OrgUnitAuthority");
+        configurationService.setProperty("choices.presentation.oairecerif.person.affiliation", "suggest");
+        configurationService.setProperty("authority.controlled.oairecerif.person.affiliation", "true");
+        pluginService.clearNamedPluginClasses();
+        choiceAuthorityService.getChoiceAuthoritiesNames();
+        choiceAuthorityService.clearCache();
+        metadataAuthorityService.clearCache();
 
         Item orgUnit = ItemBuilder.createItem(context, collection)
             .withTitle("4Science")
