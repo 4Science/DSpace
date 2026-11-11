@@ -17,12 +17,10 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import org.dspace.content.EntityType;
 import org.dspace.content.Item;
 import org.dspace.content.Relationship;
 import org.dspace.content.RelationshipType;
 import org.dspace.content.integration.crosswalks.csl.CSLResult;
-import org.dspace.content.service.EntityTypeService;
 import org.dspace.content.service.RelationshipService;
 import org.dspace.content.service.RelationshipTypeService;
 import org.dspace.core.Context;
@@ -43,9 +41,6 @@ public class FirstSelectedCitationsPostProcessor implements VirtualFieldCitation
 
     @Autowired
     private RelationshipTypeService relationshipTypeService;
-
-    @Autowired
-    private EntityTypeService entityTypeService;
 
     @Override
     public CSLResult process(Context context, Item item, CSLResult cslResult) {
@@ -142,13 +137,16 @@ public class FirstSelectedCitationsPostProcessor implements VirtualFieldCitation
 
         try {
 
-            EntityType personType = entityTypeService.findByEntityType(context, "Person");
-            if (personType == null) {
-                return null;
-            }
-
-            return relationshipTypeService.findbyTypesAndTypeName(context, null, personType,
-                "isResearchoutputsSelectedFor", "hasSelectedResearchoutputs");
+            // main requires both entity types on a relationship type, so the
+            // CRIS lookup by (null leftType, Person rightType) cannot match. Identify the
+            // relationship type by its type names instead, which is entity-type agnostic.
+            return relationshipTypeService.findByLeftwardOrRightwardTypeName(context,
+                    "isResearchoutputsSelectedFor")
+                .stream()
+                .filter(relationshipType -> "hasSelectedResearchoutputs"
+                    .equals(relationshipType.getRightwardType()))
+                .findFirst()
+                .orElse(null);
 
         } catch (SQLException e) {
             throw new RuntimeException(e);

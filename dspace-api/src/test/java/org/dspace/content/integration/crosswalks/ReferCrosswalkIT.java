@@ -37,6 +37,7 @@ import java.util.Locale;
 
 import org.apache.commons.io.IOUtils;
 import org.dspace.AbstractIntegrationTestWithDatabase;
+import org.dspace.app.util.SubmissionConfigReaderException;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.builder.BitstreamBuilder;
 import org.dspace.builder.BundleBuilder;
@@ -71,6 +72,7 @@ import org.dspace.content.service.ItemService;
 import org.dspace.content.service.MetadataFieldService;
 import org.dspace.core.CrisConstants;
 import org.dspace.core.factory.CoreServiceFactory;
+import org.dspace.core.service.PluginService;
 import org.dspace.eperson.EPerson;
 import org.dspace.layout.DynamicLayoutBox;
 import org.dspace.layout.DynamicLayoutField;
@@ -80,7 +82,6 @@ import org.dspace.services.factory.DSpaceServicesFactory;
 import org.dspace.utils.DSpace;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 /**
@@ -116,8 +117,10 @@ public class ReferCrosswalkIT extends AbstractIntegrationTestWithDatabase {
 
     private MetadataFieldService metadataFieldService;
 
+    private PluginService pluginService;
+
     @Before
-    public void setup() throws SQLException, AuthorizeException {
+    public void setup() throws SQLException, AuthorizeException, SubmissionConfigReaderException {
 
         this.crosswalkMapper = new DSpace().getSingletonService(StreamDisseminationCrosswalkMapper.class);
         assertThat(crosswalkMapper, notNullValue());
@@ -134,6 +137,7 @@ public class ReferCrosswalkIT extends AbstractIntegrationTestWithDatabase {
         this.configurationService = DSpaceServicesFactory.getInstance().getConfigurationService();
         this.metadataAuthorityService = ContentAuthorityServiceFactory.getInstance().getMetadataAuthorityService();
         this.metadataFieldService = ContentServiceFactory.getInstance().getMetadataFieldService();
+        this.pluginService = CoreServiceFactory.getInstance().getPluginService();
         this.choiceAuthorityService = ContentAuthorityServiceFactory.getInstance().getChoiceAuthorityService();
 
 
@@ -196,6 +200,17 @@ public class ReferCrosswalkIT extends AbstractIntegrationTestWithDatabase {
                 configurationService.setProperty("authority.controlled." + field, true);
             }
         }
+        metadataAuthorityService.clearCache();
+
+        // CRIS enables authority control on dc.type and wires it to a controlled
+        // vocabulary (modules/authority.cfg). On main the equivalent ChoiceAuthority is the
+        // self-named DSpaceControlledVocabulary instance "publication-coar-types".
+        configurationService.setProperty("authority.controlled.dc.type", "true");
+        configurationService.setProperty("vocabulary.plugin.authority.store", "true");
+        configurationService.setProperty("choices.plugin.dc.type", "publication-coar-types");
+        configurationService.setProperty("choices.presentation.dc.type", "suggest");
+        pluginService.clearNamedPluginClasses();
+        choiceAuthorityService.clearCache();
         metadataAuthorityService.clearCache();
 
     }
@@ -1664,15 +1679,15 @@ public class ReferCrosswalkIT extends AbstractIntegrationTestWithDatabase {
     }
 
     @Test
-    @Ignore("Requires CRIS relation-indexing and vocabulary authority config not available on main")
     public void testVirtualFieldCitationsWithFirstSelectedPublication() throws Exception {
 
         context.turnOffAuthorisationSystem();
 
         EntityType personEntityType = createEntityTypeBuilder(context, "Person").build();
+        EntityType publicationEntityType = createEntityTypeBuilder(context, "Publication").build();
 
         RelationshipType selectedRelationshipType = createRelationshipTypeBuilder(context,
-                                                                                  null,
+                                                                                  publicationEntityType,
                                                                                   personEntityType,
                                                                                   "isResearchoutputsSelectedFor",
                                                                                   "hasSelectedResearchoutputs",
@@ -1689,6 +1704,7 @@ public class ReferCrosswalkIT extends AbstractIntegrationTestWithDatabase {
 
         Item firstPublication = ItemBuilder.createItem(context, collection)
                                .withTitle("First Publication")
+                               .withEntityType("Publication")
                                .withIssueDate("2020-01-01")
                                .withAuthor("John Smith", personItem.getID().toString())
                                .withAuthor("Walter White")
@@ -1699,6 +1715,7 @@ public class ReferCrosswalkIT extends AbstractIntegrationTestWithDatabase {
 
         Item secondPublication = ItemBuilder.createItem(context, collection)
                                 .withTitle("Second Publication")
+                               .withEntityType("Publication")
                                 .withIssueDate("2020-04-01")
                                 .withAuthor("John Smith", personItem.getID().toString())
                                 .withType("Controlled Vocabulary for Resource Type Genres::text::periodical::journal")
@@ -1707,6 +1724,7 @@ public class ReferCrosswalkIT extends AbstractIntegrationTestWithDatabase {
 
         Item thirdPublication = ItemBuilder.createItem(context, collection)
                                .withTitle("Third Publication")
+                               .withEntityType("Publication")
                                .withIssueDate("2022-03-02")
                                .withAuthor("John Smith", personItem.getID().toString())
                                .withType("Controlled Vocabulary for Resource Type Genres::text::periodical::journal")
@@ -2123,7 +2141,6 @@ public class ReferCrosswalkIT extends AbstractIntegrationTestWithDatabase {
 
 
     @Test
-    @Ignore("Requires CRIS ControlledVocabularyAuthority plugin (choices.plugin.dc.type) on main")
     public void testPublicationVirtualFieldWithVocabularyValuePairList() throws Exception {
 
         Locale defaultLocale = context.getCurrentLocale();
@@ -2199,7 +2216,6 @@ public class ReferCrosswalkIT extends AbstractIntegrationTestWithDatabase {
     }
 
     @Test
-    @Ignore("Requires CRIS ControlledVocabularyAuthority plugin (choices.plugin.dc.type) on main")
     public void testPublicationVirtualFieldValuePairList() throws Exception {
 
         context.turnOffAuthorisationSystem();
@@ -2236,7 +2252,6 @@ public class ReferCrosswalkIT extends AbstractIntegrationTestWithDatabase {
     }
 
     @Test
-    @Ignore("Requires CRIS ControlledVocabularyAuthority plugin (choices.plugin.dc.type) on main")
     public void testPublicationMultilanguageVirtualFieldValuePairList() throws Exception {
 
         Locale defaultLocale = context.getCurrentLocale();
