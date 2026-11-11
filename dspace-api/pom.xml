@@ -976,5 +976,38 @@
             <version>1.6.15</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>de.undercouch</groupId>
+            <artifactId>citeproc-java</artifactId>
+            <version>3.3.0</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.apache.commons</groupId>
+                    <artifactId>commons-lang3</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.jbibtex</groupId>
+                    <artifactId>jbibtex</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.antlr</groupId>
+                    <artifactId>antlr4-runtime</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.ow2.asm</groupId>
+                    <artifactId>asm-util</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.citationstyles</groupId>
+            <artifactId>styles</artifactId>
+            <version>25.4</version>
+        </dependency>
+        <dependency>
+            <groupId>org.citationstyles</groupId>
+            <artifactId>locales</artifactId>
+            <version>25.4</version>
+        </dependency>
     </dependencies>
 </project>

@@ -6,4 +6,15 @@
     <bean class="org.dspace.content.converter.ItemToItemDTOConverter" />
     <bean class="org.dspace.app.bulkimport.service.BulkImportWorkbookBuilderImpl" />
 
+    <bean class="org.dspace.content.integration.crosswalks.StreamDisseminationCrosswalkMapper">
+        <constructor-arg>
+            <map>
+                <!-- Crosswalk format entries are registered by later DURACOM-540 tickets
+                     (e.g. bibtex, endnote, publication-apa, publication-chicago, person-xml). -->
+            </map>
+        </constructor-arg>
+    </bean>
+
+    <bean class="org.dspace.content.integration.crosswalks.service.ItemExportFormatServiceImpl" />
+
 </beans>
