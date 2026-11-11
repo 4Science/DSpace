@@ -44,6 +44,9 @@
                 <entry key="project-pdf" value-ref="pdfCrosswalkProject"/>
                 <entry key="orgUnit-pdf" value-ref="pdfCrosswalkOrgUnit"/>
                 <entry key="funding-pdf" value-ref="pdfCrosswalkFunding"/>
+                <entry key="publication-datacite-xml" value-ref="referCrosswalkPublicationDataciteXml"/>
+                <entry key="collection-xls" value-ref="xlsCrosswalkCollection"/>
+                <entry key="item-zip" value-ref="zipCrosswalk"/>
             </map>
         </constructor-arg>
     </bean>
@@ -511,6 +514,23 @@
 		<property name="crosswalkMode" value="#{T(org.dspace.content.crosswalk.CrosswalkMode).SINGLE}"/>
 		<property name="converter" ref="xmlValueConverter" />
 	</bean>
+
+	<bean class="org.dspace.content.integration.crosswalks.XlsCollectionCrosswalk" id="xlsCrosswalkCollection"/>
+
+	<bean class="org.dspace.content.integration.crosswalks.ZipItemExportCrosswalk" id="zipCrosswalk">
+		<property name="zipName" value="items.zip"/>
+		<property name="bitstreamBundle" value="ORIGINAL"/>
+		<property name="metadataFileName" value="mets.xml"/>
+		<property name="crosswalk" ref="metsCrosswalk"/>
+		<property name="allowedGroups">
+			<list>
+				<value>Administrator</value>
+				<value>Curators</value>
+			</list>
+		</property>
+	</bean>
+
+	<bean class="org.dspace.content.integration.crosswalks.METSStreamDisseminationCrosswalk" id="metsCrosswalk"/>
 
 	<bean class="org.dspace.content.integration.crosswalks.postprocessors.JsonPostProcessor" id="jsonPostProcessor" />
 
