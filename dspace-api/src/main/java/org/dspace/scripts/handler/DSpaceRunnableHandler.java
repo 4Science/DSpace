@@ -141,5 +141,11 @@ public interface DSpaceRunnableHandler {
      */
     public List<UUID> getSpecialGroups();
 
+    /**
+     * This method returns the {@link Locale} associated with the current script execution. The exact value
+     * depends on the implementation: a REST call carries the requesting user's locale, while a CommandLine
+     * call falls back to the DSpace default locale.
+     * @return the Locale associated with the current script execution
+     */
     public Locale getLocale();
 }

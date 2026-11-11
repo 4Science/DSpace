@@ -244,10 +244,11 @@ public class ProcessServiceImpl implements ProcessService {
         try {
             context.turnOffAuthorisationSystem();
             bitstreamService.update(context, bitstream);
-            context.restoreAuthSystemState();
         } catch (SQLException | AuthorizeException e) {
             log.info(e.getMessage());
             throw new RuntimeException(e.getMessage(), e);
+        } finally {
+            context.restoreAuthSystemState();
         }
         process.addBitstream(bitstream);
         update(context, process);
