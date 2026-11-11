@@ -8,7 +8,7 @@
 package org.dspace.content.integration.crosswalks.virtualfields;
 
 import static java.awt.image.BufferedImage.TYPE_INT_RGB;
-import static org.apache.commons.lang.StringUtils.startsWith;
+import static org.apache.commons.lang3.StringUtils.startsWith;
 
 import java.awt.Color;
 import java.awt.image.BufferedImage;

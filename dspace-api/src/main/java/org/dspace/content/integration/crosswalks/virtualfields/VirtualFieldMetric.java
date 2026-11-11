@@ -8,7 +8,7 @@
 package org.dspace.content.integration.crosswalks.virtualfields;
 import java.util.List;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.dspace.app.metrics.CrisMetrics;
 import org.dspace.content.Item;
 import org.dspace.core.Context;

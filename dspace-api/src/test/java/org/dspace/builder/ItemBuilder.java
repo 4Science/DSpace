@@ -345,6 +345,10 @@ public class ItemBuilder extends AbstractDSpaceObjectBuilder<Item> {
         return addMetadataValue(item, "person", "identifier", "orcid", orcid);
     }
 
+    public ItemBuilder withJobTitle(String jobTitle) {
+        return setMetadataSingleValue(item, "person", "jobTitle", null, jobTitle);
+    }
+
     public ItemBuilder withOrcidAccessToken(String accessToken, EPerson owner) {
 
         try {

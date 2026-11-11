@@ -116,6 +116,11 @@
         <property name="dspaceRunnableClass" value="org.dspace.app.itemimport.ItemImportCLI"/>
     </bean>
 
+    <bean id="item-export" class="org.dspace.content.integration.crosswalks.script.ItemExportCliScriptConfiguration">
+        <property name="description" value="Perform the item export in the given format"/>
+        <property name="dspaceRunnableClass" value="org.dspace.content.integration.crosswalks.script.ItemExportCli"/>
+    </bean>
+
     <bean id="export" class="org.dspace.app.itemexport.ItemExportCLIScriptConfiguration" primary="true">
         <property name="description" value="Batch Export to Simple Archive Format (SAF)"/>
         <property name="dspaceRunnableClass" value="org.dspace.app.itemexport.ItemExportCLI"/>

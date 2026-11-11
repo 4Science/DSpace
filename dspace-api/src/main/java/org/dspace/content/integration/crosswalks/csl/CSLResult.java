@@ -7,7 +7,7 @@
  */
 package org.dspace.content.integration.crosswalks.csl;
 
-import static org.apache.commons.lang.ArrayUtils.nullToEmpty;
+import static org.apache.commons.lang3.ArrayUtils.nullToEmpty;
 
 import java.util.Arrays;
 import java.util.Collection;

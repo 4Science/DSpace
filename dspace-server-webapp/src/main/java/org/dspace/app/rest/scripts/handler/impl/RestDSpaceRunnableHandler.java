@@ -14,6 +14,7 @@ import java.io.StringWriter;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -28,6 +29,7 @@ import org.dspace.content.ProcessStatus;
 import org.dspace.content.factory.ContentServiceFactory;
 import org.dspace.content.service.BitstreamService;
 import org.dspace.core.Context;
+import org.dspace.core.I18nUtil;
 import org.dspace.eperson.EPerson;
 import org.dspace.eperson.Group;
 import org.dspace.eperson.factory.EPersonServiceFactory;
@@ -331,6 +333,11 @@ public class RestDSpaceRunnableHandler implements DSpaceRunnableHandler {
             }
         }
         return specialGroups;
+    }
+
+    @Override
+    public Locale getLocale() {
+        return I18nUtil.getDefaultLocale();
     }
 
     /**

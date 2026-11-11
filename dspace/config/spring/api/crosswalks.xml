@@ -9,8 +9,9 @@
     <bean class="org.dspace.content.integration.crosswalks.StreamDisseminationCrosswalkMapper">
         <constructor-arg>
             <map>
-                <!-- Crosswalk format entries are registered by later DURACOM-540 tickets
-                     (e.g. bibtex, endnote, publication-apa, publication-chicago, person-xml). -->
+                <entry key="person-xml" value-ref="referCrosswalkPersonXml"/>
+                <!-- Further crosswalk format entries are registered by later DURACOM-540 tickets
+                     (e.g. bibtex, endnote, publication-apa, publication-chicago). -->
             </map>
         </constructor-arg>
     </bean>
@@ -51,6 +52,7 @@
         id="virtualFieldToEnhancedMetadata" />
 	<bean class="org.dspace.content.integration.crosswalks.virtualfields.VirtualFieldId" id="virtualFieldId"/>
 	<bean class="org.dspace.content.integration.crosswalks.virtualfields.VirtualFieldAuthority" id="virtualFieldAuthority"/>
+	<bean class="org.dspace.content.integration.crosswalks.virtualfields.ItemDOIService"/>
 	<bean class="org.dspace.content.integration.crosswalks.virtualfields.VirtualFieldPrimaryDOI" id="virtualFieldPrimaryDOI"/>
 	<bean class="org.dspace.content.integration.crosswalks.virtualfields.VirtualFieldAlternativeDOI" id="virtualFieldAlternativeDOI"/>
 	<bean class="org.dspace.content.integration.crosswalks.virtualfields.VirtualFieldRefererType" id="virtualFieldRefererType"/>
@@ -99,6 +101,11 @@
     <bean class="org.dspace.content.integration.crosswalks.virtualfields.postprocessors.FirstSelectedCitationsPostProcessor" />
     <bean class="org.dspace.content.integration.crosswalks.virtualfields.postprocessors.GroupByTypeCitationsPostProcessor" />
 	<bean class="org.dspace.content.integration.crosswalks.virtualfields.VirtualFieldAtPlace" id="virtualFieldAtPlace"/>
+
+	<!-- CSL citation generators (used by VirtualFieldCitations) -->
+	<bean class="org.dspace.content.integration.crosswalks.csl.CSLGeneratorFactory" />
+	<bean class="org.dspace.content.integration.crosswalks.csl.CSLNestedGenerator" />
+	<bean class="org.dspace.content.integration.crosswalks.csl.CSLWebServiceGenerator" />
 
 	<!-- MapConverter configuration -->
 
@@ -227,5 +234,32 @@
         <property name="configurationService" ref="org.dspace.services.ConfigurationService" />
         <property name="defaultValue" value=""/>
     </bean>
+
+	<!-- REFER CROSSWALK CONFIGURATION -->
+
+	<bean class="org.dspace.content.integration.crosswalks.converter.XmlValueConverter" id="xmlValueConverter" />
+	<bean class="org.dspace.content.integration.crosswalks.converter.JsonValueConverter" id="jsonValueConverter" />
+
+	<bean class="org.dspace.content.integration.crosswalks.ReferCrosswalk" id="referCrosswalkPersonXml">
+		<property name="templateFileName" value="crosswalks/template/person-xml.template"/>
+		<property name="mimeType" value="application/xml; charset=UTF-8"/>
+		<property name="fileName" value="person.xml"/>
+		<property name="entityType" value="Person"/>
+		<property name="crosswalkMode" value="#{T(org.dspace.content.crosswalk.CrosswalkMode).SINGLE_AND_MULTIPLE}"/>
+		<property name="multipleItemsTemplateFileName" value="crosswalks/template/persons-xml.template"/>
+		<property name="converter" ref="xmlValueConverter" />
+	</bean>
+
+	<bean class="org.dspace.content.integration.crosswalks.evaluators.ConditionEvaluatorMapper" id="conditionEvaluatorMapper">
+		<constructor-arg name="conditionEvaluators">
+			<map>
+				<entry key="authority" value-ref="authorityConditionEvaluator" />
+				<entry key="metadata" value-ref="metadataConditionEvaluator" />
+			</map>
+		</constructor-arg>
+	</bean>
+
+	<bean class="org.dspace.content.integration.crosswalks.evaluators.AuthorityNotBlankCondition" id="authorityConditionEvaluator"/>
+	<bean class="org.dspace.content.integration.crosswalks.evaluators.HasMetadataCondition" id="metadataConditionEvaluator"/>
 
 </beans>
