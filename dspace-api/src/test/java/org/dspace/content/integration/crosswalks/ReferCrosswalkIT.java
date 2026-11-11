@@ -679,7 +679,6 @@ public class ReferCrosswalkIT extends AbstractIntegrationTestWithDatabase {
     }
 
     @Test
-    @Ignore("Requires CRIS relation groups indexed in Solr (RELATION.Project.fundings)")
     public void testPublicationXmlDisseminate() throws Exception {
 
         context.turnOffAuthorisationSystem();
@@ -756,7 +755,6 @@ public class ReferCrosswalkIT extends AbstractIntegrationTestWithDatabase {
     }
 
     @Test
-    @Ignore("Requires CRIS relation groups indexed in Solr (RELATION.Project.fundings)")
     public void testPublicationXmlDisseminateWithAuthorityOnFunder() throws Exception {
 
         context.turnOffAuthorisationSystem();
@@ -922,7 +920,6 @@ public class ReferCrosswalkIT extends AbstractIntegrationTestWithDatabase {
     }
 
     @Test
-    @Ignore("Requires CRIS relation groups indexed in Solr (RELATION.Project.fundings)")
     public void testProjectXmlDisseminate() throws Exception {
 
         context.turnOffAuthorisationSystem();
@@ -980,7 +977,6 @@ public class ReferCrosswalkIT extends AbstractIntegrationTestWithDatabase {
     }
 
     @Test
-    @Ignore("Requires CRIS relation groups indexed in Solr (RELATION.Project.fundings)")
     public void testProjectJsonDisseminate() throws Exception {
 
         context.turnOffAuthorisationSystem();
