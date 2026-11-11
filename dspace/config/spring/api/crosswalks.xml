@@ -10,8 +10,9 @@
         <constructor-arg>
             <map>
                 <entry key="person-xml" value-ref="referCrosswalkPersonXml"/>
+                <entry key="endnote" value-ref="referCrosswalkEndnote"/>
                 <!-- Further crosswalk format entries are registered by later DURACOM-540 tickets
-                     (e.g. bibtex, endnote, publication-apa, publication-chicago). -->
+                     (e.g. bibtex, publication-apa, publication-chicago). -->
             </map>
         </constructor-arg>
     </bean>
@@ -248,6 +249,14 @@
 		<property name="crosswalkMode" value="#{T(org.dspace.content.crosswalk.CrosswalkMode).SINGLE_AND_MULTIPLE}"/>
 		<property name="multipleItemsTemplateFileName" value="crosswalks/template/persons-xml.template"/>
 		<property name="converter" ref="xmlValueConverter" />
+	</bean>
+
+	<bean class="org.dspace.content.integration.crosswalks.ReferCrosswalk" id="referCrosswalkEndnote">
+		<property name="templateFileName" value="crosswalks/template/endnote.template"/>
+		<property name="mimeType" value="application/x-endnote-refer; charset=UTF-8"/>
+		<property name="fileName" value="publication"/>
+		<property name="entityType" value="Publication"/>
+		<property name="crosswalkMode" value="#{T(org.dspace.content.crosswalk.CrosswalkMode).SINGLE}"/>
 	</bean>
 
 	<bean class="org.dspace.content.integration.crosswalks.evaluators.ConditionEvaluatorMapper" id="conditionEvaluatorMapper">

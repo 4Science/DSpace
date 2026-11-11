@@ -234,7 +234,8 @@ public class BulkItemExportIT extends AbstractIntegrationTestWithDatabase {
     }
 
     @Test
-    @Ignore("Requires CRIS authority configuration (authority.controlled.person.affiliation.name), which is outside DURACOM-540 scope")
+    @Ignore("Requires CRIS authority configuration (authority.controlled.person.affiliation.name), "
+        + "which is outside DURACOM-540 scope")
     public void testBulkItemExportWithConfiguration() throws Exception {
 
         context.turnOffAuthorisationSystem();

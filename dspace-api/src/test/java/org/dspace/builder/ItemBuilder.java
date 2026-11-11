@@ -320,6 +320,26 @@ public class ItemBuilder extends AbstractDSpaceObjectBuilder<Item> {
         return addMetadataValue(item, "dc", "relation", "ispartof", isPartOf);
     }
 
+    public ItemBuilder withPublisher(String publisher) {
+        return addMetadataValue(item, "dc", "publisher", null, publisher);
+    }
+
+    public ItemBuilder withVolume(String volume) {
+        return addMetadataValue(item, "oaire", "citation", "volume", volume);
+    }
+
+    public ItemBuilder withIssue(String issue) {
+        return addMetadataValue(item, "oaire", "citation", "issue", issue);
+    }
+
+    public ItemBuilder withCitationStartPage(String startPage) {
+        return addMetadataValue(item, "oaire", "citation", "startPage", startPage);
+    }
+
+    public ItemBuilder withCitationEndPage(String endPage) {
+        return addMetadataValue(item, "oaire", "citation", "endPage", endPage);
+    }
+
     public ItemBuilder withDspaceObjectOwner(EPerson ePerson) {
         return withDspaceObjectOwner(ePerson.getFullName(), ePerson.getID().toString());
     }
