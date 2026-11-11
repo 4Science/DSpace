@@ -24,6 +24,8 @@
                 <entry key="orgUnit-json" value-ref="referCrosswalkOrgUnitJson"/>
                 <entry key="funding-cerif-xml" value-ref="referCrosswalkFundingCerifXml"/>
                 <entry key="funding-json" value-ref="referCrosswalkFundingJson"/>
+                <entry key="publication-csv" value-ref="csvCrosswalkPublication"/>
+                <entry key="publication-xls" value-ref="xlsCrosswalkPublication"/>
             </map>
         </constructor-arg>
     </bean>
@@ -416,6 +418,23 @@
 	</bean>
 
 	<bean class="org.dspace.content.integration.crosswalks.postprocessors.JsonPostProcessor" id="jsonPostProcessor" />
+
+	<!-- TABULAR CROSSWALKS -->
+
+	<bean class="org.dspace.content.integration.crosswalks.CsvCrosswalk" id="csvCrosswalkPublication">
+		<property name="templateFileName" value="crosswalks/template/publication-table.template"/>
+		<property name="fileName" value="publications.csv"/>
+		<property name="entityType" value="Publication"/>
+		<property name="crosswalkMode" value="#{T(org.dspace.content.crosswalk.CrosswalkMode).MULTIPLE}"/>
+	</bean>
+
+	<bean class="org.dspace.content.integration.crosswalks.XlsCrosswalk" id="xlsCrosswalkPublication">
+		<property name="templateFileName" value="crosswalks/template/publication-table.template"/>
+		<property name="fileName" value="publications.xls"/>
+		<property name="sheetName" value="Publications"/>
+		<property name="entityType" value="Publication"/>
+		<property name="crosswalkMode" value="#{T(org.dspace.content.crosswalk.CrosswalkMode).MULTIPLE}"/>
+	</bean>
 
 	<bean class="org.dspace.content.integration.crosswalks.evaluators.ConditionEvaluatorMapper" id="conditionEvaluatorMapper">
 		<constructor-arg name="conditionEvaluators">

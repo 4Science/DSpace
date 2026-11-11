@@ -40,6 +40,13 @@ import org.dspace.AbstractIntegrationTestWithDatabase;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.builder.BitstreamBuilder;
 import org.dspace.builder.BundleBuilder;
+import org.dspace.builder.CollectionBuilder;
+import org.dspace.builder.CommunityBuilder;
+import org.dspace.builder.DynamicLayoutBoxBuilder;
+import org.dspace.builder.DynamicLayoutFieldBuilder;
+import org.dspace.builder.EPersonBuilder;
+import org.dspace.builder.EntityTypeBuilder;
+import org.dspace.builder.GroupBuilder;
 import org.dspace.builder.ItemBuilder;
 import org.dspace.content.Bitstream;
 import org.dspace.content.Bundle;
@@ -48,6 +55,7 @@ import org.dspace.content.Community;
 import org.dspace.content.EntityType;
 import org.dspace.content.Item;
 import org.dspace.content.ItemServiceImpl;
+import org.dspace.content.MetadataField;
 import org.dspace.content.MetadataFieldServiceImpl;
 import org.dspace.content.RelationshipType;
 import org.dspace.content.authority.Choices;
@@ -63,6 +71,10 @@ import org.dspace.content.service.ItemService;
 import org.dspace.content.service.MetadataFieldService;
 import org.dspace.core.CrisConstants;
 import org.dspace.core.factory.CoreServiceFactory;
+import org.dspace.eperson.EPerson;
+import org.dspace.layout.DynamicLayoutBox;
+import org.dspace.layout.DynamicLayoutField;
+import org.dspace.layout.LayoutSecurity;
 import org.dspace.services.ConfigurationService;
 import org.dspace.services.factory.DSpaceServicesFactory;
 import org.dspace.utils.DSpace;
@@ -2371,4 +2383,296 @@ public class ReferCrosswalkIT extends AbstractIntegrationTestWithDatabase {
     private FileInputStream getFileInputStream(String name) throws FileNotFoundException {
         return new FileInputStream(new File(BASE_OUTPUT_DIR_PATH, name));
     }
+
+    @Test
+    public void testFundingXmlDisseminateWithRestrictedMetadata() throws Exception {
+        context.turnOffAuthorisationSystem();
+
+        EntityType entityType = EntityTypeBuilder.createEntityTypeBuilder(context, "Funding").build();
+        MetadataField currency = mfss.findByElement(context,
+            "oairecerif","amount","currency");
+        MetadataField amount = mfss.findByElement(context,
+            "oairecerif","amount",null);
+
+        DynamicLayoutField crisLayoutFieldCurrency = DynamicLayoutFieldBuilder.createMetadataField(context,currency,1,1)
+            .build();
+        DynamicLayoutField crisLayoutFieldAmount = DynamicLayoutFieldBuilder.createMetadataField(context,amount,0,1)
+            .build();
+
+        DynamicLayoutBoxBuilder.createBuilder(context, entityType, false, false)
+            .withType("METADATA")
+            .withShortname("financialdata")
+            .addMetadataSecurityField(currency)
+            .addMetadataSecurityField(amount)
+            .addField(crisLayoutFieldCurrency)
+            .addField(crisLayoutFieldAmount)
+            .withSecurity(LayoutSecurity.CUSTOM_DATA).build();
+
+        Item funding = ItemBuilder.createItem(context, collection)
+            .withEntityType("Funding")
+            .withAcronym("T-FU")
+            .withTitle("Test Funding")
+            .withType("Gift")
+            .withInternalId("ID-01")
+            .withFundingIdentifier("0001")
+            .withDescription("Funding to test export")
+            .withAmount("30.000,00")
+            .withAmountCurrency("EUR")
+            .withFunder("OrgUnit Funder")
+            .withFundingStartDate("2015-01-01")
+            .withFundingEndDate("2020-01-01")
+            .withOAMandate("true")
+            .withOAMandateURL("www.mandate.url")
+            .build();
+
+        context.restoreAuthSystemState();
+        context.commit();
+
+        ReferCrosswalk referCrossWalk = (ReferCrosswalk) crosswalkMapper.getByType("funding-cerif-xml");
+        assertThat(referCrossWalk, notNullValue());
+
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        referCrossWalk.disseminate(context, funding, out);
+
+        try (FileInputStream fis = getFileInputStream("funding1.xml")) {
+            String expectedContent = IOUtils.toString(fis, Charset.defaultCharset());
+            compareEachLine(out.toString(), expectedContent);
+        }
+
+    }
+
+    @Test
+    public void xmlDisseminateMetadataSecurityFirstLevelTest() throws Exception {
+        context.turnOffAuthorisationSystem();
+        parentCommunity = CommunityBuilder.createCommunity(context).build();
+        Collection col = CollectionBuilder.createCollection(context, parentCommunity)
+                                          .withEntityType("Publication")
+                                          .withName("Collection Title").build();
+
+        Item item = ItemBuilder.createItem(context, col)
+                               .withDoiIdentifier("doi:111.111/publication")
+                               .withIssueDate("2020-01-01")
+                               .build();
+
+        itemService.addSecuredMetadata(context, item, "dc", "title", null, null, "Title test", null, 0, 0);
+        itemService.addSecuredMetadata(context, item, "dc", "subject", null, null, "Subject test", null, 0, 1);
+        itemService.addSecuredMetadata(context, item, "dc", "contributor", "author", null, "John Smith", null, 0, 2);
+
+        MetadataField subject = mfss.findByElement(context, "dc", "subject", null);
+        MetadataField title = mfss.findByElement(context, "dc", "title", null);
+        MetadataField contributor = mfss.findByElement(context, "dc", "contributor", "author");
+
+        EntityType eType = EntityTypeBuilder.createEntityTypeBuilder(context, "Publication").build();
+        DynamicLayoutBox box1 = DynamicLayoutBoxBuilder.createBuilder(context, eType, true, true)
+                                                 .withShortname("box-shortname-one")
+                                                 .withSecurity(LayoutSecurity.PUBLIC)
+                                                 .build();
+
+        DynamicLayoutFieldBuilder.createMetadataField(context, title, 0, 0)
+                              .withLabel("LABEL TITLE")
+                              .withRendering("RENDERIGN TITLE")
+                              .withRowStyle("STYLE")
+                              .withBox(box1)
+                              .build();
+
+        DynamicLayoutFieldBuilder.createMetadataField(context, subject, 1, 0)
+                              .withLabel("LABEL SUBJECT")
+                              .withRendering("RENDERIGN SUBJECT")
+                              .withRowStyle("STYLE")
+                              .withBox(box1)
+                              .build();
+
+        DynamicLayoutFieldBuilder.createMetadataField(context, contributor, 2, 0)
+                              .withLabel("LABEL CONTRBUTOR")
+                              .withRendering("RENDERIGN CONTRIBUTOR")
+                              .withRowStyle("STYLE")
+                              .withBox(box1)
+                              .build();
+
+        context.restoreAuthSystemState();
+        context.commit();
+        context.setCurrentUser(null);
+
+        ReferCrosswalk referCrossWalk = (ReferCrosswalk) crosswalkMapper.getByType("publication-cerif-xml");
+        assertThat(referCrossWalk, notNullValue());
+
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        referCrossWalk.disseminate(context, Arrays.asList(item).iterator(), out);
+
+        try (FileInputStream fis = getFileInputStream("publications2.xml")) {
+            String expectedXml = IOUtils.toString(fis, Charset.defaultCharset());
+            compareEachLine(out.toString(), expectedXml);
+        }
+    }
+
+    @Test
+    public void xmlDisseminateMetadataSecuritySecondLevelTest() throws Exception {
+        context.turnOffAuthorisationSystem();
+
+        EPerson user = EPersonBuilder.createEPerson(context)
+                                      .withEmail("test-email@test.com")
+                                      .withPassword(password)
+                                      .withNameInMetadata("Bob", "Charlton")
+                                      .build();
+
+        GroupBuilder.createGroup(context)
+                    .withName("Trusted")
+                    .addMember(user)
+                    .build();
+
+        parentCommunity = CommunityBuilder.createCommunity(context).build();
+        Collection col = CollectionBuilder.createCollection(context, parentCommunity)
+                                          .withEntityType("Publication")
+                                          .withName("Collection Title").build();
+
+        Item item = ItemBuilder.createItem(context, col)
+                               .withDoiIdentifier("doi:111.111/publication")
+                               .withIssueDate("2020-01-01")
+                               .build();
+
+        itemService.addSecuredMetadata(context, item, "dc", "title", null, null, "Title test", null, 0, 0);
+        itemService.addSecuredMetadata(context, item, "dc", "subject", null, null, "Subject test", null, 0, 1);
+        itemService.addSecuredMetadata(context, item, "dc", "contributor", "author", null, "John Smith", null, 0, 2);
+
+        MetadataField subject = mfss.findByElement(context, "dc", "subject", null);
+        MetadataField title = mfss.findByElement(context, "dc", "title", null);
+        MetadataField contributor = mfss.findByElement(context, "dc", "contributor", "author");
+
+        EntityType eType = EntityTypeBuilder.createEntityTypeBuilder(context, "Publication").build();
+        DynamicLayoutBox box1 = DynamicLayoutBoxBuilder.createBuilder(context, eType, true, true)
+                                                 .withShortname("box-shortname-one")
+                                                 .withSecurity(LayoutSecurity.PUBLIC)
+                                                 .build();
+
+        DynamicLayoutFieldBuilder.createMetadataField(context, title, 0, 0)
+                              .withLabel("LABEL TITLE")
+                              .withRendering("RENDERIGN TITLE")
+                              .withRowStyle("STYLE")
+                              .withBox(box1)
+                              .build();
+
+        DynamicLayoutFieldBuilder.createMetadataField(context, subject, 1, 0)
+                              .withLabel("LABEL SUBJECT")
+                              .withRendering("RENDERIGN SUBJECT")
+                              .withRowStyle("STYLE")
+                              .withBox(box1)
+                              .build();
+
+        DynamicLayoutFieldBuilder.createMetadataField(context, contributor, 2, 0)
+                              .withLabel("LABEL CONTRBUTOR")
+                              .withRendering("RENDERIGN CONTRIBUTOR")
+                              .withRowStyle("STYLE")
+                              .withBox(box1)
+                              .build();
+
+        context.restoreAuthSystemState();
+        context.commit();
+
+        // disseminate with user that belongs to 'Trusted' group
+        context.setCurrentUser(user);
+
+        ReferCrosswalk referCrossWalk = (ReferCrosswalk) crosswalkMapper.getByType("publication-cerif-xml");
+        assertThat(referCrossWalk, notNullValue());
+
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        referCrossWalk.disseminate(context, Arrays.asList(item).iterator(), out);
+
+        try (FileInputStream fis = getFileInputStream("publications3.xml")) {
+            compareEachLine(out.toString(), IOUtils.toString(fis, Charset.defaultCharset()));
+        }
+
+        // disseminate with user that does not belongs to 'Trusted' group
+        context.setCurrentUser(eperson);
+
+        ByteArrayOutputStream out2 = new ByteArrayOutputStream();
+        referCrossWalk.disseminate(context, Arrays.asList(item).iterator(), out2);
+
+        try (FileInputStream fis = getFileInputStream("publications2.xml")) {
+            compareEachLine(out2.toString(), IOUtils.toString(fis, Charset.defaultCharset()));
+        }
+    }
+
+    @Test
+    public void xmlDisseminateMetadataSecurityThirdLevelTest() throws Exception {
+        context.turnOffAuthorisationSystem();
+
+        EPerson owner = EPersonBuilder.createEPerson(context)
+                                      .withEmail("test-email@test.com")
+                                      .withPassword(password)
+                                      .withNameInMetadata("Bob", "Charlton")
+                                      .build();
+
+        parentCommunity = CommunityBuilder.createCommunity(context).build();
+        Collection col = CollectionBuilder.createCollection(context, parentCommunity)
+                                          .withEntityType("Publication")
+                                          .withName("Collection Title").build();
+
+        Item item = ItemBuilder.createItem(context, col)
+                               .withDoiIdentifier("doi:111.111/publication")
+                               .withDspaceObjectOwner("Owner", owner.getID().toString())
+                               .withIssueDate("2020-01-01")
+                               .build();
+
+        itemService.addSecuredMetadata(context, item, "dc", "title", null, null, "Title test", null, 0, 0);
+        itemService.addSecuredMetadata(context, item, "dc", "subject", null, null, "Subject test", null, 0, 1);
+        itemService.addSecuredMetadata(context, item, "dc", "contributor", "author", null, "John Smith", null, 0, 2);
+
+        MetadataField subject = mfss.findByElement(context, "dc", "subject", null);
+        MetadataField title = mfss.findByElement(context, "dc", "title", null);
+        MetadataField contributor = mfss.findByElement(context, "dc", "contributor", "author");
+
+        EntityType eType = EntityTypeBuilder.createEntityTypeBuilder(context, "Publication").build();
+        DynamicLayoutBox box1 = DynamicLayoutBoxBuilder.createBuilder(context, eType, true, true)
+                                                 .withShortname("box-shortname-one")
+                                                 .withSecurity(LayoutSecurity.PUBLIC)
+                                                 .build();
+
+        DynamicLayoutFieldBuilder.createMetadataField(context, title, 0, 0)
+                              .withLabel("LABEL TITLE")
+                              .withRendering("RENDERIGN TITLE")
+                              .withRowStyle("STYLE")
+                              .withBox(box1)
+                              .build();
+
+        DynamicLayoutFieldBuilder.createMetadataField(context, subject, 1, 0)
+                              .withLabel("LABEL SUBJECT")
+                              .withRendering("RENDERIGN SUBJECT")
+                              .withRowStyle("STYLE")
+                              .withBox(box1)
+                              .build();
+
+        DynamicLayoutFieldBuilder.createMetadataField(context, contributor, 2, 0)
+                              .withLabel("LABEL CONTRBUTOR")
+                              .withRendering("RENDERIGN CONTRIBUTOR")
+                              .withRowStyle("STYLE")
+                              .withBox(box1)
+                              .build();
+
+        context.restoreAuthSystemState();
+        context.commit();
+
+        // disseminate with admin
+        context.setCurrentUser(admin);
+
+        ReferCrosswalk referCrossWalk = (ReferCrosswalk) crosswalkMapper.getByType("publication-cerif-xml");
+        assertThat(referCrossWalk, notNullValue());
+
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        referCrossWalk.disseminate(context, Arrays.asList(item).iterator(), out);
+
+        try (FileInputStream fis = getFileInputStream("publications4.xml")) {
+            compareEachLine(out.toString(), IOUtils.toString(fis, Charset.defaultCharset()));
+        }
+
+        // disseminate with owner of item
+        context.setCurrentUser(owner);
+
+        ByteArrayOutputStream out2 = new ByteArrayOutputStream();
+        referCrossWalk.disseminate(context, Arrays.asList(item).iterator(), out2);
+
+        try (FileInputStream fis = getFileInputStream("publications4.xml")) {
+            compareEachLine(out2.toString(), IOUtils.toString(fis, Charset.defaultCharset()));
+        }
+    }
+
 }

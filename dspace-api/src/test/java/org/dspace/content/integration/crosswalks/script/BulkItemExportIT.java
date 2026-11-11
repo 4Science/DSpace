@@ -49,7 +49,6 @@ import org.dspace.services.ConfigurationService;
 import org.dspace.services.factory.DSpaceServicesFactory;
 import org.dspace.workflow.WorkflowItem;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 /**
@@ -695,7 +694,6 @@ public class BulkItemExportIT extends AbstractIntegrationTestWithDatabase {
     }
 
     @Test
-    @Ignore("Requires the publication-csv (tabular) crosswalk, which is outside DURACOM-540 (citation formats only)")
     public void bulkItemExportWithDateIssuedAndLeftLimitTest() throws Exception {
         context.turnOffAuthorisationSystem();
         createItem(collection, "Edward Red", "Science", "Person");
@@ -740,7 +738,6 @@ public class BulkItemExportIT extends AbstractIntegrationTestWithDatabase {
     }
 
     @Test
-    @Ignore("Requires the publication-csv (tabular) crosswalk, which is outside DURACOM-540 (citation formats only)")
     public void bulkItemExportWithDateIssuedAndLeftLimitWithoutOperatorEqualsTest() throws Exception {
         context.turnOffAuthorisationSystem();
         createItem(collection, "Edward Red", "Science", "Person");
@@ -784,7 +781,6 @@ public class BulkItemExportIT extends AbstractIntegrationTestWithDatabase {
     }
 
     @Test
-    @Ignore("Requires the publication-csv (tabular) crosswalk, which is outside DURACOM-540 (citation formats only)")
     public void bulkItemExportWithDateIssuedAndRightLimitTest() throws Exception {
         context.turnOffAuthorisationSystem();
         createItem(collection, "Edward Red", "Science", "Person");
@@ -829,7 +825,6 @@ public class BulkItemExportIT extends AbstractIntegrationTestWithDatabase {
     }
 
     @Test
-    @Ignore("Requires the publication-csv (tabular) crosswalk, which is outside DURACOM-540 (citation formats only)")
     public void bulkItemExportWithDateIssuedAndOnlySpecificYearTest() throws Exception {
         context.turnOffAuthorisationSystem();
         createItem(collection, "Edward Red", "Science", "Person");
