@@ -7,7 +7,10 @@
  */
 package org.dspace.discovery.configuration;
 
+import static org.apache.commons.collections4.iterators.EmptyIterator.emptyIterator;
+
 import java.text.MessageFormat;
+import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
 
@@ -58,6 +61,23 @@ public class DiscoveryConfigurationUtilsService {
         discoverQuery.setMaxResults(0);
 
         return new DiscoverResultIterator<Item, UUID>(context, discoverQuery, false).getTotalSearchResults();
+    }
+
+    /**
+     * Finds the items related to the given item through the named relation.
+     *
+     * @param context the DSpace context
+     * @param item the item whose related items are found
+     * @param relationName the name of the relation
+     * @return an iterator over the related items, an empty iterator if none is found
+     */
+    public Iterator<Item> findByRelation(Context context, Item item, String relationName) {
+        DiscoverQuery discoverQuery = buildRelationQuery(item, relationName);
+        if (discoverQuery == null) {
+            return emptyIterator();
+        }
+
+        return new DiscoverResultIterator<Item, UUID>(context, discoverQuery);
     }
 
     private DiscoverQuery buildRelationQuery(Item item, String relationName) {
