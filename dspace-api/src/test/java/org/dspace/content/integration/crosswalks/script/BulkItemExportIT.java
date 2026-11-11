@@ -521,7 +521,6 @@ public class BulkItemExportIT extends AbstractIntegrationTestWithDatabase {
     }
 
     @Test
-    @Ignore("Requires the publication-chicago CSL crosswalk, delivered in ticket 07; re-enabled there")
     public void testSelectedItemsBulkItemExport() throws Exception {
 
         context.turnOffAuthorisationSystem();
@@ -553,7 +552,6 @@ public class BulkItemExportIT extends AbstractIntegrationTestWithDatabase {
     }
 
     @Test
-    @Ignore("Requires the publication-chicago CSL crosswalk, delivered in ticket 07; re-enabled there")
     public void testBulkItemExportChicagoWithMissingMetadata() throws Exception {
 
         context.turnOffAuthorisationSystem();

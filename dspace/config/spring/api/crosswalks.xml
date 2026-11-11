@@ -11,8 +11,10 @@
             <map>
                 <entry key="person-xml" value-ref="referCrosswalkPersonXml"/>
                 <entry key="endnote" value-ref="referCrosswalkEndnote"/>
-                <!-- Further crosswalk format entries are registered by later DURACOM-540 tickets
-                     (e.g. bibtex, publication-apa, publication-chicago). -->
+                <entry key="bibtex" value-ref="cslItemDataCrosswalkBibtex"/>
+                <entry key="publication-json" value-ref="cslItemDataCrosswalkJson"/>
+                <entry key="publication-apa" value-ref="cslItemDataCrosswalkApa"/>
+                <entry key="publication-chicago" value-ref="cslItemDataCrosswalkChicago"/>
             </map>
         </constructor-arg>
     </bean>
@@ -257,6 +259,46 @@
 		<property name="fileName" value="publication"/>
 		<property name="entityType" value="Publication"/>
 		<property name="crosswalkMode" value="#{T(org.dspace.content.crosswalk.CrosswalkMode).SINGLE}"/>
+	</bean>
+
+	<!-- CSL CITATION CROSSWALK CONFIGURATION -->
+
+	<bean class="org.dspace.content.integration.crosswalks.CSLItemDataCrosswalk" id="cslItemDataCrosswalkBibtex">
+		<property name="style" value="bibtex"/>
+		<property name="mimeType" value="application/x-bibtex; charset=UTF-8"/>
+		<property name="format" value="text"/>
+		<property name="fileName" value="references.bib"/>
+		<property name="crosswalkMode" value="#{T(org.dspace.content.crosswalk.CrosswalkMode).SINGLE}"/>
+	</bean>
+
+	<bean class="org.dspace.content.integration.crosswalks.CSLItemDataCrosswalk" id="cslItemDataCrosswalkApa">
+		<property name="style" value="crosswalks/csl/apa.csl"/>
+		<property name="mimeType" value="text/plain"/>
+		<property name="format" value="text"/>
+		<property name="fileName" value="publications.txt"/>
+		<property name="crosswalkMode" value="#{T(org.dspace.content.crosswalk.CrosswalkMode).SINGLE_AND_MULTIPLE}"/>
+	</bean>
+
+	<bean class="org.dspace.content.integration.crosswalks.CSLItemDataCrosswalk" id="cslItemDataCrosswalkChicago">
+		<property name="style" value="crosswalks/csl/chicago.csl"/>
+		<property name="mimeType" value="text/plain"/>
+		<property name="format" value="text"/>
+		<property name="fileName" value="publications.txt"/>
+		<property name="crosswalkMode" value="#{T(org.dspace.content.crosswalk.CrosswalkMode).SINGLE_AND_MULTIPLE}"/>
+	</bean>
+
+	<bean class="org.dspace.content.integration.crosswalks.CSLItemDataCrosswalk" id="cslItemDataCrosswalkJson">
+		<property name="mimeType" value="application/json; charset=UTF-8"/>
+		<property name="fileName" value="publications.json"/>
+		<property name="crosswalkMode" value="#{T(org.dspace.content.crosswalk.CrosswalkMode).SINGLE_AND_MULTIPLE}"/>
+	</bean>
+
+	<bean class="org.dspace.content.integration.crosswalks.CSLItemDataCrosswalk" id="referCrosswalkPublicationIeeeHtml">
+		<property name="style" value="ieee"/>
+		<property name="mimeType" value="text/html; charset=UTF-8"/>
+		<property name="format" value="html"/>
+		<property name="fileName" value="publications-ieee.html"/>
+		<property name="crosswalkMode" value="#{T(org.dspace.content.crosswalk.CrosswalkMode).MULTIPLE}"/>
 	</bean>
 
 	<bean class="org.dspace.content.integration.crosswalks.evaluators.ConditionEvaluatorMapper" id="conditionEvaluatorMapper">
