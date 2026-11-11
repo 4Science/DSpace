@@ -183,6 +183,37 @@ public class DocumentCrosswalkIT extends AbstractIntegrationTestWithDatabase {
     }
 
     @Test
+    public void testPdfCrosswalkPersonCvDisseminate() throws Exception {
+
+        context.turnOffAuthorisationSystem();
+
+        Item personItem = buildPersonItem();
+
+        ItemBuilder.createItem(context, collection)
+            .withTitle("First Publication")
+            .withIssueDate("2020-01-01")
+            .withAuthor("John Smith", personItem.getID().toString())
+            .build();
+
+        context.restoreAuthSystemState();
+
+        StreamDisseminationCrosswalk streamCrosswalkDefault = (StreamDisseminationCrosswalk) CoreServiceFactory
+            .getInstance().getPluginService().getNamedPlugin(StreamDisseminationCrosswalk.class, "person-cv-pdf");
+
+        try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+            streamCrosswalkDefault.disseminate(context, personItem, out);
+            assertThat(out.toString(), not(isEmptyString()));
+            assertThatPdfHasContent(out, content -> {
+                assertThat(content, containsString("John Smith"));
+                assertThat(content, containsString("School"));
+                assertThat(content, containsString("First Qualification"));
+                assertThat(content, containsString("First Publication"));
+            });
+        }
+
+    }
+
+    @Test
     public void testRtfCrosswalkPersonDisseminateWithoutImage() throws Exception {
 
         context.turnOffAuthorisationSystem();
@@ -391,8 +422,8 @@ public class DocumentCrosswalkIT extends AbstractIntegrationTestWithDatabase {
             .withTitle("Test Project")
             .withInternalId("111-222-333")
             .withAcronym("TP")
-            .withProjectStartDate("2020-01-01")
-            .withProjectEndDate("2020-04-01")
+            .withOairecerifProjectStartDate("2020-01-01")
+            .withOairecerifProjectEndDate("2020-04-01")
             .build();
 
         ItemBuilder.createItem(context, collection)
@@ -472,8 +503,8 @@ public class DocumentCrosswalkIT extends AbstractIntegrationTestWithDatabase {
             .withOpenaireId("44-55-66")
             .withUrlIdentifier("www.project.test")
             .withUrlIdentifier("www.test.project")
-            .withProjectStartDate("2020-01-01")
-            .withProjectEndDate("2020-12-31")
+            .withOairecerifProjectStartDate("2020-01-01")
+            .withOairecerifProjectEndDate("2020-12-31")
             .withProjectStatus("OPEN")
             .withProjectCoordinator("Coordinator OrgUnit", coordinator.getID().toString())
             .withProjectPartner("Partner OrgUnit")
@@ -481,7 +512,7 @@ public class DocumentCrosswalkIT extends AbstractIntegrationTestWithDatabase {
             .withProjectOrganization("First Member OrgUnit")
             .withProjectOrganization("Second Member OrgUnit")
             .withProjectOrganization("Third Member OrgUnit")
-            .withProjectInvestigator("Investigator")
+            .withCrispjProjectInvestigator("Investigator")
             .withProjectCoinvestigators("First coinvestigator")
             .withProjectCoinvestigators("Second coinvestigator")
             .withRelationEquipment("Test equipment")
@@ -868,8 +899,8 @@ public class DocumentCrosswalkIT extends AbstractIntegrationTestWithDatabase {
             .withEntityType("Person")
             .withTitle("John Smith")
             .withFullName("John Smith")
-            .withVariantName("J.S.")
-            .withVariantName("Smith John")
+            .withCrisrpVariantName("J.S.")
+            .withCrisrpVariantName("Smith John")
             .withGivenName("John")
             .withFamilyName("Smith")
             .withBirthDate("1992-06-26")
@@ -898,7 +929,7 @@ public class DocumentCrosswalkIT extends AbstractIntegrationTestWithDatabase {
             .withPersonAffiliationEndDate("2020-01-01")
             .withPersonAffiliationRole("Developer")
             .withDescriptionAbstract(getBiography())
-            .withPersonCountry("England")
+            .withCrisrpCountry("England")
             .withPersonKnowsLanguages("English")
             .withPersonKnowsLanguages("Italian")
             .withPersonEducation("School")

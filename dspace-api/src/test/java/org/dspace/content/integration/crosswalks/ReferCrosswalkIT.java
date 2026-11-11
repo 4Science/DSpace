@@ -228,8 +228,8 @@ public class ReferCrosswalkIT extends AbstractIntegrationTestWithDatabase {
             .withEntityType("Person")
             .withTitle("John Smith")
             .withFullName("John Smith")
-            .withVariantName("J.S.")
-            .withVariantName("Smith John")
+            .withCrisrpVariantName("J.S.")
+            .withCrisrpVariantName("Smith John")
             .withGivenName("John")
             .withFamilyName("Smith")
             .withBirthDate("1992-06-26")
@@ -252,7 +252,7 @@ public class ReferCrosswalkIT extends AbstractIntegrationTestWithDatabase {
             .withPersonAffiliationEndDate(PLACEHOLDER_PARENT_METADATA_VALUE)
             .withPersonAffiliationRole("Developer")
             .withDescriptionAbstract("Biography \n\t<This is my biography>")
-            .withPersonCountry("England")
+            .withCrisrpCountry("England")
             .withPersonKnowsLanguages("English")
             .withPersonKnowsLanguages("Italian")
             .withPersonEducation("School")
@@ -295,14 +295,80 @@ public class ReferCrosswalkIT extends AbstractIntegrationTestWithDatabase {
     }
 
     @Test
+    public void testPersonCvXmlDisseminate() throws Exception {
+        context.turnOffAuthorisationSystem();
+
+        Item personItem = createItem(context, collection)
+            .withEntityType("Person")
+            .withTitle("John Smith")
+            .withFullName("John Smith")
+            .withGivenName("John")
+            .withFamilyName("Smith")
+            .withBirthDate("1992-06-26")
+            .withGender("M")
+            .withJobTitle("Researcher")
+            .withPersonMainAffiliation("University")
+            .withWorkingGroup("First work group")
+            .withWorkingGroup("Second work group")
+            .withPersonEmail("test@test.com")
+            .withSubject("Science")
+            .withOrcidIdentifier("0000-0002-9079-5932")
+            .withDescriptionAbstract("This is my biography")
+            .withCrisrpCountry("England")
+            .withPersonKnowsLanguages("English")
+            .withPersonEducation("School")
+            .withPersonEducationStartDate("2000-01-01")
+            .withPersonEducationEndDate("2005-01-01")
+            .withPersonEducationRole("Student")
+            .withPersonQualification("First Qualification")
+            .withPersonQualificationStartDate("2015-01-01")
+            .withPersonQualificationEndDate("2016-01-01")
+            .build();
+
+        ItemBuilder.createItem(context, collection)
+            .withTitle("First Publication")
+            .withIssueDate("2020-01-01")
+            .withAuthor("John Smith", personItem.getID().toString())
+            .build();
+
+        context.restoreAuthSystemState();
+
+        // The person-cv-xml format is not registered in the crosswalk mapper (it is
+        // consumed only by the person-cv-pdf DocumentCrosswalk), so it is fetched by bean name.
+        ReferCrosswalk referCrosswalk = new DSpace().getServiceManager()
+            .getServiceByName("referCrosswalkPersonCvXml", ReferCrosswalk.class);
+        assertThat(referCrosswalk, notNullValue());
+
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        referCrosswalk.disseminate(context, personItem, out);
+
+        String xml = out.toString();
+        assertThat(xml, containsString("<preferred-name>John Smith</preferred-name>"));
+        assertThat(xml, containsString("<full-name>John Smith</full-name>"));
+        assertThat(xml, containsString("<given-name>John</given-name>"));
+        assertThat(xml, containsString("<family-name>Smith</family-name>"));
+        assertThat(xml, containsString("<job-title>Researcher</job-title>"));
+        assertThat(xml, containsString("<main-affiliation>University</main-affiliation>"));
+        assertThat(xml, containsString("<working-group>First work group</working-group>"));
+        assertThat(xml, containsString("<working-group>Second work group</working-group>"));
+        assertThat(xml, containsString("<biography>This is my biography</biography>"));
+        assertThat(xml, containsString("<country>England</country>"));
+        assertThat(xml, containsString("<name>School</name>"));
+        assertThat(xml, containsString("<role>Student</role>"));
+        assertThat(xml, containsString("<name>First Qualification</name>"));
+        assertThat(xml, containsString("<title>First Publication</title>"));
+        assertThat(xml, containsString("<date-issued>2020-01-01</date-issued>"));
+    }
+
+    @Test
     public void testPersonXmlCerifDisseminate() throws Exception {
         context.turnOffAuthorisationSystem();
 
         Item personItem = createItem(context, collection)
             .withEntityType("Person")
             .withTitle("Smith, John")
-            .withVariantName("J.S.")
-            .withVariantName("Smith John")
+            .withCrisrpVariantName("J.S.")
+            .withCrisrpVariantName("Smith John")
             .withGender("M")
             .withPersonMainAffiliation("University")
             .withOrcidIdentifier("0000-0002-9079-5932")
@@ -341,8 +407,8 @@ public class ReferCrosswalkIT extends AbstractIntegrationTestWithDatabase {
         Item firstPerson = createItem(context, collection)
             .withEntityType("Person")
             .withTitle("Smith, John")
-            .withVariantName("J.S.")
-            .withVariantName("Smith John")
+            .withCrisrpVariantName("J.S.")
+            .withCrisrpVariantName("Smith John")
             .withGender("M")
             .withPersonMainAffiliation("University")
             .withOrcidIdentifier("0000-0002-9079-5932")
@@ -396,8 +462,8 @@ public class ReferCrosswalkIT extends AbstractIntegrationTestWithDatabase {
             .withEntityType("Person")
             .withTitle("John Smith")
             .withFullName("John Smith")
-            .withVariantName("J.S.")
-            .withVariantName("Smith John")
+            .withCrisrpVariantName("J.S.")
+            .withCrisrpVariantName("Smith John")
             .withGivenName("John")
             .withFamilyName("Smith")
             .withBirthDate("1992-06-26")
@@ -416,7 +482,7 @@ public class ReferCrosswalkIT extends AbstractIntegrationTestWithDatabase {
             .withPersonAffiliationStartDate("2018-01-01")
             .withPersonAffiliationEndDate(PLACEHOLDER_PARENT_METADATA_VALUE)
             .withPersonAffiliationRole("Developer")
-            .withPersonCountry("England")
+            .withCrisrpCountry("England")
             .withPersonEducation("School")
             .withPersonEducationStartDate("2000-01-01")
             .withPersonEducationEndDate("2005-01-01")
@@ -516,9 +582,9 @@ public class ReferCrosswalkIT extends AbstractIntegrationTestWithDatabase {
             .withEntityType("Person")
             .withTitle("John Smith")
             .withFullName("John Smith")
-            .withVernacularName("JOHN SMITH")
-            .withVariantName("J.S.")
-            .withVariantName("Smith John")
+            .withCrisrpVernacularName("JOHN SMITH")
+            .withCrisrpVariantName("J.S.")
+            .withCrisrpVariantName("Smith John")
             .withGivenName("John")
             .withFamilyName("Smith")
             .withBirthDate("1992-06-26")
@@ -541,7 +607,7 @@ public class ReferCrosswalkIT extends AbstractIntegrationTestWithDatabase {
             .withPersonAffiliationRole("Developer")
             .withPersonAffiliationEndDate(PLACEHOLDER_PARENT_METADATA_VALUE)
             .withDescriptionAbstract("Biography: \n\t\"This is my biography\"")
-            .withPersonCountry("England")
+            .withCrisrpCountry("England")
             .withPersonKnowsLanguages("English")
             .withPersonKnowsLanguages("Italian")
             .withPersonEducation("School")
@@ -703,8 +769,8 @@ public class ReferCrosswalkIT extends AbstractIntegrationTestWithDatabase {
             .withTitle("Test Project")
             .withInternalId("111-222-333")
             .withAcronym("TP")
-            .withProjectStartDate("2020-01-01")
-            .withProjectEndDate("2020-04-01")
+            .withOairecerifProjectStartDate("2020-01-01")
+            .withOairecerifProjectEndDate("2020-04-01")
             .build();
 
         ItemBuilder.createItem(context, collection)
@@ -779,8 +845,8 @@ public class ReferCrosswalkIT extends AbstractIntegrationTestWithDatabase {
             .withTitle("Test Project")
             .withInternalId("111-222-333")
             .withAcronym("TP")
-            .withProjectStartDate("2020-01-01")
-            .withProjectEndDate("2020-04-01")
+            .withOairecerifProjectStartDate("2020-01-01")
+            .withOairecerifProjectEndDate("2020-04-01")
             .build();
 
         Item orgUnit = ItemBuilder.createItem(context, collection)
@@ -951,13 +1017,13 @@ public class ReferCrosswalkIT extends AbstractIntegrationTestWithDatabase {
             .withTitle("Test Project")
             .withOpenaireId("11-22-33")
             .withUrlIdentifier("www.project.test")
-            .withProjectStartDate("2020-01-01")
-            .withProjectEndDate("2020-12-31")
+            .withOairecerifProjectStartDate("2020-01-01")
+            .withOairecerifProjectEndDate("2020-12-31")
             .withProjectStatus("OPEN")
             .withProjectCoordinator("Coordinator OrgUnit", coordinator.getID().toString())
             .withProjectPartner("Partner OrgUnit")
             .withProjectOrganization("Member OrgUnit")
-            .withProjectInvestigator("Investigator")
+            .withCrispjProjectInvestigator("Investigator")
             .withProjectCoinvestigators("First coinvestigator")
             .withProjectCoinvestigators("Second coinvestigator")
             .withRelationEquipment("Test equipment")
@@ -1008,8 +1074,8 @@ public class ReferCrosswalkIT extends AbstractIntegrationTestWithDatabase {
             .withTitle("Test Project")
             .withOpenaireId("11-22-33")
             .withUrlIdentifier("www.project.test")
-            .withProjectStartDate("2020-01-01")
-            .withProjectEndDate("2020-12-31")
+            .withOairecerifProjectStartDate("2020-01-01")
+            .withOairecerifProjectEndDate("2020-12-31")
             .withProjectStatus("OPEN")
             .withProjectCoordinator("Coordinator OrgUnit", coordinator.getID().toString())
             .withProjectPartner("Partner OrgUnit")
@@ -1017,7 +1083,7 @@ public class ReferCrosswalkIT extends AbstractIntegrationTestWithDatabase {
             .withProjectOrganization("First Member OrgUnit")
             .withProjectOrganization("Second Member OrgUnit")
             .withProjectOrganization("Third Member OrgUnit")
-            .withProjectInvestigator("Investigator")
+            .withCrispjProjectInvestigator("Investigator")
             .withProjectCoinvestigators("First coinvestigator")
             .withProjectCoinvestigators("Second coinvestigator")
             .withRelationEquipment("Test equipment")
@@ -1062,13 +1128,13 @@ public class ReferCrosswalkIT extends AbstractIntegrationTestWithDatabase {
             .withTitle("Test Project")
             .withOpenaireId("11-22-33")
             .withUrlIdentifier("www.project.test")
-            .withProjectStartDate("2020-01-01")
-            .withProjectEndDate("2020-12-31")
+            .withOairecerifProjectStartDate("2020-01-01")
+            .withOairecerifProjectEndDate("2020-12-31")
             .withProjectStatus("OPEN")
             .withProjectCoordinator("First Coordinator OrgUnit")
             .withProjectPartner("Partner OrgUnit")
             .withProjectOrganization("Member OrgUnit")
-            .withProjectInvestigator("Investigator")
+            .withCrispjProjectInvestigator("Investigator")
             .withProjectCoinvestigators("First coinvestigator")
             .withProjectCoinvestigators("Second coinvestigator")
             .withRelationEquipment("Test equipment")
@@ -1086,11 +1152,11 @@ public class ReferCrosswalkIT extends AbstractIntegrationTestWithDatabase {
             .withOpenaireId("55-66-77")
             .withOpenaireId("11-33-22")
             .withUrlIdentifier("www.project.test")
-            .withProjectStartDate("2010-01-01")
-            .withProjectEndDate("2012-12-31")
+            .withOairecerifProjectStartDate("2010-01-01")
+            .withOairecerifProjectEndDate("2012-12-31")
             .withProjectStatus("Status")
             .withProjectCoordinator("Second Coordinator OrgUnit")
-            .withProjectInvestigator("Second investigator")
+            .withCrispjProjectInvestigator("Second investigator")
             .withProjectCoinvestigators("Coinvestigator")
             .withRelationEquipment("Another test equipment")
             .withOAMandateURL("oamandate")
@@ -1123,13 +1189,13 @@ public class ReferCrosswalkIT extends AbstractIntegrationTestWithDatabase {
             .withTitle("Test Project")
             .withOpenaireId("11-22-33")
             .withUrlIdentifier("www.project.test")
-            .withProjectStartDate("2020-01-01")
-            .withProjectEndDate("2020-12-31")
+            .withOairecerifProjectStartDate("2020-01-01")
+            .withOairecerifProjectEndDate("2020-12-31")
             .withProjectStatus("OPEN")
             .withProjectCoordinator("First Coordinator OrgUnit")
             .withProjectPartner("Partner OrgUnit")
             .withProjectOrganization("Member OrgUnit")
-            .withProjectInvestigator("Investigator")
+            .withCrispjProjectInvestigator("Investigator")
             .withProjectCoinvestigators("First coinvestigator")
             .withProjectCoinvestigators("Second coinvestigator")
             .withRelationEquipment("Test equipment")
@@ -1147,11 +1213,11 @@ public class ReferCrosswalkIT extends AbstractIntegrationTestWithDatabase {
             .withOpenaireId("55-66-77")
             .withOpenaireId("11-33-22")
             .withUrlIdentifier("www.project.test")
-            .withProjectStartDate("2010-01-01")
-            .withProjectEndDate("2012-12-31")
+            .withOairecerifProjectStartDate("2010-01-01")
+            .withOairecerifProjectEndDate("2012-12-31")
             .withProjectStatus("Status")
             .withProjectCoordinator("Second Coordinator OrgUnit")
-            .withProjectInvestigator("Second investigator")
+            .withCrispjProjectInvestigator("Second investigator")
             .withProjectCoinvestigators("Coinvestigator")
             .withRelationEquipment("Another test equipment")
             .withOAMandateURL("oamandate")
@@ -2192,22 +2258,22 @@ public class ReferCrosswalkIT extends AbstractIntegrationTestWithDatabase {
             referCrosswalk.disseminate(context, publicationItem, out);
 
             String[] resultLines = out.toString().split("\n");
-            assertThat(resultLines.length, is(7));
+            assertThat(resultLines.length, is(6));
             assertThat(resultLines[0].trim(), equalTo("<publication>"));
-            assertThat(resultLines[4].trim(), equalTo("<VocabularyType>articolo sul software</VocabularyType>"));
-            assertThat(resultLines[5].trim(), equalTo("<ValuePairLanguage>Inglese (USA)</ValuePairLanguage>"));
-            assertThat(resultLines[6].trim(), equalTo("</publication>"));
+            assertThat(resultLines[3].trim(), equalTo("<VocabularyType>articolo sul software</VocabularyType>"));
+            assertThat(resultLines[4].trim(), equalTo("<ValuePairLanguage>Inglese (USA)</ValuePairLanguage>"));
+            assertThat(resultLines[5].trim(), equalTo("</publication>"));
 
             context.setCurrentLocale(ukranian);
             out = new ByteArrayOutputStream();
             referCrosswalk.disseminate(context, publicationItem, out);
 
             resultLines = out.toString().split("\n");
-            assertThat(resultLines.length, is(7));
+            assertThat(resultLines.length, is(6));
             assertThat(resultLines[0].trim(), equalTo("<publication>"));
-            assertThat(resultLines[4].trim(), equalTo("<VocabularyType>програмна стаття</VocabularyType>"));
-            assertThat(resultLines[5].trim(), equalTo("<ValuePairLanguage>Американська (USA)</ValuePairLanguage>"));
-            assertThat(resultLines[6].trim(), equalTo("</publication>"));
+            assertThat(resultLines[3].trim(), equalTo("<VocabularyType>програмна стаття</VocabularyType>"));
+            assertThat(resultLines[4].trim(), equalTo("<ValuePairLanguage>Американська (USA)</ValuePairLanguage>"));
+            assertThat(resultLines[5].trim(), equalTo("</publication>"));
 
         } finally {
             context.setCurrentLocale(defaultLocale);
