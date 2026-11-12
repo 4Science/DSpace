@@ -442,7 +442,8 @@ public class RelationshipConfigurationServiceImpl implements RelationshipConfigu
     }
 
     private void validateType(Set<String> allowed, Item item, String side) {
-        if (!allowed.isEmpty() && !allowed.contains(itemService.getEntityTypeLabel(item))) {
+        String entityType = itemService.getEntityTypeLabel(item);
+        if (!allowed.isEmpty() && (entityType == null || !allowed.contains(entityType))) {
             throw new IllegalArgumentException("Item type is not allowed on the " + side + " side of the relationship");
         }
     }

@@ -85,8 +85,10 @@ public class UnifiedRelationshipPersistenceIT extends AbstractIntegrationTestWit
             legacy.setRelationshipConfigKey(definition.getId());
             // Keep the old type table available, but this row has migrated off it.
             legacy.setRelationshipType(null);
-            service.attachMetadataToRelationship(context, value, legacy);
+            value.setRelationship(legacy);
+            metadata.update(context, value);
             relationships.update(context, legacy);
+            ContentServiceFactory.getInstance().getItemService().update(context, publication);
             context.commit();
 
             publication = context.reloadEntity(publication);

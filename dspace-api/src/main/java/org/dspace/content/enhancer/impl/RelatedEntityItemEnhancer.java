@@ -7,99 +7,53 @@
  */
 package org.dspace.content.enhancer.impl;
 
-import static org.dspace.core.CrisConstants.PLACEHOLDER_PARENT_METADATA_VALUE;
-
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.UUID;
-import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
-import org.dspace.authority.service.AuthorityValueService;
 import org.dspace.content.Item;
 import org.dspace.content.MetadataValue;
-import org.dspace.content.authority.Choices;
-import org.dspace.content.dto.MetadataValueDTO;
+import org.dspace.content.Relationship;
+import org.dspace.content.RelationshipConfigurationServiceImpl;
+import org.dspace.content.authority.ItemAuthorityExtraMetadataGenerator;
+import org.dspace.content.authority.ItemSimpleAuthorityMetadataGenerator;
 import org.dspace.content.enhancer.AbstractItemEnhancer;
 import org.dspace.content.enhancer.ItemEnhancer;
 import org.dspace.content.service.ItemService;
+import org.dspace.content.service.MetadataValueService;
+import org.dspace.content.service.RelationshipConfigurationService;
 import org.dspace.core.Context;
 import org.dspace.core.exception.SQLRuntimeException;
-import org.dspace.util.UUIDUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
- * Implementation of {@link ItemEnhancer} that creates virtual metadata fields by copying
- * values from related entities referenced through authority-controlled metadata fields.
+ * Implementation of {@link ItemEnhancer} that derives additional metadata values from the entities
+ * linked to an item through configuration-backed relationships.
  *
- * <p><strong>Purpose and Functionality:</strong></p>
- * <p>This enhancer enables the CRIS virtual metadata system, which automatically
- * duplicates metadata from related entities onto items that reference them. This provides
- * denormalized access to related entity data without requiring complex joins, improving
- * search performance and enabling faceted search on related entity properties.</p>
- *
- * <p><strong>Configuration:</strong></p>
- * <p>The enhancer is configured through Spring configuration (in
- * {@code dspace/config/spring/api/metadata-enhancers.xml}) with four key properties:</p>
- * <ul>
- *   <li><strong>sourceEntityTypes:</strong> Entity types that can be enhanced (e.g., "Publication", "Product",
- *   "Patent")</li>
- *   <li><strong>sourceItemMetadataFields:</strong> Metadata fields containing entity references
- *       (e.g., "dc.contributor.author", "dc.contributor.editor")</li>
- *   <li><strong>relatedItemMetadataFields:</strong> Metadata fields to copy from related entities
- *       (e.g., "person.identifier.orcid", "person.affiliation.name")</li>
- *   <li><strong>virtualQualifier:</strong> Qualifier for the virtual metadata fields (e.g., "orcid", "department")</li>
- * </ul>
- *
- * <p><strong>Real-world Configuration Examples:</strong></p>
- * <pre>{@code
- * <!-- Example 1: Copy ORCID identifiers from Person entities to Publications -->
- * <bean class="org.dspace.content.enhancer.impl.RelatedEntityItemEnhancer">
- *     <property name="sourceEntityTypes">
- *         <list>
- *             <value>Publication</value>
- *             <value>Product</value>
- *             <value>Patent</value>
- *         </list>
- *     </property>
- *     <property name="sourceItemMetadataFields">
- *         <list>
- *             <value>dc.contributor.author</value>
- *             <value>dc.contributor.editor</value>
- *         </list>
- *     </property>
- *     <property name="relatedItemMetadataFields">
- *         <list>
- *             <value>person.identifier.orcid</value>
- *         </list>
- *     </property>
- *     <property name="virtualQualifier" value="orcid" />
- * </bean>
- * }</pre>
- *
- * <p><strong>Virtual Metadata Structure:</strong></p>
- * <p>Creates two types of virtual metadata fields with the configured qualifier:</p>
- * <ul>
- *   <li><strong>{@code dspace.virtual.[qualifier]}:</strong> Contains the actual copied values</li>
- *   <li><strong>{@code dspace.virtualsource.[qualifier]}:</strong> Contains the UUID of the source entity</li>
- * </ul>
- *
- * <p><strong>Use Cases:</strong></p>
- * <ul>
- *   <li><strong>Search Enhancement:</strong> Enable faceted search on author ORCIDs without complex joins</li>
- *   <li><strong>Analytics:</strong> Generate reports showing publications by department affiliation</li>
- *   <li><strong>Data Quality:</strong> Identify publications with authors missing ORCID identifiers</li>
- *   <li><strong>Export Integration:</strong> Include related entity metadata in metadata exports</li>
- * </ul>
+ * <p><strong>How it works:</strong></p>
+ * <ol>
+ *   <li>The enhancer only considers relationship-backed primary values. The relationship of a
+ *       primary value identifies both the endpoint of the item and the related entity.</li>
+ *   <li>The relationship configuration decides which additional target fields apply to the owner
+ *       endpoint. Each target field is mapped, in the configuration, to the
+ *       {@link ItemAuthorityExtraMetadataGenerator} that declares the source field on the related
+ *       entity; the enhancer copies the related entity metadata of that source field.</li>
+ *   <li>Every derived value is stamped with the relationship of the hop that produced it and keeps
+ *       the authority of the primary value, i.e. the ultimate ancestor UUID. This makes the derived
+ *       value navigable upward without any {@code dspace.virtualsource.*} back-pointer.</li>
+ *   <li>Idempotency and cleanup are keyed on the pair (relationship id, target metadata field).
+ *       A duplicated reference such as the same person listed as author and editor yields one
+ *       derived block per relationship occurrence.</li>
+ * </ol>
  *
  * @author Luca Giamminonni (luca.giamminonni at 4science.it)
  * @see ItemEnhancer
@@ -115,22 +69,15 @@ public class RelatedEntityItemEnhancer extends AbstractItemEnhancer {
     private ItemService itemService;
 
     @Autowired
-    private RelatedEntityItemEnhancerUtils relatedEntityItemEnhancerUtils;
+    private MetadataValueService metadataValueService;
+
+    @Autowired
+    private RelationshipConfigurationService relationshipConfigurationService;
 
     /**
      * the entities that can be extended by this enhancer, i.e. Publication
      */
     private List<String> sourceEntityTypes;
-
-    /**
-     * the metadata used to navigate the relation, i.e. dc.contributor.author
-     */
-    private List<String> sourceItemMetadataFields;
-
-    /**
-     * the metadata that is copied from the linked entity, i.e. person.identifier.orcid
-     */
-    private List<String> relatedItemMetadataFields;
 
     @Override
     public boolean canEnhance(Context context, Item item) {
@@ -138,322 +85,356 @@ public class RelatedEntityItemEnhancer extends AbstractItemEnhancer {
     }
 
     /**
-     * Enhances the given item by synchronizing virtual metadata fields with values
-     * copied from related entities referenced through authority-controlled metadata.
-     * 
-     * <p><strong>How Enhancement Works:</strong></p>
-     * <ol>
-     *   <li><strong>Identify Related Entities:</strong> Scans the item's configured source
-     *       metadata fields (e.g., dc.contributor.author) for authority values that contain
-     *       UUIDs of related entities</li>
-     *   <li><strong>Copy Metadata:</strong> For each related entity found, copies values from
-     *       configured metadata fields (e.g., person.identifier.orcid) into virtual metadata
-     *       fields on the current item</li>
-     *   <li><strong>Maintain Relationships:</strong> Creates {@code dspace.virtualsource.*} fields
-     *       to track which virtual metadata came from which related entity for dependency management</li>
-     *   <li><strong>Handle Missing Entities:</strong> When a related entity is not found or has
-     *       no values, inserts placeholder values to maintain metadata field consistency</li>
-     * </ol>
-     * 
-     * <p><strong>Processing Modes:</strong></p>
-     * <ul>
-     *   <li><strong>Incremental Mode (deepMode=false):</strong> Only adds missing virtual metadata
-     *       and removes obsolete entries. More efficient for routine updates.</li>
-     *   <li><strong>Deep Mode (deepMode=true):</strong> Completely rebuilds all virtual metadata
-     *       by comparing current state with expected state. Used for comprehensive synchronization.</li>
-     * </ul>
-     * 
-     * <p><strong>Virtual Metadata Structure:</strong></p>
-     * <ul>
-     *   <li><strong>{@code dspace.virtual.[qualifier]}:</strong> Contains the actual copied values
-     *       from related entities (e.g., ORCID identifiers, names, affiliations)</li>
-     *   <li><strong>{@code dspace.virtualsource.[qualifier]}:</strong> Contains the UUID of the
-     *       related entity that provided each virtual value, enabling dependency tracking</li>
-     * </ul>
-     * 
-     * <p><strong>Example Scenario:</strong></p>
-     * <pre>
-     * Publication item has: dc.contributor.author = "John Doe" with authority = "uuid-123"
-     * Person entity uuid-123 has: person.identifier.orcid = "0000-0000-0000-0000"
-     * 
-     * After enhancement, Publication gains:
-     * - dspace.virtual.author-orcid = "0000-0000-0000-0000"
-     * - dspace.virtualsource.author-orcid = "uuid-123"
-     * </pre>
+     * Synchronize the derived metadata values of the given item with the current state of its
+     * relationships.
      *
-     * 
-     * @param context the DSpace context for database operations
-     * @param item the item to enhance with virtual metadata from related entities
-     * @param deepMode if true, performs complete rebuild; if false, performs incremental update
-     * @return true if any virtual metadata was added, updated, or removed; false if no changes were made
+     * <p>In incremental mode only the outdated blocks are rewritten. In deep mode every derived
+     * value is rebuilt from scratch, which is what the {@code item-enhancer -f} command and the
+     * event cascade use for eventual consistency.</p>
+     *
+     * @param context  the DSpace context for database operations
+     * @param item     the item to enhance
+     * @param deepMode if true, rebuilds all derived values from scratch
+     * @return true if any derived metadata was added, updated, or removed; false otherwise
      * @throws SQLRuntimeException if database operations fail during enhancement
-     * 
-     * @see #performEnhancement(Context, Item) for incremental enhancement logic
-     * @see #getToBeVirtualMetadata(Context, Item) for deep mode comparison logic
-     * @see #cleanObsoleteVirtualFields(Context, Item) for cleanup of obsolete virtual fields
      */
     @Override
     public boolean enhance(Context context, Item item, boolean deepMode) {
-        boolean result = false;
-        if (!deepMode) {
-            try {
-                result = cleanObsoleteVirtualFields(context, item);
-                result = performEnhancement(context, item) || result;
-            } catch (SQLException e) {
-                LOGGER.error("An error occurs enhancing item with id {}: {}", item.getID(), e.getMessage(), e);
-                throw new SQLRuntimeException(e);
-            }
-        } else {
-            Map<String, List<MetadataValue>> currMetadataValues = relatedEntityItemEnhancerUtils
-                    .getCurrentVirtualsMap(item, getVirtualQualifier());
-            Map<String, List<MetadataValueDTO>> toBeMetadataValues = getToBeVirtualMetadata(context, item);
-            if (!equivalent(currMetadataValues, toBeMetadataValues)) {
-                try {
-                    clearAllVirtualMetadata(context, item);
-                    addMetadata(context, item, toBeMetadataValues);
-                } catch (SQLException e) {
-                    throw new SQLRuntimeException(e);
-                }
-                result = true;
-            }
-        }
-        return result;
-    }
-
-    private void clearAllVirtualMetadata(Context context, Item item) throws SQLException {
-        itemService.clearMetadata(context, item, VIRTUAL_METADATA_SCHEMA, VIRTUAL_SOURCE_METADATA_ELEMENT,
-                getVirtualQualifier(), Item.ANY);
-        itemService.clearMetadata(context, item, VIRTUAL_METADATA_SCHEMA, VIRTUAL_METADATA_ELEMENT,
-                getVirtualQualifier(), Item.ANY);
-    }
-
-    private void addMetadata(Context context, Item item, Map<String, List<MetadataValueDTO>> toBeMetadataValues)
-            throws SQLException {
-        for (Entry<String, List<MetadataValueDTO>> metadataValues : toBeMetadataValues.entrySet()) {
-            for (MetadataValueDTO dto : metadataValues.getValue()) {
-                addVirtualSourceField(context, item, metadataValues.getKey());
-                addVirtualField(context, item, dto.getValue(), dto.getAuthority(), dto.getLanguage(),
-                        dto.getConfidence());
-            }
-        }
-    }
-
-    private boolean equivalent(Map<String, List<MetadataValue>> currMetadataValues,
-            Map<String, List<MetadataValueDTO>> toBeMetadataValues) {
-        if (currMetadataValues.size() != toBeMetadataValues.size()) {
-            return false;
-        } else {
-            for (String key : currMetadataValues.keySet()) {
-                if (!equivalent(currMetadataValues.get(key), toBeMetadataValues.get(key))) {
-                    return false;
-                }
-            }
-        }
-        return true;
-    }
-
-    private boolean equivalent(List<MetadataValue> metadataValue, List<MetadataValueDTO> metadataValueDTO) {
-        if ((Objects.isNull(metadataValue) && !Objects.isNull(metadataValueDTO)) ||
-                (!Objects.isNull(metadataValue) && Objects.isNull(metadataValueDTO)) ||
-                    metadataValue.size() != metadataValueDTO.size()) {
-            return false;
-        } else if (!Objects.isNull(metadataValue) && !Objects.isNull(metadataValueDTO)) {
-            for (int i = 0; i < metadataValue.size(); i++) {
-                if (!equivalent(metadataValue.get(i), metadataValueDTO.get(i))) {
-                    return false;
-                }
-            }
-        }
-        return true;
-    }
-
-    private boolean equivalent(MetadataValue metadataValue, MetadataValueDTO metadataValueDTO) {
-        return StringUtils.equals(metadataValue.getMetadataField().getMetadataSchema().getName(),
-                metadataValueDTO.getSchema())
-                && StringUtils.equals(metadataValue.getMetadataField().getElement(), metadataValueDTO.getElement())
-                && StringUtils.equals(metadataValue.getMetadataField().getQualifier(), metadataValueDTO.getQualifier())
-                && StringUtils.equals(metadataValue.getValue(), metadataValueDTO.getValue())
-                && StringUtils.equals(metadataValue.getAuthority(), metadataValueDTO.getAuthority());
-    }
-
-    private Map<String, List<MetadataValueDTO>> getToBeVirtualMetadata(Context context, Item item) {
-        Map<String, List<MetadataValueDTO>> tobeVirtualMetadataMap = new HashMap<String, List<MetadataValueDTO>>();
-
-        Set<String> virtualSources = getVirtualSources(item);
-        for (String authority : virtualSources) {
-            List<MetadataValueDTO> tobeVirtualMetadata = new ArrayList<>();
-            Item relatedItem = null;
-            relatedItem = findRelatedEntityItem(context, authority);
-            if (relatedItem == null) {
-                MetadataValueDTO mvRelated = new MetadataValueDTO();
-                mvRelated.setSchema(VIRTUAL_METADATA_SCHEMA);
-                mvRelated.setElement(VIRTUAL_METADATA_ELEMENT);
-                mvRelated.setQualifier(getVirtualQualifier());
-                mvRelated.setValue(PLACEHOLDER_PARENT_METADATA_VALUE);
-                tobeVirtualMetadata.add(mvRelated);
-            } else {
-                boolean foundAtLeastOneValue = false;
-                for (String relatedItemMetadataField : relatedItemMetadataFields) {
-                    List<MetadataValue> relatedItemMetadataValues = getMetadataValues(relatedItem,
-                            relatedItemMetadataField);
-                    for (MetadataValue relatedItemMetadataValue : relatedItemMetadataValues) {
-                        MetadataValueDTO mvRelated = new MetadataValueDTO();
-                        mvRelated.setSchema(VIRTUAL_METADATA_SCHEMA);
-                        mvRelated.setElement(VIRTUAL_METADATA_ELEMENT);
-                        mvRelated.setQualifier(getVirtualQualifier());
-                        mvRelated.setValue(relatedItemMetadataValue.getValue());
-                        String authorityRelated = relatedItemMetadataValue.getAuthority();
-                        if (StringUtils.isNotBlank(authorityRelated)) {
-                            mvRelated.setAuthority(authorityRelated);
-                            mvRelated.setConfidence(Choices.CF_ACCEPTED);
-                        }
-                        tobeVirtualMetadata.add(mvRelated);
-                        foundAtLeastOneValue = true;
-                    }
-                }
-                if (!foundAtLeastOneValue) {
-                    MetadataValueDTO mvRelated = new MetadataValueDTO();
-                    mvRelated.setSchema(VIRTUAL_METADATA_SCHEMA);
-                    mvRelated.setElement(VIRTUAL_METADATA_ELEMENT);
-                    mvRelated.setQualifier(getVirtualQualifier());
-                    mvRelated.setValue(PLACEHOLDER_PARENT_METADATA_VALUE);
-                    tobeVirtualMetadata.add(mvRelated);
-                }
-            }
-            tobeVirtualMetadataMap.put(authority, tobeVirtualMetadata);
-        }
-        return tobeVirtualMetadataMap;
-    }
-
-    private boolean cleanObsoleteVirtualFields(Context context, Item item) throws SQLException {
-        boolean result = false;
-        List<MetadataValue> metadataValuesToDelete = getObsoleteVirtualFields(item);
-        if (!metadataValuesToDelete.isEmpty()) {
-            itemService.removeMetadataValues(context, item, metadataValuesToDelete);
-            result = true;
-        }
-        return result;
-    }
-
-    private List<MetadataValue> getObsoleteVirtualFields(Item item) {
-
-        List<MetadataValue> obsoleteVirtualFields = new ArrayList<>();
-        Map<String, List<MetadataValue>> currentVirtualsMap = relatedEntityItemEnhancerUtils
-                .getCurrentVirtualsMap(item, getVirtualQualifier());
-        Set<String> virtualSources = getVirtualSources(item);
-        for (String authority : currentVirtualsMap.keySet()) {
-            if (!virtualSources.contains(authority)) {
-                for (MetadataValue mv : getVirtualSourceFields(item, authority)) {
-                    obsoleteVirtualFields.add(mv);
-                    getRelatedVirtualField(item, mv.getPlace()).ifPresent(obsoleteVirtualFields::add);
-                }
-            }
-        }
-
-        return obsoleteVirtualFields;
-
-    }
-
-    private Set<String> getVirtualSources(Item item) {
-        return sourceItemMetadataFields.stream()
-                .flatMap(field -> itemService.getMetadataByMetadataString(item, field).stream())
-                .filter(mv -> UUIDUtils.fromString(mv.getAuthority()) != null)
-                .map(mv -> mv.getAuthority())
-                .collect(Collectors.toSet());
-    }
-
-    private Optional<MetadataValue> getRelatedVirtualField(Item item, int pos) {
-        return getVirtualFields(item).stream()
-            .skip(pos)
-            .findFirst();
-    }
-
-    private boolean performEnhancement(Context context, Item item) throws SQLException {
-        boolean result = false;
-        Map<String, List<MetadataValue>> currentVirtualsMap = relatedEntityItemEnhancerUtils
-                .getCurrentVirtualsMap(item, getVirtualQualifier());
-        Set<String> virtualSources = getVirtualSources(item);
-        for (String authority : virtualSources) {
-            boolean foundAtLeastOne = false;
-            if (!currentVirtualsMap.containsKey(authority)) {
-                result = true;
-                Item relatedItem = findRelatedEntityItem(context, authority);
-                if (relatedItem == null) {
-                    addVirtualField(context, item, PLACEHOLDER_PARENT_METADATA_VALUE, null, null, Choices.CF_UNSET);
-                    addVirtualSourceField(context, item, authority);
-                    continue;
-                }
-
-                for (String relatedItemMetadataField : relatedItemMetadataFields) {
-                    List<MetadataValue> relatedItemMetadataValues = getMetadataValues(relatedItem,
-                            relatedItemMetadataField);
-                    for (MetadataValue relatedItemMetadataValue : relatedItemMetadataValues) {
-                        foundAtLeastOne = true;
-                        addVirtualField(context, item, relatedItemMetadataValue.getValue(),
-                                relatedItemMetadataValue.getAuthority(), relatedItemMetadataValue.getLanguage(),
-                                relatedItemMetadataValue.getConfidence());
-                        addVirtualSourceField(context, item, authority);
-                    }
-                }
-                if (!foundAtLeastOne) {
-                    addVirtualField(context, item, PLACEHOLDER_PARENT_METADATA_VALUE, null, null, Choices.CF_UNSET);
-                    addVirtualSourceField(context, item, authority);
-                    continue;
-                }
-            }
-        }
-        return result;
-    }
-
-    private Item findRelatedEntityItem(Context context, String authority) {
         try {
-            UUID relatedItemUUID = UUIDUtils.fromString(authority);
-            return relatedItemUUID != null ? itemService.find(context, relatedItemUUID) : null;
+            List<MetadataValue> primaries = getRelationshipBackedPrimaries(context, item);
+            DesiredState desired = getDesiredValues(context, primaries);
+            Map<AdditionalKey, List<MetadataValue>> current = getCurrentAdditionals(context, item);
+            return reconcile(context, item, current, desired, deepMode);
         } catch (SQLException e) {
+            LOGGER.error("An error occurs enhancing item with id {}: {}", item.getID(), e.getMessage(), e);
             throw new SQLRuntimeException(e);
         }
     }
 
-    private List<MetadataValue> getMetadataValues(Item item, String metadataField) {
-        return itemService.getMetadataByMetadataString(item, metadataField);
-    }
-
-    private List<MetadataValue> getVirtualSourceFields(Item item, String authority) {
-        return getMetadataValues(item, getVirtualSourceMetadataField()).stream()
-                .filter(mv -> StringUtils.equals(authority, mv.getValue())).collect(Collectors.toList());
-    }
-
-    private List<MetadataValue> getVirtualFields(Item item) {
-        return getMetadataValues(item, getVirtualMetadataField());
-    }
-
-    private void addVirtualField(Context context, Item item, String value, String authority, String lang,
-            int confidence) throws SQLException {
-        if (StringUtils.startsWith(authority, AuthorityValueService.GENERATE)
-                || StringUtils.startsWith(authority, AuthorityValueService.REFERENCE)) {
-            itemService.addMetadata(context, item, VIRTUAL_METADATA_SCHEMA, VIRTUAL_METADATA_ELEMENT,
-                    getVirtualQualifier(), lang, value, null, Choices.CF_UNSET);
-        } else {
-            itemService.addMetadata(context, item, VIRTUAL_METADATA_SCHEMA, VIRTUAL_METADATA_ELEMENT,
-                    getVirtualQualifier(), lang, value, authority, confidence);
+    /**
+     * Collect all relationship-backed primary values that are owned by the given item.
+     *
+     * @param context the DSpace context
+     * @param item the item to inspect
+     * @return the primary values, in metadata order
+     * @throws SQLException if the relationship configuration cannot be resolved
+     */
+    private List<MetadataValue> getRelationshipBackedPrimaries(Context context, Item item) throws SQLException {
+        List<MetadataValue> primaries = new ArrayList<>();
+        for (MetadataValue value : item.getMetadata()) {
+            Relationship relationship = value.getRelationship();
+            if (relationship == null) {
+                continue;
+            }
+            if (isConfigured(relationship)
+                && relationshipConfigurationService.isPrimaryMetadata(context, relationship, value)) {
+                primaries.add(value);
+            }
         }
+        return primaries;
     }
 
-    private void addVirtualSourceField(Context context, Item item, String sourceValueAuthority) throws SQLException {
-        itemService.addMetadata(context, item, VIRTUAL_METADATA_SCHEMA, VIRTUAL_SOURCE_METADATA_ELEMENT,
-                                getVirtualQualifier(), null, sourceValueAuthority);
+    /**
+     * Build the desired state of the derived values, keyed by relationship and target field.
+     *
+     * @param context   the DSpace context
+     * @param primaries the relationship-backed primary values of the item
+     * @return the desired values per relationship and target field
+     * @throws SQLException if the related metadata cannot be read
+     */
+    private DesiredState getDesiredValues(Context context, List<MetadataValue> primaries)
+        throws SQLException {
+        Map<AdditionalKey, List<DesiredValue>> desired = new LinkedHashMap<>();
+        Map<Integer, Relationship> relationships = new LinkedHashMap<>();
+        for (MetadataValue primary : primaries) {
+            Relationship relationship = primary.getRelationship();
+            if (!isConfigured(relationship)) {
+                continue;
+            }
+            relationships.putIfAbsent(relationship.getID(), relationship);
+            Item owner = (Item) primary.getDSpaceObject();
+            Set<String> targetFields = new LinkedHashSet<>(
+                relationshipConfigurationService.getAdditionalMetadataFields(context, relationship, owner));
+            if (targetFields.isEmpty()) {
+                continue;
+            }
+            boolean ownerIsLeft = isLeftEndpoint(relationship, owner);
+            Item relatedItem = ownerIsLeft ? relationship.getRightItem() : relationship.getLeftItem();
+            for (String targetField : targetFields) {
+                List<DesiredValue> values = desired.computeIfAbsent(
+                    new AdditionalKey(relationship.getID(), targetField), key -> new ArrayList<>());
+                values.addAll(extractValues(context, relationship, owner, relatedItem, targetField,
+                    primary.getAuthority()));
+            }
+        }
+        return new DesiredState(desired, relationships);
+    }
+
+    /**
+     * Extract the values to persist for a single additional target field.
+     *
+     * <p>The configuration maps the target field to the generator that declares the source field on
+     * the related entity. The enhancer copies the related entity metadata of that source field. When
+     * no value is available a placeholder is written so that the field stays present and consistent.
+     * The authority of the derived value is the authority of the primary value, so it points at the
+     * ultimate ancestor of the relationship chain, falling back to the source value authority.</p>
+     *
+     * @param context       the DSpace context
+     * @param relationship  the relationship that produced the derived values
+     * @param endpoint      the owner endpoint item of the relationship
+     * @param relatedItem   the related entity, possibly null
+     * @param targetField   the fully qualified target metadata field
+     * @param authority     the authority of the primary value
+     * @return the values to persist for the target field
+     * @throws SQLException if the generator cannot be resolved
+     */
+    private List<DesiredValue> extractValues(Context context, Relationship relationship, Item endpoint,
+                                             Item relatedItem, String targetField, String authority)
+        throws SQLException {
+        String sourceField = getSourceField(context, relationship, endpoint, targetField);
+        if (relatedItem == null || sourceField == null) {
+            return List.of();
+        }
+        List<MetadataValue> sourceValues = itemService.getMetadataByMetadataString(relatedItem, sourceField);
+        if (sourceValues.isEmpty()) {
+            return List.of();
+        }
+        List<DesiredValue> values = new ArrayList<>(sourceValues.size());
+        for (MetadataValue sourceValue : sourceValues) {
+            String effectiveAuthority = StringUtils.isNotBlank(authority) ? authority : sourceValue.getAuthority();
+            values.add(new DesiredValue(sourceValue.getValue(), sourceValue.getLanguage(), effectiveAuthority,
+                sourceValue.getConfidence()));
+        }
+        return values;
+    }
+
+    /**
+     * Resolve the source metadata field on the related entity for an additional target field.
+     *
+     * <p>The source field is declared by the {@link ItemAuthorityExtraMetadataGenerator} mapped to
+     * the target field in the configuration. Only {@link ItemSimpleAuthorityMetadataGenerator}
+     * exposes the source field; other generators cannot be read at runtime and yield no source.</p>
+     *
+     * @param context       the DSpace context
+     * @param relationship  the relationship that produced the derived values
+     * @param endpoint      the owner endpoint item of the relationship
+     * @param targetField   the fully qualified target metadata field
+     * @return the source metadata field, or {@code null} if it cannot be resolved
+     * @throws SQLException if the generator cannot be resolved
+     */
+    private String getSourceField(Context context, Relationship relationship, Item endpoint,
+                                  String targetField) throws SQLException {
+        Optional<ItemAuthorityExtraMetadataGenerator> generator =
+            relationshipConfigurationService.getMetadataGenerator(context, relationship, endpoint, targetField);
+        if (generator.isEmpty() || !(generator.get() instanceof ItemSimpleAuthorityMetadataGenerator simple)) {
+            return null;
+        }
+        String qualifier = simple.getQualifier();
+        return simple.getSchema() + "." + simple.getElement()
+            + (StringUtils.isBlank(qualifier) ? "" : "." + qualifier);
+    }
+
+    /**
+     * Collect the derived values currently stored on the item, keyed by relationship and target field.
+     *
+     * <p>A derived value is a relationship-backed value that is not the primary value of its
+     * relationship. Values that cannot be classified are ignored: this enhancer only owns values it
+     * can attribute to a configured relationship.</p>
+     *
+     * @param context the DSpace context
+     * @param item the enhanced item
+     * @return the current derived values
+     * @throws SQLException if the relationship configuration cannot be resolved
+     */
+    private Map<AdditionalKey, List<MetadataValue>> getCurrentAdditionals(Context context, Item item)
+        throws SQLException {
+        Map<AdditionalKey, List<MetadataValue>> additionals = new LinkedHashMap<>();
+        for (MetadataValue value : new ArrayList<>(item.getMetadata())) {
+            Relationship relationship = value.getRelationship();
+            if (relationship == null || !isConfigured(relationship)
+                || relationshipConfigurationService.isPrimaryMetadata(context, relationship, value)) {
+                continue;
+            }
+            Item owner = (Item) value.getDSpaceObject();
+            String targetField = fieldName(value);
+            if (!relationshipConfigurationService.getAdditionalMetadataFields(context, relationship, owner)
+                .contains(targetField)) {
+                continue;
+            }
+            additionals.computeIfAbsent(new AdditionalKey(relationship.getID(), targetField),
+                key -> new ArrayList<>()).add(value);
+        }
+        return additionals;
+    }
+
+    /**
+     * Reconcile the current derived values with the desired state.
+     *
+     * @param context   the DSpace context
+     * @param item      the enhanced item
+     * @param current   the current derived values
+     * @param desired   the desired derived values
+     * @param deepMode  whether the reconciliation is a full rebuild
+     * @return true if anything changed
+     * @throws SQLException if a value cannot be added or removed
+     */
+    private boolean reconcile(Context context, Item item, Map<AdditionalKey, List<MetadataValue>> current,
+                              DesiredState desired, boolean deepMode) throws SQLException {
+        boolean changed = false;
+        if (deepMode) {
+            changed = deleteAdditionals(context, current.values().stream().flatMap(List::stream).toList());
+            for (Map.Entry<AdditionalKey, List<DesiredValue>> entry : desired.values().entrySet()) {
+                Relationship relationship = desired.relationships().get(entry.getKey().relationshipId());
+                for (DesiredValue value : entry.getValue()) {
+                    addAdditional(context, item, relationship, entry.getKey().targetField(), value);
+                    changed = true;
+                }
+            }
+            return changed;
+        }
+        for (Map.Entry<AdditionalKey, List<DesiredValue>> entry : desired.values().entrySet()) {
+            List<MetadataValue> currentValues = current.getOrDefault(entry.getKey(), List.of());
+            if (!equivalent(currentValues, entry.getValue())) {
+                changed = deleteAdditionals(context, currentValues) || changed;
+                Relationship relationship = desired.relationships().get(entry.getKey().relationshipId());
+                for (DesiredValue value : entry.getValue()) {
+                    addAdditional(context, item, relationship, entry.getKey().targetField(), value);
+                }
+                changed = true;
+            }
+        }
+        for (Map.Entry<AdditionalKey, List<MetadataValue>> entry : current.entrySet()) {
+            if (!desired.values().containsKey(entry.getKey())) {
+                changed = deleteAdditionals(context, entry.getValue()) || changed;
+            }
+        }
+        return changed;
+    }
+
+    /**
+     * Check whether the persisted values already match the desired values.
+     *
+     * @param current the persisted values
+     * @param desired the desired values
+     * @return true when no write is needed
+     */
+    private boolean equivalent(List<MetadataValue> current, List<DesiredValue> desired) {
+        if (current.size() != desired.size()) {
+            return false;
+        }
+        for (int i = 0; i < current.size(); i++) {
+            MetadataValue value = current.get(i);
+            DesiredValue expected = desired.get(i);
+            if (!StringUtils.equals(value.getValue(), expected.value())
+                || !StringUtils.equals(value.getLanguage(), expected.language())
+                || !StringUtils.equals(value.getAuthority(), expected.authority())) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Add a single derived value and stamp it with its relationship.
+     *
+     * <p>The relationship and authority are set through the metadata value service because virtual
+     * fields are not authority controlled and would otherwise silently drop the authority.</p>
+     *
+     * @param context      the DSpace context
+     * @param item         the enhanced item
+     * @param relationship the relationship that produced the value, may be null
+     * @param targetField  the fully qualified target metadata field
+     * @param value        the value to persist
+     * @throws SQLException if the value cannot be persisted
+     */
+    private void addAdditional(Context context, Item item, Relationship relationship, String targetField,
+                               DesiredValue value) throws SQLException {
+        String[] parts = targetField.split("\\.");
+        if (parts.length < 2) {
+            throw new IllegalArgumentException("Invalid additional metadata field: " + targetField);
+        }
+        String qualifier = parts.length > 2 ? parts[2] : null;
+        MetadataValue added = itemService.addMetadata(context, item, parts[0], parts[1], qualifier, value.language(),
+            value.value(), null, value.confidence());
+        if (added == null) {
+            return;
+        }
+        if (relationship != null) {
+            added.setRelationship(relationship);
+        }
+        if (StringUtils.isNotBlank(value.authority())) {
+            added.setAuthority(value.authority());
+        }
+        metadataValueService.update(context, added);
+    }
+
+    /**
+     * Delete derived values without going through the relationship-aware removal logic: these
+     * values are not primary values, so removing them must never tear the relationship down.
+     *
+     * @param context the DSpace context
+     * @param values  the values to delete
+     * @return true when at least one value was deleted
+     * @throws SQLException if a value cannot be deleted
+     */
+    private boolean deleteAdditionals(Context context, List<MetadataValue> values) throws SQLException {
+        boolean changed = false;
+        for (MetadataValue value : values) {
+            value.getDSpaceObject().getMetadata().remove(value);
+            metadataValueService.delete(context, value);
+            changed = true;
+        }
+        return changed;
+    }
+
+    /**
+     * Whether the relationship is backed by a resolvable configuration. Classification and
+     * field-resolution are delegated to the configuration service, which resolves the configuration
+     * from the relationship internally; this guard only screens out relationships that carry no
+     * configuration key at all.
+     *
+     * @param relationship the relationship to inspect
+     * @return true when the relationship carries a configuration key
+     */
+    private boolean isConfigured(Relationship relationship) {
+        return StringUtils.isNotBlank(relationship.getRelationshipConfigKey());
+    }
+
+    private boolean isLeftEndpoint(Relationship relationship, Item item) {
+        return relationship.getLeftItem() != null && relationship.getLeftItem().getID().equals(item.getID());
+    }
+
+    private String fieldName(MetadataValue value) {
+        return RelationshipConfigurationServiceImpl.fieldName(value);
     }
 
     public void setSourceEntityTypes(List<String> sourceEntityTypes) {
         this.sourceEntityTypes = sourceEntityTypes;
     }
 
-    public void setRelatedItemMetadataFields(List<String> relatedItemMetadataFields) {
-        this.relatedItemMetadataFields = relatedItemMetadataFields;
+    /**
+     * Identity of a derived value: the relationship of the hop plus the target metadata field.
+     */
+    private record AdditionalKey(Integer relationshipId, String targetField) {
     }
 
-    public void setSourceItemMetadataFields(List<String> sourceItemMetadataFields) {
-        this.sourceItemMetadataFields = sourceItemMetadataFields;
+    /**
+     * The desired derived values together with the relationships that produce them.
+     *
+     * @param values        the desired values per relationship and target field
+     * @param relationships the relationships indexed by id
+     */
+    private record DesiredState(Map<AdditionalKey, List<DesiredValue>> values,
+                                Map<Integer, Relationship> relationships) {
+    }
+
+    /**
+     * A value that should be persisted for a derived field.
+     */
+    private record DesiredValue(String value, String language, String authority, int confidence) {
+        private DesiredValue {
+            Objects.requireNonNull(value);
+        }
     }
 
 }

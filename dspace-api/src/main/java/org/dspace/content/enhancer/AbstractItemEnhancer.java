@@ -23,7 +23,7 @@ public abstract class AbstractItemEnhancer implements ItemEnhancer {
      * <p>
      * The virtual qualifier is a metadata qualifier that serves as the suffix for
      * dynamically generated virtual metadata fields. These fields follow the pattern
-     * {@code dspace.virtual.<virtualQualifier>} and {@code dspace.virtualsource.<virtualQualifier>}.
+     * {@code dspace.virtual.<virtualQualifier>}.
      * </p>
      * <p>
      * Virtual metadata fields are used to copy and denormalize metadata from related
@@ -33,15 +33,12 @@ public abstract class AbstractItemEnhancer implements ItemEnhancer {
      * linked author entities.
      * </p>
      * <p>
-     * The {@code dspace.virtual.<qualifier>} fields contain the actual copied values,
-     * while {@code dspace.virtualsource.<qualifier>} fields track the authority
-     * sources (UUIDs) of the related entities from which the values were derived.
+     * The {@code dspace.virtual.<qualifier>} fields contain the actual copied values.
      * </p>
      * 
      * @return the virtual qualifier string used to construct virtual metadata field names,
      *         or null if not set
      * @see #getVirtualMetadataField()
-     * @see #getVirtualSourceMetadataField()
      */
     public String getVirtualQualifier() {
         return virtualQualifier;
@@ -51,8 +48,7 @@ public abstract class AbstractItemEnhancer implements ItemEnhancer {
      * Sets the virtual qualifier used to construct virtual metadata field names.
      * <p>
      * The virtual qualifier defines the suffix for dynamically generated virtual
-     * metadata fields that follow the pattern {@code dspace.virtual.<virtualQualifier>}
-     * and {@code dspace.virtualsource.<virtualQualifier>}.
+     * metadata fields that follow the pattern {@code dspace.virtual.<virtualQualifier>}.
      * </p>
      * <p>
      * This qualifier determines what type of virtual metadata will be created by
@@ -74,10 +70,6 @@ public abstract class AbstractItemEnhancer implements ItemEnhancer {
 
     protected String getVirtualMetadataField() {
         return VIRTUAL_METADATA_SCHEMA + "." + VIRTUAL_METADATA_ELEMENT + "." + virtualQualifier;
-    }
-
-    protected String getVirtualSourceMetadataField() {
-        return VIRTUAL_METADATA_SCHEMA + "." + VIRTUAL_SOURCE_METADATA_ELEMENT + "." + virtualQualifier;
     }
 
 }

@@ -86,9 +86,10 @@ public class ItemEnhancerConsumer implements Consumer {
                         solrRequireCommit = true;
                         indexService.indexContent(ctx, new IndexableItem(item), true);
                     }
-                    // we need to put in the queue all the related items also if the current item
-                    // doesn't require enhancement as the related items could depends on normal
-                    // metadata of this item changed in the context
+                    // A change of normal metadata on this item can affect the derived values of its
+                    // related items, so the dependents are queued for an enhancement check. The
+                    // fixpoint is guaranteed by the service, which only re-enqueues when a derived
+                    // value actually changed, so cyclic or deep graphs terminate.
                     itemEnhancerService.saveAffectedItemsForUpdate(ctx, item.getID());
                 }
             }
