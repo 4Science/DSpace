@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+           http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
+
+    <!--
+        Test-only extension of the workspace discovery configuration.
+        The production workspace configuration is shared by
+        DiscoveryConfigurationService, so tests must not mutate it.
+    -->
+    <bean id="testMultiLanguageTypesWorkspaceConfiguration"
+          class="org.dspace.discovery.configuration.DiscoveryConfiguration"
+          parent="workspaceConfiguration"
+          scope="prototype">
+        <property name="id" value="testMultiLanguageTypesWorkspace"/>
+        <property name="sidebarFacets">
+            <list merge="true">
+                <ref bean="searchFilterTypes"/>
+            </list>
+        </property>
+        <property name="searchFilters">
+            <list merge="true">
+                <ref bean="searchFilterTypes"/>
+            </list>
+        </property>
+    </bean>
+</beans>
