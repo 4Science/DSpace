@@ -25,6 +25,7 @@ import java.net.URLConnection;
 import java.util.Optional;
 
 import org.dspace.AbstractDSpaceTest;
+import org.dspace.scripts.handler.DSpaceRunnableHandler;
 import org.dspace.services.ConfigurationService;
 import org.dspace.services.factory.DSpaceServicesFactory;
 import org.junit.After;
@@ -266,6 +267,32 @@ public class ImportFileUtilTest extends AbstractDSpaceTest {
         // Then
         assertTrue(result.isPresent());
         verify(urlConnection).getInputStream();
+        // The same connect/read timeouts applied to HTTP(S) are applied to FTP too.
+        verify(urlConnection).setConnectTimeout(30_000);
+        verify(urlConnection).setReadTimeout(30_000);
+    }
+
+    @Test
+    public void getInputStream_shouldReturnStream_whenFtpHostMatchesWildcard() throws Exception {
+        // Given the explicit "allow all" escape hatch, FTP retrieval from any host is permitted.
+        when(configurationService.getArrayProperty("allowed.ips.import"))
+            .thenReturn(new String[] {"*"});
+
+        String ftpPath = "ftp://any.example/file.txt";
+        URL mockUrl = mock(URL.class);
+        InputStream mockInputStream = mock(InputStream.class);
+
+        doReturn(mockUrl).when(importFileUtil).getUrl(ftpPath);
+        when(mockUrl.getHost()).thenReturn("any.example");
+        when(mockUrl.openConnection()).thenReturn(urlConnection);
+        when(urlConnection.getInputStream()).thenReturn(mockInputStream);
+
+        // When
+        Optional<InputStream> result = importFileUtil.getInputStream(ftpPath);
+
+        // Then
+        assertTrue(result.isPresent());
+        verify(urlConnection).getInputStream();
     }
 
     @Test
@@ -274,27 +301,53 @@ public class ImportFileUtilTest extends AbstractDSpaceTest {
         when(configurationService.getArrayProperty("allowed.ips.import"))
             .thenReturn(new String[] {"example.com"});
 
+        DSpaceRunnableHandler handler = mock(DSpaceRunnableHandler.class);
+        ImportFileUtil utilWithHandler = spy(new ImportFileUtil(handler));
+
         String ftpPath = "ftp://example.com/file.txt";
         URL mockUrl = mock(URL.class);
 
-        doReturn(mockUrl).when(importFileUtil).getUrl(ftpPath);
+        doReturn(mockUrl).when(utilWithHandler).getUrl(ftpPath);
         when(mockUrl.getHost()).thenReturn("example.com");
         when(mockUrl.openConnection()).thenReturn(urlConnection);
         when(urlConnection.getInputStream()).thenReturn(null);
 
         // When
-        Optional<InputStream> result = importFileUtil.getInputStream(ftpPath);
+        Optional<InputStream> result = utilWithHandler.getInputStream(ftpPath);
 
-        // Then
+        // Then: the failure is logged as an error and an empty result is returned.
         assertFalse(result.isPresent());
         verify(urlConnection).getInputStream();
+        verify(handler).logError("Failed to obtain InputStream for FTP URL: ftp://example.com/file.txt. "
+            + "getInputStream() returned null");
     }
 
     @Test
     public void getInputStream_shouldReturnEmpty_whenFtpHostNotAllowed() throws Exception {
-        // Given an empty allowlist, the FTP path must also fail closed (previously ungated).
+        // Given a non-empty allowlist that does not contain the FTP host, the FTP path must
+        // reject the URL without opening any connection.
         when(configurationService.getArrayProperty("allowed.ips.import"))
-            .thenReturn(new String[] {});
+            .thenReturn(new String[] {"otherdomain.com"});
+
+        String ftpPath = "ftp://example.com/file.txt";
+        URL mockUrl = mock(URL.class);
+
+        doReturn(mockUrl).when(importFileUtil).getUrl(ftpPath);
+        when(mockUrl.getHost()).thenReturn("example.com");
+
+        // When
+        Optional<InputStream> result = importFileUtil.getInputStream(ftpPath);
+
+        // Then: no connection is ever opened.
+        assertFalse(result.isPresent());
+        verify(mockUrl, never()).openConnection();
+    }
+
+    @Test
+    public void getInputStream_shouldReturnEmpty_whenFtpAllowlistIsNull() throws Exception {
+        // Given a null allowlist (property absent), the FTP path must fail closed too.
+        when(configurationService.getArrayProperty("allowed.ips.import"))
+            .thenReturn(null);
 
         String ftpPath = "ftp://example.com/file.txt";
         URL mockUrl = mock(URL.class);
