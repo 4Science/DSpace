@@ -835,7 +835,7 @@ public class DiscoveryIT extends AbstractIntegrationTestWithDatabase {
     }
 
     @Test
-    public void searchWithMultiLanguageDiscoverFacetTest()
+    public void searchWithTypesFacetFilterUsesWorkspaceLastModifiedSortTest()
         throws SearchServiceException, SQLException, SubmissionConfigReaderException {
         String originalPlugin = configurationService.getProperty("choices.plugin.dc.type");
         String originalControlled = configurationService.getProperty("authority.controlled.dc.type");
