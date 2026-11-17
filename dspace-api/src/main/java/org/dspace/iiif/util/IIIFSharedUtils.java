@@ -41,6 +41,8 @@ public class IIIFSharedUtils {
     public static final String OTHER_CONTENT_BUNDLE = "OtherContent";
     // The IIIF image server url from configuration
     protected static final String IMAGE_SERVER_PATH = "iiif.image.server";
+    // Comma separated list of bundle names that must not be used as IIIF resources
+    protected static final String EXCLUDE_BUNDLE_PROPERTY = "iiif.exclude.bundle";
     // IIIF metadata definitions
     public static final String METADATA_IIIF_SCHEMA  = "iiif";
     public static final String METADATA_IIIF_IMAGE_ELEMENT = "image";
@@ -141,9 +143,27 @@ public class IIIFSharedUtils {
         return !StringUtils.equalsAnyIgnoreCase(b.getName(), Constants.LICENSE_BUNDLE_NAME,
             Constants.METADATA_BUNDLE_NAME, CreativeCommonsServiceImpl.CC_BUNDLE_NAME, "THUMBNAIL",
             "BRANDED_PREVIEW", "TEXT", OTHER_CONTENT_BUNDLE)
+            && !isExcludedBundle(b)
             && b.getMetadata().stream()
                 .filter(m -> m.getMetadataField().toString('.').contentEquals(METADATA_IIIF_ENABLED))
                 .noneMatch(m -> m.getValue().equalsIgnoreCase("false") || m.getValue().equalsIgnoreCase("no"));
+    }
+
+    /**
+     * Check if the bundle name is listed in the {@value #EXCLUDE_BUNDLE_PROPERTY} configuration
+     * (comma separated list, case insensitive).
+     *
+     * @param b the DSpace bundle to check
+     * @return true if the bundle must be excluded from the IIIF resources
+     */
+    private static boolean isExcludedBundle(Bundle b) {
+        String[] excluded = configurationService.getArrayProperty(EXCLUDE_BUNDLE_PROPERTY);
+        for (String name : excluded) {
+            if (StringUtils.equalsIgnoreCase(StringUtils.trim(name), b.getName())) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
