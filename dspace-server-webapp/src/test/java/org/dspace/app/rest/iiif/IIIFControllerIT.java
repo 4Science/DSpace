@@ -344,6 +344,121 @@ public class IIIFControllerIT extends AbstractControllerIntegrationTest {
                 .andExpect(jsonPath("$.sequences[0].canvases[0].label", is("Custom Label")));
     }
 
+    @Test
+    public void findOneWithBundleExcludedByConfigurationIT() throws Exception {
+        context.turnOffAuthorisationSystem();
+        parentCommunity = CommunityBuilder.createCommunity(context)
+                .withName("Parent Community")
+                .build();
+        Collection col1 = CollectionBuilder.createCollection(context, parentCommunity).withName("Collection 1")
+                .build();
+        Item publicItem1 = ItemBuilder.createItem(context, col1)
+                .withTitle("Public item 1")
+                .withIssueDate("2017-10-17")
+                .withAuthor("Smith, Donald").withAuthor("Doe, John")
+                .enableIIIF()
+                .build();
+
+        String bitstreamContent = "ThisIsSomeText";
+        Bitstream bitstream1 = null;
+        try (InputStream is = IOUtils.toInputStream(bitstreamContent, CharEncoding.UTF_8)) {
+            bitstream1 = BitstreamBuilder
+                    .createBitstream(context, publicItem1, is)
+                    .withName("Bitstream1.jpg")
+                    .withMimeType("image/jpeg")
+                    .withIIIFLabel("Custom Label")
+                    .build();
+        }
+        // bitstream in the bundle excluded by the iiif.exclude.bundle configuration
+        Bitstream bitstream2 = null;
+        try (InputStream is = IOUtils.toInputStream(bitstreamContent, CharEncoding.UTF_8)) {
+            bitstream2 = BitstreamBuilder
+                    .createBitstream(context, publicItem1, is, "HIDDEN")
+                    .withName("Bitstream2.jpg")
+                    .withMimeType("image/jpeg")
+                    .build();
+        }
+        context.restoreAuthSystemState();
+
+        String[] originalExcludedBundles = configurationService.getArrayProperty("iiif.exclude.bundle");
+        try {
+            // the match is case insensitive and spaces around the names are ignored
+            configurationService.setProperty("iiif.exclude.bundle", new String[] {"OTHER", " hidden "});
+
+            getClient().perform(get("/iiif/" + publicItem1.getID() + "/manifest"))
+                    .andExpect(status().isOk())
+                    .andExpect(header().string("Content-Type", "application/json;charset=UTF-8"))
+                    .andExpect(jsonPath("$.sequences[0].canvases", Matchers.hasSize(1)))
+                    .andExpect(jsonPath("$.sequences[0].canvases[0].@id",
+                        containsString(
+                            "/iiif/" + publicItem1.getID().toString() + "/canvas/" + bitstream1.getID().toString()
+                        )
+                    ))
+                    .andExpect(jsonPath("$.sequences[0].canvases[*].@id",
+                        not(
+                            containsString(
+                                "/iiif/" + publicItem1.getID().toString() + "/canvas/"
+                                    + bitstream2.getID().toString()
+                            )
+                        )
+                    ))
+                    .andExpect(jsonPath("$.sequences[0].canvases[0].label", is("Custom Label")));
+        } finally {
+            configurationService.setProperty("iiif.exclude.bundle", originalExcludedBundles);
+        }
+    }
+
+    @Test
+    public void findOneWithBundleNotExcludedWhenConfigurationIsEmptyIT() throws Exception {
+        context.turnOffAuthorisationSystem();
+        parentCommunity = CommunityBuilder.createCommunity(context)
+                .withName("Parent Community")
+                .build();
+        Collection col1 = CollectionBuilder.createCollection(context, parentCommunity).withName("Collection 1")
+                .build();
+        Item publicItem1 = ItemBuilder.createItem(context, col1)
+                .withTitle("Public item 1")
+                .withIssueDate("2017-10-17")
+                .withAuthor("Smith, Donald").withAuthor("Doe, John")
+                .enableIIIF()
+                .build();
+
+        String bitstreamContent = "ThisIsSomeText";
+        Bitstream bitstream1 = null;
+        try (InputStream is = IOUtils.toInputStream(bitstreamContent, CharEncoding.UTF_8)) {
+            bitstream1 = BitstreamBuilder
+                    .createBitstream(context, publicItem1, is)
+                    .withName("Bitstream1.jpg")
+                    .withMimeType("image/jpeg")
+                    .build();
+        }
+        Bitstream bitstream2 = null;
+        try (InputStream is = IOUtils.toInputStream(bitstreamContent, CharEncoding.UTF_8)) {
+            bitstream2 = BitstreamBuilder
+                    .createBitstream(context, publicItem1, is, "HIDDEN")
+                    .withName("Bitstream2.jpg")
+                    .withMimeType("image/jpeg")
+                    .build();
+        }
+        context.restoreAuthSystemState();
+
+        String[] originalExcludedBundles = configurationService.getArrayProperty("iiif.exclude.bundle");
+        try {
+            // without configuration the HIDDEN bundle is handled as any other bundle
+            configurationService.setProperty("iiif.exclude.bundle", new String[] {});
+
+            getClient().perform(get("/iiif/" + publicItem1.getID() + "/manifest"))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.sequences[0].canvases", Matchers.hasSize(2)))
+                    .andExpect(jsonPath("$.sequences[0].canvases[*].@id",
+                        Matchers.hasItems(
+                            containsString("/canvas/" + bitstream1.getID().toString()),
+                            containsString("/canvas/" + bitstream2.getID().toString()))));
+        } finally {
+            configurationService.setProperty("iiif.exclude.bundle", originalExcludedBundles);
+        }
+    }
+
 
     @Test
     public void findOneIIIFSearchableWithCustomBundleAndConfigIT() throws Exception {
