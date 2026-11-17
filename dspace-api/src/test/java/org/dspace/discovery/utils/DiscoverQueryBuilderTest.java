@@ -10,6 +10,7 @@ package org.dspace.discovery.utils;
 import static java.util.Collections.emptyList;
 import static org.dspace.discovery.configuration.DiscoveryConfigurationParameters.SORT.COUNT;
 import static org.dspace.discovery.configuration.DiscoveryConfigurationParameters.SORT.VALUE;
+import static org.dspace.discovery.configuration.DiscoveryConfigurationParameters.TYPE_AUTHORITY;
 import static org.dspace.discovery.configuration.DiscoveryConfigurationParameters.TYPE_HIERARCHICAL;
 import static org.dspace.discovery.configuration.DiscoveryConfigurationParameters.TYPE_TEXT;
 import static org.hamcrest.Matchers.allOf;
@@ -33,6 +34,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
 import java.util.function.Function;
 
 import org.dspace.core.Context;
@@ -52,6 +54,7 @@ import org.dspace.discovery.configuration.DiscoverySearchFilterFacet;
 import org.dspace.discovery.configuration.DiscoverySortConfiguration;
 import org.dspace.discovery.configuration.DiscoverySortFieldConfiguration;
 import org.dspace.discovery.configuration.HierarchicalSidebarFacetConfiguration;
+import org.dspace.discovery.configuration.MultiLanguageDiscoverSearchFilterFacet;
 import org.dspace.discovery.indexobject.IndexableItem;
 import org.dspace.discovery.indexobject.factory.IndexFactory;
 import org.dspace.discovery.utils.parameter.QueryBuilderSearchFilter;
@@ -103,6 +106,7 @@ public class DiscoverQueryBuilderTest {
 
     @Before
     public void setUp() throws Exception {
+        when(context.getCurrentLocale()).thenReturn(Locale.ITALIAN);
         queryBuilder.setIndexableFactories(Collections.singletonList(indexFactory));
 
         when(indexFactory.getType()).thenReturn(IndexableItem.TYPE);
@@ -180,8 +184,15 @@ public class DiscoverQueryBuilderTest {
         hierarchyFacet.setType(TYPE_HIERARCHICAL);
         hierarchyFacet.setFacetLimit(7);
         hierarchyFacet.setSortOrderSidebar(VALUE);
-        discoveryConfiguration.setSidebarFacets(Arrays.asList(subjectFacet, dateFacet, hierarchyFacet));
-        discoveryConfiguration.setSearchFilters(Arrays.asList(subjectFacet, dateFacet, hierarchyFacet));
+
+        MultiLanguageDiscoverSearchFilterFacet multiLangFacet = new MultiLanguageDiscoverSearchFilterFacet();
+        multiLangFacet.setIndexFieldName("types");
+        multiLangFacet.setType(TYPE_AUTHORITY);
+        multiLangFacet.setFacetLimit(7);
+        multiLangFacet.setSortOrderSidebar(VALUE);
+
+        discoveryConfiguration.setSidebarFacets(Arrays.asList(subjectFacet, dateFacet, hierarchyFacet, multiLangFacet));
+        discoveryConfiguration.setSearchFilters(Arrays.asList(subjectFacet, dateFacet, hierarchyFacet, multiLangFacet));
 
         searchFilter = new QueryBuilderSearchFilter("subject", "equals", "Java");
         query = "my test case";
@@ -205,10 +216,11 @@ public class DiscoverQueryBuilderTest {
         assertThat(discoverQuery.getStart(), is(10));
         assertThat(discoverQuery.getFacetMinCount(), is(1));
         assertThat(discoverQuery.getFacetOffset(), is(0));
-        assertThat(discoverQuery.getFacetFields(), hasSize(2));
+        assertThat(discoverQuery.getFacetFields(), hasSize(3));
         assertThat(discoverQuery.getFacetFields(), containsInAnyOrder(
                 discoverFacetFieldMatcher(new DiscoverFacetField("subject", TYPE_TEXT, 6, COUNT)),
-                discoverFacetFieldMatcher(new DiscoverFacetField("hierarchy", TYPE_HIERARCHICAL, 8, VALUE))
+                discoverFacetFieldMatcher(new DiscoverFacetField("hierarchy", TYPE_HIERARCHICAL, 8, VALUE)),
+                discoverFacetFieldMatcher(new DiscoverFacetField("it_types", TYPE_AUTHORITY, 8, VALUE))
         ));
         assertThat(discoverQuery.getHitHighlightingFields(), hasSize(2));
         assertThat(discoverQuery.getHitHighlightingFields(), containsInAnyOrder(
@@ -234,10 +246,11 @@ public class DiscoverQueryBuilderTest {
         assertThat(discoverQuery.getStart(), is(0));
         assertThat(discoverQuery.getFacetMinCount(), is(1));
         assertThat(discoverQuery.getFacetOffset(), is(0));
-        assertThat(discoverQuery.getFacetFields(), hasSize(2));
+        assertThat(discoverQuery.getFacetFields(), hasSize(3));
         assertThat(discoverQuery.getFacetFields(), containsInAnyOrder(
                 discoverFacetFieldMatcher(new DiscoverFacetField("subject", TYPE_TEXT, 6, COUNT)),
-                discoverFacetFieldMatcher(new DiscoverFacetField("hierarchy", TYPE_HIERARCHICAL, 8, VALUE))
+                discoverFacetFieldMatcher(new DiscoverFacetField("hierarchy", TYPE_HIERARCHICAL, 8, VALUE)),
+                discoverFacetFieldMatcher(new DiscoverFacetField("it_types", TYPE_AUTHORITY, 8, VALUE))
         ));
         assertThat(discoverQuery.getHitHighlightingFields(), hasSize(2));
         assertThat(discoverQuery.getHitHighlightingFields(), containsInAnyOrder(
@@ -263,10 +276,11 @@ public class DiscoverQueryBuilderTest {
         assertThat(discoverQuery.getStart(), is(20));
         assertThat(discoverQuery.getFacetMinCount(), is(1));
         assertThat(discoverQuery.getFacetOffset(), is(0));
-        assertThat(discoverQuery.getFacetFields(), hasSize(2));
+        assertThat(discoverQuery.getFacetFields(), hasSize(3));
         assertThat(discoverQuery.getFacetFields(), containsInAnyOrder(
                 discoverFacetFieldMatcher(new DiscoverFacetField("subject", TYPE_TEXT, 6, COUNT)),
-                discoverFacetFieldMatcher(new DiscoverFacetField("hierarchy", TYPE_HIERARCHICAL, 8, VALUE))
+                discoverFacetFieldMatcher(new DiscoverFacetField("hierarchy", TYPE_HIERARCHICAL, 8, VALUE)),
+                discoverFacetFieldMatcher(new DiscoverFacetField("it_types", TYPE_AUTHORITY, 8, VALUE))
         ));
         assertThat(discoverQuery.getHitHighlightingFields(), hasSize(2));
         assertThat(discoverQuery.getHitHighlightingFields(), containsInAnyOrder(
@@ -325,6 +339,43 @@ public class DiscoverQueryBuilderTest {
         assertThat(discoverQuery.getFacetFields(), hasSize(1));
         assertThat(discoverQuery.getFacetFields(), contains(
                 discoverFacetFieldMatcher(new DiscoverFacetField("subject", TYPE_TEXT, 11, COUNT, "prefix", 10))
+        ));
+    }
+
+    @Test
+    public void testMultiLanguageFacetFieldPrefixing() throws Exception {
+        QueryBuilderSearchFilter searchFilter = new QueryBuilderSearchFilter("types", "equals", "Dataset");
+
+        DiscoverQuery discoverQuery = queryBuilder.buildFacetQuery(context, scope, discoveryConfiguration, "prefix",
+            query, Collections.singletonList(searchFilter),
+            "item", pageSize, offset, "types");
+
+        assertThat(discoverQuery.getFilterQueries(), containsInAnyOrder("archived:true", "it_types:\"Dataset\""));
+        assertThat(discoverQuery.getQuery(), is(query));
+        assertThat(discoverQuery.getDSpaceObjectFilters(), contains(IndexableItem.TYPE));
+        assertThat(discoverQuery.getSortField(), isEmptyOrNullString());
+        assertThat(discoverQuery.getMaxResults(), is(0));
+        assertThat(discoverQuery.getStart(), is(0));
+        assertThat(discoverQuery.getFacetMinCount(), is(1));
+        assertThat(discoverQuery.getFacetFields(), hasSize(1));
+        assertThat(discoverQuery.getFacetFields(), contains(
+            discoverFacetFieldMatcher(new DiscoverFacetField("it_types", TYPE_AUTHORITY, 11, COUNT, "prefix", 10))
+        ));
+    }
+
+    @Test
+    public void testMultiLanguageFacetAuthorityFilterIsNotLanguagePrefixed() {
+        QueryBuilderSearchFilter searchFilter = new QueryBuilderSearchFilter("types", "authority", "Dataset");
+        DiscoverQuery discoverQuery = queryBuilder.buildFacetQuery(context, scope, discoveryConfiguration, "prefix",
+            query, Collections.singletonList(searchFilter), "item", pageSize, offset, "types");
+
+        assertThat(discoverQuery.getFilterQueries(), containsInAnyOrder("archived:true", "types:\"Dataset\""));
+        assertThat(discoverQuery.getQuery(), is(query));
+        assertThat(discoverQuery.getDSpaceObjectFilters(), contains(IndexableItem.TYPE));
+        assertThat(discoverQuery.getFacetMinCount(), is(1));
+        assertThat(discoverQuery.getFacetFields(), hasSize(1));
+        assertThat(discoverQuery.getFacetFields(), contains(
+            discoverFacetFieldMatcher(new DiscoverFacetField("it_types", TYPE_AUTHORITY, 11, COUNT, "prefix", 10))
         ));
     }
 

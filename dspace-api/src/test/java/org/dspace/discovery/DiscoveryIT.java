@@ -14,6 +14,7 @@ import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
@@ -32,6 +33,7 @@ import org.apache.solr.common.SolrDocument;
 import org.dspace.AbstractIntegrationTestWithDatabase;
 import org.dspace.app.launcher.ScriptLauncher;
 import org.dspace.app.scripts.handler.impl.TestDSpaceRunnableHandler;
+import org.dspace.app.util.SubmissionConfigReaderException;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.builder.ClaimedTaskBuilder;
 import org.dspace.builder.CollectionBuilder;
@@ -46,12 +48,16 @@ import org.dspace.content.Community;
 import org.dspace.content.Item;
 import org.dspace.content.WorkspaceItem;
 import org.dspace.content.authority.Choices;
+import org.dspace.content.authority.DCInputAuthority;
 import org.dspace.content.authority.factory.ContentAuthorityServiceFactory;
+import org.dspace.content.authority.service.ChoiceAuthorityService;
 import org.dspace.content.authority.service.MetadataAuthorityService;
 import org.dspace.content.factory.ContentServiceFactory;
 import org.dspace.content.service.CollectionService;
 import org.dspace.content.service.ItemService;
 import org.dspace.content.service.WorkspaceItemService;
+import org.dspace.core.factory.CoreServiceFactory;
+import org.dspace.core.service.PluginService;
 import org.dspace.discovery.configuration.DiscoveryConfiguration;
 import org.dspace.discovery.configuration.DiscoverySortFieldConfiguration;
 import org.dspace.discovery.indexobject.IndexableClaimedTask;
@@ -60,6 +66,7 @@ import org.dspace.discovery.indexobject.IndexableItem;
 import org.dspace.discovery.indexobject.IndexablePoolTask;
 import org.dspace.discovery.indexobject.IndexableWorkflowItem;
 import org.dspace.discovery.indexobject.IndexableWorkspaceItem;
+import org.dspace.discovery.utils.parameter.QueryBuilderSearchFilter;
 import org.dspace.eperson.EPerson;
 import org.dspace.services.ConfigurationService;
 import org.dspace.services.factory.DSpaceServicesFactory;
@@ -107,6 +114,10 @@ public class DiscoveryIT extends AbstractIntegrationTestWithDatabase {
     MetadataAuthorityService metadataAuthorityService = ContentAuthorityServiceFactory.getInstance()
                                                                                       .getMetadataAuthorityService();
 
+    private PluginService pluginService = CoreServiceFactory.getInstance().getPluginService();
+
+    private ChoiceAuthorityService cas = ContentAuthorityServiceFactory.getInstance().getChoiceAuthorityService();
+
     MockSolrSearchCore solrSearchCore = DSpaceServicesFactory.getInstance().getServiceManager()
         .getServiceByName(null, MockSolrSearchCore.class);
 
@@ -116,6 +127,19 @@ public class DiscoveryIT extends AbstractIntegrationTestWithDatabase {
         super.setUp();
         configurationService.setProperty("solr-database-resync.time-until-reindex", 1);
         searchService = SearchUtils.getSearchService();
+    }
+
+    private void reloadChoiceAuthorityConfiguration() throws SubmissionConfigReaderException {
+        // These clears have to happen so that the config is actually reloaded in those classes. This is needed for
+        // the properties that we're altering above and this is only used within the tests
+        DCInputAuthority.reset();
+        pluginService.clearNamedPluginClasses();
+
+        // The following line is needed to call init() method in the ChoiceAuthorityServiceImpl class, without it
+        // the `submissionConfigService` will be null what will cause a NPE in the clearCache() method
+        // https://github.com/DSpace/DSpace/issues/9292
+        cas.getChoiceAuthoritiesNames();
+        cas.clearCache();
     }
 
     @Test
@@ -807,6 +831,62 @@ public class DiscoveryIT extends AbstractIntegrationTestWithDatabase {
         assertFalse(lastModifieds.isEmpty());
         for (int i = 1; i < lastModifieds.size() - 1; i++) {
             assertTrue(lastModifieds.get(i).compareTo(lastModifieds.get(i + 1)) >= 0);
+        }
+    }
+
+    @Test
+    public void searchWithTypesFacetFilterUsesWorkspaceLastModifiedSortTest()
+        throws SearchServiceException, SQLException, SubmissionConfigReaderException {
+        String originalPlugin = configurationService.getProperty("choices.plugin.dc.type");
+        String originalControlled = configurationService.getProperty("authority.controlled.dc.type");
+        try {
+            configurationService.setProperty("choices.plugin.dc.type", "types");
+            configurationService.setProperty("authority.controlled.dc.type", "true");
+            reloadChoiceAuthorityConfiguration();
+
+            DiscoveryConfiguration workspaceConf = DSpaceServicesFactory.getInstance()
+                .getServiceManager()
+                .getServiceByName("testMultiLanguageTypesWorkspaceConfiguration",
+                    DiscoveryConfiguration.class);
+            assertNotNull(workspaceConf);
+            assertNotNull(workspaceConf.getSearchSortConfiguration());
+            assertNotNull(workspaceConf.getSearchSortConfiguration().getDefaultSortField());
+
+            int numberItems = 10;
+            context.turnOffAuthorisationSystem();
+            EPerson submitter = EPersonBuilder.createEPerson(context).withEmail("submitter@example.org").build();
+            context.setCurrentUser(submitter);
+            Community community = CommunityBuilder.createCommunity(context).build();
+            Collection collection = CollectionBuilder.createCollection(context, community).build();
+
+            for (int i = 0; i < numberItems; i++) {
+                ItemBuilder.createItem(context, collection)
+                    .withTitle("item " + i)
+                    .withEntityType("Publication")
+                    .withType("dataset")
+                    .build();
+            }
+            context.restoreAuthSystemState();
+            context.commit();
+
+            QueryBuilderSearchFilter searchFilter = new QueryBuilderSearchFilter("types", "equals", "dataset");
+            DiscoverQuery discoverQuery = SearchUtils.getQueryBuilder()
+                .buildQuery(context, new IndexableCollection(collection), workspaceConf, "", List.of(searchFilter),
+                    "Item", null, null, null, null);
+
+            DiscoverResult result = searchService.search(context, discoverQuery);
+
+            LinkedList<String> lastModifieds = result.getIndexableObjects().stream()
+                .map(o -> ((Item) o.getIndexedObject()).getLastModified().toString())
+                .collect(Collectors.toCollection(LinkedList::new));
+            assertFalse(lastModifieds.isEmpty());
+            for (int i = 0; i < lastModifieds.size() - 1; i++) {
+                assertTrue(lastModifieds.get(i).compareTo(lastModifieds.get(i + 1)) >= 0);
+            }
+        } finally {
+            configurationService.setProperty("choices.plugin.dc.type", originalPlugin);
+            configurationService.setProperty("authority.controlled.dc.type", originalControlled);
+            reloadChoiceAuthorityConfiguration();
         }
     }
 
