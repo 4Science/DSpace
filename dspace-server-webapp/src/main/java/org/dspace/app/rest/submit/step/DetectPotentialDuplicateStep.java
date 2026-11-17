@@ -39,6 +39,7 @@ import org.dspace.services.RequestService;
 import org.dspace.services.factory.DSpaceServicesFactory;
 import org.dspace.services.model.Request;
 import org.dspace.utils.DSpace;
+import org.dspace.versioning.ItemCorrectionService;
 
 /**
  * Describe step for DSpace Spring Rest. Handle the exposition of metadata own
@@ -50,9 +51,19 @@ public class DetectPotentialDuplicateStep extends AbstractProcessingStep {
 
     public static final String DETECT_DUPLICATE_STEP_ADD_OPERATION_ENTRY = "detectduplicateadd";
 
+    private final ItemCorrectionService itemCorrectionService =
+        DSpaceServicesFactory.getInstance().getServiceManager()
+                    .getServicesByType(ItemCorrectionService.class)
+                    .get(0);
+
     @Override
     public DataDetectDuplicate getData(SubmissionService submissionService, InProgressSubmission obj,
             SubmissionStepConfig config) throws Exception {
+        DataDetectDuplicate result = new DataDetectDuplicate();
+
+        if (itemCorrectionService.checkIfIsCorrectionItem(getContext(), obj.getItem())) {
+            return result;
+        }
 
         IDedupUtils IDedupUtils = new DSpace().getServiceManager().getServiceByName("dedupUtils", IDedupUtils.class);
 
@@ -64,7 +75,7 @@ public class DetectPotentialDuplicateStep extends AbstractProcessingStep {
                                                                                           check);
 
         Map<UUID, DuplicateMatch> matches = processPotentialDuplicates(itemID, check, potentialDuplicates);
-        DataDetectDuplicate result = new DataDetectDuplicate();
+
         if (!matches.isEmpty()) {
             result.setMatches(matches);
         }
