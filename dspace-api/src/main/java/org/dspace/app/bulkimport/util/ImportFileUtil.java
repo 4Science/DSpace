@@ -15,8 +15,10 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -43,6 +45,22 @@ public class ImportFileUtil {
     private static final String FTP_PREFIX = "ftp:";
 
     private static final String UNKNOWN = "UNKNOWN";
+
+    /**
+     * Wildcard value for {@code allowed.ips.import}. When present among the
+     * configured values, remote retrieval is allowed for any host. This is the
+     * deliberate, documented opt-in for operators who want the previous
+     * fetch-any-host behavior; it must be configured explicitly.
+     */
+    private static final String ALLOW_ALL = "*";
+
+    /**
+     * Connect and read timeout (milliseconds) applied to remote/FTP fetches so a
+     * slow or non-responsive host cannot hang the import indefinitely.
+     */
+    private static final int CONNECT_TIMEOUT_MS = 30_000;
+    private static final int READ_TIMEOUT_MS = 30_000;
+
     protected DSpaceRunnableHandler handler;
 
     public ImportFileUtil() {
@@ -75,6 +93,53 @@ public class ImportFileUtil {
         return DSpaceServicesFactory.getInstance()
                                     .getConfigurationService()
                                     .getArrayProperty("allowed.ips.import");
+    }
+
+    /**
+     * Build the configured allowlist, discarding null and blank entries so a stray
+     * null element cannot throw and a blank entry cannot act as an unintended match.
+     *
+     * @return the set of non-blank allowed hosts (never null)
+     */
+    private static Set<String> getAllowedHosts() {
+        String[] configured = getAllowedIps();
+        if (configured == null) {
+            return Set.of();
+        }
+        return Arrays.stream(configured)
+                     .filter(StringUtils::isNotBlank)
+                     .map(String::trim)
+                     .collect(Collectors.toUnmodifiableSet());
+    }
+
+    /**
+     * Fail-closed allowlist decision shared by the remote and FTP fetch paths.
+     *
+     * <p>Retrieval is permitted only when the allowlist explicitly contains the
+     * host, or when it contains the wildcard {@code *}. An empty or blank
+     * allowlist permits nothing: this is the secure default. This replaces the
+     * previous fail-open behavior where an empty allowlist authorized a fetch to
+     * any host (SSRF primitive, DSAP-2026-004).
+     *
+     * @param host the URL host to check
+     * @param path the original path, for logging
+     * @return true if retrieval from the host is allowed
+     */
+    private boolean isHostAllowed(String host, String path) {
+        Set<String> allowedHosts = getAllowedHosts();
+
+        if (allowedHosts.isEmpty()) {
+            logWarning(String.format(
+                "Remote retrieval is disabled: 'allowed.ips.import' is empty. Rejected path: %s", path));
+            return false;
+        }
+
+        if (allowedHosts.contains(ALLOW_ALL) || allowedHosts.contains(host)) {
+            return true;
+        }
+
+        logWarning(String.format("Domain '%s' is not in the allowed list. Path: %s", host, path));
+        return false;
     }
 
     public Optional<InputStream> getInputStream(String path) {
@@ -158,22 +223,31 @@ public class ImportFileUtil {
 
     private Optional<InputStream> getInputStreamOfRemoteFile(String path) throws IOException {
         URL url = getUrl(path);
-        Set<String> allowedIps = Set.of(getAllowedIps());
-        String host = url.getHost();
 
-        if (allowedIps.isEmpty() || allowedIps.contains(host)) {
-            return Optional.ofNullable(openStream(url));
+        if (!isHttpScheme(url)) {
+            logWarning(String.format("Scheme '%s' is not allowed for remote retrieval. Path: %s",
+                                     url.getProtocol(), path));
+            return Optional.empty();
         }
 
-        // Log the rejected domain
-        logWarning(String.format("Domain '%s' is not in the allowed list. Path: %s", host, path));
+        if (!isHostAllowed(url.getHost(), path)) {
+            return Optional.empty();
+        }
 
-        return Optional.empty();
+        return Optional.ofNullable(openStream(url));
+    }
+
+    private boolean isHttpScheme(URL url) {
+        String protocol = url.getProtocol();
+        return "http".equalsIgnoreCase(protocol) || "https".equalsIgnoreCase(protocol);
     }
 
     protected InputStream openStream(URL url) {
         try {
-            return url.openStream();
+            URLConnection connection = url.openConnection();
+            connection.setConnectTimeout(CONNECT_TIMEOUT_MS);
+            connection.setReadTimeout(READ_TIMEOUT_MS);
+            return connection.getInputStream();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -183,13 +257,20 @@ public class ImportFileUtil {
         return new URL(path);
     }
 
-    private Optional<InputStream> getInputStreamOfFtpFile(String url) throws IOException {
-        URL urlObject = getUrl(url);
+    private Optional<InputStream> getInputStreamOfFtpFile(String path) throws IOException {
+        URL urlObject = getUrl(path);
+
+        if (!isHostAllowed(urlObject.getHost(), path)) {
+            return Optional.empty();
+        }
+
         URLConnection urlConnection = urlObject.openConnection();
+        urlConnection.setConnectTimeout(CONNECT_TIMEOUT_MS);
+        urlConnection.setReadTimeout(READ_TIMEOUT_MS);
         InputStream inputStream = urlConnection.getInputStream();
         if (inputStream == null) {
             logError(
-                String.format("Failed to obtain InputStream for FTP URL: %s. getInputStream() returned null", url));
+                String.format("Failed to obtain InputStream for FTP URL: %s. getInputStream() returned null", path));
             return Optional.empty();
         }
         return Optional.of(inputStream);
