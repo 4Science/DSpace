@@ -148,8 +148,8 @@ public class BitstreamDAOImpl extends AbstractHibernateDSODAO<Bitstream> impleme
     public Iterator<Bitstream> findShowableByItem(Context context, UUID itemId, String bundleName) throws SQLException {
         Query query = createQuery(
             context,
-            "select b.id from Bitstream b " +
-            "join b.bundles bitBundle " +
+            "select b.id from Bundle bitBundle " +
+            "join bitBundle.bitstreams b " +
             "join bitBundle.items item " +
             "WHERE item.id = :itemId " +
             "and NOT EXISTS( " +
@@ -175,7 +175,8 @@ public class BitstreamDAOImpl extends AbstractHibernateDSODAO<Bitstream> impleme
             "    mfB.qualifier is null and " +
             "    mvB.value = :bundleName " +
             "  )" +
-            ")"
+            ")" +
+            " ORDER BY index(b)"
         );
 
         query.setParameter("itemId", itemId);
@@ -190,8 +191,8 @@ public class BitstreamDAOImpl extends AbstractHibernateDSODAO<Bitstream> impleme
                                                     String bundleName) throws SQLException {
         Query query = createQuery(
             context,
-            "select b.id from Bitstream b " +
-            "join b.bundles bitBundle " +
+            "select b.id from Bundle bitBundle " +
+            "join bitBundle.bitstreams b " +
             "join bitBundle.items item " +
             "WHERE item.id = :itemId " +
             "AND (" +
@@ -206,7 +207,8 @@ public class BitstreamDAOImpl extends AbstractHibernateDSODAO<Bitstream> impleme
             "    mfB.qualifier is null and " +
             "    mvB.value = :bundleName " +
             "  )" +
-            ")"
+            ")" +
+            " ORDER BY index(b)"
         );
 
         query.setParameter("itemId", itemId);
