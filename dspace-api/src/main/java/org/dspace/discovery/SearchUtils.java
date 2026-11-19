@@ -71,7 +71,7 @@ public class SearchUtils {
         if (StringUtils.isBlank(language)) {
             return "";
         }
-        return Locale.of(language.trim().replace('-', '_').split("_")[0]).getLanguage();
+        return new Locale(language.trim().replace('-', '_').split("_")[0]).getLanguage();
     }
 
     /**
