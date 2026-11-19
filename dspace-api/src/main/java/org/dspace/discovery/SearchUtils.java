@@ -13,6 +13,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
@@ -51,9 +52,38 @@ public class SearchUtils {
     public static final String FILTER_SEPARATOR = "\n|||\n";
 
     /**
+     * Suffix of the Solr sort fields
+     */
+    public static final String SORT_FIELD_SUFFIX = "_sort";
+
+    /**
      * Cached search service
      **/
     private static SearchService searchService;
+
+    /**
+     * Normalize a language/locale tag (e.g. it_IT, it-IT) to its lowercase language part (it).
+     *
+     * @param language the language tag, may be null
+     * @return the normalized language, or an empty string if blank
+     */
+    public static String normalizeLanguage(String language) {
+        if (StringUtils.isBlank(language)) {
+            return "";
+        }
+        return Locale.of(language.trim().replace('-', '_').split("_")[0]).getLanguage();
+    }
+
+    /**
+     * Name of the language specific sort field, shared by indexing and querying.
+     *
+     * @param metadataField the metadata field (e.g. dc.title)
+     * @param language      the normalized language (e.g. it)
+     * @return the Solr field name (e.g. dc.title.it_sort)
+     */
+    public static String getMultilanguageSortField(String metadataField, String language) {
+        return metadataField + "." + language + SORT_FIELD_SUFFIX;
+    }
 
     /**
      * Default constructor

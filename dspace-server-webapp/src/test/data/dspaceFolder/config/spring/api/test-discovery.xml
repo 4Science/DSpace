@@ -4912,6 +4912,7 @@
     <bean id="sortTitle" class="org.dspace.discovery.configuration.DiscoverySortFieldConfiguration">
         <property name="metadataField" value="dc.title"/>
         <property name="defaultSortOrder" value="asc"/>
+        <property name="multilanguage" value="true"/>
     </bean>
 
     <bean id="sortDateIssued" class="org.dspace.discovery.configuration.DiscoverySortFieldConfiguration">
@@ -4987,6 +4988,7 @@
     <bean id="sortTitleAsc" class="org.dspace.discovery.configuration.DiscoverySortFieldConfiguration">
         <property name="metadataField" value="dc.title"/>
         <property name="defaultSortOrder" value="asc"/>
+        <property name="multilanguage" value="true"/>
     </bean>
 
     <!-- functional sorting -->
@@ -5097,6 +5099,7 @@
     <bean id="sortTitleDesc" class="org.dspace.discovery.configuration.DiscoverySortFieldConfiguration">
         <property name="metadataField" value="dc.title"/>
         <property name="defaultSortOrder" value="desc"/>
+        <property name="multilanguage" value="true"/>
     </bean>
 
 

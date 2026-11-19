@@ -15,6 +15,7 @@ import java.sql.SQLException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -22,6 +23,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.Logger;
 import org.dspace.core.Context;
+import org.dspace.core.I18nUtil;
 import org.dspace.core.LogHelper;
 import org.dspace.discovery.DiscoverFacetField;
 import org.dspace.discovery.DiscoverFilterQuery;
@@ -31,6 +33,7 @@ import org.dspace.discovery.FacetYearRange;
 import org.dspace.discovery.IndexableObject;
 import org.dspace.discovery.SearchService;
 import org.dspace.discovery.SearchServiceException;
+import org.dspace.discovery.SearchUtils;
 import org.dspace.discovery.configuration.DiscoveryConfiguration;
 import org.dspace.discovery.configuration.DiscoveryConfigurationParameters;
 import org.dspace.discovery.configuration.DiscoveryHitHighlightFieldConfiguration;
@@ -128,7 +131,7 @@ public class DiscoverQueryBuilder implements InitializingBean {
         //Configure pagination and sorting
         configurePagination(pageSize, offset, queryArgs);
         configureSorting(
-            sortProperty, sortDirection, queryArgs, discoveryConfiguration.getSearchSortConfiguration(),
+            context, sortProperty, sortDirection, queryArgs, discoveryConfiguration.getSearchSortConfiguration(),
             scope
         );
 
@@ -328,7 +331,7 @@ public class DiscoverQueryBuilder implements InitializingBean {
         return queryArgs;
     }
 
-    private void configureSorting(String sortProperty, String sortDirection, DiscoverQuery queryArgs,
+    private void configureSorting(Context context, String sortProperty, String sortDirection, DiscoverQuery queryArgs,
         DiscoverySortConfiguration searchSortConfiguration, IndexableObject scope)
             throws IllegalArgumentException, SearchServiceException {
         String sortBy = sortProperty;
@@ -360,6 +363,10 @@ public class DiscoverQueryBuilder implements InitializingBean {
                 sortField = MessageFormat.format(
                     ((DiscoverySortFunctionConfiguration) sortFieldConfiguration).getFunction(scope.getID()),
                     scope.getID());
+            } else if (sortFieldConfiguration.isMultilanguage()
+                       && DiscoveryConfigurationParameters.TYPE_TEXT.equals(sortFieldConfiguration.getType())) {
+                sortField = SearchUtils.getMultilanguageSortField(sortFieldConfiguration.getMetadataField(),
+                                                                  getSortLanguage(context));
             } else {
                 sortField = searchService
                     .toSortFieldIndex(
@@ -377,6 +384,25 @@ public class DiscoverQueryBuilder implements InitializingBean {
         } else {
             throw new IllegalArgumentException(sortBy + " is not a valid sort field");
         }
+    }
+
+    /**
+     * The normalized language of the current locale, or the default one if the current locale is missing or not
+     * among the supported locales (so that the sort field always exists in the index).
+     */
+    private String getSortLanguage(Context context) {
+        String defaultLanguage = SearchUtils.normalizeLanguage(I18nUtil.getDefaultLocale().getLanguage());
+        Locale current = context != null ? context.getCurrentLocale() : null;
+        if (current == null) {
+            return defaultLanguage;
+        }
+        String language = SearchUtils.normalizeLanguage(current.getLanguage());
+        for (Locale supported : I18nUtil.getSupportedLocales()) {
+            if (language.equals(SearchUtils.normalizeLanguage(supported.getLanguage()))) {
+                return language;
+            }
+        }
+        return defaultLanguage;
     }
 
     private boolean isConfigured(String sortBy, DiscoverySortConfiguration searchSortConfiguration) {
