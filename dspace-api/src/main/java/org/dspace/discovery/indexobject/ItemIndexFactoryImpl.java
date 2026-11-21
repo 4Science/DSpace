@@ -20,6 +20,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -49,6 +50,7 @@ import org.dspace.content.service.WorkspaceItemService;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.core.CrisConstants;
+import org.dspace.core.I18nUtil;
 import org.dspace.core.LogHelper;
 import org.dspace.discovery.FullTextContentStreams;
 import org.dspace.discovery.SearchUtils;
@@ -62,6 +64,7 @@ import org.dspace.discovery.configuration.DiscoverySearchFilter;
 import org.dspace.discovery.configuration.DiscoverySearchFilterFacet;
 import org.dspace.discovery.configuration.DiscoverySortConfiguration;
 import org.dspace.discovery.configuration.DiscoverySortFieldConfiguration;
+import org.dspace.discovery.configuration.DiscoverySortFunctionConfiguration;
 import org.dspace.discovery.configuration.GraphDiscoverSearchFilterFacet;
 import org.dspace.discovery.configuration.HierarchicalSidebarFacetConfiguration;
 import org.dspace.discovery.indexobject.factory.ItemIndexFactory;
@@ -96,8 +99,6 @@ public class ItemIndexFactoryImpl extends DSpaceObjectIndexFactoryImpl<Indexable
     protected ItemService itemService;
     @Autowired(required = true)
     protected ChoiceAuthorityService choiceAuthorityService;
-    @Autowired(required = true)
-    protected AuthorityValueService authorityValueService;
     @Autowired
     protected MetadataAuthorityService metadataAuthorityService;
     @Autowired
@@ -201,8 +202,9 @@ public class ItemIndexFactoryImpl extends DSpaceObjectIndexFactoryImpl<Indexable
         try {
             //A map used to save each sidebarFacet config by the metadata fields
             Map<String, DiscoverySortFieldConfiguration> sortFields = new HashMap<>();
-            Map<String, DiscoveryRecentSubmissionsConfiguration> recentSubmissionsConfigurationMap = new
-                    HashMap<>();
+            // fields flagged as multilanguage by ANY applicable sort configuration
+            Set<String> multilanguageSortFields = new HashSet<>();
+            Map<String, DiscoveryRecentSubmissionsConfiguration> recentSubmissionsConfigurationMap = new HashMap<>();
             Set<String> moreLikeThisFields = new HashSet<>();
             // some configuration are returned multiple times, skip them to save CPU cycles
             Set<String> appliedConf = new HashSet<>();
@@ -278,6 +280,11 @@ public class ItemIndexFactoryImpl extends DSpaceObjectIndexFactoryImpl<Indexable
                     for (DiscoverySortFieldConfiguration discoverySortConfiguration : sortConfiguration
                             .getSortFields()) {
                         sortFields.put(discoverySortConfiguration.getMetadataField(), discoverySortConfiguration);
+                        if (discoverySortConfiguration.isMultilanguage()
+                            && DiscoveryConfigurationParameters.TYPE_TEXT.equals(discoverySortConfiguration.getType())
+                            && !(discoverySortConfiguration instanceof DiscoverySortFunctionConfiguration)) {
+                            multilanguageSortFields.add(discoverySortConfiguration.getMetadataField());
+                        }
                     }
                 }
 
@@ -711,12 +718,12 @@ public class ItemIndexFactoryImpl extends DSpaceObjectIndexFactoryImpl<Indexable
                                     + STORE_SEPARATOR + meta.getLanguage());
                 }
 
-                if (meta.getLanguage() != null && !meta.getLanguage().trim().equals("")) {
+                if (meta.getLanguage() != null && !meta.getLanguage().trim().isEmpty()) {
                     String langField = field + "." + meta.getLanguage();
                     doc.addField(langField, value);
                 }
             }
-
+            addMultilanguageSortFields(doc, mydc, multilanguageSortFields, toIgnoreMetadataFields);
         } catch (Exception e) {
             log.error(LogHelper.getHeader(context, "item_metadata_discovery_error",
                     "Item identifier: " + item.getID()), e);
@@ -747,6 +754,124 @@ public class ItemIndexFactoryImpl extends DSpaceObjectIndexFactoryImpl<Indexable
 
 
         log.debug("  Added Grouping");
+    }
+
+    /**
+     * Add, for each supported locale, one sort field per flagged metadata field (e.g. dc.title.it_sort).
+     * Value precedence per locale: value tagged with the locale, value in the default locale, untagged value,
+     * first value of any language.
+     */
+    private void addMultilanguageSortFields(SolrInputDocument doc,
+                                            List<MetadataValue> metadata,
+                                            Set<String> multilanguageSortFields,
+                                            List<String> toIgnoreMetadataFields) {
+
+        if (multilanguageSortFields.isEmpty()) {
+            return;
+        }
+
+        Map<String, List<MetadataValue>> valuesByField = groupSortableValuesByField(metadata, multilanguageSortFields,
+                                                                                    toIgnoreMetadataFields);
+
+        List<String> languages = getSupportedLanguages();
+        String defaultLanguage = SearchUtils.normalizeLanguage(I18nUtil.getDefaultLocale().getLanguage());
+
+        valuesByField.forEach((field, values) -> {
+            for (String language : languages) {
+                MetadataValue chosen = resolveValueForLanguage(values, language, defaultLanguage);
+                doc.addField(SearchUtils.getMultilanguageSortField(field, language), chosen.getValue());
+            }
+        });
+    }
+
+    /**
+     * Group the item metadata values by field name, keeping only the values belonging to a flagged
+     * multilanguage sort field and skipping null, placeholder and ignored-field values.
+     */
+    private Map<String, List<MetadataValue>> groupSortableValuesByField(List<MetadataValue> metadata,
+                                                                        Set<String> multilanguageSortFields,
+                                                                        List<String> toIgnoreMetadataFields) {
+
+        Map<String, List<MetadataValue>> valuesByField = new HashMap<>();
+        for (MetadataValue meta : metadata) {
+            String field = toFieldName(meta.getMetadataField());
+            if (isSortableValue(meta, field, multilanguageSortFields, toIgnoreMetadataFields)) {
+                valuesByField.computeIfAbsent(field, k -> new ArrayList<>()).add(meta);
+            }
+        }
+        return valuesByField;
+    }
+
+    /**
+     * Whether a metadata value must feed a multilanguage sort field: its field is flagged and the value is
+     * not null, not a placeholder and not part of an ignored metadata field.
+     */
+    private boolean isSortableValue(MetadataValue meta, String field,
+                                    Set<String> multilanguageSortFields,
+                                    List<String> toIgnoreMetadataFields) {
+
+        if (meta.getValue() == null || !multilanguageSortFields.contains(field)
+            || StringUtils.equals(meta.getValue(), CrisConstants.PLACEHOLDER_PARENT_METADATA_VALUE)) {
+            return false;
+        }
+        if (toIgnoreMetadataFields == null) {
+            return true;
+        }
+        MetadataField metadataField = meta.getMetadataField();
+        String unqualifiedField = metadataField.getMetadataSchema().getName() + "." + metadataField.getElement();
+        return !toIgnoreMetadataFields.contains(field) &&
+               !toIgnoreMetadataFields.contains(unqualifiedField + "." + Item.ANY);
+    }
+
+    /**
+     * The normalized, distinct, non-empty languages configured in {@code webui.supported.locales}.
+     */
+    private List<String> getSupportedLanguages() {
+        List<String> languages = new ArrayList<>();
+        for (Locale locale : I18nUtil.getSupportedLocales()) {
+            String language = SearchUtils.normalizeLanguage(locale.getLanguage());
+            if (!language.isEmpty() && !languages.contains(language)) {
+                languages.add(language);
+            }
+        }
+        return languages;
+    }
+
+    /**
+     * Resolve the value to index for a language, following the fallback chain: value tagged with the
+     * requested language, then the default-locale value, then the untagged value, then the first value of
+     * any language. The given list is never empty, so a value is always returned.
+     */
+    private MetadataValue resolveValueForLanguage(List<MetadataValue> values, String language,
+                                                  String defaultLanguage) {
+        MetadataValue chosen = firstWithLanguage(values, language);
+        if (chosen == null) {
+            chosen = firstWithLanguage(values, defaultLanguage);
+        }
+        if (chosen == null) {
+            chosen = firstWithLanguage(values, "");
+        }
+        if (chosen == null) {
+            chosen = values.get(0);
+        }
+        return chosen;
+    }
+
+    private MetadataValue firstWithLanguage(List<MetadataValue> values, String language) {
+        return values.stream()
+                     .filter(v -> language.equals(SearchUtils.normalizeLanguage(v.getLanguage())))
+                     .findFirst().orElse(null);
+    }
+
+    /**
+     * Build the metadata field name: {@code schema.element} or {@code schema.element.qualifier}.
+     */
+    private String toFieldName(MetadataField metadataField) {
+        String field = metadataField.getMetadataSchema().getName() + "." + metadataField.getElement();
+        if (StringUtils.isNotBlank(metadataField.getQualifier())) {
+            field += "." + metadataField.getQualifier();
+        }
+        return field;
     }
 
     @Override

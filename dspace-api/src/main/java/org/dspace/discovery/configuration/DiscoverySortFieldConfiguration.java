@@ -26,6 +26,16 @@ public class DiscoverySortFieldConfiguration {
 
     private SORT_ORDER defaultSortOrder;
 
+    private boolean multilanguage = false;
+
+    public boolean isMultilanguage() {
+        return multilanguage;
+    }
+
+    public void setMultilanguage(boolean multilanguage) {
+        this.multilanguage = multilanguage;
+    }
+
     public String getMetadataField() {
         return metadataField;
     }
