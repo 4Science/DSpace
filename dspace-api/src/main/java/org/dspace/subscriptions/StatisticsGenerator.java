@@ -5,7 +5,6 @@
  *
  * http://www.dspace.org/license/
  */
-
 package org.dspace.subscriptions;
 
 import java.io.File;
@@ -23,6 +22,7 @@ import org.apache.poi.ss.usermodel.Font;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.dspace.app.metrics.CrisMetrics;
 import org.dspace.content.DSpaceObject;
 import org.dspace.content.factory.ContentServiceFactory;
@@ -30,7 +30,8 @@ import org.dspace.core.Context;
 import org.dspace.core.Email;
 import org.dspace.core.I18nUtil;
 import org.dspace.eperson.EPerson;
-
+import org.dspace.services.ConfigurationService;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * Implementation class of SubscriptionGenerator
@@ -40,7 +41,11 @@ import org.dspace.eperson.EPerson;
  * @author Alba Aliu
  */
 public class StatisticsGenerator {
+
     private static final Logger log = LogManager.getLogger(StatisticsGenerator.class);
+
+    @Autowired
+    private ConfigurationService configurationService;
 
     public void notifyForSubscriptions(Context c, EPerson ePerson, List<CrisMetrics> crisMetricsList) {
         try {
@@ -48,82 +53,97 @@ public class StatisticsGenerator {
             if (Objects.isNull(ePerson) || crisMetricsList.isEmpty()) {
                 return;
             }
+            File excelFile = generateExcel(crisMetricsList, c);
+            if (excelFile == null) {
+                log.warn("Cannot email statistics subscription to eperson_id {} ({}): "
+                        + "the excel report could not be generated", ePerson.getID(), ePerson.getEmail());
+                return;
+            }
             Locale supportedLocale = I18nUtil.getEPersonLocale(ePerson);
             Email email = Email.getEmail(I18nUtil.getEmailFilename(supportedLocale, "subscriptions_statistics"));
             email.addRecipient(ePerson.getEmail());
-            email.addAttachment(generateExcel(crisMetricsList, c), "subscriptions.xlsx");
+            email.addAttachment(excelFile, "subscriptions." + getExcelExtension());
             email.send();
         } catch (Exception ex) {
             // log this email error
-            log.warn("cannot email user" + " eperson_id" + ePerson.getID()
-                    + " eperson_email" + ePerson.getEmail());
+            log.warn("Cannot email statistics subscription to eperson_id {} ({})",
+                    ePerson.getID(), ePerson.getEmail(), ex);
         }
     }
 
     private File generateExcel(List<CrisMetrics> crisMetricsList, Context c) {
         try {
-            File file = File.createTempFile("Report", "xlsx");
-            Workbook workbook = new HSSFWorkbook();
-            Sheet sheet = workbook.createSheet("SubscriptionTest");
-            CellStyle style = workbook.createCellStyle();
-            Font bold = workbook.createFont();
-            bold.setBold(true);
-            style.setFont(bold);
-            Row sheetRow = sheet.createRow(1);
-            Cell cellTitleName = sheetRow.createCell(1);
-            cellTitleName.setCellStyle(style);
-            cellTitleName.setCellValue("Title");
-            Cell cellTitleType = sheetRow.createCell(2);
-            cellTitleType.setCellValue("Type");
-            cellTitleType.setCellStyle(style);
-            Cell cellTitleCount = sheetRow.createCell(3);
-            cellTitleCount.setCellValue("Value");
-            Cell cellTitleDeltaP1 = sheetRow.createCell(4);
-            cellTitleCount.setCellStyle(style);
-            cellTitleDeltaP1.setCellValue("Last Week");
-            cellTitleDeltaP1.setCellStyle(style);
-            Cell cellTitleDeltaP2 = sheetRow.createCell(5);
-            cellTitleDeltaP2.setCellValue("Last Month");
-            cellTitleDeltaP2.setCellStyle(style);
-            int rowCount = 2;
-            for (CrisMetrics crisMetrics : crisMetricsList) {
-                // for each cris metrics add a row
-                Row sheetRowdata = sheet.createRow(rowCount);
-                Cell cell = sheetRowdata.createCell(1);
-                DSpaceObject dso = ContentServiceFactory.getInstance()
-                        .getDSpaceObjectService(crisMetrics.getResourceType()).find(c, crisMetrics.getResource());
-                if (dso != null) {
-                    cell.setCellValue(dso.getName());
-                } else {
-                    cell.setCellValue("Unknown");
-                }
-                c.uncacheEntity(dso);
-                Cell cell2 = sheetRowdata.createCell(2);
-                cell2.setCellValue(crisMetrics.getMetricType());
+            File file = File.createTempFile("Report", getExcelExtension());
+            file.deleteOnExit();
+            try (Workbook workbook = isLegacyExcelMode() ? new HSSFWorkbook() : new XSSFWorkbook()) {
+                Sheet sheet = workbook.createSheet("SubscriptionTest");
+                CellStyle style = workbook.createCellStyle();
+                Font bold = workbook.createFont();
+                bold.setBold(true);
+                style.setFont(bold);
+                Row sheetRow = sheet.createRow(1);
+                Cell cellTitleName = sheetRow.createCell(1);
+                cellTitleName.setCellStyle(style);
+                cellTitleName.setCellValue("Title");
+                Cell cellTitleType = sheetRow.createCell(2);
+                cellTitleType.setCellValue("Type");
+                cellTitleType.setCellStyle(style);
+                Cell cellTitleCount = sheetRow.createCell(3);
+                cellTitleCount.setCellValue("Value");
+                Cell cellTitleDeltaP1 = sheetRow.createCell(4);
+                cellTitleCount.setCellStyle(style);
+                cellTitleDeltaP1.setCellValue("Last Week");
+                cellTitleDeltaP1.setCellStyle(style);
+                Cell cellTitleDeltaP2 = sheetRow.createCell(5);
+                cellTitleDeltaP2.setCellValue("Last Month");
+                cellTitleDeltaP2.setCellStyle(style);
+                int rowCount = 2;
+                for (CrisMetrics crisMetrics : crisMetricsList) {
+                    // for each cris metrics add a row
+                    Row sheetRowdata = sheet.createRow(rowCount);
+                    Cell cell = sheetRowdata.createCell(1);
+                    DSpaceObject dso = ContentServiceFactory.getInstance()
+                            .getDSpaceObjectService(crisMetrics.getResourceType()).find(c, crisMetrics.getResource());
+                    if (dso != null) {
+                        cell.setCellValue(dso.getName());
+                    } else {
+                        cell.setCellValue("Unknown");
+                    }
+                    c.uncacheEntity(dso);
+                    Cell cell2 = sheetRowdata.createCell(2);
+                    cell2.setCellValue(crisMetrics.getMetricType());
 
-                Cell cell3 = sheetRowdata.createCell(3);
-                cell3.setCellValue(crisMetrics.getMetricCount());
+                    Cell cell3 = sheetRowdata.createCell(3);
+                    cell3.setCellValue(crisMetrics.getMetricCount());
 
-                Cell cell4 = sheetRowdata.createCell(4);
-                if (crisMetrics.getDeltaPeriod1() != null) {
-                    cell4.setCellValue(crisMetrics.getDeltaPeriod1());
+                    Cell cell4 = sheetRowdata.createCell(4);
+                    if (crisMetrics.getDeltaPeriod1() != null) {
+                        cell4.setCellValue(crisMetrics.getDeltaPeriod1());
+                    }
+                    Cell cell5 = sheetRowdata.createCell(5);
+                    if (crisMetrics.getDeltaPeriod2() != null) {
+                        cell5.setCellValue(crisMetrics.getDeltaPeriod2());
+                    }
+                    rowCount++;
                 }
-                Cell cell5 = sheetRowdata.createCell(5);
-                if (crisMetrics.getDeltaPeriod2() != null) {
-                    cell5.setCellValue(crisMetrics.getDeltaPeriod2());
+                autoSizeColumns(sheet);
+                try (FileOutputStream fileOut = new FileOutputStream(file)) {
+                    workbook.write(fileOut);
                 }
-                rowCount++;
             }
-            autoSizeColumns(sheet);
-            FileOutputStream fileOut = new FileOutputStream(file);
-            workbook.write(fileOut);
-            fileOut.close();
-            workbook.close();
             return file;
         } catch (Exception e) {
-            log.error(e.getMessage());
+            log.error("Cannot generate the statistics excel report for the subscription email", e);
             return null;
         }
+    }
+
+    private String getExcelExtension() {
+        return isLegacyExcelMode() ? "xls" : "xlsx";
+    }
+
+    private boolean isLegacyExcelMode() {
+        return configurationService.getBooleanProperty("subscription.statistics.legacy-excel.enabled", false);
     }
 
     private void autoSizeColumns(Sheet sheet) {
@@ -135,4 +155,5 @@ public class StatisticsGenerator {
             }
         }
     }
+
 }
