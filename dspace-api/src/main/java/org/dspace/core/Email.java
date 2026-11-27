@@ -356,6 +356,21 @@ public class Email {
             throw new MessagingException("Email has no body");
         }
 
+        ConfigurationService config
+                = DSpaceServicesFactory.getInstance().getConfigurationService();
+
+        String templateName = getTemplateFileName(template);
+
+        // Retrieve the property value (defaults to false if not set)
+        boolean isTemplateDisabled = config.getBooleanProperty(
+            String.format("mail.template.%s.disabled", templateName), false);
+
+        // If the template is disabled, log a warning and return
+        if (isTemplateDisabled) {
+            LOG.warn("The email template '{}' is disabled and will not be sent.", templateName);
+            return;
+        }
+
         // Get the mail configuration properties
         String from = getConfigurationService().getProperty("mail.from.address");
         boolean disabled = getConfigurationService().getBooleanProperty("mail.server.disabled", false);
@@ -525,6 +540,13 @@ public class Email {
         } else {
             Transport.send(message);
         }
+    }
+
+    private String getTemplateFileName(Template template) {
+        if (template == null || template.getName() == null) {
+            return null;
+        }
+        return new File(template.getName()).getName();
     }
 
     /**
