@@ -25,6 +25,7 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.dspace.app.util.MetadataExposureServiceImpl;
 import org.dspace.authority.AuthorityValue;
 import org.dspace.authority.factory.AuthorityServiceFactory;
 import org.dspace.authority.service.AuthorityValueService;
@@ -188,6 +189,15 @@ public class DSpaceCSV implements Serializable {
                     // Verify that the heading is valid in the metadata registry
                     String[] clean = element.split("\\[");
                     String[] parts = clean[0].split("\\.");
+                    // Check language if present, if it's ANY then throw an exception
+                    if (clean.length > 1 && clean[1].equals(Item.ANY + "]")) {
+                        throw new MetadataImportInvalidHeadingException("Language ANY (*) was found in the heading " +
+                                                                                "of the metadata value to import, " +
+                                                                                "this should never be the case",
+                                                                        MetadataImportInvalidHeadingException.ENTRY,
+                                                                        columnCounter);
+
+                    }
 
                     if (parts.length < 2) {
                         throw new MetadataImportInvalidHeadingException(element,
@@ -221,6 +231,15 @@ public class DSpaceCSV implements Serializable {
                                                                                 .ELEMENT,
                                                                             columnCounter);
                         }
+                    }
+
+                    // Verify there isn’t already a header that is the same; if it already exists,
+                    // throw MetadataImportInvalidHeadingException
+                    String header = authorityPrefix + element;
+                    if (headings.contains(header)) {
+                        throw new MetadataImportInvalidHeadingException("Duplicate heading found: " + header,
+                                                                        MetadataImportInvalidHeadingException.ENTRY,
+                                                                        columnCounter);
                     }
 
                     // Store the heading
@@ -303,20 +322,7 @@ public class DSpaceCSV implements Serializable {
         // Set the metadata fields to ignore
         ignore = new HashMap<>();
 
-        // Specify default values
-        String[] defaultValues =
-            new String[] {
-                "dc.date.accessioned", "dc.date.available", "dc.date.updated", "dc.description.provenance"
-            };
-        String[] toIgnoreArray =
-            DSpaceServicesFactory.getInstance()
-                                 .getConfigurationService()
-                                 .getArrayProperty("bulkedit.ignore-on-export", defaultValues);
-        for (String toIgnoreString : toIgnoreArray) {
-            if (!"".equals(toIgnoreString.trim())) {
-                ignore.put(toIgnoreString.trim(), toIgnoreString.trim());
-            }
-        }
+        getConfiguredIgnoreFields();
     }
 
     /**
@@ -332,6 +338,40 @@ public class DSpaceCSV implements Serializable {
             }
         }
         return false;
+    }
+
+    /**
+     * Sets the ignored fields with 'bulkedit.ignore-on-export'
+     *
+     * Also adds 'metadata.hide.*' fields to ignored if 'bulkedit.ignore-on-export.include-metadata-hide' is true
+     */
+    private void getConfiguredIgnoreFields() {
+        // Specify default values
+        String[] defaultValues =
+            new String[] {
+                "dc.date.accessioned", "dc.date.available", "dc.date.updated", "dc.description.provenance"
+            };
+        String[] toIgnoreArray =
+                DSpaceServicesFactory.getInstance()
+                        .getConfigurationService()
+                        .getArrayProperty("bulkedit.ignore-on-export", defaultValues);
+
+        boolean ignoreHiddenMetadata = DSpaceServicesFactory.getInstance().getConfigurationService()
+                .getBooleanProperty("bulkedit.ignore-on-export.include-metadata-hide", true);
+        if (ignoreHiddenMetadata) {
+            List<String> hiddenMetadata = DSpaceServicesFactory.getInstance().getConfigurationService()
+                    .getPropertyKeys(MetadataExposureServiceImpl.CONFIG_PREFIX);
+            for (String hiddenMetadataKey : hiddenMetadata) {
+                String key = hiddenMetadataKey.split(MetadataExposureServiceImpl.CONFIG_PREFIX)[1];
+                ignore.put(key.trim(), key.trim());
+            }
+        }
+
+        for (String toIgnoreString : toIgnoreArray) {
+            if (!"".equals(toIgnoreString.trim())) {
+                ignore.put(toIgnoreString.trim(), toIgnoreString.trim());
+            }
+        }
     }
 
     /**

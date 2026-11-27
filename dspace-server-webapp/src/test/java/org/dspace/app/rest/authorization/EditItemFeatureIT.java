@@ -29,13 +29,17 @@ import org.dspace.builder.CommunityBuilder;
 import org.dspace.builder.GroupBuilder;
 import org.dspace.builder.ItemBuilder;
 import org.dspace.builder.ResourcePolicyBuilder;
+import org.dspace.builder.WorkflowItemBuilder;
+import org.dspace.builder.WorkspaceItemBuilder;
 import org.dspace.content.Collection;
 import org.dspace.content.Community;
 import org.dspace.content.Item;
 import org.dspace.content.Site;
+import org.dspace.content.WorkspaceItem;
 import org.dspace.content.service.SiteService;
 import org.dspace.core.Constants;
 import org.dspace.eperson.Group;
+import org.dspace.workflow.WorkflowItem;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -241,6 +245,14 @@ public class EditItemFeatureIT extends AbstractControllerIntegrationTest {
     private ResultActions requestEditItemFeature(Item item) throws Exception {
         return requestEditItemFeature(getItemUri(item));
     }
+
+    private ResultActions requestWorkflowEditItemFeature(WorkflowItem wfi) throws Exception {
+        return requestEditItemFeature(wfi.getItem());
+    }
+
+    private ResultActions requestWorkspaceEditItemFeature(WorkspaceItem wsi) throws Exception {
+        return requestEditItemFeature(wsi.getItem());
+    }
     private ResultActions requestEditItemFeature(String uri) throws Exception {
         epersonToken = getAuthToken(eperson.getEmail(), password);
         return getClient(epersonToken).perform(get("/api/authz/authorizations/search/object?")
@@ -271,5 +283,51 @@ public class EditItemFeatureIT extends AbstractControllerIntegrationTest {
     private String getItemUri(Item item) {
         ItemRest itemRest = itemConverter.convert(item, DefaultProjection.DEFAULT);
         return utils.linkToSingleResource(itemRest, "self").getHref();
+    }
+
+    @Test
+    public void testWorkflowItem() throws Exception {
+        WorkflowItem wfi = withSuppressedAuthorization(() -> {
+            Community community = CommunityBuilder.createCommunity(context)
+            .withName("Parent Community")
+            .build();
+
+            Collection colWithWorkflow = CollectionBuilder.createCollection(context, community)
+                    .withName("Collection WITH workflow")
+                    .withWorkflowGroup(1, eperson)
+                    .build();
+
+            return WorkflowItemBuilder.createWorkflowItem(context, colWithWorkflow)
+                    .withTitle("Test workflow")
+                    .withIssueDate("2021-05-14")
+                    .withSubject("Testing")
+                    .build();
+        });
+
+        expectSomeResults(requestWorkflowEditItemFeature(wfi));
+    }
+
+    @Test
+    public void testWorkspaceItem() throws Exception {
+        WorkspaceItem wsi = withSuppressedAuthorization(() -> {
+            Community community = CommunityBuilder.createCommunity(context)
+                    .withName("Parent Community")
+                    .build();
+
+            Collection colWithWorkspace = CollectionBuilder.createCollection(context, community)
+                    .withName("Collection")
+                    .withEntityType("Publication")
+                    .withSubmitterGroup(eperson, eperson)
+                    .withSharedWorkspace()
+                    .build();
+
+            return WorkspaceItemBuilder.createWorkspaceItem(context, colWithWorkspace)
+                    .withTitle("Test workspace")
+                    .withIssueDate("2021-05-14")
+                    .withSubject("Testing")
+                    .build();
+        });
+
+        expectSomeResults(requestWorkspaceEditItemFeature(wsi));
     }
 }

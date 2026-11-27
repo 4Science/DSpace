@@ -1040,7 +1040,7 @@ public class DOIIdentifierProvider extends FilteredIdentifierProvider {
         List<MetadataValue> metadata = itemService.getMetadata(item, MD_SCHEMA, DOI_ELEMENT, DOI_QUALIFIER, null);
         String resolverBaseUrl = getResolverBaseUrl(context, item);
         for (MetadataValue id : metadata) {
-            if (id.getValue().startsWith(resolverBaseUrl)) {
+            if (resolverBaseUrl != null && id.getValue().startsWith(resolverBaseUrl)) {
                 return doiService.DOIFromExternalFormat(id.getValue());
             }
         }
@@ -1048,8 +1048,12 @@ public class DOIIdentifierProvider extends FilteredIdentifierProvider {
     }
 
     private String getResolverBaseUrl(Context context, Item item) {
-        return DoiGenerationStrategy.getApplicableStrategy(context, doiGenerationStrategies, item)
-                                    .getDOIResolverAndPrefix(context, item, getPrefix());
+        DoiGenerationStrategy applicableStrategy =
+            DoiGenerationStrategy.getApplicableStrategy(context, doiGenerationStrategies, item);
+        if (applicableStrategy != null) {
+            return applicableStrategy.getDOIResolverAndPrefix(context, item, getPrefix());
+        }
+        return null;
     }
 
     /**

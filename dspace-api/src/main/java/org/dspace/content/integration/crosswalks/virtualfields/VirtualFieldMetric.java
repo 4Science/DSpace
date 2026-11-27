@@ -41,7 +41,11 @@ public class VirtualFieldMetric implements VirtualField {
         List<CrisMetrics> metrics = crisItemMetricsService.getMetrics(context, item.getID());
         for (CrisMetrics metric : metrics) {
             if (StringUtils.equals(virtualFieldName[2], metric.getMetricType())) {
-                return new String[] { metric.getMetricCount().toString() };
+                if (metric.getMetricCount() != null) {
+                    return new String[] { metric.getMetricCount().toString() };
+                } else {
+                    return new String[] { };
+                }
             }
         }
         return new String[] {};

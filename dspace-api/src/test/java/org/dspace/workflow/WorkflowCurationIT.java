@@ -23,6 +23,7 @@ import org.dspace.content.MetadataValue;
 import org.dspace.content.factory.ContentServiceFactory;
 import org.dspace.content.service.ItemService;
 import org.dspace.core.Context;
+import org.dspace.core.LegacyPluginServiceImpl;
 import org.dspace.ctask.testing.MarkerTask;
 import org.dspace.curate.Curator;
 import org.dspace.eperson.EPerson;
@@ -40,6 +41,8 @@ public class WorkflowCurationIT extends AbstractIntegrationTestWithDatabase {
 
     private ItemService itemService = ContentServiceFactory.getInstance().getItemService();
 
+    private LegacyPluginServiceImpl legacyPluginService;
+
     /**
      * Basic smoke test of a curation task attached to a workflow step.
      * See {@link MarkerTask}.
@@ -49,6 +52,7 @@ public class WorkflowCurationIT extends AbstractIntegrationTestWithDatabase {
     public void curationTest()
             throws Exception {
         context.turnOffAuthorisationSystem();
+        legacyPluginService.clearNamedPluginClasses();
 
         //** GIVEN **
 

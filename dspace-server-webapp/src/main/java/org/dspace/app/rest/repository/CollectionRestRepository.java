@@ -313,14 +313,33 @@ public class CollectionRestRepository extends DSpaceObjectRestRepository<Collect
     @SearchRestMethod(name = "findAdminAuthorized")
     public Page<CollectionRest> findAdminAuthorized (
         Pageable pageable, @Parameter(value = "query") String query) {
+        return findAuthorized(pageable, Constants.ADMIN, query);
+    }
+
+    /**
+     * Returns Collections for which the current user has 'edit' privileges.
+     *
+     * @param pageable              The pagination information
+     * @param query                 The query used in the lookup
+     * @return
+     */
+    @PreAuthorize("hasAuthority('AUTHENTICATED')")
+    @SearchRestMethod(name = "findEditAuthorized")
+    public Page<CollectionRest> findEditAuthorized (
+        Pageable pageable, @Parameter(value = "query") String query) {
+        return findAuthorized(pageable, Constants.WRITE, query);
+    }
+
+    private Page<CollectionRest> findAuthorized(Pageable pageable, int action, String query) {
         try {
             Context context = obtainContext();
-            List<Collection> collections = authorizeService.findAdminAuthorizedCollection(context, query,
+            List<Collection> collections = authorizeService.findAuthorizedCollectionByAction(context, query,
+                action,
                 Math.toIntExact(pageable.getOffset()),
                 Math.toIntExact(pageable.getPageSize()));
-            long tot = authorizeService.countAdminAuthorizedCollection(context, query);
-            return converter.toRestPage(collections, pageable, tot , utils.obtainProjection());
-        } catch (SearchServiceException | SQLException e) {
+            long tot = authorizeService.countAuthorizedCollectionByAction(context, query, action);
+            return converter.toRestPage(collections, pageable, tot, utils.obtainProjection());
+        } catch (SearchServiceException e) {
             throw new RuntimeException(e.getMessage(), e);
         }
     }

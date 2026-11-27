@@ -19,6 +19,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.logging.log4j.Logger;
 import org.dspace.authorize.dao.ResourcePolicyDAO;
+import org.dspace.authorize.service.AuthorizeService;
 import org.dspace.authorize.service.ResourcePolicyService;
 import org.dspace.content.DSpaceObject;
 import org.dspace.content.factory.ContentServiceFactory;
@@ -50,6 +51,9 @@ public class ResourcePolicyServiceImpl implements ResourcePolicyService {
 
     @Autowired
     private GroupService groupService;
+
+    @Autowired
+    private AuthorizeService authorizeService;
 
     protected ResourcePolicyServiceImpl() {
     }
@@ -422,12 +426,12 @@ public class ResourcePolicyServiceImpl implements ResourcePolicyService {
         ResourcePolicy resourcePolicy = resourcePolicyDAO.findOneById(context, id);
         Group group = resourcePolicy.getGroup();
 
-        if (resourcePolicy.getEPerson() != null && resourcePolicy.getEPerson().getID() == eperson.getID()) {
+        if (resourcePolicy.getEPerson() != null && resourcePolicy.getEPerson().getID().equals(eperson.getID())) {
             isMy = true;
         } else if (group != null && groupService.isMember(context, eperson, group)) {
             isMy = true;
         }
-        return isMy;
+        return isMy || authorizeService.isAdmin(context, eperson, resourcePolicy.getdSpaceObject());
     }
 
     @Override

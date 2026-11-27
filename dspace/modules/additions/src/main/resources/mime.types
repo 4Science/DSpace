@@ -1,3 +1,11 @@
+# The mime.types file comes from the iiif-apis library https://github.com/dbmdz/iiif-apis/blob/main/src/main/resources/mime.types.
+# The mime.types file is protected by the MIT license defined here https://github.com/dbmdz/iiif-apis/blob/main/LICENSE.
+
+# Due to this issue https://github.com/dbmdz/iiif-apis/issues/270
+# The mime.types file has been added to the DSpace sources.
+# The mime.types file can be removed as soon as the ticket is closed.
+
+
 # This file maps Internet media types to unique file extension(s).
 # Although created for httpd, this file is used by many software systems
 # and has been placed in the public domain for unlimited redisribution.

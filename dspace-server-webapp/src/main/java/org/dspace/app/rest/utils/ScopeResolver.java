@@ -21,6 +21,7 @@ import org.dspace.content.service.CollectionService;
 import org.dspace.content.service.CommunityService;
 import org.dspace.content.service.DSpaceObjectService;
 import org.dspace.content.service.ItemService;
+import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.discovery.IndexableObject;
 import org.dspace.discovery.indexobject.IndexableCollection;
@@ -47,79 +48,135 @@ public class ScopeResolver {
     ItemService itemService;
 
     /**
-     * Returns an IndexableObject corresponding to the community or collection
+     * Returns an IndexableObject corresponding to the community, collection, or item
      * of the given scope, or null if the scope is not a valid UUID, or is a
-     * valid UUID that does not correspond to a community of collection.
+     * valid UUID that does not correspond to a community, collection, or item.
      *
      * @param context the DSpace context
-     * @param scope a String containing the UUID of the community or collection
-     * to return.
-     * @return an IndexableObject corresponding to the community or collection
+     * @param scope a String containing the UUID of the DSpace object to return
+     * @return an IndexableObject corresponding to the community, collection, or item
      * of the given scope, or null if the scope is not a valid UUID, or is a
-     * valid UUID that does not correspond to a community of collection.
+     * valid UUID that does not correspond to a community, collection, or item.
      */
     public IndexableObject resolveScope(Context context, String scope) {
-        IndexableObject scopeObj = null;
         Optional<UUID> uuidOptional =
             Optional.ofNullable(scope)
                     .filter(StringUtils::isNotBlank)
                     .map(this::asUUID);
-        return uuidOptional
-            .flatMap(uuid -> resolveWithIndexedObject(context, Optional.of(uuid), communityService))
-            .or(() -> resolveWithIndexedObject(context, uuidOptional, collectionService))
-            .orElseGet(() -> {
-                log.warn(
-                    "The given scope string " +
-                        StringUtils.trimToEmpty(scope) +
-                        " is not a collection or community UUID."
-                );
-                return uuidOptional.map(uuid -> resolve(context, uuid, itemService)).orElse(null);
-            });
+        return resolveScope(context, uuidOptional).orElse(null);
     }
 
+    /**
+     * Method that resolves a scope with a given level.
+     * It can resolve the scope for the following type of entities (level):
+     * <ul>
+     *     <li>{@link Constants#ITEM}</li>
+     *     <li>{@link Constants#COLLECTION}</li>
+     *     <li>{@link Constants#COMMUNITY}</li>
+     * </ul>
+     * returns an {@link Optional} that contains the resolved {@link IndexableObject}.
+     * If not specified resolves the scope by using all the levels, you can refer to the other public method:
+     * {@link ScopeResolver#resolveScope(Context, Optional)}.
+     *
+     * @param context
+     * @param scope
+     * @param level
+     * @return
+     */
+    public Optional<IndexableObject> resolveScope(Context context, String scope, int level) {
+        Optional<UUID> uuidOptional =
+            Optional.ofNullable(scope)
+                    .filter(StringUtils::isNotBlank)
+                    .map(this::asUUID);
+
+        switch (level) {
+            case Constants.ITEM:
+                return uuidOptional.map(uuid -> resolveWithIndexedObject(context, uuid, itemService));
+            case Constants.COLLECTION:
+                return uuidOptional.map(uuid -> resolveWithIndexedObject(context, uuid, collectionService));
+            case Constants.COMMUNITY:
+                return uuidOptional.map(uuid -> resolveWithIndexedObject(context, uuid, communityService));
+            default:
+                return resolveScope(context, uuidOptional);
+        }
+    }
+
+    private Optional<IndexableObject> resolveScope(Context context, Optional<UUID> uuidOptional) {
+        return uuidOptional
+            .map(uuid -> resolveWithIndexedObject(context, uuid, communityService))
+            .or(() -> uuidOptional.map(uuid -> resolveWithIndexedObject(context, uuid, collectionService)))
+            .or(() -> uuidOptional.map(uuid -> resolveWithIndexedObject(context, uuid, itemService)));
+    }
+
+    /**
+     * Attempts to convert a string to a UUID
+     *
+     * @param scope the string to convert
+     * @return the UUID or null if conversion fails
+     */
     private UUID asUUID(String scope) {
         try {
             return UUID.fromString(scope);
         } catch (IllegalArgumentException ex) {
-            log.warn("The given scope string " + StringUtils.trimToEmpty(scope) + " is not a UUID", ex);
+            log.warn("The given scope string {} is not a valid UUID", StringUtils.trimToEmpty(scope));
+            return null;
         }
-        return null;
     }
 
-    private <T extends DSpaceObject> Optional<IndexableObject> resolveWithIndexedObject(
-        Context context, Optional<UUID> uuidOptional, DSpaceObjectService<T> service
+    private <T extends DSpaceObject> IndexableObject resolveWithIndexedObject(
+        Context context, UUID uuid, DSpaceObjectService<T> service
     ) {
-        return uuidOptional.map(uuid -> resolve(context, uuid, service))
-                           .filter(obj -> obj.getIndexedObject() != null);
+        IndexableObject resolved = this.resolve(context, uuid, service);
+        if (resolved  == null || resolved.getIndexedObject() == null) {
+            return null;
+        }
+        return resolved;
     }
 
+    /**
+     * Resolves a UUID to a DSpaceObject and wraps it in the appropriate IndexableObject
+     *
+     * @param context the DSpace context
+     * @param uuid the UUID to resolve
+     * @param service the service to use for resolution
+     * @param <T> the type of DSpaceObject
+     * @return the IndexableObject or null if not found
+     */
     public <T extends DSpaceObject> IndexableObject resolve(
         Context context, UUID uuid, DSpaceObjectService<T> service
     ) {
         if (uuid == null) {
             return null;
         }
+
         T dspaceObject = null;
         try {
             dspaceObject = service.find(context, uuid);
         } catch (IllegalArgumentException ex) {
-            log.warn("The given scope string " + StringUtils.trimToEmpty(uuid.toString()) + " is not a UUID", ex);
+            if (log.isDebugEnabled()) {
+                log.debug("Invalid UUID format: {}", StringUtils.trimToEmpty(uuid.toString()), ex);
+            }
         } catch (SQLException ex) {
-            log.warn(
-                "Unable to retrieve DSpace Object with ID " + StringUtils.trimToEmpty(uuid.toString()) +
-                    " from the database",
-                ex);
+            if (log.isDebugEnabled()) {
+                log.debug("Error retrieving object with ID {}", StringUtils.trimToEmpty(uuid.toString()), ex);
+            }
         }
+
         if (dspaceObject == null) {
             return null;
         }
+
+        // Create the appropriate IndexableObject based on the type of DSpaceObject
         if (dspaceObject instanceof Community) {
             return new IndexableCommunity((Community) dspaceObject);
-        }
-        if (dspaceObject instanceof Collection) {
+        } else if (dspaceObject instanceof Collection) {
             return new IndexableCollection((Collection) dspaceObject);
+        } else if (dspaceObject instanceof Item) {
+            return new IndexableItem((Item) dspaceObject);
         }
-        return new IndexableItem((Item) dspaceObject);
-    }
 
+        // This should not happen if all DSpaceObject types are handled above.
+        log.warn("Unhandled DSpaceObject type: {}", dspaceObject.getClass().getName());
+        return null;
+    }
 }

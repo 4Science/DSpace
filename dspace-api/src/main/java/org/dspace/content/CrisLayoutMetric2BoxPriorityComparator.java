@@ -23,7 +23,7 @@ public class CrisLayoutMetric2BoxPriorityComparator implements Comparator<CrisLa
      */
     @Override
     public int compare(CrisLayoutMetric2Box o1, CrisLayoutMetric2Box o2) {
-        return o1.getPosition() <  o2.getPosition() ? -1 : o1.getPosition() == o2.getPosition() ? 0 : 1;
+        return o1.getPosition() <  o2.getPosition() ? -1 : o1.getPosition().equals(o2.getPosition()) ? 0 : 1;
     }
 
 }

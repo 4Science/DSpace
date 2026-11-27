@@ -19,6 +19,7 @@ import java.util.TreeMap;
 import org.apache.commons.cli.ParseException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.dspace.app.util.XMLUtils;
 import org.dspace.core.Context;
 import org.dspace.eperson.EPerson;
 import org.dspace.scripts.DSpaceRunnable;
@@ -334,7 +335,7 @@ public class ScriptLauncher {
         String config = kernelImpl.getConfigurationService().getProperty("dspace.dir") +
             System.getProperty("file.separator") + "config" +
             System.getProperty("file.separator") + "launcher.xml";
-        SAXBuilder saxBuilder = new SAXBuilder();
+        SAXBuilder saxBuilder = XMLUtils.getSAXBuilder();
         Document doc = null;
         try {
             doc = saxBuilder.build(config);

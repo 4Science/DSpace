@@ -13,11 +13,16 @@ import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.dspace.content.Item;
 import org.dspace.content.integration.crosswalks.csl.CSLResult;
 import org.dspace.content.service.ItemService;
@@ -34,6 +39,8 @@ import org.springframework.beans.factory.annotation.Autowired;
  */
 public class GroupByTypeCitationsPostProcessor implements VirtualFieldCitationsPostProcessor {
 
+    private static final Logger logger = LogManager.getLogger(GroupByTypeCitationsPostProcessor.class);
+
     @Autowired
     private ItemService itemService;
 
@@ -45,6 +52,8 @@ public class GroupByTypeCitationsPostProcessor implements VirtualFieldCitationsP
 
     private String defaultType = "Other";
 
+    private static final Pattern FO_BLOCK_ID_PATTERN = Pattern.compile("<fo:block id=\"([^\"]+)\">");
+
     @Override
     public CSLResult process(Context context, Item item, CSLResult cslResult) {
 
@@ -52,8 +61,11 @@ public class GroupByTypeCitationsPostProcessor implements VirtualFieldCitationsP
             throw new IllegalArgumentException("Only CSLResult related to fo format is supports type header addition");
         }
 
-        String[] citationEntries = cslResult.getCitationEntries();
-        UUID[] itemIds = cslResult.getItemIds();
+        Pair<UUID[], String[]> idEntriesPair = extractOrFallback(cslResult.getItemIds(),
+                                                                 cslResult.getCitationEntries());
+
+        UUID[] itemIds = idEntriesPair.getLeft();
+        String[] citationEntries = idEntriesPair.getRight();
 
         String[] newCitationEntries = new String[citationEntries.length];
         UUID[] newItemsIds = new UUID[itemIds.length];
@@ -206,6 +218,34 @@ public class GroupByTypeCitationsPostProcessor implements VirtualFieldCitationsP
 
     public void setTypeHeaderAdditionEnabled(boolean addTypeHeader) {
         this.typeHeaderAdditionEnabled = addTypeHeader;
+    }
+
+    private Pair<UUID[], String[]> extractOrFallback(UUID[] inputIds, String[] citationEntries) {
+        UUID[] extractedIds = new UUID[citationEntries.length];
+        boolean extractionSuccess = true;
+
+        for (int i = 0; i < citationEntries.length; i++) {
+            Matcher matcher = FO_BLOCK_ID_PATTERN.matcher(citationEntries[i]);
+            if (matcher.find()) {
+                try {
+                    extractedIds[i] = UUID.fromString(matcher.group(1));
+                } catch (IllegalArgumentException ex) {
+                    extractedIds[i] = null;
+                    extractionSuccess = false;
+                }
+            } else {
+                extractedIds[i] = null;
+                extractionSuccess = false;
+            }
+        }
+
+        if (extractionSuccess) {
+            return Pair.of(extractedIds, citationEntries);
+        } else {
+            logger.warn("Could not reliably extract UUIDs from formatted citations: falling back to original itemId " +
+                            "order, output may be mismatched");
+            return Pair.of(inputIds, citationEntries);
+        }
     }
 
 }

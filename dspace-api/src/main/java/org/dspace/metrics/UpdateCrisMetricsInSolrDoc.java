@@ -13,6 +13,7 @@ import org.apache.commons.cli.ParseException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.dspace.core.Context;
+import org.dspace.core.Context.Mode;
 import org.dspace.eperson.EPerson;
 import org.dspace.eperson.factory.EPersonServiceFactory;
 import org.dspace.scripts.DSpaceRunnable;
@@ -50,6 +51,7 @@ public class UpdateCrisMetricsInSolrDoc extends
         assignCurrentUserInContext();
         assignSpecialGroupsInContext();
         try {
+            context.setMode(Mode.READ_ONLY);
             updateCrisMetricsInSolrDocService.performUpdate(context, handler, commandLine.hasOption("o"));
             context.complete();
         } catch (Exception e) {

@@ -12,15 +12,18 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Path;
 import java.security.DigestInputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.Logger;
 import org.dspace.content.Bitstream;
 import org.dspace.core.Utils;
+import org.dspace.services.factory.DSpaceServicesFactory;
 
 /**
  * Native DSpace (or "Directory Scatter" if you prefer) asset store.
@@ -249,37 +252,27 @@ public class DSBitStoreService extends BaseBitStoreService {
             log.debug("Local filename for " + sInternalId + " is "
                           + bufFilename.toString());
         }
-        return new File(bufFilename.toString());
+        File bitstreamFile = new File(bufFilename.toString());
+        Path normalizedPath = bitstreamFile.toPath().normalize();
+        String[] allowedAssetstoreRoots = DSpaceServicesFactory.getInstance().getConfigurationService()
+                .getArrayProperty("assetstore.allowed.roots", new String[]{});
+        if (!normalizedPath.startsWith(baseDir.getCanonicalPath())
+            && !StringUtils.startsWithAny(normalizedPath.toString(), allowedAssetstoreRoots)) {
+            log.error("Bitstream path outside of assetstore root requested:" +
+                    "bitstream={}, path={}, assetstore={}",
+                    bitstream.getID(), normalizedPath, baseDir.getCanonicalPath());
+            throw new IOException("Illegal bitstream path constructed");
+        }
+        return bitstreamFile;
     }
 
-    /**
-     * Return the intermediate path derived from the internal_id. This method
-     * splits the id into groups which become subdirectories.
-     *
-     * @param iInternalId The internal_id
-     * @return The path based on the id without leading or trailing separators
-     */
-    protected String getIntermediatePath(String iInternalId) {
-        StringBuilder buf = new StringBuilder();
-        for (int i = 0; i < directoryLevels; i++) {
-            int digits = i * digitsPerLevel;
-            if (i > 0) {
-                buf.append(File.separator);
-            }
-            buf.append(iInternalId.substring(digits, digits
-                + digitsPerLevel));
-        }
-        buf.append(File.separator);
-        return buf.toString();
+    public boolean isRegisteredBitstream(String internalId) {
+        return internalId.startsWith(REGISTERED_FLAG);
     }
 
     @Override
     public String path(Bitstream bitstream) throws IOException {
         return getFile(bitstream).getAbsolutePath();
-    }
-
-    public boolean isRegisteredBitstream(String internalId) {
-        return internalId.startsWith(REGISTERED_FLAG);
     }
 
     public File getBaseDir() {

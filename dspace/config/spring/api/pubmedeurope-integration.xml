@@ -29,16 +29,16 @@
         <entry key-ref="pubeu.sissn" value-ref="pubEuISSNContrib"/>
         <entry key-ref="pubeu.isbn" value-ref="pubEuISBNContrib"/>
         <entry key-ref="pubeu.publisher" value-ref="pubEuPublisherContrib"/>
-        <entry key-ref="pubeu.other" value-ref="pubEuOtherContrib"/>
+        <entry key-ref="pubeu.pmid" value-ref="pubEuPmidContrib"/>
     </util:map>
 
-    <bean id="pubEuOtherContrib" class="org.dspace.importer.external.metadatamapping.contributor.SimpleXpathMetadatumContributor">
-        <property name="field" ref="pubeu.other"/>
+    <bean id="pubEuPmidContrib" class="org.dspace.importer.external.metadatamapping.contributor.SimpleXpathMetadatumContributor">
+        <property name="field" ref="pubeu.pmid"/>
         <property name="query" value="id"/>
         <property name="prefixToNamespaceMapping" ref="pubEuPrefixToNamespaceMapping"/>
     </bean>
-    <bean id="pubeu.other" class="org.dspace.importer.external.metadatamapping.MetadataFieldConfig">
-        <constructor-arg value="dc.identifier.other"/>
+    <bean id="pubeu.pmid" class="org.dspace.importer.external.metadatamapping.MetadataFieldConfig">
+        <constructor-arg value="dc.identifier.pmid"/>
     </bean>
 
     <bean id="pubEuISSNContrib" class="org.dspace.importer.external.metadatamapping.contributor.SimpleXpathMetadatumContributor">

@@ -67,7 +67,7 @@ public class AuditService {
 
     protected SolrClient solr = null;
 
-    protected SolrClient getSolr() throws MalformedURLException, SolrServerException, IOException {
+    public SolrClient getSolr() throws MalformedURLException, SolrServerException, IOException {
         if (solr == null) {
             String solrService = configurationService.getProperty("solr.audit.server");
             log.debug("Solr audit URL: " + solrService);

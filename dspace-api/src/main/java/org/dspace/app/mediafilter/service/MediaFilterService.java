@@ -36,7 +36,8 @@ public interface MediaFilterService {
     public static final String FILTER_PLUGIN_SEPARATOR = "\034";
 
 
-    public void applyFiltersAllItems(Context context) throws Exception;
+    public void applyFiltersAllItems(Context context, int sinceLastDays, String[] skipBundles)
+        throws Exception;
 
     public void applyFiltersCommunity(Context context, Community community)
         throws Exception;

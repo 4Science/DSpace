@@ -31,7 +31,6 @@ import java.util.UUID;
 import java.util.function.Supplier;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -82,6 +81,7 @@ import org.dspace.event.Event;
 import org.dspace.harvest.HarvestedItem;
 import org.dspace.harvest.service.HarvestedItemService;
 import org.dspace.identifier.DOI;
+import org.dspace.identifier.DOIIdentifierProvider;
 import org.dspace.identifier.IdentifierException;
 import org.dspace.identifier.service.DOIService;
 import org.dspace.identifier.service.IdentifierService;
@@ -189,22 +189,23 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
     @Autowired(required = true)
     private OrcidSynchronizationService orcidSynchronizationService;
 
-    @Autowired
-    private CrisLayoutTabService crisLayoutTabService;
+    @Autowired(required = true)
+    private ResearcherProfileService researcherProfileService;
+
+    @Autowired(required = true)
+    private RequestItemService requestItemService;
 
     @Autowired(required = true)
     protected SubscribeService subscribeService;
 
-    @Autowired(required = true)
-    protected CrisMetricsService crisMetricsService;
-
-    @Autowired(required = true)
-    private ResearcherProfileService researcherProfileService;
-    @Autowired(required = true)
-    private RequestItemService requestItemService;
-
     @Autowired
     private VersionHistoryService versionHistoryService;
+
+    @Autowired
+    private CrisLayoutTabService crisLayoutTabService;
+
+    @Autowired(required = true)
+    protected CrisMetricsService crisMetricsService;
 
     @Autowired
     private List<ItemSearcherByMetadata> itemSearcherByMetadata;
@@ -318,7 +319,7 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
             Optional<Bitstream> primaryBitstream = bundles.get(0).getBitstreams().stream().filter(bitstream -> {
                 return bitstream.getMetadata().stream().anyMatch(metadataValue -> {
                     if (metadataField != null) {
-                        return metadataValue.getMetadataField().getID() == metadataField.getID()
+                        return metadataValue.getMetadataField().getID().equals(metadataField.getID())
                             && metadataValue.getValue() != null
                             && metadataValue.getValue().equalsIgnoreCase(value);
                     } else {
@@ -809,7 +810,7 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
     }
 
     @Override
-    public void update(Context context, Item item) throws SQLException, AuthorizeException {
+    public void update(Context context, Item item, boolean updateLastModified) throws SQLException, AuthorizeException {
         // Check authorisation
         // only do write authorization if user is not an editor
         if (!canEdit(context, item)) {
@@ -853,8 +854,11 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
         }
 
         if (item.isMetadataModified() || item.isModified()) {
-            // Set the last modified date
-            item.setLastModified(new Date());
+            if (updateLastModified) {
+                // Set the last modified date
+                item.setLastModified(new Date());
+            }
+
 
             itemDAO.save(context, item);
 
@@ -868,6 +872,11 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
             item.clearModified();
             item.clearDetails();
         }
+    }
+
+    @Override
+    public void update(Context context, Item item) throws SQLException, AuthorizeException {
+        update(context, item, true);
     }
 
 
@@ -1036,6 +1045,7 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
         DOI doi = doiService.findDOIByDSpaceObject(context, item);
         if (doi != null) {
             doi.setDSpaceObject(null);
+            doi.setStatus(DOIIdentifierProvider.TO_BE_DELETED);
         }
 
         // remove version attached to the item
@@ -1419,11 +1429,6 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
     public void move(Context context, Item item, Collection from, Collection to)
         throws SQLException, AuthorizeException, IOException {
 
-        // If the two collections are the same, do nothing.
-        if (from.equals(to)) {
-            return;
-        }
-
         // Use the normal move method, and default to not inherit permissions
         this.move(context, item, from, to, false);
     }
@@ -1436,6 +1441,11 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
         // only do write authorization if user is not an editor
         if (!canEdit(context, item)) {
             authorizeService.authorizeAction(context, item, Constants.WRITE);
+        }
+
+        // If the two collections are the same, do nothing.
+        if (from.equals(to)) {
+            return;
         }
 
         // Move the Item from one Collection to the other
@@ -1541,43 +1551,56 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
      *
      * @param context                    DSpace context
      * @param discoverQuery
+     * @param q                          query string
      * @return                           discovery search result objects
-     * @throws SQLException              if something goes wrong
      * @throws SearchServiceException    if search error
      */
-    private DiscoverResult retrieveItemsWithEdit(Context context, DiscoverQuery discoverQuery)
-        throws SQLException, SearchServiceException {
-        EPerson currentUser = context.getCurrentUser();
-        if (!authorizeService.isAdmin(context)) {
-            String userId = currentUser != null ? "e" + currentUser.getID().toString() : "e";
-            Stream<String> groupIds = groupService.allMemberGroupsSet(context, currentUser).stream()
-                .map(group -> "g" + group.getID());
-            String query = Stream.concat(Stream.of(userId), groupIds)
-                .collect(Collectors.joining(" OR ", "edit:(", ")"));
-            discoverQuery.addFilterQueries(query);
+    private DiscoverResult retrieveItemsWithEdit(Context context, DiscoverQuery discoverQuery, String q)
+        throws SearchServiceException {
+        if (StringUtils.isNotBlank(q)) {
+            // Although not all items will have a metadata dc.title, we use it for autocomplete because it is the
+            // most common. Ideally, we should use a field that all indexed items have
+            q = searchService.formatAutoCompleteQuery(q, "dc.title_sort");
+            discoverQuery.setQuery(q);
+        }
+        try {
+            if (!authorizeService.isAdmin(context)) {
+                EPerson currentUser = context.getCurrentUser();
+                StringBuilder filterQuery = new StringBuilder("edit:(e");
+                if (currentUser != null) {
+                    filterQuery.append(currentUser.getID());
+                }
+                for (Group group : groupService.allMemberGroupsSet(context, currentUser)) {
+                    filterQuery.append(" OR g").append(group.getID());
+                }
+                filterQuery.append(")");
+                discoverQuery.addFilterQueries(filterQuery.toString());
+            }
+        } catch (SQLException e) {
+            throw new SearchServiceException(e.getMessage(), e);
         }
         return searchService.search(context, discoverQuery);
     }
 
     @Override
-    public List<Item> findItemsWithEdit(Context context, int offset, int limit)
-        throws SQLException, SearchServiceException {
+    public List<Item> findItemsWithEdit(Context context, String q, int offset, int limit)
+        throws SearchServiceException {
         DiscoverQuery discoverQuery = new DiscoverQuery();
         discoverQuery.setDSpaceObjectFilter(IndexableItem.TYPE);
         discoverQuery.setStart(offset);
         discoverQuery.setMaxResults(limit);
-        DiscoverResult resp = retrieveItemsWithEdit(context, discoverQuery);
+        DiscoverResult resp = retrieveItemsWithEdit(context, discoverQuery, q);
         return resp.getIndexableObjects().stream()
             .map(solrItems -> ((IndexableItem) solrItems).getIndexedObject())
             .collect(Collectors.toList());
     }
 
     @Override
-    public int countItemsWithEdit(Context context) throws SQLException, SearchServiceException {
+    public int countItemsWithEdit(Context context, String q) throws SearchServiceException {
         DiscoverQuery discoverQuery = new DiscoverQuery();
         discoverQuery.setMaxResults(0);
         discoverQuery.setDSpaceObjectFilter(IndexableItem.TYPE);
-        DiscoverResult resp = retrieveItemsWithEdit(context, discoverQuery);
+        DiscoverResult resp = retrieveItemsWithEdit(context, discoverQuery, q);
         return (int) resp.getTotalSearchResults();
     }
 
@@ -2283,7 +2306,7 @@ prevent the generation of resource policy entry values with null dspace_object a
 
         Map<Item, String> profileAndPutCodeMap = orcidHistoryService.findLastPutCodes(context, entity);
         for (Item profile : profileAndPutCodeMap.keySet()) {
-            if (orcidSynchronizationService.isSynchronizationAllowed(profile, entity)) {
+            if (orcidSynchronizationService.isSynchronizationAllowed(context, profile, entity)) {
                 String putCode = profileAndPutCodeMap.get(profile);
                 String title = getMetadataFirstValue(entity, "dc", "title", null, Item.ANY);
                 orcidQueueService.createEntityDeletionRecord(context, profile, title, entityType, putCode);
